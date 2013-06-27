@@ -101,7 +101,9 @@ class PCAAdapter(ABCAsynchronous):
     
     def launch(self, time_series):
         """ 
-        Launch algorithm and build results. 
+        Launch algorithm and build results.
+
+        :returns: the `PrincipalComponents` object built with the given timeseries as source
         """
         ##--------- Prepare a PrincipalComponents object for result ----------##
         pca_result = PrincipalComponents(source = time_series, storage_path = self.storage_path)

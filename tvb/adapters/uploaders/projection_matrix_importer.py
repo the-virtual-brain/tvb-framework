@@ -98,6 +98,12 @@ class ProjectionMatrixRegionEEGImporter(ABCSynchronous):
     def launch(self, projection_file, dataset_name, connectivity, sensors):
         """
         Creates ProjectionMatrix entity from uploaded data.
+
+        :param projection_file: a mat file containing projection matrix values which map \
+                                the connectivity to the sensors; the matrix size should be \
+                                `conectivity.number_of_regions` x `sensors.number_of_sensors`
+
+        :raises LaunchException: when no connectivity is specified
         """
         if connectivity is None:
             raise LaunchException("No source connectivity selected."
@@ -112,6 +118,11 @@ class ProjectionMatrixRegionEEGImporter(ABCSynchronous):
     def generic_launch(self, projection_file, dataset_name, sources, sensors, expected_shape, projection_matrix):
         """
         Generic method, to be called also for preparing a Region EEG Projection import.
+
+        :raises LaunchException: when
+                    * no projection_file or sensors are specified
+                    * the dataset is invalid
+                    * number of sensors is different from the one in dataset
         """
         if projection_file is None:
             raise LaunchException ("Please select MATLAB file which contains data to import")

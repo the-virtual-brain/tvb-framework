@@ -71,7 +71,7 @@ class XMLReader(object):
     def read_only_element(self, tag_name):
         """
         From XML file, read only an element specified by tag-name.
-        :return: Textual value of the XML node, or None
+        :returns: Textual value of the XML node, or None
         """
         root_node = self._find_root()
         gid_node = root_node.getElementsByTagName(tag_name)
@@ -97,7 +97,7 @@ class XMLReader(object):
     def parse_xml_content_to_dict(self, xml_data):
         """
         :param xml_data: String representing an XML root.
-        :return: Dictionary with text-content read from the given XML. 
+        :returns: Dictionary with text-content read from the given XML.
         """
         root = xml.dom.minidom.parseString(xml_data)
         root = root.childNodes[-1]

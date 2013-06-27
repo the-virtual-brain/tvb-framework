@@ -71,11 +71,11 @@ def find_file(target_file, root_folder):
     """
     Search for a file in a folder directory. Return the folder in which
     the file can be found.
-    @param target_file: the name of the file that is searched
-    @param root_folder: the top lever folder from which to start searching in all it's 
+    :param target_file: the name of the file that is searched
+    :param root_folder: the top lever folder from which to start searching in all it's
         subdirectories
         
-    @return: the name of the folder in which the file can be found
+    :returns: the name of the folder in which the file can be found
     """
     for root, _, files in os.walk(root_folder):
         for file_n in files:
@@ -90,7 +90,7 @@ def setup_tk_tcl_environ(root_folder):
     for TCL/TK and set the proper environmental variables so everything works
     fine in the distribution package.
     
-    @param root_folder: the top folder from which to start looking for the
+    :param root_folder: the top folder from which to start looking for the
         required configuration files
     """
     tk_folder = find_file('tk.tcl', root_folder)
@@ -578,7 +578,7 @@ class BaseProfile():
         """
         Set the LAST_CHECKED_FILE_VERSION from the settings file to the current DATA_VERSION.
         
-        @param input_data: A dictionary of pairs that need to be added to the config file.
+        :param input_data: A dictionary of pairs that need to be added to the config file.
         """
         config_dict = FrameworkSettings.read_config_file()
         if config_dict is None:

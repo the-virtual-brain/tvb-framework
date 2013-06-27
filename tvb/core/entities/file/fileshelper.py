@@ -143,7 +143,7 @@ class FilesHelper():
         """
         Retrieve project meta info file path.
         
-        :return: File path for storing Project meta-data
+        :returns: File path for storing Project meta-data
             File might not exist yet, but parent folder is created after this method call.
             
         """
@@ -179,7 +179,7 @@ class FilesHelper():
         
         :param project_name: name of the current project.
         :param operation_id: Identifier of Operation in given project
-        :return: File path for storing Operation meta-data. File might not be yet created, 
+        :returns: File path for storing Operation meta-data. File might not be yet created,
             but parent folder exists after this method.
              
         """

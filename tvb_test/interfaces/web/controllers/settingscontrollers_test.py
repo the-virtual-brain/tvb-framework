@@ -43,6 +43,10 @@ class SettingsControllerTest(TransactionalTestCase, BaseControllersTest):
     """Unit tests for settingscontroller""" 
     
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a `SettingsController`
+        """
         BaseControllersTest.init(self)
         self.settings_c =  SettingsController()
         if os.path.exists(cfg.TVB_CONFIG_FILE):
@@ -50,6 +54,7 @@ class SettingsControllerTest(TransactionalTestCase, BaseControllersTest):
     
     
     def tearDown(self):
+        """ Clean testing environment """
         BaseControllersTest.cleanup(self)
 
             

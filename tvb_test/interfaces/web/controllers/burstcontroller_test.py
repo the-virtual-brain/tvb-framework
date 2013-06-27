@@ -62,11 +62,19 @@ class BurstContollerTest(BaseControllersTest):
 
 
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a `BurstController`
+        """
         BaseControllersTest.init(self)
         self.burst_c = BurstController()
 
 
     def tearDown(self):
+        """
+        Cleans up the environment after testing is done;
+        resets the database
+        """
         BaseControllersTest.cleanup(self)
         self.reset_database()
 
@@ -75,7 +83,7 @@ class BurstContollerTest(BaseControllersTest):
         """
         Test that index returns a dict with all required keys. Also check
         that the default portlets are populated, with only the first being
-        the TimeSeries portlet and the rest are emply.
+        the TimeSeries portlet and the rest are empty.
         """
         result_dict = self.burst_c.index()
         self.assertTrue('burst_list' in result_dict and result_dict['burst_list'] == [])
@@ -220,7 +228,7 @@ class BurstContollerTest(BaseControllersTest):
 
     def test_launch_burst(self):
         """
-        
+        Launch a burst and check that it finishes correctly and before timeout (100)
         """
         self.burst_c.index()
         _, connectivity = self._burst_create_connectivity()

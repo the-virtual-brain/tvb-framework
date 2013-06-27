@@ -54,6 +54,10 @@ class TVBImporterTest(TransactionalTestCase):
 
 
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a test user, a test project, a datatype and a datatype_group;
+        """
         export_manager = ExportManager()
 
         self.datatypeFactory = DatatypesFactory()

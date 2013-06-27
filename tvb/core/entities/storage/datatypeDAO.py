@@ -177,8 +177,8 @@ class DatatypeDAO(RootDAO):
         Return a list with all of the datatypes currently available in TVB. Is used by 
         the file storage update manager to upgrade from version to the next.
         
-        @param page_start: the index from which to start adding datatypes to the result list
-        @param page_end: the index up until which you add datatypes to the result list 
+        :param page_start: the index from which to start adding datatypes to the result list
+        :param page_end: the index up until which you add datatypes to the result list
         """
         resulted_data = []
         try:
@@ -205,9 +205,9 @@ class DatatypeDAO(RootDAO):
     def get_datatypes_for_project(self, project_id, page_start=0, page_end=20, count=False):
         """
         Return a list of datatypes for this project, paginated between page_start and start_end.
-        @param project_id: the id of the project for which you want the datatypes count
-        @param page_start: the index from which to start adding datatypes to the result list
-        @param page_end: the index up until which you add datatypes to the result list  
+        :param project_id: the id of the project for which you want the datatypes count
+        :param page_start: the index from which to start adding datatypes to the result list
+        :param page_end: the index up until which you add datatypes to the result list
         """
         resulted_data = []
         try:

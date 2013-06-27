@@ -64,6 +64,11 @@ class RegionMappingImporterTest(TransactionalTestCase):
     WRONG_FILE_3 = os.path.join(os.path.dirname(test_data.__file__), 'region_mapping_wrong_3.txt')
     
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a test user, a test project, a connectivity and a surface;
+        imports a CFF data-set
+        """
         self.datatypeFactory = DatatypesFactory()
         self.test_project = self.datatypeFactory.get_project()
         self.test_user = self.datatypeFactory.get_user()
@@ -79,6 +84,13 @@ class RegionMappingImporterTest(TransactionalTestCase):
         FilesHelper().remove_project_structure(self.test_project.name)
     
     def _get_entity(self, expected_data, filters=None):
+        """
+        Checks there is exactly one datatype with required specifications and returns it
+
+        :param expected_data: a class whose entity is to be returned
+        :param filters: optional, the returned entity will also have the required filters
+        :return: an object of class `expected_data`
+        """
         data_types = FlowService().get_available_datatypes(self.test_project.id,
                                                            expected_data.module + "." + expected_data.type, filters)
         self.assertEqual(1, len(data_types), "Project should contain only one data type:" + str(expected_data.type))

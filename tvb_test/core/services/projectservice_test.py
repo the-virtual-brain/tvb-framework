@@ -480,6 +480,9 @@ class ProjectServiceTest(TransactionalTestCase):
             
             
     def test_retrieve_project_full(self):
+        """
+        Tests full project information is retrieved by method `ProjectService.retrieve_project_full(...)`
+        """
         dt_factory = datatypes_factory.DatatypesFactory()
         self._create_datatypes(dt_factory, 3)
         _, ops_nr, operations, pages_no = self.project_service.retrieve_project_full(dt_factory.project.id)
@@ -490,6 +493,9 @@ class ProjectServiceTest(TransactionalTestCase):
         
         
     def test_get_project_structure(self):
+        """
+        Tests project structure is as expected and contains all datatypes
+        """
         dt_factory = datatypes_factory.DatatypesFactory()
         self._create_datatypes(dt_factory, 3)
         node_json = self.project_service.get_project_structure(dt_factory.project, None, 'Data_State', 'Data_Subject', None)

@@ -58,6 +58,12 @@ class WorkflowTest(TransactionalTestCase):
 
 
     def setUp(self):
+        """
+        Sets up the testing environment;
+        saves config file;
+        creates a test user, a test project;
+        creates burst, operation, flow and workflow services
+        """
     #        self.clean_database()
         self.test_user = TestFactory.create_user()
         self.test_project = TestFactory.create_project(self.test_user)
@@ -81,7 +87,7 @@ class WorkflowTest(TransactionalTestCase):
     def __create_complex_workflow(self, workflow_step_list):
         """
         Creates a burst with a complex workflow with a given list of workflow steps.
-        @param workflow_step_list: a lsit of workflow steps that will be used in the
+        :param workflow_step_list: a list of workflow steps that will be used in the
             creation of a new workflow for a new burst
         """
         burst_config = TestFactory.store_burst(self.test_project.id)

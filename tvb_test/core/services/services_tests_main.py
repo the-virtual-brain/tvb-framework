@@ -28,9 +28,9 @@
 #
 #
 
-'''
+"""
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 import unittest
 from tvb_test.core.services import projectservice_test
 from tvb_test.core.services import projectstructure_test

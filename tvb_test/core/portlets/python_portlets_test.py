@@ -28,11 +28,11 @@
 #
 #
 
-'''
+"""
 Created on Apr 27, 2012
 
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 import os
 import unittest
 from tvb.core.entities import model
@@ -47,6 +47,10 @@ class PythonPortletsTest(TransactionalTestCase):
     
     
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a test user, a test project and saves config file
+        """
 #        self.clean_database()
         user = model.User("test_user", "test_pass", "test_mail@tvb.org", True, "user")
         self.test_user = dao.store_entity(user) 
@@ -59,7 +63,7 @@ class PythonPortletsTest(TransactionalTestCase):
         
     def tearDown(self):
         """
-        Remove project folders and clean up database.
+        Remove project folders and restore config file
         """
         FilesHelper().remove_project_structure(self.test_project.name)
 #        self.clean_database()

@@ -56,6 +56,10 @@ class SensorsImporterTest(TransactionalTestCase):
 
 
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a test user, a test project and a `Sensors_Importer`
+        """
         self.datatypeFactory = DatatypesFactory()
         self.test_project = self.datatypeFactory.get_project()
         self.test_user = self.datatypeFactory.get_user()

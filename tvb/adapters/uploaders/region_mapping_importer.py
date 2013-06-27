@@ -28,9 +28,9 @@
 #
 #
 
-'''
+"""
 .. moduleauthor:: Calin Pavel
-'''
+"""
 import os
 import numpy
 import shutil
@@ -93,6 +93,16 @@ class RegionMapping_Importer(ABCSynchronous):
     def launch(self, mapping_file, surface, connectivity):
         """
         Creates region mapping from uploaded data.
+
+        :param mapping_file: an archive containing data for mapping surface to connectivity
+
+        :raises LaunchException: when
+                    * a parameter is None or missing
+                    * archive has more than one file
+                    * uploaded files are empty
+                    * number of vertices in imported file is different to the number of surface vertices
+                    * imported file has negative values
+                    * imported file has regions which are not in connectivity
         """
         if mapping_file is None:
             raise LaunchException ("Please select mappings file which contains data to import")

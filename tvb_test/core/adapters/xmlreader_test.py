@@ -71,6 +71,9 @@ class XML_Reader_Test(TransactionalTestCase):
 
 
     def tearDown(self):
+        """
+        Clean-up tests data (xml folders)
+        """
         cfg.CURRENT_DIR = self.old_path
         if hasattr(adapters_init, '__xml_folders__'):
             # Since TransactionalTestCase makes sure the tearDown is called even in setUp or test fails we need

@@ -118,7 +118,7 @@ class SimulatorAdapter(ABCAsynchronous):
 
     def get_output(self):
         """
-        :return: list of classes for possible results of the Simulator.
+        :returns: list of classes for possible results of the Simulator.
         """
         return [time_series.TimeSeries]
 

@@ -69,8 +69,8 @@ class FilesUpdateManager(UpdateManager):
         """
         Return the data version for the given file.
         
-        @param file_path: the path on disk to the file for which you need the TVB data version
-        @return: a number representing the data version for which the input file was written 
+        :param file_path: the path on disk to the file for which you need the TVB data version
+        :returns: a number representing the data version for which the input file was written
         """
         manager = self._get_manager(file_path)
         return manager.get_file_data_version()
@@ -100,7 +100,7 @@ class FilesUpdateManager(UpdateManager):
         Upgrades the given file to the latest data version. The file will be upgraded
         sequencially up until the current version from tvb.basic.config.settings.
         
-        @param input_file_name: the path to the file which needs to be upgraded 
+        :param input_file_name: the path to the file which needs to be upgraded
         """
         file_version = self.get_file_data_version(input_file_name)
         for script_name in self.get_update_scripts(file_version):
@@ -112,9 +112,9 @@ class FilesUpdateManager(UpdateManager):
         """
         Upgrade a list of DataTypes to the current version.
         
-        @param datatypes: The list of DataTypes that should be upgraded. 
-        
-        @return: (nr_of_dts_upgraded_fine, nr_of_dts_upgraded_fault) a two-tuple of integers representing
+        :param datatypes: The list of DataTypes that should be upgraded.
+
+        :returns: (nr_of_dts_upgraded_fine, nr_of_dts_upgraded_fault) a two-tuple of integers representing
             the number of DataTypes for which the upgrade worked fine, and the number of DataTypes for which
             some kind of fault occurred
         """
@@ -139,7 +139,7 @@ class FilesUpdateManager(UpdateManager):
         """
         Upgrades all the data types from TVB storage to the latest data version.
         
-        @return: a two entry tuple (status, message) where status is a boolean that is True in case
+        :returns: a two entry tuple (status, message) where status is a boolean that is True in case
             the upgrade was successfully for all DataTypes and False otherwise, and message is a status
             update message.
         """

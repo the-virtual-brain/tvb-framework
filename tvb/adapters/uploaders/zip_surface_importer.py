@@ -93,6 +93,16 @@ class ZIPSurfaceImporter(ABCSynchronous):
     def launch(self, uploaded, surface_type, zero_based_triangles = False):
         """
         Execute import operations: unpack ZIP and build Surface object as result.
+
+        :param uploaded: an archive containing the Surface data to be imported
+        :param surface_type: a string from the following\: \
+                            "Skin Air", "Skull Skin", "Brain Skull", "Cortical Surface", "EEG Cap", "Face"
+
+        :returns: a subclass of `Surface` DataType
+        :raises LaunchException: when
+                * `uploaded` is missing
+                * `surface_type` is invalid
+        :raises RuntimeError: when triangles contain an invalid vertex index
         """
         if uploaded is None:
             raise LaunchException ("Please select ZIP file which contains data to import")

@@ -54,6 +54,11 @@ class BCTTest(TransactionalTestCase):
 
     @unittest.skipIf(get_matlab_executable() is None, "Matlab or Octave not installed!")
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a test user, a test project, a connectivity and a list of BCT adapters;
+        imports a CFF data-set
+        """
         self.test_user = TestFactory.create_user("BCT_User")
         self.test_project = TestFactory.create_project(self.test_user, "BCT-Project")
         ### Make sure Connectivity is in DB
@@ -70,6 +75,9 @@ class BCTTest(TransactionalTestCase):
 
 
     def tearDown(self):
+        """
+        Cleans the database after the tests
+        """
         self.clean_database(True)
 
 
@@ -110,7 +118,7 @@ class BCTTest(TransactionalTestCase):
     @unittest.skipIf(get_matlab_executable() is None, "Matlab or Octave not installed!")
     def test_bct_descriptions(self):
         """
-        Iterate all BCT algorithms and chech description not empty.
+        Iterate all BCT algorithms and check description not empty.
         """
         for i in xrange(len(self.bct_adapters)):
             for bct_identifier in self.bct_adapters[i].get_algorithms_dictionary():

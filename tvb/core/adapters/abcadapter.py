@@ -430,7 +430,7 @@ class ABCAdapter(object):
 
     def review_operation_inputs(self, parameters):
         """
-        :return: a list with the inputs from the parameters list that are instances of DataType,
+        :returns: a list with the inputs from the parameters list that are instances of DataType,
                  and a dictionary with all parameters which are different than the declared defauts
         """
         flat_interface = self.flaten_input_interface()
@@ -441,7 +441,7 @@ class ABCAdapter(object):
         """
         Find out which of the submitted parameters are actually DataTypes and 
         return a list holding all the dataTypes in parameters.
-        :return: list of dataTypes and changed parameters.
+        :returns: list of dataTypes and changed parameters.
         """
         inputs_datatypes = []
         changed_parameters = dict()
@@ -715,7 +715,7 @@ class ABCAdapter(object):
         :param submited_kwargs: Flat dictionary with  keys in form surface_parameters_option_GID_vertices
         :param flat_name: Name as retrieved from self.flaten_input_interface
                          (in which we are not aware of existing entities in DB - options in select)
-        :return key from 'submited_kwargs' which corresponds to 'flat_name'
+        :returns: key from 'submited_kwargs' which corresponds to 'flat_name'
         """
         if ABCAdapter.KEYWORD_PARAMS not in flat_name:
             if flat_name in submited_kwargs.keys():
@@ -756,7 +756,7 @@ class ABCAdapter(object):
     @staticmethod
     def __is_parent_not_submitted(row, kwargs):
         """
-        :return: True when current attributes should not be considered, because parent option was not selected."""
+        :returns: True when current attributes should not be considered, because parent option was not selected."""
         att_name = row[xml_reader.ATT_NAME]
         parent_name, option = None, None
         if ABCAdapter.KEYWORD_PARAMS in att_name:

@@ -28,11 +28,11 @@
 #
 #
 
-'''
+"""
 Created on Aug 21, 2012
 
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 import json
 from tvb.core.adapters.abcadapter import ABCAdapter
 

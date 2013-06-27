@@ -98,7 +98,7 @@ class SelectedAdapterContext(object):
     
     def get_session_tree_for_key(self, tree_session_key):
         """
-        Get from session previously selected InputTree stored under the @param tree_session_key.
+        Get from session previously selected InputTree stored under the :param tree_session_key.
         """
         if tree_session_key == self.KEY_TREE_DEFAULT:
             return self.get_current_input_tree()

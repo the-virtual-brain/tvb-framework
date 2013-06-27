@@ -137,7 +137,7 @@ class OperationExecutor(threading.Thread):
     def stop_pid(pid):
         """
         Stop a process specified by PID.
-        :return: True when specified Process was stopped in here,
+        :returns: True when specified Process was stopped in here,
                  False in case of exception(e.g. process stopped in advance).
         """
         if sys.platform == 'win32':

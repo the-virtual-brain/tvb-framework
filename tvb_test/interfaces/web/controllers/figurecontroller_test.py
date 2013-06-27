@@ -43,6 +43,10 @@ class FigureControllerTest(TransactionalTestCase, BaseControllersTest):
     """ Unit tests for helpcontroller """
     
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a `FigureController` and an operation
+        """
         BaseControllersTest.init(self)
         self.figure_c = FigureController()
         self.operation = TestFactory.create_operation(test_user = self.test_user, 
@@ -50,10 +54,14 @@ class FigureControllerTest(TransactionalTestCase, BaseControllersTest):
     
     
     def tearDown(self):
+        """ Cleans up the testing environment """
         BaseControllersTest.cleanup(self)
             
             
     def test_displayresultfigures(self):
+        """
+        Tests result dictionary for the expected key/value
+        """
         figure1 = TestFactory.create_figure(self.operation.id, self.test_user.id, 
                                             self.test_project.id, name="figure1", 
                                             path="path-to-figure1", session_name="test")
@@ -66,6 +74,10 @@ class FigureControllerTest(TransactionalTestCase, BaseControllersTest):
         
         
     def test_editresultfigures_remove_fig(self):
+        """
+        Tests call to `editresultfigures` correctly redirects to '/project/figure/displayresultfigures'
+        on figure removal
+        """
         cherrypy.request.method = 'POST'
         figure1 = TestFactory.create_figure(self.operation.id, self.test_user.id, 
                                             self.test_project.id, name="figure1", 
@@ -80,6 +92,10 @@ class FigureControllerTest(TransactionalTestCase, BaseControllersTest):
         
         
     def test_editresultfigures_rename_session(self):
+        """
+        Tests result dictionary has the expected keys / values and call to `editresultfigures`
+        correctly redirects to '/project/figure/displayresultfigures' on session renaming
+        """
         cherrypy.request.method = 'POST'
         TestFactory.create_figure(self.operation.id, self.test_user.id, 
                                             self.test_project.id, name="figure1", 
@@ -98,6 +114,10 @@ class FigureControllerTest(TransactionalTestCase, BaseControllersTest):
             
             
     def test_editresultfigures_remove_session(self):
+        """
+        Tests result dictionary has the expected keys / values and call to `editresultfigures`
+        correctly redirects to '/project/figure/displayresultfigures' on session removal
+        """
         cherrypy.request.method = 'POST'
         TestFactory.create_figure(self.operation.id, self.test_user.id, 
                                             self.test_project.id, name="figure1", 

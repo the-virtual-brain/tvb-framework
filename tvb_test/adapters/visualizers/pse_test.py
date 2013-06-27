@@ -49,6 +49,10 @@ class PSETest(TransactionalTestCase):
 
 
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a datatype group
+        """
         self.datatypeFactory = DatatypesFactory()
         self.group = self.datatypeFactory.create_datatype_group()
 

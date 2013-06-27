@@ -309,7 +309,7 @@ class UserService:
         """
         For the given user upgrade all DataType files storage.
         
-        @return: a two entry tuple (status, message) where status is a boolean that is True in case
+        :returns: a two entry tuple (status, message) where status is a boolean that is True in case
             the upgrade was successful for all DataTypes and False otherwise, and message is a status
             update message.
         """

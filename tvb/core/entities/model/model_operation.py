@@ -263,7 +263,7 @@ class OperationGroup(Base, Exportable):
         """
         Parse the range values for a given json-like string.
 
-        :return (Boolean_are_all_numbers, range_field_name, array_range_values)
+        :returns: Boolean_are_all_numbers, range_field_name, array_range_values)
         """
         if range_value is None:
             return None, RANGE_MISSING_STRING, [RANGE_MISSING_STRING]
@@ -284,7 +284,7 @@ class OperationGroup(Base, Exportable):
     @property
     def has_only_numeric_ranges(self):
         """
-        :returns True when all range fields are either None or could be parsed into a numeric array.
+        :returns: True when all range fields are either None or could be parsed into a numeric array.
         """
         is_numeric = [self.load_range_numbers(self.range1)[0],
                       self.load_range_numbers(self.range2)[0],

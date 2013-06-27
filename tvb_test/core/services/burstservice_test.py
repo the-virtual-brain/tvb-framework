@@ -82,6 +82,13 @@ class BurstServiceTest(BaseTestCase):
 
 
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        cleans the database before testing and saves config file;
+        creates a test user, a test project;
+        creates burst, flow, operation and workflow services
+
+        """
         self.clean_database()
         self.test_user = TestFactory.create_user()
         self.test_project = TestFactory.create_project(self.test_user)
@@ -172,10 +179,10 @@ class BurstServiceTest(BaseTestCase):
         def __update_params(declared_overwrites, expected_result):
             """
             Do the update and check that we get indeed the expected_result.
-            @param declared_overwrites: a input dictionary in the form {'$$name$$' : '$$value$$'}. Make
+            :param declared_overwrites: a input dictionary in the form {'$$name$$' : '$$value$$'}. Make
                 sure $$name$$ has the prefix that is added in case of portlet parameters,
                 namely ADAPTER_PREFIX_ROOT + step_index + actual_name
-            @param expected_result: boolean which should represent if we need or not to restart. (Was a
+            :param expected_result: boolean which should represent if we need or not to restart. (Was a
                 visualizer parameter change or an analyzer one)
             """
             result = self.burst_service.update_portlet_configuration(portlet_configuration, declared_overwrites)
@@ -441,7 +448,7 @@ class BurstServiceTest(BaseTestCase):
         Then check that only operation created is for the first adapter from the portlet. The
         second should be viewed as a visualizer.
         After that load the burst and check that the visualizer and analyzer are loaded in the
-        corresponging tab and that all the parameters are still the same. Finally check that burst
+        corresponding tab and that all the parameters are still the same. Finally check that burst
         status updates corresponding to final operation status.
         """
         loaded_burst, workflow_step_list = self._prepare_and_launch_sync_burst()
@@ -687,8 +694,8 @@ class BurstServiceTest(BaseTestCase):
         """
         Method that just waits until a burst configuration is finished or a maximum
         timeout is reached.
-        @param burst_config: the burst configuration that should be waited on
-        @param timeout: the maximum number of seconds to wait after the burst  
+        :param burst_config: the burst configuration that should be waited on
+        :param timeout: the maximum number of seconds to wait after the burst
         """
         waited = 0
         while burst_config.status == BurstConfiguration.BURST_RUNNING and waited <= timeout:

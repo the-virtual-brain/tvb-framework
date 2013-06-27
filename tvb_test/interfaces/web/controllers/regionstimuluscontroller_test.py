@@ -40,15 +40,24 @@ class RegionsStimulusContollerTest(TransactionalTestCase, BaseControllersTest):
     """ Unit tests for burstcontroller """
     
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a `RegionStimulusController`
+        """
         BaseControllersTest.init(self)
         self.region_s_c =  RegionStimulusController()
     
     
     def tearDown(self):
+        """ Cleans the testing environment """
         BaseControllersTest.cleanup(self)
 
     
     def test_step_1(self):
+        """
+        Verifies that result dictionary has the expected keys / values after call to
+        `step_1_submit(...)`
+        """
         self.region_s_c.step_1_submit(1, 1)
         result_dict = self.region_s_c.step_1()
         self.assertEqual(result_dict['equationViewerUrl'], '/spatial/stimulus/region/get_equation_chart')

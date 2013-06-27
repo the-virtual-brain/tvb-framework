@@ -228,7 +228,7 @@ class DatatypesFactory():
 
     def create_covariance(self, time_series):
         """
-        :return: a stored DataType Covariance.
+        :returns: a stored DataType Covariance.
         """
         operation, _, storage_path = self.__create_operation()
         covariance = Covariance(storage_path=storage_path, source=time_series)
@@ -240,7 +240,7 @@ class DatatypesFactory():
 
     def create_crosscoherence(self, time_series):
         """
-        :return: a stored entity of type CoherenceSpectrum
+        :returns: a stored entity of type CoherenceSpectrum
         """
         operation, _, storage_path = self.__create_operation()
         partial_coh = CoherenceSpectrum(array_data=numpy.random.random((10, 10, 10, 10)), use_storage=False)
@@ -254,7 +254,7 @@ class DatatypesFactory():
 
     def create_crosscorrelation(self, time_series):
         """
-        :return CrossCorrelation stored entity.
+        :returns: `CrossCorrelation` stored entity.
         """
         operation, _, storage_path = self.__create_operation()
         partial_corr = CrossCorrelation(array_data=numpy.random.random((10, 10, 10, 10, 10)), use_storage=False)
@@ -269,7 +269,7 @@ class DatatypesFactory():
     def create_surface(self):
         """
         Create a dummy surface entity.
-        :return: (Algorithm Identifier, stored Surface entity)
+        :returns: (Algorithm Identifier, stored Surface entity)
         """
         operation, algo_id, storage_path = self.__create_operation()
         surface = CorticalSurface(storage_path=storage_path)
@@ -293,7 +293,7 @@ class DatatypesFactory():
 
     def create_connectivity_measure(self, connectivity):
         """
-        :return: persisted entity ConnectivityMeasure
+        :returns: persisted entity ConnectivityMeasure
         """
         operation, _, storage_path = self.__create_operation()
         conn_measure = ConnectivityMeasure(storage_path=storage_path)
@@ -305,7 +305,7 @@ class DatatypesFactory():
 
     def create_ICA(self, timeseries):
         """
-        :return: persisted entity IndependentComponents
+        :returns: persisted entity IndependentComponents
         """
         operation, _, storage_path = self.__create_operation()
         partial_ts = TimeSeries(use_storage=False)

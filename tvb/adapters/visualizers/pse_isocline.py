@@ -107,6 +107,8 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         """
         Also overwrite launch from ABCDisplayer, since we want to handle a list of figures,
         instead of only one Matplotlib figure.
+
+        :raises LaunchException: when called before all operations in the group are finished
         """
         if self.PARAM_FIGURE_SIZE in kwargs:
             figsize = kwargs[self.PARAM_FIGURE_SIZE]

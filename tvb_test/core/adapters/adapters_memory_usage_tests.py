@@ -28,11 +28,11 @@
 #
 #
 
-'''
+"""
 Created on Jul 6, 2012
 
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 import json
 import unittest
 from tvb.core.entities import model

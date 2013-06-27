@@ -74,7 +74,19 @@ class EegMonitor(ABCDisplayer):
 
 
     def compute_parameters(self, input_data, data_2=None, data_3=None, is_preview=False, selected_dimensions=[0, 2]):
-        """ Start the JS visualizer, similar to EEG-lab"""
+        """
+        Start the JS visualizer, similar to EEG-lab
+
+        :param input_data: Time series to display
+        :type input_data: `TimeSeriesEEG`
+        :param data_2: additional input data
+        :param data_3: additional input data
+
+        :returns: the needed parameters for a 2D representation
+        :rtype: dict
+
+        :raises LaunchException: when at least two input data parameters are provided and they sample periods differ
+        """
         #Convert Original ArrayWrappers into a 2D list.
         original_timeseries = [input_data]
         multiple_input = False

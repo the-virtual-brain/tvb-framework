@@ -50,15 +50,25 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
     """Unit test for userscontroller""" 
     
     def setUp(self):
+        """
+        Sets up the testing environtment;
+        creates a `UserController`
+        """
         BaseControllersTest.init(self)
         self.user_c =  UserController()
 
     
     def tearDown(self):
+        """
+        Clean and remove any changes and created data
+        """
         BaseControllersTest.cleanup(self)
     
     
     def test_index_valid_post(self):
+        """
+        Tests for a valid redirect on user login
+        """
         user = model.User('valid_user', md5('valid_pass').hexdigest(), 
                           'mail@mail.com', True, 'CLINICIAN')
         dao.store_entity(user)

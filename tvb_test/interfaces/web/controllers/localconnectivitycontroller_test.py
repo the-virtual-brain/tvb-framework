@@ -44,11 +44,16 @@ class LocalConnectivityContollerTest(TransactionalTestCase, BaseControllersTest)
     """ Unit tests for burstcontroller """
     
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a `LolcalConnectivityController`
+        """
         BaseControllersTest.init(self)
         self.local_p_c =  LocalConnectivityController()
-    
+
     
     def tearDown(self):
+        """ Cleans the testing environment """
         BaseControllersTest.cleanup(self)
           
             

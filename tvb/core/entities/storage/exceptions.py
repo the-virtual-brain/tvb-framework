@@ -27,11 +27,11 @@
 #   Frontiers in Neuroinformatics (in press)
 #
 #
-'''
+"""
 Created on Jan 15, 2013
 
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 
 class BaseStorageException(Exception):
     """

@@ -192,10 +192,10 @@ class ImportService():
     def import_workflows(self, project, bursts_dict, burst_ids_mapping):
         """
         Import the workflow entities for all bursts imported in the project.
-        @param project: the current 
-        @param bursts_dict: a dictionary that holds all the required information in order to
+        :param project: the current
+        :param bursts_dict: a dictionary that holds all the required information in order to
                             import the bursts from the new project
-        @param burst_ids_mapping: a dictionary of the form {old_burst_id : new_burst_id} so we
+        :param burst_ids_mapping: a dictionary of the form {old_burst_id : new_burst_id} so we
                             know what burst to link each workflow to
         """
         for burst_id in bursts_dict:
@@ -215,10 +215,10 @@ class ImportService():
         Import all workflow steps for the given workflow. We create both wf_steps and view_steps
         in the same method, since if a wf_step has to be omited for some reason, we also need to
         omit that view step.
-        @param workflow: a model.Workflow entity from which we need to add workflow steps
-        @param wf_steps: a list of WorkflowStepInformation entities, from which we will rebuild
+        :param workflow: a model.Workflow entity from which we need to add workflow steps
+        :param wf_steps: a list of WorkflowStepInformation entities, from which we will rebuild
                         the workflow steps
-        @param view_steps: a list of WorkflowViewStepInformation entities, from which we will
+        :param view_steps: a list of WorkflowViewStepInformation entities, from which we will
                         rebuild the workflow view steps
         """
         for wf_step in wf_steps:
@@ -341,7 +341,7 @@ class ImportService():
     def load_datatype_from_file(self, storage_folder, file_name, op_id, datatype_group=None):
         """
         Creates an instance of datatype from storage / H5 file 
-        :return: datatype
+        :returns: datatype
         """
         self.logger.debug("Loading datatType from file: %s" % file_name)
         storage_manager = HDF5StorageManager(storage_folder, file_name)

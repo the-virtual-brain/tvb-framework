@@ -196,7 +196,7 @@ class StructureNode:
     @staticmethod
     def _capitalize_first_letter(word):
         """
-        :return same string, but with first letter capitalized.
+        :returns: same string, but with first letter capitalized.
         """
         return word[0].upper() + word[1:]
     
@@ -269,7 +269,7 @@ class GenericMetaData(EnhancedDictionary):
     @property
     def gid(self):
         """
-        :return: current Global Identifier or None.
+        :returns: current Global Identifier or None.
         """
         if self.KEY_GID in self.keys():
             return self[self.KEY_GID]
@@ -278,7 +278,7 @@ class GenericMetaData(EnhancedDictionary):
     @property
     def file_name(self):
         """
-        :return: name of the file where to store current data, or None.
+        :returns: name of the file where to store current data, or None.
         """
         if self.KEY_FILENAME in self.keys():
             return self[self.KEY_FILENAME]

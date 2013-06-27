@@ -70,6 +70,9 @@ class FilteringTest(TransactionalTestCase):
 
 
     def test_operation_page_filter(self):
+        """
+        Tests that default filters for operation page are indeed generated
+        """
         DUMMY_USER_ID = 1
         entity = FilteringTest.DummyFilterClass()
         entity.id = 1

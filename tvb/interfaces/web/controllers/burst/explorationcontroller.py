@@ -88,7 +88,7 @@ class ParameterExplorationController(BaseController):
         Check if PSE view filters are compatible with current DataType.
         :param algorithm: Algorithm instance to get filters from it.
         :param datatype_group_gid: Current DataTypeGroup to validate against.
-        :return: True when DataTypeGroup can be displayed with current algorithm, False when incompatible.
+        :returns: True when DataTypeGroup can be displayed with current algorithm, False when incompatible.
         """
         datatype_group = ABCAdapter.load_entity_by_gid(datatype_group_gid)
         filter_chain = FilterChain.from_json(algorithm.datatype_filter)

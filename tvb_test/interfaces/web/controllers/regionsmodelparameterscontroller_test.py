@@ -46,6 +46,10 @@ class RegionsModelParametersContollerTest(TransactionalTestCase, BaseControllers
     """ Unit tests for burstcontroller """
     
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a `RegionsModelParametersController` and a connectivity
+        """
         BaseControllersTest.init(self)
         self.region_m_p_c =  RegionsModelParametersController()
         BurstController().index()
@@ -59,12 +63,17 @@ class RegionsModelParametersContollerTest(TransactionalTestCase, BaseControllers
     
     
     def tearDown(self):
+        """ Clean the testing environment """
         BaseControllersTest.cleanup(self)
 #        if os.path.exists(cfg.TVB_CONFIG_FILE):
 #            os.remove(cfg.TVB_CONFIG_FILE)
     
     
     def test_edit_model_parameters(self):
+        """
+        Verifies that result dictionary has the expected keys / values after call to
+        `edit_model_parameters()`
+        """
         result_dict = self.region_m_p_c.edit_model_parameters()
         self.assertEqual(self.connectivity.gid, result_dict['connectivity_entity'].gid)
         self.assertTrue(result_dict['displayDefaultSubmitBtn'])
@@ -78,6 +87,10 @@ class RegionsModelParametersContollerTest(TransactionalTestCase, BaseControllers
         
         
     def test_load_model_for_connectivity_node(self):
+        """
+        Verifies that result dictionary has the expected keys / values after call to
+        `edit_model_parameters()`
+        """
         self.region_m_p_c.edit_model_parameters()
         result_dict = self.region_m_p_c.load_model_for_connectivity_node(1)
         self.assertTrue('paramSlidersData' in result_dict)
@@ -85,6 +98,10 @@ class RegionsModelParametersContollerTest(TransactionalTestCase, BaseControllers
         
         
     def test_update_model_parameter_for_nodes(self):
+        """
+        Verifies that result dictionary has the expected keys / values after call to
+        `update_model_parameter_for_nodes(...)`
+        """
         self.region_m_p_c.edit_model_parameters()
         result_dict = self.region_m_p_c.load_model_for_connectivity_node(1)
         param_names = result_dict['parametersNames']
@@ -99,6 +116,10 @@ class RegionsModelParametersContollerTest(TransactionalTestCase, BaseControllers
         
         
     def test_copy_model(self):
+        """
+        Verifies that result dictionary has the expected keys / values after call to
+        `copy_model()`
+        """
         self.region_m_p_c.edit_model_parameters()
         result_dict = self.region_m_p_c.load_model_for_connectivity_node(1)
         param_names = result_dict['parametersNames']
@@ -114,6 +135,10 @@ class RegionsModelParametersContollerTest(TransactionalTestCase, BaseControllers
         
         
     def test_reset_model_parameters_for_nodes(self):
+        """
+        Verifies that result dictionary has the expected keys / values after call to
+        `reset_model_parameters_for_nodes(...)`
+        """
         self.region_m_p_c.edit_model_parameters()
         result_dict = self.region_m_p_c.load_model_for_connectivity_node(1)
         param_names = result_dict['parametersNames']
@@ -129,6 +154,9 @@ class RegionsModelParametersContollerTest(TransactionalTestCase, BaseControllers
         
         
     def test_submit_model_parameters(self):
+        """
+        Verifies call to `submit_model_parameters(...)` correctly redirects to '/burst/'
+        """
         self.region_m_p_c.edit_model_parameters()
         self._expect_redirect('/burst/', self.region_m_p_c.submit_model_parameters)
         

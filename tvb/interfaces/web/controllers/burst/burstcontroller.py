@@ -80,7 +80,7 @@ class BurstController(base.BaseController):
         """
         Cache Simulator's input tree, for performance issues.
         Anyway, without restart, the introspected tree will not be different on multiple executions.
-        :return: Simulator's Input Tree (copy from cache or just loaded)
+        :returns: Simulator's Input Tree (copy from cache or just loaded)
         """
         if self._cached_simulator_input_tree is None:
             self._cached_simulator_input_tree = self.flow_service.prepare_adapter(base.get_current_project().id,
@@ -381,8 +381,8 @@ class BurstController(base.BaseController):
     def remove_burst_entity(self, burst_id):
         """
         Remove the burst entity given by burst_id.
-        :return 'reset-new': When currently selected burst was removed. JS will need to reset selection to a new entry
-        :return False: When no action is required on the client.
+        :returns'reset-new': When currently selected burst was removed. JS will need to reset selection to a new entry
+        :returns False: When no action is required on the client.
         """
         burst_id = int(burst_id)
         session_burst = base.get_from_session(base.KEY_BURST_CONFIG)

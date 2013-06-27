@@ -76,6 +76,8 @@ class CrossCorrelateAdapter(ABCAsynchronous):
         """
         Store the input shape to be later used to estimate memory usage. Also
         create the algorithm instance.
+
+        :param time_series: the input timeseries for which cross correlation should be computed
         """
         self.input_shape = time_series.read_data_shape()
         log_debug_array(LOG, time_series, "time_series")
@@ -103,7 +105,11 @@ class CrossCorrelateAdapter(ABCAsynchronous):
     
     def launch(self, time_series):
         """ 
-        Launch algorithm and build results. 
+        Launch algorithm and build results.
+
+        :param time_series: the input time series for which the correlation should be computed
+        :returns: the cross correlation for the given time series
+        :rtype: `CrossCorrelation`
         """
         ##--------- Prepare a CrossCorrelation object for result ------------##
         cross_corr = CrossCorrelation(source = time_series,

@@ -56,6 +56,9 @@ class EventHandlerTest(BaseTestCase):
         
         
     def tearDown(self):
+        """
+        Cleans the environment after testing (database and executors dictionary)
+        """
         self.clean_database()
         eventhandler.EXECUTORS_DICT = {}
         

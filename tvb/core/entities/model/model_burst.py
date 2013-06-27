@@ -142,7 +142,7 @@ class BurstConfiguration(Base, Exportable):
     @property
     def is_group(self):
         """
-        :return: True, when current burst configuration will generate a group.
+        :returns: True, when current burst configuration will generate a group.
         """
         for param in ['first_range', 'second_range']:
             if param in self.simulator_configuration and KEY_SAVED_VALUE in self.simulator_configuration[param] \
@@ -217,7 +217,7 @@ class BurstConfiguration(Base, Exportable):
 
     def get_all_simulator_values(self):
         """
-        :return dictionary {simulator_attribute_name: value}
+        :returns: dictionary {simulator_attribute_name: value}
         """
         result = {}
         any_checked = False
@@ -309,7 +309,7 @@ class TabConfiguration():
 
     def get_portlet(self, portlet_id):
         """
-        :return: a PortletConfiguration entity.
+        :returns: a PortletConfiguration entity.
         """
         for portlet in self.portlets:
             if portlet is not None and str(portlet.portlet_id) == str(portlet_id):

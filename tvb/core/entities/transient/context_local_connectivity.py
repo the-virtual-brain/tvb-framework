@@ -27,11 +27,11 @@
 #   Frontiers in Neuroinformatics (in press)
 #
 #
-'''
+"""
 Created on Aug 23, 2012
 
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 
 class ContextLocalConnectivity():
     """

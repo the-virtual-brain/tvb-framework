@@ -28,9 +28,9 @@
 #
 #
 
-'''
+"""
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 
 from tvb.basic.traits.types_basic import String
 from tvb.basic.traits.types_mapped import MappedType

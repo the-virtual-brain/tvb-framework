@@ -108,7 +108,13 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
     
     def launch(self, time_series, algorithms = None):
         """ 
-        Launch algorithm and build results. 
+        Launch algorithm and build results.
+
+        :param time_series: the time series on which the algorithms are run
+        :param algorithms:  the algorithms to be run for computing measures on the time series
+        :type  algorithms:  any subclass of BaseTimeseriesMetricAlgorithm (KuramotoIndex, \
+                    GlobalVariance, VarianceNodeVariance)
+        :rtype: `DatatypeMeasure`
         """
         if algorithms is None:
             algorithms = self.available_algorithms.keys()

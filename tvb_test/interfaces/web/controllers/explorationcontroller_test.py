@@ -49,12 +49,17 @@ class ExplorationContollerTest(TransactionalTestCase, BaseControllersTest):
 
 
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a datatype group and a Parameter Exploration Controller
+        """
         BaseControllersTest.init(self)
         self.dt_group = DatatypesFactory().create_datatype_group()
         self.controller = ParameterExplorationController()
 
 
     def tearDown(self):
+        """ Cleans the testing environment """
         BaseControllersTest.cleanup(self)
 
 

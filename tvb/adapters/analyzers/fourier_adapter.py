@@ -86,6 +86,12 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
     def configure(self, time_series, segment_length=None, window_function=None):
         """
         Do any configuration needed before launching.
+
+        :param time_series: the input time series to which the fft is to be applied
+        :param segment_length: the block size which determines the frequency resolution \
+                               of the resulting power spectra
+        :param window_function: windowing functions can be applied before the FFT is performed
+        :type  window_function: None; ‘hamming’; ‘bartlett’; ‘blackman’; ‘hanning’
         """
         shape = time_series.read_data_shape()
         LOG.debug("time_series shape is %s" % (str(shape)))
@@ -127,6 +133,15 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
     def launch(self, time_series, segment_length=None, window_function=None):
         """
         Launch algorithm and build results.
+
+        :param time_series: the input time series to which the fft is to be applied
+        :param segment_length: the block size which determines the frequency resolution \
+                               of the resulting power spectra
+        :param window_function: windowing functions can be applied before the FFT is performed
+        :type  window_function: None; ‘hamming’; ‘bartlett’; ‘blackman’; ‘hanning’
+        :returns: the fourier spectrum for the specified time series
+        :rtype: `FourierSpectrum`
+
         """
         shape = time_series.read_data_shape()
         block_size = int(math.floor(time_series.read_data_shape()[2]

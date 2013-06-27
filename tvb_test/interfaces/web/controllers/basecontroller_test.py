@@ -81,7 +81,7 @@ class BaseControllersTest(BaseTestCase):
 
     def cleanup(self):
         """
-        ve a different name than tearDown so we can use it safely in transactions and it will
+        Have a different name than tearDown so we can use it safely in transactions and it will
         not be called after running actual test.
         """
         if os.path.exists(cfg.TVB_CONFIG_FILE):

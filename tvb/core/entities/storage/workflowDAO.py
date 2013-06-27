@@ -177,7 +177,7 @@ class WorkflowDAO(RootDAO):
 
     def get_workflow_step_by_step_index(self, workflow_id, step_index):
         """
-        :return WorkflowStep entity of None.
+        :returns: orkflowStep entity of None.
         """
         step = None
         try:
@@ -315,7 +315,7 @@ class WorkflowDAO(RootDAO):
         Get all dataTypes in burst
         
         :param burst_id BurstConfiguration Identifier.
-        :return list dataType GIDs or empty list.
+        :returns: list dataType GIDs or empty list.
         """
         try:
             result = self.session.query(model.DataTypeGroup,

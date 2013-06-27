@@ -86,7 +86,7 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     def __tablename__(cls):
         """
         Overwrite field __tablename__ for class.
-        :return None if MappedType itself, custom table name, to recognize Mapped Table in DB.
+        :returns: None if MappedType itself, custom table name, to recognize Mapped Table in DB.
         """
         if 'MappedType' in cls.__name__:
             return None
@@ -198,9 +198,9 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         """
         Store data into a HDF5 file on disk. Each data will be stored into a 
         dataset with the provided name.
-            ::param data_name: name of the dataset where to store data
-            ::param data: data to be stored (can be a list / array / numpy array...) 
-            ::param where: represents the path where to store our dataset (e.g. /data/info) 
+            :param data_name: name of the dataset where to store data
+            :param data: data to be stored (can be a list / array / numpy array...)
+            :param where: represents the path where to store our dataset (e.g. /data/info)
         """
         store_manager = self._get_file_storage_mng()
         store_manager.store_data(data_name, data, where)
@@ -213,13 +213,13 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         """
         Store data into a HDF5 file on disk by writing chunks. 
         Data will be stored into a data-set with the provided name.
-            ::param data_name: name of the data-set where to store data
-            ::param data: data to be stored (can be a list / array / numpy array...)
-            ::param grow_dimension: The dimension to be used to grow stored array. 
+            :param data_name: name of the data-set where to store data
+            :param data: data to be stored (can be a list / array / numpy array...)
+            :param grow_dimension: The dimension to be used to grow stored array.
                                    If not provided a default value = -1 is used (grow on LAST dimension).
-            ::param close_file: Specify if the file should be closed automatically after write operation. 
+            :param close_file: Specify if the file should be closed automatically after write operation.
                                 If not, you have to close file by calling method close_file()
-            ::param where: represents the path where to store our dataset (e.g. /data/info)  
+            :param where: represents the path where to store our dataset (e.g. /data/info)
         """
         if isinstance(data, list):
             data = numpy.array(data)
@@ -238,10 +238,10 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     def get_data(self, data_name, data_slice=None, where=ROOT_NODE_PATH, ignore_errors=False):
         """
         This method reads data from the given data set based on the slice specification
-            ::param data_name: Name of the data set from where to read data
-            ::param data_slice: Specify how to retrieve data from array {e.g [slice(1,10,1),slice(1,6,2)] ]
-            ::param where: represents the path where dataset is stored (e.g. /data/info)  
-            ::return: a numpy.ndarray containing filtered data
+            :param data_name: Name of the data set from where to read data
+            :param data_slice: Specify how to retrieve data from array {e.g [slice(1,10,1),slice(1,6,2)] ]
+            :param where: represents the path where dataset is stored (e.g. /data/info)
+            :returns: a numpy.ndarray containing filtered data
         """
         store_manager = self._get_file_storage_mng()
         return store_manager.get_data(data_name, data_slice, where, ignore_errors)
@@ -250,9 +250,9 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     def get_data_shape(self, data_name, where=ROOT_NODE_PATH):
         """
         This method reads data-shape from the given data set
-            ::param data_name: Name of the data set from where to read size
-            ::param where: represents the path where dataset is stored (e.g. /data/info)  
-            ::return: a shape tuple
+            :param data_name: Name of the data set from where to read size
+            :param where: represents the path where dataset is stored (e.g. /data/info)
+            :returns: a shape tuple
         """
         if TVBSettings.TRAITS_CONFIGURATION.use_storage and self.trait.use_storage:
             try:
@@ -268,7 +268,7 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
 
     def get_info_about_array(self, array_name, included_info=None):
         """
-        :return: dictionary {label: value} about an attribute of type mapped.Array
+        :returns: dictionary {label: value} about an attribute of type mapped.Array
                  Generic information, like Max/Min/Mean/Var are to be retrieved for this array_attr
         """
         if TVBSettings.TRAITS_CONFIGURATION.use_storage and self.trait.use_storage:
@@ -314,12 +314,12 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     def set_metadata(self, meta_dictionary, data_name='', tvb_specific_metadata=True, where=ROOT_NODE_PATH):
         """
         Set meta-data information for root node or for a given data set.
-            ::param meta_dictionary: disctionary containing meta info to be stored on node
-            ::param data_name: name of the dataset where to assign metadata. 
+            :param meta_dictionary: disctionary containing meta info to be stored on node
+            :param data_name: name of the dataset where to assign metadata.
                                  If None, metadata is assigned to ROOT node.  
-            ::param tvb_specific_metadata: specify if the provided metadata is
+            :param tvb_specific_metadata: specify if the provided metadata is
                                  specific to TVB (keys will have a TVB prefix).
-            ::param where: represents the path where dataset is stored (e.g. /data/info)  
+            :param where: represents the path where dataset is stored (e.g. /data/info)
              
         """
         if meta_dictionary is None:
@@ -410,12 +410,12 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
                         where=ROOT_NODE_PATH):
         """
         Remove meta-data information for root node or for a given data set.
-            ::param meta_key: name of the metadata attribute to be removed
-            ::param data_name: name of the dataset from where to delete metadata. 
+            :param meta_key: name of the metadata attribute to be removed
+            :param data_name: name of the dataset from where to delete metadata.
                                   If None, metadata will be removed from ROOT node.
-            ::param tvb_specific_metadata: specify if the provided metadata is 
+            :param tvb_specific_metadata: specify if the provided metadata is
                                   specific to TVB (keys will have a TVB prefix).
-            ::param where: represents the path where dataset is stored (e.g. /data/info)   
+            :param where: represents the path where dataset is stored (e.g. /data/info)
         """
         store_manager = self._get_file_storage_mng()
         store_manager.remove_metadata(meta_key, data_name, tvb_specific_metadata, where)
@@ -424,10 +424,10 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     def get_metadata(self, data_name='', where=ROOT_NODE_PATH):
         """
         Retrieve meta-data information for root node or for a given data set.
-            ::param data_name: name of the dataset for which to read metadata. 
+            :param data_name: name of the dataset for which to read metadata.
                                  If None, read metadata from ROOT node.
-            ::param where: represents the path where dataset is stored (e.g. /data/info)  
-            ::return: a dictionary containing all metadata associated with the node
+            :param where: represents the path where dataset is stored (e.g. /data/info)
+            :returns: a dictionary containing all metadata associated with the node
         """
         store_manager = self._get_file_storage_mng()
         return store_manager.get_metadata(data_name, where)
@@ -529,7 +529,7 @@ class Array(mapped.Array):
         This is called when an attribute of type Array is set on another class instance.
         :param inst: It is a MappedType instance
         :param value: expected to be of type self.wraps
-        @raise Exception: When incompatible type of value is set
+        :raises Exception: When incompatible type of value is set
         """
         super(Array, self).__set__(inst, value)
         value = getattr(inst, '__' + self.trait.name)
@@ -565,7 +565,7 @@ class Array(mapped.Array):
         Store value on disk (in h5 file).
         :param inst: Will give us the storage_path, it is a MappedType instance
         :param value: expected to be of type self.wraps
-        @raise Exception : when passed value is incompatible (e.g. used with chunks)  
+        :raises Exception : when passed value is incompatible (e.g. used with chunks)
         """
         if self.trait.file_storage == FILE_STORAGE_NONE:
             pass
@@ -579,8 +579,8 @@ class Array(mapped.Array):
         """
         Call correct storage methods, and validation
         :param inst: Will give us the storage_path, it is a MappedType instance
-        :return: entity of self.wraps type
-        @raise: Exception when used with chunks
+        :returns: entity of self.wraps type
+        :raises: Exception when used with chunks
         """
         if self.trait.file_storage == FILE_STORAGE_NONE:
             return None
@@ -633,9 +633,9 @@ class SparseMatrix(mapped.SparseMatrix, Array):
     def _store_sparse_matrix(inst, mtx, data_name):
         """    
         This method stores sparse matrix into H5 file.
-        ::param inst: instance on for which to store sparse matrix
-        ::param mtx: sparse matrix to store
-        ::param data_name: name of data group which will contain sparse matrix details     
+        :param inst: instance on for which to store sparse matrix
+        :param mtx: sparse matrix to store
+        :param data_name: name of data group which will contain sparse matrix details
         """
         info_dict = {SparseMatrix.DTYPE_META: mtx.dtype.str,
                      SparseMatrix.SHAPE_META: str(mtx.shape),
@@ -656,9 +656,9 @@ class SparseMatrix(mapped.SparseMatrix, Array):
     def _read_sparse_matrix(inst, data_name):
         """
         Reads SparseMatrix from H5 file and returns an instance of such matrix
-        ::param inst: instance on for which to read sparse matrix
-        ::param data_name: name of data group which contains sparse matrix details
-        ::return in instance of sparse matrix with data loaded from H5 file
+        :param inst: instance on for which to read sparse matrix
+        :param data_name: name of data group which contains sparse matrix details
+        :returns: in instance of sparse matrix with data loaded from H5 file
         """
         constructors = {'csr': sparse.csr_matrix, 'csc': sparse.csc_matrix}
 

@@ -49,7 +49,9 @@ class ContextModelParametersTest(TransactionalTestCase):
 
     def setUp(self):
         """
-        Reset the database before each test.
+        Reset the database before each test;
+        creates a test user, a test project, a connectivity;
+        sets context model parameters and a Generic2dOscillator as a default model
         """
         self.flow_service = FlowService()
 
@@ -72,6 +74,9 @@ class ContextModelParametersTest(TransactionalTestCase):
 
 
     def test_load_model_for_connectivity_node(self):
+        """
+        Tests default parameters are loaded in BURST region model interface
+        """
         self.context_model_param.load_model_for_connectivity_node(0)
         model_0 = self.context_model_param._get_model_for_region(0)
         self._check_model_params_for_default_values(model_0)
@@ -94,6 +99,9 @@ class ContextModelParametersTest(TransactionalTestCase):
 
 
     def test_update_model_parameter(self):
+        """
+        Tests parameters update correctly in BURST region model interface
+        """
         self.context_model_param.load_model_for_connectivity_node(0)
         model_0 = self.context_model_param._get_model_for_region(0)
         self._check_model_params_for_default_values(model_0)
@@ -106,6 +114,9 @@ class ContextModelParametersTest(TransactionalTestCase):
 
 
     def test_reset_model_parameters_for_node(self):
+        """
+        Tests parameters are reset correctly in BURST region model interface
+        """
         self.context_model_param.load_model_for_connectivity_node(0)
         model_0 = self.context_model_param._get_model_for_region(0)
         self._check_model_params_for_default_values(model_0)
@@ -124,6 +135,9 @@ class ContextModelParametersTest(TransactionalTestCase):
 
 
     def test_get_values_for_parameter(self):
+        """
+        Tests method `ContextModelParameters.get_values_for_parameter(...)` works as expected
+        """
         model_params = self.context_model_param.model_parameter_names
         for param in model_params:
             self.assertEqual(str(getattr(self.default_model, param).tolist()),
@@ -136,6 +150,8 @@ class ContextModelParametersTest(TransactionalTestCase):
             expected_list[0] = value
             self.assertEqual(str(expected_list), self.context_model_param.get_values_for_parameter(param))
 
+
+    #############  Methods below are helper methods for testing #############
 
     def _update_all_model_params(self, connectivity_node_index):
         self.context_model_param.load_model_for_connectivity_node(connectivity_node_index)

@@ -127,6 +127,8 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
     def launch(self, time_series):
         """
         Launch algorithm and build results.
+
+        :returns: the `ComplexCoherenceSpectrum` built with the given timeseries
         """
         shape = time_series.read_data_shape()
         

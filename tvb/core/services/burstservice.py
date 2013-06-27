@@ -80,7 +80,7 @@ class BurstService():
             they can be rebuilt from the analyzers // visualizer parameters
         :param project_id: the id of the current project   
             
-        :return: the portlet interface will be of the following form::
+        :returns: the portlet interface will be of the following form::
             [{'interface': adapter_interface, 
             'prefix': prefix_for_parameter_names, 
             'subalg': {algorithm_field_name: default_algorithm_value},
@@ -268,21 +268,21 @@ class BurstService():
     @staticmethod
     def get_available_portlets():
         """
-        :return: a list of all the available portlet entites
+        :returns: a list of all the available portlet entites
         """
         return dao.get_available_portlets()
     
     @staticmethod
     def get_portlet_by_id(portlet_id):
         """
-        :return: the portlet entity with the id =@portlet_id
+        :returns: the portlet entity with the id =@portlet_id
         """
         return dao.get_portlet_by_id(portlet_id)
 
     @staticmethod
     def get_portlet_by_identifier(portlet_identifier):
         """
-        :return: the portlet entity with the algorithm identifier =@portlet_identifier
+        :returns: the portlet entity with the algorithm identifier =@portlet_identifier
         """
         return dao.get_portlet_by_identifier(portlet_identifier)
 

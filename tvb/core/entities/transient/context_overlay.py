@@ -122,7 +122,7 @@ class CommonDetails(EnhancedDictionary):
 
     def get_ui_fields(self):
         """
-        :return list of dictionaries to be used for UI display.
+        :returns: list of dictionaries to be used for UI display.
         Each entry in the list will be displayed as a UI group of fields.
         """
         framework_metadata = self.metadata

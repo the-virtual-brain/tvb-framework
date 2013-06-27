@@ -50,11 +50,16 @@ class ProjectContollerTest(TransactionalTestCase, BaseControllersTest):
 
 
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a `ProjectController`
+        """
         BaseControllersTest.init(self)
         self.project_c = ProjectController()
 
 
     def tearDown(self):
+        """ Cleans the testing environment """
         BaseControllersTest.cleanup(self)
 
 
@@ -67,6 +72,9 @@ class ProjectContollerTest(TransactionalTestCase, BaseControllersTest):
 
 
     def test_index(self):
+        """
+        Verifies that result dictionary has the expected keys / values
+        """
         result = self.project_c.index()
         self.assertEqual(result['mainContent'], "project_submenu")
         self.assertEqual(result[b_c.KEY_PROJECT].id, self.test_project.id)
@@ -221,6 +229,8 @@ class ProjectContollerTest(TransactionalTestCase, BaseControllersTest):
 
     def test_get_operation_details(self):
         """
+        Verifies result dictionary has the expected keys / values after call to
+        `get_operation_details(...`
         """
         operation = TestFactory.create_operation(test_user=self.test_user,
                                                  test_project=self.test_project,

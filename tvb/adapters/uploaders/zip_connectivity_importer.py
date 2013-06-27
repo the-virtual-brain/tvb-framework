@@ -93,6 +93,16 @@ class ZIPConnectivityImporter(ABCSynchronous):
     def launch(self, uploaded, rotate_x = 0, rotate_y = 0, rotate_z = 0):
         """
         Execute import operations: unpack ZIP and build Connectivity object as result.
+
+        :param uploaded: an archive containing the Connectivity data to be imported
+
+        :returns: `Connectivity`
+
+        :raises LaunchException: when `uploaded` is empty or nonexistent
+        :raises Exception: when
+                    * weights or tracts matrix is invalid (negative values, wrong shape)
+                    * any of the vector orientation, areas, cortical or hemisphere is \
+                      different from the expected number of nodes
         """
         if uploaded is None:
             raise LaunchException ("Please select ZIP file which contains data to import")

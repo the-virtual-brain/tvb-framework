@@ -95,6 +95,14 @@ class DiscretePSEAdapter(ABCDisplayer):
     def prepare_parameters(datatype_group_gid, back_page, color_metric=None, size_metric=None):
         """
         We suppose that there are max 2 ranges and from each operation results exactly one dataType.
+
+        :param datatype_group_gid: the group id for the `DataType` to be visualised
+        :param color_metric: a list of `DataTypeMeasure` which has been executed on `datatype_group_gid`
+        :param size_metric:  a list of `DataTypeMeasure` which has been executed on `datatype_group_gid`
+
+        :returns: `ContextDiscretePSE`
+
+        :raises Exception: when `datatype_group_id` is invalid (not in database)
         """
         datatype_group = dao.get_datatype_group_by_gid(datatype_group_gid)
         if datatype_group is None:

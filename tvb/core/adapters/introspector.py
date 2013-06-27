@@ -476,9 +476,9 @@ class Introspector:
         For all the algorithms found in the db for category given by category_key, update their
         'last_introspection_check' timestamp if they are part of current_groups.
         
-        @param current_groups: a list of algorithm groups that recently passed our validations
+        :param current_groups: a list of algorithm groups that recently passed our validations
             from the introspection and are still valid
-        @param category_key: the algorithm group category for which we match the algorithms found
+        :param category_key: the algorithm group category for which we match the algorithms found
             in the db with those we recently validated on introspection
         """
         db_groups = dao.get_groups_by_categories([category_key])

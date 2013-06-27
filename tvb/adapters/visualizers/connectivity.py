@@ -58,7 +58,7 @@ class ConnectivityViewer(ABCDisplayer):
                 {'name': 'colors', 'label': 'Node Colors', 'type': ConnectivityMeasure,
                  'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
                                            operations=["=="], values=[1]),
-                 'description': 'A ConnectivityMesure DataType that establishes a colormap for the nodes '
+                 'description': 'A ConnectivityMeasure DataType that establishes a colormap for the nodes '
                                 'displayed in the 2D Connectivity viewers.'},
                 {'name': 'step', 'label': 'Color Threshold', 'type': 'float',
                  'description': 'All nodes with a value greater than this threshold will be displayed as red discs, '
@@ -86,6 +86,18 @@ class ConnectivityViewer(ABCDisplayer):
         """
         Given the input connectivity data and the surface data, 
         build the HTML response to be displayed.
+
+        :param input_data: the `Connectivity` object which will be displayed
+        :param surface_data: if provided, it is displayed as a shadow to give an idea of the connectivity \
+                             position relative to the full brain cortical surface
+        :type surface_data: `CorticalSurface`
+        :param colors: used to establish a colormap for the nodes displayed in 2D Connectivity viewers
+        :type colors:  `ConnectivityMeasure`
+        :param rays: used to establish the size of the spheres representing each node in 3D Nodes viewer
+        :type rays:  `ConnectivityMeasure`
+        :param step: a threshold applied to the 2D Connectivity Viewers to differentiate 2 types of nodes \
+                     the ones with a value greater that this will be displayed as red discs, instead of yellow
+        :type step:  float
         """
         global_params, global_pages = self.compute_connectivity_global_params(input_data, surface_data)
         global_params['isSingleMode'] = False
@@ -107,6 +119,8 @@ class ConnectivityViewer(ABCDisplayer):
     def generate_preview(self, input_data, figure_size=None, surface_data=None, colors=None, rays=None, step=None):
         """
         Generate the preview for the BURST cockpit.
+
+        see `launch_`
         """
         parameters, _ = Connectivity2DViewer().compute_preview_parameters(input_data, figure_size[0], figure_size[1],
                                                                           colors, rays, step)
@@ -136,6 +150,11 @@ class ConnectivityViewer(ABCDisplayer):
     def compute_connectivity_global_params(self, input_data, surface_data=None):
         """
         Returns a dictionary which contains the data needed for drawing a connectivity.
+
+        :param input_data: the `Connectivity` object
+        :param surface_data: if provided, it is displayed as a shadow to give an idea of the connectivity \
+                             position relative to the full brain cortical surface
+        :type surface_data: `CorticalSurface`
         """
         path_weights = self.paths2url(input_data, 'weights')
         path_pos = self.paths2url(input_data, 'centres')
@@ -245,6 +264,8 @@ class Connectivity2DViewer():
     def compute_parameters(self, input_data, colors=None, rays=None, step=None):
         """
         Build the required HTML response to be displayed.
+
+        :raises LaunchException: when number of regions in input_data is less than 3
         """
         if input_data.number_of_regions <= 3:
             raise LaunchException('The connectivity matrix you selected has fewer nodes than acceptable for display!')

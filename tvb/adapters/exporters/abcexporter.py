@@ -57,14 +57,14 @@ class ABCExporter:
             Method should be implemented by each subclass and return
             an array with the supported types.
             
-            :return : an array with the supported data types.
+            :returns: an array with the supported data types.
         """
         pass
     
     def get_label(self):
         """
             This method returns a string to be used on the UI controls to initiate export
-            :return : string to be used on UI for starting this export. 
+            :returns: string to be used on UI for starting this export.
             By default class name is returned
         """
         return self.__class__.__name__
@@ -73,7 +73,7 @@ class ABCExporter:
         """
             This method specify if the current exporter can export provided data.
             :param data: data to be checked
-            :return: true if this data can be exported by current exporter, false otherwise. 
+            :returns: true if this data can be exported by current exporter, false otherwise.
         """
         effective_data_type = self._get_effective_data_type(data)
         
@@ -147,7 +147,7 @@ class ABCExporter:
             This is necessary in case new files are generated.
             :param project: project that contains data to be exported
             
-            :return: a tuple with the following elements
+            :returns: a tuple with the following elements
                 1. name of the file to be shown to user
                 2. full path of the export file (available for download)
                 3. boolean which specify if file can be deleted after download
@@ -170,6 +170,6 @@ class ABCExporter:
         """
             This method computes the extension of the export file 
             :param data: data type to be exported
-            :return: the extension of the file to be exported (e.g zip or h5)
+            :returns: the extension of the file to be exported (e.g zip or h5)
         """
         pass

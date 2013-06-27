@@ -80,7 +80,7 @@ class ExportManager:
     def get_exporters_for_data(self, data):
         """
             Get available exporters for current data type.
-            :return: a dictionary with the {exporter_id : label}
+            :returns: a dictionary with the {exporter_id : label}
         """
         if data is None:
             raise InvalidExportDataException("Could not detect exporters for null data")
@@ -107,7 +107,7 @@ class ExportManager:
             :param exporter_id: identifier of the exporter to be used
             :param project: project that contains data to be exported
             
-            :return: a tuple with the following elements
+            :returns: a tuple with the following elements
                 1. name of the file to be shown to user
                 2. full path of the export file (available for download)
                 3. boolean which specify if file can be deleted after download 

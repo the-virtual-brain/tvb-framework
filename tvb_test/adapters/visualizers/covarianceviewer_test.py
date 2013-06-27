@@ -50,6 +50,11 @@ class CovarianceViewerTest(TransactionalTestCase):
 
 
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a test user, a test project, a connectivity and a surface;
+        imports a CFF data-set
+        """
         self.datatypeFactory = DatatypesFactory()
         self.test_project = self.datatypeFactory.get_project()
         self.test_user = self.datatypeFactory.get_user()

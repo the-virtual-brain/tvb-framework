@@ -552,7 +552,7 @@ class FlowController(base.BaseController):
     def read_datatype_attribute(self, entity_gid, dataset_name, flatten=False, **kwargs):
         """
         Retrieve from a given DataType a property or a method result.
-        :return JSON with a NumPy array
+        :returns: JSON with a NumPy array
         :param entity_gid: GID for DataType entity
         :param dataset_name: name of the dataType property /method 
         :param flatten: result should be flatten before return (use with WebGL data mainly e.g vertices/triangles)

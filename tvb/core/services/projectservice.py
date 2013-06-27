@@ -424,7 +424,7 @@ class ProjectService:
 
     def get_operation_details(self, operation_gid, is_group):
         """
-        :return an entity OperationOverlayDetails filled with all information for current operation details.
+        :returns: an entity OperationOverlayDetails filled with all information for current operation details.
         """
         operation_group = None
         if is_group:
@@ -549,7 +549,7 @@ class ProjectService:
     @staticmethod
     def get_datatype_details(datatype_gid):
         """
-        :return an array. First entry in array is an instance of DataTypeOverlayDetails
+        :returns: an array. First entry in array is an instance of DataTypeOverlayDetails
         The second one contains all the possible states for the specified dataType.
         """
         meta_atts = context.DataTypeOverlayDetails()
@@ -884,7 +884,7 @@ class ProjectService:
     @staticmethod
     def _review_operation_inputs(operation_gid):
         """
-        :return: A list of DataTypes that are used as input parameters for the specified operation. 
+        :returns: A list of DataTypes that are used as input parameters for the specified operation.
                  And a dictionary will all operation parameters different then the default ones.
         """
         operation = dao.get_operation_by_gid(operation_gid)

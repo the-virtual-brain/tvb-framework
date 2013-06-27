@@ -200,6 +200,9 @@ class FilesHelperTest(TransactionalTestCase):
         
         
     def test_find_relative_path(self):
+        """
+        Tests that relative path is computed properly.
+        """
         rel_path = self.files_helper.find_relative_path("/root/up/to/here/test/it/now", "/root/up/to/here")
         self.assertEqual(rel_path, os.sep.join(["test", "it", "now"]), "Did not extract relative path as expected.")
         

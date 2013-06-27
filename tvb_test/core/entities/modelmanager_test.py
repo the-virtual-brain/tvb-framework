@@ -28,11 +28,11 @@
 #
 #
 
-'''
+"""
 Created on Jul 20, 2011
 
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 import unittest
 from tvb.core.entities.storage import dao
 from tvb.core.entities.modelmanager import initialize_startup

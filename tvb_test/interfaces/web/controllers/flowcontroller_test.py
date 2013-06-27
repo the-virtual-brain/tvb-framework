@@ -45,11 +45,16 @@ class FlowContollerTest(TransactionalTestCase, BaseControllersTest):
     """ Unit tests for flowcontoller """
     
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a `FlowController`
+        """
         BaseControllersTest.init(self)
         self.flow_c =  FlowController()
     
     
     def tearDown(self):
+        """ Cleans up the testing environment """
         BaseControllersTest.cleanup(self)
             
             

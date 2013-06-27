@@ -302,7 +302,7 @@ class XMLGroupReader():
         """
         Extra file to be added to Matlab Path when executing algorithm.
         
-        :return: Absolute path for additional Matlab path.
+        :returns: Absolute path for additional Matlab path.
         """
         additional_path = None
         if ATT_ADDITIONAL_PATH in self._algorithm_group.keys():

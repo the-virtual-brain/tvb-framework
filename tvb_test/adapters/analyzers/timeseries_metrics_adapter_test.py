@@ -63,6 +63,10 @@ class TimeSeriesMetricsAdapterTest(TransactionalTestCase):
 
 
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a test user and a test project, saves old configuration and imports a CFF data-set
+        """
         self.test_user = TestFactory.create_user()
         self.test_project = TestFactory.create_project(self.test_user)
         self.old_config_file = cfg.CURRENT_DIR
@@ -80,7 +84,7 @@ class TimeSeriesMetricsAdapterTest(TransactionalTestCase):
 
     def test_adapter_launch(self):
         """
-        Test that the adapters launches and succesfully generates a datatype measure entry.
+        Test that the adapters launches and successfully generates a datatype measure entry.
         """
         meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW"}
         algo_group = FlowService().get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)[1]

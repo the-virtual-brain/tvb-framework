@@ -28,11 +28,11 @@
 #
 #
 
-'''
+"""
 Created on Jul 21, 2011
 
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 
 from time import sleep
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -65,6 +65,11 @@ class TestAdapter2(ABCAdapter):
         return 0 
     
     def launch(self, test2=None):
+        """
+        Mimics launching with a long delay
+
+        :param test2: a dummy parameter
+        """
         sleep(15)
         test_var = 1
         int(test_var)

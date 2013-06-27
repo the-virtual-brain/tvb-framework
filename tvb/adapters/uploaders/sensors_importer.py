@@ -92,7 +92,17 @@ class Sensors_Importer(ABCSynchronous):
     
     def launch(self, sensors_file, sensors_type):
         """
-        Created required sensors from the uploaded file.
+        Creates required sensors from the uploaded file.
+
+        :param sensors_file: the file containing sensor data
+        :param sensors_type: a string from "EEG Sensors", "MEG sensors", "Internal Sensors"
+
+        :returns: a list of sensors instances of the specified type
+
+        :raises LaunchException: when
+                    * no sensors_file specified
+                    * sensors_type is invalid (not one of the mentioned options)
+                    * sensors_type is "MEG sensors" and no orientation is specified
         """
         if sensors_file is None:
             raise LaunchException ("Please select sensors file which contains data to import")

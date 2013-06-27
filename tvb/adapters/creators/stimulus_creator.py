@@ -64,7 +64,7 @@ class SurfaceStimulusCreator(ABCSynchronous):
 
     def launch(self, **kwargs):
         """
-        Used for creating a StimuliSurface instance
+        Used for creating a `StimuliSurface` instance
         """
         stimuli_surface = StimuliSurface(storage_path=self.storage_path)
         stimuli_surface.surface = kwargs['surface']
@@ -133,7 +133,7 @@ class RegionStimulusCreator(ABCSynchronous):
 
     def launch(self, **kwargs):
         """
-        Used for creating a StimuliRegion instance
+        Used for creating a `StimuliRegion` instance
         """
         stimuli_region = StimuliRegion(storage_path=self.storage_path)
         stimuli_region.connectivity = kwargs['connectivity']

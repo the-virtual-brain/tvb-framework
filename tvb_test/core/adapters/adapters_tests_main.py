@@ -28,11 +28,11 @@
 #
 #
 
-'''
+"""
 Created on Jul 21, 2011
 
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 
 import unittest
 from tvb_test.core.adapters import xmlreader_test

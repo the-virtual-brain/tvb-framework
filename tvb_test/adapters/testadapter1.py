@@ -28,11 +28,11 @@
 #
 #
 
-'''
+"""
 Created on Jul 21, 2011
 
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb_test.datatypes.datatype1 import Datatype1
@@ -65,6 +65,13 @@ class TestAdapter1(ABCSynchronous):
         return 0
         
     def launch(self, test1_val1, test1_val2):
+        """
+        Tests successful launch of an ABCSynchronous adapter
+
+        :param test1_val1: a dummy integer value
+        :param test1_val2: a dummy integer value
+        :return: a `Datatype1` object
+        """
         int(test1_val1)
         int(test1_val2)
         result = Datatype1()

@@ -82,6 +82,12 @@ class ZIPConnectivityImporter(ABCSynchronous):
         """
         Execute import operations: process the weights and tracts csv files, then use
         the reference connectivity passed as input_data for the rest of the attributes.
+
+        :param weights: csv file containing the weights measures
+        :param tracts:  csv file containing the tracts measures
+        :param input_data: a reference connectivity with the additional attributes
+
+        :raises LaunchException: when the number of nodes in CSV files doesn't match the one in the connectivity
         """
         dti_service = dtipipelineservice.DTIPipelineService()
         dti_service._process_csv_file(weights, dti_service.WEIGHTS_FILE)

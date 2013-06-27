@@ -41,15 +41,23 @@ class HelpControllerTest(TransactionalTestCase, BaseControllersTest):
     """ Unit tests for helpcontroller """
     
     def setUp(self):
+        """
+        Sets up the environment for testing;
+        creates a `HelpController`
+        """
         BaseControllersTest.init(self)
         self.help_c =  HelpController()
     
     
     def tearDown(self):
+        """ Cleans the testing environment """
         BaseControllersTest.cleanup(self)
             
             
     def test_show_online_help(self):
+        """
+        Verifies that result dictionary has the expected keys / values
+        """
         result_dict = self.help_c.showOnlineHelp(WebStructure.SECTION_PROJECT, WebStructure.SUB_SECTION_OPERATIONS)
         self.assertTrue('helpURL' in result_dict)
         self.assertEqual(result_dict['helpURL'], '/static/help/UserGuide-UI_Project.html#operations')

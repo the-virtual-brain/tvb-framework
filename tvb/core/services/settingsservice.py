@@ -139,7 +139,7 @@ class SettingsService():
     @staticmethod
     def get_disk_free_space(storage_path):
         """
-        :return: the available HDD space in KB in TVB_STORAGE folder.
+        :returns: the available HDD space in KB in TVB_STORAGE folder.
         """
         if sys.platform.startswith('win'):
             import ctypes

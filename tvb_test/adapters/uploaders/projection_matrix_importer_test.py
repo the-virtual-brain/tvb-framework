@@ -71,6 +71,9 @@ class ProjectionMatrixTest(TransactionalTestCase):
         
     
     def test_happy_flow_region_import(self):
+        """
+        Verifies the happy flow for importing a region.
+        """
         dt_count_before = TestFactory.get_entity_count(self.test_project, ProjectionRegionEEG())
         group = dao.find_group('tvb.adapters.uploaders.projection_matrix_importer', 
                                'ProjectionMatrixRegionEEGImporter')
@@ -87,6 +90,9 @@ class ProjectionMatrixTest(TransactionalTestCase):
         
         
     def test_happy_flow_surface_import(self):
+        """
+        Verifies the happy flow for importing a surface.
+        """
         dt_count_before = TestFactory.get_entity_count(self.test_project, ProjectionSurfaceEEG())
         group = dao.find_group('tvb.adapters.uploaders.projection_matrix_importer', 
                                'ProjectionMatrixSurfaceEEGImporter')

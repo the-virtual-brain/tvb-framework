@@ -70,6 +70,9 @@ class ProjectStructureTest(TransactionalTestCase):
 
     
     def tearDown(self):
+        """
+        Clear project folders after testing
+        """
         self.delete_project_folders()
 #    def tearDown(self):
 #        """
@@ -122,6 +125,9 @@ class ProjectStructureTest(TransactionalTestCase):
 
 
     def test_is_upload_operation(self):
+        """
+        Tests that upload and non-upload algorithms are created and run accordingly
+        """
         self.__init_algorithmn()
         upload_algo = self._create_algo_for_upload()
         op1 = model.Operation(self.test_user.id, self.test_project.id, self.algo_inst.id, "")
@@ -266,7 +272,10 @@ class ProjectStructureTest(TransactionalTestCase):
 
 
     def test_get_operations_for_dt(self):
-
+        """
+        Tests method get_operations_for_datatype.
+        Verifies result dictionary has the correct values
+        """
         created_ops, datatype_gid = self._create_operations_with_inputs()
         operations = self.project_service.get_operations_for_datatype(datatype_gid, self.relevant_filter)
         self.assertEqual(len(operations), 2)
@@ -290,7 +299,10 @@ class ProjectStructureTest(TransactionalTestCase):
 
 
     def test_get_operations_for_dt_group(self):
-
+        """
+        Tests method get_operations_for_datatype_group.
+        Verifies filters' influence over results is as expected
+        """
         created_ops, dt_group_id = self._create_operations_with_inputs(True)
 
         ops = self.project_service.get_operations_for_datatype_group(dt_group_id, self.relevant_filter)
@@ -315,7 +327,10 @@ class ProjectStructureTest(TransactionalTestCase):
 
 
     def test_get_inputs_for_operation(self):
-        
+        """
+        Tests method get_datatype_and_datatypegroup_inputs_for_operation.
+        Verifies filters' influence over results is as expected
+        """
         algo_group = dao.find_group('tvb_test.adapters.testadapter3', 'TestAdapter3')
         algo = dao.get_algorithm_by_group(algo_group.id)
 
@@ -497,7 +512,10 @@ class ProjectStructureTest(TransactionalTestCase):
 
 
     def _create_mapped_arrays(self, project_id):
-        
+        """
+        :param project_id: the project in which the arrays are created
+        :return: a list of dummy `MappedArray`
+        """
         array_wrappers = self.flow_service.get_available_datatypes(project_id, "tvb.datatypes.arrays.MappedArray")
         self.assertEqual(len(array_wrappers), 0)
         
@@ -523,6 +541,12 @@ class ProjectStructureTest(TransactionalTestCase):
 
 
     def _create_operation(self, project_id, algorithm_id):
+        """
+        dummy operation
+        :param project_id: the project in which the operation is created
+        :param algorithm_id: the algorithm to be run for the operation
+        :return: a dummy `Operation` with the given specifications
+        """
         algorithm = dao.get_algorithm_by_id(algorithm_id)
         meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe",
                 DataTypeMetaData.KEY_STATE: "RAW"}

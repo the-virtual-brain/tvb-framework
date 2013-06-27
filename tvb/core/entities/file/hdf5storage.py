@@ -78,7 +78,7 @@ class HDF5StorageManager(object):
     def __init__(self, storage_folder, file_name, buffer_size=600000):
         """
         Creates a new storage manager instance.
-        @param buffer_size: the size in Bytes of the amount of data that will be buffered before writing to file. 
+        :param buffer_size: the size in Bytes of the amount of data that will be buffered before writing to file.
         """
         if storage_folder is None:
             raise FileStructureException("Please provide the folder where to store data")
@@ -93,7 +93,7 @@ class HDF5StorageManager(object):
     def is_valid_hdf5_file(self):
         """
         This method checks if specified file exists and if it has correct HDF5 format
-        :return: True is file exists and has HDF5 format. False otherwise.
+        :returns: True is file exists and has HDF5 format. False otherwise.
         """
         try:
             return os.path.exists(self.__storage_full_name) and hdf5.h5f.is_hdf5(self.__storage_full_name)
@@ -202,7 +202,7 @@ class HDF5StorageManager(object):
         :param dataset_name: Name of the data set from where to read data
         :param data_slice: Specify how to retrieve data from array {e.g (slice(1,10,1),slice(1,6,2)) }
         :param where: represents the path where dataset is stored (e.g. /data/info)  
-        :return: a numpy.ndarray containing filtered data
+        :returns: a numpy.ndarray containing filtered data
         
         """
         LOG.debug("Reading data from data set: %s" % dataset_name)
@@ -236,7 +236,7 @@ class HDF5StorageManager(object):
         
         :param dataset_name: Name of the data set from where to read data
         :param where: represents the path where dataset is stored (e.g. /data/info)  
-        :return: a tuple containing data size
+        :returns: a tuple containing data size
         
         """
         LOG.debug("Reading data from data set: %s" % dataset_name)
@@ -303,7 +303,7 @@ class HDF5StorageManager(object):
         apply some transformation if necessary
         
         :param value: value which is planned to be stored
-        :return:  value to be stored
+        :returns:  value to be stored
         
         """
         if value is None:
@@ -363,7 +363,7 @@ class HDF5StorageManager(object):
         
         :param dataset_name: name of the dataset for which to read metadata. If None, read metadata from ROOT node.
         :param where: represents the path where dataset is stored (e.g. /data/info)  
-        :return: a dictionary containing all metadata associated with the node   
+        :returns: a dictionary containing all metadata associated with the node
         
         """
         LOG.debug("Retrieving metadata for dataset: %s" % dataset_name)
@@ -567,7 +567,7 @@ class HDF5StorageManager(object):
         :param mode: Mode to open file (possible values are w / r / a).
                     Default value is 'a', to allow adding multiple data to the same file.
         :param chunk_shape: Shape for chunks at write.
-        :return: returns the file which stores data in HDF5 format opened for read / write according to mode param
+        :returns: returns the file which stores data in HDF5 format opened for read / write according to mode param
         
         """
         if self.__storage_full_name is not None:
@@ -622,7 +622,7 @@ class HDF5StorageManager(object):
         def buffer_data(self, data_list):
             """
             Add data_list to an internal buffer in order to improve performance for append_data type of operations.
-            @return: True if buffer is still fine, 
+            :returns: True if buffer is still fine,
                      False if a flush is necessary since the buffer is full
             """
             if self.buffered_data is None:
@@ -653,7 +653,7 @@ class HDF5StorageManager(object):
 
         def flush_buffered_data(self):
             """
-            Append the data buffered so far to the input dataset using @param grow_dimension: as the dimension that
+            Append the data buffered so far to the input dataset using :param grow_dimension: as the dimension that
             will be expanded. 
             """
             if self.buffered_data is not None:

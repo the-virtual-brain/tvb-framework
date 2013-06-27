@@ -83,7 +83,7 @@ class TVBImporter(ABCSynchronous):
 
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
         """
-            Overwrite method in order to return the correct number of stored datatypes.
+        Overwrite method in order to return the correct number of stored datatypes.
         """
         self.nr_of_datatypes = 0
         msg, _ = ABCSynchronous._prelaunch(self, operation, uid=None, **kwargs)
@@ -93,6 +93,12 @@ class TVBImporter(ABCSynchronous):
     def launch(self, data_file):
         """
         Execute import operations: unpack ZIP, build and store generic DataType objects.
+
+        :param data_file: an archive (ZIP / HDF5) containing the `DataType`
+
+        :raises LaunchException: when data_file is None, nonexistent, or invalid \
+                    (e.g. incomplete meta-data, not in ZIP / HDF5 format etc. )
+
         """
         if data_file is None:
             raise LaunchException ("Please select file which contains data to import")

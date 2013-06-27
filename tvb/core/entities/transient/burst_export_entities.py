@@ -36,10 +36,10 @@ from copy import deepcopy
 from tvb.core.entities.storage import dao
 
 class BaseExportHelp(object):
-    '''
+    """
     Base class for all export helper entities. Wraps over a dictionary that is used
     to later convert entities to / from json.
-    '''
+    """
     def __init__(self, input_data):
         input_data = input_data or {}
         self._data_dict = input_data

@@ -144,6 +144,12 @@ class BrainViewer(ABCDisplayer):
     def compute_parameters(self, time_series):
         """
         Create the required parameter dictionary for the HTML/JS viewer.
+
+        :rtype: `dict`
+        :raises Exception: when
+                    * number of measure points exceeds the maximum allowed
+                    * a Face object cannot be found in database
+
         """
         one_to_one_map, url_vertices, url_normals, url_triangles, \
             alphas, alphas_indices = self._prepare_surface_urls(time_series)
@@ -237,7 +243,7 @@ class BrainViewer(ABCDisplayer):
     def _prepare_data_slices(self, time_series):
         """
         Prepare data URL for retrieval with slices of timeSeries activity and Time-Line.
-        :return: [activity_urls], [timeline_urls] 
+        :returns: [activity_urls], [timeline_urls]
                  Currently timeline_urls has just one value, as on client is loaded entirely anyway.
         """
         overall_shape = time_series.read_data_shape()
@@ -269,7 +275,12 @@ class BrainEEG(BrainViewer):
 
 
     def _retrieve_measure_points(self, surface_activity):
-        """ Overwrite, and compute sensors positions after mapping or skin surface of unit-vectors"""
+        """
+        Overwrite, and compute sensors positions after mapping or skin surface of unit-vectors
+
+        :returns: measure points, measure points labels, measure points number
+        :rtype: tuple
+        """
         measure_points, measure_points_no = None, 0
         if not hasattr(self, 'eeg_cap') or self.eeg_cap is None:
             cap_eeg = dao.get_generic_entity(EEGCap, "EEGCap", "type")
@@ -304,6 +315,9 @@ class BrainEEG(BrainViewer):
 
 
     def _prepare_surface_urls(self, time_series):
+        """
+        Prepares the urls from which the client may read the data needed for drawing the surface.
+        """
         one_to_one_map = False
         if self.eeg_cap is None:
             eeg_cap = dao.get_generic_entity(EEGCap, "EEGCap", "type")

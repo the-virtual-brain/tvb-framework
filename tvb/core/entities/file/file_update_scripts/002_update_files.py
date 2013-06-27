@@ -64,8 +64,8 @@ def _serialize_value(value):
     This method takes a value which will be stored as meta-data and 
     apply some transformation if necessary
     
-    @param value:  value which is planned to be stored
-    @return: value to be stored
+    :param value:  value which is planned to be stored
+    :returns: value to be stored
     
     NOTE: this method was a part of TVB 1.0 hdf5storage manager, but since this
     script needs to be independent of current storage manager, we duplicate it here. 
@@ -89,8 +89,8 @@ def _deserialize_value(value):
     """
     This method takes value loaded from H5 file and transform it to TVB data. 
     
-    @param value: the value that was read from the H5 file
-    @return: a TVB specific deserialized value of the input 
+    :param value: the value that was read from the H5 file
+    :returns: a TVB specific deserialized value of the input
     
     NOTE: this method was a part of TVB 1.0 hdf5storage manager, but since this
     script needs to be independent of current storage manager, we duplicate it here. 
@@ -122,9 +122,9 @@ def __upgrade_file(input_file_name, output_file_name):
     open/close. (Probably caused by some GIL / C level incompatibilities). Instead of this 
     use the `upgrade(file_name)` which will call this method in a separate Python process.
     
-    @param input_file_name: the path to a input *.h5 file from TVB 1.0 using pyTables format
+    :param input_file_name: the path to a input *.h5 file from TVB 1.0 using pyTables format
         for storage
-    @param output_file_name: the path to a output *.h5 that will be written in h5py TVB 1.0.1
+    :param output_file_name: the path to a output *.h5 that will be written in h5py TVB 1.0.1
         specific format
     """
     tables_h5_file = tables.openFile(input_file_name, 'r')
@@ -192,7 +192,7 @@ def upgrade(input_file):
     In order to avoid segmentation faults when updating a batch of files just
     start every conversion on a different Python process.
     
-    @param input_file: the file that needs to be converted to a newer file storage version.
+    :param input_file: the file that needs to be converted to a newer file storage version.
         This should be a file that still uses TVB 1.0 storage (pyTables)
     """
     # Just to avoid any problems about renaming open files, do a rename from the start 

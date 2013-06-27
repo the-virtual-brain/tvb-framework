@@ -138,6 +138,12 @@ class TestAdapterHDDRequired(ABCSynchronous):
         return int(kwargs['test']) * 8 / 2 ** 10
     
     def launch(self, test):
+        """
+        Mimics launching with a lot of memory usage
+
+        :param test: should be a very large integer; the larger, the more memory is used
+        :returns: a `Datatype2` object, with big string_data
+        """
         result = Datatype2()
         result.row1 = 'param_5'
         result.row2 = 'param_6'

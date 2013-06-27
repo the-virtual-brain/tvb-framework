@@ -49,6 +49,11 @@ class BrainViewerTest(TransactionalTestCase):
     Unit-tests for BrainViewer.
     """
     def setUp(self):
+        """
+        Sets up the environment for running the tests;
+        creates a test user, a test project, a connectivity, a cortical surface and a face surface;
+        imports a CFF data-set
+        """
         self.datatypeFactory = DatatypesFactory()
         self.test_project = self.datatypeFactory.get_project()
         self.test_user = self.datatypeFactory.get_user()
@@ -112,6 +117,9 @@ class BrainViewerTest(TransactionalTestCase):
         
         
     def test_launch_eeg(self):
+        """
+        Tests successful launch of a BrainEEG and that all required keys are present in returned template dictionary
+        """
         zip_path = os.path.join(os.path.dirname(sensors_dataset.__file__), 'EEG_unit_vectors_BrainProducts_62.txt.bz2')
         
         TestFactory.import_sensors(self.test_user, self.test_project, zip_path, 'EEG Sensors')

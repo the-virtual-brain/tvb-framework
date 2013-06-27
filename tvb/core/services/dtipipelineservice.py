@@ -194,7 +194,7 @@ class DTIPipelineService():
         """
         Read entries in uploaded ZIP.
         Raise Exception in case pairs HDR/IMG are not matched or number "expected_pairs" is not met.
-        :return string with HDR list (to be passed to DTI pipeline).
+        :returns: string with HDR list (to be passed to DTI pipeline).
         """
         
         hdr_files = []

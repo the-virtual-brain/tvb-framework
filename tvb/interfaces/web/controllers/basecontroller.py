@@ -336,8 +336,8 @@ class BaseController(object):
         and later on when request is done, all these files/folders
         are deleted
         
-        ::param file_name: name of the file or folder to be deleted   
-        ::param delete_parent_fodler: specify if the parent folder of the 
+        :param file_name: name of the file or folder to be deleted
+        :param delete_parent_fodler: specify if the parent folder of the
             file should be removed too.
             
         """

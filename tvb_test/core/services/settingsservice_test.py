@@ -44,9 +44,9 @@ TEST_CONFIG_FILE = os.path.expanduser(os.path.join("~", 'tvb_test.configuration'
 
 
 class SettingsServiceTest(unittest.TestCase):
-    '''
+    """
     This class contains tests for the tvb.core.services.settingsservice module.
-    '''
+    """
     
     def _write_cfg_file(self, initial_data):
         """ Write in CFG file, a dictionary of properties"""
@@ -58,7 +58,12 @@ class SettingsServiceTest(unittest.TestCase):
         self.settings_service = SettingsService()
     
     
-    def setUp(self):     
+    def setUp(self):
+        """
+        Sets up the environment for testing;
+        saves config file;
+        creates initial TVB settings and a `SettingsService`
+        """
         self.initial_settings = {}
         self.old_config_file = cfg.TVB_CONFIG_FILE
         cfg.TVB_CONFIG_FILE = TEST_CONFIG_FILE
@@ -70,6 +75,10 @@ class SettingsServiceTest(unittest.TestCase):
         
             
     def tearDown(self):
+        """
+        Clean up after testing is done;
+        restore config file
+        """
         if os.path.exists(cfg.TVB_CONFIG_FILE):
             os.remove(cfg.TVB_CONFIG_FILE)
         cfg.FILE_SETTINGS = None
@@ -84,21 +93,21 @@ class SettingsServiceTest(unittest.TestCase):
         
     
     def test_get_free_disk_space(self):
-        '''
+        """
         Check that no unexpected exception is raised during the query for free disk space.
         Also do a check that returned value is greater than 0. Not most precise check but other
         does not seem possible so far.
-        '''
+        """
         disk_space = self.settings_service.get_disk_free_space(cfg.TVB_STORAGE)
         self.assertTrue(disk_space > 0, "Disk space should never be negative.")
     
             
     def test_getsettings_no_configfile(self):
-        '''
+        """
         If getting the interface with no configuration file present, the
         configurations dictionary should not change and the first_run parameter
         should be true.
-        '''
+        """
         initial_configurations = self.settings_service.configurable_keys
         updated = self.settings_service.configurable_keys
         first_run = self.settings_service.is_first_run()
@@ -132,10 +141,10 @@ class SettingsServiceTest(unittest.TestCase):
                 
     
     def test_updatesets_with_config(self):
-        '''
+        """
         Test that the config.py entries are updated accordingly when a 
         configuration file is present.
-        '''
+        """
         test_storage = os.path.join(cfg.TVB_STORAGE, 'test_storage')
         test_dict = {self.settings_service.KEY_STORAGE: test_storage,
                      self.settings_service.KEY_ADMIN_NAME: 'test_name',
@@ -154,10 +163,10 @@ class SettingsServiceTest(unittest.TestCase):
                     
                     
     def test_savesettings_no_change(self):
-        '''
+        """
         Test than when nothing changes in the settings file, the correct flags
         are returned.
-        '''
+        """
         test_storage = os.path.join(cfg.TVB_STORAGE, 'test_storage')
         disk_storage = 100
         initial_data = {self.settings_service.KEY_STORAGE: test_storage,
@@ -177,9 +186,9 @@ class SettingsServiceTest(unittest.TestCase):
 
         
     def test_savesettings_changedir(self):
-        '''
+        """
         Test than storage is changed, the data is copied in proper place.
-        '''
+        """
         #Add some additional entries that would normaly come from the UI.
         old_storage = os.path.join(cfg.TVB_STORAGE, 'tvb_test_old')
         new_storage = os.path.join(cfg.TVB_STORAGE, 'tvb_test_new')

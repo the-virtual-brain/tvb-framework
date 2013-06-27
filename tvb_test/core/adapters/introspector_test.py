@@ -27,12 +27,12 @@
 #   Frontiers in Neuroinformatics (in press)
 #
 #
-'''
+"""
 Created on Jul 21, 2011
 
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 
 import os
 import unittest

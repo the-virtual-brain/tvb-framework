@@ -86,7 +86,7 @@ class StaticFiltersFactory():
     @staticmethod
     def build_operations_filters(simulation_algorithm, logged_user_id):
         """
-        :return: list of filters that can be applied on Project View Operations page.
+        :returns: list of filters that can be applied on Project View Operations page.
         """
         new_filters = []
 

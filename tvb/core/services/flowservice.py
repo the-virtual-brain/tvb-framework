@@ -87,7 +87,7 @@ class FlowService:
     
     @staticmethod
     def get_raw_categories():
-        """:return: AlgorithmCategory list of entities that have results in RAW state (Creators/Uploaders)"""
+        """:returns: AlgorithmCategory list of entities that have results in RAW state (Creators/Uploaders)"""
         return dao.get_raw_categories()
     
     @staticmethod
@@ -393,7 +393,7 @@ class FlowService:
         Retrieved from DB saved selections for current project. If a certain selection
         doesn't have all the labels between the labels of the given connectivity than
         this selection will not be returned.
-        :return List of ConnectivitySelection entities.
+        :returns: List of ConnectivitySelection entities.
         """
         selections = dao.get_selections_for_project(project_id, connectivity_gid)
         return selections

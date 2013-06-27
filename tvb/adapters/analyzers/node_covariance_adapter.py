@@ -102,7 +102,9 @@ class NodeCovarianceAdapter(ABCAsynchronous):
     
     def launch(self, time_series):
         """ 
-        Launch algorithm and build results. 
+        Launch algorithm and build results.
+
+        :returns: the `Covariance` built with the given timeseries as source
         """
         
         #Create a FourierSpectrum dataType object.

@@ -65,7 +65,7 @@ class LocalConnectivityCreator(ABCAsynchronous):
 
     def launch(self, **kwargs):
         """
-        Used for creating a LocalConnectivity
+        Used for creating a `LocalConnectivity`
         """
         local_connectivity = LocalConnectivity(storage_path=self.storage_path)
         local_connectivity.cutoff = float(kwargs['cutoff'])

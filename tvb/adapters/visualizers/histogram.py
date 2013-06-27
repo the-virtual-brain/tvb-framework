@@ -60,6 +60,9 @@ class HistogramViewer(ABCDisplayer):
     def launch(self, input_data):
         """
         Prepare input data for display.
+
+        :param input_data: A BCT computed measure for a Connectivity
+        :type input_data: `ConnectivityMeasure`
         """
         params = self.prepare_parameters(input_data)
         return self.build_display_result("histogram/view", params,

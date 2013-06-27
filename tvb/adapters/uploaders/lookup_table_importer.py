@@ -28,11 +28,11 @@
 #
 #
 
-'''
+"""
 Created on Jan 22, 2013
 
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
-'''
+"""
 
 import numpy
 from tvb.datatypes.lookup_tables import LookUpTable, PsiTable, NerfTable
