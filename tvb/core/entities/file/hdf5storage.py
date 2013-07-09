@@ -622,8 +622,8 @@ class HDF5StorageManager(object):
         def buffer_data(self, data_list):
             """
             Add data_list to an internal buffer in order to improve performance for append_data type of operations.
-            :returns: True if buffer is still fine,
-                     False if a flush is necessary since the buffer is full
+            :returns: True if buffer is still fine, \
+                      False if a flush is necessary since the buffer is full
             """
             if self.buffered_data is None:
                 self.buffered_data = data_list

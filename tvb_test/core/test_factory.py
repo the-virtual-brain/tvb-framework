@@ -122,7 +122,7 @@ class TestFactory():
         Create persisted operation.
         
         :param algorithm: When not None, introspect TVB and TVB_TEST for adapters.
-        :returns: Operation entity after persistence.
+        :return: Operation entity after persistence. 
         """
         if algorithm is None:
             algo_group = dao.find_group('tvb_test.adapters.ndimensionarrayadapter', 'NDimensionArrayAdapter')

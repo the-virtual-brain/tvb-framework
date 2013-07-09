@@ -72,10 +72,13 @@ def nan_not_allowed():
     Annotation that guides NumPy behavior in case of floating point errors.
     The NumPy default is to just print a warning to sys.stdout, this annotation will raise our custom exception.
     This annotation will enforce that an exception is thrown in case a floating point error is produced.
-    e.g. If NaN is take as input and not produced inside the context covered by this annotation, 
+
+    e.g. If NaN is take as input and not produced inside the context covered by this annotation,
          nothing happens from this method p.o.v.
+
     e.g. If inside a method annotated with this method we have something like numpy.log(-1),
          then LaunchException is thrown.
+
     """
 
 

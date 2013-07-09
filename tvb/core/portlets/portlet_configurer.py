@@ -209,10 +209,12 @@ class PortletConfigurer():
     def prefix_adapters_parameters(self, adapter_config_list):
         """
         Prepend separate prefix to the name of each entry of the adapter interfaces.
+
         :param adapter_config_list: a list of AdapterConfiguration entities.
         :returns: same list with the difference that a separate prefix is prepended to
-        the name of each parameter from the adapter interface, specific to the step it 
+        the name of each parameter from the adapter interface, specific to the step it
         is in the adapter chain.
+
         """
         for index, adapter_config in enumerate(adapter_config_list):
             specific_prefix = ADAPTER_PREFIX_ROOT + str(index)

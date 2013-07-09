@@ -72,8 +72,8 @@ def find_file(target_file, root_folder):
     Search for a file in a folder directory. Return the folder in which
     the file can be found.
     :param target_file: the name of the file that is searched
-    :param root_folder: the top lever folder from which to start searching in all it's
-        subdirectories
+    :param root_folder: the top lever folder from which to start searching in all it's \
+                        subdirectories
         
     :returns: the name of the folder in which the file can be found
     """

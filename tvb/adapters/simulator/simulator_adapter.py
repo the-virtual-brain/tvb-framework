@@ -29,11 +29,11 @@
 #
 
 """
-
 Adapter that uses the traits module to generate interfaces to the Simulator.
 Few supplementary steps are done here:
-   - from submitted Monitor/Model... names, build transient entities
-   - after UI parameters submit, compose transient Cortex entity to be passed to the Simulator.
+
+   * from submitted Monitor/Model... names, build transient entities
+   * after UI parameters submit, compose transient Cortex entity to be passed to the Simulator.
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>

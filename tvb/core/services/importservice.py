@@ -216,10 +216,11 @@ class ImportService():
         in the same method, since if a wf_step has to be omited for some reason, we also need to
         omit that view step.
         :param workflow: a model.Workflow entity from which we need to add workflow steps
-        :param wf_steps: a list of WorkflowStepInformation entities, from which we will rebuild
-                        the workflow steps
-        :param view_steps: a list of WorkflowViewStepInformation entities, from which we will
-                        rebuild the workflow view steps
+        :param wf_steps: a list of WorkflowStepInformation entities, from which we will rebuild \
+                         the workflow steps
+        :param view_steps: a list of WorkflowViewStepInformation entities, from which we will \
+                           rebuild the workflow view steps
+
         """
         for wf_step in wf_steps:
             algorithm = wf_step.get_algorithm()
