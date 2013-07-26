@@ -177,7 +177,8 @@ class FigureController(ProjectController):
         figure = self.figure_service.load_figure(figure_id)
         image_folder = self.files_helper.get_images_folder(figure.project.name, figure.fk_from_operation)
         figure_path = os.path.join(image_folder, figure.file_path)
-        return serve_file(figure_path, "image/png", "attachment", figure.name + ".png")
+        return serve_file(figure_path, "image/" + figure.file_format, "attachment",
+                          "%s.%s" % (figure.name, figure.file_format))
 
 
     @cherrypy.expose

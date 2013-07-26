@@ -17,7 +17,7 @@
                 exportCanvases('PNG', '$currentOperationId'); 
         };
         $(document).ready(function() {
-            includeAdapterInterface("div_adapter_interface", $selectedProject.id, $currentAlgoId, '$figure_exportable','${"" if ("back_page=" not in submitLink) else submitLink.split("back_page=")[-1]}');
+            includeAdapterInterface("div_adapter_interface", $selectedProject.id, $currentAlgoId, '${"" if ("back_page=" not in submitLink) else submitLink.split("back_page=")[-1]}');
         });
     </script>
   </div>

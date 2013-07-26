@@ -145,8 +145,6 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
                           serverIp=config.SERVER_IP, serverPort=config.MPLH5_SERVER_PORT,
                           figureNumbers=figure_nrs, metrics=metrics, figuresJSON=json.dumps(figure_nrs))
 
-        if self.EXPORTABLE_FIGURE not in parameters:
-            parameters[self.EXPORTABLE_FIGURE] = True
         return self.build_display_result("pse_isocline/view", parameters)
 
 

@@ -81,7 +81,7 @@ class FigureService:
 
         # Store entity into DB
         entity = model.ResultFigure(operation_id, user.id, project.id, session_name,
-                                    "Snapshot-" + operation_id, file_name)
+                                    "Snapshot-" + operation_id, file_name, img_type)
         entity = dao.store_entity(entity)
 
         # Load instance from DB to have lazy fields loaded

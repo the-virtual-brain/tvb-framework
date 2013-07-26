@@ -82,7 +82,7 @@ class CovarianceViewerTest(TransactionalTestCase):
         viewer = CovarianceVisualizer()
         result = viewer.launch(covariance)
         expected_keys = ['matrix_strides', 'matrix_shape', 'matrix_data',
-                         'mainContent', 'isAdapter', 'figure_exportable']
+                         'mainContent', 'isAdapter']
         for key in expected_keys:
             self.assertTrue(key in result)
 

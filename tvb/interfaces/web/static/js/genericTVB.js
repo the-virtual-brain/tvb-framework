@@ -120,10 +120,10 @@ function fireOnClick(redirectElem) {
 
 // ---------- Function on right call-out
 
-function includeAdapterInterface(divId, projectId, algorithmId, exportAvailable, back_page) {
+function includeAdapterInterface(divId, projectId, algorithmId, back_page) {
     // Populate in divId, the interface of the adapter, specified by algorihmId.
     // The interface will be automatically populated with dataTypes from projectId     
-    get_url = "/flow/getadapterinterface/"+ projectId+ "/" + algorithmId +'/' + exportAvailable + '/' +back_page;
+    get_url = "/flow/getadapterinterface/"+ projectId+ "/" + algorithmId + '/' +back_page;
     $.ajax({ async : false,
              type: 'GET',
              url: get_url,

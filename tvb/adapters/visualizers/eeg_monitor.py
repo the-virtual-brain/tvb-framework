@@ -143,7 +143,6 @@ class EegMonitor(ABCDisplayer):
                           extended_view=False,
                           entities=original_timeseries,
                           page_size=min(self.page_size, max_chunck_length))
-        parameters[self.EXPORTABLE_FIGURE] = True
         return parameters
 
 

@@ -545,7 +545,7 @@ class ResultFigure(Base, Exportable):
         self.session_name = session_name
         self.name = name
         self.file_path = path
-        self.file_format = file_format
+        self.file_format = file_format.lower()          # some platforms have difficulties if it's not lower case
 
 
     def __repr__(self):

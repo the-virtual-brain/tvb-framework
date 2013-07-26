@@ -56,7 +56,6 @@ class ABCDisplayer(ABCSynchronous):
     PARAM_FIGURE_SIZE = 'figure_size'
     VISUALIZERS_ROOT = ''
     VISUALIZERS_URL_PREFIX = ''
-    EXPORTABLE_FIGURE = 'figure_exportable'
      
      
     def get_output(self):
@@ -119,8 +118,7 @@ class ABCDisplayer(ABCSynchronous):
             parameters[key] = value
         parameters[self.KEY_CONTENT] = template
         parameters[self.KEY_IS_ADAPTER] = True
-        if self.EXPORTABLE_FIGURE not in parameters:
-            parameters[self.EXPORTABLE_FIGURE] = False
+
         return parameters
 
 
@@ -233,8 +231,7 @@ class ABCMPLH5Displayer(ABCDisplayer):
         
         parameters = dict(title= self._ui_name, figureNumber= self.figure.number, showFullToolbar= show_full_toolbar,
                           serverIp= config.SERVER_IP, serverPort= config.MPLH5_SERVER_PORT)
-        if self.EXPORTABLE_FIGURE not in parameters:
-            parameters[self.EXPORTABLE_FIGURE] = True
+
         return self.build_display_result("mplh5/figure", parameters)
 
 

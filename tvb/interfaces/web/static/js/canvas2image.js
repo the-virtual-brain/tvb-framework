@@ -1,45 +1,21 @@
 /**
- * TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+ * TheVirtualBrain-Framework Package. This package holds all Data Management, and
  * Web-UI helpful to run brain-simulations. To use it, you also need do download
  * TheVirtualBrain-Scientific Package (for simulators). See content of the
  * documentation-folder for more details. See also http://www.thevirtualbrain.org
  *
  * (c) 2012-2013, Baycrest Centre for Geriatric Care ("Baycrest")
  *
- * This program is free software; you can redistribute it and/or modify it under 
+ * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by the Free
  * Software Foundation. This program is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details. You should have received a copy of the GNU General 
+ * License for more details. You should have received a copy of the GNU General
  * Public License along with this program; if not, you can download it here
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0
  *
  **/
-
-// Not used anymore. Part of the solution to save SVG left here until a better alternative is found.
-var svg_image_style =   "\n<style type='text/css'>\n" + 
-						".vt-pm-sign { font-size: 10; stroke: #999; font-family: arial}\n" +
-						".vt-node-labels { font-size: 6; font-family: arial}\n" +
-						".pca-text { font-size: 12; font-family: arial}\n" +
-						
-						".axis path,\n" +
-						".axis line { fill: none; stroke: black; shape-rendering: crispEdges; }\n" +
-						".axis text { font-family: arial; font-size: 10; color: gray }\n" +
-						".line-plot { fill: none; stroke: blue; }\n" +
-						
-						".brush { fill-opacity: 0.2; stroke: red }\n" +
-						".instructions { font-size: 10; font-family: arial }\n" +
-						".matrix-text { font-size: 25; font-family: arial }\n" +
-						".node-labels { font-size: 6; font-family: arial } \n" +
-						
-						".tv-fig-bg { fill: #ddd }\n" +
-						".tv-resizer { fill: #0af; fill-opacity: 0.1; }\n" +
-						".tv-ctx-line path { fill: none; stroke: black; stroke-width: 1px }\n" +
-						".tv-ctx-error path { fill: blue; fill-opacity:0.3; stroke: none; stroke-width: 1px }\n" +
-
-						"</style>"
-
 
 //global variables needed for save/preview canvas operation
 var C2I_shouldPreviewCanvas = false;
@@ -123,29 +99,45 @@ function startDownload(strData, mimeType) {
 
 
 /**
- *This method save the svg html. Before this it also adds the required css styles. TODO: this
- * is now just hard-coded here, should find a way to parse from the correct css.
+ *This method save the svg html. Before this it also adds the required css styles.
  */
-// Not used anymore. Part of the solution to save SVG left here until a better alternative is found.
 function __storeSVG(svgElement, exportType, operationId) {
 	// Wrap the svg element as to get the actual html and use that as the src for the image
+
 	var wrap = document.createElement('div');
 	wrap.appendChild(svgElement.cloneNode(true));
 	var data = wrap.innerHTML;
-	
-	var startingTag = data.substr(0, data.indexOf(">") + 1);
-	var restOfSvg = data.substr(data.indexOf(">") + 1, data.length + 1)
-	var styleAddedData = startingTag + svg_image_style + restOfSvg;
-	
-	$.ajax({  type: "POST", url: '/project/figure/storeresultfigure/svg/' + operationId,
-                data: {"export_data": styleAddedData},
-                success: function(r) {
-                    displayMessage("Figure successfully saved!<br/> See Project section, Image archive sub-section.", "infoMessage")
-                } ,
-                error: function(r) {
-                    displayMessage("Could not store preview image, sorry!", "warningMessage")
-                }
-            });
+
+    // get the styles for the svg
+    $.get( "/static/style/tvbviz.css", function (stylesheet) {
+                                                                         // strip all
+        var re = new RegExp("[\\s\\n^]*\\/\\*(.|[\\r\\n])*?\\*\\/" +     // block style comments
+                            "|([\\s\\n]*\\/\\/.*)" +                     // single line comments
+                            "|(^\\s*[\\r\\n])", "gm");                   // empty lines
+
+        var svgStyle = "<defs><style type='text/css'><![CDATA["
+                     +  stylesheet.replace(re,"")
+                     + "]]></style></defs>";
+
+        // embed the styles in svg
+        var startingTag = data.substr(0, data.indexOf(">") + 1);
+        var restOfSvg = data.substr(data.indexOf(">") + 1, data.length + 1)
+        var styleAddedData = startingTag + svgStyle + restOfSvg;
+
+
+        // send it to server
+        $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/svg/' + operationId,
+            data: {"export_data": styleAddedData},
+            success: function(r) {
+                displayMessage("Figure successfully saved!<br/> See Project section, Image archive sub-section.",
+                               "infoMessage")
+            } ,
+            error: function(r) {
+                displayMessage("Could not store preview image, sorry!", "warningMessage")
+            }
+        });
+
+    } );
 }
 
 /**

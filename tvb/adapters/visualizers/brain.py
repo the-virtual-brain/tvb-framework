@@ -85,7 +85,6 @@ class BrainViewer(ABCDisplayer):
     def launch(self, time_series):
         """ Build visualizer's page. """
         params = self.compute_parameters(time_series)
-        params[self.EXPORTABLE_FIGURE] = True
         return self.build_display_result("brain/view", params, pages=dict(controlPage="brain/controls"))
 
 

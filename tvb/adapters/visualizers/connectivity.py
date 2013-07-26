@@ -111,7 +111,6 @@ class ConnectivityViewer(ABCDisplayer):
         _params, _pages = MPLH5Connectivity().compute_parameters(input_data)
         result_params.update(_params)
         result_pages.update(_pages)
-        result_params[self.EXPORTABLE_FIGURE] = True
 
         return self.build_display_result("connectivity/main_connectivity", result_params, result_pages)
 

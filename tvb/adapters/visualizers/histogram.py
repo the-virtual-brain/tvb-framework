@@ -97,7 +97,6 @@ class HistogramViewer(ABCDisplayer):
                       data=json.dumps(values_list), colors=json.dumps(colors_list),
                       xposition='center' if min(values_list) < 0 else 'bottom',
                       minColor=min(colors_list), maxColor=max(colors_list))
-        params[self.EXPORTABLE_FIGURE] = True
         return params
     
     

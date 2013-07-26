@@ -627,14 +627,13 @@ class FlowController(base.BaseController):
     @cherrypy.expose
     @using_template("flow/full_adapter_interface")
     @logged()
-    def getadapterinterface(self, project_id, algo_group_id, export_png_available, back_page=None):
+    def getadapterinterface(self, project_id, algo_group_id, back_page=None):
         """
         AJAX exposed method. Will return only a piece of a page, 
         to be integrated as part in another page.
         """
         template_specification = self.get_adapter_template(project_id, algo_group_id, False, back_page)
         template_specification["isCallout"] = True
-        template_specification['figure_exportable'] = eval(export_png_available)
         return self.fill_default_attributes(template_specification)
 
 
