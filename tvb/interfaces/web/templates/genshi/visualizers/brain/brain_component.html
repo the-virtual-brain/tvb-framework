@@ -1,0 +1,22 @@
+<py:def function="draw_brain_component(canvas_id, legend_labels)" xmlns:py="http://genshi.edgewall.org/">
+    <div id="brainComponentContainer">
+        <canvas id="$canvas_id" class="brainComponentCanvas" tabindex='100'></canvas>
+
+        <div id="brainLegendDiv">
+            <table class="brainLegendContent" py:if="legend_labels">
+                <py:for each='label in legend_labels'>
+                    <py:if test='legend_labels.index(label) != 0'>
+                        <tr height="${str(100/len(legend_labels) + 1) + '%'}" style='vertical-align: bottom;'>
+                            <td><label>${label}</label></td>
+                        </tr>
+                    </py:if>
+                    <py:if test='legend_labels.index(label) == 0'>
+                        <tr height="20px">
+                            <td><label>${label}</label></td>
+                        </tr>
+                    </py:if>
+                </py:for>
+            </table>
+        </div>
+    </div>
+</py:def>

@@ -1,0 +1,17 @@
+<div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#main").addClass("colscheme-2-even brain-extended");
+            $("#eegSectionId").removeClass("view-column col-1");
+        });
+    </script>
+
+    <section class="view-column">
+        <xi:include href="view.html"/>
+    </section>
+
+    <section class="view-column">
+        <xi:include href="../eeg/view.html"/>
+    </section>
+</div>

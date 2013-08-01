@@ -1,0 +1,39 @@
+<!-- Visualizer Connectivity Matrix -->
+
+<div xmlns:xi="http://www.w3.org/2001/XInclude" id="s-connectivity">
+	<script type="text/javascript" src="/static/jquery/jquery.mousewheel.js"></script>
+	<script type="text/javascript" src="/static/js/sylvester.js"></script>
+	<script type="text/javascript" src="/static/js/glUtils.js"></script>
+    <script type="text/javascript" src="/static/js/zoom.js" ></script>
+    <script type="text/javascript" src="/static/js/webGL_ShaderAndMatrixes.js?4266" ></script>
+    <script type="text/javascript" src="/static/js/webGL_Mouse.js?4266"></script>
+    <script type="text/javascript" src="/static/js/webGL_Pick.js?4266"></script>
+    <script type="text/javascript" src="/static/js/webGL_Connectivity.js?4411"></script>
+    <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityGlobals.js?4266" ></script>
+    <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityScript.js?4266" ></script>
+    <script type="text/javascript" src="/static_view/connectivity/scripts/orientation.js?4266"></script>
+
+    <script type="text/javascript" src="/static_view/connectivity/scripts/selectionControlScript.js?4266"></script>
+
+	<xi:include href="../visualizers/connectivity/connectivity_view.html"/>
+	${drawConnectivityViewer(False)}
+    <br/>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            prepareConnectivity('$urlWeights', '$urlTracts', '$urlPositions',
+                    '${urlVertices}', '${urlTriangles}', '${urlNormals}',
+                    '${connectivity_nose_correction}', '${alpha_value}', true);
+
+            $('#GLcanvas').mousewheel(function(event, delta) {
+                GL_handleMouseWeel(delta);
+                GFUNC_updateLeftSideVisualization();
+                return false; // prevent default
+            });
+
+            $("#GLcanvas").click(function() {
+                displayNameForPickedNode();
+            });
+        });
+    </script>
+</div>

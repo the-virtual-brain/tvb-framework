@@ -1,0 +1,117 @@
+<div xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+    <script type="text/javascript" src="/static/jquery/jquery.json-2.2.min.js" ></script>
+    <link href="/static/style/subsection_eeg.css" type="text/css" rel="stylesheet"/>
+    <script src="/static/jquery/ui.spinner.js" type="text/javascript"></script>
+    <link href="/static/jquery/ui.spinner.css" rel="stylesheet"/>
+    <script src="/static/jquery/jquery.contextmenu.js" type="text/javascript"></script>
+    <script src="/static/flot/jquery.flot.js" type="text/javascript"></script>
+    <script src="/static/flot/jquery.flot.navigate.js" type="text/javascript"></script>
+    <script src="/static/flot/jquery.flot.selection.js" type="text/javascript"></script>
+    <!--we use the method HLPR_readJSONfromFile-->
+    <script type="text/javascript" src="/static/js/webGL_Connectivity.js?4411"></script>
+    <script src="/static_view/eeg/scripts/animated_graph.js?4876" type="text/javascript"></script>
+    <script src="/static_view/eeg/scripts/graph_events.js?4266" type="text/javascript"></script>
+    <script type="text/javascript" src="/static_view/commons/scripts/visualizers_commons.js?4327"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            drawAnimatedChart('$longestChannelLength','$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
+                    $translationStep, '$normalizedSteps', '${number_of_visible_points}',
+                    '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
+                    '${graphLabels}');
+            bindHoverEvent();
+		    if (!${'true' if extended_view else 'false'}) {
+		        bindZoomEvent();
+		    }
+		     $("#EEGcanvasDiv").resizable({	
+		     	 alsoResize: '#baseFlot',
+		    	 stop: function(e, ui) {
+			             redrawPlot(plot.getData());	
+			         }
+		    	 });
+        });
+        function launchViewer(width, height) {
+        	document.getElementById('EEGcanvasDiv').style.width = width + 'px';
+        	document.getElementById('EEGcanvasDiv').style.height = height + 'px';
+        	isSmallPreview = true;
+        	drawAnimatedChart('$longestChannelLength','$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
+                    $translationStep, '$normalizedSteps', '${number_of_visible_points}',
+                    '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
+                    '${graphLabels}');
+        }
+    </script>
+	
+	<section id="eegSectionId" class="view-column eeg-display col-1">
+		<!-- Inner visualizer controls and legend -->
+		<ul class="toolbar-inline">
+			<!-- Zoom explanation -->
+			<li py:if="not extended_view" class="zoom-control">
+				<nav class="inline-menu">
+					<button class="action action-menu">Usage</button>
+
+					<div class="extension">
+		    			<div class="dropdown-pane">
+		    				<p>Select zoom area with your mouse (you may do that several times to zoom in further)</p>
+		    				<p>Use "Zoom out to 100%" to zoom out completely</p>
+		    				<p>Use "Zoom out one level" to zoom out step by step</p>
+		    			</div>
+		    		</div>
+				</nav>
+			</li>
+
+			<!-- Zoom action buttons -->
+			<li py:if="not extended_view" class="zoom-control">
+		    	<button class="action action-mini-zoom-out" onclick='resetToDefaultView()'>Zoom out to 100%</button>
+			</li>
+
+			<li py:if="not extended_view" class="zoom-control">
+		    	<button class="action action-reset" onclick='zoomBack()'>Zoom out one level</button>
+			</li>
+
+			<!-- Value inspector -->
+			<li py:if="not extended_view" class="value-inspector value-channel">
+	            <mark>Channel</mark>
+	            <span id="info-channel">0</span>
+			</li>
+			
+			<li py:if="not extended_view" class="value-inspector value-time">
+	            <mark>Time</mark>
+	            <span id="info-time">0</span>
+			</li>
+			
+			<li py:if="not extended_view" class="value-inspector value-value">
+	            <mark>Value</mark>
+	            <span id="info-value">0</span>
+			</li>
+			
+			<!-- Channel selector -->
+			<!-- to be changed to hemispheres tables, like in LSC -->
+			<li py:if="channelsPage != None" class="channel-selector">
+				<nav class="inline-menu">
+					<button class="action action-menu">Select channels</button>
+
+					<div class="extension">
+		    			<div class="dropdown-pane">
+	    					<xi:include href="${channelsPage}"/>
+	    					<xi:include href='../commons/state_mode_selector.html'/>
+	    					<py:with vars="keys = labelsForCheckBoxes.keys()">
+	    						<py:for each="key_idx in xrange(len(keys))">
+	    							${drawCheckboxes(noOfChannels, 7, keys[key_idx], labelsForCheckBoxes[keys[key_idx]], 'AG_submitableSelectedChannels')}
+									${drawStateModeSelector(tsStateVars[keys[key_idx]], str(key_idx) + '--statevariableselect', 'State variable', 'changeStateVariable')}
+									${drawStateModeSelector(tsModes[keys[key_idx]], str(key_idx) + '--modeselect', 'Mode', 'changeMode')}
+	    						</py:for>
+	    					</py:with>
+		    			</div>
+		    		</div>
+				</nav>
+			</li>
+		</ul>
+		
+		<!-- Actual visualizer -->
+		<div id="EEGcanvasDiv" class="mainCanvas ${'canvasExtended' if extended_view else ''}">
+	    </div>
+
+		<div class="chart-x-label">${label_x}</div>
+
+	    <input type="hidden" id="columnIndexId"/>
+	</section>
+</div>

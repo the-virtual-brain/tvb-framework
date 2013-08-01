@@ -1,0 +1,73 @@
+<py:def function="generateFramePSE(dataTypeGroupGID, available_metrics)" xmlns:py="http://genshi.edgewall.org/">
+
+	<script type="text/javascript" src="/static/flot/jquery.flot.min.js"></script>
+    <script type="text/javascript" src="/static/flot/jquery.flot.symbol.min.js"></script>
+    <script type="text/javascript" src="/static/colorPicker/js/colorpicker.js"></script>
+    <script type="text/javascript" src="/static/colorPicker/js/colorPickerComponent.js"></script>
+    <link rel="stylesheet" href="/static/colorPicker/css/colorpicker.css" type="text/css"/>
+
+ 	<!-- Controls for changing metrics -->
+	<ul class="toolbar-inline burst-pse-metrics">
+		<li>
+		<label for="color_metric_select">Color metric</label>
+		<select id="color_metric_select">
+			<option value="None" selected="selected">None</option>
+				<py:for each="metric in available_metrics">
+					<option value="$metric">$metric</option>
+				</py:for>
+		</select>
+		</li>
+		
+		<li>
+		<label for="size_metric_select">Size metric</label>
+		<select id="size_metric_select">
+			<option value="None" selected="selected">None</option>
+				<py:for each="metric in available_metrics">
+					<option value="$metric">$metric</option>
+				</py:for>
+		</select>
+		</li>
+		
+		<li>
+		<a href="#" onclick="PSE_mainDraw('main_div_pse', '${pse_back_page}')" title="Refresh..." class="action action-refresh">Refresh</a>
+		</li>
+	</ul>
+
+ 	<!-- Controls for changing diagram colors -->
+	<ul class="toolbar-inline burst-pse-colors">
+		<li class="color-swatch">
+			<div id="startColorSelector" class="colorSelector">
+				<div></div>
+			</div>
+		</li>
+		<li>
+		<label id="startColorLabel"></label>
+		</li>
+		
+		<li class="color-swatch">
+			<div id="endColorSelector" class="colorSelector">
+				<div></div>
+			</div>
+		</li>
+		<li>
+		<label id="endColorLabel"></label>
+		</li>
+	</ul>
+   	
+	<input type="hidden" id="datatype-group-gid" value="$dataTypeGroupGID"/>
+	
+	<!-- Here PSE bubles will be displayed.	-->
+	<div id="main_div_pse" class="specialviewer"></div>
+	
+	<script type="text/javascript">
+    	$(document).ready(function() {
+    		PSEDiscreteInitialize('${labels_x}', '${labels_y}', '${series_array}', '${data}',
+						          '${min_color}', '${max_color}', '${pse_back_page}',
+                                  '${color_metric}', '${size_metric}', '${status}');
+            window.onresize = function(event) { redrawPlot('main_div_pse'); };
+		});
+    </script>
+
+</py:def>
+
+

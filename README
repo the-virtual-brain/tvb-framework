@@ -1,0 +1,19 @@
+TVB FRAMEWORK
+==============
+
+The Virtual Brain framework is a complete framework including:
+- a plugable workflow manager;
+- a data persistence layer (with a relational DB and File Storage);
+- a browser-based user interface;
+- visualizers for neuro-science related entities.
+
+
+In order to use this Framework, you are advised to follow the steps described here: 
+https://github.com/the-virtual-brain/docs/blob/trunk/README.md
+
+You could also independently install Python and all other referenced libraries, but we do not offer support for this option.
+For this unrecommended use-case: TVB Scientific Library (available in a peer repository on GitHub), needs to be in the path of Python.
+
+For more details check http://www.thevirtualbrain.org/.
+
+Enjoy TVB!

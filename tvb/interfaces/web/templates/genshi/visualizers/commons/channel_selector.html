@@ -1,0 +1,62 @@
+<!-- This component is used to generate a channels selector. The genshi function expects as inputs:
+	@param noOfElements: the total number of channels. If only 1 channel present, there is no need for the component
+	@param noOfColumns: in how many columns should the checkboxes be spread
+	@param labelsForCheckBoxes: a dictionary where the keys are the name of the timeseries who need channel selections
+								and the values are two element tuple array of the form [ (channel_name, channel_idx)
+	@param channelsArray: the name of the javascript array variable that will hold the selected channels
+								
+	!! NOTE !! : In addition to the inputs, a js method need to be available for the functionality:
+		 refreshChannels() - called when 'Apply channel selection' is pressed
+-->
+
+<div xmlns:py="http://genshi.edgewall.org/">
+	<script type="text/javascript" src="/static_view/commons/scripts/visualizers_commons.js?4327"></script>
+	
+    <py:def function="drawCheckboxes(noOfElements, noOfColumns, ts_name, labels_for_ts, channelsArray)">
+        <py:if test="noOfElements > 1">
+		    <py:with vars="divId = ts_name.replace(' ', '').replace(';', '').replace(']', '').replace('[', '')"> 
+		    	<div id='table_${divId}'>
+		            <table align='center' width="100%" class="subtableCheckboxes">
+		            	<thead>
+		            		<tr><td colspan="${noOfColumns}"> ${ts_name} </td></tr>
+		                    <tr>
+		                        <td colspan="${noOfColumns}">
+		                            <button id="refreshChannelsButton" class="action action-view" onclick="refreshChannels()">Apply channel selection</button>
+		                            <button id="checkAllChannelsBtn" class="action action-all-on" onclick="checkAll('${divId}', ${channelsArray});">Select all</button>
+		                            <button id="clearAllChannelsBtn" class="action action-all-off" onclick="clearAll('${divId}', ${channelsArray});">Clear all</button>
+		                            <hr/>
+		                        </td>
+		                    </tr>
+		                </thead>
+		                <py:if test="len(labels_for_ts) % noOfColumns == 0">
+		                    <py:for each="channel in xrange(len(labels_for_ts) / noOfColumns)">
+		                        <tr>
+		                        	<py:for each="iterate in range(noOfColumns)">
+		                                <td id='td_${labels_for_ts[channel * noOfColumns + iterate][1]}'>
+		                                    <input type='checkbox' id='channelChk_${labels_for_ts[channel * noOfColumns + iterate][1]}' onchange="updateChannelsList(this, ${channelsArray});"/>
+		                                    ${labels_for_ts[channel * noOfColumns + iterate][0]}
+		                                </td>
+		                            </py:for>
+		                        </tr>          
+		                    </py:for>
+		                </py:if>
+		                <py:if test="len(labels_for_ts) % noOfColumns != 0">
+		                    <py:for each="channel in xrange(len(labels_for_ts) / noOfColumns + 1)">
+		                        <tr>
+		                        	<py:for each="iterate in range(noOfColumns)">
+		                        		<py:if test="(channel * noOfColumns + iterate) &lt; len(labels_for_ts)">
+		    	                            <td id='td_${labels_for_ts[channel * noOfColumns + iterate][1]}'>
+		    	                                <input type='checkbox' id='channelChk_${labels_for_ts[channel * noOfColumns + iterate][1]}' onchange="updateChannelsList(this, ${channelsArray});"/>
+		    	                                ${labels_for_ts[channel * noOfColumns + iterate][0]}
+		    	                            </td>
+		                                </py:if>
+		                            </py:for>
+		                        </tr>          
+		                    </py:for>
+		                </py:if>
+		            </table>
+		    	</div>
+		    </py:with>
+        </py:if>
+    </py:def>
+</div>

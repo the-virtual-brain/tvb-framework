@@ -1,0 +1,14 @@
+<span xmlns:py="http://genshi.edgewall.org/" 
+      py:for="user in usersList" display="inline" class="user_on_page_$usersCurrentPage">
+      <py:if test="editUsersEnabled">
+            <input type="checkbox" name="users" value="${user.id}" id="${user.id}" checked="checked" py:if="user.id in usersMembers" tabindex="5"/>
+            <input type="checkbox" name="users" value="${user.id}" id="${user.id}" py:if="user.id not in usersMembers" tabindex="5"/>
+      </py:if>
+      <py:if test="not editUsersEnabled">
+            <input type="checkbox" name="users" value="${user.id}" id="${user.id}" checked="checked" disabled="disabled" tabindex="5" py:if="user.id in usersMembers"/>
+            <input type="checkbox" name="users" value="${user.id}" id="${user.id}" disabled="disabled" tabindex="5" py:if="user.id not in usersMembers"/>
+      </py:if>
+       ${user.username}
+       <img src="/static/style/img/role/${user.role.lower()}.png" alt="${user.role}" class="userRole"/>
+       <br/>
+</span>

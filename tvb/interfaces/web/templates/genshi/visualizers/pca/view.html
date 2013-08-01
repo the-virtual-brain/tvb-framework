@@ -1,0 +1,40 @@
+<div xmlns:py="http://genshi.edgewall.org/">
+    <script type="text/javascript" src="/static/js/d3.v2.min.js"></script>
+    <script type="text/javascript" src="/static/js/tvbviz.js?4338"></script>
+    <script src="/static_view/pca/pca.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" href="/static/style/tvbviz.css" type="text/css"/>
+	
+	<div id="pca-comp-selector">
+		<label> From component: </label>
+		<select id="first-chan-selector"></select>
+		<label> To component: </label>
+		<select id="second-chan-selector"></select>
+		<input id="refresh-channels" type="button" value="Refresh"/>
+	</div>
+    <div id="pca-viewer-id"></div>
+
+    <script type="text/javascript">
+
+        // CSS loaded through tvbviz.css seems to have no effect
+
+        $(document).ready(function () {
+
+            // setup dimensions, div, svg elements and plotter 
+            var w = 1500
+                    , h = 600
+                    , div = d3.select("#pca-viewer-id").attr("style", "width:" + w + "px; height:" + h + "px;")
+                    , svg = div.append("svg").attr("width", w).attr("height", h);
+            var pl = new PCAViewer("pca-viewer-id", '${fractions_update_url}', '${weights_update_url}', '${labels_data}', w, h);
+            pl.plot();
+
+            // add usage notes
+            tv.util.usage(div, "Portion of variance explained by principal componenents (left)",
+                    ["Place mouse over chart to inspect individual components"]);
+
+            tv.util.usage(div, "Loading of components on each node (right)", [])
+
+        });
+
+    </script>
+</div>

@@ -1,0 +1,9 @@
+<!-- not sure whether this div wrapper is necessary at all (it was a wrong <li> one before). If it's safe, please move the xmlns attribute down to the <select> -->
+<div class="selector-storage" xmlns:py="http://genshi.edgewall.org/">
+	<select id="availableSelectionsList" onchange="GFUNC_refreshWithNewSelection(this);">
+		<option value="${all_labels}">${new_selection_name}</option>
+		<py:for each="i in xrange(len(selection_nodes))">
+			<option value='${selection_nodes[i]}' selection_id='${selection_ids[i]}'>${selection_names[i]}</option>
+		</py:for>
+	</select>
+</div>

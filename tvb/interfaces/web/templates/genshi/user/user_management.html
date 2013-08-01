@@ -1,0 +1,78 @@
+<!-- ============= --> 
+<!-- Main Content --> 
+<!-- ============================= -->
+<div id="main">
+<form id='userManagementTableForm' method="post" xmlns:py="http://genshi.edgewall.org/"> 
+  	
+  	<!-- === Box: Form controls --> 
+	<aside class="header-component toolbar can-extend auto-extends">
+		<h3>User Management Toolbar</h3>
+		 <div class="extension">
+		   <div class="dropdown-pane"> 
+	        <ul>
+	        	<li><button tabindex='50' type="submit" class="action action-new" onclick="document.getElementById('create-new-user').submit(); return false;">Create New</button></li> 
+	            <li><button tabindex='50' type="submit" class="action action-confirm" onclick="document.getElementById('doPersist').value = 'True';">Save Changes</button></li>
+	            <li class="action-dismiss"><button tabindex='50' type="submit" value="Cancel" name="cancel" class="action action-cancel">Cancel</button></li> 
+	        </ul> 
+	       </div>
+	      </div>
+    </aside>
+    
+	<input type="hidden" name="page" value="$page_number" id="currentPage"/>
+	<input type="hidden" name="do_persist" value="False" id="doPersist"/>
+	<table class="contentTable" summary="Manage Users">
+		<thead><tr><td colspan='4'><h2><mark>Users</mark> management</h2></td></tr></thead>
+		<tr>
+			<td>USERNAME</td>
+			<td>ROLE</td>
+			<td>VALIDATED</td>
+<!-- 			<td>CHECK FOR DELETE</td> -->
+		</tr>
+		<py:with vars='tabindex = 3'>
+			<py:for each="user in userList">
+				<tr>
+					<td><i>${user.username}</i></td>
+						<td>
+							<select tabindex='$tabindex' name="role_$user.id">
+					            <py:for each="role in allRoles">
+					                <option value="${role}" selected="true" py:if="role==user.role">${role}</option>
+					                <option value="${role}" py:if="role!=user.role">${role}</option>
+					            </py:for>
+					        </select>
+		    			</td>
+					<td>
+						<py:if test='user.validated==0'>
+						     <input tabindex='$tabindex' name="validate_$user.id" type="checkbox"/>
+						</py:if>
+						<py:if test='user.validated==1'>
+						     <input tabindex='$tabindex' name="validate_$user.id" checked="true" type="checkbox"/>
+						</py:if>
+					</td>
+<!-- 					<td><input tabindex='$tabindex' name="delete_$user.id" type="checkbox"/></td> -->
+				</tr>
+			</py:for>
+		</py:with>
+	</table>
+	<table class="contentTable" py:if="total_pages > 1">
+		<tr>
+			<td colspan='2'>
+				<label>Page $page_number of $total_pages</label>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input tabindex='51' type="button" py:if="page_number!= 1" value="Previous Page" onclick="changeDisplayPage(${page_number-1}, 'userManagementTableForm')"/>
+		    	<input tabindex='51' type="button" py:if="page_number &lt;= 1" value="Previous Page" disabled="disabled"/>	
+			</td>
+			<td>
+				<input tabindex='51' type="button" py:if="page_number &lt; total_pages" value="Next Page" onclick="changeDisplayPage(${page_number+1}, 'userManagementTableForm')"/>
+	    		<input tabindex='51' type="button" py:if="page_number &gt;= total_pages" value="Next Page" disabled="disabled"/>		
+			</td>
+		</tr>    
+	</table>
+	<br/>
+</form>
+<!-- Form submitted by the Create New button from the aside panel -->
+<form id="create-new-user" action="/user/create_new">
+</form>
+</div>

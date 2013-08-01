@@ -1,0 +1,42 @@
+<div xmlns:py="http://genshi.edgewall.org/">
+    <script type="text/javascript" src="/static/js/d3.v2.min.js"></script>
+    <script type="text/javascript" src="/static/js/tvbviz.js?4338"></script>
+
+    <link rel="stylesheet" href="/static/style/tvbviz.css" type="text/css"/>
+
+    <div id="covariance-viewer-id"></div>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            // setup dimensions, div, svg elements and plotter 
+            var width = 900
+                    , height = 600
+                    , div = d3.select("#covariance-viewer-id").attr("style", "width:" + width + "px; height:" + height + "px;")
+                    , svg = div.append("svg").attr("width", width).attr("height", height)
+                    , group = svg.append("g").attr("transform", "translate(200, 0)")
+                    , text = svg.append("g").attr("transform", "translate(20, 100)")
+                            .append("text").attr("class", "matrix-text")
+
+                    , mat_over = function (d, i) // TODO add node labels??
+                    {
+                        return text.text("r(" + i + ") = " + d.toPrecision(3));
+                    }
+
+                    , plot = tv.plot.mat().w(width - 200).h(height).mat_over(mat_over);
+
+
+            plot.mat(tv.ndar.ndfrom({data: $.parseJSON('${matrix_data}'),
+                shape: $.parseJSON('${matrix_shape}'),
+                strides: $.parseJSON('${matrix_strides}')}));
+
+            plot(group);
+
+            tv.util.usage(div, "Covariance matrix plot",
+                    ["Place mouse over matrix elements to inspect their values",
+                        "Drag in colorbar to select and show entries in a range of values"]);
+        });
+
+    </script>
+</div>

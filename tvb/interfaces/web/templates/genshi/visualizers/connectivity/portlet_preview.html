@@ -1,0 +1,19 @@
+<div id="monitor-2D-id" class="monitor-container monitor-2d">
+	<script type="text/javascript" src="/static_view/connectivity/scripts/connectivity2DScript.js?4266"></script>
+	<script type="text/javascript" src="/static/js/jit-tvb.js?4266" ></script>
+	<script type="text/javascript" src="/static/jquery/jquery.json-2.2.min.js" ></script>
+	
+	<link rel="stylesheet" type="text/css" href="/static/style/section_connectivity.css" />
+	<div id="hemispheresDisplay" class="viewer-portlet"></div>
+
+	<script type="text/javascript">
+		function launchViewer(width, height) {
+			GVAR_hemisphere_jsons = {};
+			GVAR_hemisphere_jsons['both'] = ${bothHemisphereJson};
+			C2D_selectedView = 'both';
+			C2D_canvasDiv = "hemispheresDisplay";
+			GVAR_interestAreaNodeIndexes = [];
+			C2D_displaySelectedPoints();
+		}
+	</script>
+</div>

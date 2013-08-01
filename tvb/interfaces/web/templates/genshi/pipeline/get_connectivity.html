@@ -1,0 +1,171 @@
+<!-- ==================================== --> 
+<!--  Main Content for DTI Pipeline Call  --> 
+<!-- ==================================== -->
+<div id="main" class="columnized colscheme-2-even">
+<form method="post" enctype="multipart/form-data"
+	  xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+	
+	<!-- === Functions -->
+	<py:def function="drawSelect(selectID, data, options_, tabIdx)">
+		<select tabindex='$tabIdx' id="$selectID" name="$selectID" class="inputField">
+			<py:for each="o in options_">
+				<option value="$o" py:if="not(selectID in data and data[selectID]==o)">${options_[o]}</option>
+				<option value="$o" selected="selected" py:if="selectID in data and data[selectID]==o">${options_[o]}</option>
+			</py:for>
+		</select>
+		<br/>
+		<span py:if="selectID in errors" class="errorMessage">${errors[selectID]}</span>
+	</py:def>
+	
+	<py:def function="drawRadio(prefixId, labelClass, data, options_, tabIdx)">
+		<py:for each="o in options_">
+			<input tabindex='$tabIdx' id="$prefixId$o" type="radio" name="$prefixId" value="$o" checked="true" 
+				   py:if="prefixId in data and data[prefixId]==o">
+				<label class="$prefixId $labelClass img$o labelSelected"
+				       onclick="importerSelectRadio('$prefixId', '$o');">$o</label>
+			</input>
+			<input tabindex='$tabIdx' id="$prefixId$o" type="radio" name="$prefixId" value="$o" 
+				   py:if="not(prefixId in data and data[prefixId]==o)">
+				<label class="$prefixId $labelClass img$o"
+				       onclick="importerSelectRadio('$prefixId', '$o');">$o</label>
+			</input>
+		</py:for>
+	</py:def>
+	
+	<!-- === Content: Connection settings & upload -->
+	<section class="connection-settings view-column col-1">
+		<h4><mark>Connection</mark> Settings</h4>
+	<table class="table-structure" summary="Connection Information">
+		<tr>
+			<td><label for="url" class="requiredField">DTI Server IP</label></td>
+			<td><input tabindex='1' id="server_ip" type="textField" name="server_ip" value="${data.server_ip if ('server_ip' in data) else ''}" class="inputField"/>
+				<br/>
+				<span py:if="'server_ip' in errors" class="errorMessage">${errors.server_ip}</span>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="username" class="requiredField">External User-Name</label></td>
+			<td><input tabindex='1' id="username" type="textField" name="username" value="${data.username if ('username' in data) else ''}" class="inputField"/>
+				<br/>
+				<span py:if="'username' in errors" class="errorMessage">${errors.username}</span>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="password">External Password</label></td>
+			<td><input tabindex='1' id="password" type="password" name="password" value="${data.password if ('password' in data) else ''}" class="inputField"/>
+				<br/>
+				<span py:if="'password' in errors" class="errorMessage">${errors.password}</span>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="threads_number">Number of Threads</label></td>
+			<td><input tabindex='3' id="threads_number" type="number" name="threads_number" value="${data.threads_number if ('threads_number' in data) else ''}" class="inputField"/>
+				<br/>
+				<span py:if="'threads_number' in errors" class="errorMessage">${errors.threads_number}</span>
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td> <button type="submit" class="action action-link" name="Validate" tabindex="1" onclick="validate_dti_connection()">Validate Connection</button></td>
+		</tr>
+	</table>
+	
+		<h4><mark>Upload</mark> DTI Scans</h4>
+	<table class="table-structure" summary="Upload">
+		<tr>
+			<td>
+				<label class="requiredField" for="dti_scans">Scans (ZIP with pairs HDR and IMG) </label>
+			</td>
+			<td>
+				<input type="file" id="dti_scans" name="dti_scans" accept="application/x-zip-compressed"/>
+				<br/>
+				<span py:if="'dti_scans' in errors" class="errorMessage">${errors.dti_scans}</span>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<span class="inputDescription">
+					We expect a ZIP archive with at least 5 folders inside: Scans, EigenVEctors, MD, FA and Seg2DTI.<br/>
+					Folder Scan needs to have minimum one pait HDR/IMG. <br/>
+					Folder EigenVectors needs to have exactly 3 pairs HDR/IMG for the coordinates: X, Y, Z.
+					Folder MD, FA and Seg2DTI need to have exactly one pair HDR/IMG.
+				</span>
+			</td>
+		</tr>
+		
+	</table>
+	</section>
+
+	<!-- === Content: Subject attributes -->
+	<section class="subject-attributes view-column col-2">
+		<h4><mark>Subject</mark> Attributes (optional)</h4>
+	<table class="table-structure" summary="Subject Attributes">
+		
+		<tr>
+			<td><label for="subject_name">Identifier</label></td>
+			<td><input tabindex='3' id="subject_name" type="textField" name="subject_name" value="${data.subject_name if ('subject_name' in data) else ''}" class="inputField"/>
+				<br/>
+				<span py:if="'subject_name' in errors" class="errorMessage">${errors.subject_name}</span>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="subject_sex">Gender</label></td>
+			<td>${drawRadio('subject_sex', 'labelImportSex', data, ['Any', 'Male', 'Female'], 3)}
+				<br/>
+				<span py:if="'subject_sex' in errors" class="errorMessage">${errors.subject_sex}</span>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="subject_age">Age</label></td>
+			<td><input tabindex='3' id="subject_age" type="number" name="subject_age" value="${data.subject_age if ('subject_age' in data) else ''}" class="inputField"/>
+				<br/>
+				<span py:if="'subject_age' in errors" class="errorMessage">${errors.subject_age}</span>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="subject_race">Race</label></td>
+			<td><input tabindex='3' id="subject_race" type="textField" name="subject_race" value="${data.subject_race if ('subject_race' in data) else ''}" class="inputField"/>
+				<br/>
+				<span py:if="'subject_race' in errors" class="errorMessage">${errors.subject_race}</span>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="subject_nationality">Nationality</label></td>
+			<td><input tabindex='3' id="subject_nationality" type="textField" name="subject_nationality" value="${data.subject_nationality if ('subject_nationality' in data) else ''}" class="inputField"/>
+				<br/>
+				<span py:if="'subject_nationality' in errors" class="errorMessage">${errors.subject_nationality}</span>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="subject_education">Education Level</label></td>
+			<td>${drawSelect('subject_education', data, {'': 'Any', 'none': 'None', 
+														 'primary': 'Primary School Graduated',
+														 'highschool': 'Highschool Graduated',
+														 'college': 'College Graduated',
+														 'university': 'University Graduated',
+														 'doctor': 'Doctor'}, 3)}	
+			</td>
+		</tr>
+		<tr>
+			<td><label for="subject_health">Health State</label></td>
+			<td>${drawSelect('subject_health', data, {'': 'Any', 'healthy': 'Perfectly Healthy', 
+													  'unrelated': 'Unrelated Diseases', 'epilepsy': 'Suffers from Epilepsy'}, 3)}
+			</td>
+		</tr>
+	</table>
+	</section>
+		
+	<!-- === Box: Form controls --> 
+    <aside class="header-component toolbar can-extend auto-extends">
+    	<h3>Run DTI Pipeline</h3>
+		<div class="extension">
+		<div class="dropdown-pane">
+        <ul> 
+            <li><button type="submit" tabindex='50' class="action action-analyze" value="Start" name="start">Start DTI Pipeline</button></li> 
+        </ul>
+        </div>
+        </div> 
+    </aside>
+</form>
+</div>
+

@@ -1,0 +1,43 @@
+<div>
+    <script type="text/javascript" src="/static/flot/jquery.flot.js"></script>
+    <script type="text/javascript" src="/static/flot/jquery.flot.stack.js"></script>
+    <script src="/static_view/histogram/histogram.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="/static/colorPicker/js/colorpicker.js"></script>
+    <script type="text/javascript" src="/static/colorPicker/js/colorPickerComponent.js"></script>
+    <link rel="stylesheet" href="/static/colorPicker/css/colorpicker.css" type="text/css"/>
+
+    <!-- <style type="text/css" media="screen">
+        .transformed {
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            transform: rotate(90deg);
+        }
+    </style> -->
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            drawHistogram('histogramCanvasId', ${data}, ${labels}, ${colors}, '${xposition}');
+            drawColorPickerComponent('startColorSelector', 'endColorSelector', changeColors);
+        });
+        
+        function launchViewer(width, height) {
+        	document.getElementById('histogramCanvasId').style.width = (width * 0.9) + 'px';
+        	document.getElementById('histogramCanvasId').style.height = (height * 0.7) + 'px';
+        	drawHistogram('histogramCanvasId', ${data}, ${labels}, ${colors}, '${xposition}');
+        }
+    </script>
+
+    <div style="margin-top: 20px">
+        <div class="transformed" style="width: 100%; float: left">
+            <div id="histogramCanvasId" style="width:1200px;height:400px;"></div>
+        </div>
+    </div>
+
+    <input type="hidden" id="colorMinId" value="${minColor}"/>
+    <input type="hidden" id="colorMaxId" value="${maxColor}"/>
+    <input type="hidden" id="originalColors" value="${colors}"/>
+    
+</div>
+

@@ -1,0 +1,34 @@
+<div id="main" class="columnized colscheme-2-2nd-narrow">
+	
+	<div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+	    <xi:include href="stimulus_surface_step2_left.html"/>
+	    <xi:include href="stimulus_surface_step2_right.html"/>
+	    <form id="surface_stimulus_step1_form" method="POST">
+		    <!-- === Box: Form controls -->
+		    <aside class="header-component toolbar can-extend auto-extends">
+		    	<h3>SpatioTemporal Entities</h3>
+			  <div class="extension">
+			   <div class="dropdown-pane">
+		        <ul>
+	                <li>
+	                	<button class="action action-analyze" onclick="submitSurfaceStimulusData('${next_step_url}', 1, true);return false;">
+	                		Edit Stimulus Equations
+	                	</button>
+	                </li>
+					<li>
+						<button class="action action-view action-idle" onclick="displayMessage('You are already in the view page. You can select a different entity from the select above the canvas.', 'infoMessage'); return false;">
+							View Stimulus Progress
+						</button>
+					</li>
+					<li>
+						<button class="action action-plus" onclick="submitSurfaceStimulusData('${next_step_url}', 3, true);return false;">
+							Save new Stimulus on Surface
+						</button>
+					</li>
+		        </ul>
+		       </div>
+		      </div>
+		    </aside>
+		 </form>
+	</div>
+</div>

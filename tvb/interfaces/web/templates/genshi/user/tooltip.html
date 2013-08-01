@@ -1,0 +1,18 @@
+<div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude" id="notification"
+     py:if="'version' in versionInfo and currentVersion &lt; versionInfo['version']" tabindex="0" onkeypress="redirectToHrefChild(this)">
+    <h1><mark>New:</mark> Version ${versionInfo['version']} available!</h1>
+
+    <p>Released on ${versionInfo['date']} for Windows, Mac OS X and Linux</p>
+
+	<py:for each="n in versionInfo['notes']">
+		<p>${versionInfo['notes'][n]}</p>
+	</py:for>
+
+    <a class="action action-download" href="${versionInfo['url']}" tabindex="-1" title="Visit the TVB download site...">Visit download site</a>
+</div>
+
+
+
+
+
+
