@@ -19,6 +19,27 @@
                     '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
                     '${graphLabels}');
             bindHoverEvent();
+            var canvas = $("#baseFlot")[0];
+            canvas.drawForImageExport = function () {
+                /* this canvas is drawn by FLOT library so resizing it directly has no influence;
+                 * therefore, its parent needs resizing before redrawing;
+                 * canvas.afterImageExport() is used to bring is back to original size */
+                var oldWidth  = $("#EEGcanvasDiv").width(),
+                    oldHeight = $("#EEGcanvasDiv").height();
+                var scale = 1080 / oldHeight;
+
+                $("#EEGcanvasDiv").width(oldWidth * scale);
+                $("#EEGcanvasDiv").height(oldHeight * scale);
+
+                redrawPlot(plot.getData());
+                            };
+            canvas.afterImageExport = function() {
+                // bring it back to original size and redraw
+                $("#EEGcanvasDiv").width("");
+                $("#EEGcanvasDiv").height("");
+                redrawPlot(plot.getData());
+            };
+
 		    if (!${'true' if extended_view else 'false'}) {
 		        bindZoomEvent();
 		    }

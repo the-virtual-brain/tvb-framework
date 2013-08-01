@@ -67,7 +67,7 @@ class FigureService:
         store_path = utils.get_unique_file_name(store_path, file_name)[0]
         file_name = os.path.split(store_path)[1]
 
-        if img_type == "jpg":  # JPG file from canvas
+        if img_type == "png":  # PNG file from canvas
             # Store image
             img_data = base64.b64decode(export_data)
             dest = open(store_path, 'wb')

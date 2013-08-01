@@ -219,8 +219,6 @@ function saveRequiredInputs_3D(filePositions, rays, colors, conn_nose_correction
 
 function conectivity3D_initCanvas() {
 	var canvas = document.getElementById(CONNECTIVITY_3D_CANVAS_ID);
-    //needed for the export/save canvas operation
-    canvas.webGlCanvas = true;
     initGL(canvas);
     
     // Enable keyboard and mouse interaction
@@ -235,7 +233,6 @@ function connectivity3D_startGL() {
 	//Do the required initializations for the connectivity 3D visualizer
     initShaders_3D();
 
-    //connectivity_nose_correction = $.parseJSON(conn_nose_correction);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
@@ -247,12 +244,6 @@ function connectivity3D_startGL() {
 function prepareConnectivity3D(filePositions, rays, colors, conn_nose_correction) {			
 	conectivity3D_initCanvas();
 	saveRequiredInputs_3D(filePositions, rays, colors, conn_nose_correction);
-}
-
-function start_connectivity_3D(filePositions, rays, colors, conn_nose_correction) {
-	conectivity3D_initCanvas();
-    saveRequiredInputs_3D(filePositions, rays, colors, conn_nose_correction);
-    connectivity3D_startGL();
 }
 
 

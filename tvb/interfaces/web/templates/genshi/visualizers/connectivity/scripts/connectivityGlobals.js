@@ -380,32 +380,37 @@ function hideLeftSideTabs(selectedHref) {
 	selectedHref.parentElement.className = 'active';
 	$(".monitor-container").each(function (divMonitor) {
 		$(this).hide();
+        $(this).find('canvas').each(function () {
+            if (this.drawForImageExport)            // remove redrawing method such that only current view is exported
+                this.drawForImageExport = null;
+        });
 	});
 }
 
 function startConnectivity() {
-	$("#monitor-3Dedges-id").show();
+	$("#monitor-3Dedges-id").show()
+        			.find('#GLcanvas')[0].redrawFunctionRef = drawScene;         // interface-like function used in HiRes image exporting
 	connectivity_initCanvas();
 	connectivity_startGL(false);
 	SELECTED_TAB = CONNECTIVITY_TAB;
 }
 
 function start2DConnectivity(idx) {
-	$("#monitor-2D-id").show();
-	document.getElementById('hemispheresDisplay').innerHTML = '';
+	$("#monitor-2D-id").show().find('canvas').each(function() {
+        // interface-like methods needed for exporting HiRes images
+        this.drawForImageExport = __resizeCanvasBeforeExport;
+        this.afterImageExport   = __restoreCanvasAfterExport;
+    });
 	C2D_canvasDiv = 'hemispheresDisplay';
 	if (idx == 0) {
-		document.getElementById('hemispheresDisplay').innerHTML = ''; 
 		C2D_selectedView = 'left';
 		C2D_shouldRefreshNodes = true;
 	}
 	if (idx == 1) {
-		document.getElementById('hemispheresDisplay').innerHTML = ''; 
 		C2D_selectedView = 'both';
 		C2D_shouldRefreshNodes = true;
 	} 
 	if (idx == 2) {
-		document.getElementById('hemispheresDisplay').innerHTML = ''; 
 		C2D_selectedView = 'right';
 		C2D_shouldRefreshNodes = true;
 	}
@@ -414,16 +419,16 @@ function start2DConnectivity(idx) {
 }
 
 function start3DConnectivity() {
-	$("#monitor-3D-id").show();
+	$("#monitor-3D-id").show()
+        .find('#GLcanvas_3D')[0].redrawFunctionRef = drawScene_3D;   // interface-like function used in HiRes image exporting
 	conectivity3D_initCanvas();
 	connectivity3D_startGL();
 	SELECTED_TAB = CONNECTIVITY_3D_TAB;
 }
 
-
 function startMPLH5ConnectivityView() {
-	//do_resize(mplh5_figureNo, '600', '400');
 	$("#monitor-mplh5").show();
+    initMPLH5Canvas(mplh5_figureNo)
 }
 
 

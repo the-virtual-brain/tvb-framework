@@ -30,6 +30,20 @@ function initGL(canvas) {
         // Used to compute original mouse position in case of canvas resize
         gl.newCanvasWidth = canvasWidth;
         gl.newCanvasHeight = canvasHeight;
+
+        // interface-like methods used for HiRes figure exporting
+        var scaleAndRedraw = function(isSmall) {
+            if (isSmall)                            // when it's small, compute the scale to make it big
+                this.scale = 1080 / canvas.height
+            else                                    // when is not small, invert scale to bring it back to original size
+                this.scale = 1 / this.scale
+            gl.newCanvasWidth  = gl.viewportWidth  = canvas.width  *= this.scale
+            gl.newCanvasHeight = gl.viewportHeight = canvas.height *= this.scale
+            if (canvas.redrawFunctionRef)
+                canvas.redrawFunctionRef();
+        }
+        canvas.drawForImageExport = function() {scaleAndRedraw(true)}       // small
+        canvas.afterImageExport   = function() {scaleAndRedraw(false)}      // big
     } catch(e) {
     }
     if (!gl) {

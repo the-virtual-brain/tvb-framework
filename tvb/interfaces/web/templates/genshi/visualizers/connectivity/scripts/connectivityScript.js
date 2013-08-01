@@ -358,7 +358,7 @@ function drawScene() {
 		}
 }
 
-/*
+/**
  * Given a list of indexes will create the buffer of elements needed to draw
  * line between the points that correspond to those indexes.
  */
@@ -448,31 +448,7 @@ function getElementArrayBuffer(indices) {
     return vertexIndices;
 }
 
-var selectedColorValue = 0;
 /**
- * Display the selector which allows the user to select the color that should be used for drawing the lines for the selected node
- */
-function displayColors() {
-    var newOptions = {
-        '0' : 'White',
-        '1' : 'Red',
-        '2' : 'Blue',
-        '3' : 'Yellow',
-        '4' : 'Green'
-    };
-    var selectedOption = '0';
-
-    var select = $('#colors');
-    var options = select.attr('options');
-    $('option', select).remove();
-
-    $.each(newOptions, function(val, text) {
-        options[options.length] = new Option(text, val);
-    });
-    select.val(selectedOption);
-}
-
-/*
  * Method that handles the drawing/hiding of both coming in and coming out lines.
  * 
  * @param selectedNodeIdx the currently selected node
@@ -744,7 +720,6 @@ function connectivity_startGL(isSingleMode) {
     if (!isSingleMode) {
         selectHemisphere(0);
     }
-    //drawInterestAreaMatrix(pointsLabels, weights);
     GL_initColorPickFrameBuffer();
     drawScene();
 }
@@ -809,7 +784,6 @@ function prepareConnectivity(fileWeights, fileTracts, filePositions, urlVertices
 	connectivity_initCanvas();
 	saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
                     	   urlNormalsList, conn_nose_correction, alpha_value);
-	connectivity_startGL(isSingleMode);
     if (!isSingleMode) {
         GFUNC_addAllMatrixToInterestArea();
     }

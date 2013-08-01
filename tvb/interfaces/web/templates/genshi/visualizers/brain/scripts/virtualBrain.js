@@ -157,8 +157,6 @@ function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVe
     LEG_initMinMax(activityMin, activityMax);
 
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
-    //needed for the export/save canvas operation
-    canvas.webGlCanvas = true;
     customInitGL(canvas);
     GL_initColorPickFrameBuffer();
     initShaders();
@@ -236,6 +234,7 @@ function customInitGL(canvas) {
 		updateGLCanvasSize(BRAIN_CANVAS_ID);
 	};
 	initGL(canvas);
+    canvas.redrawFunctionRef = drawScene;            // interface-like function used in HiRes image exporting
     drawingMode = gl.TRIANGLES;
     gl.newCanvasWidth = canvas.clientWidth;
     gl.newCanvasHeight = canvas.clientHeight;
@@ -645,9 +644,6 @@ function tick() {
 	if (!sliderSel) drawScene();
     if (isDoubleView && !AG_isStopped && !sliderSel) {
     	drawGraph(true, TIME_STEP);
-    }
-    if (!isPreview) {
-    	checkSavePreviewWebGlCanvas(BRAIN_CANVAS_ID);
     }
 }
 

@@ -14,7 +14,7 @@
     
     <script type="text/javascript">
         function storePreview() {
-                exportCanvases('PNG', '$currentOperationId'); 
+                exportCanvases('$currentOperationId');
         };
         $(document).ready(function() {
             includeAdapterInterface("div_adapter_interface", $selectedProject.id, $currentAlgoId, '${"" if ("back_page=" not in submitLink) else submitLink.split("back_page=")[-1]}');

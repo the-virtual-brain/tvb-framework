@@ -55,7 +55,7 @@
 	<div class="monitor" id="monitorDiv">
 		
 		<ul class="view-switcher tabswitcher">
-			<li class="active"><a href="#" onclick="hideLeftSideTabs(this); startConnectivity();">3D Edges</a></li>
+			<li class="active"><a id="connectivityDefaultSelectedTab" href="#" onclick="hideLeftSideTabs(this); startConnectivity();">3D Edges</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(0);">Hemisphere 1</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(1);">Transverse</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(2);">Hemisphere 2</a></li>
@@ -189,7 +189,7 @@
             $(function() {
 				//prepare all the required parameters for all of the available connectivity visualizers
 				prepareConnectivity3D('$urlPositions', '${raysArray}', '${colorsArray}', '${connectivity_nose_correction}');
-				prepareConnectivity2D(${leftHemisphereJson}, ${bothHemisphereJson}, ${rightHemisphereJson});	
+				prepareConnectivity2D(${leftHemisphereJson}, ${bothHemisphereJson}, ${rightHemisphereJson});
 				mplh5_figureNo = $figureNumber;
                 prepareConnectivity('$urlWeights', '$urlTracts', '$urlPositions', '${urlVertices}', '${urlTriangles}', '${urlNormals}',
                         '${connectivity_nose_correction}', '${alpha_value}', false);
@@ -201,8 +201,9 @@
                 GVAR_baseSelection = '${base_selection}';
                 initConnectivitySelectionComponent();
                 showWeightsTable();
+
+                $('#connectivityDefaultSelectedTab').click()   // enable only the first tab so others don't get exported
             });
-            
             //Set the mouse listeners for the 3d visualizers
             $('#canvasDiv').mousewheel(function(event, delta) {
                 GL_handleMouseWeel(delta);
