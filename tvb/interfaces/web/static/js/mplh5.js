@@ -447,21 +447,21 @@ function __checkMPLH5FinishedResizing(canvas, visible) {
  * This function sets the functions on canvas required for image exporting
  * @param figureId The mplh5 figure whose canvas will be initialised
  */
-function initMPLH5Canvas(figureId) {
+function initMPLH5CanvasForExportAsImage(figureId) {
     $('#canvas_' + figureId).each(function () {
-        var scale = 1080 / this.height
 
         this.drawForImageExport = function() {
-            this.notReadyForExport = true               // set this flag to indicate that resizing is taking place
+            this.notReadyForExport = true;               // set this flag to indicate that resizing is taking place
             // don't display the div containing this canvas during export, so the user doesn't notice resizing
-            this.parentElement.parentElement.style.display = "none"
-            do_resize(figureId, this.width * scale, this.height * scale)
-            __checkMPLH5FinishedResizing(this, false)
+            this.parentElement.parentElement.style.display = "none";
+            this.scale = C2I_EXPORT_HEIGHT / this.height;
+            do_resize(figureId, this.width * this.scale, this.height * this.scale);
+            __checkMPLH5FinishedResizing(this, false);
         }
 
         this.afterImageExport = function() {    // scale back to original size and set flag to indicate that
-            do_resize(figureId, this.width / scale, this.height / scale)
-            __checkMPLH5FinishedResizing(this, true)
+            do_resize(figureId, this.width / this.scale, this.height / this.scale);
+            __checkMPLH5FinishedResizing(this, true);
         }
     });
 }

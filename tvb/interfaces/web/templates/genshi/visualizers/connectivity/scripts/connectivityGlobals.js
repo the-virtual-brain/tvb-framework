@@ -401,7 +401,6 @@ function start2DConnectivity(idx) {
         this.drawForImageExport = __resizeCanvasBeforeExport;
         this.afterImageExport   = __restoreCanvasAfterExport;
     });
-	C2D_canvasDiv = 'hemispheresDisplay';
 	if (idx == 0) {
 		C2D_selectedView = 'left';
 		C2D_shouldRefreshNodes = true;
@@ -428,7 +427,7 @@ function start3DConnectivity() {
 
 function startMPLH5ConnectivityView() {
 	$("#monitor-mplh5").show();
-    initMPLH5Canvas(mplh5_figureNo)
+    initMPLH5CanvasForExportAsImage(mplh5_figureNo)
 }
 
 

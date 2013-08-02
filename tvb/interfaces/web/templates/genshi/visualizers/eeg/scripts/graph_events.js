@@ -25,6 +25,40 @@ var zoomStack = new Array();
 //Previously point when displaying info on mouse hover
 var previousPoint = null;
 
+function initializeCanvasEvents() {
+
+    // Prepare functions for Export Canvas as Image
+    var canvas = $("#baseFlot")[0];
+    canvas.drawForImageExport = function () {
+                /* this canvas is drawn by FLOT library so resizing it directly has no influence;
+                 * therefore, its parent needs resizing before redrawing;
+                 * canvas.afterImageExport() is used to bring is back to original size */
+                 var canvasDiv = $("#EEGcanvasDiv");
+                 var oldHeight = canvasDiv.height();
+                 canvas.scale = C2I_EXPORT_HEIGHT / oldHeight;
+
+                 canvasDiv.width(canvasDiv.width() * canvas.scale);
+                 canvasDiv.height(oldHeight * canvas.scale);
+
+                 redrawPlot(plot.getData());
+    };
+    canvas.afterImageExport = function() {
+                // bring it back to original size and redraw
+                var canvasDiv = $("#EEGcanvasDiv");
+                canvasDiv.width(canvasDiv.width() / canvas.scale);
+                canvasDiv.height(canvasDiv.height() / canvas.scale);
+                redrawPlot(plot.getData());
+    };
+
+    $("#EEGcanvasDiv").resizable({
+         alsoResize: '#baseFlot',
+         stop: function(e, ui) {
+                 redrawPlot(plot.getData());
+         }
+    });
+}
+
+
 //------------------------------------------------START ZOOM RELATED CODE--------------------------------------------------------
 function bindZoomEvent() {
 	/*

@@ -19,40 +19,17 @@
                     '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
                     '${graphLabels}');
             bindHoverEvent();
-            var canvas = $("#baseFlot")[0];
-            canvas.drawForImageExport = function () {
-                /* this canvas is drawn by FLOT library so resizing it directly has no influence;
-                 * therefore, its parent needs resizing before redrawing;
-                 * canvas.afterImageExport() is used to bring is back to original size */
-                var oldWidth  = $("#EEGcanvasDiv").width(),
-                    oldHeight = $("#EEGcanvasDiv").height();
-                var scale = 1080 / oldHeight;
-
-                $("#EEGcanvasDiv").width(oldWidth * scale);
-                $("#EEGcanvasDiv").height(oldHeight * scale);
-
-                redrawPlot(plot.getData());
-                            };
-            canvas.afterImageExport = function() {
-                // bring it back to original size and redraw
-                $("#EEGcanvasDiv").width("");
-                $("#EEGcanvasDiv").height("");
-                redrawPlot(plot.getData());
-            };
+            initializeCanvasEvents();
 
 		    if (!${'true' if extended_view else 'false'}) {
 		        bindZoomEvent();
 		    }
-		     $("#EEGcanvasDiv").resizable({	
-		     	 alsoResize: '#baseFlot',
-		    	 stop: function(e, ui) {
-			             redrawPlot(plot.getData());	
-			         }
-		    	 });
         });
+        // For Portlet preview:
         function launchViewer(width, height) {
-        	document.getElementById('EEGcanvasDiv').style.width = width + 'px';
-        	document.getElementById('EEGcanvasDiv').style.height = height + 'px';
+            var wrappingDiv = document.getElementById('EEGcanvasDiv');
+        	wrappingDiv.style.width = width + 'px';
+        	wrappingDiv.style.height = height + 'px';
         	isSmallPreview = true;
         	drawAnimatedChart('$longestChannelLength','$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
                     $translationStep, '$normalizedSteps', '${number_of_visible_points}',

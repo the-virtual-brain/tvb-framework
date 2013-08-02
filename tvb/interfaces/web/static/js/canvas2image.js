@@ -17,29 +17,12 @@
  *
  **/
 
+var C2I_EXPORT_HEIGHT = 1080;
 
 /**
- * If you want ot preview a webGl canvas you have to set
- * the flag 'webGlCanvas' to true for that canvas.
+ * Function called on any visualizer, to export canvases into image/svg downloadable files..
  */
-function previewCanvas(canvasId, exportType) {
-    var canvas = document.getElementById(canvasId);
-    var isWebGlCanvas = canvas.webGlCanvas;
-    if (isWebGlCanvas != undefined && isWebGlCanvas) {
-        C2I_shouldPreviewCanvas = true;
-        C2I_exportType = exportType;
-    } else {
-        var strData = __exportCanvas(canvasId, exportType);
-        window.open(strData, "_blank", "location=no,menubar=no,status=no,scrollbars=no,titlebar=no,toolbar=no");
-    }
-}
-
-
-/**
- * If you want ot export webGl canvases you have to set
- * the flag 'webGlCanvas' to true for that canvases.
- */
-function exportCanvases(operationId) {
+function C2I_exportFigures(operationId) {
     if ($("canvas, svg").length == 0) {
         displayMessage("Invalid action. Please report to your TVB technical contact.", "errorMessage");
         return;

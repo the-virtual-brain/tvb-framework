@@ -92,8 +92,6 @@ function _webGLPortletPreview(baseDatatypeURL, onePageSize, nrOfPages, urlVertic
     activityMin = parseFloat(minActivity);
     activityMax = parseFloat(maxActivity);
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
-    //needed for the export/save canvas operation
-    canvas.webGlCanvas = true;
     customInitGL(canvas);
     initShaders();
 	brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 

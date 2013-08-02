@@ -13,11 +13,13 @@
 	<div id="div_adapter_interface"/>
     
     <script type="text/javascript">
-        function storePreview() {
-                exportCanvases('$currentOperationId');
-        };
+
         $(document).ready(function() {
-            includeAdapterInterface("div_adapter_interface", $selectedProject.id, $currentAlgoId, '${"" if ("back_page=" not in submitLink) else submitLink.split("back_page=")[-1]}');
+            includeAdapterInterface("div_adapter_interface", $selectedProject.id, $currentAlgoId,
+                                    '${"" if ("back_page=" not in submitLink) else submitLink.split("back_page=")[-1]}');
+            document.getElementById("ctrl-action-export").onclick = function() {
+                                                                            C2I_exportFigures('$currentOperationId');
+                                                                            return false;}
         });
     </script>
   </div>

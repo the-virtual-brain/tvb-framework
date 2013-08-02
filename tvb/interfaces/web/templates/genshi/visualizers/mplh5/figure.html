@@ -11,7 +11,7 @@
         $(document).ready(function() {
             connect_manager('$serverIp', $serverPort, $figureNumber);
             waitOnConnection($figureNumber, 'maximise($figureNumber, "mplh5_main_div")', 500, 15);
-            initMPLH5Canvas($figureNumber);
+            initMPLH5CanvasForExportAsImage($figureNumber);
         });
         function launchViewer(width, height) {
         	// Global method automatically called when portlet is initialized.

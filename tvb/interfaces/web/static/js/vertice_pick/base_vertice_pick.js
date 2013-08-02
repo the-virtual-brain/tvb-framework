@@ -88,8 +88,6 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
                               alphas, alpha_indices, brain_center, callback) {
 	BRAIN_CENTER = $.parseJSON(brain_center);
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
-    //needed for the export/save canvas operation
-    canvas.webGlCanvas = true;
     BASE_PICK_customInitGL(canvas);
     
     BASE_PICK_initShaders();

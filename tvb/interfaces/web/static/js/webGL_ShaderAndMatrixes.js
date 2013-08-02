@@ -34,11 +34,11 @@ function initGL(canvas) {
         // interface-like methods used for HiRes figure exporting
         var scaleAndRedraw = function(isSmall) {
             if (isSmall)                            // when it's small, compute the scale to make it big
-                this.scale = 1080 / canvas.height
+                this.scale = C2I_EXPORT_HEIGHT / canvas.height;
             else                                    // when is not small, invert scale to bring it back to original size
-                this.scale = 1 / this.scale
-            gl.newCanvasWidth  = gl.viewportWidth  = canvas.width  *= this.scale
-            gl.newCanvasHeight = gl.viewportHeight = canvas.height *= this.scale
+                this.scale = 1 / this.scale;
+            gl.newCanvasWidth  = gl.viewportWidth  = canvas.width  *= this.scale;
+            gl.newCanvasHeight = gl.viewportHeight = canvas.height *= this.scale;
             if (canvas.redrawFunctionRef)
                 canvas.redrawFunctionRef();
         }

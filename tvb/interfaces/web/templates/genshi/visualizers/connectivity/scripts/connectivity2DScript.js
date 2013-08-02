@@ -199,7 +199,7 @@ function C2D_displaySelectedPoints() {
  */
 function __resizeCanvasBeforeExport() {
     var size = rgraph.canvas.getSize();
-    exportScale = 1080 / size.height;
+    exportScale = C2I_EXPORT_HEIGHT / size.height;
     rgraph.canvas.resize(size.width * exportScale, size.height * exportScale);
     rgraph.canvas.scale(exportScale, exportScale);
 }
