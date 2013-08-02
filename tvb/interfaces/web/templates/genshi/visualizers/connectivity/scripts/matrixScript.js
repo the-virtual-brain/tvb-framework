@@ -122,7 +122,7 @@ function changeSingleCell(table_elem, i, j) {
 	
 	var hiddenNodeField = document.getElementById('currentlyEditedNode');
 	hiddenNodeField.value = table_elem.id;
-	colorTable();
+	MATRIX_colorTable();
 }
 
 
@@ -183,7 +183,7 @@ function saveNodeDetails() {
 	lastEditedElement = null;
 	lastElementColor = null;
 	
-	colorTable();
+	MATRIX_colorTable();
 	GFUNC_refreshOnContextChange();
 }
 
@@ -207,7 +207,7 @@ function hideNodeDetails() {
 		lastElementClass = null;
 		lastEditedElement = null;	
 		lastElementColor = null;
-		colorTable();		
+		MATRIX_colorTable();
 	}
 }
 
@@ -338,7 +338,7 @@ function cutIngoingLines(index) {
     	}
     	GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][indexes[index]] = 0;
     }
-    colorTable();
+    MATRIX_colorTable();
 	GFUNC_refreshOnContextChange();
 }
 
@@ -379,7 +379,7 @@ function cutOutgoingLines(index) {
         GVAR_connectivityMatrix[indexes[index]][i] = 0;
     	GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[index]][i] = 0;
     }	
-    colorTable();
+    MATRIX_colorTable();
 	GFUNC_refreshOnContextChange();
 }
 
@@ -487,14 +487,14 @@ function TBL_storeHemisphereDetails(newStartPointsX, newEndPointsX, newStartPoin
 /*
  * Function that should draw a gradient used for a legend.
  */
-function MATRIX_updateLegendColors(){
+function _updateLegendColors(){
 	/*
 	 * In order to create the gradient of the same size as the table matrix, it will be created only
 	 * after table was drawn. If it's the first call to the function a canvas is created, else just
 	 * used the previously created one.
 	 */
-	  var div_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['legend_div_id'];
-	  var legendDiv = document.getElementById(div_id);
+	var div_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['legend_div_id'];
+	var legendDiv = document.getElementById(div_id);
 	  
 	var height = Math.max($("#div-matrix-weights")[0].clientHeight, $("#div-matrix-tracts")[0].clientHeight);
 	legendDiv.innerHTML = '<canvas height="'+height+'" width="20" id="' + div_id +'canvas"></canvas>';
@@ -534,30 +534,30 @@ function MATRIX_updateLegendColors(){
 /*
  * Method that colors the entire table.
  */
-function colorTable() {	
+function MATRIX_colorTable() {
 	for (var hemisphereIdx=0; hemisphereIdx<startPointsX.length; hemisphereIdx++)
 	{
 		var startX = startPointsX[hemisphereIdx];
 		var endX = endPointsX[hemisphereIdx];
 		var startY = startPointsY[hemisphereIdx];
 		var endY = endPointsY[hemisphereIdx];
+        var prefix_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'];
 		var dataValues = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'];
 		var minValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'];
 		var maxValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'];
 		
 		for (var i=startX; i<endX; i++) {
 			for (var j=startY; j<endY; j++) {
-				var tableDataID = 'td_' + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_' + i + '_' + j
+				var tableDataID = 'td_' + prefix_id + '_' + i + '_' + j;
 				var tableElement = document.getElementById(tableDataID);
 				if (dataValues) {
-						var color = getGradientColor(dataValues[i][j], minValue, GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val']);
-						var rgb_color = 'rgb(' + parseInt(color[0] * 255) + ', ' + parseInt(color[1] * 255) + ', ' + parseInt(color[2] * 255) + ')';
-						tableElement.style.backgroundColor = rgb_color;				
+						var color = getGradientColor(dataValues[i][j], minValue, maxValue);
+						tableElement.style.backgroundColor = 'rgb(' + parseInt(color[0] * 255) + ', ' + parseInt(color[1] * 255) + ', ' + parseInt(color[2] * 255) + ')';;
 				}
 			}
 		}
 	}
-	MATRIX_updateLegendColors();
+	_updateLegendColors();
 }
 
 function saveChanges() {

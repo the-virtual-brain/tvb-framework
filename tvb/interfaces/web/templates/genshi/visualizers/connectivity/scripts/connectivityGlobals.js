@@ -18,12 +18,41 @@
  **/
 
 /*
- * This should hold variables and functions that should be shared between all the connectivity views.
+ * This file should hold variables and functions that should be shared between all the connectivity views.
  */
+
+/**
+ * Function called when Connectivity Page is loaded and ready for initialization.
+ */
+function GFUN_initializeConnectivityFull() {
+        initConnectivitySelectionComponent();
+
+        $('#leftSideDefaultSelectedTabId').click();   // enable only the first tab so others don't get exported
+        $('#rightSideDefaultSelectedTabId').click();
+
+        //Set the mouse listeners for the 3d visualizers: Top DIV, WebGL-edges (div & canvas), WebGL-3D (div & canvas).
+        $('#monitorDiv').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
+        $('#canvasDiv').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
+        $('#GLcanvas').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
+        $('#GLcanvas_3D').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
+        $('#canvasDiv_3D').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
+
+        //Draw any additional elements like color picking and hide all tabs but the default one
+        drawColorPickerComponent('startColorSelector', 'endColorSelector', MATRIX_colorTable);
+        drawSimpleColorPicker('nodeColorSelector');
+        SEL_createOperationsTable();
+}
+
+
+function _customMouseWheelEvent(delta) {
+    GL_handleMouseWeel(delta);
+    GFUNC_updateLeftSideVisualization();
+    return false; // prevent default
+}
 
 /*
  * -----------------------------------------------------------------------------------------------------
- * -------------The following part of the file contains variables and fucntions-------------------------
+ * -------------The following part of the file contains variables and functions-------------------------
  * -------------related to the connectivity matrix weights and connectivity matrix----------------------
  * -----------------------------------------------------------------------------------------------------
  */
@@ -328,16 +357,14 @@ function showWeightsTable() {
 	$("#div-matrix-weights").show();
 	GVAR_selectedAreaType = 1;
 	refreshTableInterestArea();
-	colorTable();
-	MATRIX_updateLegendColors();
+	MATRIX_colorTable();
 }
 
 function showTractsTable() {
 	$("#div-matrix-tracts").show();
 	GVAR_selectedAreaType = 2;
 	refreshTableInterestArea();
-	colorTable();
-	MATRIX_updateLegendColors();
+	MATRIX_colorTable();
 }
 
 function showSelectionTable() {

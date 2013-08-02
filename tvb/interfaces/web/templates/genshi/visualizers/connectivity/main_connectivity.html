@@ -54,7 +54,7 @@
 	<div class="monitor" id="monitorDiv">
 		
 		<ul class="view-switcher tabswitcher">
-			<li class="active"><a id="connectivityDefaultSelectedTab" href="#" onclick="hideLeftSideTabs(this); startConnectivity();">3D Edges</a></li>
+			<li class="active"><a id="leftSideDefaultSelectedTabId" href="#" onclick="hideLeftSideTabs(this); startConnectivity();">3D Edges</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(0);">Hemisphere 1</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(1);">Transverse</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(2);">Hemisphere 2</a></li>
@@ -94,7 +94,7 @@
 
     <div id="chkList" class="matrix">
     	<ul class="matrix-switcher tabswitcher">
-			<li class="active"><a href="#" onclick="hideRightSideTabs(this); showWeightsTable();">Weights Matrix</a></li>
+			<li class="active"><a href="#" id="rightSideDefaultSelectedTabId" onclick="hideRightSideTabs(this); showWeightsTable();">Weights Matrix</a></li>
 			<li><a href="#" onclick="hideRightSideTabs(this); showTractsTable();">Tracts Matrix</a></li>
 			<li><a href="#" onclick="hideRightSideTabs(this); showSelectionTable()">Selection View</a></li>
 		</ul>
@@ -185,60 +185,21 @@
 
     <script type="text/javascript">    	
         $(document).ready(function() {
-            $(function() {
-				//prepare all the required parameters for all of the available connectivity visualizers
-				prepareConnectivity3D('$urlPositions', '${raysArray}', '${colorsArray}', '${connectivity_nose_correction}');
-				prepareConnectivity2D(${leftHemisphereJson}, ${bothHemisphereJson}, ${rightHemisphereJson});
-				mplh5_figureNo = $figureNumber;
-                prepareConnectivity('$urlWeights', '$urlTracts', '$urlPositions', '${urlVertices}', '${urlTriangles}', '${urlNormals}',
-                        '${connectivity_nose_correction}', '${alpha_value}', false);
-                //Do all the required initializations and draw the right table view of the connectivity matrix
-                GFUNC_storeMinMax('${weightsMin}', '${weightsMax}', '${tractsMin}', '${tractsMax}');
-        		TBL_storeHemisphereDetails(${start_points_x}, ${end_points_x}, ${start_points_y}, ${end_points_y});
-                $('#GLcanvas').contextMenu('#contextMenuDiv', {'appendTo': ".connectivity-viewer", 'shadow': false, 'offsetY': -20, 'offsetX': 0});
-                colorTable();
-                GVAR_baseSelection = '${base_selection}';
-                initConnectivitySelectionComponent();
-                showWeightsTable();
 
-                $('#connectivityDefaultSelectedTab').click()   // enable only the first tab so others don't get exported
-            });
-            //Set the mouse listeners for the 3d visualizers
-            $('#canvasDiv').mousewheel(function(event, delta) {
-                GL_handleMouseWeel(delta);
-                GFUNC_updateLeftSideVisualization();
-                return false; // prevent default
-            });
-			$('#monitorDiv').mousewheel(function(event, delta) {
-                GL_handleMouseWeel(delta);
-                GFUNC_updateLeftSideVisualization();
-                return false; // prevent default
-            });
-            $('#GLcanvas').mousewheel(function(event, delta) {
-                GL_handleMouseWeel(delta);
-                GFUNC_updateLeftSideVisualization();
-                return false; // prevent default
-            });
-            $('#GLcanvas_3D').mousewheel(function(event, delta) {
-                GL_handleMouseWeel(delta);
-                GFUNC_updateLeftSideVisualization();
-                return false; // prevent default
-            });
-            $('#canvasDiv_3D').mousewheel(function(event, delta) {
-                GL_handleMouseWeel(delta);
-                GFUNC_updateLeftSideVisualization();
-                return false; // prevent default
-            }); 
+            prepareConnectivity3D('$urlPositions', '${raysArray}', '${colorsArray}', '${connectivity_nose_correction}');
+            prepareConnectivity2D(${leftHemisphereJson}, ${bothHemisphereJson}, ${rightHemisphereJson});
+            mplh5_figureNo = $figureNumber;
+            prepareConnectivity('$urlWeights', '$urlTracts', '$urlPositions', '${urlVertices}', '${urlTriangles}', '${urlNormals}',
+                                '${connectivity_nose_correction}', '${alpha_value}', false);
+            //Do all the required initializations and draw the right table view of the connectivity matrix
+            GFUNC_storeMinMax('${weightsMin}', '${weightsMax}', '${tractsMin}', '${tractsMax}');
+            TBL_storeHemisphereDetails(${start_points_x}, ${end_points_x}, ${start_points_y}, ${end_points_y});
+            $('#GLcanvas').contextMenu('#contextMenuDiv', {'appendTo': ".connectivity-viewer", 'shadow': false, 'offsetY': -20, 'offsetX': 0});
+
+            GVAR_baseSelection = '${base_selection}';
+            GFUN_initializeConnectivityFull();
         });
-        //Draw any additional elements like color picking and hide all tabs but the default one
-        drawColorPickerComponent('startColorSelector', 'endColorSelector', colorTable);
-        drawSimpleColorPicker('nodeColorSelector');
-        SEL_createOperationsTable();
-        
-        $('#monitor-2D-id').hide();
-        $('#monitor-3D-id').hide();    
-        $('#div-matrix-tracts').hide();
-        $('#matrix-hemispheres-selection-id').hide();
+
     </script>
     </py:with>
 	</py:with>

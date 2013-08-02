@@ -224,7 +224,7 @@ function doGroupOperation() {
 			}
 		}
 		GFUNC_recomputeMinMaxW();
-		colorTable();	
+		MATRIX_colorTable();
 		var objToday = new Date(),
         weekday = new Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
         dayOfWeek = weekday[objToday.getDay()],
