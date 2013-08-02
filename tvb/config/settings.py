@@ -827,6 +827,7 @@ class DeploymentProfile(BaseProfile):
             new_python_path += data_path + os.pathsep + os.path.join(data_path, 'lib-tk')
             os.environ['PYTHONPATH'] = new_python_path
             os.environ['PATH'] = data_path + os.pathsep + os.environ.get('PATH', '')
+            setup_tk_tcl_environ(data_path)
 
         if cfg.is_mac():
             # MacOS package structure is in the form:
