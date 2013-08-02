@@ -156,7 +156,7 @@ class _BaseWorkflowStep(Exportable):
         """
         Column attributes with Foreign Keys can not be declared directly in SqlAlchemy
         """
-        return Column(Integer, ForeignKey('ALGORITHMS.id', ondelete="CASCADE"))
+        return Column(Integer, ForeignKey('ALGORITHMS.id'))
 
 
     def __init__(self, workflow_id, algorithm_id, tab_index, index_in_tab,
@@ -233,7 +233,7 @@ class WorkflowStepView(Base, _BaseWorkflowStep):
     ui_name = Column(String)
 
     workflow = relationship(Workflow, backref=backref('WORKFLOW_VIEW_STEPS', order_by=id, cascade="delete, all"))
-    algorithm = relationship(Algorithm, backref=backref('WORKFLOW_VIEW_STEPS', order_by=id, cascade="delete, all"))
+    algorithm = relationship(Algorithm, backref=backref('WORKFLOW_VIEW_STEPS', order_by=id))
     portlet = relationship(Portlet, backref=backref('WORKFLOW_VIEW_STEPS', order_by=id, cascade="delete, all"))
 
 
@@ -275,7 +275,7 @@ class WorkflowStep(Base, _BaseWorkflowStep):
     fk_operation = Column(Integer, ForeignKey('OPERATIONS.id', ondelete="SET NULL"))
 
     workflow = relationship(Workflow, backref=backref('WORKFLOW_STEPS', order_by=id, cascade="delete, all"))
-    algorithm = relationship(Algorithm, backref=backref('WORKFLOW_STEPS', order_by=id, cascade="delete, all"))
+    algorithm = relationship(Algorithm, backref=backref('WORKFLOW_STEPS', order_by=id))
 
 
     def __init__(self, algorithm_id, static_param=None, dynamic_param=None, user_dynamic_param=None,
