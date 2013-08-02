@@ -275,6 +275,7 @@ function initISOData(metric, figDict, servIp, servPort) {
 	currentFigure = figuresDict[metric];
 	connect_manager(serverIp, serverPort, figuresDict[metric]);
 	$('#' + metric).show();
+    initMPLH5CanvasForExportAsImage(figuresDict[metric]);
 }
 
 /*
@@ -295,11 +296,16 @@ function updateMetric(selectComponent) {
 function showMetric(newMetric) {
 
 	for (var key in figuresDict) {
-		$('#' + key).hide();
+		$('#' + key).hide()
+            .find('canvas').each(function () {
+                if (this.drawForImageExport)            // remove redrawing method such that only current view is exported
+                    this.drawForImageExport = null;
+            });
 	}
 	currentFigure = figuresDict[newMetric];
 	connect_manager(serverIp, serverPort, figuresDict[newMetric]);
 	$('#' + newMetric).show();
+    initMPLH5CanvasForExportAsImage(figuresDict[newMetric]);
 }
 
 /*
