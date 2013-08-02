@@ -173,6 +173,29 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson,
 	}
 	$('#startColorLabel')[0].innerHTML = '<mark>Minimum</mark> ' + min_color;
 	$('#endColorLabel')[0].innerHTML = '<mark>Maximum</mark> ' + max_color;
+
+    // Prepare functions for Export Canvas as Image
+    var canvas = $(".base")[0];
+    canvas.drawForImageExport = function () {
+                /* this canvas is drawn by FLOT library so resizing it directly has no influence;
+                 * therefore, its parent needs resizing before redrawing;
+                 * canvas.afterImageExport() is used to bring is back to original size */
+                 var canvasDiv = $("#main_div_pse");
+                 var oldHeight = canvasDiv.height();
+                 var scale = C2I_EXPORT_HEIGHT / oldHeight;
+                 canvas.oldStyle = canvasDiv.attr('style');
+
+                 canvasDiv.css("display", "inline-block");
+                 canvasDiv.width(canvasDiv.width() * scale);
+                 canvasDiv.height(oldHeight * scale);
+                 redrawPlot('main_div_pse');
+    };
+    canvas.afterImageExport = function() {
+                // bring it back to original size and redraw
+                var canvasDiv = $("#main_div_pse");
+                canvasDiv.attr('style', canvas.oldStyle);
+                redrawPlot('main_div_pse');
+    };
 	
 	if (status == "started") {
 		var timeout = setTimeout("PSE_mainDraw('main_div_pse','"+backPage+"')", 3000);

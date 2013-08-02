@@ -28,8 +28,7 @@ function C2I_exportFigures(operationId) {
         return;
     }
     $("canvas").each(function () {
-        if (this.id)
-            __storeCanvas(this.id, operationId)
+        __storeCanvas(this, operationId)
     });
 
     $("svg").attr({ version: '1.1' , xmlns:"http://www.w3.org/2000/svg"});
@@ -126,16 +125,14 @@ function __tryExport(canvas, operationId, remainingTrials) {
 /**
  * This function deals with canvas storage. First it prepares it by calling its resize method
  * (<code>canvas.drawForImageExport</code>), then tries to save it
- * @param canvasId The canvas whose image is to be stored
+ * @param canvas The canvas whose image is to be stored
  * @param operationId Current operation id, associated with this storage
  * @private
  */
-function __storeCanvas(canvasId, operationId) {
-    var canvas = document.getElementById(canvasId);
+function __storeCanvas(canvas, operationId) {
 
     if (!canvas.drawForImageExport)     // canvases which didn't set this method should not be saved
         return;
-
     canvas.drawForImageExport();        // interface-like function that redraws the canvas at bigger dimension
 
     __tryExport(canvas, operationId, 5);
