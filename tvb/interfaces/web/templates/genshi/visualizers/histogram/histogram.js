@@ -19,8 +19,8 @@
 
 var plot = null;
 
-function drawHistogram(canvasId, data, labels, colors) {
-    colors = computeColors(colors);
+function drawHistogram(canvasDivId, data, labels, colorsPy) {
+    var colors = computeColors(colorsPy);
     var histogramLabels = [];
     var histogramData = [];
     for (var i = 0; i < data.length; i++) {
@@ -37,7 +37,30 @@ function drawHistogram(canvasId, data, labels, colors) {
                 shouldRotateLabels: true}
     };
 
-    plot = $.plot($("#" + canvasId), histogramData, options);
+    var canvasDiv = $("#" + canvasDivId);
+    plot = $.plot(canvasDiv, histogramData, options);
+
+
+    // Prepare functions for Export Canvas as Image
+    var canvas = $("#baseFlot")[0];
+    canvas.drawForImageExport = function () {
+                /* this canvas is drawn by FLOT library so resizing it directly has no influence;
+                 * therefore, its parent needs resizing before redrawing;
+                 * canvas.afterImageExport() is used to bring is back to original size */
+                 var oldHeight = canvasDiv.height();
+                 canvas.scale = C2I_EXPORT_HEIGHT / oldHeight;
+                 canvasDiv.width(canvasDiv.width() * canvas.scale);
+                 canvasDiv.height(oldHeight * canvas.scale);
+
+                 plot = $.plot(canvasDiv, histogramData, options);
+    };
+    canvas.afterImageExport = function() {
+                // bring it back to original size and redraw
+                canvasDiv.width(canvasDiv.width() / canvas.scale);
+                canvasDiv.height(canvasDiv.height() / canvas.scale);
+
+                plot = $.plot(canvasDiv, histogramData, options);
+    };
 }
 
 function computeColors(colorsArray) {
@@ -45,7 +68,7 @@ function computeColors(colorsArray) {
     var minColor = parseFloat($('#colorMinId').val());
     var maxColor = parseFloat($('#colorMaxId').val());
     var result = [];
-    for (i = 0; i < colorsArray.length; i++) {
+    for (var i = 0; i < colorsArray.length; i++) {
         var color = getGradientColorString(colorsArray[i], minColor, maxColor);
         result.push(color);
     }
