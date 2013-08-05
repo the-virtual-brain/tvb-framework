@@ -170,7 +170,7 @@ class ConnectivityViewer(ABCDisplayer):
         path_tracts = self.paths2url(input_data, 'tract_lengths')
 
         if surface_data:
-            url_vertices, url_normals, url_triangles = surface_data.get_urls_for_rendering()
+            url_vertices, url_normals, _, url_triangles = surface_data.get_urls_for_rendering()
         else:
             url_vertices = []
             url_triangles = []

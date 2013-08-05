@@ -58,7 +58,9 @@
         uniform vec3 uAmbientColor;
 		uniform vec3 uLightingDirection;
         uniform vec3 uDirectionalColor;
+        uniform vec3 uLinesColor;
         uniform bool uUseBlending;
+        uniform bool uDrawLines;
 
         uniform float uMaterialShininess;
 		uniform vec3 uPointLightingLocation;
@@ -79,32 +81,36 @@
 			
 			picked = isPicking;
 			if (isPicking == 0.0) {
-			
 			    vec4 transformedNormal = uNMatrix * vec4(aVertexNormal, 1.0);
 			    float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
-	
-	            if (uUseBlending) {
-	                vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
-	                vColor = vec4(0.5, 0.5, 0.5, 1.0);
-	            } else {
-					vec3 lightDirection = normalize(uPointLightingLocation - aVertexPosition.xyz);
-					vec3 normal = normalize(transformedNormal.xyz);
-	                vec3 eyeDirection = normalize(-aVertexPosition.xyz);
-	                vec3 reflectionDirection = reflect(-lightDirection, normal);
-	                float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShininess);
-	
-			        vLightWeighting = uAmbientColor  + uDirectionalColor * directionalLightWeighting  + uPointLightingSpecularColor * specularLightWeighting;
-	
-	                <py:choose test="">
-	                    <py:when test="isOneToOneMapping">
-	                        vColor = aVertexColor;
-	                    </py:when>
-	                    <py:otherwise>
-	                        vColor = uVertexColors[int(alphaIndices[0])] * alpha[0] + uVertexColors[int(alphaIndices[1])] * alpha[1] +
-				                 uVertexColors[int(alphaIndices[2])] * (1.0 - alpha[0] - alpha[1]);
-	                    </py:otherwise>
-	                </py:choose>
+				
+				if (uDrawLines) {
+					vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
+            		vColor = vec4(uLinesColor, 1.0);
+            	} else {
+		            if (uUseBlending) {
+		                vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
+		                vColor = vec4(0.5, 0.5, 0.5, 1.0);
+		            } else {
+	            		vec3 lightDirection = normalize(uPointLightingLocation - aVertexPosition.xyz);
+						vec3 normal = normalize(transformedNormal.xyz);
+		                vec3 eyeDirection = normalize(-aVertexPosition.xyz);
+		                vec3 reflectionDirection = reflect(-lightDirection, normal);
+		                float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShininess);
+		
+				        vLightWeighting = uAmbientColor  + uDirectionalColor * directionalLightWeighting  + uPointLightingSpecularColor * specularLightWeighting;
+		
+		                <py:choose test="">
+		                    <py:when test="isOneToOneMapping">
+		                        vColor = aVertexColor;
+		                    </py:when>
+		                    <py:otherwise>
+		                        vColor = uVertexColors[int(alphaIndices[0])] * alpha[0] + uVertexColors[int(alphaIndices[1])] * alpha[1] +
+					                 uVertexColors[int(alphaIndices[2])] * (1.0 - alpha[0] - alpha[1]);
+		                    </py:otherwise>
+		                </py:choose>
 	           		}
+	           }
             } else {
             	vColor = vec4(pickingColor, 1.0);
             	vLightWeighting = vec3(1, 1, 1);
@@ -119,7 +125,7 @@
                 return false; // prevent default
             });
 
-            _webGLStart('${base_activity_url}', ${pageSize}, ${nrOfPages}, '${time}', '${urlVertices}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
+            _webGLStart('${base_activity_url}', ${pageSize}, ${nrOfPages}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
                         $noOfMeasurePoints, '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}', 
                         ${'true' if extended_view else 'false'}, ${"'" + shelfObject +"'" if shelfObject else 'null'}, '${urlMeasurePointsLabels}');
             EX_initializeChannels();

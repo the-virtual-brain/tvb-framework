@@ -39,6 +39,7 @@ var isPreview = false;
 var pointPosition = 75.0;
 
 var brainBuffers = [];
+var brainLinesBuffers = [];
 var shelfBuffers = [];
 var measurePointsBuffers = [];
 /**
@@ -63,6 +64,7 @@ var nextActivitiesFileData = [];
 var totalPassedActivitiesData = 0;
 var shouldIncrementTime = true;
 var currentAsyncCall = null;
+var drawTriangleLines = false;
 
 var MAX_TIME_STEP = 0;
 var NO_OF_MEASURE_POINTS = 0;
@@ -111,7 +113,7 @@ function _webGLPortletPreview(baseDatatypeURL, onePageSize, nrOfPages, urlVertic
     setInterval(tick, TICK_STEP);
 }
 
-function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVerticesList, urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
+function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                      urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels) {
 	isPreview = false;
     isDoubleView = doubleView;
@@ -162,6 +164,7 @@ function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVe
 
     brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
     						   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
+    brainLinesBuffers = HLPR_getDataBuffers(gl, $.parseJSON(urlLinesList), isDoubleView, true);
     LEG_generateLegendBuffers();
     
     if (shelfObject) {
@@ -257,6 +260,8 @@ function initShaders() {
     }
 
     shaderProgram.useBlending = gl.getUniformLocation(shaderProgram, "uUseBlending");
+    shaderProgram.linesColor = gl.getUniformLocation(shaderProgram, "uLinesColor");
+    shaderProgram.drawLines = gl.getUniformLocation(shaderProgram, "uDrawLines");
     shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
     shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
     shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
@@ -447,6 +452,10 @@ function resetSpeedSlider() {
 }
 
 
+function setDrawTriangleLines() {
+	drawTriangleLines = !drawTriangleLines;
+}
+
 /**
  * Creates a list of webGl buffers.
  *
@@ -571,6 +580,7 @@ function initBuffers(urlVertices, urlNormals, urlTriangles, urlAlphas, urlAlphas
     var vertices = createWebGlBuffers(verticesData);
     var normals = HLPR_getDataBuffers(gl, urlNormals, staticFiles);
     var indexes = HLPR_getDataBuffers(gl, urlTriangles, staticFiles, true);
+    
     var alphas = normals;  // Fake buffers, copy of the normals, in case of transparency, we only need dummy ones.
     var alphasIndices = normals;
     if (!isOneToOneMapping && urlAlphas && urlAlphasIndices && urlAlphas.length) {
@@ -633,6 +643,22 @@ function drawBuffers(drawMode, buffersSets, useBlending) {
     	gl.disable(gl.BLEND);
     	gl.uniform1i(shaderProgram.useBlending, false);
     }
+}
+
+
+function drawBrainLines(linesBuffers, brainObjBuffers) {
+	gl.uniform1i(shaderProgram.drawLines, true);
+    gl.uniform3f(shaderProgram.linesColor, 0.3, 0.1, 0.3);;
+    for (var i=0; i < linesBuffers.length; i++) {
+    	gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][0]);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][1]);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesBuffers[i]);
+        setMatrixUniforms();
+        gl.drawElements(gl.LINES, linesBuffers[i].numItems, gl.UNSIGNED_SHORT, 0);
+    }
+    gl.uniform1i(shaderProgram.drawLines, false);
 }
 
 /**
@@ -712,6 +738,10 @@ function drawScene() {
 	    	updateColors(currentTimeValue);
 	    }
 	    drawBuffers(drawingMode, brainBuffers, false);
+	    if (drawTriangleLines) {
+	    	drawBrainLines(brainLinesBuffers, brainBuffers);
+	    }
+        
 	    if (!isPreview) {
 	    	if (displayMeasureNodes) {
 		        drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);

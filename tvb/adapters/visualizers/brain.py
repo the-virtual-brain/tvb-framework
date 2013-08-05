@@ -118,13 +118,13 @@ class BrainViewer(ABCDisplayer):
         if surface is None:
             raise Exception("No not-none Mapping Surface found for display!")
 
-        url_vertices, url_normals, url_triangles, alphas, alphas_indices = surface.get_urls_for_rendering(True,
+        url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices = surface.get_urls_for_rendering(True,
                                                                                                           region_map)
-        return one_to_one_map, url_vertices, url_normals, url_triangles, alphas, alphas_indices
+        return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices
 
 
     def compute_preview_parameters(self, time_series):
-        one_to_one_map, url_vertices, url_normals, url_triangles, \
+        one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
             alphas, alphas_indices = self._prepare_surface_urls(time_series)
         _, _, measure_points_no = self._retrieve_measure_points(time_series)
         time_0_data = time_series.read_data_page(0, 1, None)
@@ -133,6 +133,7 @@ class BrainViewer(ABCDisplayer):
         legend_labels = self._compute_legend_labels(min_val, max_val)
         return dict(isOneToOneMapping=one_to_one_map, urlVertices=json.dumps(url_vertices),
                     urlTriangles=json.dumps(url_triangles),
+                    urlLines=json.dumps(url_lines),
                     urlNormals=json.dumps(url_normals), alphas=json.dumps(alphas),
                     alphas_indices=json.dumps(alphas_indices),
                     base_activity_url=ABCDisplayer.VISUALIZERS_URL_PREFIX + time_series.gid, minActivity=min_val,
@@ -150,7 +151,7 @@ class BrainViewer(ABCDisplayer):
                     * a Face object cannot be found in database
 
         """
-        one_to_one_map, url_vertices, url_normals, url_triangles, \
+        one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
             alphas, alphas_indices = self._prepare_surface_urls(time_series)
 
         measure_points, measure_points_labels, measure_points_no = self._retrieve_measure_points(time_series)
@@ -164,21 +165,22 @@ class BrainViewer(ABCDisplayer):
         face_surface = dao.get_generic_entity(FaceSurface, "FaceSurface", "type")
         if len(face_surface) == 0:
             raise Exception("No face object found in database.")
-        face_vertices, face_normals, face_triangles = face_surface[0].get_urls_for_rendering()
+        face_vertices, face_normals, _, face_triangles = face_surface[0].get_urls_for_rendering()
         face_object = json.dumps([face_vertices, face_normals, face_triangles])
 
         data_shape = time_series.read_data_shape()
         state_variables = time_series.labels_dimensions.get(time_series.labels_ordering[1], [])
 
         return dict(title="Cerebral Activity", isOneToOneMapping=one_to_one_map,
-                    urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
-                    urlNormals=json.dumps(url_normals), urlMeasurePointsLabels=measure_points_labels,
-                    measure_points=measure_points, noOfMeasurePoints=measure_points_no,
-                    alphas=json.dumps(alphas), alphas_indices=json.dumps(alphas_indices),
-                    base_activity_url=base_activity_url, time=json.dumps(time_urls),
-                    minActivity=min_val, maxActivity=max_val, minActivityLabels=legend_labels,
-                    labelsStateVar=state_variables, labelsModes=range(data_shape[3]), extended_view=False,
-                    shelfObject=face_object, time_series=time_series, pageSize=self.PAGE_SIZE, nrOfPages=nr_of_pages)
+                    urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles), 
+                    urlLines=json.dumps(url_lines), urlNormals=json.dumps(url_normals), 
+                    urlMeasurePointsLabels=measure_points_labels, measure_points=measure_points, 
+                    noOfMeasurePoints=measure_points_no, alphas=json.dumps(alphas), 
+                    alphas_indices=json.dumps(alphas_indices),base_activity_url=base_activity_url, 
+                    time=json.dumps(time_urls), minActivity=min_val, maxActivity=max_val, 
+                    minActivityLabels=legend_labels, labelsStateVar=state_variables, labelsModes=range(data_shape[3]), 
+                    extended_view=False, shelfObject=face_object, time_series=time_series, pageSize=self.PAGE_SIZE, 
+                    nrOfPages=nr_of_pages)
 
 
     @staticmethod
@@ -323,11 +325,11 @@ class BrainEEG(BrainViewer):
             if len(eeg_cap) < 1:
                 raise Exception("No EEG Cap Surface found for display!")
             self.eeg_cap = eeg_cap[0]
-        url_vertices, url_normals, url_triangles = self.eeg_cap.get_urls_for_rendering()
+        url_vertices, url_normals, url_lines, url_triangles = self.eeg_cap.get_urls_for_rendering()
         alphas = []
         alphas_indices = []
 
-        return one_to_one_map, url_vertices, url_normals, url_triangles, alphas, alphas_indices
+        return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices
 
             
         
