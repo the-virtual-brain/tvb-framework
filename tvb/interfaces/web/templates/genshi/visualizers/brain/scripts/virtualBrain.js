@@ -65,6 +65,10 @@ var totalPassedActivitiesData = 0;
 var shouldIncrementTime = true;
 var currentAsyncCall = null;
 var drawTriangleLines = false;
+var drawBoundaries = false;
+var boundaryVertexBuffers = [];
+var boundaryNormalsBuffers = [];
+var boundaryEdgesBuffers = [];
 
 var MAX_TIME_STEP = 0;
 var NO_OF_MEASURE_POINTS = 0;
@@ -114,7 +118,7 @@ function _webGLPortletPreview(baseDatatypeURL, onePageSize, nrOfPages, urlVertic
 }
 
 function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
-                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels) {
+                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
 	isPreview = false;
     isDoubleView = doubleView;
     GL_DEFAULT_Z_POS = 250;
@@ -166,6 +170,7 @@ function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVe
     						   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
     brainLinesBuffers = HLPR_getDataBuffers(gl, $.parseJSON(urlLinesList), isDoubleView, true);
     LEG_generateLegendBuffers();
+    initRegionBoundaries(boundaryURL);
     
     if (shelfObject) {
     	shelfObject = $.parseJSON(shelfObject);
@@ -452,8 +457,12 @@ function resetSpeedSlider() {
 }
 
 
-function setDrawTriangleLines() {
+function toogleDrawTriangleLines() {
 	drawTriangleLines = !drawTriangleLines;
+}
+
+function toogleDrawBoundaries() {
+	drawBoundaries = !drawBoundaries;
 }
 
 /**
@@ -607,6 +616,27 @@ function initBuffers(urlVertices, urlNormals, urlTriangles, urlAlphas, urlAlphas
 }
 
 
+function initRegionBoundaries(boundariesURL) {
+	if (boundariesURL) {
+		$.ajax({
+	        url: boundariesURL,
+	        async: true,
+	        success: function(data) {
+	        	var data = $.parseJSON(data);
+	        	var boundaryVertices = data[0];
+			    var boundaryEdges = data[1];
+			    var boundaryNormals = data[2];
+			    for (var i = 0; i < boundaryVertices.length; i++) {
+			    	boundaryVertexBuffers.push(HLPR_createWebGlBuffer(gl, boundaryVertices[i], false, false));
+			    	boundaryNormalsBuffers.push(HLPR_createWebGlBuffer(gl, boundaryNormals[i], false, false));
+			    	boundaryEdgesBuffers.push(HLPR_createWebGlBuffer(gl, boundaryEdges[i], true, false));
+			    }
+	        }
+	    });
+	}
+}
+
+
 function drawBuffers(drawMode, buffersSets, useBlending) {
 	if (useBlending) {
 		gl.uniform1i(shaderProgram.useBlending, true);
@@ -646,9 +676,31 @@ function drawBuffers(drawMode, buffersSets, useBlending) {
 }
 
 
+function drawRegionBoundaries() {
+	if (boundaryVertexBuffers && boundaryEdgesBuffers) {
+		gl.uniform1i(shaderProgram.drawLines, true);
+	    gl.uniform3f(shaderProgram.linesColor, 0.7, 0.7, 0.1);
+	    gl.lineWidth(3.0);
+	    for (var i=0; i < boundaryVertexBuffers.length; i++) {
+	    	gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVertexBuffers[i]);
+	        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+	        gl.bindBuffer(gl.ARRAY_BUFFER, boundaryNormalsBuffers[i]);
+	        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+	    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boundaryEdgesBuffers[i]);
+	        setMatrixUniforms();
+	        gl.drawElements(gl.LINES, boundaryEdgesBuffers[i].numItems, gl.UNSIGNED_SHORT, 0);
+	    }
+	    gl.uniform1i(shaderProgram.drawLines, false);
+	} else {
+		displayMessage('Boundaries data not yet loaded. Dispaly will refresh automatically when load is finished.', 'infoMessage')		
+	}
+}
+
+
 function drawBrainLines(linesBuffers, brainObjBuffers) {
 	gl.uniform1i(shaderProgram.drawLines, true);
-    gl.uniform3f(shaderProgram.linesColor, 0.3, 0.1, 0.3);;
+    gl.uniform3f(shaderProgram.linesColor, 0.3, 0.1, 0.3);
+    gl.lineWidth(1.0);
     for (var i=0; i < linesBuffers.length; i++) {
     	gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][0]);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -738,6 +790,9 @@ function drawScene() {
 	    	updateColors(currentTimeValue);
 	    }
 	    drawBuffers(drawingMode, brainBuffers, false);
+	    if (drawBoundaries) {
+	    	drawRegionBoundaries();
+	    }
 	    if (drawTriangleLines) {
 	    	drawBrainLines(brainLinesBuffers, brainBuffers);
 	    }

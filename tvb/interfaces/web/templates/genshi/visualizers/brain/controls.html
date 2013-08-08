@@ -26,12 +26,15 @@
 		<xi:include href='../commons/state_mode_selector.html'/>
 		${drawStateModeSelector(labelsStateVar, 'state-variable-select', 'State variable:', 'changeStateVariable')}
 		${drawStateModeSelector(labelsModes, 'mode-select', 'Mode:', 'changeMode')}
-		<input id="showBrainLines" type="checkbox" onchange="setDrawTriangleLines(this);" tabindex="1" py:if="not extended_view"/>
-        <label for="showBrainLines" py:if="not extended_view">Show surface triangles</label>
+		<input id="showBrainLines" type="checkbox" onchange="toogleDrawBoundaries(this);" tabindex="1" py:if="not extended_view and not isOneToOneMapping"/>
+        <label for="showBrainLines" py:if="not extended_view and not isOneToOneMapping">Show region boundaries</label>
+        <br py:if="not extended_view and not isOneToOneMapping"/>
+		<input id="showBrainLines" type="checkbox" onchange="toogleDrawTriangleLines(this);" tabindex="1"/>
+        <label for="showBrainLines">Show surface triangles</label>
         <br/>
         <input id="inTimeRefreshChkId" type="checkbox" onchange="NAV_setInTimeRefresh(this);" tabindex="1" py:if="not extended_view"/>
         <label for="inTimeRefreshChkId" py:if="not extended_view">In time refresh</label>
-        <br/>
+        <br py:if="not extended_view"/>
         <input id="setClownyFaceChkId" type="checkbox" onchange="LEG_setClownyFace();" tabindex="1"/>
         <label for="setClownyFaceChkId">Use sparse colors</label>
         <br/>

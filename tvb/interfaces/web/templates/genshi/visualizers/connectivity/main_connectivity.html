@@ -21,6 +21,7 @@
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityScript.js?5001" ></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivity2DScript.js?5001"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivity3DScript.js?5001"></script>
+    <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityStepPlot.js?5001"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/selectionControlScript.js?4266"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/orientation.js"></script>
 
@@ -60,6 +61,7 @@
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(2);">Hemisphere 2</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start3DConnectivity()">3D Nodes</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); startMPLH5ConnectivityView()">Matrix</a></li>
+			<li><a href="#" onclick="hideLeftSideTabs(this); startSpaceTimeConnectivity()">Space Time</a></li>
 		</ul>
 		
 		<div id="monitor-mplh5" class="monitor-container" style="display:none">
@@ -75,6 +77,8 @@
 		${drawConnectivityViewer(True)}
 		<xi:include href="connectivity_2D_view.html"/>
 		<xi:include href="connectivity_3D_view.html"/>  
+		<xi:include href="connectivity_plot_view.html"/>
+		${drawConnectivityPlotViewer()}
 		
 	</div>	        
 	</section>

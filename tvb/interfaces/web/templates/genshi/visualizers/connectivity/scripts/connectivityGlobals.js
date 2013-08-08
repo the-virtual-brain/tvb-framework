@@ -36,6 +36,7 @@ function GFUN_initializeConnectivityFull() {
         $('#GLcanvas').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
         $('#GLcanvas_3D').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
         $('#canvasDiv_3D').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
+        $('#canvasDiv_PLOT').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
 
         //Draw any additional elements like color picking and hide all tabs but the default one
         drawColorPickerComponent('startColorSelector', 'endColorSelector', MATRIX_colorTable);
@@ -378,6 +379,7 @@ function showSelectionTable() {
 var CONNECTIVITY_TAB = 1;
 var CONNECTIVITY_2D_TAB = 2;
 var CONNECTIVITY_3D_TAB = 3;
+var CONNECTIVITY_SPACE_TIME_TAB = 4;
 var SELECTED_TAB = CONNECTIVITY_TAB;
 
 function GFUNC_updateLeftSideVisualization() {
@@ -389,6 +391,9 @@ function GFUNC_updateLeftSideVisualization() {
 	 }
 	 if (SELECTED_TAB == CONNECTIVITY_3D_TAB) {
 		 drawScene_3D();
+	 }
+	 if (SELECTED_TAB == CONNECTIVITY_SPACE_TIME_TAB) {
+		 drawSceneSpaceTime();
 	 }
 }
 
@@ -457,4 +462,11 @@ function startMPLH5ConnectivityView() {
     initMPLH5CanvasForExportAsImage(mplh5_figureNo)
 }
 
+function startSpaceTimeConnectivity() {
+	$("#monitor-plot-id").show()
+        .find('#GLcanvas_SPACETIME')[0].redrawFunctionRef = drawSceneSpaceTime;   // interface-like function used in HiRes image exporting
+	conectivitySpaceTime_initCanvas();
+	connectivitySpaceTime_startGL();
+	SELECTED_TAB = CONNECTIVITY_SPACE_TIME_TAB;
+}
 

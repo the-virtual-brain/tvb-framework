@@ -121,6 +121,19 @@ class BrainViewer(ABCDisplayer):
         url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices = surface.get_urls_for_rendering(True,
                                                                                                           region_map)
         return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices
+    
+    
+    def _get_url_for_region_boundaries(self, time_series, region_mapping=None):
+        one_to_one_map = isinstance(time_series, TimeSeriesSurface)
+        if not one_to_one_map and hasattr(time_series, 'connectivity'):
+            region_map = dao.get_generic_entity(RegionMapping, time_series.connectivity.gid, '_connectivity')
+            if len(region_map) < 1:
+                raise Exception("No Mapping Surface found for display!")
+            region_map = region_map[0]
+            surface = region_map.surface
+            return surface.get_url_for_region_boundaries(region_map)
+        else:
+            return ''
 
 
     def compute_preview_parameters(self, time_series):
@@ -171,6 +184,8 @@ class BrainViewer(ABCDisplayer):
         data_shape = time_series.read_data_shape()
         state_variables = time_series.labels_dimensions.get(time_series.labels_ordering[1], [])
 
+        boundary_url = self._get_url_for_region_boundaries(time_series)
+
         return dict(title="Cerebral Activity", isOneToOneMapping=one_to_one_map,
                     urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles), 
                     urlLines=json.dumps(url_lines), urlNormals=json.dumps(url_normals), 
@@ -180,7 +195,7 @@ class BrainViewer(ABCDisplayer):
                     time=json.dumps(time_urls), minActivity=min_val, maxActivity=max_val, 
                     minActivityLabels=legend_labels, labelsStateVar=state_variables, labelsModes=range(data_shape[3]), 
                     extended_view=False, shelfObject=face_object, time_series=time_series, pageSize=self.PAGE_SIZE, 
-                    nrOfPages=nr_of_pages)
+                    nrOfPages=nr_of_pages, boundary_url=boundary_url)
 
 
     @staticmethod

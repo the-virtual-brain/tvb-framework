@@ -550,19 +550,27 @@ class FlowController(base.BaseController):
     @cherrypy.expose
     @ajax_call()
     @logged()
-    def read_datatype_attribute(self, entity_gid, dataset_name, flatten=False, **kwargs):
+    def read_datatype_attribute(self, entity_gid, dataset_name, flatten=False, datatype_kwargs='null', **kwargs):
         """
         Retrieve from a given DataType a property or a method result.
         :returns: JSON with a NumPy array
         :param entity_gid: GID for DataType entity
         :param dataset_name: name of the dataType property /method 
         :param flatten: result should be flatten before return (use with WebGL data mainly e.g vertices/triangles)
+        :param datatype_kwargs: if passed, will contain a dictionary of type {'name' : 'gid'}, and for each such
+                                pair, a load_entity will be performed and kwargs will be updated to contain the result
         :param kwargs: extra parameters to be passed when dataset_name is method. 
         """
         try:
             self.logger.debug("Starting to read HDF5: " + entity_gid + "/" + dataset_name + "/" + str(kwargs))
             entity = ABCAdapter.load_entity_by_gid(entity_gid)
-            if kwargs is None or len(kwargs) < 1:
+            if kwargs is None:
+                kwargs = {}
+            datatype_kwargs = json.loads(datatype_kwargs)
+            if datatype_kwargs is not None:
+                for key in datatype_kwargs:
+                    kwargs[key] = ABCAdapter.load_entity_by_gid(datatype_kwargs[key])
+            if len(kwargs) < 1:
                 numpy_array = copy.deepcopy(getattr(entity, dataset_name))
             else:
                 numpy_array = eval("entity." + dataset_name + "(**kwargs)")
