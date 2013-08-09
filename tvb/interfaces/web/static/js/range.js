@@ -26,7 +26,8 @@ var BUTTON_EXPAND_SUFFIX = "_buttonExpand";
 var BUTTON_COLLAPSE_SUFFIX = "_buttonCollapse";
 var INPUT_FROM_RANGE = "_FromIdx";
 var INPUT_TO_RANGE = "_ToIdx";
-var RANGE_VALUES_SPAN = "_interval_span";
+var RANGE_VALUES_SPAN = "_interval_span";
+
 var ONE_HUNDRED = 1000;
 var NORMALIZATION_VALUES = {}
 
