@@ -267,6 +267,8 @@ function initShaders() {
     shaderProgram.useBlending = gl.getUniformLocation(shaderProgram, "uUseBlending");
     shaderProgram.linesColor = gl.getUniformLocation(shaderProgram, "uLinesColor");
     shaderProgram.drawLines = gl.getUniformLocation(shaderProgram, "uDrawLines");
+    shaderProgram.vertexLineColor = gl.getUniformLocation(shaderProgram, "uUseVertexLineColor");
+    
     shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
     shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
     shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
@@ -679,7 +681,7 @@ function drawBuffers(drawMode, buffersSets, useBlending) {
 function drawRegionBoundaries() {
 	if (boundaryVertexBuffers && boundaryEdgesBuffers) {
 		gl.uniform1i(shaderProgram.drawLines, true);
-	    gl.uniform3f(shaderProgram.linesColor, 0.7, 0.7, 0.1);
+		gl.uniform3f(shaderProgram.linesColor, 0.7, 0.7, 0.1);
 	    gl.lineWidth(3.0);
 	    for (var i=0; i < boundaryVertexBuffers.length; i++) {
 	    	gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVertexBuffers[i]);
@@ -790,12 +792,16 @@ function drawScene() {
 	    	updateColors(currentTimeValue);
 	    }
 	    drawBuffers(drawingMode, brainBuffers, false);
+	    if (drawingMode == gl.POINTS) {
+	    	gl.uniform1i(shaderProgram.vertexLineColor, true);
+	    }
 	    if (drawBoundaries) {
 	    	drawRegionBoundaries();
 	    }
 	    if (drawTriangleLines) {
 	    	drawBrainLines(brainLinesBuffers, brainBuffers);
 	    }
+        gl.uniform1i(shaderProgram.vertexLineColor, false);
         
 	    if (!isPreview) {
 	    	if (displayMeasureNodes) {

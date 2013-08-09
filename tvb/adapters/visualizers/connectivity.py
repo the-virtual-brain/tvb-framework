@@ -136,14 +136,14 @@ class ConnectivityViewer(ABCDisplayer):
         return self.build_display_result("connectivity/portlet_preview", parameters, {})
 
 
-    def submit_connectivity(self, original_connectivity, new_weights, interest_area_indexes, **_):
+    def submit_connectivity(self, original_connectivity, new_weights, new_tracts, interest_area_indexes, **_):
         """
         Method to be called when user submits changes on the 
         Connectivity matrix in the Visualizer.
         """
         result = []
         conn = self.load_entity_by_gid(original_connectivity)
-        result_connectivity = conn.generate_new_connectivity(new_weights, interest_area_indexes, self.storage_path)
+        result_connectivity = conn.generate_new_connectivity(new_weights, interest_area_indexes, self.storage_path, new_tracts)
         result.append(result_connectivity)
 
         linked_region_mappings = dao.get_generic_entity(RegionMapping, original_connectivity, '_connectivity')

@@ -562,7 +562,8 @@ function MATRIX_colorTable() {
 
 function saveChanges() {
     // clone the weights matrix
-    $("#newWeightsId").val($.toJSON(GVAR_interestAreaVariables[GVAR_selectedAreaType]['values']));
+    $("#newWeightsId").val($.toJSON(GVAR_interestAreaVariables[1]['values']));
+    $("#newTractsId").val($.toJSON(GVAR_interestAreaVariables[2]['values']));
     $("#interestAreaNodeIndexesId").val($.toJSON(GVAR_interestAreaNodeIndexes));
     $("#experimentFormId").submit();
 }

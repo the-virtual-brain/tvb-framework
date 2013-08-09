@@ -61,6 +61,7 @@
         uniform vec3 uLinesColor;
         uniform bool uUseBlending;
         uniform bool uDrawLines;
+        uniform bool uUseVertexLineColor;
 
         uniform float uMaterialShininess;
 		uniform vec3 uPointLightingLocation;
@@ -84,11 +85,8 @@
 			    vec4 transformedNormal = uNMatrix * vec4(aVertexNormal, 1.0);
 			    float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
 				
-				if (uDrawLines) {
-					vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
-            		vColor = vec4(uLinesColor, 1.0);
-            	} else {
-		            if (uUseBlending) {
+				if (uUseVertexLineColor || !uDrawLines) {
+					if (uUseBlending) {
 		                vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
 		                vColor = vec4(0.5, 0.5, 0.5, 1.0);
 		            } else {
@@ -110,7 +108,12 @@
 		                    </py:otherwise>
 		                </py:choose>
 	           		}
-	           }
+				} else {
+					if (uDrawLines) {
+						vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
+						vColor = vec4(uLinesColor, 1.0);
+					}
+				} 
             } else {
             	vColor = vec4(pickingColor, 1.0);
             	vLightWeighting = vec3(1, 1, 1);

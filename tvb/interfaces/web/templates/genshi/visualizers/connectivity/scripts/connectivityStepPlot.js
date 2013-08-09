@@ -23,7 +23,7 @@ var clickedMatrix = -1;
 var backupTranslations = [];
 var backupRotations = [];
 var animationStarted = false;
-var alphaValueSpaceTime = 0.3;				// original alpha value for default plot		
+var alphaValueSpaceTime = 1.0;				// original alpha value for default plot		
 var backupAlphaValue = alphaValueSpaceTime;	// backup used in animations
 var minTractValue = -1;
 var maxTractValue = -1;
@@ -31,7 +31,7 @@ var animationTimeout = 3;
 var animationGranularity = 50;
 
 
-function customMouseDown(event) {
+function customMouseDown_SpaceTime(event) {
 	if (!animationStarted) {
 		if (clickedMatrix >= 0) {
 			doZoomOutAnimation();
@@ -43,7 +43,7 @@ function customMouseDown(event) {
 	}
 }
 
-function customEventHandler() {
+function nullEventHandler() {
 	// Just do nothing for most events since we don't want zooming or other fancy stuff.
 }
 
@@ -214,7 +214,7 @@ function generateColors(tractValue, intervalLength) {
 		for (var j = 0; j < nrElems; j++) {
 			for (var k = 0; k < 4; k++) {
 				// For each element generate 4 identical colors coresponding to the 4 vertices used for the element
-				if (matrixTractsValues[i][nrElems - j - 1] > (tractValue - intervalLength / 2) && matrixTractsValues[i][nrElems - j- 1] < (tractValue + intervalLength / 2)) {
+				if (matrixTractsValues[i][nrElems - j - 1] >= (tractValue - intervalLength / 2) && matrixTractsValues[i][nrElems - j- 1] <= (tractValue + intervalLength / 2)) {
 					var color = getGradientColor(matrixWeightsValues[i][nrElems - j - 1], minWeightsValue, maxWeightsValue);
 					for (var colorIdx = 0; colorIdx < 3; colorIdx++) {
 						colors[3 * 4 * (i * nrElems + j) + k * 3 + colorIdx] = color[colorIdx];
@@ -275,7 +275,7 @@ function initColorBuffers() {
 	plotColorBuffers.push(generateColors((maxTractValue + minTractValue) / 2, maxTractValue - minTractValue));
 	// In order to avoid floating number approximations which keep the loop for one more iteration just approximate by
 	// substracting 0.1
-	for (var tractValue = minTractValue; tractValue < parseInt(maxTractValue) - 0.1; tractValue = tractValue + stepValue) {
+	for (var tractValue = minTractValue + stepValue / 2; tractValue < parseInt(maxTractValue) - 0.1; tractValue = tractValue + stepValue) {
 		plotColorBuffers.push(generateColors(tractValue, stepValue));
 	} 
 }
@@ -289,12 +289,14 @@ function conectivitySpaceTime_initCanvas() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     plotSize = parseInt(canvas.clientWidth / 3);	// Compute the size of one connectivity plot depending on the canvas width
     createConnectivityMatrix();
-    canvas.onkeydown = customEventHandler;
-    canvas.onkeyup = customEventHandler;
-    canvas.onmousedown = customMouseDown;
-    document.onmouseup = customEventHandler;
-    document.onmousemove = customEventHandler;
+    canvas.onkeydown = nullEventHandler;
+    canvas.onkeyup = nullEventHandler;
+    canvas.onmousedown = customMouseDown_SpaceTime;
+    document.onmouseup = nullEventHandler;
+    document.onmousemove = nullEventHandler;
     
+    plotTranslations = [];
+    plotRotations = [];
     plotTranslations.push([-parseInt(canvas.clientWidth / 4), 0, 0]);	//The translation for the left-most full connectivity matrix
     plotRotations.push([90, [0, 1, 0]]);
     for (var i = 0; i < nrOfSteps; i++) {
@@ -310,6 +312,7 @@ function conectivitySpaceTime_initCanvas() {
 	}
 	
     updateSpaceTimeHeader();
+    clickedMatrix = -1;
 }
 
 
@@ -322,6 +325,7 @@ function drawFullMatrix(doPick, idx) {
 	// Translate and rotate to get a good view 
 	mvTranslate(plotTranslations[idx]);
     mvRotate(plotRotations[idx][0], plotRotations[idx][1]);
+    mvRotate(180, [0, 0, 1]);
 	
 	// Draw the actual matrix.
 	gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
@@ -345,8 +349,13 @@ function drawFullMatrix(doPick, idx) {
 		gl.uniform1i(shaderProgram.drawLines, false);
 		
 		// Now draw the square outline
-		gl.uniform3f(shaderProgram.lineColor, 0.2, 0.2, 0.8);
-	    gl.lineWidth(3.0);
+		if (idx == clickedMatrix) {
+			gl.uniform3f(shaderProgram.lineColor, 0.2, 0.2, 0.8);
+	    	gl.lineWidth(3.0);
+		} else {
+			gl.uniform3f(shaderProgram.lineColor, 0.3, 0.3, 0.3);
+			gl.lineWidth(2.0);
+		}
 	    gl.bindBuffer(gl.ARRAY_BUFFER, outlineVerticeBuffer);
 	    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, TRI, gl.FLOAT, false, 0, 0);
 		gl.bindBuffer(gl.ARRAY_BUFFER, outlineNormalsBuffer);
@@ -399,7 +408,9 @@ function animationStep(step, animationSteps, animations, zoomIn) {
 			zoomedInMatrix = clickedMatrix;
 			var stepValue = (maxTractValue - minTractValue) / nrOfSteps;
 			if (zoomedInMatrix != 0) {
-				matrixSelected.innerHTML = '[' + (minTractValue + stepValue * zoomedInMatrix - stepValue / 2).toFixed(2) + '..' + (minTractValue + stepValue * zoomedInMatrix + stepValue / 2).toFixed(2) + ']';
+				var fromTractVal = (minTractValue + stepValue * (zoomedInMatrix - 1)).toFixed(2)
+				var toTractVal = (minTractValue + stepValue * zoomedInMatrix).toFixed(2)
+				matrixSelected.innerHTML = '[' + fromTractVal + '..' + toTractVal + ']';
 			} else {
 				matrixSelected.innerHTML = 'Full matrix';
 			}
@@ -459,11 +470,6 @@ function doZoomOutAnimation() {
 function drawSceneSpaceTime() {
 	if (!doPick) {
 		gl.uniform1f(shaderProgram.alphaValue, alphaValueSpaceTime);
-		//if (clickedMatrix < 0) {
-		//	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	    //	gl.enable(gl.BLEND);
-	    //	gl.disable(gl.DEPTH_TEST);
-		//}
 		gl.uniform1f(shaderProgram.isPicking, 0);
 		gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
 		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
@@ -480,7 +486,7 @@ function drawSceneSpaceTime() {
 	    //gl.disable(gl.BLEND);
 	    //gl.enable(gl.DEPTH_TEST);
 	} else {
-		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
+		// gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
    		gl.disable(gl.BLEND) 
         gl.disable(gl.DITHER)
         gl.disable(gl.FOG) 
@@ -497,13 +503,12 @@ function drawSceneSpaceTime() {
     	loadIdentity();
     	// Translate to get a good view.
 	    mvTranslate([0.0, 0.0, -600]);
-	    multMatrix(GL_currentRotationMatrix);
 	    
 		for (var i = 0; i < plotColorBuffers.length; i++) {
 			drawFullMatrix(true, i);
 		}
 		clickedMatrix = GL_getPickedIndex();
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         doPick = false;
 		if (clickedMatrix >= 0) {
 			doZoomInAnimation();
