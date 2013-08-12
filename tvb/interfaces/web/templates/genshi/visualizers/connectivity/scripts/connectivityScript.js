@@ -101,6 +101,7 @@ var colorsArrayBuffer;
 // this array contains a color index for each point from the connectivity matrix. The color corresponding to that index
 // will be used for drawing the lines for that point
 var colorsIndexes =[];
+var conductionSpeed = 1;
 
 var alphaValue = 0;
 
@@ -741,7 +742,7 @@ function connectivity_initCanvas() {
 }
 
 function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList, urlTrianglesList,
-								urlNormalsList, conn_nose_correction, alpha_value) {
+								urlNormalsList, conn_nose_correction, alpha_value, condSpeed) {
 	/*
 	 * Initialize all the actual data needed by the connectivity visualizer. This should be called
 	 * only once.
@@ -752,6 +753,7 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
     NO_POSITIONS = GVAR_positionsPoints.length;
     GFUNC_initTractsAndWeights(fileWeights, fileTracts)
 
+	conductionSpeed = parseFloat(condSpeed);
     // Initialize the buffers for drawing the points
     for (i = 0; i < NO_POSITIONS; i++) {
         positionsBuffers[i] = HLPR_bufferAtPoint(gl, GVAR_positionsPoints[i]);
@@ -777,13 +779,13 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
  * be drawn alone, without widths and tracts.
  */
 function prepareConnectivity(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                    urlNormalsList, conn_nose_correction, alpha_value, isSingleMode) {
+                    urlNormalsList, conn_nose_correction, alpha_value, isSingleMode, conductionSpeed) {
 	/*
 	 * This will take all the required steps to start the connectivity visualizer.
 	 */
 	connectivity_initCanvas();
 	saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                    	   urlNormalsList, conn_nose_correction, alpha_value);
+                    	   urlNormalsList, conn_nose_correction, alpha_value, conductionSpeed);
     if (!isSingleMode) {
         GFUNC_addAllMatrixToInterestArea();
     }

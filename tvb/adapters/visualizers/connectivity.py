@@ -199,7 +199,7 @@ class ConnectivityViewer(ABCDisplayer):
                              positions=input_data.centres, weights=input_data.weights,
                              tractsMin=json.dumps(minimum_t), tractsMax=json.dumps(maximum_t),
                              weightsMin=json.dumps(minimum), weightsMax=json.dumps(maximum),
-                             pointsLabels=input_data.region_labels,
+                             pointsLabels=input_data.region_labels, conductionSpeed=input_data.speed or 1,
                              urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
                              urlNormals=json.dumps(url_normals), alpha_value=alpha_value,
                              connectivity_nose_correction=json.dumps(input_data.nose_correction),

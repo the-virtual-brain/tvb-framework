@@ -214,7 +214,8 @@ function generateColors(tractValue, intervalLength) {
 		for (var j = 0; j < nrElems; j++) {
 			for (var k = 0; k < 4; k++) {
 				// For each element generate 4 identical colors coresponding to the 4 vertices used for the element
-				if (matrixTractsValues[i][nrElems - j - 1] >= (tractValue - intervalLength / 2) && matrixTractsValues[i][nrElems - j- 1] <= (tractValue + intervalLength / 2)) {
+				var delayValue = matrixTractsValues[i][nrElems - j - 1] / conductionSpeed;
+				if (delayValue >= (tractValue - intervalLength / 2) && delayValue <= (tractValue + intervalLength / 2)) {
 					var color = getGradientColor(matrixWeightsValues[i][nrElems - j - 1], minWeightsValue, maxWeightsValue);
 					for (var colorIdx = 0; colorIdx < 3; colorIdx++) {
 						colors[3 * 4 * (i * nrElems + j) + k * 3 + colorIdx] = color[colorIdx];
@@ -252,8 +253,9 @@ function updateSpaceTimeHeader() {
 		maxTract = parseFloat(maxTract);
 	}
 	
-	if (minTract < 0) minTract = 0;
-	if (maxTract < 0 || maxTract > maxTractValue) maxTract = maxTractValue;
+	if (minTract < GVAR_interestAreaVariables[2].min_val) minTract = GVAR_interestAreaVariables[2].min_val;
+	if (maxTract < 0) maxTract = maxTractValue;
+	if (maxTract > GVAR_interestAreaVariables[2].max_val) maxTract = GVAR_interestAreaVariables[2].max_val;
 	if (minTract > maxTract) {
 		var swapAux = minTract;
 		minTract = maxTract;
@@ -261,10 +263,14 @@ function updateSpaceTimeHeader() {
 	}
 	minTractValue = minTract;
 	maxTractValue = maxTract;
-	$('#fromTractValue').val(minTractValue);
-	$('#toTractValue').val(maxTractValue);
+	$('#fromTractValue').val(minTractValue.toFixed(2));
+	$('#toTractValue').val(maxTractValue.toFixed(2));
 	initColorBuffers();
-	drawSceneSpaceTime();
+	if (clickedMatrix >= 0) {
+		doZoomOutAnimation();
+	} else {
+		drawSceneSpaceTime();
+	}
 }
 
 
@@ -305,10 +311,10 @@ function conectivitySpaceTime_initCanvas() {
     }
     
     if (minTractValue < 0) {
-    	minTractValue = GVAR_interestAreaVariables[2].min_val;
+    	minTractValue = GVAR_interestAreaVariables[2].min_val / conductionSpeed;
     }
 	if (maxTractValue < 0) {
-		maxTractValue = GVAR_interestAreaVariables[2].max_val;
+		maxTractValue = GVAR_interestAreaVariables[2].max_val / conductionSpeed;
 	}
 	
     updateSpaceTimeHeader();
@@ -486,7 +492,7 @@ function drawSceneSpaceTime() {
 	    //gl.disable(gl.BLEND);
 	    //gl.enable(gl.DEPTH_TEST);
 	} else {
-		// gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
    		gl.disable(gl.BLEND) 
         gl.disable(gl.DITHER)
         gl.disable(gl.FOG) 
@@ -508,7 +514,7 @@ function drawSceneSpaceTime() {
 			drawFullMatrix(true, i);
 		}
 		clickedMatrix = GL_getPickedIndex();
-        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         doPick = false;
 		if (clickedMatrix >= 0) {
 			doZoomInAnimation();

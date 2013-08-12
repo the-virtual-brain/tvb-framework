@@ -46,9 +46,10 @@
 			
 			<!-- Toolbar -->
 			<ul class="toolbar-inline monitor-control" py:if="not isSingleMode">
-				<li><span>From value:</span></li><li><input style="width:100px" type="text" id="fromTractValue" onchange="updateSpaceTimeHeader()"/></li>
-				<li><span>To value:</span></li><li><input style="width:100px" type="text" id="toTractValue" onchange="updateSpaceTimeHeader()"/></li>
-				<li><span>Selected matrix: </span><span id="selectedMatrixValue"></span></li>
+				<li><span>From[ms]:</span></li><li><input class="space-time-input" type="text" id="fromTractValue" onchange="updateSpaceTimeHeader()"/></li>
+				<li><span>To[ms]:</span></li><li><input class="space-time-input" type="text" id="toTractValue" onchange="updateSpaceTimeHeader()"/></li>
+				<li><span>Conduction speed: ${conductionSpeed}</span></li>
+				<li><span>Selected interval: </span><span id="selectedMatrixValue"></span></li>
 			</ul>
 		
 			<div class="specialviewer" id="canvasDiv">
