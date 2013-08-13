@@ -230,7 +230,7 @@ class Connectivity3DViewer():
             color_list = colors.array_data.tolist()
             color_list = ABCDisplayer.get_one_dimensional_list(color_list, input_data.number_of_regions,
                                                                "Invalid input size for Sphere Colors")
-            color_list = numpy.nan_to_num(color_list).tolist()
+            color_list = numpy.nan_to_num(numpy.array(color_list, dtype=numpy.float64)).tolist()
         else:
             color_list = [1.0] * input_data.number_of_regions
 
@@ -238,7 +238,7 @@ class Connectivity3DViewer():
             rays_list = rays.array_data.tolist()
             rays_list = ABCDisplayer.get_one_dimensional_list(rays_list, input_data.number_of_regions,
                                                               "Invalid input size for Sphere Sizes")
-            rays_list = numpy.nan_to_num(rays_list).tolist()
+            rays_list = numpy.nan_to_num(numpy.array(rays_list, dtype=numpy.float64)).tolist()
         else:
             rays_list = [1.0] * input_data.number_of_regions
 
@@ -400,7 +400,7 @@ class Connectivity2DViewer():
         """
         if colors is None:
             return [self.DEFAULT_COLOR] * expected_size, None
-        colors = numpy.nan_to_num(colors.array_data).tolist()
+        colors = numpy.nan_to_num(numpy.array(colors.array_data, dtype=numpy.float64)).tolist()
         colors = ABCDisplayer.get_one_dimensional_list(colors, expected_size, "Invalid size for colors array!")
         result = []
         if step is None:
@@ -433,7 +433,7 @@ class Connectivity2DViewer():
             diff = self.MAX_RAY - self.MIN_RAY
         for ray in rays:
             result.append(self.MIN_RAY + self.MAX_RAY * (ray - min_x) / diff)
-        result = numpy.nan_to_num(result).tolist()
+        result = numpy.nan_to_num(numpy.array(result, dtype=numpy.float64)).tolist()
         return result, min(rays), max(rays)
 
 

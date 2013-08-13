@@ -15,7 +15,7 @@
 			    void main(void) { 
 			    	
 			         if (picked == 0.0) {
-			        		gl_FragColor = vec4(color, uAlpha);   	
+			         		gl_FragColor = vec4(color * vLightWeighting, uAlpha);
 			         } else {		
 			         		gl_FragColor = vec4(color, 1.0);
 			         }
@@ -37,6 +37,8 @@
 			    uniform vec3 uDirectionalColor; 
 			
 			    uniform bool uUseLighting; 
+			    uniform bool drawNodes;
+			    uniform vec3 uColor;
 			    uniform int uColorIndex; 
 			    uniform vec3 uColorsArray[7]; 
 			    
@@ -58,12 +60,16 @@
 			                vec4 transformedNormal = uNMatrix * vec4(aVertexNormal, 1.0); 
 			                float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0); 
 			                vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting; 
-			            } 
-			            if (uColorIndex != -1) { 
-			                color = uColorsArray[uColorIndex]; 
-			            } else { 
-			                color = aColor; 
-			            } 
+			            }
+			            if (drawNodes) {
+			            	color = uColor;
+			            } else {
+			            	if (uColorIndex != -1) { 
+				                color = uColorsArray[uColorIndex]; 
+				            } else { 
+				                color = aColor; 
+				            }
+			            }
 			        } else {
 			        	color = pickingColor;
 			        	vLightWeighting = vec3(1, 1, 1);
@@ -92,8 +98,15 @@
 					<a href="#" tabindex='-1' class="action action-plus" title="Display edges of selected nodes" onclick='checkAllSelected();'>Show</a>
 					<a href="#" tabindex='-1' class="action action-minus" title="Hide edges of selected nodes" onclick='clearAllSelected();'>Hide</a>
 				</li>
-				
+				<li>Metrics details: <input type="checkbox" id="displayNodeDetails" onchange="toogleShowMetrics()"/></li>
 			</ul>
+			
+			<div py:if="not isSingleMode">
+				<input type="hidden" id="colorMinId" value="${colorMin}"/>
+		    	<input type="hidden" id="colorMaxId" value="${colorMax}"/>
+			    <input type="hidden" id="rayMinId" value="${rayMin}"/>
+			    <input type="hidden" id="rayMaxId" value="${rayMax}"/>
+			</div>
 		
 			<!-- Viewer -->
 			<div class="specialviewer" id="canvasDiv">

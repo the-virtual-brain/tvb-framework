@@ -39,6 +39,8 @@ function initShaders() {
     shaderProgram.alphaUniform = gl.getUniformLocation(shaderProgram, "uAlpha");
     shaderProgram.isPicking = gl.getUniformLocation(shaderProgram, "isPicking");
     shaderProgram.pickingColor = gl.getUniformLocation(shaderProgram, "pickingColor");
+    shaderProgram.colorUniform = gl.getUniformLocation(shaderProgram, "uColor");
+    shaderProgram.drawNodes = gl.getUniformLocation(shaderProgram, "drawNodes");
 
     shaderProgram.colorIndex = gl.getUniformLocation(shaderProgram, "uColorIndex");
     shaderProgram.colorsArray = [];
@@ -79,6 +81,7 @@ var NO_POSITIONS;
 // each element of this array will contains: 1) the buffer with vertices needed for drawing the square;
 // 2) the buffer with normals for each vertex of the square; 3) an array index buffer needed for drawing the square.
 var positionsBuffers = [];
+var positionsBuffers_3D = [];
 // this list contains an array index buffer for each point from the connectivity matrix. The indices tell us between
 // which points we should draw lines. All the lines that exit from a certain node.
 var CONN_comingOutLinesIndices = [];
@@ -110,8 +113,18 @@ var near = 0.1;
 var aspect = 1;
 var doPick = false;
 
+var showMetricDetails = false;
+
 //when this var reaches to zero => all data needed for displaying the surface are loaded
 var noOfBuffersToLoad = 3;
+
+var colorsWeights = null;
+var raysWeights = null;
+
+function toogleShowMetrics() {
+	showMetricDetails = !showMetricDetails;
+	drawScene();
+}
 
 function customKeyDown(event) {
 	GL_handleKeyDown(event);
@@ -184,16 +197,29 @@ function initBuffers() {
 function displayPoints() {
     for (var i = 0; i < NO_POSITIONS; i++) {
     	// Next line was ADDED FOR PICK
+    	if (showMetricDetails) {
+    		var currentBuffers = positionsBuffers_3D[i];
+    		gl.uniform1i(shaderProgram.drawNodes, true);
+    	} else {
+    		var currentBuffers = positionsBuffers[i];
+    	}
         mvPickMatrix = GL_mvMatrix.dup();
         mvPushMatrix();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffers[i][0]);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, TRI, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffers[i][1]);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, TRI, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, defaultColorIndexesBuffer);
-        gl.vertexAttribPointer(shaderProgram.colorAttribute, defaultColorIndexesBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, currentBuffers[0]);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, currentBuffers[0].itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, currentBuffers[1]);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, currentBuffers[1].itemSize, gl.FLOAT, false, 0, 0);
+        
+        if (colorsWeights) {
+        	// We have some color weights defined (eg. connectivity viewer)
+        	var color = getGradientColor(colorsWeights[i], parseFloat($('#colorMinId').val()), parseFloat($('#colorMaxId').val()));
+        	gl.uniform3f(shaderProgram.colorUniform, color[0], color[1], color[2]);
+        }
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, currentBuffers[0]);
+        gl.vertexAttribPointer(shaderProgram.colorAttribute, currentBuffers[0].itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, positionsBuffers[i][2]);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentBuffers[2]);
        GFUNC_updateContextMenu(CONN_pickedIndex, GVAR_pointsLabels[CONN_pickedIndex],
            CONN_pickedIndex >= 0 && isAnyPointChecked(CONN_pickedIndex, CONN_comingInLinesIndices[CONN_pickedIndex], 0),
            CONN_pickedIndex >= 0 && isAnyPointChecked(CONN_pickedIndex, CONN_comingOutLinesIndices[CONN_pickedIndex], 1));
@@ -211,12 +237,14 @@ function displayPoints() {
         } else if (!hasPositiveWeights(i)) {
             gl.uniform1i(shaderProgram.colorIndex, BLACK_COLOR_INDEX);
         } else {
-        	gl.uniform1i(shaderProgram.colorIndex, NO_COLOR_INDEX);
+        	gl.uniform1i(shaderProgram.colorIndex, WHITE_COLOR_INDEX);
         }
         // End ADDED FOR PICK
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+        // gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, currentBuffers[2].numItems, gl.UNSIGNED_SHORT, 0);
         mvPopMatrix();
+        gl.uniform1i(shaderProgram.drawNodes, false);
     }
     // Next line was ADDED FOR PICK
     doPick = false;
@@ -340,13 +368,13 @@ function drawScene() {
 		    											 GL_colorPickerInitColors[i][1], 
 		    											 GL_colorPickerInitColors[i][2]);
 	            gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffers[i][0]);
-		        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, TRI, gl.FLOAT, false, 0, 0);
+		        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, positionsBuffers[i][0].itemSize, gl.FLOAT, false, 0, 0);
 				gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffers[i][1]);
-		        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, TRI, gl.FLOAT, false, 0, 0);
+		        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, positionsBuffers[i][1].itemSize, gl.FLOAT, false, 0, 0);
 		        
 		        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, positionsBuffers[i][2]);
 		        setMatrixUniforms();
-        		gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+        		gl.drawElements(gl.TRIANGLES, positionsBuffers[i][2].numItems, gl.UNSIGNED_SHORT, 0);
 	         }    
 	        var newPicked = GL_getPickedIndex();
 			if (newPicked!= undefined) {
@@ -365,6 +393,18 @@ function drawScene() {
  */
 function createLinesBuffer(listOfIndexes) {
 	linesBuffer = getElementArrayBuffer(listOfIndexes);
+}
+
+
+function computeRay(rayWeight, minWeight, maxWeight) {
+    var minRay = 1;
+    var maxRay = 4;
+	if (minWeight != maxWeight) {
+		return minRay + [(rayWeight - minWeight) / (maxWeight - minWeight)] * (maxRay - minRay);
+	}	
+    else{
+  		return minRay + (maxRay - minRay) / 2;  	
+    }
 }
 
 
@@ -741,8 +781,77 @@ function connectivity_initCanvas() {
     document.onmousemove = customMouseMove;
 }
 
+function bufferAtPoint_3D(point, radius) {
+    var moonVertexPositionBuffer;
+    var moonVertexNormalBuffer;
+    var moonVertexIndexBuffer;
+
+    var latitudeBands = 30;
+    var longitudeBands = 30;
+
+    var vertexPositionData = [];
+    var normalData = [];
+    for (var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
+        var theta = latNumber * Math.PI / latitudeBands;
+        var sinTheta = Math.sin(theta);
+        var cosTheta = Math.cos(theta);
+
+        for (var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
+            var phi = longNumber * 2 * Math.PI / longitudeBands;
+            var sinPhi = Math.sin(phi);
+            var cosPhi = Math.cos(phi);
+
+            var x = cosPhi * sinTheta;
+            var y = cosTheta;
+            var z = sinPhi * sinTheta;
+
+            normalData.push(x);
+            normalData.push(y);
+            normalData.push(z);
+            vertexPositionData.push(parseFloat(point[0]) + radius * x);
+            vertexPositionData.push(parseFloat(point[1]) + radius * y);
+            vertexPositionData.push(parseFloat(point[2]) + radius * z);
+        }
+    }
+
+    var indexData = [];
+    for (latNumber = 0; latNumber < latitudeBands; latNumber++) {
+        for (longNumber = 0; longNumber < longitudeBands; longNumber++) {
+            var first = (latNumber * (longitudeBands + 1)) + longNumber;
+            var second = first + longitudeBands + 1;
+            indexData.push(first);
+            indexData.push(second);
+            indexData.push(first + 1);
+
+            indexData.push(second);
+            indexData.push(second + 1);
+            indexData.push(first + 1);
+        }
+    }
+
+    moonVertexNormalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexNormalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
+    moonVertexNormalBuffer.itemSize = 3;
+    moonVertexNormalBuffer.numItems = normalData.length / 3;
+
+    moonVertexPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexPositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), gl.STATIC_DRAW);
+    moonVertexPositionBuffer.itemSize = 3;
+    moonVertexPositionBuffer.numItems = vertexPositionData.length / 3;
+
+    moonVertexIndexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moonVertexIndexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), gl.STATIC_DRAW);
+    moonVertexIndexBuffer.itemSize = 1;
+    moonVertexIndexBuffer.numItems = indexData.length;
+
+    return [moonVertexPositionBuffer, moonVertexNormalBuffer, moonVertexIndexBuffer];
+}
+
 function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList, urlTrianglesList,
-								urlNormalsList, conn_nose_correction, alpha_value, condSpeed) {
+								urlNormalsList, conn_nose_correction, alpha_value, condSpeed, rays, colors) {
 	/*
 	 * Initialize all the actual data needed by the connectivity visualizer. This should be called
 	 * only once.
@@ -751,11 +860,16 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
     alphaValue = alpha_value;
     connectivity_nose_correction = $.parseJSON(conn_nose_correction);
     NO_POSITIONS = GVAR_positionsPoints.length;
-    GFUNC_initTractsAndWeights(fileWeights, fileTracts)
+    GFUNC_initTractsAndWeights(fileWeights, fileTracts);
+    if (rays) raysWeights = $.parseJSON(rays);
+    if (colors) colorsWeights = $.parseJSON(colors);
 
 	conductionSpeed = parseFloat(condSpeed);
     // Initialize the buffers for drawing the points
     for (i = 0; i < NO_POSITIONS; i++) {
+    	if (raysWeights) ray_value = computeRay(raysWeights[i], parseFloat($('#rayMinId').val()), parseFloat($('#rayMaxId').val()));
+        else ray_value = 3;
+        positionsBuffers_3D[i] = bufferAtPoint_3D(GVAR_positionsPoints[i], ray_value);
         positionsBuffers[i] = HLPR_bufferAtPoint(gl, GVAR_positionsPoints[i]);
     }
     initBuffers();
@@ -779,15 +893,16 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
  * be drawn alone, without widths and tracts.
  */
 function prepareConnectivity(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                    urlNormalsList, conn_nose_correction, alpha_value, isSingleMode, conductionSpeed) {
+                    urlNormalsList, conn_nose_correction, alpha_value, isSingleMode, conductionSpeed, rays, colors) {
 	/*
 	 * This will take all the required steps to start the connectivity visualizer.
 	 */
 	connectivity_initCanvas();
 	saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                    	   urlNormalsList, conn_nose_correction, alpha_value, conductionSpeed);
+                    	   urlNormalsList, conn_nose_correction, alpha_value, conductionSpeed, rays, colors);
     if (!isSingleMode) {
         GFUNC_addAllMatrixToInterestArea();
     }
+    connectivity_startGL(isSingleMode);
 }
 

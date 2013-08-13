@@ -20,7 +20,6 @@
     <script type="text/javascript" src="/static_view/connectivity/scripts/matrixScript.js?4266" ></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityScript.js?5001" ></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivity2DScript.js?5001"></script>
-    <script type="text/javascript" src="/static_view/connectivity/scripts/connectivity3DScript.js?5001"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityStepPlot.js?5001"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/selectionControlScript.js?4266"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/orientation.js"></script>
@@ -59,7 +58,6 @@
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(0);">Hemisphere 1</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(1);">Transverse</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(2);">Hemisphere 2</a></li>
-			<li><a href="#" onclick="hideLeftSideTabs(this); start3DConnectivity()">3D Nodes</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); startMPLH5ConnectivityView()">Matrix</a></li>
 			<li><a href="#" onclick="hideLeftSideTabs(this); startSpaceTimeConnectivity()">Space Time</a></li>
 		</ul>
@@ -76,7 +74,6 @@
 		<xi:include href="connectivity_view.html"/>
 		${drawConnectivityViewer(True)}
 		<xi:include href="connectivity_2D_view.html"/>
-		<xi:include href="connectivity_3D_view.html"/>  
 		<xi:include href="connectivity_plot_view.html"/>
 		${drawConnectivityPlotViewer()}
 		
@@ -191,11 +188,10 @@
     <script type="text/javascript">    	
         $(document).ready(function() {
 
-            prepareConnectivity3D('$urlPositions', '${raysArray}', '${colorsArray}', '${connectivity_nose_correction}');
             prepareConnectivity2D(${leftHemisphereJson}, ${bothHemisphereJson}, ${rightHemisphereJson});
             mplh5_figureNo = $figureNumber;
             prepareConnectivity('$urlWeights', '$urlTracts', '$urlPositions', '${urlVertices}', '${urlTriangles}', '${urlNormals}',
-                                '${connectivity_nose_correction}', '${alpha_value}', false, '${conductionSpeed}');
+                                '${connectivity_nose_correction}', '${alpha_value}', false, '${conductionSpeed}', '${raysArray}', '${colorsArray}');
             //Do all the required initializations and draw the right table view of the connectivity matrix
             GFUNC_storeMinMax('${weightsMin}', '${weightsMax}', '${tractsMin}', '${tractsMax}');
             TBL_storeHemisphereDetails(${start_points_x}, ${end_points_x}, ${start_points_y}, ${end_points_y});

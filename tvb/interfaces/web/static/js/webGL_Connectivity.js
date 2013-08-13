@@ -134,6 +134,7 @@ function HLPR_bufferAtPoint(glcontext, p) {
 			        p[0] - PS, p[1] + PS, p[2] + PS,
 			        p[0] - PS, p[1] + PS, p[2] - PS];
     glcontext.bufferData(glcontext.ARRAY_BUFFER, new Float32Array(vertices), glcontext.STATIC_DRAW);
+    bufferVertices.itemSize = 3;
 
     var bufferNormals = glcontext.createBuffer();
     glcontext.bindBuffer(glcontext.ARRAY_BUFFER, bufferNormals);
@@ -162,6 +163,7 @@ function HLPR_bufferAtPoint(glcontext, p) {
                    -1.0,  0.0,  0.0,
                    -1.0,  0.0,  0.0];
     glcontext.bufferData(glcontext.ARRAY_BUFFER, new Float32Array(normals), glcontext.STATIC_DRAW);
+    bufferNormals.itemSize = 3;
 
     var bufferTriangles = glcontext.createBuffer();
     glcontext.bindBuffer(glcontext.ELEMENT_ARRAY_BUFFER, bufferTriangles);
