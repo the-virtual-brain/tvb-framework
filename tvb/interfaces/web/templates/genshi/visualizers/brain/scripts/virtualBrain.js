@@ -100,8 +100,10 @@ function _webGLPortletPreview(baseDatatypeURL, onePageSize, nrOfPages, urlVertic
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
     customInitGL(canvas);
     initShaders();
-	brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
+    if ($.parseJSON(urlVerticesList)) {
+    	brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
     						   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), false);
+    }
     LEG_generateLegendBuffers();
     
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -165,9 +167,11 @@ function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVe
     GL_initColorPickFrameBuffer();
     initShaders();
     NAV_initBrainNavigatorBuffers();
-
-    brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
-    						   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
+	
+	if ($.parseJSON(urlVerticesList)) {
+	    brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
+	    						   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
+    		}
     brainLinesBuffers = HLPR_getDataBuffers(gl, $.parseJSON(urlLinesList), isDoubleView, true);
     LEG_generateLegendBuffers();
     initRegionBoundaries(boundaryURL);
@@ -178,7 +182,7 @@ function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVe
     }
     // Initialize the buffers for the measure points
     for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-        measurePointsBuffers[i] = bufferAtPoint(measurePoints[i]);
+        measurePointsBuffers[i] = bufferAtPoint(measurePoints[i], i);
     }
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -565,7 +569,7 @@ function createColorBufferForCube(isPicked) {
 }
 
 
-function bufferAtPoint(p) {
+function bufferAtPoint(p, idx) {
 	var result = HLPR_bufferAtPoint(gl, p);
     var bufferVertices= result[0];
     var bufferNormals = result[1];

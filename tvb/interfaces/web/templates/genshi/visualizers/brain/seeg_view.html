@@ -1,0 +1,169 @@
+<div id="s-brain" class="${'brain' if not extended_view else ''}" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <script type="text/javascript" src="/static/jquery/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="/static/js/sylvester.js"></script>
+    <script type="text/javascript" src="/static/js/glUtils.js"></script>
+    <script type="text/javascript" src="/static/js/zoom.js"></script>
+    <script type="text/javascript" src="/static/js/vertice_pick/base_vertice_pick.js?4330"></script>
+    <script type="text/javascript" src="/static/js/webGL_ShaderAndMatrixes.js?5001"></script>
+    <script type="text/javascript" src="/static/js/webGL_Mouse.js?4266"></script>
+    <script type="text/javascript" src="/static/js/webGL_Pick.js?4266"></script>
+    <script type="text/javascript" src="/static/js/webGL_Connectivity.js?4411"></script>
+    <script type="text/javascript" src="/static_view/commons/scripts/visualizers_commons.js?4330"></script>
+    <script type="text/javascript" src="/static_view/brain/scripts/brainLegend.js?4266"></script>
+    <script type="text/javascript" src="/static_view/brain/scripts/brainNavigator.js?4266"></script>
+    <script type="text/javascript" src="/static_view/brain/scripts/virtualBrain.js?5001"></script>
+    <script type="text/javascript" src="/static_view/brain/scripts/extendedViewFunctions.js?4266"></script>
+    <script type="text/javascript" src="/static_view/brain/scripts/sEEGBrain.js?5001"></script>
+    <script type="text/javascript" src="/static/colorPicker/js/colorpicker.js"></script>
+    <script type="text/javascript" src="/static/colorPicker/js/colorPickerComponent.js"></script>
+    
+    <link type="text/css" rel="stylesheet" href="/static/style/subsection_brain.css"/>
+    <link type="text/css" rel="stylesheet" href="/static/colorPicker/css/colorpicker.css"/>
+
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+        #ifdef GL_ES
+		    precision highp float;
+		#endif
+		varying vec3 vLightWeighting;
+		varying vec4 vColor;
+		varying float picked;
+
+		void main(void) {
+			if (picked == 0.0) {
+				gl_FragColor = vec4(vColor.rgb * vLightWeighting, vColor.a);
+			} else {
+				gl_FragColor = vColor;
+			}
+		    
+		}
+	</script>
+
+	<script id="shader-vs" type="x-shader/x-vertex">
+	    attribute vec3 aVertexPosition;
+		attribute vec3 aVertexNormal;
+        attribute vec3 alphaIndices;
+        attribute vec2 alpha;
+
+        uniform vec4 uVertexColors[${abs(noOfMeasurePoints) + 2} + 127];
+		uniform mat4 uPMatrix;
+		uniform mat4 uMVMatrix;
+		uniform mat4 uNMatrix;
+        uniform vec3 uAmbientColor;
+		uniform vec3 uLightingDirection;
+        uniform vec3 uDirectionalColor;
+        uniform vec3 uLinesColor;
+        uniform bool uUseBlending;
+        uniform bool uDrawLines;
+        uniform bool uUseVertexLineColor;
+
+        uniform float uMaterialShininess;
+		uniform vec3 uPointLightingLocation;
+		uniform vec3 uPointLightingSpecularColor;
+
+		varying vec3 vLightWeighting;
+		varying vec4 vColor;
+		
+		uniform float isPicking;
+		uniform vec3 pickingColor;
+		
+		varying float picked;
+
+		void main(void) {
+
+		    vec4 mvPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+			gl_Position = uPMatrix * mvPosition;
+			
+			picked = isPicking;
+			if (isPicking == 0.0) {
+			    vec4 transformedNormal = uNMatrix * vec4(aVertexNormal, 1.0);
+			    float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
+				
+				if (uUseVertexLineColor || !uDrawLines) {
+					if (uUseBlending) {
+		                vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
+		                vColor = vec4(0.5, 0.5, 0.5, 0.9);
+		            } else {
+	            		vec3 lightDirection = normalize(uPointLightingLocation - aVertexPosition.xyz);
+						vec3 normal = normalize(transformedNormal.xyz);
+		                vec3 eyeDirection = normalize(-aVertexPosition.xyz);
+		                vec3 reflectionDirection = reflect(-lightDirection, normal);
+		                float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShininess);
+		
+				        vLightWeighting = uAmbientColor  + uDirectionalColor * directionalLightWeighting  + uPointLightingSpecularColor * specularLightWeighting;
+		
+                        vColor = uVertexColors[int(alphaIndices[0])] * alpha[0];
+	           		}
+				} else {
+					if (uDrawLines) {
+						vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
+						vColor = vec4(uLinesColor, 1.0);
+					}
+				} 
+            } else {
+            	vColor = vec4(pickingColor, 1.0);
+            	vLightWeighting = vec3(1, 1, 1);
+            }
+		}
+	</script>
+     
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#GLcanvas').mousewheel(function(event, delta) {
+                GL_handleMouseWeel(delta);
+                return false; // prevent default
+            });
+
+            _webGLStart('${base_activity_url}', ${pageSize}, ${nrOfPages}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
+                        $noOfMeasurePoints, '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}', 
+                        ${'true' if extended_view else 'false'}, ${"'" + shelfObject +"'" if shelfObject else 'null'}, '${urlMeasurePointsLabels}', 
+                        '${boundary_url}');
+            EX_initializeChannels();
+            drawColorPickerComponent('startColorSelector', 'endColorSelector', LEG_updateLegendColors);
+        });
+    </script>
+
+    <div class="monitor master assisted" id="brain-3d">
+        <!--Draw brain-->
+        <xi:include href="brain_component.html"/>
+        ${draw_brain_component("GLcanvas", minActivityLabels)}
+
+        <div class="helper">
+            <span> Refresh Step: </span><span id="TimeStep">0.0</span><span> ms </span>
+            <br/>
+            <span> Refresh Rate: </span><span id="FramesPerSecond">0.0</span><span> fps</span>
+            <br/>
+            <span> Time Line: </span><span id="TimeNow">0.0</span><span> ms  </span>
+            <br/>
+            <span id="Infobox"></span>
+        </div>
+    </div>
+    
+    <div class="monitor slave" id="brain-x" py:if="not extended_view">
+        <br/>
+        <span class="brainArea"></span>
+    </div>
+
+    <div class="monitor slave" id="brain-y" py:if="not extended_view">
+        <br/>
+        <span class="brainArea"></span>
+    </div>
+
+    <div class="monitor slave" id="brain-z" py:if="not extended_view">
+        <br/>
+        <span class="brainArea"></span>
+    </div>
+    
+    <div class="slider-div ${'lastChild' if not extended_view else 'lastChild'}">
+        <div id="slider" class="shadow"></div>
+    </div>
+    
+    <ul class="usecaseClass lastChild" py:if="not extended_view"><b>USE :</b>
+        <li>Your mouse to rotate the brain.</li>
+        <li>SPACE key to have a top view.</li>
+        <li>Cursor Keys to quickly rotate brain.</li>
+        <li>Mouse wheel to zoom in/out the brain.</li>
+        <li>Left cursor key and the right bottom corner of the canvas to resize it.</li>
+    </ul>
+    <label id='TIMETESTLABEL' value=''></label>
+</div>

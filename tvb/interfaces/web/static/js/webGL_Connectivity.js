@@ -101,6 +101,77 @@ function HLPR_readJSONfromFile(fileName, staticFiles) {
     return jQuery.parseJSON(oxmlhttp.responseText);
 }
 
+
+function HLPR_sphereBufferAtPoint(gl, point, radius) {
+    var moonVertexPositionBuffer;
+    var moonVertexNormalBuffer;
+    var moonVertexIndexBuffer;
+
+    var latitudeBands = 30;
+    var longitudeBands = 30;
+
+    var vertexPositionData = [];
+    var normalData = [];
+    for (var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
+        var theta = latNumber * Math.PI / latitudeBands;
+        var sinTheta = Math.sin(theta);
+        var cosTheta = Math.cos(theta);
+
+        for (var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
+            var phi = longNumber * 2 * Math.PI / longitudeBands;
+            var sinPhi = Math.sin(phi);
+            var cosPhi = Math.cos(phi);
+
+            var x = cosPhi * sinTheta;
+            var y = cosTheta;
+            var z = sinPhi * sinTheta;
+
+            normalData.push(x);
+            normalData.push(y);
+            normalData.push(z);
+            vertexPositionData.push(parseFloat(point[0]) + radius * x);
+            vertexPositionData.push(parseFloat(point[1]) + radius * y);
+            vertexPositionData.push(parseFloat(point[2]) + radius * z);
+        }
+    }
+
+    var indexData = [];
+    for (latNumber = 0; latNumber < latitudeBands; latNumber++) {
+        for (longNumber = 0; longNumber < longitudeBands; longNumber++) {
+            var first = (latNumber * (longitudeBands + 1)) + longNumber;
+            var second = first + longitudeBands + 1;
+            indexData.push(first);
+            indexData.push(second);
+            indexData.push(first + 1);
+
+            indexData.push(second);
+            indexData.push(second + 1);
+            indexData.push(first + 1);
+        }
+    }
+
+    moonVertexNormalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexNormalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
+    moonVertexNormalBuffer.itemSize = 3;
+    moonVertexNormalBuffer.numItems = normalData.length / 3;
+
+    moonVertexPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexPositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), gl.STATIC_DRAW);
+    moonVertexPositionBuffer.itemSize = 3;
+    moonVertexPositionBuffer.numItems = vertexPositionData.length / 3;
+
+    moonVertexIndexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moonVertexIndexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), gl.STATIC_DRAW);
+    moonVertexIndexBuffer.itemSize = 1;
+    moonVertexIndexBuffer.numItems = indexData.length;
+
+    return [moonVertexPositionBuffer, moonVertexNormalBuffer, moonVertexIndexBuffer];
+}
+
+
 /**
  * Create vertices, normals and triangles buffers for a cube, around point p.
  * @param {Object} p center of the cube. (expected [x, y, z] )

@@ -48,12 +48,26 @@
 			<ul class="toolbar-inline monitor-control" py:if="not isSingleMode">
 				<li><span>From[ms]:</span></li><li><input class="space-time-input" type="text" id="fromTractValue" onchange="updateSpaceTimeHeader()"/></li>
 				<li><span>To[ms]:</span></li><li><input class="space-time-input" type="text" id="toTractValue" onchange="updateSpaceTimeHeader()"/></li>
-				<li><span>Conduction speed: ${conductionSpeed}</span></li>
-				<li><span>Selected interval: </span><span id="selectedMatrixValue"></span></li>
+				<li><span>Selected interval[ms]: </span><span id="selectedMatrixValue"></span></li>
 			</ul>
 		
 			<div class="specialviewer" id="canvasDiv">
-		        <canvas id="GLcanvas_SPACETIME"  tabindex='1' width="801" height="701"></canvas>
+		        <canvas id="GLcanvas_SPACETIME"  tabindex='1' width="601" height="701"></canvas>
+		        <nav class="inline-menu monitor-legend">
+					<button class="action action-menu">Legend</button>
+						<div class="extension">
+							<div class="dropdown-pane">
+								<mark>Plot details</mark>
+								<ul>
+					                <li><span>Conduction speed: ${conductionSpeed}</span></li>
+					                <li><span id="leg_min_tract"></span></li>
+					                <li><span id="leg_max_tract"></span></li>
+					                <li><span id="leg_min_weights"></span></li>
+					                <li><span id="leg_max_weights"></span></li>
+					            </ul>
+							</div>
+						</div>
+				</nav>
 			</div>
 		</div>
 	</py:def>

@@ -86,7 +86,8 @@ class SimulatorAdapter(ABCAsynchronous):
 
     RESULTS_MAP = {time_series.TimeSeriesEEG: ["SphericalEEG", "EEG"],
                    time_series.TimeSeriesMEG: ["SphericalMEG"],  # Add here also "MEG" monitor reference
-                   time_series.TimeSeries: ["GlobalAverage", "SpatialAverage"]}
+                   time_series.TimeSeries: ["GlobalAverage", "SpatialAverage"],
+                   time_series.TimeSeriesSEEG: ["SEEG"]}
 
                    # time_series.TimeSeriesVolume: ["Bold"],
                    #SK:   For a number of reasons, it's probably best to avoid returning TimeSeriesVolume ,
@@ -257,6 +258,13 @@ class SimulatorAdapter(ABCAsynchronous):
                                                                      sensors=self.algorithm.monitors[m_ind].sensors,
                                                                      sample_period=sample_period,
                                                                      title=' ' + m_name, start_time=start_time)
+                
+            elif (m_name in self.RESULTS_MAP[time_series.TimeSeriesSEEG]
+                  and hasattr(self.algorithm.monitors[m_ind], 'sensors')):
+                result_datatypes[m_name] = time_series.TimeSeriesSEEG(storage_path=self.storage_path,
+                                                                      sensors=self.algorithm.monitors[m_ind].sensors,
+                                                                      sample_period=sample_period,
+                                                                      title=' ' + m_name, start_time=start_time)
 
             elif m_name in self.RESULTS_MAP[time_series.TimeSeries]:
                 result_datatypes[m_name] = time_series.TimeSeries(storage_path=self.storage_path,

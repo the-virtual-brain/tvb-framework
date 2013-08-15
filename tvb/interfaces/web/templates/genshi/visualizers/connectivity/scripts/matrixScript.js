@@ -149,12 +149,14 @@ function saveNodeDetails() {
 		table_element.className = lastElementClass;
 		if (newValue > GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val']) {
 			GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'] = newValue;
+			CONN_initLinesHistorgram();
 		}
 		if (newValue < 0) {
 			newValue = 0;
 		}
 		if (newValue < GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val']) {
 			GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'] = newValue;
+			CONN_initLinesHistorgram();
 		}
 		if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] == GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val']) {
 			GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] = newValue;
@@ -164,6 +166,7 @@ function saveNodeDetails() {
 					if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j] > GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val']) { GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'] = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j];}
 				}
 			}
+			CONN_initLinesHistorgram();
 		}
 		else {
 			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] == 0 && newValue > 0) {
@@ -175,6 +178,7 @@ function saveNodeDetails() {
 				HLPR_removeByElement(CONN_comingOutLinesIndices[indexes[0]], parseInt(indexes[1]));
 			}			
 			GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] = newValue;
+			CONN_lineWidthsBins[indexes[0]][indexes[1]] = CONN_getLineWidthValue(newValue);
 		}	
 	}
 	var inputDiv = document.getElementById('editNodeValues');

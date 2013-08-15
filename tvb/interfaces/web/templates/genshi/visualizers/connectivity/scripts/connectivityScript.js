@@ -120,6 +120,11 @@ var noOfBuffersToLoad = 3;
 
 var colorsWeights = null;
 var raysWeights = null;
+var CONN_lineWidthsBins = [];
+
+var maxLineWidth = 5.0;
+var minLineWidth = 1.0;
+var lineWidthNrOfBins = 10;
 
 function toogleShowMetrics() {
 	showMetricDetails = !showMetricDetails;
@@ -391,8 +396,15 @@ function drawScene() {
  * Given a list of indexes will create the buffer of elements needed to draw
  * line between the points that correspond to those indexes.
  */
-function createLinesBuffer(listOfIndexes) {
-	linesBuffer = getElementArrayBuffer(listOfIndexes);
+function createLinesBuffer(dictOfIndexes) {
+	linesBuffer = [];
+	if (dictOfIndexes) {
+		for (var width in dictOfIndexes) {
+			var buffer = getElementArrayBuffer(dictOfIndexes[width]);
+			buffer.lineWidth = width;
+			linesBuffer.push(buffer);
+		}
+	}
 }
 
 
@@ -408,22 +420,64 @@ function computeRay(rayWeight, minWeight, maxWeight) {
 }
 
 
+/*
+ * Get the aproximated line width value using a histogram like behaviour.
+ */
+function CONN_getLineWidthValue(weightsValue) {
+	var minWeights = GVAR_interestAreaVariables[1].min_val;
+	var maxWeights = GVAR_interestAreaVariables[1].max_val;
+	if (maxWeights == minWeights) maxWeights = minWeights + 1;
+	var lineDiff = maxLineWidth - minLineWidth;
+	var scaling = (weightsValue - minWeights) / (maxWeights - minWeights);
+	var lineWidth = scaling * lineDiff;
+	var binInterval = lineDiff / lineWidthNrOfBins;
+	return (parseInt(lineWidth / binInterval) * binInterval + minLineWidth).toFixed(6);
+}
+
+
+/*
+ * Initialize the line widths histogram which can later on be used to plot lines
+ * with different widths.
+ */
+function CONN_initLinesHistorgram() {
+	CONN_lineWidthsBins = [];
+	var weights = GVAR_interestAreaVariables[1].values;
+	for (var i = 0; i < weights.length; i++) {
+		var row = [];
+		for (var j = 0; j < weights.length; j++) {
+			row.push(CONN_getLineWidthValue(weights[i][j]));
+		}
+		CONN_lineWidthsBins.push(row);
+	}
+}
+
+
 /**
- * Used for finding the indexes of the points that are connected by an edge. The returned list is used for creating
- * an element array buffer.
+ * Used for finding the indexes of the points that are connected by an edge. Will return a dictionary of the
+ * form { line_width: [array of indices] } from which we can draw the lines using the array of indices with
+ * using a given width.
  */
 function getLinesIndexes() {
-    var list = [];
+	var lines = {};
+	var binInterval = (maxLineWidth - minLineWidth) / lineWidthNrOfBins;
+	for (var bin = minLineWidth; bin <= maxLineWidth + 0.000001; bin += binInterval) {
+		lines[bin.toFixed(6)] = [];
+	}
     for (var i = 0; i < GVAR_connectivityMatrix.length; i++) {
         for (var j = 0; j < GVAR_connectivityMatrix[i].length; j++) {
             if (GVAR_connectivityMatrix[i][j] == 1) {
-                list.push(i);
-                list.push(j);
+            	try {
+            		var bin = CONN_lineWidthsBins[i][j];
+	            	lines[bin].push(i);
+	            	lines[bin].push(j);
+            	} catch(err) {
+            		console.log(err);
+            	}
+            	
             }
         }
     }
-
-    return list;
+    return lines;
 }
 
 
@@ -441,8 +495,8 @@ function highlightPoint() {
 }
 
 
-function _drawLines(linesVertexIndicesBuffer) {
-    gl.uniform1i(shaderProgram.colorIndex, NO_COLOR_INDEX);
+function _drawLines(linesBuffers) {
+	gl.uniform1i(shaderProgram.colorIndex, NO_COLOR_INDEX);
     gl.bindBuffer(gl.ARRAY_BUFFER, positionsPointsBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, positionsPointsBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -451,10 +505,15 @@ function _drawLines(linesVertexIndicesBuffer) {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, colorsArrayBuffer);
     gl.vertexAttribPointer(shaderProgram.colorAttribute, colorsArrayBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesVertexIndicesBuffer);
     setMatrixUniforms();
-    gl.drawElements(gl.LINES, linesVertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    
+	for (var i = 0; i < linesBuffers.length; i++) {
+		var linesVertexIndicesBuffer = linesBuffers[i];
+		gl.lineWidth(parseFloat(linesVertexIndicesBuffer.lineWidth));
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesVertexIndicesBuffer);
+    	gl.drawElements(gl.LINES, linesVertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+	}
+    gl.lineWidth(1.0);
 }
 
 /**
@@ -781,75 +840,6 @@ function connectivity_initCanvas() {
     document.onmousemove = customMouseMove;
 }
 
-function bufferAtPoint_3D(point, radius) {
-    var moonVertexPositionBuffer;
-    var moonVertexNormalBuffer;
-    var moonVertexIndexBuffer;
-
-    var latitudeBands = 30;
-    var longitudeBands = 30;
-
-    var vertexPositionData = [];
-    var normalData = [];
-    for (var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
-        var theta = latNumber * Math.PI / latitudeBands;
-        var sinTheta = Math.sin(theta);
-        var cosTheta = Math.cos(theta);
-
-        for (var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
-            var phi = longNumber * 2 * Math.PI / longitudeBands;
-            var sinPhi = Math.sin(phi);
-            var cosPhi = Math.cos(phi);
-
-            var x = cosPhi * sinTheta;
-            var y = cosTheta;
-            var z = sinPhi * sinTheta;
-
-            normalData.push(x);
-            normalData.push(y);
-            normalData.push(z);
-            vertexPositionData.push(parseFloat(point[0]) + radius * x);
-            vertexPositionData.push(parseFloat(point[1]) + radius * y);
-            vertexPositionData.push(parseFloat(point[2]) + radius * z);
-        }
-    }
-
-    var indexData = [];
-    for (latNumber = 0; latNumber < latitudeBands; latNumber++) {
-        for (longNumber = 0; longNumber < longitudeBands; longNumber++) {
-            var first = (latNumber * (longitudeBands + 1)) + longNumber;
-            var second = first + longitudeBands + 1;
-            indexData.push(first);
-            indexData.push(second);
-            indexData.push(first + 1);
-
-            indexData.push(second);
-            indexData.push(second + 1);
-            indexData.push(first + 1);
-        }
-    }
-
-    moonVertexNormalBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexNormalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
-    moonVertexNormalBuffer.itemSize = 3;
-    moonVertexNormalBuffer.numItems = normalData.length / 3;
-
-    moonVertexPositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexPositionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), gl.STATIC_DRAW);
-    moonVertexPositionBuffer.itemSize = 3;
-    moonVertexPositionBuffer.numItems = vertexPositionData.length / 3;
-
-    moonVertexIndexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moonVertexIndexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), gl.STATIC_DRAW);
-    moonVertexIndexBuffer.itemSize = 1;
-    moonVertexIndexBuffer.numItems = indexData.length;
-
-    return [moonVertexPositionBuffer, moonVertexNormalBuffer, moonVertexIndexBuffer];
-}
-
 function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList, urlTrianglesList,
 								urlNormalsList, conn_nose_correction, alpha_value, condSpeed, rays, colors) {
 	/*
@@ -869,7 +859,7 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
     for (i = 0; i < NO_POSITIONS; i++) {
     	if (raysWeights) ray_value = computeRay(raysWeights[i], parseFloat($('#rayMinId').val()), parseFloat($('#rayMaxId').val()));
         else ray_value = 3;
-        positionsBuffers_3D[i] = bufferAtPoint_3D(GVAR_positionsPoints[i], ray_value);
+        positionsBuffers_3D[i] = HLPR_sphereBufferAtPoint(gl, GVAR_positionsPoints[i], ray_value);
         positionsBuffers[i] = HLPR_bufferAtPoint(gl, GVAR_positionsPoints[i]);
     }
     initBuffers();
@@ -886,6 +876,7 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
     GFUNC_initConnectivityMatrix(NO_POSITIONS);
     // Initialize the indices buffers for drawing the lines between the drawn points
     initLinesIndices();
+    CONN_initLinesHistorgram();
 }
 
 /**

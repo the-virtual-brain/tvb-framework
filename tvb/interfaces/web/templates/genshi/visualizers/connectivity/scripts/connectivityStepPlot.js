@@ -319,6 +319,11 @@ function conectivitySpaceTime_initCanvas() {
 	
     updateSpaceTimeHeader();
     clickedMatrix = -1;
+    
+    document.getElementById("leg_min_tract").innerHTML = "Min tract length : " + GVAR_interestAreaVariables[2].min_val + ' mm';
+    document.getElementById("leg_max_tract").innerHTML = "Max tract length : " + GVAR_interestAreaVariables[2].max_val + ' mm';
+    document.getElementById("leg_min_weights").innerHTML = "Min weight : " + GVAR_interestAreaVariables[1].min_val;
+    document.getElementById("leg_max_weights").innerHTML = "Max weight : " + GVAR_interestAreaVariables[1].max_val;
 }
 
 

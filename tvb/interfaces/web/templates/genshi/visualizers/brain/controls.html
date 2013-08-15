@@ -18,7 +18,7 @@
      
 	<ul class="toolbar-inline">
 		<li><button id="ctrl-action-points" class="action action-view" title="Display only cloud of points, without triagles." onclick="wireFrame();" tabindex="1">Points</button></li>
-		<li><button id="ctrl-action-nodes" class="action action-view" title="Display measurement nodes" onclick="toogleMeasureNodes();" tabindex="1">Nodes</button></li>
+		<li py:if="not defined('isSEEG')"><button id="ctrl-action-nodes" class="action action-view" title="Display measurement nodes" onclick="toogleMeasureNodes();" tabindex="1">Nodes</button></li>
 		<li><button id="ctrl-action-pause" class="action action-controller-pause" title="Pause/Start Drawing" onclick="pauseMovie();" tabindex="1">Pause</button> </li>
     </ul>
 
@@ -26,11 +26,11 @@
 		<xi:include href='../commons/state_mode_selector.html'/>
 		${drawStateModeSelector(labelsStateVar, 'state-variable-select', 'State variable:', 'changeStateVariable')}
 		${drawStateModeSelector(labelsModes, 'mode-select', 'Mode:', 'changeMode')}
-		<input id="showBrainLines" type="checkbox" onchange="toogleDrawBoundaries(this);" tabindex="1" py:if="not extended_view and not isOneToOneMapping"/>
+		<input id="showBrainLines" type="checkbox" onchange="toogleDrawBoundaries(this);" tabindex="1" py:if="not extended_view and not isOneToOneMapping and not defined('isSEEG')"/>
         <label for="showBrainLines" py:if="not extended_view and not isOneToOneMapping">Show region boundaries</label>
         <br py:if="not extended_view and not isOneToOneMapping"/>
-		<input id="showBrainLines" type="checkbox" onchange="toogleDrawTriangleLines(this);" tabindex="1"/>
-        <label for="showBrainLines">Show surface triangles</label>
+		<input id="showBrainLines" type="checkbox" onchange="toogleDrawTriangleLines(this);" tabindex="1" py:if="not defined('isSEEG')"/>
+        <label for="showBrainLines" py:if="not defined('isSEEG')">Show surface triangles</label>
         <br/>
         <input id="inTimeRefreshChkId" type="checkbox" onchange="NAV_setInTimeRefresh(this);" tabindex="1" py:if="not extended_view"/>
         <label for="inTimeRefreshChkId" py:if="not extended_view">In time refresh</label>
@@ -38,8 +38,8 @@
         <input id="setClownyFaceChkId" type="checkbox" onchange="LEG_setClownyFace();" tabindex="1"/>
         <label for="setClownyFaceChkId">Use sparse colors</label>
         <br/>
-        <input id="displayFaceChkId" title="Face approximative will move along with brain navigator." type="checkbox" onchange="switchFaceObject();" tabindex="1"/>
-        <label for="displayFaceChkId">Display face approximative shade</label>
+        <input id="displayFaceChkId" title="Face approximative will move along with brain navigator." type="checkbox" onchange="switchFaceObject();" tabindex="1" py:if="not defined('isSEEG')"/>
+        <label for="displayFaceChkId" py:if="not defined('isSEEG')">Display face approximative shade</label>
     </fieldset>
 
     <fieldset>

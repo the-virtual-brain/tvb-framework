@@ -41,7 +41,7 @@ from tvb.basic.filters.chain import FilterChain
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.surfaces import RegionMapping, EEGCap, FaceSurface
-from tvb.datatypes.time_series import TimeSeries, TimeSeriesSurface, TimeSeriesEEG
+from tvb.datatypes.time_series import TimeSeries, TimeSeriesSurface, TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
 
 
 MAX_MEASURE_POINTS_LENGTH = 235
@@ -273,23 +273,27 @@ class BrainViewer(ABCDisplayer):
         return activity_base_url, time_urls, total_pages
 
 
-
 class BrainEEG(BrainViewer):
     """
     Visualizer merging Brain 3D display and EEG lines display.
     """
-    _ui_name = "Brain Activity with EEG lines"
-
+    _ui_name = "Brain Activity with Measure Points"
 
     def get_input_tree(self):
-        return [{'name': 'surface_activity', 'label': 'EEG activity',
-                 'type': TimeSeriesEEG, 'required': True,
-                 'description': 'Results after EEG Monitor are expected!'},
+        
+        return [{'name': 'surface_activity', 'label': 'Time Series (EEG or MEG)',
+                 'type': TimeSeries, 'required': True,
+                 'conditions': FilterChain(fields=[FilterChain.datatype + '.type'],
+                                           operations=["in"],
+                                           values=[['TimeSeriesEEG', 'TimeSeriesMEG']]),
+                 'description': 'Depending on the simulation length and your browser capabilities, you might experience'
+                                ' after multiple runs, browser crashes. In such cases, it is recommended to empty the'
+                                ' browser cache and try again. Sorry for the inconvenience.'},
                 {'name': 'eeg_cap', 'label': 'EEG Cap',
                  'type': EEGCap, 'required': False,
                  'description': 'The EEG Cap surface on which to display the results!'}]
-
-
+        
+        
     def _retrieve_measure_points(self, surface_activity):
         """
         Overwrite, and compute sensors positions after mapping or skin surface of unit-vectors
@@ -325,6 +329,7 @@ class BrainEEG(BrainViewer):
         params.update(EegMonitor().compute_parameters(surface_activity))
         params['extended_view'] = True
         params['isOneToOneMapping'] = False
+        params['brainViewerTemplate'] = 'view.html'
         return self.build_display_result("brain/extendedview", params,
                                          pages=dict(controlPage="brain/extendedcontrols",
                                                     channelsPage="commons/channel_selector.html"))
@@ -346,5 +351,37 @@ class BrainEEG(BrainViewer):
 
         return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices
 
-            
+
+class BrainSEEG(BrainEEG):
+    """
+    Visualizer merging Brain 3D display and MEG lines display.
+    """
+    _ui_name = "Brain Activity SEEG Viewer"
+
+
+    def get_input_tree(self):
+        return [{'name': 'surface_activity', 'label': 'SEEG activity',
+                 'type': TimeSeriesSEEG, 'required': True,
+                 'description': 'Results after SEEG Monitor are expected!'}]
+        
+    
+    def _retrieve_measure_points(self, surface_activity):
+        """
+        Overwrite, and compute sensors positions after mapping or skin surface of unit-vectors
+
+        :returns: measure points, measure points labels, measure points number
+        :rtype: tuple
+        """
+        measure_points = self.paths2url(surface_activity.sensors, 'locations')
+        measure_points_no = surface_activity.sensors.number_of_sensors
+        measure_points_labels = self.paths2url(surface_activity.sensors, 'labels')
+        return measure_points, measure_points_labels, measure_points_no
+    
+    
+    def launch(self, surface_activity, eeg_cap=None):
+        result_params = BrainEEG.launch(self, surface_activity)
+        result_params['brainViewerTemplate'] = "seeg_view.html"
+        result_params['urlVertices'] = None # Mark as None since we only display shelf face and no point to load these aswell
+        result_params['isSEEG'] = True
+        return result_params
         
