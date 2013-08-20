@@ -66,6 +66,7 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         ABCMPLH5Displayer.__init__(self)
         self.figures = {}
         self.interp_models = {}
+        self.nan_indices = {}
 
 
     def get_input_tree(self):
@@ -121,25 +122,32 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         _, range1_name, self.range1 = operation_group.load_range_numbers(operation_group.range1)
         _, range2_name, self.range2 = operation_group.load_range_numbers(operation_group.range2)
 
-        # Get the computed measures on this DataTypeGroup
-        first_op = dao.get_operations_in_group(operation_group.id)[0]
-        if first_op.status != model.STATUS_FINISHED:
-            raise LaunchException("Not all operations from this range are finished. Cannot generate data until then.")
+        for operation in dao.get_operations_in_group(operation_group.id):
+            if operation.status == model.STATUS_STARTED:
+                raise LaunchException("Not all operations from this range are finished. Cannot generate data until then.")
 
-        datatype = dao.get_results_for_operation(first_op.id)[0]
-        if datatype.type == "DatatypeMeasure":
-            ## Load proper entity class from DB.
-            dt_measure = dao.get_generic_entity(DatatypeMeasure, datatype.id)[0]
-        else:
-            dt_measure = dao.get_generic_entity(DatatypeMeasure, datatype.gid, '_analyzed_datatype')
-            if dt_measure:
-                dt_measure = dt_measure[0]
+            op_results = dao.get_results_for_operation(operation.id)
+            if len(op_results):
+                datatype = op_results[0]
+                if datatype.type == "DatatypeMeasure":
+                    ## Load proper entity class from DB.
+                    dt_measure = dao.get_generic_entity(DatatypeMeasure, datatype.id)[0]
+                else:
+                    dt_measure = dao.get_generic_entity(DatatypeMeasure, datatype.gid, '_analyzed_datatype')
+                    if dt_measure:
+                        dt_measure = dt_measure[0]
+                break
+            else:
+                dt_measure = None
 
         figure_nrs = {}
-        metrics = dt_measure.metrics if dt_measure else []
-        for metric in metrics:
-            # Separate plot for each metric.
-            self._create_plot(metric, figsize, operation_group, range1_name, range2_name, figure_nrs)
+        metrics = dt_measure.metrics if dt_measure else {}
+        if metrics:
+            for metric in metrics:
+                # Separate plot for each metric.
+                self._create_plot(metric, figsize, operation_group, range1_name, range2_name, figure_nrs)
+        else:
+            raise LaunchException("No datatypes were generated due to simulation errors. Nothing to display.")
 
         parameters = dict(title=self._ui_name, showFullToolbar=True,
                           serverIp=config.SERVER_IP, serverPort=config.MPLH5_SERVER_PORT,
@@ -167,22 +175,32 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
             index_x = self.range1.index(key_1)
             key_2 = range_values[range2_name]
             index_y = self.range2.index(key_2)
-            if operation_.status != model.STATUS_FINISHED:
+            if operation_.status == model.STATUS_STARTED:
                 raise LaunchException("Not all operations from this range are complete. Cannot view until then.")
 
-            datatype = dao.get_results_for_operation(operation_.id)[0]
-            datatypes_gids[index_x][index_y] = datatype.gid
-
-            if datatype.type == "DatatypeMeasure":
-                measures = dao.get_generic_entity(DatatypeMeasure, datatype.id)
+            operation_results = dao.get_results_for_operation(operation_.id)
+            if operation_results:
+                datatype = operation_results[0]
+                datatypes_gids[index_x][index_y] = datatype.gid
+    
+                if datatype.type == "DatatypeMeasure":
+                    measures = dao.get_generic_entity(DatatypeMeasure, datatype.id)
+                else:
+                    measures = dao.get_generic_entity(DatatypeMeasure, datatype.gid, '_analyzed_datatype')
             else:
-                measures = dao.get_generic_entity(DatatypeMeasure, datatype.gid, '_analyzed_datatype')
+                datatypes_gids[index_x][index_y] = None
+                measures = None
 
             if measures:
                 apriori_data[index_x][index_y] = measures[0].metrics[metric]
             else:
-                apriori_data[index_x][index_y] = 0
-
+                apriori_data[index_x][index_y] = numpy.NaN
+            
+        # Convert array to 0 but keep track of nan values so we can replace after interpolation
+        # since interpolating with nan values will just break the whole process
+        nan_indices = numpy.isnan(apriori_data)
+        self.nan_indices[figure.number] = nan_indices
+        apriori_data = numpy.nan_to_num(apriori_data)
         # Attempt order-3 interpolation.
         kx = ky = 3
         if len(self.range1) <= 3 or len(self.range2) <= 3:
@@ -194,8 +212,26 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
                                     (self.range1[-1] - self.range1[0]) / RESOLUTION[0])
         posteriori_y = numpy.arange(self.range2[0], self.range2[-1],
                                     (self.range2[-1] - self.range2[0]) / RESOLUTION[1])
-        posteriori_data = numpy.rot90(s(posteriori_x, posteriori_y))
-
+        posteriori_data = s(posteriori_x, posteriori_y)
+        x_granularity = RESOLUTION[0] / len(self.range1)
+        y_granularity = RESOLUTION[1] / len(self.range2)
+        for idx, row in enumerate(nan_indices):
+            for idy, was_nan in enumerate(row):
+                if was_nan:
+                    # Now we want to set back all the values that were NaN before interpolation
+                    # and keep track of the change in granularity. For this reason for each nan
+                    # value we had before, we will now have a matrix of the shape [x_granularity x y_granularity]
+                    # full of NaN values
+                    start_x = idx * x_granularity
+                    end_x = (idx + 1) * x_granularity
+                    start_y = idy * y_granularity
+                    end_y = (idy + 1) * y_granularity
+                    for x_scaled in xrange(start_x, end_x, 1):
+                        for y_scaled in xrange(start_y, end_y, 1):
+                            posteriori_data[x_scaled, y_scaled] = numpy.NaN
+        # Rotate to get good plot
+        posteriori_data = numpy.rot90(posteriori_data)
+        
         self.interp_models[figure.number] = s
         # Do actual plot.        
         axes = figure.gca()
@@ -222,31 +258,45 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         ranges for data computations. figure_nrs iw a mapping between metric : figure_number
         """
         figure = self._create_new_figure(figsize)
+        
+        def _get_x_index(x):
+            x_idx = -1
+            x_dist = sys.maxint
+            for idx, val in enumerate(self.range1):
+                if x_dist > abs(val - x):
+                    x_dist = abs(val - x)
+                    x_idx = idx
+            return x_idx
+        
+        def _get_y_index(y):
+            y_idx = -1
+            y_dist = sys.maxint
+            for idx, val in enumerate(self.range2):
+                if y_dist > abs(val - y):
+                    y_dist = abs(val - y)
+                    y_idx = idx
+            return y_idx
 
         # Create events for each figure.
         def _click_event(event, figure=figure):
             if event.inaxes is figure.gca():
                 x, y = event.xdata, event.ydata
-                x_idx = -1
-                x_dist = sys.maxint
-                for idx, val in enumerate(self.range1):
-                    if x_dist > abs(val - x):
-                        x_dist = abs(val - x)
-                        x_idx = idx
-                y_idx = -1
-                y_dist = sys.maxint
-                for idx, val in enumerate(self.range2):
-                    if y_dist > abs(val - y):
-                        y_dist = abs(val - y)
-                        y_idx = idx
-                figure.command = "clickedDatatype('%s')" % (self.datatype_gids[x_idx][y_idx])
+                x_idx = _get_x_index(x)
+                y_idx = _get_y_index(y)
+                if (self.datatype_gids[x_idx][y_idx]):
+                    figure.command = "clickedDatatype('%s')" % (self.datatype_gids[x_idx][y_idx])
 
 
         def _hover_event(event, figure=figure):
             if event.inaxes is figure.gca():
                 x, y = event.xdata, event.ydata
-                figure.command = "hoverPlot(%s, %s, %s, %s)" % (figure.number, x, y,
-                                                                self.interp_models[figure.number]([x], [y]))
+                x_idx = _get_x_index(x)
+                y_idx = _get_y_index(y)
+                if self.nan_indices[figure.number][x_idx][y_idx]:
+                    hover_value = 'NaN'
+                else:
+                    hover_value = self.interp_models[figure.number]([x], [y])
+                figure.command = "hoverPlot(%s, %s, %s, %s)" % (figure.number, x, y, hover_value)
 
 
         dt_gids = self.plot(figure, operation_group, metric, range1_name, range2_name)

@@ -1022,7 +1022,7 @@ function changeCurrentActivitiesFile() {
     if (activitiesData != undefined && activitiesData.length > 0) {
         shouldIncrementTime = true;
     }
-    if (totalPassedActivitiesData >= MAX_TIME_STEP) {
+    if (totalPassedActivitiesData > MAX_TIME_STEP) {
         totalPassedActivitiesData = 0;
     }
 }
