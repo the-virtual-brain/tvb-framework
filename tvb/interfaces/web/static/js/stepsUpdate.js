@@ -160,6 +160,7 @@ function multipleSelect(obj, divID) {
             $('#' + divID + obj[i].value +' input').removeAttr('disabled');
             $('#' + divID + obj[i].value +' select').removeAttr('disabled');
             $('#' + divID + obj[i].value +' select').trigger("change");
+            $('#' + divID + obj[i].value +' input[type="radio"][checked="checked"]').trigger("change");
     	}
     }
 }

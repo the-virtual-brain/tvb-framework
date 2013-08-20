@@ -118,7 +118,7 @@ class LocalConnectivityController(SpatioTemporalController):
         template_specification['next_step_url'] = '/spatial/localconnectivity/step_1'
         template_specification['displayedMessage'] = base.get_from_session(base.KEY_MESSAGE)
         context = base.get_from_session(KEY_LCONN_CONTEXT)
-        if context.selected_entity != None:
+        if context.selected_entity is not None:
             selected_local_conn = ABCAdapter.load_entity_by_gid(context.selected_entity)
             template_specification.update(self.display_surface(selected_local_conn.surface.gid))
             template_specification['no_local_connectivity'] = False
@@ -135,7 +135,7 @@ class LocalConnectivityController(SpatioTemporalController):
         the template from the context.
         """
         context = base.get_from_session(KEY_LCONN_CONTEXT)
-        if context.selected_entity == None:
+        if context.selected_entity is None:
             input_list = self.get_creator_and_interface(LOCAL_CONN_CREATOR_MODULE,
                                                         LOCAL_CONN_CREATOR_CLASS, LocalConnectivity(),
                                                         lock_midpoint_for_eq=[1])[1]
@@ -329,12 +329,13 @@ class LocalConnectivityController(SpatioTemporalController):
             try:
                 context = base.get_from_session(KEY_LCONN_CONTEXT)
                 surface_gid = form_data['surface']
-                if (context.selected_surface is None or context.selected_surface.gid != surface_gid):
+                if context.selected_surface is None or context.selected_surface.gid != surface_gid:
                     surface = ABCAdapter.load_entity_by_gid(surface_gid)
                 else:
                     surface = context.selected_surface
                 local_connectivity_creator = self.get_creator_and_interface(LOCAL_CONN_CREATOR_MODULE,
-                                                                    LOCAL_CONN_CREATOR_CLASS, LocalConnectivity())[0]
+                                                                            LOCAL_CONN_CREATOR_CLASS,
+                                                                            LocalConnectivity())[0]
                 max_x = float(form_data["cutoff"])
                 if max_x <= 0:
                     max_x = 50
@@ -361,10 +362,14 @@ class LocalConnectivityController(SpatioTemporalController):
                 max_y = -1000000000
                 min_y = 10000000000
                 for case in ideal_case_series:
-                    if min_y > case[1]: min_y = case[1]
-                    if min_y > case[1]: min_y = case[1]
-                    if max_y < case[1]: max_y = case[1]
-                    if max_y < case[1]: max_y = case[1]
+                    if min_y > case[1]:
+                        min_y = case[1]
+                    if min_y > case[1]:
+                        min_y = case[1]
+                    if max_y < case[1]:
+                        max_y = case[1]
+                    if max_y < case[1]:
+                        max_y = case[1]
                 vertical_line = []
                 vertical_step = (max_y - min_y) / NO_OF_CUTOFF_POINTS
                 for i in xrange(NO_OF_CUTOFF_POINTS):

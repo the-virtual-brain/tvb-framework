@@ -34,15 +34,16 @@
 
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.datatypes.patterns import StimuliSurface, StimuliRegion
+from tvb.datatypes.equations import Equation
 import tvb.basic.traits.traited_interface as interface
-import tvb.basic.traits.parameters_factory as parameters_factory
-import tvb.datatypes.equations_data as equations_data
+
 
 
 class SurfaceStimulusCreator(ABCSynchronous):
     """
     The purpose of this adapter is to create a StimuliSurface.
     """
+
 
     def get_input_tree(self):
         """
@@ -81,26 +82,28 @@ class SurfaceStimulusCreator(ABCSynchronous):
 
         return stimuli_surface
 
+
     def get_spatial_equation(self, kwargs):
         """
         From a dictionary of arguments build the spatial equation.
         """
-        return parameters_factory.get_traited_instance_for_name(kwargs['spatial'], equations_data.EquationData,
-                                                                        {'parameters': kwargs['spatial_parameters'].get('parameters', {})})
-        
+        return Equation.build_equation_from_dict('spatial', kwargs)
+
+
     def get_temporal_equation(self, kwargs):
         """
         From a dictionary of arguments build the temporal equation.
         """
-        return parameters_factory.get_traited_instance_for_name(kwargs['temporal'], equations_data.EquationData,
-                                                                        {'parameters': kwargs['temporal_parameters'].get('parameters', {})})
+        return Equation.build_equation_from_dict('temporal', kwargs)
+
 
     def get_required_memory_size(self, **kwargs):
         """
         Return the required memory to run this algorithm.
         """
         return -1
-    
+
+
     def get_required_disk_size(self, **kwargs):
         """
         Returns the required disk size to be able to run the adapter. (in kB)
@@ -108,10 +111,12 @@ class SurfaceStimulusCreator(ABCSynchronous):
         return 0
 
 
+
 class RegionStimulusCreator(ABCSynchronous):
     """
     The purpose of this adapter is to create a StimuliRegion.
     """
+
 
     def get_input_tree(self):
         """
@@ -138,20 +143,17 @@ class RegionStimulusCreator(ABCSynchronous):
         stimuli_region = StimuliRegion(storage_path=self.storage_path)
         stimuli_region.connectivity = kwargs['connectivity']
         stimuli_region.weight = kwargs['weight']
-        #spatial_eq = parameters_factory.get_traited_instance_for_name(kwargs['spatial'], equations_data.EquationData,
-        #                                                                {'parameters': kwargs['spatial_parameters'].get('parameters', {})})
-        temporal_eq = parameters_factory.get_traited_instance_for_name(kwargs['temporal'], equations_data.EquationData,
-                                                                        {'parameters': kwargs['temporal_parameters'].get('parameters', {})})
-        #stimuli_region.spatial = spatial_eq
-        stimuli_region.temporal = temporal_eq
+        stimuli_region.temporal = Equation.build_equation_from_dict('temporal', kwargs)
 
         return stimuli_region
+
 
     def get_required_disk_size(self, **kwargs):
         """
         Returns the required disk size to be able to run the adapter. (in kB)
         """
         return 0
+
 
     def get_required_memory_size(self, **kwargs):
         """

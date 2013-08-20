@@ -33,18 +33,19 @@
 """
 
 import numpy
-from copy import deepcopy
-
 import tvb.basic.traits.parameters_factory as parameters_factory
+import tvb.simulator.models as models_module
+from copy import deepcopy
 from tvb.basic.traits.core import Type
 from tvb.core.adapters.abcadapter import KEY_EQUATION, KEY_FOCAL_POINTS, KEY_SURFACE_GID, ABCAdapter
 from tvb.datatypes.equations import SpatialApplicableEquation, Gaussian
 from tvb.adapters.visualizers.phase_plane_interactive import PhasePlaneInteractive
-import tvb.simulator.models as models_module
 from tvb.interfaces.web.entities.context_spatial import BaseSpatialContext
 
 
 KEY_FOCAL_POINTS_TRIANGLES = "focal_points_triangles"
+
+
 
 class ContextModelParameters(BaseSpatialContext):
     """
@@ -55,8 +56,9 @@ class ContextModelParameters(BaseSpatialContext):
     This class may also be used into the desktop application.
     """
 
-    def __init__(self, connectivity, default_model = None,
-                 default_integrator = None, compute_phase_plane_params = True):
+
+    def __init__(self, connectivity, default_model=None,
+                 default_integrator=None, compute_phase_plane_params=True):
         BaseSpatialContext.__init__(self, connectivity, default_model, default_integrator)
         self.prepared_model_parameter_names = self._prepare_parameter_names(self.model_parameter_names)
 
@@ -147,7 +149,7 @@ class ContextModelParameters(BaseSpatialContext):
         current_model = self._get_model_for_region(connectivity_node_index)
         #we have to obtain the model with its default values(the one submitted from burst may have some
         # parameters values changed); the step is computed based on the number of decimals of the default values
-        default_model_for_node = parameters_factory.get_traited_instance_for_name(self.model_name , 
+        default_model_for_node = parameters_factory.get_traited_instance_for_name(self.model_name,
                                                                                   models_module.Model, {})
         param_sliders_data = dict()
         for param_name in self.model_parameter_names:
@@ -168,7 +170,7 @@ class ContextModelParameters(BaseSpatialContext):
                 current_value = ranger.lo
                 self.update_model_parameter(connectivity_node_index, param_name, current_value)
 
-            param_sliders_data[param_name] = {'min': ranger.lo, 'max': ranger.hi, 
+            param_sliders_data[param_name] = {'min': ranger.lo, 'max': ranger.hi,
                                               'default': current_value, 'step': ranger.step}
         param_sliders_data['all_param_names'] = self.model_parameter_names
         return param_sliders_data
@@ -212,12 +214,15 @@ class ContextModelParameters(BaseSpatialContext):
         return deepcopy(str(default_attr))
 
 
+
 class SurfaceContextModelParameters(ContextModelParameters):
     """
     This class contains methods which allows you to edit the model
     parameters for each vertex of the given surface.
     """
-    def __init__(self, surface, connectivity, default_model = None, default_integrator = None):
+
+
+    def __init__(self, surface, connectivity, default_model=None, default_integrator=None):
         ContextModelParameters.__init__(self, connectivity, default_model, default_integrator, False)
         self.surface = surface
         self.applied_equations = dict()
@@ -231,10 +236,10 @@ class SurfaceContextModelParameters(ContextModelParameters):
             param_data = self.applied_equations[param_name]
             param_data[KEY_EQUATION] = equation_instance
         else:
-            self.applied_equations[param_name] = {KEY_EQUATION : equation_instance, KEY_FOCAL_POINTS: [],
+            self.applied_equations[param_name] = {KEY_EQUATION: equation_instance, KEY_FOCAL_POINTS: [],
                                                   KEY_SURFACE_GID: self.surface.gid, KEY_FOCAL_POINTS_TRIANGLES: [],
-                                                  ABCAdapter.KEY_DTYPE: equation_instance.__class__.__module__ + '.' 
-                                                                        + equation_instance.__class__.__name__}
+                                                  ABCAdapter.KEY_DTYPE: equation_instance.__class__.__module__ + '.' +
+                                                                        equation_instance.__class__.__name__}
 
 
     def apply_focal_point(self, model_param, triangle_index):
@@ -265,7 +270,7 @@ class SurfaceContextModelParameters(ContextModelParameters):
                 if triangle_index in self.applied_equations[model_param][KEY_FOCAL_POINTS_TRIANGLES]:
                     f_p_idx = self.applied_equations[model_param][KEY_FOCAL_POINTS_TRIANGLES].index(triangle_index)
                     self.applied_equations[model_param][KEY_FOCAL_POINTS].remove(
-                                                    self.applied_equations[model_param][KEY_FOCAL_POINTS][f_p_idx])
+                        self.applied_equations[model_param][KEY_FOCAL_POINTS][f_p_idx])
                     self.applied_equations[model_param][KEY_FOCAL_POINTS_TRIANGLES].remove(triangle_index)
 
 
@@ -290,8 +295,7 @@ class SurfaceContextModelParameters(ContextModelParameters):
 
         Returns None if there is no equation applied to this param.
         """
-        if parameter_name in self.applied_equations and \
-           KEY_EQUATION in self.applied_equations[parameter_name]:
+        if parameter_name in self.applied_equations and KEY_EQUATION in self.applied_equations[parameter_name]:
             return self.applied_equations[parameter_name][KEY_EQUATION]
         return None
 
@@ -300,8 +304,7 @@ class SurfaceContextModelParameters(ContextModelParameters):
         """
         Returns the list of focal points for the equation applied in the given model param.
         """
-        if parameter_name in self.applied_equations and\
-           KEY_FOCAL_POINTS in self.applied_equations[parameter_name]:
+        if parameter_name in self.applied_equations and KEY_FOCAL_POINTS in self.applied_equations[parameter_name]:
             return self.applied_equations[parameter_name][KEY_FOCAL_POINTS_TRIANGLES]
         return []
 
@@ -312,7 +315,7 @@ class SurfaceContextModelParameters(ContextModelParameters):
          - a dictionary of form: {'equation': $equation, 'focal_points': $list_of_focal_points,
          'no_of_vertices':$surface_no_of_vertices} if the user specified any equation for computing
          the value of the given parameter.
-         - a string of form: '[$default_model_param_value]' if the user didn't specified any equation for the given param
+         - a string of form: '[$default_model_param_value]' if the user didn't specified an equation for the given param
         """
         if modified_param_name in self.applied_equations:
             return self.applied_equations[modified_param_name]
@@ -330,7 +333,7 @@ class SurfaceContextModelParameters(ContextModelParameters):
         applied equations on the model parameters.
         """
         result = {}
-        for param in  self.applied_equations:
+        for param in self.applied_equations:
             equation = self.applied_equations[param][KEY_EQUATION]
             keys = sorted(equation.parameters.keys(), key=lambda x: len(x))
             keys.reverse()
@@ -341,23 +344,23 @@ class SurfaceContextModelParameters(ContextModelParameters):
                     param_idx = stripped_eq.find('\\' + eq_param)
                     if param_idx < 0:
                         break
-                    #If parameter is precedeed by an alfanumerical character replace with multiplicative sign 
+                    #If parameter is precedeed by an alfanumerical character replace with multiplicative sign
                     if param_idx > 0 and stripped_eq[param_idx - 1].isalnum():
-                        base_equation = base_equation.replace('\\'+eq_param, '*' + str(equation.parameters[eq_param]))
+                        base_equation = base_equation.replace('\\' + eq_param, '*' + str(equation.parameters[eq_param]))
                     else:
-                        base_equation = base_equation.replace('\\'+eq_param, str(equation.parameters[eq_param]))
+                        base_equation = base_equation.replace('\\' + eq_param, str(equation.parameters[eq_param]))
                 base_equation = base_equation.replace(eq_param, str(equation.parameters[eq_param]))
             focal_points = str(self.applied_equations[param][KEY_FOCAL_POINTS])
             result[param] = {'equation_name': equation.__class__.__name__,
                              'equation_params': base_equation, 'focal_points': focal_points}
         return result
-    
-    
-    
+
+
+
 class EquationDisplayer(Type):
     """
     Class used for generating the UI related to equations.
     """
-    model_param_equation = SpatialApplicableEquation(label='Equation', default = Gaussian)
+    model_param_equation = SpatialApplicableEquation(label='Equation', default=Gaussian)
     
     

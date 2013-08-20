@@ -49,6 +49,7 @@ from tvb.simulator.noise import Noise
 from tvb.core.adapters.abcadapter import ABCAsynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.traits.parameters_factory import get_traited_subclasses
+from tvb.datatypes.equations import HRFKernelEquation
 from tvb.datatypes.surfaces import Cortex
 from tvb.datatypes.simulation_state import SimulationState
 from tvb.datatypes import noise_framework
@@ -150,8 +151,9 @@ class SimulatorAdapter(ABCAsynchronous):
         monitors_list = []
         for monitor_name in monitors:
             if (monitors_parameters is not None) and (str(monitor_name) in monitors_parameters):
-                monitors_list.append(self.available_monitors[str(monitor_name)
-                                                             ](**monitors_parameters[str(monitor_name)]))
+                current_monitor_parameters = monitors_parameters[str(monitor_name)]
+                HRFKernelEquation.build_equation_from_dict('hrf_kernel', current_monitor_parameters, True)
+                monitors_list.append(self.available_monitors[str(monitor_name)](**current_monitor_parameters))
             else:
                 ### We have monitors without any UI settable parameter.
                 monitors_list.append(self.available_monitors[str(monitor_name)]())
