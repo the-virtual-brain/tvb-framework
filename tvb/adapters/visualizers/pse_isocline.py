@@ -124,7 +124,7 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
 
         for operation in dao.get_operations_in_group(operation_group.id):
             if operation.status == model.STATUS_STARTED:
-                raise LaunchException("Not all operations from this range are finished. Cannot generate data until then.")
+                raise LaunchException("Can not display until all operations from this range are finished!")
 
             op_results = dao.get_results_for_operation(operation.id)
             if len(op_results):
@@ -283,7 +283,7 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
                 x, y = event.xdata, event.ydata
                 x_idx = _get_x_index(x)
                 y_idx = _get_y_index(y)
-                if (self.datatype_gids[x_idx][y_idx]):
+                if self.datatype_gids[x_idx][y_idx]:
                     figure.command = "clickedDatatype('%s')" % (self.datatype_gids[x_idx][y_idx])
 
 

@@ -319,7 +319,8 @@ class FlowServiceTest(TransactionalTestCase):
                      datetime.strptime("08-12-2011", "%m-%d-%Y")]
         for i in range(5):
             operation = model.Operation(self.test_user.id, self.test_project.id, self.algo_inst.id, 'test params',
-                                        status=model.STATUS_FINISHED, start_date=start_dates[i], completion_date=end_dates[i])
+                                        status=model.STATUS_FINISHED, start_date=start_dates[i],
+                                        completion_date=end_dates[i])
             operation = dao.store_entity(operation)
             storage_path = FilesHelper().get_project_folder(self.test_project, str(operation.id))
             if i < 4:

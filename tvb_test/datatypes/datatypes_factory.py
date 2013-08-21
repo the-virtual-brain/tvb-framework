@@ -27,9 +27,11 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
-    This module contains
-    moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
+This module contains methods for creating persisted data-types for tests.
+
+.. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
 
@@ -52,6 +54,7 @@ from tvb.datatypes.graph import Covariance, ConnectivityMeasure
 from tvb.datatypes.spectral import CoherenceSpectrum
 from tvb.datatypes.temporal_correlations import CrossCorrelation
 from tvb.datatypes.mode_decompositions import IndependentComponents
+from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb_test.datatypes.datatype1 import Datatype1
 from tvb_test.datatypes.datatype2 import Datatype2
 from tvb_test.adapters.storeadapter import StoreAdapter
@@ -67,7 +70,6 @@ class DatatypesFactory():
     USER_FULL_NAME = "Datatype Factory User"
     DATATYPE_STATE = "RAW_DATA"
     DATATYPE_DATA = ["test", "for", "datatypes", "factory"]
-    OPERATION_GROUP_NAME = "OperationsGroup"
 
     user = None
     project = None
@@ -103,7 +105,8 @@ class DatatypesFactory():
         self.meta = {DataTypeMetaData.KEY_SUBJECT: self.USER_FULL_NAME,
                      DataTypeMetaData.KEY_STATE: self.DATATYPE_STATE}
         operation = model.Operation(self.user.id, self.project.id, self.algorithm.id, 'test parameters',
-                                    meta=json.dumps(self.meta), status=model.STATUS_FINISHED, method_name=ABCAdapter.LAUNCH_METHOD)
+                                    meta=json.dumps(self.meta), status=model.STATUS_FINISHED,
+                                    method_name=ABCAdapter.LAUNCH_METHOD)
         self.operation = dao.store_entity(operation)
 
 
@@ -187,8 +190,8 @@ class DatatypesFactory():
         """
         meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW"}
         algorithm, algo_group = FlowService().get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
-        operation = model.Operation(self.user.id, self.project.id, algo_group.id, json.dumps(''),
-                                    meta=json.dumps(meta), status=model.STATUS_STARTED, method_name=ABCAdapter.LAUNCH_METHOD)
+        operation = model.Operation(self.user.id, self.project.id, algo_group.id, json.dumps(''), meta=json.dumps(meta),
+                                    status=model.STATUS_STARTED, method_name=ABCAdapter.LAUNCH_METHOD)
         operation = dao.store_entity(operation)
         storage_path = FilesHelper().get_project_folder(self.project, str(operation.id))
         return operation, algorithm.id, storage_path
@@ -303,6 +306,18 @@ class DatatypesFactory():
         return conn_measure
 
 
+    def create_datatype_measure(self, analyzed_entity):
+        """
+        :return: persisted DatatypeMeasure
+        """
+        operation, _, storage_path = self.__create_operation()
+        measure = DatatypeMeasure(storage_path=storage_path, metrics={'v': 3})
+        measure.analyzed_datatype = analyzed_entity
+        adapter_instance = StoreAdapter([measure])
+        OperationService().initiate_prelaunch(operation, adapter_instance, {})
+        return measure
+
+
     def create_ICA(self, timeseries):
         """
         :returns: persisted entity IndependentComponents
@@ -326,28 +341,32 @@ class DatatypesFactory():
         """ 
         This method creates, stores and returns a DataTypeGroup entity.
         """
-        OPERATION_GROUP_RANGE = [json.dumps(["row1", ['a', 'b', 'c']])]
-        group = model.OperationGroup(self.project.id, self.OPERATION_GROUP_NAME, OPERATION_GROUP_RANGE)
+        range1 = ["row1", [1, 2, 3]]
+        range2 = ["row2", [0.1, 0.3, 0.5]]
+        group = model.OperationGroup(self.project.id, ranges=[json.dumps(range1), json.dumps(range2)])
         group = dao.store_entity(group)
 
         datatype_group = model.DataTypeGroup(group, subject=subject, state=state, operation_id=self.operation.id)
         # Set storage path, before setting data
-        datatype_group.storage_path = self.files_helper.get_project_folder(
-            self.project, str(self.operation.id))
+        datatype_group.storage_path = self.files_helper.get_project_folder(self.project, str(self.operation.id))
         datatype_group = dao.store_entity(datatype_group)
 
         # Now create some data types and add them to group
-        for range_val in ['a', 'b', 'c']:
-            operation = model.Operation(self.user.id, self.project.id, self.algorithm.id, 'test parameters',
-                                        meta=json.dumps(self.meta), status=model.STATUS_FINISHED,
-                                        method_name=ABCAdapter.LAUNCH_METHOD,
-                                        range_values=json.dumps({'row1': range_val}))
-            operation.fk_operation_group = group.id
-            operation = dao.store_entity(operation)
-            datatype = self.create_datatype_with_storage(operation_id=operation.id)
-            datatype.row1 = range_val
-            datatype.fk_datatype_group = datatype_group.id
-            datatype.set_operation_id(operation.id)
-            dao.store_entity(datatype)
+        for range_val1 in range1[1]:
+            for range_val2 in range2[1]:
+                operation = model.Operation(self.user.id, self.project.id, self.algorithm.id, 'test parameters',
+                                            meta=json.dumps(self.meta), status=model.STATUS_FINISHED,
+                                            method_name=ABCAdapter.LAUNCH_METHOD,
+                                            range_values=json.dumps({range1[0]: range_val1,
+                                                                     range2[0]: range_val2}))
+                operation.fk_operation_group = group.id
+                operation = dao.store_entity(operation)
+                datatype = self.create_datatype_with_storage(operation_id=operation.id)
+                datatype.number1 = range_val1
+                datatype.number2 = range_val2
+                datatype.fk_datatype_group = datatype_group.id
+                datatype.set_operation_id(operation.id)
+                dao.store_entity(datatype)
+                self.create_datatype_measure(datatype)
 
         return datatype_group
