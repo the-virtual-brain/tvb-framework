@@ -36,6 +36,8 @@ Service layer, for storing/retrieving Resulting Figures in TVB.
 
 import os
 import base64
+from StringIO import StringIO
+from PIL import Image
 from tvb.basic.logger.builder import get_logger
 from tvb.core import utils
 from tvb.core.entities import model
@@ -68,11 +70,21 @@ class FigureService:
         file_name = os.path.split(store_path)[1]
 
         if img_type == "png":  # PNG file from canvas
-            # Store image
-            img_data = base64.b64decode(export_data)
-            dest = open(store_path, 'wb')
-            dest.write(img_data)
-            dest.close()
+            imgData = base64.b64decode(export_data)                     # decode the image
+            fakeImgFile = StringIO(imgData)                             # PIL.Image only opens from file, so fake one
+            origImg = Image.open(fakeImgFile)
+            brandingBarLocation = os.path.join(os.path.dirname(__file__), "resources", "brandingBar.png")
+            brandingBar = Image.open(brandingBarLocation)
+
+            finalSize = (origImg.size[0],                               # original width
+                         origImg.size[1] + brandingBar.size[1])         # original height + brandingBar height
+            finalImg = Image.new("RGBA", finalSize)
+
+            finalImg.paste(brandingBar, (0, 0))                         # add the branding bar
+            finalImg.paste(origImg, (0, brandingBar.size[1]))           # continue from branding bar's height
+
+            finalImg.save(store_path)                                   # store to disk
+
         elif img_type == 'svg':  # SVG file from svg viewer
             # Generate path where to store image
             dest = open(store_path, 'w')
