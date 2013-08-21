@@ -174,13 +174,24 @@ function sendMessage(id, msgType, msgArgs, showOverlay) {
 	canvas_socket[id].send(JSON.stringify(msgDict));
 }
 
+
 var allow_resize = true;
+/**
+ * This function does the actual resize of the MPLH5 canvas and its associated menu bar;
+ * Also sets a flag on canvas to indicate that resizing is done
+ * DO NOT REMOVE! It is called in an eval statement.
+ * NOTE: Might be a bad idea to call it on your own.
+ * @param id MPLH5 figure id
+ * @param width Target canvas width
+ * @param height Target canvas height
+ */
 function resize_canvas(id, width, height) {
      if (allow_resize) {
           if (id >= 0) {
                canvii[id].width = width; 
                document.getElementById("button_menu_" + id).style.width = width + "px";
                canvii[id].height = height;
+               canvii[id].notDoneResizing = false;
           }
      }
 }
@@ -316,6 +327,7 @@ function do_resize(id, w, h) {
         	'width' : w,
         	'height' : h
         }
+        canvii[id].notDoneResizing = true               // flag this canvas that resizing request was submitted
         sendMessage(id, 'resize', msgArgs)
       } catch (err) {
           displayMessage("Error when resizing!", "errorMessage");
@@ -426,21 +438,16 @@ document.addEventListener("mouseup", outSize, false);
 
 // ================================ EXPORTING CANVAS METHODS start ================================
 /**
- * This function polls for status of resizing and updates <code>canvas.notReadyForExport</code> flag;
- * resizing is done when the overlay has disappeared
+ * This function polls for status of resizing; when done, the canvas is made visible again
  *
- * @param figureId The mplh5 figure whose canvas' flag will be set
- * @param visible Indicates visibility of the div containing the current canvas
+ * @param figureId The MPLH5 figure id whose canvas will be checked and shown
  * @private
  */
-function __checkMPLH5FinishedResizing(canvas, visible) {
-    if (BLOCKER_OVERLAY_COUNTER)                                                            // mplh5 hasn't resized yet
-        setTimeout(function() {__checkMPLH5FinishedResizing(canvas, visible)}, 100)         // check again in 100 ms
-    else {
-        canvas.notReadyForExport = false                                // resizing is done, continue with exporting
-        if (visible)
-            canvas.parentElement.parentElement.style.display = ""       // exporting is done, show the container
-    }
+function __checkMPLH5FinishedResizing(figureId) {
+    if (canvii[figureId].notDoneResizing)                                            // mplh5 hasn't resized yet
+        setTimeout(function() {__checkMPLH5FinishedResizing(figureId)}, 100)         // check again in 100 ms
+    else
+        canvii[figureId].parentElement.parentElement.style.display = ""       // exporting is done, show the container
 }
 
 /**
@@ -451,18 +458,15 @@ function initMPLH5CanvasForExportAsImage(figureId) {
     $('#canvas_' + figureId).each(function () {
 
         this.drawForImageExport = function() {
-            this.notReadyForExport = true;               // set this flag to indicate that resizing is taking place
             // don't display the div containing this canvas during export, so the user doesn't notice resizing
             this.parentElement.parentElement.style.display = "none";
             this.scale = C2I_EXPORT_HEIGHT / this.height;
             do_resize(figureId, this.width * this.scale, this.height * this.scale);
-            __checkMPLH5FinishedResizing(this, false);
         }
 
-        this.afterImageExport = function() {    // scale back to original size and set flag to indicate that
+        this.afterImageExport = function() {    // scale back to original size
             do_resize(figureId, this.width / this.scale, this.height / this.scale);
-            __checkMPLH5FinishedResizing(this, true);
-        }
+            __checkMPLH5FinishedResizing(figureId) }
     });
 }
 
