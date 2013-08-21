@@ -82,13 +82,13 @@ function __storeSVG(svgElement, operationId) {
 /**
  * This function sends canvas' snapshot to server, after it has been prepared by <code>__storeCanvas()</code>
  *
- * NOTE: Some canvases (MPLH5) set <code>canvas.notDoneResizing</code> flag to indicate that their resize is not done
+ * NOTE: Some canvases (e.g. MPLH5) set <code>canvas.notReadyForExport</code> flag to indicate that their resize is not done
  * yet; if such flag exists, exporting continues only when it is set to <code>false</code> or after
  * <code>remainingTrials</code> trials
  *
  * @param canvas The **RESIZED** canvas whose snapshot is to be stored
  * @param operationId Current operation id, associated with this storage
- * @param remainingTrials The number of times to poll for <code>canvas.notDoneResizing</code> flag
+ * @param remainingTrials The number of times to poll for <code>canvas.notReadyForExport</code> flag
  * @private
  */
 function __tryExport(canvas, operationId, remainingTrials) {
@@ -97,7 +97,7 @@ function __tryExport(canvas, operationId, remainingTrials) {
         return
     }
 
-    if (canvas.notDoneResizing)
+    if (canvas.notReadyForExport)
         // the mplh5 canvases will set this flag to TRUE after they finish resizing, so they can be exported at Hi Res
         // undefined or FALSE means it CAN BE exported
         setTimeout(function() { __tryExport(canvas, operationId, remainingTrials - 1) }, 200)

@@ -191,7 +191,7 @@ function resize_canvas(id, width, height) {
                canvii[id].width = width; 
                document.getElementById("button_menu_" + id).style.width = width + "px";
                canvii[id].height = height;
-               canvii[id].notDoneResizing = false;
+               canvii[id].notReadyForExport = false;
           }
      }
 }
@@ -327,7 +327,7 @@ function do_resize(id, w, h) {
         	'width' : w,
         	'height' : h
         }
-        canvii[id].notDoneResizing = true               // flag this canvas that resizing request was submitted
+        canvii[id].notReadyForExport = true               // flag this canvas that resizing request was submitted
         sendMessage(id, 'resize', msgArgs)
       } catch (err) {
           displayMessage("Error when resizing!", "errorMessage");
@@ -444,7 +444,7 @@ document.addEventListener("mouseup", outSize, false);
  * @private
  */
 function __checkMPLH5FinishedResizing(figureId) {
-    if (canvii[figureId].notDoneResizing)                                            // mplh5 hasn't resized yet
+    if (canvii[figureId].notReadyForExport)                                            // mplh5 hasn't resized yet
         setTimeout(function() {__checkMPLH5FinishedResizing(figureId)}, 100)         // check again in 100 ms
     else
         canvii[figureId].parentElement.parentElement.style.display = ""       // exporting is done, show the container
