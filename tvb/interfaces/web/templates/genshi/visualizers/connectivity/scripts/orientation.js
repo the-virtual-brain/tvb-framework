@@ -33,23 +33,23 @@ function ORIENTATION_draw_nose_and_ears() {
     mvTranslate([0.0, -20.0, -55.0]);
     mvRotate(180, [1, 0, 0]);
     multMatrix(GL_currentRotationMatrix);
-    drawPyramid(ORIENTATION_Buffers[1], ORIENTATION_Buffers[2], ORIENTATION_Buffers[0]);
+    drawPyramid(ORIENTATION_Buffers[0], ORIENTATION_Buffers[1], ORIENTATION_Buffers[2]);
     mvPopMatrix();
 
     //draw the left ear
     mvPushMatrix();
     gl.uniform1i(shaderProgram.colorIndex, BLUE_COLOR_INDEX);
-    mvTranslate([-17.0, 0.0, -55.0]);
-    multMatrix(GL_currentRotationMatrix);
-    drawPyramid(ORIENTATION_Buffers[3], ORIENTATION_Buffers[4], ORIENTATION_Buffers[0]);
+    mvTranslate([-17.0, 0.0, gl.viewportWidth * 0.091 - 112]);      // precalculated magic numbers to put the ears at
+    multMatrix(GL_currentRotationMatrix);                           // the margins of canvas
+    drawPyramid(ORIENTATION_Buffers[3], ORIENTATION_Buffers[4], ORIENTATION_Buffers[5]);
     mvPopMatrix();
 
     //draw the right ear
     mvPushMatrix();
     gl.uniform1i(shaderProgram.colorIndex, RED_COLOR_INDEX);
-    mvTranslate([17.0, 0.0, -55.0]);
-    multMatrix(GL_currentRotationMatrix);
-    drawPyramid(ORIENTATION_Buffers[5], ORIENTATION_Buffers[6], ORIENTATION_Buffers[0]);
+    mvTranslate([17.0, 0.0, gl.viewportWidth * 0.091 - 112]);       // precalculated magic numbers to put the ears at
+    multMatrix(GL_currentRotationMatrix);                           // the margins of canvas
+    drawPyramid(ORIENTATION_Buffers[6], ORIENTATION_Buffers[7], ORIENTATION_Buffers[8]);
     mvPopMatrix();
 }
 
@@ -77,13 +77,15 @@ function drawSquare(vertexPositionBuffer) {
 /**
  * Returns an array of buffers that are used for drawing the nose and the ears.
  *
- * idx0 - buffer which contains the normals used for drawing the nose and the ears
- * idx1 - buffer which contains the points needed for drawing the NOSE
- * idx2 - buffer which contains the points needed for drawing the bottom of the nose
- * idx3 - buffer which contains the points needed for drawing the LEFT EAR
- * idx4 - buffer which contains the points needed for drawing the bottom of the left ear
- * idx5 - buffer which contains the points needed for drawing the RIGHT EAR
- * idx6 - buffer which contains the points needed for drawing the bottom of the right ear
+ * idx0 - buffer which contains the POINTS needed for drawing the NOSE
+ * idx1 - buffer which contains the POINTS needed for drawing the BOTTOM of the nose
+ * idx2 - buffer which contains the NORMALS used for drawing the NOSE
+ * idx3 - buffer which contains the POINTS needed for drawing the LEFT EAR
+ * idx4 - buffer which contains the POINTS needed for drawing the BOTTOM of the left ear
+ * idx5 - buffer which contains the NORMALS used for drawing the LEFT EAR
+ * idx6 - buffer which contains the POINTS needed for drawing the RIGHT EAR
+ * idx7 - buffer which contains the POINTS needed for drawing the BOTTOM of the right ear
+ * idx8 - buffer which contains the NORMALS used for drawing the RIGHT EAR
  */
 function ORIENTATION_initOrientationBuffers() {
     var noseVertexPositionBuffer = gl.createBuffer();
@@ -167,23 +169,59 @@ function ORIENTATION_initOrientationBuffers() {
     rightEarVertexPositionBuffer.itemSize = 3;
     rightEarVertexPositionBuffer.numItems = 12;
 
-    var earNormals = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, earNormals);
-    normals = [     1.0,  0.0,  1.0,  // Front
+    var rightEarNormals = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, rightEarNormals);
+    var normals = [ 1.0,  0.0,  1.0,  // Front
         1.0,  0.0,  1.0,
         1.0,  0.0,  1.0,
         1.0,  -1.0, 0.0,  // Right
         1.0,  -1.0, 0.0,
         1.0,  -1.0, 0.0,
-        0.0,  1.0,  -1.0,  // Right
+        0.0,  1.0,  -1.0,  // Back
         0.0,  1.0,  -1.0,
         0.0,  1.0,  -1.0,
         1.0,  1.0,  0.0,  // Left
         1.0,  1.0,  0.0,
         1.0,  1.0,  0.0];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
-    earNormals.itemSize = 3;
-    earNormals.numItems = 12;
+    rightEarNormals.itemSize = 3;
+    rightEarNormals.numItems = 12;
+
+    var leftEarNormals = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, leftEarNormals);
+    normals = [ -2.0, 0.0, 2.0 / 3,    // FRONT
+        -2.0, 0.0, 2.0 / 3,
+        -2.0, 0.0, 2.0 / 3,
+        -2.0,  -1.0, 0.0,       // RIGHT
+        -2.0,  -1.0, 0.0,
+        -2.0,  -1.0, 0.0,
+        -2.0,  0.0, -1.0,       // BACK
+        -2.0,  0.0, -1.0,
+        -2.0,  0.0, -1.0,
+        -2.0,  1.0, 0.0,        // LEFT
+        -2.0,  1.0, 0.0,
+        -2.0,  1.0, 0.0];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+    leftEarNormals.itemSize = 3;
+    leftEarNormals.numItems = 12;
+
+    var noseNormals = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, noseNormals);
+    normals = [ 0.0, 1.0, 1.0,      // FRONT
+        0.0, 1.0, 1.0,
+        0.0, 1.0, 1.0,
+        1.0, 1.0, 0.0,      // RIGHT
+        1.0, 1.0, 0.0,
+        1.0, 1.0, 0.0,
+        0.0, 1.0, -1.0,     // BACK
+        0.0, 1.0, -1.0,
+        0.0, 1.0, -1.0,
+        -1.0, 1.0, 0.0,    // LEFT
+        -1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+    noseNormals.itemSize = 3;
+    noseNormals.numItems = 12;
 
     var leftEarBottom = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, leftEarBottom);
@@ -221,7 +259,7 @@ function ORIENTATION_initOrientationBuffers() {
     noseBottom.itemSize = 3;
     noseBottom.numItems = 4;
 
-    ORIENTATION_Buffers = [earNormals, noseVertexPositionBuffer, noseBottom, 
-    					   leftEarVertexPositionBuffer, leftEarBottom, 
-    					   rightEarVertexPositionBuffer, rightEarBottom];
+    ORIENTATION_Buffers = [noseVertexPositionBuffer, noseBottom, noseNormals,
+    					   leftEarVertexPositionBuffer, leftEarBottom, leftEarNormals,
+    					   rightEarVertexPositionBuffer, rightEarBottom, rightEarNormals];
 }

@@ -158,6 +158,37 @@ function GFUNC_updateContextMenu(selectedNodeIndex, selectedNodeLabel, isAnyComi
     }
 }
 
+/**
+ * jQuery's contextMenu plugin behaves differently on different browsers so here we patch it to
+ * make it work; replaced <code>x=e.pageX, y=e.pageY</code> with <code>x=e.clientX, y=e.clientY</code>
+ */
+function patchContextMenu() {
+    $.contextMenu.show = function(t,e) {
+        var cmenu=this, x=e.clientX, y=e.clientY;
+        cmenu.target = t; // Preserve the object that triggered this context menu so menu item click methods can see it
+        if (cmenu.beforeShow()!==false) {
+            // If the menu content is a function, call it to populate the menu each time it is displayed
+            if (cmenu.menuFunction) {
+                if (cmenu.menu) { $(cmenu.menu).remove(); }
+                cmenu.menu = cmenu.createMenu(cmenu.menuFunction(cmenu,t),cmenu);
+                cmenu.menu.css({display:'none'});
+                $(cmenu.appendTo).append(cmenu.menu);
+            }
+            var $c = cmenu.menu;
+            x+=cmenu.offsetX; y+=cmenu.offsetY;
+            var pos = cmenu.getPosition(x,y,cmenu,e); // Extracted to method for extensibility
+            cmenu.showShadow(pos.x,pos.y,e);
+            // Resize the iframe if needed
+            if (cmenu.useIframe) {
+                $c.find('iframe').css({width:$c.width()+cmenu.shadowOffsetX+cmenu.shadowWidthAdjust,height:$c.height()+cmenu.shadowOffsetY+cmenu.shadowHeightAdjust});
+            }
+            $c.css( {top:pos.y+"px", left:pos.x+"px", position:"fixed",zIndex:9999} )[cmenu.showTransition](cmenu.showSpeed,((cmenu.showCallback)?function(){cmenu.showCallback.call(cmenu);}:null));
+            cmenu.shown=true;
+            $(document).one('click',null,function(){cmenu.hide()}); // Handle a single click to the document to hide the menu
+        }
+    }
+}
+
 /*
  * Functions that initialize the points and labels data and variables to hold these are
  * defined below.
@@ -425,6 +456,10 @@ function startConnectivity() {
 	connectivity_initCanvas();
 	connectivity_startGL(false);
 	SELECTED_TAB = CONNECTIVITY_TAB;
+    $(window).resize(function() {               // resize is called continuously during a resize event
+        clearTimeout(this.timeoutForResizing);  // this will only call the function when resizing is done
+        this.timeoutForResizing = setTimeout(startConnectivity, 250);
+    });
 }
 
 function start2DConnectivity(idx) {
@@ -452,9 +487,13 @@ function start2DConnectivity(idx) {
 function start3DConnectivity() {
 	$("#monitor-3D-id").show()
         .find('#GLcanvas_3D')[0].redrawFunctionRef = drawScene_3D;   // interface-like function used in HiRes image exporting
-	conectivity3D_initCanvas();
+	connectivity3D_initCanvas();
 	connectivity3D_startGL();
 	SELECTED_TAB = CONNECTIVITY_3D_TAB;
+    $(window).resize(function() {               // resize is called continuously during a resize event
+        clearTimeout(this.timeoutForResizing);  // this will only call the function when resizing is done
+        this.timeoutForResizing = setTimeout(start3DConnectivity, 250);
+    });
 }
 
 function startMPLH5ConnectivityView() {
