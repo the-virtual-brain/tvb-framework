@@ -38,6 +38,7 @@ import os
 import base64
 from StringIO import StringIO
 from PIL import Image
+import xml.dom.minidom
 from tvb.basic.logger.builder import get_logger
 from tvb.core import utils
 from tvb.core.entities import model
@@ -67,33 +68,55 @@ class FigureService:
         # Generate path where to store image
         store_path = self.file_helper.get_images_folder(project.name, operation_id)
         store_path = utils.get_unique_file_name(store_path, file_name)[0]
-        file_name = os.path.split(store_path)[1]
+        file_path = os.path.split(store_path)[1]
 
         if img_type == "png":  # PNG file from canvas
             imgData = base64.b64decode(export_data)                     # decode the image
             fakeImgFile = StringIO(imgData)                             # PIL.Image only opens from file, so fake one
             origImg = Image.open(fakeImgFile)
-            brandingBarLocation = os.path.join(os.path.dirname(__file__), "resources", "brandingBar.png")
+            brandingBarLocation = os.path.join(os.path.dirname(__file__), "resources", "TVB_brandingbar_max.png")
             brandingBar = Image.open(brandingBarLocation)
 
             finalSize = (origImg.size[0],                               # original width
                          origImg.size[1] + brandingBar.size[1])         # original height + brandingBar height
             finalImg = Image.new("RGBA", finalSize)
 
-            finalImg.paste(brandingBar, (0, 0))                         # add the branding bar
-            finalImg.paste(origImg, (0, brandingBar.size[1]))           # continue from branding bar's height
+            finalImg.paste(origImg, (0, 0))                             # add the original image
+            finalImg.paste(brandingBar, (0, origImg.size[1]))           # add the branding bar, below the original
+                                                                        # the extra width will be discarded
 
             finalImg.save(store_path)                                   # store to disk
 
         elif img_type == 'svg':  # SVG file from svg viewer
+            dom = xml.dom.minidom.parseString(export_data)
+            figureSvg = dom.getElementsByTagName('svg')[0]                          # get the original image
+
+            brandingBarLocation = os.path.join(os.path.dirname(__file__), 'resources', 'TVB_brandingbar.svg')
+            dom = xml.dom.minidom.parse(brandingBarLocation)
+            brandingSvg = dom.getElementsByTagName('svg')[0]                        # get the branding bar
+            brandingSvg.setAttribute("y", figureSvg.getAttribute("height"))         # position it below the figure
+
+            finalSvg = dom.createElement('svg')                                     # prepare the final svg
+            width = figureSvg.getAttribute('width').replace('px', '')               # same width as original figure
+            finalSvg.setAttribute("width", width)
+            height = float(figureSvg.getAttribute('height').replace('px', ''))      # increase original height with
+            height += float(brandingSvg.getAttribute('height').replace('px', ''))   # branding bar's height
+            finalSvg.setAttribute("height", str(height))
+
+            finalSvg.appendChild(figureSvg)                                         # add the image
+            finalSvg.appendChild(brandingSvg)                                       # and the branding bar
+
             # Generate path where to store image
             dest = open(store_path, 'w')
-            dest.write(export_data)
+            finalSvg.writexml(dest)                                                 # store to disk
             dest.close()
+
+        operation = dao.get_operation_by_id(operation_id)
+        file_name = 'TVB-%s-%s' % (operation.algorithm.name.replace(' ', '-'), operation_id)    # e.g. TVB-Algo-Name-352
 
         # Store entity into DB
         entity = model.ResultFigure(operation_id, user.id, project.id, session_name,
-                                    "Snapshot-" + operation_id, file_name, img_type)
+                                    file_name, file_path, img_type)
         entity = dao.store_entity(entity)
 
         # Load instance from DB to have lazy fields loaded
@@ -103,7 +126,6 @@ class FigureService:
 
         # Force writing operation meta data on disk. 
         # This is important later for operation import
-        operation = dao.get_operation_by_id(operation_id)
         self.file_helper.write_operation_metadata(operation)
 
 
