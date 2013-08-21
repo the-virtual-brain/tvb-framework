@@ -27,8 +27,6 @@
  */
 var BUFFER_TIME_STEPS = 8;
 var DATA_CHUNK_SIZE = null;
-var triangles_list = null;
-var colorBuffers = [];
 var TICK_STEP = 200;
 var maxValue = 0;
 var minValue = 0;
@@ -37,7 +35,7 @@ var endColor = [1, 0, 0]
 var drawTickInterval = null;
 var sliderSel = false;
 var minTime = 0;
-var maxTIme = 0;
+var maxTime = 0;
 var displayedStep = 0;
 var totalTimeStep = 0;
 var currentStimulusData = null;
@@ -68,7 +66,7 @@ function STIM_PICK_setVisualizedData(data) {
 	drawTickInterval = setInterval(tick, TICK_STEP);
 	displayedStep = 0;
 	totalTimeStep = minTime;
-	STIM_PICK_initLegendInfo();
+	BASE_PICK_initLegendInfo(maxValue);
 	/*
 	 * Create the slider to display the total time.
 	 */
@@ -86,40 +84,6 @@ function STIM_PICK_setVisualizedData(data) {
 	            stop: function(event, ui) {
 	            	sliderSel = false;
 	            } });
-}
-
-function STIM_PICK_initLegendInfo() {
-	/*
-	 * Init the legend information for this stimulus.
-	 */
-	document.getElementById('brainLegendDiv').innerHTML = '';
-	LEG_initMinMax(0, maxValue);
-	if (maxValue == 0) { maxValue = 1; }
-	var legendStep = maxValue / 6;
-	var legendValues = [];
-	for (var i = 0; i < maxValue; i = i + legendStep) {
-		legendValues.push(i);
-	}
-	var tableElem = document.createElement('TABLE');
-	tableElem.style.height = '100%';
-	
-	var tableRow = document.createElement('TR');
-	tableRow.style.height = '20px';
-	var tableData = document.createElement('TD');
-	tableData.innerHTML = '<label>' + legendValues[legendValues.length-1].toFixed(4) + '</label>';
-	tableRow.appendChild(tableData);
-	tableElem.appendChild(tableRow);
-
-	for (var i = (legendValues.length - 2); i >= 0; i--) {
-		var tableRow = document.createElement('TR');
-		tableRow.style.height = 100 / legendValues.length + '%';
-		tableRow.style.verticalAlign = 'bottom';
-		var tableData = document.createElement('TD');
-		tableData.innerHTML = '<label>' + legendValues[i].toFixed(4) + '</label>';
-		tableRow.appendChild(tableData);
-		tableElem.appendChild(tableRow);
-	}
-	document.getElementById('brainLegendDiv').appendChild(tableElem);
 }
 
 function STIM_PICK_stopDataVisualization() {
@@ -295,7 +259,6 @@ function drawScene() {
 		 * 	mouse over). Here we can afford to update the 2D slices because performance is
 		 * not that much of an issue.
 		 */
-		// BASE_PICK_drawSlices();
 		BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 	}
 }

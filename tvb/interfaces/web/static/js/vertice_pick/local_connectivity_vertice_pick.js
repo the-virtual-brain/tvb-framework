@@ -27,19 +27,38 @@
  */
 
 
+/**
+ * 'Overwrite' the drawScene function here to add extra functionality for drawing the legend
+ */
+function drawScene() {
+    if (GL_zoomSpeed != 0) {		// Handle the zoom event before drawing the brain.
+        GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
+        GL_zoomSpeed = 0;
+    }
+    // Use function offered by base_vertice_pick.js to draw the brain.
+	BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
+
+   if (noOfUnloadedBrainDisplayBuffers == 0) {      // wait for the data to be loaded, then draw the legend
+        loadIdentity();
+        drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+   }
+}
+
+
+/**
+ * Displays a gradient on the surface.
+ *
+ * @param data_from_server a json object which contains the data needed
+ * for drawing a gradient on the surface.
+ */
 function LCONN_PICK_changeColorBuffers(data_from_server) {
-	/**
-	 * Displays a gradient on the surface.
-	 *
-	 * @param data_from_server a json object which contains the data needed
-	 * for drawing a gradient on the surface.
-	 */
     data_from_server = $.parseJSON(data_from_server);
 
     var data = $.parseJSON(data_from_server['data']);
     var minValue = data_from_server['min_value'];
     var maxValue = data_from_server['max_value'];
 
+    BASE_PICK_initLegendInfo(maxValue);     // setup the legend
     if (BASE_PICK_brainDisplayBuffers.length != data.length) {
         displayMessage("Could not draw the gradient view. Invalid data received from the server.", "errorMessage");
         return;
@@ -63,12 +82,11 @@ function LCONN_PICK_changeColorBuffers(data_from_server) {
     displayMessage("Displaying Local Connectivity profile for selected focal point ..." )
 }
 
-
+/**
+ * In case something changed in the parameters or the loaded local_connectivity is
+ * set to None, just use this method to draw the 'default' surface with the gray coloring.
+ */
 function LCONN_PICK_drawDefaultColorBuffers() {
-	/*
-	 * In case something changed in the parameters or the loaded local_connectivity is
-	 * set to None, just use this method to draw the 'default' surface with the gray coloring.
-	 */
     if (noOfUnloadedBrainDisplayBuffers != 0) {
         displayMessage("The load operation for the surface data is not completed yet!", "infoMessage");
         return;

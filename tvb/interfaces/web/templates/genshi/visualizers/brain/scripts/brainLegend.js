@@ -78,6 +78,7 @@ function LEG_generateLegendBuffers() {
 
 	var inc = (legendYMax - legendYMin) / legendGranularity;
 	var activityDiff = legendMax - legendMin;
+    legend_activity_values = [];        // empty the set, or the gradient will get higher on subsequent calls
 	for (var i=legendYMin; i<=legendYMax; i=i+inc) {
 		vertices = vertices.concat([legendXMax, i, legendZ]);
 		vertices = vertices.concat([legendXMin, i, legendZ]);
