@@ -141,6 +141,7 @@ class ParameterExplorationController(BaseController):
             try:
                 return adapter.burst_preview(datatype_group_gid, width, height)
             except LaunchException, ex:
+                self.logger.error(ex.message)
                 error_msg = urllib.quote(ex.message)
         else:
             error_msg = urllib.quote("Isocline PSE requires a 2D range of floating point values.")
