@@ -63,13 +63,15 @@ from tvb_test.adapters.storeadapter import StoreAdapter
 
 class DatatypesFactory():
     """
-        This class provides a set of methods that helps user to create 
-        different data types for testing.
-        These data types will be automatically stored in DB and file system if needed.
+    This class provides a set of methods that helps user to create
+    different data types for testing.
+    These data types will be automatically stored in DB and file system if needed.
     """
     USER_FULL_NAME = "Datatype Factory User"
     DATATYPE_STATE = "RAW_DATA"
     DATATYPE_DATA = ["test", "for", "datatypes", "factory"]
+
+    DATATYPE_MEASURE = 'v'
 
     user = None
     project = None
@@ -311,7 +313,7 @@ class DatatypesFactory():
         :return: persisted DatatypeMeasure
         """
         operation, _, storage_path = self.__create_operation()
-        measure = DatatypeMeasure(storage_path=storage_path, metrics={'v': 3})
+        measure = DatatypeMeasure(storage_path=storage_path, metrics={self.DATATYPE_MEASURE: 3})
         measure.analyzed_datatype = analyzed_entity
         adapter_instance = StoreAdapter([measure])
         OperationService().initiate_prelaunch(operation, adapter_instance, {})

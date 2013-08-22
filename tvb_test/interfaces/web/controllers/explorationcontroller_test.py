@@ -68,7 +68,7 @@ class ExplorationContollerTest(TransactionalTestCase, BaseControllersTest):
         Test that Discrete PSE is getting launched.
         """
         result = self.controller.draw_discrete_exploration(self.dt_group.gid, 'burst', None, None)
-        self.assertTrue(result['available_metrics'] == [])
+        self.assertTrue(result['available_metrics'] == [DatatypesFactory.DATATYPE_MEASURE])
         self.assertEqual(result['color_metric'], None)
         self.assertEqual(result['size_metric'], None)
         self.assertEqual(json.loads(result['labels_x']), ['a', 'b', 'c'])
@@ -87,7 +87,7 @@ class ExplorationContollerTest(TransactionalTestCase, BaseControllersTest):
         """
         try:
             self.controller.draw_isocline_exploration(self.dt_group.gid, 50, 50)
-            self.fail("It should have thrown an exception because ")
+            self.fail("It should have thrown an exception!")
         except cherrypy.HTTPRedirect:
             pass
 
