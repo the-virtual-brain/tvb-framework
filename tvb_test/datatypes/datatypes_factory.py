@@ -71,7 +71,9 @@ class DatatypesFactory():
     DATATYPE_STATE = "RAW_DATA"
     DATATYPE_DATA = ["test", "for", "datatypes", "factory"]
 
-    DATATYPE_MEASURE = 'v'
+    DATATYPE_MEASURE_METRIC = {'v': 3}
+    RANGE_1 = ["row1", [1, 2, 3]]
+    RANGE_2 = ["row2", [0.1, 0.3, 0.5]]
 
     user = None
     project = None
@@ -313,7 +315,7 @@ class DatatypesFactory():
         :return: persisted DatatypeMeasure
         """
         operation, _, storage_path = self.__create_operation()
-        measure = DatatypeMeasure(storage_path=storage_path, metrics={self.DATATYPE_MEASURE: 3})
+        measure = DatatypeMeasure(storage_path=storage_path, metrics=self.DATATYPE_MEASURE_METRIC)
         measure.analyzed_datatype = analyzed_entity
         adapter_instance = StoreAdapter([measure])
         OperationService().initiate_prelaunch(operation, adapter_instance, {})
@@ -343,9 +345,7 @@ class DatatypesFactory():
         """ 
         This method creates, stores and returns a DataTypeGroup entity.
         """
-        range1 = ["row1", [1, 2, 3]]
-        range2 = ["row2", [0.1, 0.3, 0.5]]
-        group = model.OperationGroup(self.project.id, ranges=[json.dumps(range1), json.dumps(range2)])
+        group = model.OperationGroup(self.project.id, ranges=[json.dumps(self.RANGE_1), json.dumps(self.RANGE_2)])
         group = dao.store_entity(group)
 
         datatype_group = model.DataTypeGroup(group, subject=subject, state=state, operation_id=self.operation.id)
@@ -354,13 +354,13 @@ class DatatypesFactory():
         datatype_group = dao.store_entity(datatype_group)
 
         # Now create some data types and add them to group
-        for range_val1 in range1[1]:
-            for range_val2 in range2[1]:
+        for range_val1 in self.RANGE_1[1]:
+            for range_val2 in self.RANGE_2[1]:
                 operation = model.Operation(self.user.id, self.project.id, self.algorithm.id, 'test parameters',
                                             meta=json.dumps(self.meta), status=model.STATUS_FINISHED,
                                             method_name=ABCAdapter.LAUNCH_METHOD,
-                                            range_values=json.dumps({range1[0]: range_val1,
-                                                                     range2[0]: range_val2}))
+                                            range_values=json.dumps({self.RANGE_1[0]: range_val1,
+                                                                     self.RANGE_2[0]: range_val2}))
                 operation.fk_operation_group = group.id
                 operation = dao.store_entity(operation)
                 datatype = self.create_datatype_with_storage(operation_id=operation.id)

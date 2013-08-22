@@ -31,10 +31,9 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import json
 import unittest
-import cherrypy
-import tvb.core.entities.model as model
 from tvb.interfaces.web.controllers.burst.explorationcontroller import ParameterExplorationController
 from tvb_test.core.base_testcase import TransactionalTestCase
 from tvb_test.interfaces.web.controllers.basecontroller_test import BaseControllersTest
@@ -65,31 +64,34 @@ class ExplorationContollerTest(TransactionalTestCase, BaseControllersTest):
 
     def test_draw_discrete_exploration(self):
         """
-        Test that Discrete PSE is getting launched.
+        Test that Discrete PSE is getting launched and correct fields are prepared.
         """
         result = self.controller.draw_discrete_exploration(self.dt_group.gid, 'burst', None, None)
-        self.assertTrue(result['available_metrics'] == [DatatypesFactory.DATATYPE_MEASURE])
-        self.assertEqual(result['color_metric'], None)
+        self.assertTrue(result['available_metrics'] == DatatypesFactory.DATATYPE_MEASURE_METRIC.keys())
+        self.assertEqual(result['color_metric'], DatatypesFactory.DATATYPE_MEASURE_METRIC.keys()[0])
         self.assertEqual(result['size_metric'], None)
-        self.assertEqual(json.loads(result['labels_x']), ['a', 'b', 'c'])
-        self.assertEqual(json.loads(result['labels_y']), [model.RANGE_MISSING_STRING])
+        self.assertEqual(json.loads(result['labels_x']), DatatypesFactory.RANGE_1[1])
+        self.assertEqual(json.loads(result['labels_y']), DatatypesFactory.RANGE_2[1])
         data = json.loads(result['data'])
-        self.assertEqual(len(data), 3)
-        for entry in data:
-            self.assertEqual(entry[0]['dataType'], 'Datatype2')
-            for key in ['Gid', 'color_weight', 'operationId', 'tooltip']:
-                self.assertTrue(key in entry[0])
+        self.assertEqual(len(data), len(DatatypesFactory.RANGE_1[1]))
+        for row in data:
+            self.assertEqual(len(row), len(DatatypesFactory.RANGE_2[1]))
+            for entry in row:
+                self.assertEqual(entry['dataType'], 'Datatype2')
+                for key in ['Gid', 'color_weight', 'operationId', 'tooltip']:
+                    self.assertTrue(key in entry)
 
 
     def test_draw_isocline_exploration(self):
         """
-        Test that isocline PSE does not get launched for 1D groups.
+        Test that isocline PSE gets launched.
         """
-        try:
-            self.controller.draw_isocline_exploration(self.dt_group.gid, 50, 50)
-            self.fail("It should have thrown an exception!")
-        except cherrypy.HTTPRedirect:
-            pass
+        result = self.controller.draw_isocline_exploration(self.dt_group.gid, 50, 50)
+        self.assertTrue(DatatypesFactory.DATATYPE_MEASURE_METRIC.keys()[0] in result['figureNumbers'])
+        self.assertTrue(result['isAdapter'])
+        self.assertEqual(DatatypesFactory.DATATYPE_MEASURE_METRIC, result['metrics'])
+        self.assertTrue(result['showFullToolbar'])
+
 
 
 
