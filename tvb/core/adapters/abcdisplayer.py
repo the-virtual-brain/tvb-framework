@@ -36,7 +36,7 @@ import sys
 import pylab
 from abc import ABCMeta, abstractmethod
 from tvb.basic.config.settings import TVBSettings as config
-from tvb.core.utils import synchronized
+from tvb.core.decorators import synchronized
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.storage import dao

@@ -1,15 +1,13 @@
-<!-- === Box: Project call-out --> 
-<aside class="header-component project can-extend" xmlns:py="http://genshi.edgewall.org/" 
- 	   tabindex="51" onkeypress="redirectToHrefChild(this)"> 
- 	   
- 	<h3><mark>Project ID</mark>${selectedProject.id if selectedProject else '-'}</h3>
+<div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="True">
+	<!-- === Box: Project call-out --> 
+	<h3><mark>Project ID</mark>${selectedProject.id if selectedProject else '-'}</h3>
 	   
 	<p class="ops-beacon ${'ops-pending' if (selectedProject and selectedProject.operations_started > 0) else ''}"
 	   title="Show all ops for this project">${selectedProject.operations_started if selectedProject else '-'} background operations pending</p>
 		
 	<div class="extension">
-  		<div class="dropdown-pane" py:if="selectedProject">
-  			<h4>Current Project</h4>
+		<div class="dropdown-pane" py:if="selectedProject">
+			<h4>Current Project</h4>
 			<p tabindex="51" onkeypress="redirectToHrefChild(this)">
 				<a href="/project/editone/${selectedProject.id}" tabindex='-1' title="Show current project...">${selectedProject.name}</a>
 				<br/>
@@ -32,7 +30,8 @@
 				<li class="ops-done"><a href="/project/viewoperations/${selectedProject.id}" title="View finished operations here..."><mark>${selectedProject.operations_finished}</mark> ready ops</a></li>
 			</ul>
 		</div>
-	</div> 
-</aside>
-
-
+	</div>
+	<script type="text/javascript">
+		setTimeout(function() { updateCallOutProject(); }, 3000);
+	</script>
+</div>

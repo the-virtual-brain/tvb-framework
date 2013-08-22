@@ -1,6 +1,13 @@
 <header xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
 	<!-- CrossNav: Project information -->
-	<xi:include href="call_out_project.html"/>
+	<aside id="control_top_left" class="header-component project can-extend" xmlns:py="http://genshi.edgewall.org/" 
+ 	   		tabindex="51" onkeypress="redirectToHrefChild(this)">
+ 	   	<script type="text/javascript">
+ 	   		$(document).ready(function() {
+ 	   			updateCallOutProject();
+ 	   		})
+ 	   	</script>
+	</aside>
 	
 	<!-- Section-related sub-navigation -->
 	<nav class="header-component can-extend ${'auto-extends' if (subMenuContent and subMenuContent in mainContent or mainContent in subMenuContent) else ''}" py:if="subMenuContent">

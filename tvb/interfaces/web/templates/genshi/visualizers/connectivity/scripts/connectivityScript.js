@@ -151,8 +151,7 @@ function customMouseMove(event) {
 var linesBuffer;
 
 function initBuffers() {
-    var fakeNormal_1 = [0, 0, 1];
-    var fakeNormal_2 = [0, 0, -1];
+    var fakeNormal_1 = [0, 0, 0];
 
     var whitePointsColorsIndex =[];
 
@@ -160,11 +159,7 @@ function initBuffers() {
     var normals = [];
     for (var i = 0; i < NO_POSITIONS; i++) {
         points = points.concat(GVAR_positionsPoints[i]);
-        if (i % 2) {
-            normals = normals.concat(fakeNormal_1);
-        } else {
-            normals = normals.concat(fakeNormal_2);
-        }
+        normals = normals.concat(fakeNormal_1);
         colorsIndexes = colorsIndexes.concat(COLORS[WHITE_COLOR_INDEX]);       
     }
      for (var index = 0; index < 24 ; index++){
@@ -497,6 +492,7 @@ function highlightPoint() {
 
 function _drawLines(linesBuffers) {
 	gl.uniform1i(shaderProgram.colorIndex, NO_COLOR_INDEX);
+	gl.uniform1i(shaderProgram.useLightingUniform, false);
     gl.bindBuffer(gl.ARRAY_BUFFER, positionsPointsBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, positionsPointsBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -514,6 +510,7 @@ function _drawLines(linesBuffers) {
     	gl.drawElements(gl.LINES, linesVertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 	}
     gl.lineWidth(1.0);
+    gl.uniform1i(shaderProgram.useLightingUniform, true);
 }
 
 /**

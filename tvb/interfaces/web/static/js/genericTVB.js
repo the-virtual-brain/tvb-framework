@@ -118,6 +118,19 @@ function fireOnClick(redirectElem) {
 	}
 }
 
+// ---------- Function on the top left call-out
+
+function updateCallOutProject() {
+	$.ajax({ async : false,
+             type: 'GET',
+             url: "/project/generate_call_out_control/",
+             success: function(r) { $("#control_top_left").html(r); },
+             error:   function(r) { if (r) displayMessage(r,'errorMessage'); }
+            });
+}
+
+
+
 // ---------- Function on right call-out
 
 function includeAdapterInterface(divId, projectId, algorithmId, back_page) {

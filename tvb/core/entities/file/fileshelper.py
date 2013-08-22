@@ -40,7 +40,7 @@ from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED, BadZipfile
 from tvb.basic.config.settings import TVBSettings
 from tvb.basic.logger.builder import get_logger
-from tvb.core.utils import synchronized
+from tvb.core.decorators import synchronized
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData, GenericMetaData
 from tvb.core.entities.file.metadatahandler import XMLReader, XMLWriter
 from tvb.core.entities.file.exceptions import FileStructureException

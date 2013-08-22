@@ -783,10 +783,10 @@ function drawScene() {
 		// stop and wait since we might have an index that is 'out' of this data slice
 		if (AG_isStopped == false) {
 	        updateColors(currentTimeValue);
-	        if (shouldIncrementTime) {
+	        if (shouldIncrementTime && !isPreview) {
             	currentTimeValue = currentTimeValue + TIME_STEP;
            }
-	        if (currentTimeValue > MAX_TIME_STEP) {
+	        if (currentTimeValue > MAX_TIME_STEP && !isPreview) {
 	        	// Next time value is no longer in activity data.
 	            initActivityData();
 	            if (isDoubleView) {
@@ -971,7 +971,7 @@ function shouldLoadNextActivitiesFile() {
 	 * If we are at the last NEXT_PAGE_THREASHOLD points of data we should start loading the next data file 
 	 * to get as smooth as animation as possible.
 	 */
-    if ((currentAsyncCall == null) && ((currentTimeValue - totalPassedActivitiesData + NEXT_PAGE_THREASHOLD * TIME_STEP) >= currentActivitiesFileLength)) {
+    if (!isPreview && (currentAsyncCall == null) && ((currentTimeValue - totalPassedActivitiesData + NEXT_PAGE_THREASHOLD * TIME_STEP) >= currentActivitiesFileLength)) {
         if (nextActivitiesFileData == null || nextActivitiesFileData.length == 0) {
             return true;
         }

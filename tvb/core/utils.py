@@ -42,6 +42,7 @@ import numpy
 from scipy import io as scipy_io
 from tvb.basic.config.settings import TVBSettings as configFile
 from tvb.basic.logger.builder import get_logger
+from tvb.core.decorators import user_environment_execution
 
 LOGGER = get_logger(__name__)
 
@@ -377,7 +378,7 @@ def check_matlab_version(matlab_path):
     file_p = open(matlab_test_file + '.m', 'w')
     file_p.write(matlab_version_txt)
     file_p.close()
-    os.system(matlab_cmd(matlab_path, matlab_test_file, matlab_log_file))
+    matlab_cmd(matlab_path, matlab_test_file, matlab_log_file)
     log_file = open(matlab_log_file, 'r')
     result_data = log_file.read()
     version = result_data.strip().split('tvb_checking_version')[1]
@@ -386,7 +387,7 @@ def check_matlab_version(matlab_path):
     return version.replace('\n', '').strip()
 
 
-
+@user_environment_execution
 def matlab_cmd(matlab_path, script_name, log_file):
     """
     Called in order to obtain the command for calling MATLAB
@@ -399,40 +400,15 @@ def matlab_cmd(matlab_path, script_name, log_file):
         opts = ' -nodesktop -nojvm -nosplash -logfile %s -r "%s;"' % (log_file, script_name)
         if os.name == 'nt':
             opts = '-minimize ' + opts
-        return base + opts
+        command = base + opts
     if OCTAVE in exe_name:
-        return exe_name + ' %s.m >> %s' % (script_name, log_file)
+        command = exe_name + ' %s.m >> %s' % (script_name, log_file)
+    return os.system(command)
 
 
 ################## MATLAB methods end here     ##############
 
 ################## GENERIC  methods start here ###############
-
-def synchronized(lock):
-    """ 
-    Synchronization annotation. 
-    We try to mimic the same behavior as Java has with keyword synchronized, for methods.
-    """
-
-
-    def wrap(func):
-        """Wrap current function with a lock mechanism"""
-
-
-        def new_function(*args, **kw):
-            """ New function will actually write the Lock."""
-            lock.acquire()
-            try:
-                return func(*args, **kw)
-            finally:
-                lock.release()
-
-
-        return new_function
-
-
-    return wrap
-
 
 
 def generate_guid():

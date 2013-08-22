@@ -39,7 +39,7 @@ from hashlib import md5
 from inspect import stack
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
-from tvb.core.utils import synchronized
+from tvb.core.decorators import synchronized
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.filesupdatemanager import FilesUpdateManager

@@ -61,6 +61,7 @@ LOGGER = get_logger('tvb.interfaces.web.mplh5.mplh5server')
 mplh5server.start_server(LOGGER)
 
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
+from tvb.core.decorators import user_environment_execution
 from tvb.core.services.settingsservice import SettingsService
 from tvb.core.services.initializer import initialize, reset
 from tvb.core.services.exceptions import InvalidSettingsException
@@ -167,6 +168,16 @@ def start_tvb(arguments):
 
     init_cherrypy(arguments)
 
+    run_browser()
+
+    ## Launch CherryPy loop forever.
+    LOGGER.info("Finished starting TVB version:" + str(TVBSettings.CURRENT_VERSION))
+    cherrypy.engine.block()
+    cherrypy.log.error_log
+
+
+@user_environment_execution
+def run_browser():
     try:
     ################ Fire a browser page at the end. 
         if platform.startswith('win'):
@@ -176,37 +187,16 @@ def start_tvb(arguments):
         else:
             browser_app = webbrowser
 
-        # Remove the paths that we set in the startup script as in some Linux
-        # machines this could break the default browser from opening TVB start page.
-        ORIGINAL_LD_LIBRARY_PATH = os.environ.get('LD_LIBRARY_PATH', None)
-        ORIGINAL_LD_RUN_PATH = os.environ.get('LD_RUN_PATH', None)
-        if ORIGINAL_LD_LIBRARY_PATH:
-            del os.environ['LD_LIBRARY_PATH']
-        if ORIGINAL_LD_RUN_PATH:
-            del os.environ['LD_RUN_PATH']
-
         ## Actual browser fire.
         if CONFIG_EXISTS:
             browser_app.open(TVBSettings.BASE_URL)
         else:
             browser_app.open(TVBSettings.BASE_URL + 'settings/settings')
 
-        ## Restore environment settings after fire browser.
-        if ORIGINAL_LD_LIBRARY_PATH:
-            os.environ['LD_LIBRARY_PATH'] = ORIGINAL_LD_LIBRARY_PATH
-        if ORIGINAL_LD_RUN_PATH:
-            os.environ['LD_RUN_PATH'] = ORIGINAL_LD_RUN_PATH
-
     except Exception, excep:
         LOGGER.error("Browser could not be fired!  Please manually type in your preferred browser: "
                      "http://127.0.0.1:8080/")
         LOGGER.exception(excep)
-
-    ## Launch CherryPy loop forever.
-    LOGGER.info("Finished starting TVB version:" + str(TVBSettings.CURRENT_VERSION))
-    cherrypy.engine.block()
-    cherrypy.log.error_log
-
 
 
 if __name__ == '__main__':
