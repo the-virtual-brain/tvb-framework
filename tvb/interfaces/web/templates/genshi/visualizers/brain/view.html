@@ -128,7 +128,7 @@
                 return false; // prevent default
             });
 
-            _webGLStart('${base_activity_url}', ${pageSize}, ${nrOfPages}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
+            _webGLStart('${base_activity_url}', ${pageSize}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
                         $noOfMeasurePoints, '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}', 
                         ${'true' if extended_view else 'false'}, ${"'" + shelfObject +"'" if shelfObject else 'null'}, '${urlMeasurePointsLabels}', 
                         '${boundary_url}');

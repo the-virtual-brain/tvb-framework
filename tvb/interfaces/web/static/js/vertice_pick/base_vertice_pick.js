@@ -82,7 +82,7 @@ function BASE_PICK_customInitGL(canvas) {
 
 function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNormalsPickList,
 							  urlVerticesDisplayList, urlTrianglesDisplayList, urlNormalsDisplayList,
-                              alphas, alpha_indices, brain_center, callback) {
+                              brain_center, callback) {
 	BRAIN_CENTER = $.parseJSON(brain_center);
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
     BASE_PICK_customInitGL(canvas);

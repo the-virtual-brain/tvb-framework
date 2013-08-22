@@ -83,7 +83,8 @@ var isDoubleView = false;
 var drawingMode;
 
 
-function _webGLPortletPreview(baseDatatypeURL, onePageSize, nrOfPages, urlVerticesList, urlTrianglesList, urlNormalsList, urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
+function _webGLPortletPreview(baseDatatypeURL, onePageSize, urlVerticesList, urlTrianglesList, urlNormalsList,
+                              urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
 	isPreview = true;
 	GL_DEFAULT_Z_POS = 250;
 	GL_zTranslation = GL_DEFAULT_Z_POS;
@@ -119,7 +120,7 @@ function _webGLPortletPreview(baseDatatypeURL, onePageSize, nrOfPages, urlVertic
     setInterval(tick, TICK_STEP);
 }
 
-function _webGLStart(baseDatatypeURL, onePageSize, nrOfPages, urlTimeList, urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
+function _webGLStart(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                      urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
 	isPreview = false;
     isDoubleView = doubleView;
