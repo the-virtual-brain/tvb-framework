@@ -198,6 +198,7 @@ function removeBurstEntity(burst_id) {
 	        		} else {
 	        			liParent.className = 'burst-canceled burst';
 	        		}
+	        		loadBurstHistory();
 	        	} else {
 					var ulGrandparent = document.getElementById("burst-history");
 					ulGrandparent.removeChild(liParent);
