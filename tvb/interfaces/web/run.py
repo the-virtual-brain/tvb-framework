@@ -51,7 +51,6 @@ from tvb.basic.config.settings import TVBSettings
 ### For Linux Distribution, correctly set MatplotLib Path, before start.
 if TVBSettings().is_linux():
     os.environ['MATPLOTLIBDATA'] = os.path.join(os.path.dirname(sys.executable), 'mpl-data')
-#    sys.path = ['', os.path.dirname(sys.executable)]
 
 ### Import MPLH5 to have the back-end Thread started.
 from tvb.interfaces.web.mplh5 import mplh5server
