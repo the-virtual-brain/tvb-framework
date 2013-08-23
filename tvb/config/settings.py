@@ -857,7 +857,7 @@ class DeploymentProfile(BaseProfile):
             # Note that for the Linux package some environment variables like LD_LIBRARY_PATH,
             # LD_RUN_PATH, PYTHONPATH and PYTHONHOME are set also in the startup scripts.
             # Add root folder as first in PYTHONPATH so we can find tvb there if we checked out from GIT for contributors
-            new_python_path = cfg.TVB_PATH + os.pathsep + ''
+            new_python_path = cfg.TVB_PATH + os.pathsep + data_path
             new_python_path += os.pathsep + os.path.join(data_path, 'lib-tk')
             os.environ['PYTHONPATH'] = new_python_path
             setup_tk_tcl_environ(data_path)
