@@ -699,17 +699,27 @@ class BaseProfile():
             return self.PYTHON_EXE_MAPPING['linux']
 
 
+    def get_library_folder(self):
+        """ Return top level library folder """
+        if self.is_windows():
+            return os.path.dirname(os.path.dirname(sys.executable))
+        if self.is_mac():
+            return os.path.dirname(self.BIN_FOLDER)
+        if self.is_linux():
+            return os.path.dirname(os.path.dirname(sys.executable))
+        
+
     def get_python_path(self):
         """Get Python path, based on running options."""
         if self.is_development():
             return 'python'
         if self.is_windows():
-            return os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), self.get_python_exe_name())
+            return os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
         if self.is_mac():
             root_folder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(FrameworkSettings.BIN_FOLDER))))
             return os.path.join(root_folder, 'MacOS', self.get_python_exe_name())
         if self.is_linux():
-            return os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), self.get_python_exe_name())
+            return os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
         raise Exception("Invalid BUILD type found!!!")
 
 
@@ -820,9 +830,9 @@ class DeploymentProfile(BaseProfile):
 
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
         cfg = FrameworkSettings()
+        data_path = cfg.get_library_folder()
         if cfg.is_windows():
-            data_path = os.path.dirname(sys.executable)
-            #Add root folder as first in PYTHONPATH so we can find tvb there if we checked out from GIT for contributors
+            # Add root folder as first in PYTHONPATH so we can find tvb there if we checked out from GIT for contributors
             new_python_path = cfg.TVB_PATH + os.pathsep
             new_python_path += data_path + os.pathsep + os.path.join(data_path, 'lib-tk')
             os.environ['PYTHONPATH'] = new_python_path
@@ -834,23 +844,19 @@ class DeploymentProfile(BaseProfile):
             # Contents/Resorces/lib/python2.7/tvb . PYTHONPATH needs to be set
             # at the level Contents/Resources/lib/python2.7/ and the root path
             # from where to start looking for TK and TCL up to Contents/
-            data_path = cfg.BIN_FOLDER
-            python_folder = os.path.dirname(data_path)
-
-            data_path = os.path.split(os.path.split(os.path.split(python_folder)[0])[0])[0]
-            setup_tk_tcl_environ(data_path)
+            tcl_root = os.path.split(os.path.split(os.path.split(data_path)[0])[0])[0]
+            setup_tk_tcl_environ(tcl_root)
 
             #Add root folder as first in PYTHONPATH so we can find tvb there if we checked out from GIT for contributors
-            new_python_path = python_folder + os.pathsep + os.path.join(python_folder, 'site-packages.zip')
-            new_python_path += os.pathsep + os.path.join(python_folder, 'lib-dynload')
+            new_python_path = data_path + os.pathsep + os.path.join(data_path, 'site-packages.zip')
+            new_python_path += os.pathsep + os.path.join(data_path, 'lib-dynload')
             new_python_path = cfg.TVB_PATH + os.pathsep + new_python_path
             os.environ['PYTHONPATH'] = new_python_path
 
         if cfg.is_linux():
             # Note that for the Linux package some environment variables like LD_LIBRARY_PATH,
             # LD_RUN_PATH, PYTHONPATH and PYTHONHOME are set also in the startup scripts.
-            data_path = os.path.dirname(sys.executable)
-            #Add root folder as first in PYTHONPATH so we can find tvb there if we checked out from GIT for contributors
+            # Add root folder as first in PYTHONPATH so we can find tvb there if we checked out from GIT for contributors
             new_python_path = cfg.TVB_PATH + os.pathsep + ''
             new_python_path += os.pathsep + os.path.join(data_path, 'lib-tk')
             os.environ['PYTHONPATH'] = new_python_path
