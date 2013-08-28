@@ -474,6 +474,8 @@ class FlowController(base.BaseController):
                 else:
                     base.set_error_message("Invalid result returned from Displayer! Dictionary is expected!")
             else:
+                if isinstance(result, list):
+                    result = "Launched %s operations." % len(result)
                 base.set_info_message(str(result))
                 raise cherrypy.HTTPRedirect(success_url)
         except formencode.Invalid, excep:

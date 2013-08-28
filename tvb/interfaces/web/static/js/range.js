@@ -47,8 +47,8 @@ function initRangeComponent(containerTableId, minValue, maxValue, stepValue, inp
     var rangeLabelsTdId = containerTableId + RANGE_LABELS_TD_SUFFIX;
     var hiddenFieldId = containerTableId + HIDDEN_SUFFIX;
 
-	var first_ranger = document.getElementById('first_range');
-	var second_ranger = document.getElementById('second_range');
+	var first_ranger = document.getElementById('range_1');
+	var second_ranger = document.getElementById('range_2');
     if (first_ranger.value == '0'){
 		first_ranger.value = inputName;
 	} else if (second_ranger.value == '0'){
@@ -168,11 +168,11 @@ function updateRangeValues(rangeValues) {
 			});
 		}
 	}
-	var first_ranger = document.getElementById('first_range');
+	var first_ranger = document.getElementById('range_1');
 	if (first_ranger != null && first_ranger != undefined) {
 		//TODO: fix for chrome back problem. SHould be removed after permanent fix.
 		first_ranger.value = rangeValues[0];
-		var second_ranger = document.getElementById('second_range');
+		var second_ranger = document.getElementById('range_2');
 		second_ranger.value = rangeValues[1];
 	}
 }
@@ -183,8 +183,8 @@ function prepareSelectRangeComponent(containerTableId){
 	//field holding the actual inputs
 	$("#" + containerTableId).change(function(e){  _getDataSelectRangeComponent(containerTableId); });
 	
-	var first_ranger = document.getElementById('first_range');
-	var second_ranger = document.getElementById('second_range');
+	var first_ranger = document.getElementById('range_1');
+	var second_ranger = document.getElementById('range_2');
     if (first_ranger.value == '0'){
 		first_ranger.value = inputName;
 	} else if (second_ranger.value == '0'){
@@ -314,8 +314,8 @@ function disableRangeComponent(containerTableId, inputName) {
 	$('table[id="' + containerTableId + '"] input').attr('disabled', 'disabled');   /// Disable hidden input field
 	$('div[id="' + sliderDivId + '"]').attr('disabled', 'disabled');
 	
-	var first_ranger = document.getElementById('first_range');
-	var second_ranger = document.getElementById('second_range');
+	var first_ranger = document.getElementById('range_1');
+	var second_ranger = document.getElementById('range_2');
 	if (first_ranger.value == inputName){
 		first_ranger.value = '0';
 	} else if (second_ranger.value == inputName){
@@ -362,8 +362,8 @@ function _computeNrOfOps() {
 	/*
 	 * Compute the total number of operations that will be launched because of the ranges selected.
 	 */
-	var first_ranger = document.getElementById('first_range');
-	var second_ranger = document.getElementById('second_range');
+	var first_ranger = document.getElementById('range_1');
+	var second_ranger = document.getElementById('range_2');
 	var nrOps = 1;
 	if (first_ranger.value != '0') {
 		nrOps = nrOps * _getOpsForRanger(first_ranger.value);

@@ -545,6 +545,10 @@ class ABCAdapter(object):
                                                 "Please relaunch with valid parameters." % (row[xml_reader.ATT_NAME],
                                                                                             self.__class__.__name__))
             if row[xml_reader.ATT_TYPE] == xml_reader.TYPE_DICT:
+                try:
+                    kwa[row[xml_reader.ATT_NAME]], taken_keys = self.__get_dictionary(row, **kwargs)
+                except:
+                    pass
                 kwa[row[xml_reader.ATT_NAME]], taken_keys = self.__get_dictionary(row, **kwargs)
                 for key in taken_keys:
                     if key in kwa:
@@ -705,7 +709,7 @@ class ABCAdapter(object):
         result_dict = {}
         taken_keys = []
         for key in kwargs:
-            if name in key:
+            if name in key and name != key:
                 taken_keys.append(key)
                 if self.KEY_DTYPE in row:
                     if row[self.KEY_DTYPE] == 'array':
@@ -779,6 +783,8 @@ class ABCAdapter(object):
             return False
 
         submitted_option = ABCAdapter.__compute_submit_option_select(kwargs[parent_name])
+        if not submitted_option:
+            return True
         if option in submitted_option:
             return False
         return True

@@ -227,8 +227,8 @@ class GenshiTestSimple(GenshiTest):
         """ 
         Check that the default ranger hidden fields are generated correctly 
         """
-        ranger1 = self.soup.findAll('input', attrs=dict(type="hidden", id="first_range"))
-        ranger2 = self.soup.findAll('input', attrs=dict(type="hidden", id="second_range"))
+        ranger1 = self.soup.findAll('input', attrs=dict(type="hidden", id="range_1"))
+        ranger2 = self.soup.findAll('input', attrs=dict(type="hidden", id="range_2"))
         self.assertEqual(len(ranger1), 1, "First ranger generated wrong")
         self.assertEqual(len(ranger2), 1, "Second ranger generated wrong")
 
