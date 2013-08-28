@@ -161,15 +161,15 @@ function _webGLStart(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList,
     activityMin = parseFloat(minActivity);
     activityMax = parseFloat(maxActivity);
     
-    LEG_initMinMax(activityMin, activityMax);
-
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
     customInitGL(canvas);
     GL_initColorPickFrameBuffer();
     initShaders();
     NAV_initBrainNavigatorBuffers();
-	
-	if ($.parseJSON(urlVerticesList)) {
+
+    LEG_initMinMax(activityMin, activityMax);
+
+    if ($.parseJSON(urlVerticesList)) {
 	    brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
 	    						   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
     		}
@@ -326,44 +326,17 @@ function customMouseMove(event) {
  */
     
 function updateColors(currentTimeValue) {
-    // This values are computed at each step, because start/end color might change.
-    var nStartColors = [normalizeColor(startColorRGB[0]), 
-                        normalizeColor(startColorRGB[1]),
-                        normalizeColor(startColorRGB[2])];
-    var nDiffColors = [normalizeColor(endColorRGB[0]) - nStartColors[0],
-                       normalizeColor(endColorRGB[1]) - nStartColors[1],
-                       normalizeColor(endColorRGB[2]) - nStartColors[2]];	
-    var colorDiff = activityMax - activityMin;
-    if (colorDiff == 0) {
-    	colorDiff = 1;
-    }
     var currentTimeInFrame = Math.floor((currentTimeValue - totalPassedActivitiesData) / TIME_STEP);
     if (isOneToOneMapping) {
         for (i = 0; i < brainBuffers.length; i++) {
         	// Reset color buffers at each step.
         	brainBuffers[i][3] = null;
-            var upperBoarder = brainBuffers[i][0].numItems / 3;
-            var colors = new Float32Array(upperBoarder* 4);
+            var upperBorder = brainBuffers[i][0].numItems / 3;
+            var colors = new Float32Array(upperBorder * 4);
             var offset_start = i * 40000;
-            if (LEG_clownyFace) {
-            	for (var j = 0; j < upperBoarder; j++) {
-	                var diff_activity = (parseFloat(activitiesData[currentTimeInFrame][offset_start + j]) -activityMin) /colorDiff;
-	                var sub_f32s = colors.subarray(j * 4, (j + 1) * 4);
-	                sub_f32s[0] = nStartColors[0] + diff_activity * nDiffColors[0];
-	                sub_f32s[1] = nStartColors[1] + (diff_activity*1000 - Math.round(diff_activity *1000))  * nDiffColors[1];
-	                sub_f32s[2] = nStartColors[2] + (diff_activity*1000000 - Math.round(diff_activity *1000000))  * nDiffColors[2];
-	                sub_f32s[3] = 1;
-	            }
-            } else {
-            	for (var j = 0; j < upperBoarder; j++) {
-	                var diff_activity = (parseFloat(activitiesData[currentTimeInFrame][offset_start + j]) -activityMin) /colorDiff;
-	                var sub_f32s = colors.subarray(j * 4, (j + 1) * 4);
-	                sub_f32s[0] = nStartColors[0] + diff_activity * nDiffColors[0];
-	                sub_f32s[1] = nStartColors[1] + diff_activity * nDiffColors[1];
-	                sub_f32s[2] = nStartColors[2] + diff_activity * nDiffColors[2];
-	                sub_f32s[3] = 1;
-	            }
-            } 
+
+            getGradientColorArray(activitiesData[currentTimeInFrame].slice(offset_start, offset_start + upperBorder),
+                                  activityMin, activityMax, colors);
             brainBuffers[i][3] = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, brainBuffers[i][3]);
             gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
@@ -371,9 +344,9 @@ function updateColors(currentTimeValue) {
         }
     } else {
         for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-        	var diff_activity = (parseFloat(activitiesData[currentTimeInFrame][i]) - activityMin) /colorDiff;
-        	LEG_setUniform(i, diff_activity, nStartColors, nDiffColors);
-        }  
+        	var rgb = getGradientColor(activitiesData[currentTimeInFrame][i], activityMin, activityMax)
+            gl.uniform4f(shaderProgram.colorsUniform[i], rgb[0], rgb[1], rgb[2], 1);
+        }
         // default color for a measure point
         gl.uniform4f(shaderProgram.colorsUniform[NO_OF_MEASURE_POINTS], 0.34, 0.95, 0.37, 1.0);
         // color used for a picked measure point
@@ -402,7 +375,7 @@ function addLight() {
     gl.uniform1f(shaderProgram.materialShininessUniform, 30.0);
 }
 
-function toogleMeasureNodes() {
+function toggleMeasureNodes() {
     displayMeasureNodes = ! displayMeasureNodes;
     if (displayMeasureNodes && isDoubleView) {
         $("input[type=checkbox][id^='channelChk_']").each(function (i) {
@@ -464,11 +437,11 @@ function resetSpeedSlider() {
 }
 
 
-function toogleDrawTriangleLines() {
+function toggleDrawTriangleLines() {
 	drawTriangleLines = !drawTriangleLines;
 }
 
-function toogleDrawBoundaries() {
+function toggleDrawBoundaries() {
 	drawBoundaries = !drawBoundaries;
 }
 
@@ -570,7 +543,7 @@ function createColorBufferForCube(isPicked) {
 }
 
 
-function bufferAtPoint(p, idx) {
+function bufferAtPoint(p) {
 	var result = HLPR_bufferAtPoint(gl, p);
     var bufferVertices= result[0];
     var bufferNormals = result[1];
@@ -884,7 +857,7 @@ function drawScene() {
 
 /////////////////////////////////////// ~~~~~~~~~~ DATA RELATED METHOD ~~~~~~~~~~~~~ //////////////////////////////////
 
-/*
+/**
  * Change the currently selected state variable. Get the newly selected value, reset the currentTimeValue to start
  * and read the first page of the new mode/state var combination.
  */
@@ -894,7 +867,7 @@ function changeStateVariable() {
 	initActivityData();
 }
 
-/*
+/**
  * Change the currently selected mode. Get the newly selected value, reset the currentTimeValue to start
  * and read the first page of the new mode/state var combination.
  */
@@ -904,7 +877,7 @@ function changeMode() {
 	initActivityData();
 }
 
-/*
+/**
  * Just read the first slice of activity data and set the time step to 0.
  */
 function initActivityData() {
@@ -918,11 +891,10 @@ function initActivityData() {
     }
 }
 
-
+/**
+ * Load the brainviewer from this given time step.
+ */
 function loadFromTimeStep(step) {
-	/*
-	 * Load the brainviewer from this given time step.
-	 */
 	showBlockerOverlay(50000);
 	if (step % TIME_STEP != 0) {
 		step = step - step % TIME_STEP + TIME_STEP; // Set time to be multiple of step
@@ -943,35 +915,40 @@ function loadFromTimeStep(step) {
 	closeBlockerOverlay();
 }
 
-
+/**
+ * Refresh the current data with the new time step.
+ */
 function refreshCurrentDataSlice() {
-	/*
-	 * Refresh the current data with the new time step.
-	 */
 	if (currentTimeValue % TIME_STEP != 0) {
 		currentTimeValue = currentTimeValue - currentTimeValue % TIME_STEP + TIME_STEP; // Set time to be multiple of step
 	}
 	loadFromTimeStep(currentTimeValue);
 }
 
-
+/**
+ * Generate the url that reads one page of data starting from @param index
+ */
 function getUrlForPageFromIndex(index) {
-	/*
-	 * Generate the url that reads one page of data starting from @param index
-	 */
 	var fromIdx = index;
 	if (fromIdx > MAX_TIME_STEP) fromIdx = 0;
 	var toIdx = fromIdx + pageSize * TIME_STEP;
 	return readDataPageURL(urlBase, fromIdx, toIdx, selectedStateVar, selectedMode, TIME_STEP)
 }
 
-
+/**
+ * If we are at the last NEXT_PAGE_THRESHOLD points of data we should start loading the next data file
+ * to get an animation as smooth as possible.
+ */
 function shouldLoadNextActivitiesFile() {
+<<<<<<< HEAD
 	/*
 	 * If we are at the last NEXT_PAGE_THREASHOLD points of data we should start loading the next data file 
 	 * to get as smooth as animation as possible.
 	 */
     if (!isPreview && (currentAsyncCall == null) && ((currentTimeValue - totalPassedActivitiesData + NEXT_PAGE_THREASHOLD * TIME_STEP) >= currentActivitiesFileLength)) {
+=======
+    if ((currentAsyncCall == null) && ((currentTimeValue - totalPassedActivitiesData + NEXT_PAGE_THREASHOLD * TIME_STEP) >= currentActivitiesFileLength)) {
+>>>>>>> daab900baf23f08fcc560be279e6d8572fab65bc
         if (nextActivitiesFileData == null || nextActivitiesFileData.length == 0) {
             return true;
         }
@@ -979,11 +956,10 @@ function shouldLoadNextActivitiesFile() {
     return false;
 }
 
-
+/**
+ * Start a new async call that should load required data for the next activity slice.
+ */
 function loadNextActivitiesFile() {
-	/*
-	 * Start a new async call that should load required data for the next activity slice.
-	 */
 	var nextFileIndex = totalPassedActivitiesData + currentActivitiesFileLength;
 	var nextUrl = getUrlForPageFromIndex(nextFileIndex);
     var asyncCallId = new Date().getTime();
@@ -991,24 +967,19 @@ function loadNextActivitiesFile() {
     readFileData(nextUrl, true, asyncCallId);
 }
 
-
+/**
+ * If the next time value is bigger that the length of the current activity loaded data
+ * that means it's time to switch to the next activity data slice.
+ */
 function shouldChangeCurrentActivitiesFile() {
-	/*
-	 * If the next time value is bigger that the length of the current activity loaded data
-	 * that means it's time to switch to the next activity data slice.
-	 */
-    if ((currentTimeValue + TIME_STEP - totalPassedActivitiesData) >= currentActivitiesFileLength) {
-    	return true;
-    }
-    return false;
+    return ((currentTimeValue + TIME_STEP - totalPassedActivitiesData) >= currentActivitiesFileLength)
 }
 
-
+/**
+ * We've reached the end of the current activity chunk. Time to switch to
+ * the next one.
+ */
 function changeCurrentActivitiesFile() {
-	/*
-	 * We've reached the end of the current activity chunk. Time to switch to
-	 * the next one.
-	 */
     if ((nextActivitiesFileData == null || nextActivitiesFileData == undefined || nextActivitiesFileData.length == 0)) {
     	// Async data call was not finished, stop incrementing call and wait for data.
         shouldIncrementTime = false;
@@ -1023,7 +994,7 @@ function changeCurrentActivitiesFile() {
     if (activitiesData != undefined && activitiesData.length > 0) {
         shouldIncrementTime = true;
     }
-    if (totalPassedActivitiesData > MAX_TIME_STEP) {
+    if (totalPassedActivitiesData >= MAX_TIME_STEP) {
         totalPassedActivitiesData = 0;
     }
 }

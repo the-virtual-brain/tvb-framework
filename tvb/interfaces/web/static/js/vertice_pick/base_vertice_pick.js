@@ -111,8 +111,7 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
     canvas.onmouseout = handleMouseOut;
     
     isOneToOneMapping = true;
-    LEG_generateLegendBuffers();
-    
+
     //Custom handlers for each of the dimensions for different transforms need to be applied
     if (BASE_PICK_allowPickFrom2DImages == true) {
     	canvasX = document.getElementById('brain-x');
@@ -952,36 +951,7 @@ function BASE_PICK_initLegendInfo(maxValue, minValue) {
     if (minValue == undefined)
         minValue = 0;
 	var brainLegendDiv = document.getElementById('brainLegendDiv');
-    brainLegendDiv.innerHTML = '';
-	if (maxValue == 0)
-        maxValue = 1;
-	var legendStep = (maxValue - minValue)/ 5;      // six values, INCLUDING minValue and maxValue
-	var legendValues = [];
-	for (var i = minValue; i <= maxValue; i = i + legendStep) {
-		legendValues.push(i);
-	}
-	var tableElem = document.createElement('TABLE');
-	tableElem.style.height = '100%';
-
-    // treat the upper value independently, to stay at the top of the gradient
-	var tableRow = document.createElement('TR');
-	tableRow.style.height = '20px';
-	var tableData = document.createElement('TD');
-	tableData.innerHTML = '<label>' + legendValues[legendValues.length - 1].toFixed(4) + '</label>';
-	tableRow.appendChild(tableData);
-	tableElem.appendChild(tableRow);
-
-    // add the rest of the values, in descending order
-	for (var i = (legendValues.length - 2); i >= 0; i--) {
-		tableRow = document.createElement('TR');
-		tableRow.style.height = 100 / legendValues.length + '%';
-		tableRow.style.verticalAlign = 'bottom';
-		tableData = document.createElement('TD');
-		tableData.innerHTML = '<label>' + legendValues[i].toFixed(4) + '</label>';
-		tableRow.appendChild(tableData);
-		tableElem.appendChild(tableRow);
-	}
-	brainLegendDiv.appendChild(tableElem);
+    ColSch_updateLegendLabels(brainLegendDiv, minValue, maxValue, "100%")
 }
 
 

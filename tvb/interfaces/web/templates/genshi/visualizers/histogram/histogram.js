@@ -56,11 +56,20 @@ function drawHistogram(canvasDivId, data, labels, colorsPy) {
     };
     canvas.afterImageExport = function() {
                 // bring it back to original size and redraw
-                canvasDiv.width(canvasDiv.width() / canvas.scale);
-                canvasDiv.height(canvasDiv.height() / canvas.scale);
+                canvasDiv.width(canvasDiv.width() / canvas.scale).width("95%");         // set it back to percentage so
+                canvasDiv.height(canvasDiv.height() / canvas.scale).height("90%");      // it updates on window resize
 
                 plot = $.plot(canvasDiv, histogramData, options);
     };
+}
+
+function _drawHistogramLegend() {
+    var legendDiv = $("#histogramLegend")
+    ColSch_updateLegendColors(legendDiv[0], legendDiv.height() - 20)                    // -20 because of style
+
+    // draw the labels
+    var minValue = parseFloat($('#colorMinId').val()), maxValue = parseFloat($('#colorMaxId').val())
+    ColSch_updateLegendLabels($(legendDiv), minValue, maxValue, legendDiv.height() - 20)
 }
 
 function computeColors(colorsArray) {
@@ -83,4 +92,5 @@ function changeColors() {
         data[i].color = newColors[i];
     }
     plot.draw();
+    _drawHistogramLegend();
 }

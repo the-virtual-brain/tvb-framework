@@ -29,22 +29,14 @@ var legend_activity_values = [];
 ///// We draw legend with WebGL, so for the legend object we need buffers.
 var LEG_legendBuffers = [];
 
-///// Clowny face means the colors on Brain are completely spread over the colors area.
-var LEG_clownyFace = false;
-
 var legendMin = 0;
 var legendMax = 1;
 
 function LEG_initMinMax(minVal, maxVal) {
 	legendMin = minVal;
 	legendMax = maxVal;
+    ColSch_initColorSchemeParams(minVal, maxVal, LEG_updateLegendColors);
 }
-
-function LEG_setClownyFace() {
-    LEG_clownyFace = !LEG_clownyFace;
-    LEG_updateLegendColors();
-}
-
 
 function LEG_updateLegendXMinAndXMax() {
     //800/600 = 1.33
@@ -135,75 +127,23 @@ function LEG_generateLegendBuffers() {
     LEG_updateLegendColors()
 }
 
-
-function LEG_setUniform(idx, activity, start_color, diff_color) {
-	/**
-	 * Set the uniform color corresponding to activity at index IDX
-	 * having the start color and the color difference.
-	 */
-	if (LEG_clownyFace) {
-		var r = start_color[0] + activity * diff_color[0];
-        var g = start_color[1] + (activity*100 - Math.round(activity *100)) * diff_color[1];
-        var b = start_color[2] + (activity*10000 - Math.round(activity *10000)) * diff_color[2];
-        
-	} else {
-	    var r = start_color[0] + activity * diff_color[0];
-	    var g = start_color[1] + activity * diff_color[1];
-	    var b = start_color[2] + activity * diff_color[2];	
-	}
-    gl.uniform4f(shaderProgram.colorsUniform[idx], r, g, b, 1);	
-}
-
-
+/**
+ * Refresh color buffer for legend.
+ */
 function LEG_updateLegendColors() {
-	/**
-	 * Refresh color buffer for legend.
-	 * **/
-	var colorDiff = legendMax - legendMin;
-    if (colorDiff == 0) {
-    	colorDiff = 1;
-    }
-    var nStartColors = [normalizeColor(startColorRGB[0]), 
-                        normalizeColor(startColorRGB[1]),
-                        normalizeColor(startColorRGB[2])];
-    var nDiffColors = [normalizeColor(endColorRGB[0]) - nStartColors[0],
-                       normalizeColor(endColorRGB[1]) - nStartColors[1],
-                       normalizeColor(endColorRGB[2]) - nStartColors[2]];	
-                       
     if (isOneToOneMapping) {
-    	upperBorder = legend_activity_values.length / 2
-    	var colors = new Float32Array(upperBorder * 8);
-    	for (var j = 0; j < upperBorder; j++) {
-            var diff_activity = (parseFloat(legend_activity_values[j*2]) -legendMin) / colorDiff;
-            var sub_f32s = colors.subarray(j * 8, (j + 1) * 8);
-            if (LEG_clownyFace) {
-                sub_f32s[0] = nStartColors[0] + diff_activity * nDiffColors[0];
-                sub_f32s[1] = nStartColors[1] + (diff_activity*1000 - Math.round(diff_activity *1000))  * nDiffColors[1];
-                sub_f32s[2] = nStartColors[2] + (diff_activity*1000000 - Math.round(diff_activity *1000000))  * nDiffColors[2];
-                sub_f32s[3] = 1;
-                for (k=0; k<4; k++) {
-                	sub_f32s[4 + k] = sub_f32s[k]
-                } 
-                         	
-            } else {
-                sub_f32s[0] = nStartColors[0] + diff_activity * nDiffColors[0];
-                sub_f32s[1] = nStartColors[1] + diff_activity * nDiffColors[1];
-                sub_f32s[2] = nStartColors[2] + diff_activity * nDiffColors[2];
-                sub_f32s[3] = 1;
-                for (k=0; k<4; k++) {
-                	sub_f32s[4 + k] = sub_f32s[k]
-                }
-            }
-            LEG_legendBuffers[3] = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, LEG_legendBuffers[3]);
-            gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-        }
-        
-    } else {
-        for (var i = 0; i < legend_activity_values.length/2; i++) {
-        	var diff_activity = (parseFloat(legend_activity_values[i*2]) - legendMin) /colorDiff;
-        	LEG_setUniform(i + NO_OF_MEASURE_POINTS + 2, diff_activity, nStartColors, nDiffColors);
-        }    	
+    	var upperBorder = legend_activity_values.length
+    	var colors = new Float32Array(upperBorder * 4)
+        getGradientColorArray(legend_activity_values, legendMin, legendMax, colors)
+        LEG_legendBuffers[3] = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, LEG_legendBuffers[3]);
+        gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+    }
+    else
+        for (var i = 0; i < legend_activity_values.length / 2; i++) {
+            var idx = i + NO_OF_MEASURE_POINTS + 2
+            var rgb = getGradientColor(legend_activity_values[i * 2], legendMin, legendMax)
+            gl.uniform4f(shaderProgram.colorsUniform[idx], rgb[0], rgb[1], rgb[2], 1);
     }
 }
 /////////////////////////////////////////~~~~~~~~END LEGEND RELATED CODE~~~~~~~~~~~//////////////////////////////////

@@ -27,9 +27,6 @@
 function GFUN_initializeConnectivityFull() {
         initConnectivitySelectionComponent();
 
-        $('#leftSideDefaultSelectedTabId').click();   // enable only the first tab so others don't get exported
-        $('#rightSideDefaultSelectedTabId').click();
-
         //Set the mouse listeners for the 3d visualizers: Top DIV, WebGL-edges (div & canvas), WebGL-3D (div & canvas).
         $('#monitorDiv').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
         $('#canvasDiv').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
@@ -39,9 +36,13 @@ function GFUN_initializeConnectivityFull() {
         $('#canvasDiv_PLOT').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
 
         //Draw any additional elements like color picking and hide all tabs but the default one
-        drawColorPickerComponent('startColorSelector', 'endColorSelector', MATRIX_colorTable);
+        ColSch_initColorSchemeParams(GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'],
+                                     GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'], MATRIX_colorTable);
         drawSimpleColorPicker('nodeColorSelector');
         SEL_createOperationsTable();
+
+        $('#leftSideDefaultSelectedTabId').click();   // enable only the first tab so others don't get exported
+        $('#rightSideDefaultSelectedTabId').click();
 }
 
 

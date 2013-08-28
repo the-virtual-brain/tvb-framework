@@ -34,34 +34,10 @@
         <br/>
         <input id="inTimeRefreshChkId" type="checkbox" onchange="NAV_setInTimeRefresh(this);" tabindex="1" py:if="not extended_view"/>
         <label for="inTimeRefreshChkId" py:if="not extended_view">In time refresh</label>
-        <br py:if="not extended_view"/>
-        <input id="setClownyFaceChkId" type="checkbox" onchange="LEG_setClownyFace();" tabindex="1"/>
-        <label for="setClownyFaceChkId">Use sparse colors</label>
         <br/>
         <input id="displayFaceChkId" title="Face approximative will move along with brain navigator." type="checkbox" onchange="switchFaceObject();" tabindex="1" py:if="not defined('isSEEG')"/>
         <label for="displayFaceChkId" py:if="not defined('isSEEG')">Display face approximative shade</label>
     </fieldset>
 
-    <fieldset>
-        <table>
-            <tr>
-                <td>Start color (mininum activity value ${minActivity}):</td>
-                <td style="padding: 5px">
-                    <div id="startColorSelector" class="colorSelector">
-                        <div></div>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>End color (maximum activity value ${maxActivity}):</td>
-                <td style="padding: 5px">
-                    <div id="endColorSelector" class="colorSelector">
-                        <div></div>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </fieldset>
+    <xi:include href='../../flow/color_scheme.html'/>
 </div>
-
-            

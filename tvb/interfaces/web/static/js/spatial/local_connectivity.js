@@ -22,6 +22,7 @@ function displayGradientForThePickedVertex() {
 	 * Displays a gradient on the surface used by the selected local connectivity.
 	 */
     if (TRIANGLE_pickedIndex >= 0) {
+        if (!LEG_legendBuffers.length) LEG_generateLegendBuffers();         // only generate them on first pick
         var selectedLocalConnectivity = $("select[name='existentEntitiesSelect']").val();
         if (selectedLocalConnectivity == undefined || selectedLocalConnectivity == "None" ||
             selectedLocalConnectivity.trim().length == 0) {
@@ -34,10 +35,9 @@ function displayGradientForThePickedVertex() {
             async:false,
             type:'POST',
             url:url,
-            success:function (data) {
-                LCONN_PICK_changeColorBuffers(data);
-            }
+            success: LCONN_PICK_updateBrainDrawing
         });
+        TRIANGLE_pickedIndex = GL_NOTFOUND;             // disable data retrieval until next triangle pick
     }
 }
 
@@ -45,22 +45,22 @@ function LCONN_disableView(message) {
 	/*
 	 * Disable the view button in case we don't have some existing entity loaded
 	 */
-	var stepButtonId = 'lconn_step_2';
-	$("#" + stepButtonId)[0].onclick = null;
-	$("#" + stepButtonId).unbind("click");
-	$("#" + stepButtonId).click(function() { displayMessage(message, 'infoMessage'); return false; });
-	$("#" + stepButtonId).addClass("action-idle");
+	var stepButton = $("#lconn_step_2");
+	stepButton[0].onclick = null;
+	stepButton.unbind("click");
+	stepButton.click(function() { displayMessage(message, 'infoMessage'); return false; });
+	stepButton.addClass("action-idle");
 }
 
 function LCONN_disableCreate(message) {
 	/*
 	 * Disable the create button and remove action in case we just loaded an entity.
 	 */
-	var stepButtonId = 'lconn_step_3';
-	$("#" + stepButtonId)[0].onclick = null;
-	$("#" + stepButtonId).unbind("click");
-	$("#" + stepButtonId).click(function() { displayMessage(message, 'infoMessage'); return false; });
-	$("#" + stepButtonId).addClass("action-idle");
+	var stepButton = $('#lconn_step_3');
+	stepButton[0].onclick = null;
+	stepButton.unbind("click");
+	stepButton.click(function() { displayMessage(message, 'infoMessage'); return false; });
+	stepButton.addClass("action-idle");
 }
 
 
@@ -68,11 +68,11 @@ function LCONN_enableCreate() {
 	/*
 	 * Enable the create button and add the required action to it in case some parameters have changed.
 	 */
-	var stepButtonId = 'lconn_step_3';
-	$("#" + stepButtonId)[0].onclick = null;
-	$("#" + stepButtonId).unbind("click");
-	$("#" + stepButtonId).click(function() { createLocalConnectivity(); return false; });
-	$("#" + stepButtonId).removeClass("action-idle");
+	var stepButton = $('#lconn_step_3');
+	stepButton[0].onclick = null;
+	stepButton.unbind("click");
+	stepButton.click(function() { createLocalConnectivity(); return false; });
+	stepButton.removeClass("action-idle");
 }
 
 

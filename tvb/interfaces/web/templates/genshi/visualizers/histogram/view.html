@@ -2,14 +2,22 @@
     <script type="text/javascript" src="/static/flot/jquery.flot.js"></script>
     <script type="text/javascript" src="/static/flot/jquery.flot.stack.js"></script>
     <script type="text/javascript" src="/static_view/histogram/histogram.js?5006" ></script>
-    <script type="text/javascript" src="/static/colorPicker/js/colorpicker.js"></script>
-    <script type="text/javascript" src="/static/colorPicker/js/colorPickerComponent.js"></script>
-    <link  type="text/css" rel="stylesheet" href="/static/colorPicker/css/colorpicker.css"/>
+    <script type="text/javascript" src="/static/colorScheme/js/colorSchemeComponent.js"></script>
+    <script type="text/javascript" src="http://html2canvas.hertzen.com/build/html2canvas.js"></script>
+
+    <link type="text/css" rel="stylesheet" href="/static/style/section_visualisers.css"/>
 
     <script type="text/javascript">
         $(document).ready(function() {
             drawHistogram('histogramCanvasId', ${data}, ${labels}, ${colors}, '${xposition}');
-            drawColorPickerComponent('startColorSelector', 'endColorSelector', changeColors);
+            ColSch_initColorSchemeParams(${minColor}, ${maxColor}, changeColors)
+            $(window).resize(function() {
+                clearTimeout(this.resizingTimeout)
+                this.resizingTimeout = setTimeout(function() {      // set timeout so it's only resized on finish
+                    drawHistogram('histogramCanvasId', ${data}, ${labels}, ${colors}, '${xposition}');
+                    _drawHistogramLegend()
+                }, 250)
+            })
         });
         
         function launchViewer(width, height) {
@@ -19,9 +27,13 @@
         }
     </script>
 
-    <div style="margin-top: 20px">
-        <div class="transformed" style="width: 100%; float: left">
-            <div id="histogramCanvasId" style="width:1200px;height:400px;"></div>
+    <div style="margin-top: 20px; height:100%">
+        <div class="transformed">
+            <div id="histogramCanvasId"/>
+            <div id="histogramLegend">
+                <canvas id="histogramLegendCanvas" width="20px"/>
+                <table id="histogramLegendLabels" />
+            </div>
         </div>
     </div>
 

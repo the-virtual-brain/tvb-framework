@@ -67,6 +67,8 @@ function STIM_PICK_setVisualizedData(data) {
 	displayedStep = 0;
 	totalTimeStep = minTime;
 	BASE_PICK_initLegendInfo(maxValue);
+    ColSch_initColorSchemeParams(0, maxValue, LEG_updateLegendColors)
+
 	/*
 	 * Create the slider to display the total time.
 	 */
@@ -134,7 +136,10 @@ function STIM_PICK_loadNextStimulusChunk() {
 			        success:function (data) {
 			            nextStimulusData = $.parseJSON(data);
 			            asyncLoadStarted = false;
-			        }
+			        },
+                    error: function() {
+                        displayMessage("Something went wrong in getting the next stimulus chunk!", "warningMessage")
+                    }
 			    });
 	} else {
 		/*
@@ -183,27 +188,13 @@ function tick() {
 			/*
 			 * Compute the colors for this current step.
 			 */
-			var diffColor = [endColor[0] - startColor[0],
-							 endColor[1] - startColor[1],
-							 endColor[2] - startColor[2]]
-			
 			for (var i=0; i<BASE_PICK_brainDisplayBuffers.length;i++) {
 				BASE_PICK_brainDisplayBuffers[i][3] = null;
-				var upperBoarder = BASE_PICK_brainDisplayBuffers[i][0].numItems / 3;
-			    var thisBufferColors = new Float32Array(upperBoarder * 4);
+				var upperBorder = BASE_PICK_brainDisplayBuffers[i][0].numItems / 3;
+			    var thisBufferColors = new Float32Array(upperBorder * 4);
 			    var offset_start = i * 40000;
-			    for (var j = 0; j < upperBoarder; j++) {
-			    	if (maxValue == minValue) {
-			    		var colorDiff = 0;
-			    	} else {
-			    		var colorDiff = (thisStepData[offset_start + j] - minValue) / maxValue;
-			    	}
-			        var sub_f32s = thisBufferColors.subarray(j * 4, (j + 1) * 4);
-			        sub_f32s[0] = startColor[0] + colorDiff * diffColor[0];
-			        sub_f32s[1] = startColor[1] + colorDiff * diffColor[1];
-			        sub_f32s[2] = startColor[2] + colorDiff * diffColor[2];
-			        sub_f32s[3] = 1;
-			    }
+                getGradientColorArray(thisStepData.slice(offset_start, offset_start + upperBorder),
+                                      minValue, maxValue, thisBufferColors)
 		    	BASE_PICK_brainDisplayBuffers[i][3] = gl.createBuffer();
 		    	gl.bindBuffer(gl.ARRAY_BUFFER, BASE_PICK_brainDisplayBuffers[i][3]);
 	            gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);

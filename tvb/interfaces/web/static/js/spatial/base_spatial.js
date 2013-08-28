@@ -139,7 +139,7 @@ function startStimulusVisualization() {
 	        displayMessage("You should define at least one focal point.", "errorMessage");
 	        return;
 	    }
-		
+        LEG_generateLegendBuffers()
 		$.ajax({
 	        async:false,
 	        type:'GET',
@@ -167,6 +167,8 @@ function stopStimulusVisualization() {
 	STIM_PICK_stopDataVisualization();
 	$('.action-run')[0].className = $('.action-run')[0].className.replace('action-idle', '');
 	$('.action-stop')[0].className = $('.action-stop')[0].className + " action-idle";
+    LEG_legendBuffers = []
+    ColSch_disableColorScheme()
 }
 
 

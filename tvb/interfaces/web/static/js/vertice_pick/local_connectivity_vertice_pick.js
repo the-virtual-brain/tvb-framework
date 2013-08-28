@@ -40,7 +40,7 @@ function drawScene() {
 
    if (noOfUnloadedBrainDisplayBuffers == 0) {      // wait for the data to be loaded, then draw the legend
         loadIdentity();
-        drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+        if (LEG_legendBuffers.length) drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
    }
 }
 
@@ -51,7 +51,7 @@ function drawScene() {
  * @param data_from_server a json object which contains the data needed
  * for drawing a gradient on the surface.
  */
-function LCONN_PICK_changeColorBuffers(data_from_server) {
+function LCONN_PICK_updateBrainDrawing(data_from_server) {
     data_from_server = $.parseJSON(data_from_server);
 
     var data = $.parseJSON(data_from_server['data']);
@@ -59,27 +59,34 @@ function LCONN_PICK_changeColorBuffers(data_from_server) {
     var maxValue = data_from_server['max_value'];
 
     BASE_PICK_initLegendInfo(maxValue);     // setup the legend
+    ColSch_initColorSchemeParams(minValue, maxValue,
+        function() { LEG_updateLegendColors();
+                    _updateBrainColors(data, minValue, maxValue);
+                    drawScene() })
+
     if (BASE_PICK_brainDisplayBuffers.length != data.length) {
         displayMessage("Could not draw the gradient view. Invalid data received from the server.", "errorMessage");
         return;
     }
 
+    _updateBrainColors(data_from_server);
+    drawScene();
+    displayMessage("Displaying Local Connectivity profile for selected focal point ..." )
+}
+
+/**
+ * Updates the buffers for drawing the brain, from the specified data
+ * @private
+ */
+function _updateBrainColors(data, minValue, maxValue) {
     for (var i = 0; i < data.length; i++) {
         var fakeColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
         var thisBufferColors = new Float32Array(data[i].length * 4);
-        for (var j = 0; j < data[i].length ; j++) {
-            var color = getGradientColor(data[i][j], minValue, maxValue);
-            thisBufferColors[4*j] = color[0];
-            thisBufferColors[4*j + 1] = color[1];
-            thisBufferColors[4*j + 2] = color[2];
-            thisBufferColors[4*j + 3] = 0.5;
-        }
+        getGradientColorArray(data[i], minValue, maxValue, thisBufferColors)
         gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
         BASE_PICK_brainDisplayBuffers[i][3] = fakeColorBuffer;
     }
-    drawScene();
-    displayMessage("Displaying Local Connectivity profile for selected focal point ..." )
 }
 
 /**

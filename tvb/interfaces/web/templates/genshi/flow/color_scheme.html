@@ -1,0 +1,60 @@
+<div>
+<script type="text/javascript" src="/static/jquery/jquery_ui.js"></script>
+<script type="text/javascript" src="/static/colorScheme/js/colorpicker.js"></script>
+
+<link type="text/css" rel="stylesheet" href="/static/colorScheme/css/colorpicker.css"/>
+<link rel="stylesheet" type="text/css" href="/static/style/color_scheme.css"/>
+
+<fieldset>
+    <label for="setColorSchemeSelId">Choose color scheme</label>
+    <select id="setColorSchemeSelId" onchange="ColSch_setColorScheme(this.options[this.selectedIndex].value);" tabindex="1">
+        <option value="linear" selected="selected">Linear gradient</option>
+        <option value="rainbow">Rainbow</option>
+        <option value="hotcold">Hot-Cold</option>
+        <option value="TVB">TVB</option>
+        <option value="sparse">Sparse colors</option>
+    </select>
+</fieldset>
+
+<fieldset id="linearColSchFieldSet" class="colorSchemeSettings">
+    <table>
+        <tr>
+            <td id="sliderMinValue"></td>
+            <td ><div id="rangerForLinearColSch"></div></td>
+            <td id="sliderMaxValue"></td>
+        </tr>
+        <tr>
+            <td>
+                <div>Start color</div>
+                <div id="startColorSelector" class="colorSelector">
+                    <div></div>
+                </div>
+            </td>
+            <td></td>
+            <td >
+                <div>End color</div>
+                <div id="endColorSelector" class="colorSelector">
+                    <div></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</fieldset>
+
+<fieldset id="sparseColSchFieldSet" class="colorSchemeSettings">
+    <ul>
+        <li>
+            <dl><dt><label for="sliderForSparseColSch">Using</label>
+                    <span class="slider-value" id="ColSch_colorNo"></span>
+                    <span class="slider-value"> colors.</span>
+                </dt>
+                <dd><div class="sliderStepDiv">
+                        <div id="sliderForSparseColSch" class="shadow"></div>
+                    </div>
+                </dd>
+            </dl>
+        </li>
+    </ul>
+</fieldset>
+
+</div>

@@ -30,7 +30,7 @@ var endPointsY = [];
 
 /*
  * Keep references to the last edited element, element color, and element class.
- * To be used for switching back to the original after an edit is perfoemed.
+ * To be used for switching back to the original after an edit is performed.
  */
 var lastEditedElement = null;
 var lastElementColor = null;
@@ -126,7 +126,7 @@ function changeSingleCell(table_elem, i, j) {
 }
 
 
-/*
+/**
  * Method called when the 'Save' button from the context menu is pressed.
  * If a valid float is recieverm store the value in the weights matrix and if not
  * display an error message. Either way close the details context menu.
@@ -192,12 +192,11 @@ function saveNodeDetails() {
 }
 
 
-/*
+/**
  * Hide the details context menu that pops up aside a edited element. This
  * method is called when pressing the 'Cancel' button or when clicking outside the table/canvas.
  */
 function hideNodeDetails() {
-	//displayMessage("");
 	var inputDiv = document.getElementById('editNodeValues');
 	var hiddenNodeField = document.getElementById('currentlyEditedNode');
 	var tableNodeID = hiddenNodeField.value;
@@ -215,7 +214,7 @@ function hideNodeDetails() {
 	}
 }
 
-/*
+/**
  * Method used to toggle between show/hide in-going lines. Used from the details context menu 
  * aside a edited element.
  * 
@@ -259,7 +258,7 @@ function toggleIngoingLines(index) {
     GFUNC_updateLeftSideVisualization();
 }
 
-/*
+/**
  * Method used to toggle between show/hide outgoing lines. Used from the details context menu 
  * aside a edited element.
  * 
@@ -303,7 +302,7 @@ function toggleOutgoingLines(index) {
     GFUNC_updateLeftSideVisualization();
 }
 
-/*
+/**
  * Method used to cut ingoing lines. Used from the details context menu 
  * aside a edited element.
  * 
@@ -346,7 +345,7 @@ function cutIngoingLines(index) {
 	GFUNC_refreshOnContextChange();
 }
 
-/*
+/**
  * Method used to cut outgoing lines. Used from the details context menu 
  * aside a edited element.
  * 
@@ -397,7 +396,7 @@ function refreshTableInterestArea() {
     }
 }
 
-/*
+/**
  * For a given node index update the style of the table correspondingly.
  */
 function updateNodeInterest(nodeIdx) {
@@ -477,7 +476,7 @@ function changeEntireRow(domElem) {
 }
 
 
-/*
+/**
  * Helper methods that store information used when the colorTable method is called
  */
 
@@ -488,78 +487,46 @@ function TBL_storeHemisphereDetails(newStartPointsX, newEndPointsX, newStartPoin
 	endPointsY = eval(newEndPointsY);
 }
 
-/*
- * Function that should draw a gradient used for a legend.
+/**
+ * Function to update the legend colors; the gradient will be created only after the table was drawn
+ * so it will have the same size as the table matrix
+ * @private
  */
 function _updateLegendColors(){
-	/*
-	 * In order to create the gradient of the same size as the table matrix, it will be created only
-	 * after table was drawn. If it's the first call to the function a canvas is created, else just
-	 * used the previously created one.
-	 */
 	var div_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['legend_div_id'];
 	var legendDiv = document.getElementById(div_id);
-	  
+
 	var height = Math.max($("#div-matrix-weights")[0].clientHeight, $("#div-matrix-tracts")[0].clientHeight);
-	legendDiv.innerHTML = '<canvas height="'+height+'" width="20" id="' + div_id +'canvas"></canvas>';
-	var canvas = legendDiv.firstChild;
-	
-	 // Make sure we don't execute when canvas isn't supported
-	 if (canvas.getContext){	
-		    // use getContext to use the canvas for drawing
-		    var ctx = canvas.getContext('2d');
-		
-		    // Create Linear Gradients using the picked colors in our selectors
-		    var startColor = getStartColor();
-		    var endColor = getEndColor();
-		    // Create a gradient for the y axis
-		    var lingrad = ctx.createLinearGradient(0, 0, 0, canvas.clientHeight);
-		    lingrad.addColorStop(1, 'rgb('+startColor[0]+','+startColor[1]+','+startColor[2]+')');
-		    lingrad.addColorStop(0, 'rgb('+endColor[0]+','+endColor[1]+','+endColor[2]+')');
-		
-		    // Fill a rect using the gradient
-		    ctx.fillStyle = lingrad;
-		    ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-	  } else { 
-	    	displayMessage('You need a browser with canvas capabilities, to see this demo fully!', "errorMessage");
-	  }
-	  
-	  var legendLabels = $('#table-' + div_id + ' td');
-	  var minValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'];
-	  var maxValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'];
-	  var totalDif = maxValue - minValue;
-	  var increment = totalDif / (legendLabels.length - 1);
-	  for (var i = 0; i < legendLabels.length; i+=1) {
-	  	legendLabels[i].innerHTML = ""+ (Math.round((maxValue - i*increment) * 100)/100);
-	  }
+    ColSch_updateLegendColors(legendDiv, height);
+
+    ColSch_updateLegendLabels('#table-' + div_id, GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'],
+                              GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'], height)
 }
 
 
-/*
+/**
  * Method that colors the entire table.
  */
 function MATRIX_colorTable() {
-	for (var hemisphereIdx=0; hemisphereIdx<startPointsX.length; hemisphereIdx++)
+    var prefix_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'];
+    var dataValues = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'];
+    var minValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'];
+    var maxValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'];
+
+    for (var hemisphereIdx=0; hemisphereIdx<startPointsX.length; hemisphereIdx++)
 	{
 		var startX = startPointsX[hemisphereIdx];
 		var endX = endPointsX[hemisphereIdx];
 		var startY = startPointsY[hemisphereIdx];
 		var endY = endPointsY[hemisphereIdx];
-        var prefix_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'];
-		var dataValues = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'];
-		var minValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'];
-		var maxValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'];
-		
-		for (var i=startX; i<endX; i++) {
+
+		for (var i=startX; i<endX; i++)
 			for (var j=startY; j<endY; j++) {
 				var tableDataID = 'td_' + prefix_id + '_' + i + '_' + j;
 				var tableElement = document.getElementById(tableDataID);
-				if (dataValues) {
-						var color = getGradientColor(dataValues[i][j], minValue, maxValue);
-						tableElement.style.backgroundColor = 'rgb(' + parseInt(color[0] * 255) + ', ' + parseInt(color[1] * 255) + ', ' + parseInt(color[2] * 255) + ')';;
-				}
+				if (dataValues)
+                    tableElement.style.backgroundColor = getGradientColorString(dataValues[i][j], minValue, maxValue);
 			}
-		}
 	}
 	_updateLegendColors();
 }
