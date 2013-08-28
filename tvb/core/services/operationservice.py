@@ -442,8 +442,8 @@ class OperationService:
         Create and store OperationGroup entity, or return None
         """
         # Standard ranges as accepted from UI
-        range1_values = self.__get_range_values(kwargs, self._range_name(1))
-        range2_values = self.__get_range_values(kwargs, self._range_name(2))
+        range1_values = self.get_range_values(kwargs, self._range_name(1))
+        range2_values = self.get_range_values(kwargs, self._range_name(2))
         available_args = self.__expand_arguments([(kwargs, None)], range1_values, self._range_name(1))
         available_args = self.__expand_arguments(available_args, range2_values, self._range_name(2))
         is_group = False
@@ -458,7 +458,7 @@ class OperationService:
         last_range_idx = 3
         ranger_name = self._range_name(last_range_idx)
         while ranger_name in kwargs:
-            values_for_range = self.__get_range_values(kwargs, ranger_name)
+            values_for_range = self.get_range_values(kwargs, ranger_name)
             available_args = self.__expand_arguments(available_args, values_for_range, ranger_name)
             last_range_idx += 1
             ranger_name = self._range_name(last_range_idx)
@@ -472,7 +472,7 @@ class OperationService:
         return available_args, group
 
 
-    def __get_range_values(self, kwargs, ranger_name):
+    def get_range_values(self, kwargs, ranger_name):
         """
         For the ranger given by ranger_name look in kwargs and return
         the array with all the possible values.

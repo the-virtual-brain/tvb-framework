@@ -242,7 +242,7 @@ class FlowServiceTest(TransactionalTestCase):
         data = {"test": 5}
         result = self.flow_service.fire_operation(adapter, self.test_user, self.test_project.id,
                                                   ABCAdapter.LAUNCH_METHOD, **data)
-        self.assertTrue(len(result) == 1, "Operation fail")
+        self.assertTrue(result.endswith("has finished."), "Operation fail")
 
 
     def test_get_filtered_by_column(self):

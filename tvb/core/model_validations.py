@@ -35,12 +35,13 @@ This is intended to be a Benchmarking  and Validator script.
 """
 
 from tvb.basic.profile import TvbProfile as tvb_profile
-tvb_profile.set_profile(["-profile", "CONSOLE_PROFILE"])
+tvb_profile.set_profile(["-profile", "CONSOLE_PROFILE"], try_reload=False)
 
 import sys
 from time import sleep
 from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
 from tvb.core.services.flowservice import FlowService
+from tvb.core.services.operationservice import PARAM_RANGE_PREFIX, OperationService
 from tvb.core.entities.storage import dao
 from tvb.core.entities.model import STATUS_STARTED, STATUS_FINISHED, STATUS_ERROR
 
@@ -65,6 +66,7 @@ class ModelValidator(object):
             raise Exception("Settings file should contain the id of the project: %s=1" % KEY_PROJECT)
         self.project = dao.get_project_by_id(self.overwrites[KEY_PROJECT])
         self.flow_service = FlowService()
+        self.operation_service = OperationService()
 
 
     def launch_validation(self):
@@ -86,24 +88,57 @@ class ModelValidator(object):
                 value = value.tolist()
             launch_args[entry['name']] = value
         launch_args.update(self.overwrites)
-        self.launched_operations = self.flow_service.fire_operation(simulator_adapter, self.project.administrator,
-                                                                    self.project.id, **launch_args)
-        return self.validate_results(0)
+        
+        nr_of_operations = 1
+        for key in self.overwrites:
+            if key.startswith(PARAM_RANGE_PREFIX):
+                range_values = self.operation_service.get_range_values(launch_args, key)
+                nr_of_operations *= len(range_values)
+        do_launch = False
+        print "Warning! This will launch %s operations. Do you agree? (yes/no)" % nr_of_operations
+        while 1:
+            accept = raw_input()
+            if accept.lower() == 'yes':
+                do_launch = True
+                break
+            if accept.lower() == 'no':
+                do_launch = False
+                break
+            print "Please type either yes or no"
+        
+        if do_launch:
+            self.launched_operations = self.flow_service.fire_operation(simulator_adapter, self.project.administrator,
+                                                                        self.project.id, **launch_args)
+            return self.validate_results(0)
+        else:
+            return "Operation canceled by user."
 
 
     def validate_results(self, last_verified_index):
+        error_count = 0
         while last_verified_index < len(self.launched_operations):
             operation_to_check = self.launched_operations[last_verified_index]
             operation = dao.get_operation_by_id(operation_to_check.id)
             if operation.status == STATUS_STARTED:
                 sleep(10)
             if operation.status == STATUS_ERROR:
-                return "Error at operation %s" % operation_to_check.id
+                sys.stdout.write("E(" + str(operation_to_check.id) + ")")
+                error_count += 1
+                last_verified_index += 1
+                sys.stdout.flush()
             if operation.status == STATUS_FINISHED:
                 last_verified_index += 1
+                sys.stdout.write('.')
+                sys.stdout.flush()
+        if error_count:
+            return "%s operations in error; %s operations successfull." %(error_count, len(self.launched_operations) - error_count)
         return "All operations finished successfully!"
 
 
+def main(settings_file):
+    validator = ModelValidator(settings_file=settings_file)
+    print validator.launch_validation()
+    
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

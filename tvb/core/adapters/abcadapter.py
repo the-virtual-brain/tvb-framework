@@ -545,10 +545,6 @@ class ABCAdapter(object):
                                                 "Please relaunch with valid parameters." % (row[xml_reader.ATT_NAME],
                                                                                             self.__class__.__name__))
             if row[xml_reader.ATT_TYPE] == xml_reader.TYPE_DICT:
-                try:
-                    kwa[row[xml_reader.ATT_NAME]], taken_keys = self.__get_dictionary(row, **kwargs)
-                except:
-                    pass
                 kwa[row[xml_reader.ATT_NAME]], taken_keys = self.__get_dictionary(row, **kwargs)
                 for key in taken_keys:
                     if key in kwa:
