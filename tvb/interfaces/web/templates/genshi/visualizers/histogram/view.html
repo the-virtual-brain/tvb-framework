@@ -10,12 +10,12 @@
     <script type="text/javascript">
         $(document).ready(function() {
             drawHistogram('histogramCanvasId', ${data}, ${labels}, ${colors}, '${xposition}');
-            ColSch_initColorSchemeParams(${minColor}, ${maxColor}, changeColors)
+            ColSch_initColorSchemeParams(${minColor}, ${maxColor}, changeColors);
             $(window).resize(function() {
-                clearTimeout(this.resizingTimeout)
+                clearTimeout(this.resizingTimeout);
                 this.resizingTimeout = setTimeout(function() {      // set timeout so it's only resized on finish
                     drawHistogram('histogramCanvasId', ${data}, ${labels}, ${colors}, '${xposition}');
-                    _drawHistogramLegend()
+                    _drawHistogramLegend();
                 }, 250)
             })
         });
@@ -27,13 +27,11 @@
         }
     </script>
 
-    <div style="margin-top: 20px; height:100%">
-        <div class="transformed">
-            <div id="histogramCanvasId"/>
-            <div id="histogramLegend">
-                <canvas id="histogramLegendCanvas" width="20px"/>
-                <table id="histogramLegendLabels" />
-            </div>
+    <div class="histogramParentDiv">
+        <div id="histogramCanvasId"/>
+        <div id="histogramLegend">
+            <canvas id="histogramLegendCanvas" width="20px"/>
+            <table id="histogramLegendLabels" />
         </div>
     </div>
 
