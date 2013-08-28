@@ -940,15 +940,8 @@ function getUrlForPageFromIndex(index) {
  * to get an animation as smooth as possible.
  */
 function shouldLoadNextActivitiesFile() {
-<<<<<<< HEAD
-	/*
-	 * If we are at the last NEXT_PAGE_THREASHOLD points of data we should start loading the next data file 
-	 * to get as smooth as animation as possible.
-	 */
+
     if (!isPreview && (currentAsyncCall == null) && ((currentTimeValue - totalPassedActivitiesData + NEXT_PAGE_THREASHOLD * TIME_STEP) >= currentActivitiesFileLength)) {
-=======
-    if ((currentAsyncCall == null) && ((currentTimeValue - totalPassedActivitiesData + NEXT_PAGE_THREASHOLD * TIME_STEP) >= currentActivitiesFileLength)) {
->>>>>>> daab900baf23f08fcc560be279e6d8572fab65bc
         if (nextActivitiesFileData == null || nextActivitiesFileData.length == 0) {
             return true;
         }

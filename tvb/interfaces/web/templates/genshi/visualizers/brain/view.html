@@ -110,8 +110,7 @@
 						vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
 						vColor = vec4(uLinesColor, 1.0);
 					}
-				} 
-<<<<<<< HEAD
+				}
             } else {
             	vColor = vec4(pickingColor, 1.0);
             	vLightWeighting = vec3(1, 1, 1);
@@ -127,25 +126,7 @@
             });
 
             _webGLStart('${base_activity_url}', ${pageSize}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
-                        $noOfMeasurePoints, '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}', 
-=======
-            } else {
-            	vColor = vec4(pickingColor, 1.0);
-            	vLightWeighting = vec3(1, 1, 1);
-            }
-		}
-	</script>
-     
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('#GLcanvas').mousewheel(function(event, delta) {
-                GL_handleMouseWeel(delta);
-                return false; // prevent default
-            });
-
-            _webGLStart('${base_activity_url}', ${pageSize}, ${nrOfPages}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
-                        $noOfMeasurePoints, '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}', 
->>>>>>> daab900baf23f08fcc560be279e6d8572fab65bc
+                        $noOfMeasurePoints, '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}',
                         ${'true' if extended_view else 'false'}, ${"'" + shelfObject +"'" if shelfObject else 'null'}, '${urlMeasurePointsLabels}', 
                         '${boundary_url}');
             EX_initializeChannels();
