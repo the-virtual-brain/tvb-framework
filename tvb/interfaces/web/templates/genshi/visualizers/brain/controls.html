@@ -26,10 +26,10 @@
 		<xi:include href='../commons/state_mode_selector.html'/>
 		${drawStateModeSelector(labelsStateVar, 'state-variable-select', 'State variable:', 'changeStateVariable')}
 		${drawStateModeSelector(labelsModes, 'mode-select', 'Mode:', 'changeMode')}
-		<input id="showBrainLines" type="checkbox" onchange="toogleDrawBoundaries(this);" tabindex="1" py:if="not extended_view and not isOneToOneMapping and not defined('isSEEG')"/>
+		<input id="showBrainLines" type="checkbox" onchange="toggleDrawBoundaries(this);" tabindex="1" py:if="not extended_view and not isOneToOneMapping and not defined('isSEEG')"/>
         <label for="showBrainLines" py:if="not extended_view and not isOneToOneMapping">Show region boundaries</label>
         <br py:if="not extended_view and not isOneToOneMapping"/>
-		<input id="showBrainLines" type="checkbox" onchange="toogleDrawTriangleLines(this);" tabindex="1" py:if="not defined('isSEEG')"/>
+		<input id="showBrainLines" type="checkbox" onchange="toggleDrawTriangleLines(this);" tabindex="1" py:if="not defined('isSEEG')"/>
         <label for="showBrainLines" py:if="not defined('isSEEG')">Show surface triangles</label>
         <br/>
         <input id="inTimeRefreshChkId" type="checkbox" onchange="NAV_setInTimeRefresh(this);" tabindex="1" py:if="not extended_view"/>
