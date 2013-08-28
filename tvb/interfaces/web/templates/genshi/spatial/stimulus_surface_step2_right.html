@@ -1,5 +1,10 @@
 <section class="manage-points view-column col-2" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <h4><mark>Select color scheme</mark> for movie preview</h4>
+
     <xi:include href='../flow/color_scheme.html'/>
+
+    <br/>
+    <br/>
 
 	<h4><mark>Manage</mark> Focal points</h4>
 	
@@ -11,10 +16,12 @@
 	
     <script type="text/javascript">
         $(document).ready(function() {
-	        $('#spatial_placeholder_div_id').unbind('click.displayIndexForThePickedVertex')
+	        $('#spatial_placeholder_div_id')
+                    .unbind('click.displayIndexForThePickedVertex')
                     .bind('click.displayIndexForThePickedVertex', function () {
-	            displayIndexForThePickedVertex();
-	        });
+	                                        displayIndexForThePickedVertex();
+	                                        });
+            ColSch_initColorSchemeParams(0, 0, LEG_updateLegendColors);
         });
     </script>
 </section>

@@ -60,6 +60,8 @@ function displayNameForPickedNode() {
  * Submits all the region stimulus data to the server for creating a new Stimulus instance.
  *
  * @param actionUrl the url at which will be submitted the data.
+ * @param nextStep
+ * @param checkScaling
  */
 function submitRegionStimulusData(actionUrl, nextStep, checkScaling) {
 	if (checkScaling == true) {
@@ -74,15 +76,14 @@ function submitRegionStimulusData(actionUrl, nextStep, checkScaling) {
         	return;
 		}
 	}
-	var baseDict = {'next_step' : nextStep}
-	submitPageData(actionUrl, baseDict)
+	submitPageData(actionUrl, {'next_step' : nextStep})
 }
 
 /*
  * Gather the data from all the forms in the page and submit them to actionUrl.
  * 
  * @param actionUrl: the url to which data will be submitted
- * @param nextStep: the next step of the 'workflow'
+ * @param baseData:
  */
 function submitPageData(actionUrl, baseData) {
 	var dataDictionary = baseData;
@@ -116,6 +117,8 @@ function submitPageData(actionUrl, baseData) {
  * Collects the data needed for creating a SurfaceStimulus and submit it to the server.
  *
  * @param actionUrl the url at which will be submitted the data.
+ * @param nextStep
+ * @param includeFocalPoints
  */
 function submitSurfaceStimulusData(actionUrl, nextStep, includeFocalPoints) {
     if (includeFocalPoints == true && addedSurfaceFocalPoints.length < 1) {
@@ -123,52 +126,50 @@ function submitSurfaceStimulusData(actionUrl, nextStep, includeFocalPoints) {
         return;
     }
     var baseDict = {'next_step' : nextStep}
-	
 	if (includeFocalPoints == true) {
 		baseDict['defined_focal_points'] = JSON.stringify(addedFocalPointsTriangles);
 	}
     submitPageData(actionUrl, baseDict)
 }
 
-
-function startStimulusVisualization() {
-/*
+/**
  * Generate the data from the currently configured stimulus.
  */
-		if (addedSurfaceFocalPoints.length < 1) {
-	        displayMessage("You should define at least one focal point.", "errorMessage");
-	        return;
-	    }
-        LEG_generateLegendBuffers()
-		$.ajax({
-	        async:false,
-	        type:'GET',
-	        url:'/spatial/stimulus/surface/view_stimulus?focal_points=' + JSON.stringify(addedFocalPointsTriangles),
-	        success:function (data) {
-	        	data = $.parseJSON(data);
-	        	if (data['status'] == 'ok') {
-	        		STIM_PICK_setVisualizedData(data);
-					$('.action-stop')[0].className = $('.action-stop')[0].className.replace('action-idle', '');
-					$('.action-run')[0].className = $('.action-run')[0].className + " action-idle";
-	        	} else {
-	        		displayMessage(data['errorMsg'], "errorMessage");
-	        	}
-	            
-	        },
-	        error: function(x, e) {
-	            if (x.status == 500) {
-	                displayMessage("An error occured probably due to invalid parameters.", "errorMessage")
-	            }
-	        }
-	    });
+function startStimulusVisualization() {
+
+    if (addedSurfaceFocalPoints.length < 1) {
+        displayMessage("You should define at least one focal point.", "errorMessage");
+        return;
+    }
+    LEG_generateLegendBuffers();
+    $.ajax({
+        async:false,
+        type:'GET',
+        url:'/spatial/stimulus/surface/view_stimulus?focal_points=' + JSON.stringify(addedFocalPointsTriangles),
+        success:function (data) {
+            data = $.parseJSON(data);
+            if (data['status'] == 'ok') {
+                STIM_PICK_setVisualizedData(data);
+                $('.action-stop')[0].className = $('.action-stop')[0].className.replace('action-idle', '');
+                $('.action-run')[0].className = $('.action-run')[0].className + " action-idle";
+            } else {
+                displayMessage(data['errorMsg'], "errorMessage");
+            }
+
+        },
+        error: function(x, e) {
+            if (x.status == 500) {
+                displayMessage("An error occured probably due to invalid parameters.", "errorMessage");
+            }
+        }
+    });
 }
 
 function stopStimulusVisualization() {
 	STIM_PICK_stopDataVisualization();
 	$('.action-run')[0].className = $('.action-run')[0].className.replace('action-idle', '');
 	$('.action-stop')[0].className = $('.action-stop')[0].className + " action-idle";
-    LEG_legendBuffers = []
-    ColSch_disableColorScheme()
+    LEG_legendBuffers = [];
 }
 
 
@@ -239,10 +240,9 @@ function drawSurfaceFocalPoints() {
     focalPointsContainer.empty();
     var dummyDiv = document.createElement('DIV');
     for (var i = 0; i < addedFocalPointsTriangles.length; i++) {
-        var focalPointString = '<li> <a href="#" onclick="centerNavigatorOnFocalPoint(' + addedFocalPointsTriangles[i] + ')">Focal point ' + addedFocalPointsTriangles[i] + '</a>' +
-									'<a href="#" onclick="removeFocalPoint(' + i + ')" title="Delete focal point: ' + addedFocalPointsTriangles[i] + '" class="action action-delete">Delete</a>' +
-								'</li>'
-	    dummyDiv.innerHTML = focalPointString;
+        dummyDiv.innerHTML = '<li> <a href="#" onclick="centerNavigatorOnFocalPoint(' + addedFocalPointsTriangles[i] + ')">Focal point ' + addedFocalPointsTriangles[i] + '</a>' +
+            '<a href="#" onclick="removeFocalPoint(' + i + ')" title="Delete focal point: ' + addedFocalPointsTriangles[i] + '" class="action action-delete">Delete</a>' +
+            '</li>';
 	    var focalPointElement = dummyDiv.firstChild;
 	    focalPointsContainer.append(focalPointElement);
     }
@@ -276,6 +276,7 @@ function deleteAllFocalPoint() {
  * Collects the data defined for the local connectivity and submit it to the server.
  *
  * @param actionURL the url at which will be submitted the data
+ * @param formId
  */
 function submitLocalConnectivityData(actionURL, formId) {
     var parametersForm = document.getElementById(formId);
@@ -293,6 +294,7 @@ function submitLocalConnectivityData(actionURL, formId) {
  * @param formDataId the id of the form which contains the data for the equations
  * @param fieldsPrefixes a list with the prefixes of the fields at which the equation is sensible. If any
  * field that starts with one of this prefixes is changed than the equation chart will be redrawn.
+ * @param axisDataId
  */
 function plotEquations(containerId, url, formDataId, fieldsPrefixes, axisDataId) {
     _plotEquations(containerId, url, formDataId, axisDataId);
@@ -341,19 +343,17 @@ function _applyEvents(containerId, url, formDataId, axisDataId, fieldsPrefixes) 
 
 /**
  * Loads the interface found at the given url.
- *
- * @param loadExistentEntityUrl the url at which will be found the interface
  */
 function load_entity() {
     var selectedEntityGid = $("select[name='existentEntitiesSelect']").val();
+    var myForm;
 
     if (selectedEntityGid == undefined || selectedEntityGid == "None" || selectedEntityGid.trim().length == 0) {
-		var myForm = document.getElementById("reset-to-default");
+		myForm = document.getElementById("reset-to-default");
     } else {
-		var myForm = document.getElementById("load-existing-entity");
+		myForm = document.getElementById("load-existing-entity");
 		$("#entity-gid").val(selectedEntityGid);
     }
-
     myForm.submit();
 }
 

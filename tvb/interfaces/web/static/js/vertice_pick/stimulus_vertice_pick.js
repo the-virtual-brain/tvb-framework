@@ -30,8 +30,8 @@ var DATA_CHUNK_SIZE = null;
 var TICK_STEP = 200;
 var maxValue = 0;
 var minValue = 0;
-var startColor = [0.5, 0.5, 0.5]
-var endColor = [1, 0, 0]
+var startColor = [0.5, 0.5, 0.5];
+var endColor = [1, 0, 0];
 var drawTickInterval = null;
 var sliderSel = false;
 var minTime = 0;
@@ -43,35 +43,36 @@ var nextStimulusData = null;
 var asyncLoadStarted = false;
 var endReached = false;
 
+
+/**
+ * Start the movie mode visualization of the received data.
+ */
 function STIM_PICK_setVisualizedData(data) {
-	/*
-	 * Start the movie mode visualization of the recieved data.
-	 */
+
 	BASE_PICK_isMovieMode = true;
 	currentStimulusData = data['data'];
-	minTime = data['time_min']
-	maxTime = data['time_max']
-	DATA_CHUNK_SIZE = data['chunk_size']
-	maxValue = data['max']
-	/*
-	 * If for some reason the draw timeout was not cleared, clear it now.
-	 */
+	minTime = data['time_min'];
+	maxTime = data['time_max'];
+	DATA_CHUNK_SIZE = data['chunk_size'];
+    var colorValuesChanged = (maxValue != data['max']);
+	maxValue = data['max'];
+
+	// If for some reason the draw timeout was not cleared, clear it now.
 	if (drawTickInterval != null) {
 		clearInterval(drawTickInterval);
 	}
 	endReached = false;
-	/*
-	 * Reset the flags and set a new draw timeout.
-	 */
+	// Reset the flags and set a new draw timeout.
 	drawTickInterval = setInterval(tick, TICK_STEP);
 	displayedStep = 0;
 	totalTimeStep = minTime;
-	BASE_PICK_initLegendInfo(maxValue);
-    ColSch_initColorSchemeParams(0, maxValue, LEG_updateLegendColors)
 
-	/*
-	 * Create the slider to display the total time.
-	 */
+	BASE_PICK_initLegendInfo(maxValue);
+    if (colorValuesChanged) {
+        ColSch_initColorSchemeParams(0, maxValue, LEG_updateLegendColors);
+    }
+
+	//Create the slider to display the total time.
 	var sliderDiv = document.createElement('DIV');
 	sliderDiv.className = "shadow";
 	sliderDiv.id = "slider";
@@ -88,11 +89,12 @@ function STIM_PICK_setVisualizedData(data) {
 	            } });
 }
 
+/**
+ * Stop the movie-mode visualization. Reset flags and steps, also remove the
+ * tick - timeout and reset the color buffers.
+ */
 function STIM_PICK_stopDataVisualization() {
-	/*
-	 * Stop the movie-mode visualization. Reset flags and steps, also remove the
-	 * tick - timeout and reset the color buffers.
-	 */
+
     if (noOfUnloadedBrainDisplayBuffers != 0) {
         displayMessage("The load operation for the surface data is not completed yet!", "infoMessage");
         return;
@@ -119,16 +121,14 @@ function STIM_PICK_stopDataVisualization() {
     drawScene();
 }
 
-
+/**
+ * Since the min-max interval can be quite large, just load it in chunks.
+ */
 function STIM_PICK_loadNextStimulusChunk() {
-	/*
-	 * Since the min-max interval can be quite large, just load it in chunks.
-	 */
+
 	var currentChunkIdx = parseInt((totalTimeStep - minTime) / DATA_CHUNK_SIZE);
 	if ((currentChunkIdx + 1) * DATA_CHUNK_SIZE < (maxTime - minTime)) {
-		/*
-		 * We haven't reached the final chunk so just load it normally.
-		 */
+		// We haven't reached the final chunk so just load it normally.
 		asyncLoadStarted = true;
 		$.ajax({
 			        type:'GET',
@@ -142,20 +142,18 @@ function STIM_PICK_loadNextStimulusChunk() {
                     }
 			    });
 	} else {
-		/*
-		 * No more chunks to load. Set end of data flat and block the async load by setting
-		 * asyncLoadStarted to true so no more calls to loadNextStimulusChunk are done for
-		 * this data.
-		 */
+		// No more chunks to load. Set end of data flat and block the async load by setting
+		// asyncLoadStarted to true so no more calls to loadNextStimulusChunk are done for this data.
 		asyncLoadStarted = true;
 		endReached = true;
 	}
 }
 
+/**
+ * Function called every TICK_STEP milliseconds. This is only done in movie mode.
+ */
 function tick() {
-	/*
-	 * Function called every TICK_STEP milliseconds. This is only done in movie mode.
-	 */
+
     if (noOfUnloadedBrainDisplayBuffers != 0) {
         displayMessage("The load operation for the surface data is not completed yet!", "infoMessage");
         return;
@@ -163,9 +161,7 @@ function tick() {
 	if (sliderSel == false) {
 		//If we reached maxTime, the movie ended
 		if (BASE_PICK_isMovieMode == true && totalTimeStep < maxTime) {
-			/*
-			 * We are still in movie mode and didn't pass the end of the data.
-			 */
+			// We are still in movie mode and didn't pass the end of the data.
 		    if (displayedStep >= currentStimulusData.length) {
 		    	if (currentStimulusData.length > maxTime - minTime || endReached == true) {
 		    		//We had reached the end of the movie mode.
@@ -185,16 +181,15 @@ function tick() {
 		    	}
 		    }
 			var thisStepData = currentStimulusData[displayedStep];
-			/*
-			 * Compute the colors for this current step.
-			 */
+			// Compute the colors for this current step:
+
 			for (var i=0; i<BASE_PICK_brainDisplayBuffers.length;i++) {
 				BASE_PICK_brainDisplayBuffers[i][3] = null;
 				var upperBorder = BASE_PICK_brainDisplayBuffers[i][0].numItems / 3;
 			    var thisBufferColors = new Float32Array(upperBorder * 4);
 			    var offset_start = i * 40000;
                 getGradientColorArray(thisStepData.slice(offset_start, offset_start + upperBorder),
-                                      minValue, maxValue, thisBufferColors)
+                                      minValue, maxValue, thisBufferColors);
 		    	BASE_PICK_brainDisplayBuffers[i][3] = gl.createBuffer();
 		    	gl.bindBuffer(gl.ARRAY_BUFFER, BASE_PICK_brainDisplayBuffers[i][3]);
 	            gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
@@ -214,21 +209,15 @@ function tick() {
 
 function drawScene() {
 	if (GL_zoomSpeed != 0) {
-		/*
-		 * Handle the zoom event before drawing the brain.
-		 */
+		// Handle the zoom event before drawing the brain.
         GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
         GL_zoomSpeed = 0;
     }
-    /*
-     * Use function offered by base_vertice_pick.js to draw the brain.
-     */
+    // Use function offered by base_vertice_pick.js to draw the brain:
 	BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 	if (BASE_PICK_isMovieMode == true) {
-		/*
-		 * We are in movie mode so drawScene was called automatically. We don't 
-		 * want to update the slices here to improve performance. Increse the timestep.
-		 */
+		// We are in movie mode so drawScene was called automatically. We don't
+		// want to update the slices here to improve performance. Increse the timestep.
 		displayedStep = displayedStep + 1;
 		totalTimeStep = totalTimeStep + 1;
 		if (currentStimulusData.length < (maxTime - minTime) && displayedStep + BUFFER_TIME_STEPS >= currentStimulusData.length && nextStimulusData == null && asyncLoadStarted == false) {
@@ -238,18 +227,14 @@ function drawScene() {
 				document.getElementById("TimeNow").innerHTML = "Time: " + totalTimeStep + " ms";
 		        $("#slider").slider("option", "value", totalTimeStep);
 		    }
-		/*
-		 * Draw the legend for the stimulus now.
-		 */
+		// Draw the legend for the stimulus now.
 		loadIdentity();
 	    addLight();
 		drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
 	} else {
-		/*
-		 * We are not in movie mode. The drawScene was called from some ui event (e.g. 
-		 * 	mouse over). Here we can afford to update the 2D slices because performance is
-		 * not that much of an issue.
-		 */
+		// We are not in movie mode. The drawScene was called from some ui event (e.g.
+		// mouse over). Here we can afford to update the 2D slices because performance is
+		// not that much of an issue.
 		BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 	}
 }
