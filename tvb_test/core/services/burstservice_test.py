@@ -633,7 +633,7 @@ class BurstServiceTest(BaseTestCase):
         SIMULATOR_MODULE = 'tvb_test.adapters.testadapter1'
         SIMULATOR_CLASS = 'TestAdapter1'
         algo_id = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)[0].id
-        kwargs_replica = {'test1_val1': '[0, 1, 2]', 'test1_val2': '0', 'range_2': 'test1_val1'}
+        kwargs_replica = {'test1_val1': '[0, 1, 2]', 'test1_val2': '0', 'range_1': 'test1_val1'}
         test_portlet = dao.get_portlet_by_identifier(self.PORTLET_ID)
         tab_config = {test_portlet.id: [(0, 0), (0, 1), (1, 0)]}
         self._add_portlets_to_burst(burst_config, tab_config)
