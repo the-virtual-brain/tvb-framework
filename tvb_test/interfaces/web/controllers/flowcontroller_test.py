@@ -179,7 +179,7 @@ class FlowContollerTest(BaseControllersTest):
             launch_params['simulation_length'] = '10000'
         else:
             launch_params['simulation_length'] = '[10000,10001,10002]'
-            launch_params['first_range'] = 'simulation_length'
+            launch_params['range_1'] = 'simulation_length'
         burst_id, _ = json.loads(self.burst_c.launch_burst("new", "test_burst", **launch_params))
         return dao.get_burst_by_id(burst_id)
         
@@ -276,7 +276,7 @@ class FlowContollerTest(BaseControllersTest):
         class_name = "TestAdapter1"
         group = dao.find_group(module, class_name)
         adapter = FlowService().build_adapter_instance(group)
-        data = {'first_range' : "test1_val1", "test1_val1": '5,6,7', 'test1_val2': 5}
+        data = {'range_1' : "test1_val1", "test1_val1": '5,6,7', 'test1_val2': 5}
         algo_group = adapter.algorithm_group
         algo_category = dao.get_category_by_id(algo_group.fk_category)
         algo = dao.get_algorithm_by_group(algo_group.id)

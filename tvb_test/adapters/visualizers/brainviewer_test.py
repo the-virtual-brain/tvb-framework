@@ -58,7 +58,7 @@ class BrainViewerTest(TransactionalTestCase):
         self.test_project = self.datatypeFactory.get_project()
         self.test_user = self.datatypeFactory.get_user()
         
-        TestFactory.import_cff(test_user = self.test_user, test_project=self.test_project)
+        TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
         zip_path = os.path.join(os.path.dirname(surface_dataset.__file__), 'face-surface.zip')
         TestFactory.import_surface_zip(self.test_user, self.test_project, zip_path, 'Face', 1)
         zip_path = os.path.join(os.path.dirname(surface_dataset.__file__), 'eeg_skin_surface.zip')
@@ -86,7 +86,7 @@ class BrainViewerTest(TransactionalTestCase):
         viewer = BrainViewer()
         result = viewer.launch(time_series=time_series)
         expected_keys = ['urlVertices', 'urlNormals', 'urlTriangles', 'urlMeasurePointsLabels', 'title', 
-                         'time_series', 'shelfObject', 'pageSize', 'labelsStateVar', 'nrOfPages', 'labelsModes',
+                         'time_series', 'shelfObject', 'pageSize', 'labelsStateVar', 'labelsModes',
                          'minActivityLabels', 'minActivity', 'measure_points', 'maxActivity', 'isOneToOneMapping',
                          'isAdapter', 'extended_view', 'base_activity_url', 'alphas_indices']
         for key in expected_keys:
@@ -109,7 +109,7 @@ class BrainViewerTest(TransactionalTestCase):
         time_series = self.datatypeFactory.create_timeseries(self.connectivity)
         viewer = BrainViewer()
         result = viewer.generate_preview(time_series, (500, 200))
-        expected_keys = ['urlVertices', 'urlNormals', 'urlTriangles', 'pageSize', 'nrOfPages', 
+        expected_keys = ['urlVertices', 'urlNormals', 'urlTriangles', 'pageSize',
                          'minActivityLabels', 'minActivity', 'maxActivity', 'isOneToOneMapping',
                          'isAdapter', 'base_activity_url', 'alphas_indices']
         for key in expected_keys:
@@ -129,7 +129,7 @@ class BrainViewerTest(TransactionalTestCase):
         viewer = BrainEEG()
         result = viewer.launch(time_series)
         expected_keys = ['urlVertices', 'urlNormals', 'urlTriangles', 'urlMeasurePointsLabels', 'title', 
-                         'time_series', 'shelfObject', 'pageSize', 'labelsStateVar', 'nrOfPages', 'labelsModes',
+                         'time_series', 'shelfObject', 'pageSize', 'labelsStateVar', 'labelsModes',
                          'minActivityLabels', 'minActivity', 'measure_points', 'maxActivity', 'isOneToOneMapping',
                          'isAdapter', 'extended_view', 'base_activity_url', 'alphas_indices']
         for key in expected_keys:

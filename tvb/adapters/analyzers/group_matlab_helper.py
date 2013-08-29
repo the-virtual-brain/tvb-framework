@@ -157,7 +157,7 @@ class MatlabAnalyzer(ABCAsynchronous):
         with open(self.script_fname, 'w') as file_data:
             file_data.write(pre + code + post)
 
-        os.system(matlab_cmd(self.mlab_exe, self.script_name, self.log_fname))
+        matlab_cmd(self.mlab_exe, self.script_name, self.log_fname)
         while not os.path.exists(self.done_fname):
             time.sleep(0.1)
 

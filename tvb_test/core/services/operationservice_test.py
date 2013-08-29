@@ -93,7 +93,7 @@ class OperationServiceTest(BaseTestCase):
         algogroup = dao.find_group('tvb_test.adapters.testadapter3', 'TestAdapter3')
         group, _ = flow_service.prepare_adapter(self.test_project.id, algogroup)
         adapter_instance = flow_service.build_adapter_instance(group)
-        data = {'first_range': 'param_5', 'param_5': [1, 2]}
+        data = {'range_1': 'param_5', 'param_5': [1, 2]}
         ## Create Group of operations
         flow_service.fire_operation(adapter_instance, self.test_user, self.test_project.id, **data)
 

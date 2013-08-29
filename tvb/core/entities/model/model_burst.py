@@ -144,7 +144,7 @@ class BurstConfiguration(Base, Exportable):
         """
         :returns: True, when current burst configuration will generate a group.
         """
-        for param in ['first_range', 'second_range']:
+        for param in ['range_1', 'range_2']:
             if param in self.simulator_configuration and KEY_SAVED_VALUE in self.simulator_configuration[param] \
                     and self.simulator_configuration[param][KEY_SAVED_VALUE] != '0':
                 return True

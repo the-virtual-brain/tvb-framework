@@ -65,8 +65,9 @@ except Exception:
     Part = FieldStorage
 
 TEMPORARY_PREFIX = ".tmp"
-PARAM_RANGE_1 = 'first_range'
-PARAM_RANGE_2 = 'second_range'
+PARAM_RANGE_PREFIX = 'range_'
+PARAM_RANGE_1 = 'range_1'
+PARAM_RANGE_2 = 'range_2'
 
 UIKEY_SUBJECT = "RESERVEDsubject"
 UIKEY_USERGROUP = "RESERVEDusergroup"
@@ -373,8 +374,9 @@ class OperationService:
             msg = "Sent to cluster "
         else:
             msg = "Launched "
-        msg += str(len(operations)) + " operation(s): " + str(adapter_instance.__class__.__name__)
-        return msg
+#        msg += str(len(operations)) + " operation(s): " + str(adapter_instance.__class__.__name__)
+#        return msg
+        return operations
 
 
     def launch_operation(self, operation_id, send_to_cluster=False, adapter_instance=None):
@@ -431,22 +433,37 @@ class OperationService:
                 self.logger.exception(excep)
 
 
+    def _range_name(self, range_no):
+        return PARAM_RANGE_PREFIX + str(range_no)
+
+
     def _prepare_group(self, project_id, kwargs):
         """
         Create and store OperationGroup entity, or return None
         """
-        range1_values = self.__get_range_values(kwargs, PARAM_RANGE_1)
-        range2_values = self.__get_range_values(kwargs, PARAM_RANGE_2)
-        available_args = self.__expand_arguments([(kwargs, None)], range1_values, PARAM_RANGE_1)
-        available_args = self.__expand_arguments(available_args, range2_values, PARAM_RANGE_2)
+        # Standard ranges as accepted from UI
+        range1_values = self.__get_range_values(kwargs, self._range_name(1))
+        range2_values = self.__get_range_values(kwargs, self._range_name(2))
+        available_args = self.__expand_arguments([(kwargs, None)], range1_values, self._range_name(1))
+        available_args = self.__expand_arguments(available_args, range2_values, self._range_name(2))
         is_group = False
         ranges = []
-        if PARAM_RANGE_1 in kwargs and range1_values is not None:
+        if self._range_name(1) in kwargs and range1_values is not None:
             is_group = True
-            ranges.append(json.dumps((kwargs[PARAM_RANGE_1], range1_values)))
-        if PARAM_RANGE_2 in kwargs and range2_values is not None:
+            ranges.append(json.dumps((kwargs[self._range_name(1)], range1_values)))
+        if self._range_name(2) in kwargs and range2_values is not None:
             is_group = True
-            ranges.append(json.dumps((kwargs[PARAM_RANGE_2], range2_values)))
+            ranges.append(json.dumps((kwargs[self._range_name(2)], range2_values)))
+        # Now for additional ranges which might be the case for the 'model exploration'
+        last_range_idx = 3
+        ranger_name = self._range_name(last_range_idx)
+        while ranger_name in kwargs:
+            values_for_range = self.__get_range_values(kwargs, ranger_name)
+            available_args = self.__expand_arguments(available_args, values_for_range, ranger_name)
+            last_range_idx += 1
+            ranger_name = self._range_name(last_range_idx)
+        if last_range_idx > 3:
+            ranges = [] # Since we only have 3 fields in db for this just hide it
         if not is_group:
             group = None
         else:

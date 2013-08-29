@@ -83,8 +83,8 @@ class PSETest(TransactionalTestCase):
         self.assertEqual(viewer._ui_name, result["title"])
         self.assertEqual(config.SERVER_IP, result["serverIp"])
         self.assertEqual(config.MPLH5_SERVER_PORT, result["serverPort"])
-        self.assertEqual(0, len(result["figureNumbers"]))
-        self.assertEqual(0, len(result["metrics"]))
+        self.assertEqual(1, len(result["figureNumbers"]))
+        self.assertEqual(1, len(result["metrics"]))
 
 
 

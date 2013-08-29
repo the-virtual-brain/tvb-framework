@@ -293,6 +293,17 @@ class ProjectController(bc.BaseController):
                                       total_op_count=total_op_count, total_pages=pages_no, page_number=page,
                                       filters=filters, no_filter_selected=(selected_filters is None))
         return self.fill_default_attributes(template_specification, 'operations')
+    
+    
+    @cherrypy.expose
+    @using_template("call_out_project")
+    @logged()
+    def generate_call_out_control(self):
+        """
+        Returns the content of a confirmation dialog, with a given question. 
+        """
+        self.update_operations_count()
+        return {'selectedProject' : bc.get_current_project()}
 
 
     def __get_operations_filters(self):

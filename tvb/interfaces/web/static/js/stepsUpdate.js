@@ -28,8 +28,8 @@ function updateDivContent(divID, selectComponent, parentDIV, radioComponent) {
     	selectedValue = $(component).val();
     }
     //Get the input fields that hold the active rangers
-   	var first_ranger = document.getElementById('first_range');
-	var second_ranger = document.getElementById('second_range');
+   	var first_ranger = document.getElementById('range_1');
+	var second_ranger = document.getElementById('range_2');
 	//
 	$('div[id^="' + divID +'"]').hide();
 	$('div[id^="' + divID +'"] input').attr('disabled', 'disabled');
@@ -98,8 +98,8 @@ function updateDatatypeDiv(divID, selectComponent) {
         return;
     }
     //First get the ranger hidden values to check for available spots
-    var first_ranger = document.getElementById('first_range');
-	var second_ranger = document.getElementById('second_range');  
+    var first_ranger = document.getElementById('range_1');
+	var second_ranger = document.getElementById('range_2');  
 	var selectedName = component.options[component.selectedIndex].innerHTML;
 	selectedName = selectedName.replace(/[^a-z]/gi,'');
 	if (selectedName == 'All') {

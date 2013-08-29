@@ -135,7 +135,7 @@ function addSurfaceFocalPoint() {
         if (valIndex < 0) {
         	displayMessage("Adding focal point with number: "+ (addedSurfaceFocalPoints.length + 1)); //clear msg
             addedSurfaceFocalPoints.push(VERTEX_pickedIndex);
-            addedFocalPointsTriangles.push(TRIANGLE_pickedIndex)
+            addedFocalPointsTriangles.push(TRIANGLE_pickedIndex);
             drawSurfaceFocalPoints();
             BASE_PICK_addFocalPoint(TRIANGLE_pickedIndex);
         } else {

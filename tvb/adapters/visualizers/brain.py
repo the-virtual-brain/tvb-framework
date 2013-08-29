@@ -41,7 +41,7 @@ from tvb.basic.filters.chain import FilterChain
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.surfaces import RegionMapping, EEGCap, FaceSurface
-from tvb.datatypes.time_series import TimeSeries, TimeSeriesSurface, TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
+from tvb.datatypes.time_series import TimeSeries, TimeSeriesSurface, TimeSeriesSEEG
 
 
 MAX_MEASURE_POINTS_LENGTH = 235
@@ -118,12 +118,12 @@ class BrainViewer(ABCDisplayer):
         if surface is None:
             raise Exception("No not-none Mapping Surface found for display!")
 
-        url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices = surface.get_urls_for_rendering(True,
-                                                                                                          region_map)
+        url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices = surface.get_urls_for_rendering(
+            True, region_map)
         return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices
     
     
-    def _get_url_for_region_boundaries(self, time_series, region_mapping=None):
+    def _get_url_for_region_boundaries(self, time_series):
         one_to_one_map = isinstance(time_series, TimeSeriesSurface)
         if not one_to_one_map and hasattr(time_series, 'connectivity'):
             region_map = dao.get_generic_entity(RegionMapping, time_series.connectivity.gid, '_connectivity')
@@ -151,7 +151,7 @@ class BrainViewer(ABCDisplayer):
                     alphas_indices=json.dumps(alphas_indices),
                     base_activity_url=ABCDisplayer.VISUALIZERS_URL_PREFIX + time_series.gid, minActivity=min_val,
                     maxActivity=max_val,
-                    minActivityLabels=legend_labels, noOfMeasurePoints=measure_points_no, pageSize=1, nrOfPages=1)
+                    minActivityLabels=legend_labels, noOfMeasurePoints=measure_points_no, pageSize=1)
 
 
     def compute_parameters(self, time_series):
@@ -171,7 +171,7 @@ class BrainViewer(ABCDisplayer):
         if (not one_to_one_map) and (measure_points_no > MAX_MEASURE_POINTS_LENGTH):
             raise Exception("Max number of measure points " + str(MAX_MEASURE_POINTS_LENGTH) + " exceeded.")
 
-        base_activity_url, time_urls, nr_of_pages = self._prepare_data_slices(time_series)
+        base_activity_url, time_urls = self._prepare_data_slices(time_series)
         min_val, max_val = time_series.get_min_max_values()
         legend_labels = self._compute_legend_labels(min_val, max_val)
 
@@ -191,11 +191,11 @@ class BrainViewer(ABCDisplayer):
                     urlLines=json.dumps(url_lines), urlNormals=json.dumps(url_normals), 
                     urlMeasurePointsLabels=measure_points_labels, measure_points=measure_points, 
                     noOfMeasurePoints=measure_points_no, alphas=json.dumps(alphas), 
-                    alphas_indices=json.dumps(alphas_indices),base_activity_url=base_activity_url, 
+                    alphas_indices=json.dumps(alphas_indices), base_activity_url=base_activity_url,
                     time=json.dumps(time_urls), minActivity=min_val, maxActivity=max_val, 
                     minActivityLabels=legend_labels, labelsStateVar=state_variables, labelsModes=range(data_shape[3]), 
                     extended_view=False, shelfObject=face_object, time_series=time_series, pageSize=self.PAGE_SIZE, 
-                    nrOfPages=nr_of_pages, boundary_url=boundary_url)
+                    boundary_url=boundary_url)
 
 
     @staticmethod
@@ -263,14 +263,11 @@ class BrainViewer(ABCDisplayer):
                  Currently timeline_urls has just one value, as on client is loaded entirely anyway.
         """
         overall_shape = time_series.read_data_shape()
-        total_pages = overall_shape[0] / self.PAGE_SIZE
-        if overall_shape[0] % self.PAGE_SIZE > 0:
-            total_pages += 1
 
         activity_base_url = ABCDisplayer.VISUALIZERS_URL_PREFIX + time_series.gid
         time_urls = [self.paths2url(time_series, 'read_time_page',
                                     parameter="current_page=0;page_size=" + str(overall_shape[0]))]
-        return activity_base_url, time_urls, total_pages
+        return activity_base_url, time_urls
 
 
 class BrainEEG(BrainViewer):
@@ -381,7 +378,8 @@ class BrainSEEG(BrainEEG):
     def launch(self, surface_activity, eeg_cap=None):
         result_params = BrainEEG.launch(self, surface_activity)
         result_params['brainViewerTemplate'] = "seeg_view.html"
-        result_params['urlVertices'] = None # Mark as None since we only display shelf face and no point to load these aswell
+        # Mark as None since we only display shelf face and no point to load these as well
+        result_params['urlVertices'] = None
         result_params['isSEEG'] = True
         return result_params
         

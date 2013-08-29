@@ -151,8 +151,7 @@ function customMouseMove(event) {
 var linesBuffer;
 
 function initBuffers() {
-    var fakeNormal_1 = [0, 0, 1];
-    var fakeNormal_2 = [0, 0, -1];
+    var fakeNormal_1 = [0, 0, 0];
 
     var whitePointsColorsIndex =[];
 
@@ -160,11 +159,7 @@ function initBuffers() {
     var normals = [];
     for (var i = 0; i < NO_POSITIONS; i++) {
         points = points.concat(GVAR_positionsPoints[i]);
-        if (i % 2) {
-            normals = normals.concat(fakeNormal_1);
-        } else {
-            normals = normals.concat(fakeNormal_2);
-        }
+        normals = normals.concat(fakeNormal_1);
         colorsIndexes = colorsIndexes.concat(COLORS[WHITE_COLOR_INDEX]);       
     }
      for (var index = 0; index < 24 ; index++){
@@ -261,13 +256,13 @@ function displayPoints() {
  */
 function addLight() {
     gl.uniform1i(shaderProgram.useLightingUniform, true);
-    gl.uniform3f(shaderProgram.ambientColorUniform, 0.8, 0.8, 0.7);
+    gl.uniform3f(shaderProgram.ambientColorUniform, 0.3, 0.3, 0.2);
 
-    var lightingDirection = Vector.create([0.85, 0.8, 0.75]);
-    var adjustedLD = lightingDirection.toUnitVector().x(-1);
+    var lightingDirection = Vector.create([0.5, 0.2, 1.0]);
+    var adjustedLD = lightingDirection.toUnitVector();
     var flatLD = adjustedLD.flatten();
     gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
-    gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
+    gl.uniform3f(shaderProgram.directionalColorUniform, 1, 1, 1);
     gl.uniform1f(shaderProgram.alphaUniform, 1.0);
 }
 
@@ -289,7 +284,7 @@ function drawScene() {
 		gl.uniform1f(shaderProgram.isPicking, 0);
 		gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
 		if (GL_zoomSpeed != 0) {
-	            GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
+	            GL_zTranslation += GL_zoomSpeed * GL_zTranslation;
 	            GL_zoomSpeed = 0;
 	        }
 	    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
@@ -497,6 +492,7 @@ function highlightPoint() {
 
 function _drawLines(linesBuffers) {
 	gl.uniform1i(shaderProgram.colorIndex, NO_COLOR_INDEX);
+	gl.uniform1i(shaderProgram.useLightingUniform, false);
     gl.bindBuffer(gl.ARRAY_BUFFER, positionsPointsBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, positionsPointsBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -514,6 +510,7 @@ function _drawLines(linesBuffers) {
     	gl.drawElements(gl.LINES, linesVertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 	}
     gl.lineWidth(1.0);
+    gl.uniform1i(shaderProgram.useLightingUniform, true);
 }
 
 /**
@@ -797,16 +794,16 @@ function drawHemispheres(drawingMode) {
 
 
 /**
+ * Contains GL initializations that need to be done each time the standard connectivity view is
+ * selected from the available tabs.
+ *
  * @param isSingleMode if is <code>true</code> that means that the connectivity will
  * be drawn alone, without widths and tracts.
  */
 function connectivity_startGL(isSingleMode) {
-	/*
-	 * Contains GL initializations that need to be done each time the standard connectivity view is 
-	 * selected from the available tabs.
-	 */
 	GL_DEFAULT_Z_POS = -310.0;
-	GL_zTranslation = GL_DEFAULT_Z_POS;
+	if (!GL_zTranslation)       // set it to default only if it's not set, in order to keep the zoom when switching tabs
+        GL_zTranslation = GL_DEFAULT_Z_POS;
 		
     for (var i = 0; i < COLORS.length; i++) {
         gl.uniform3f(shaderProgram.colorsArray[i], COLORS[i][0], COLORS[i][1], COLORS[i][2]);
@@ -824,12 +821,13 @@ function connectivity_startGL(isSingleMode) {
     drawScene();
 }
 
+/**
+ * Initialize the canvas and the event handlers. This should be called when switching from
+ * other GL based visualizers to re-initiate the canvas.
+ */
 function connectivity_initCanvas() {
-	/*
-	 * Initialize the canvas and the event handlers. This should be called when switching from 
-	 * other GL based visualizers to re-initiate the canvas.
-	 */
 	var canvas = document.getElementById(CONNECTIVITY_CANVAS_ID);
+    canvas.width = canvas.parentNode.clientWidth - 10;       // resize the canvas to almost fill the parent
     initGL(canvas);
     initShaders();
     // Enable keyboard and mouse interaction
@@ -840,12 +838,12 @@ function connectivity_initCanvas() {
     document.onmousemove = customMouseMove;
 }
 
+/**
+ * Initialize all the actual data needed by the connectivity visualizer. This should be called
+ * only once.
+ */
 function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList, urlTrianglesList,
 								urlNormalsList, conn_nose_correction, alpha_value, condSpeed, rays, colors) {
-	/*
-	 * Initialize all the actual data needed by the connectivity visualizer. This should be called
-	 * only once.
-	 */
 	GVAR_initPointsAndLabels(filePositions);
     alphaValue = alpha_value;
     connectivity_nose_correction = $.parseJSON(conn_nose_correction);
@@ -880,14 +878,13 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
 }
 
 /**
+ * This will take all the required steps to start the connectivity visualizer.
+ *
  * @param isSingleMode if is <code>true</code> that means that the connectivity will
  * be drawn alone, without widths and tracts.
  */
 function prepareConnectivity(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
                     urlNormalsList, conn_nose_correction, alpha_value, isSingleMode, conductionSpeed, rays, colors) {
-	/*
-	 * This will take all the required steps to start the connectivity visualizer.
-	 */
 	connectivity_initCanvas();
 	saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
                     	   urlNormalsList, conn_nose_correction, alpha_value, conductionSpeed, rays, colors);

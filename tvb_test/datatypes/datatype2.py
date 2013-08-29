@@ -31,21 +31,27 @@
 """
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import numpy
-from tvb.basic.traits.types_basic import String
+from tvb.basic.traits.types_basic import String, Integer, Float
 from tvb.basic.traits.types_mapped import MappedType
 from tvb.datatypes.arrays import StringArray
+
 
 
 class Datatype2(MappedType):
     """
         This class is used for testing purposes only.
     """
-    row1 = String(label = "spatial_parameters", default="test-spatial")
-    row2 = String(label = "temporal_parameters", default="test-temporal")
-    
-    string_data = StringArray(label = "String data")
-    
+    row1 = String(label="spatial_parameters", default="test-spatial")
+    row2 = String(label="temporal_parameters", default="test-temporal")
+
+    number1 = Integer(label="number parameter", default=1)
+    number2 = Float(label="float parameter", default=0.1)
+
+    string_data = StringArray(label="String data")
+
+
     def return_test_data(self, length=0):
         return numpy.arange(length)
     

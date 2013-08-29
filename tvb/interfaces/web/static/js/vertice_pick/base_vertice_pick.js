@@ -27,7 +27,6 @@ var fov = 45;
 var TRIANGLE_pickedIndex = -1;
 var VERTEX_pickedIndex = -1;
 
-var navigatorSize = 5.0;
 // These are for the selection 'pins'
 var navigatorX = 0.0, navigatorY = 0.0, navigatorZ = 0.0;
 var navigatorXrot = 0.0, navigatorYrot = 0.0;
@@ -70,9 +69,7 @@ GL_zoomSpeed = 0;
 
 var BRAIN_CANVAS_ID = "GLcanvas";
 var BASE_PICK_pinBuffers = []
-// var BRAIN_CENTER = [-1, 0, -3]
 var BRAIN_CENTER = null;
-var BRAIN_PIN_ROTATION = [0, 0, 0]
 
 function BASE_PICK_customInitGL(canvas) {
 	window.onresize = function() {
@@ -85,7 +82,7 @@ function BASE_PICK_customInitGL(canvas) {
 
 function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNormalsPickList,
 							  urlVerticesDisplayList, urlTrianglesDisplayList, urlNormalsDisplayList,
-                              alphas, alpha_indices, brain_center, callback) {
+                              brain_center, callback) {
 	BRAIN_CENTER = $.parseJSON(brain_center);
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
     BASE_PICK_customInitGL(canvas);
@@ -114,8 +111,7 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
     canvas.onmouseout = handleMouseOut;
     
     isOneToOneMapping = true;
-    LEG_generateLegendBuffers();
-    
+
     //Custom handlers for each of the dimensions for different transforms need to be applied
     if (BASE_PICK_allowPickFrom2DImages == true) {
     	canvasX = document.getElementById('brain-x');
@@ -143,11 +139,10 @@ function executeCallback(callback) {
         eval(callback);
     }
 }
-
+/**
+ * Initialize all required data needed for picking mechanism.
+ */
 function initPickingBrainBuffers(urlVerticesPickList, urlTrianglesPickList, urlNormalsPickList, callback) {
-	/*
-	 * Initialize all required data needed for picking mechanism.
-	 */
     displayMessage("Start loading picking data!", "infoMessage");
     initPickingBrainBuffersAsynchronous($.parseJSON(urlVerticesPickList), pickingBrainVertices, false, true, callback);
     initPickingBrainBuffersAsynchronous($.parseJSON(urlNormalsPickList), pickingBrainNormals, false, false, callback);
@@ -226,11 +221,10 @@ function __createPickingColorBuffers() {
     }
 }
 
-
+/**
+ * Initialize the buffers for the surface that should be displayed in non-pick mode.
+ */
 function initDrawingBrainBuffers(urlVerticesDisplayList, urlTrianglesDisplayList, urlNormalsDisplayList, callback) {
-	/*
-	 * Initialize the buffers for the surface that should be displayed in non-pick mode.
-	 */
     displayMessage("Start loading surface data!", "infoMessage");
     initDrawingBrainBuffersAsynchronous($.parseJSON(urlVerticesDisplayList), drawingBrainVertices, false, callback);
     initDrawingBrainBuffersAsynchronous($.parseJSON(urlNormalsDisplayList), drawingBrainNormals, false, callback);
@@ -270,12 +264,12 @@ function __createColorBuffers() {
     }
 }
 
+/**
+ * When mouse is released check to see if the difference between when mouse was pressed
+ * and mouse was released is higher than a threshold(now set to 5). If so the user either
+ * rotated brain (when higher) or selected vertice (when lower).
+ */
 function customMouseUp(event) {
-	/*
-	 * When mouse is released check to see if the difference between when mouse was pressed
-	 * and mouse was released is higher than a threshold(now set to 5). If so the user either
-	 * rotated brain (when higher) or selected vertice (when lower).
-	 */
 	GL_handleMouseUp(event);
 	
 	var canvasOffset = $("#" + BRAIN_CANVAS_ID).offset();
@@ -305,11 +299,10 @@ function customKeyUp(event) {
 	drawScene();
 }
 
-
+/**
+ * Also redraw the scene on mouse move to give a more 'fluent' look
+ */
 function customMouseMove(event) {
-	/*
-	 * Also redraw the scene on mouse move to give a more 'fluent' look
-	 */
 	GL_handleMouseMove(event);
 	if (BASE_PICK_isMovieMode == false) {
 		drawScene();
@@ -336,11 +329,10 @@ function BASE_PICK_initShaders() {
 }
 
 ///////////////////////////////////////~~~~~~~~START MOUSE RELATED CODE~~~~~~~~~~~//////////////////////////////////
-
+/**
+ * Function should move brain navigator to a selected vertice using a color picking scheme
+ */
 function BASE_PICK_doVerticePick() {
-	/*
-	 * Function should move brain navigator to a selected vertice using a color picking scheme
-	 */
 	//Drawing will be done to back buffer and all 'eye candy' is disabled to get pure color
 
     if (noOfUnloadedBrainPickingBuffers != 0 || noOfUnloadedBrainDisplayBuffers != 0) {
@@ -774,13 +766,12 @@ function BASE_PICK_drawBrain(brainBuffers, noOfUnloadedBuffers) {
 }
 
 // ------------------------------------- START CODE FOR PICKING FROM 2D NAVIGATOR PICKS ----------------------------
-
+/**
+ * Find the intersection between a point given by mouseX and mouseY coordinates and a plane
+ * given by an axis represented by type (0=x, 1=y, 2=z)
+ */
 function findPlaneIntersect(mouseX, mouseY, mvPickMatrix, near, aspect, fov, type) {
-	/*
-	 * Find the intersection between a point given by mouseX and mouseY coordinates and a plane
-	 * given by an axis represented by type (0=x, 1=y, 2=z)
-	 */
-	  
+
   	var centered_x, centered_y, unit_x, unit_y, near_height, near_width, i, j;
     
 	centered_y = gl.viewportHeight - mouseY - gl.viewportHeight/2.0;
@@ -831,7 +822,7 @@ function getIntersection(anchor, normal, l) {
 	return null;
 }
 
-/*
+/**
  * The handlers for the 3 navigator windows. For each of them the steps are:
  * 1. Get mouse position
  * 2. Check if click was done on the IMG element or in the rest of the div(ignore the later)
@@ -950,16 +941,17 @@ function BASE_PICK_handleMouseWeel(event) {
 	}
 }
 
-function drawScene() {
-	/*
-	 * This is 'overwritten' in most viewers as needed. Still used for eg in local_connectivity.
-	 */
-	if (GL_zoomSpeed != 0) {
-        GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
-        GL_zoomSpeed = 0;
-    }
-    BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
+/**
+ * Init the legend labels, from minValue to maxValue
+ *
+ * @param maxValue Maximum value for the gradient end
+ * @param [minValue=0] Minimum value for the gradient start
+ */
+function BASE_PICK_initLegendInfo(maxValue, minValue) {
+    if (minValue == undefined)
+        minValue = 0;
+	var brainLegendDiv = document.getElementById('brainLegendDiv');
+    ColSch_updateLegendLabels(brainLegendDiv, minValue, maxValue, "100%")
 }
-
 
 

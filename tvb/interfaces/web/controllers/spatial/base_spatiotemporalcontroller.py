@@ -113,8 +113,8 @@ class SpatioTemporalController(base.BaseController):
         burst_configuration = base.get_from_session(base.KEY_BURST_CONFIG)
         if burst_configuration is None:
             return None, None, None
-        first_range = burst_configuration.get_simulation_parameter_value('first_range')
-        second_range = burst_configuration.get_simulation_parameter_value('second_range')
+        first_range = burst_configuration.get_simulation_parameter_value('range_1')
+        second_range = burst_configuration.get_simulation_parameter_value('range_2')
         if ((first_range is not None and str(first_range).startswith(MODEL_PARAMETERS)) or
                 (second_range is not None and str(second_range).startswith(MODEL_PARAMETERS))):
             base.set_error_message("When configuring model parameters you are not allowed to specify range values.")

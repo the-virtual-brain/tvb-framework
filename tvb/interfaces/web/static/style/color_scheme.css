@@ -1,0 +1,11 @@
+#rangerForLinearColSch {
+    width:350px;
+}
+
+.colorSelector {
+    margin: 5px;
+}
+
+#sliderMinValue, #sliderMaxValue {
+    padding: 10px;
+}

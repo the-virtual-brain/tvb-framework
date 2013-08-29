@@ -27,48 +27,73 @@
  */
 
 
-function LCONN_PICK_changeColorBuffers(data_from_server) {
-	/**
-	 * Displays a gradient on the surface.
-	 *
-	 * @param data_from_server a json object which contains the data needed
-	 * for drawing a gradient on the surface.
-	 */
+/**
+ * 'Overwrite' the drawScene function here to add extra functionality for drawing the legend
+ */
+function drawScene() {
+    if (GL_zoomSpeed != 0) {		// Handle the zoom event before drawing the brain.
+        GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
+        GL_zoomSpeed = 0;
+    }
+    // Use function offered by base_vertice_pick.js to draw the brain.
+	BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
+
+   if (noOfUnloadedBrainDisplayBuffers == 0) {      // wait for the data to be loaded, then draw the legend
+        loadIdentity();
+        if (LEG_legendBuffers.length) drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+   }
+}
+
+
+/**
+ * Displays a gradient on the surface.
+ *
+ * @param data_from_server a json object which contains the data needed
+ * for drawing a gradient on the surface.
+ */
+function LCONN_PICK_updateBrainDrawing(data_from_server) {
     data_from_server = $.parseJSON(data_from_server);
 
     var data = $.parseJSON(data_from_server['data']);
     var minValue = data_from_server['min_value'];
     var maxValue = data_from_server['max_value'];
 
+    BASE_PICK_initLegendInfo(maxValue);     // setup the legend
+    ColSch_initColorSchemeParams(minValue, maxValue,
+        function() { LEG_updateLegendColors();
+                    _updateBrainColors(data, minValue, maxValue);
+                    drawScene() })
+
     if (BASE_PICK_brainDisplayBuffers.length != data.length) {
         displayMessage("Could not draw the gradient view. Invalid data received from the server.", "errorMessage");
         return;
     }
 
-    for (var i = 0; i < data.length; i++) {
-        var fakeColorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
-        var thisBufferColors = new Float32Array(data[i].length * 4);
-        for (var j = 0; j < data[i].length ; j++) {
-            var color = getGradientColor(data[i][j], minValue, maxValue);
-            thisBufferColors[4*j] = color[0];
-            thisBufferColors[4*j + 1] = color[1];
-            thisBufferColors[4*j + 2] = color[2];
-            thisBufferColors[4*j + 3] = 0.5;
-        }
-        gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
-        BASE_PICK_brainDisplayBuffers[i][3] = fakeColorBuffer;
-    }
+    _updateBrainColors(data_from_server);
     drawScene();
     displayMessage("Displaying Local Connectivity profile for selected focal point ..." )
 }
 
+/**
+ * Updates the buffers for drawing the brain, from the specified data
+ * @private
+ */
+function _updateBrainColors(data, minValue, maxValue) {
+    for (var i = 0; i < data.length; i++) {
+        var fakeColorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
+        var thisBufferColors = new Float32Array(data[i].length * 4);
+        getGradientColorArray(data[i], minValue, maxValue, thisBufferColors)
+        gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
+        BASE_PICK_brainDisplayBuffers[i][3] = fakeColorBuffer;
+    }
+}
 
+/**
+ * In case something changed in the parameters or the loaded local_connectivity is
+ * set to None, just use this method to draw the 'default' surface with the gray coloring.
+ */
 function LCONN_PICK_drawDefaultColorBuffers() {
-	/*
-	 * In case something changed in the parameters or the loaded local_connectivity is
-	 * set to None, just use this method to draw the 'default' surface with the gray coloring.
-	 */
     if (noOfUnloadedBrainDisplayBuffers != 0) {
         displayMessage("The load operation for the surface data is not completed yet!", "infoMessage");
         return;
