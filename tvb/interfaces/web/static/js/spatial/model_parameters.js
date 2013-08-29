@@ -425,16 +425,3 @@ function copyNoiseConfig(fromNode, toNodes) {
         success:function (data) { }
     });
 }
-
-
-/**
- * Simplest drawScene
- */
-function drawScene() {
-
-	if (GL_zoomSpeed != 0) {
-        GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
-        GL_zoomSpeed = 0;
-    }
-    BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
-}
