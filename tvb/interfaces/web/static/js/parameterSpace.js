@@ -76,7 +76,6 @@ function _updatePlotPSE(canvasId, xLabels, yLabels, seriesArray, data_info, min_
             }
         },
         grid: {
-//            show: false,
             clickable: true,
             hoverable: true
         }
@@ -108,8 +107,9 @@ function redrawPlot(plotCanvasId) {
  */
 function applyClickEvent(canvasId, backPage) {
 
-	$("#"+canvasId).unbind("plotclick");
-	$("#"+canvasId).bind("plotclick", function (event, pos, item) { 
+    var currentCanvas = $("#"+canvasId);
+	currentCanvas.unbind("plotclick");
+	currentCanvas.bind("plotclick", function (event, pos, item) {
 				if (item != null) {
 						var dataPoint = item.datapoint;
 			            var dataInfo = PSE_nodesInfo[dataPoint[0]][dataPoint[1]];
@@ -148,31 +148,21 @@ function applyHoverEvent(canvasId) {
 }
 
 
-function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson,
-						       min_color, max_color, backPage, color_metric, size_metric) {
-	drawColorPickerComponent('startColorSelector', 'endColorSelector', changeColors);
+function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson, backPage,
+                               min_color, max_color, min_size, max_size) {
+
+    //ColSch_initColorSchemeParams(min_color, max_color, changeColors);
+
 	var labels_x = $.parseJSON(labelsXJson);
 	var labels_y = $.parseJSON(labelsYJson);
 	var data = $.parseJSON(dataJson);
 	
-	var colorMetricSelect = document.getElementById('color_metric_select');
-	var sizeMetricSelect = document.getElementById('size_metric_select');
-	
-	_updatePlotPSE('main_div_pse', labels_x, labels_y, series_array, data, 
-				   min_color, max_color, backPage);
-						
-	for (var i=0; i<colorMetricSelect.options.length; i++) {
-		if (colorMetricSelect.options[i].value == color_metric) {
-			colorMetricSelect.selectedIndex = i;
-		}
-	}
-	for (var i=0; i<sizeMetricSelect.options.length; i++) {
-		if (sizeMetricSelect.options[i].value == size_metric) {
-			sizeMetricSelect.selectedIndex = i;
-		}
-	}
-	$('#startColorLabel')[0].innerHTML = '<mark>Minimum</mark> ' + min_color;
-	$('#endColorLabel')[0].innerHTML = '<mark>Maximum</mark> ' + max_color;
+	_updatePlotPSE('main_div_pse', labels_x, labels_y, series_array, data, min_color, max_color, backPage);
+
+	$('#minColorLabel')[0].innerHTML = '<mark>Minimum color metric</mark> ' + Math.round(min_color * 1000) / 1000;
+	$('#maxColorLabel')[0].innerHTML = '<mark>Maximum color metris</mark> ' + Math.round(max_color * 1000) / 1000;
+    $('#minShapeLabel')[0].innerHTML = '<mark>Minimum shape</mark> ' + Math.round(min_size * 1000) / 1000;
+	$('#maxShapeLabel')[0].innerHTML = '<mark>Maximum shape</mark> ' + Math.round(max_size * 1000) / 1000;
 
     // Prepare functions for Export Canvas as Image
     var canvas = $(".base")[0];
@@ -198,7 +188,7 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson,
     };
 	
 	if (status == "started") {
-		var timeout = setTimeout("PSE_mainDraw('main_div_pse','"+backPage+"')", 3000);
+		setTimeout("PSE_mainDraw('main_div_pse','" + backPage + "')", 3000);
 	}
 }
 
@@ -212,6 +202,10 @@ function PSE_mainDraw(parametersCanvasId, backPage, groupGID) {
 		// We didn't get parameter, so try to get group id from page
 		groupGID = document.getElementById("datatype-group-gid").value
 	}
+    if (backPage == undefined || backPage == '') {
+        backPage = get_URL_param('back_page');
+    }
+
 	var url = '/burst/explore/draw_discrete_exploration/' + groupGID + '/' + backPage;
 	var selectedColorMetric = $('#color_metric_select').val();
 	var selectedSizeMetric = $('#size_metric_select').val();

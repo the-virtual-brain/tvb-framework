@@ -67,7 +67,8 @@ class DiscretePSEAdapter(ABCDisplayer):
                  'conditions': FilterChain(fields=[FilterChain.datatype + ".no_of_ranges",
                                                    FilterChain.datatype + ".no_of_ranges",
                                                    FilterChain.datatype + ".count_results"],
-                                           operations=["<=", ">=", "<="], values=[2, 1, MAX_NUMBER_OF_POINT_TO_SUPPORT])}]
+                                           operations=["<=", ">=", "<="],
+                                           values=[2, 1, MAX_NUMBER_OF_POINT_TO_SUPPORT])}]
 
 
     def __init__(self):

@@ -80,8 +80,6 @@ class ContextDiscretePSE(EnhancedDictionary):
         self.labels_x = json.dumps(self.labels_x)
         self.labels_y = json.dumps(self.labels_y)
         self.data = json.dumps(self.data)
-        self.min_color = json.dumps(self.min_color)
-        self.max_color = json.dumps(self.max_color)
     
     
     def prepare_full_json(self):

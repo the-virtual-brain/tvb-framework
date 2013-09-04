@@ -11,20 +11,30 @@
 		<li>
 		<label for="color_metric_select">Color metric</label>
 		<select id="color_metric_select">
-			<option value="None" selected="selected">None</option>
-				<py:for each="metric in available_metrics">
-					<option value="$metric">$metric</option>
-				</py:for>
+			<option value="None">None</option>
+            <py:for each="metric in available_metrics">
+                <py:if test="metric==color_metric">
+                    <option value="$metric" selected="selected">$metric</option>
+                </py:if>
+                <py:if test="metric!=color_metric">
+                    <option value="$metric">$metric</option>
+                </py:if>
+            </py:for>
 		</select>
 		</li>
 		
 		<li>
 		<label for="size_metric_select">Size metric</label>
 		<select id="size_metric_select">
-			<option value="None" selected="selected">None</option>
-				<py:for each="metric in available_metrics">
-					<option value="$metric">$metric</option>
-				</py:for>
+			<option value="None">None</option>
+            <py:for each="metric in available_metrics">
+                <py:if test="metric==size_metric">
+                    <option value="$metric" selected="selected">$metric</option>
+                </py:if>
+                <py:if test="metric!=size_metric">
+                    <option value="$metric">$metric</option>
+                </py:if>
+            </py:for>
 		</select>
 		</li>
 		
@@ -33,24 +43,19 @@
 		</li>
 	</ul>
 
- 	<!-- Controls for changing diagram colors -->
+ 	<!-- Controls for displaying MAX / MIN values -->
 	<ul class="toolbar-inline burst-pse-colors">
-		<li class="color-swatch">
-			<div id="startColorSelector" class="colorSelector">
-				<div></div>
-			</div>
+		<li>
+		    <label id="minColorLabel"></label>
 		</li>
 		<li>
-		<label id="startColorLabel"></label>
+		    <label id="maxColorLabel"></label>
 		</li>
-		
-		<li class="color-swatch">
-			<div id="endColorSelector" class="colorSelector">
-				<div></div>
-			</div>
+        <li>
+		    <label id="minShapeLabel"></label>
 		</li>
 		<li>
-		<label id="endColorLabel"></label>
+		    <label id="maxShapeLabel"></label>
 		</li>
 	</ul>
    	
@@ -61,9 +66,8 @@
 	
 	<script type="text/javascript">
     	$(document).ready(function() {
-    		PSEDiscreteInitialize('${labels_x}', '${labels_y}', '${series_array}', '${data}',
-						          '${min_color}', '${max_color}', '${pse_back_page}',
-                                  '${color_metric}', '${size_metric}', '${status}');
+    		PSEDiscreteInitialize('${labels_x}', '${labels_y}', '${series_array}', '${data}', '${pse_back_page}',
+                                '${min_color}', '${max_color}', '${min_shape_size_weight}', '${max_shape_size_weight}');
             window.onresize = function(event) { redrawPlot('main_div_pse'); };
 		});
     </script>
