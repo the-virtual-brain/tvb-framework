@@ -115,29 +115,9 @@
         function launchViewer(width, height) {
         	_webGLPortletPreview('${base_activity_url}', '${urlVertices}', '${urlTriangles}', '${urlNormals}',
                     '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}');
-            drawColorPickerComponent('startColorSelector', 'endColorSelector');
         }
     </script>
-    <!-- Controls for changing brain colors -->
-    <ul class="toolbar-inline burst-pse-colors">
-        <li class="color-swatch">
-            <div id="startColorSelector" class="colorSelector">
-                <div></div>
-            </div>
-        </li>
-        <li>
-            <label id="startColorLabel">Minimum <br/> ${minActivity}</label>
-        </li>
 
-        <li class="color-swatch">
-            <div id="endColorSelector" class="colorSelector">
-                <div></div>
-            </div>
-        </li>
-        <li>
-            <label id="endColorLabel">Maximum <br/> ${maxActivity}</label>
-        </li>
-    </ul>
     <!--Draw brain-->
     <xi:include href="brain_component.html"/>
     ${draw_brain_component("GLcanvas", minActivityLabels)}
