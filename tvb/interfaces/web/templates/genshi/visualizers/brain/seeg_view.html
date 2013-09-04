@@ -117,7 +117,7 @@
                         ${'true' if extended_view else 'false'}, ${"'" + shelfObject +"'" if shelfObject else 'null'}, '${urlMeasurePointsLabels}', 
                         '${boundary_url}');
             EX_initializeChannels();
-            drawColorPickerComponent('startColorSelector', 'endColorSelector', LEG_updateLegendColors);
+            drawColorPickerComponent('startColorSelector', 'endColorSelector');
         });
     </script>
 
@@ -163,5 +163,4 @@
         <li>Mouse wheel to zoom in/out the brain.</li>
         <li>Left cursor key and the right bottom corner of the canvas to resize it.</li>
     </ul>
-    <label id='TIMETESTLABEL' value=''></label>
 </div>

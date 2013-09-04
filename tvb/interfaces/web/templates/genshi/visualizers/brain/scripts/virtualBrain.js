@@ -83,16 +83,14 @@ var isDoubleView = false;
 var drawingMode;
 
 
-function _webGLPortletPreview(baseDatatypeURL, onePageSize, urlVerticesList, urlTrianglesList, urlNormalsList,
+function _webGLPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesList, urlNormalsList,
                               urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
 	isPreview = true;
 	GL_DEFAULT_Z_POS = 250;
 	GL_zTranslation = GL_DEFAULT_Z_POS;
-	pageSize = onePageSize;
-	urlBase = baseDatatypeURL
-	var fromIdx = 0;
-    var toIdx = pageSize;
-    activitiesData = HLPR_readJSONfromFile(readDataPageURL(urlBase, fromIdx, toIdx, selectedStateVar, selectedMode, TIME_STEP));
+	pageSize = 1;
+	urlBase = baseDatatypeURL;
+    activitiesData = HLPR_readJSONfromFile(readDataPageURL(urlBase, 0, 1, selectedStateVar, selectedMode, TIME_STEP));
     if (oneToOneMapping == 'True') {
         isOneToOneMapping = true;
     }
@@ -303,7 +301,7 @@ function customMouseMove(event) {
     }
     var newX = event.clientX;
     var newY = event.clientY;
-    var deltaX = newX - GL_lastMouseX
+    var deltaX = newX - GL_lastMouseX;
     var deltaY = newY - GL_lastMouseY;
     if (NAV_isMouseControlOverBrain) {
 	    var newRotationMatrix = createRotationMatrix(deltaX / 10, [0, 1, 0]);
@@ -412,12 +410,13 @@ function wireFrame() {
  */
 function pauseMovie() {
     AG_isStopped = !AG_isStopped;
+    var pauseButton = $("#ctrl-action-pause");
     if (AG_isStopped) {
-        $("#ctrl-action-pause").html("Play");
-        $("#ctrl-action-pause").attr("class", "action action-controller-launch");
+        pauseButton.html("Play");
+        pauseButton.attr("class", "action action-controller-launch");
     } else {
-        $("#ctrl-action-pause").html("Pause");
-        $("#ctrl-action-pause").attr("class", "action action-controller-pause");
+        pauseButton.html("Pause");
+        pauseButton.attr("class", "action action-controller-pause");
     }
 }
 
@@ -602,7 +601,7 @@ function initRegionBoundaries(boundariesURL) {
 	        url: boundariesURL,
 	        async: true,
 	        success: function(data) {
-	        	var data = $.parseJSON(data);
+	        	data = $.parseJSON(data);
 	        	var boundaryVertices = data[0];
 			    var boundaryEdges = data[1];
 			    var boundaryNormals = data[2];
@@ -802,13 +801,13 @@ function drawScene() {
 	    }
 	} else {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
-   		gl.disable(gl.BLEND) 
-        gl.disable(gl.DITHER)
-        gl.disable(gl.FOG) 
-        gl.disable(gl.LIGHTING) 
-        gl.disable(gl.TEXTURE_1D) 
-        gl.disable(gl.TEXTURE_2D) 
-        gl.disable(gl.TEXTURE_3D) 
+   		gl.disable(gl.BLEND);
+        gl.disable(gl.DITHER);
+        gl.disable(gl.FOG);
+        gl.disable(gl.LIGHTING);
+        gl.disable(gl.TEXTURE_1D);
+        gl.disable(gl.TEXTURE_2D);
+        gl.disable(gl.TEXTURE_3D);
    		gl.uniform1f(shaderProgram.isPicking, 1);	
    		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -843,8 +842,9 @@ function drawScene() {
          }    
         var pickedIndex = GL_getPickedIndex();
 		if (pickedIndex != undefined) {
-            $("#channelChk_" + pickedIndex).attr('checked', !($("#channelChk_" + pickedIndex).attr('checked')));
-            $("#channelChk_" + pickedIndex).trigger('change');
+            var pickedChannel = $("#channelChk_" + pickedIndex);
+            pickedChannel.attr('checked', !(pickedChannel.attr('checked')));
+            pickedChannel.trigger('change');
 		}
 	    mvPopMatrix();		 
 		doPick = false;
@@ -862,7 +862,7 @@ function drawScene() {
  * and read the first page of the new mode/state var combination.
  */
 function changeStateVariable() {
-	selectedStateVar = $('#state-variable-select').val()
+	selectedStateVar = $('#state-variable-select').val();
     $("#slider").slider("option", "value", currentTimeValue);
 	initActivityData();
 }
@@ -872,7 +872,7 @@ function changeStateVariable() {
  * and read the first page of the new mode/state var combination.
  */
 function changeMode() {
-	selectedMode = $('#mode-select').val()
+	selectedMode = $('#mode-select').val();
 	$("#slider").slider("option", "value", currentTimeValue);
 	initActivityData();
 }

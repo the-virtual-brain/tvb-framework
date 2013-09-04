@@ -137,21 +137,20 @@ class BrainViewer(ABCDisplayer):
 
 
     def compute_preview_parameters(self, time_series):
+
         one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
             alphas, alphas_indices = self._prepare_surface_urls(time_series)
+
         _, _, measure_points_no = self._retrieve_measure_points(time_series)
-        time_0_data = time_series.read_data_page(0, 1, None)
-        min_val = numpy.min(time_0_data)
-        max_val = numpy.max(time_0_data)
+        min_val, max_val = time_series.get_min_max_values()
         legend_labels = self._compute_legend_labels(min_val, max_val)
-        return dict(isOneToOneMapping=one_to_one_map, urlVertices=json.dumps(url_vertices),
-                    urlTriangles=json.dumps(url_triangles),
-                    urlLines=json.dumps(url_lines),
-                    urlNormals=json.dumps(url_normals), alphas=json.dumps(alphas),
-                    alphas_indices=json.dumps(alphas_indices),
-                    base_activity_url=ABCDisplayer.VISUALIZERS_URL_PREFIX + time_series.gid, minActivity=min_val,
-                    maxActivity=max_val,
-                    minActivityLabels=legend_labels, noOfMeasurePoints=measure_points_no, pageSize=1)
+
+        return dict(urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
+                    urlLines=json.dumps(url_lines), urlNormals=json.dumps(url_normals),
+                    alphas=json.dumps(alphas), alphas_indices=json.dumps(alphas_indices),
+                    base_activity_url=ABCDisplayer.VISUALIZERS_URL_PREFIX + time_series.gid,
+                    isOneToOneMapping=one_to_one_map, minActivity=min_val, maxActivity=max_val,
+                    minActivityLabels=legend_labels, noOfMeasurePoints=measure_points_no)
 
 
     def compute_parameters(self, time_series):
