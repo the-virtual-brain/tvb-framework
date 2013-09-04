@@ -109,9 +109,8 @@ class BrainViewerTest(TransactionalTestCase):
         time_series = self.datatypeFactory.create_timeseries(self.connectivity)
         viewer = BrainViewer()
         result = viewer.generate_preview(time_series, (500, 200))
-        expected_keys = ['urlVertices', 'urlNormals', 'urlTriangles', 'pageSize',
-                         'minActivityLabels', 'minActivity', 'maxActivity', 'isOneToOneMapping',
-                         'isAdapter', 'base_activity_url', 'alphas_indices']
+        expected_keys = ['urlVertices', 'urlNormals', 'urlTriangles', 'minActivityLabels', 'minActivity', 'maxActivity',
+                         'isOneToOneMapping', 'isAdapter', 'base_activity_url', 'alphas_indices']
         for key in expected_keys:
             self.assertTrue(key in result and result[key] is not None)
         
