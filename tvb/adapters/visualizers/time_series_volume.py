@@ -32,15 +32,19 @@
 .. moduleauthor:: Ciprian Tomoiaga <ciprian.tomoiaga@codemart.ro>
 """
 
+import json
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.time_series import TimeSeriesVolume
-import json
+
 
 
 class TimeSeriesVolumeVisualiser(ABCDisplayer):
     def get_input_tree(self):
-        return [{'name': 'time_series_volume', 'label': 'Time Series Volume',
-                 'type': TimeSeriesVolume, 'required': True}]
+        return [{'name': 'time_series_volume',
+                 'label': 'Time Series Volume',
+                 'type': TimeSeriesVolume,
+                 'required': True}]
+
 
     def launch(self, time_series_volume):
         dataUrls = [self.paths2url(time_series_volume, "get_volume_slice", parameter="from_idx=0;to_idx=1")]

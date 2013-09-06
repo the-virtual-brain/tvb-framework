@@ -31,6 +31,7 @@
 """
 Service layer, for storing/retrieving Resulting Figures in TVB.
 
+.. moduleauthor:: Ciprian Tomoiaga <ciprian.tomoiaga@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
