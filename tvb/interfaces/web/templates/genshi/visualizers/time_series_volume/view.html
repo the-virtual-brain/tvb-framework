@@ -7,7 +7,7 @@
 
     <script type="text/javascript">
         $().ready(function() {
-            startVisualiser('${dataUrls}', ${minValue}, ${maxValue})
+            startVisualiser('${dataUrls}', ${minValue}, ${maxValue}, '${volumeOrigin}', '${voxelSize}', '${voxelUnit}')
             $("#volumetric-ts-canvas").mousedown(customMouseDown).mouseup(customMouseUp)
                                       .mousemove(customMouseMove)
         })

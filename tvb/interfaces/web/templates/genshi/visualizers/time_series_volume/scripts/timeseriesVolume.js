@@ -1,16 +1,21 @@
 var ctx = null
 var currentQuadrant
 var minimumValue, maximumValue, data
-var entitiesOnX, entitiesOnY, entitiesOnZ, entityWidth, entityHeight
+var entitiesOnX, entitiesOnY, entitiesOnZ, entityWidth, entityHeight, voxelSize
 var selectedEntityX,selectedEntityY,selectedEntityZ
 var quadrantHeight, quadrantWidth
 
-function startVisualiser(dataUrls, minValue, maxValue) {
+function startVisualiser(dataUrls, minValue, maxValue, volumeOrigin, sizeOfVoxel, voxelUnit) {
     var canvas = document.getElementById("volumetric-ts-canvas")
     if (!canvas.getContext) {
         displayMessage('You need a browser with canvas capabilities, to see this demo fully!', "errorMessage")
         return
     }
+
+    volumeOrigin = $.parseJSON(volumeOrigin)[0]
+    voxelSize    = $.parseJSON(sizeOfVoxel)
+    console.log(voxelSize)
+
     canvas.height = $(canvas).parent().height() - 10
     canvas.width  = $(canvas).parent().width()
     quadrantHeight = canvas.height / 2
@@ -94,28 +99,42 @@ function drawAxes() {
     ctx.restore()
 }
 
-function _setQuadrant(quadrantNo, updateContext) {
-    currentQuadrant = quadrantNo
-    switch (quadrantNo) {
+function _setEntityDimensions() {
+    switch (currentQuadrant) {
         case 1:
-            entityHeight = (quadrantHeight) / entitiesOnY
-            entityWidth  = (quadrantWidth) / entitiesOnX
+            var scaleOnHeight = quadrantHeight / (entitiesOnY * voxelSize[1])
+            var scaleOnWidth  = quadrantWidth  / (entitiesOnX * voxelSize[0])
+            var scale = Math.min(scaleOnHeight, scaleOnWidth)
+            entityHeight = voxelSize[1] * scale
+            entityWidth  = voxelSize[0] * scale
             break
         case 2:
-            entityHeight = (quadrantHeight) / entitiesOnY
-            entityWidth  = (quadrantWidth)  / entitiesOnZ
+            var scaleOnHeight = quadrantHeight / (entitiesOnY * voxelSize[1])
+            var scaleOnWidth  = quadrantWidth  / (entitiesOnZ * voxelSize[2])
+            var scale = Math.min(scaleOnHeight, scaleOnWidth)
+            entityHeight = voxelSize[1] * scale
+            entityWidth  = voxelSize[2] * scale
             break
-        case 3:     
-            ctx.translate(0, quadrantHeight)
-            entityHeight = quadrantHeight / entitiesOnX
-            entityWidth  = quadrantWidth  / entitiesOnZ
+        case 3:
+            var scaleOnHeight = quadrantHeight / (entitiesOnX * voxelSize[0])
+            var scaleOnWidth  = quadrantWidth  / (entitiesOnZ * voxelSize[2])
+            var scale = Math.min(scaleOnHeight, scaleOnWidth)
+            entityHeight = voxelSize[0] * scale
+            entityWidth  = voxelSize[2] * scale
             break
-        case 4:                                                     // quadrant 4 isn't used now, but just in case
-            ctx.translate(quadrantWidth, quadrantHeight)
+        case 4:
             // if quadrant 4 is used set entity height and width, depending on which axes you need on that quadrant
             break
-        default:    ctx.translate(0, 0)
+        default:
+            displayMessage("Invalid quadrant!", "warningMessage")
     }
+
+
+}
+
+function _setQuadrant(quadrantNo, updateContext) {
+    currentQuadrant = quadrantNo
+    _setEntityDimensions()
     if (updateContext) {
         ctx.setTransform(1, 0, 0, 1, 0, 0)                          // reset the transformation
         switch (quadrantNo) {
@@ -123,6 +142,7 @@ function _setQuadrant(quadrantNo, updateContext) {
             case 2:  ctx.translate(0, 0); break
             case 3:  ctx.translate(0, quadrantHeight); break
             case 4:  ctx.translate(quadrantWidth, quadrantHeight); break
+            default: displayMessage("Invalid quadrant!", "warningMessage")
         }
     }
 }
