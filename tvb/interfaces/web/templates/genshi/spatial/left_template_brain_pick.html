@@ -73,16 +73,15 @@
         <div class="controllersDiv">
             <py:if test="subsection_name == 'surfacestim'">
                 <a href="#" title="Add focal point…" class="action action-plus addFocalPoint"
-                   onclick="addSurfaceFocalPoint()">Add focal point</a>
+                   onclick="BS_addSurfaceFocalPoint()">Add focal point</a>
                 <div class="action-block block-player">
-                    <button class="action action-run" onclick="startStimulusVisualization()">Play</button>
-                    <button class="action action-stop action-idle" onclick="stopStimulusVisualization()">Stop
-                    </button>
+                    <button class="action action-run" onclick="BS_startSignalVisualization()">Play</button>
+                    <button class="action action-stop action-idle" onclick="BS_stopSignalVisualization()">Stop</button>
                 </div>
             </py:if>
             <py:if test="subsection_name == 'surfacemodel'">
                 <a href="#" title="Add focal point…" class="action action-plus addFocalPoint"
-                   onclick="addFocalPointForSurfaceModelParam()">Add focal point</a>
+                   onclick="MP_addFocalPointForSurfaceModelParam()">Add focal point</a>
             </py:if>
         </div>
         <div class="brainDiv">

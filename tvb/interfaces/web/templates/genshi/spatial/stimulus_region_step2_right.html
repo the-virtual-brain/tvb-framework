@@ -1,15 +1,15 @@
-<section  class="manage-regions view-column col-2" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+<section  class="manage-regions view-column col-2" xmlns:xi="http://www.w3.org/2001/XInclude">
 	
 	<h4><mark>Manage</mark> Regions</h4>
 	
 	<ul class="toolbar-inline">
 		<li>
-			<label for="node-scaling">New scaling</label> 
+			<label for="current_weight">New scaling</label>
 			<input type="text" name="current_weight" id="current_weight"/> 
-			<button onclick="saveWeightForSelectedNodes();" class="action action-store" title="Scaling can change the intensity of the defined stimulus for individual nodes.">Set scaling</button>
+			<button onclick="STIM_saveWeightForSelectedNodes();" class="action action-store" title="Scaling can change the intensity of the defined stimulus for individual nodes.">Set scaling</button>
 		</li>
 		<li>
-			<button onclick="resetRegionStimulusWeights();" class="action action-reset" title="Reset all scalings defined in this session.">Reset scaling</button>
+			<button onclick="STIM_resetRegionStimulusWeights();" class="action action-reset" title="Reset all scalings defined in this session.">Reset scaling</button>
 		</li>
 	</ul>
 	

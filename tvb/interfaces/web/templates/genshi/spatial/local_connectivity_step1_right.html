@@ -1,4 +1,4 @@
-<section xmlns:xi="http://www.w3.org/2001/XInclude" class="configure-stimulus-shape view-column col-1" xmlns:py="http://genshi.edgewall.org/">
+<section class="configure-stimulus-shape view-column col-1" xmlns:py="http://genshi.edgewall.org/">
 	
 	<h4><mark>View</mark> Plot</h4>
 	
@@ -9,7 +9,7 @@
    		$(document).ready(function() {
    		   equationsPrefixes = ${equationsPrefixes};
            equationsPrefixes.push('cutoff');
-	       plotEquations('equationDivId', '${equationViewerUrl}', 'form_spatial_local_connectivity_data', equationsPrefixes);
+	       BS_plotEquations('equationDivId', '${equationViewerUrl}', 'form_spatial_local_connectivity_data', equationsPrefixes);
         });
     </script>
 	    

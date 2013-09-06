@@ -1,6 +1,6 @@
-<section class="configure-stimulus-shape view-column col-1" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+<section class="configure-stimulus-shape view-column col-1">
 	
-	<h4>	<mark>Shape</mark> Stimulus</h4>
+	<h4><mark>Shape</mark> Stimulus</h4>
 	
     <div id="equationDivId"></div>
 	<form id="temporalEquationAxisParams">
@@ -10,9 +10,9 @@
     <script type="text/javascript">
         $(document).ready(function() {
         	$("select[name='existentEntitiesSelect']").change(function () {
-                load_entity(); 
+                BS_loadEntity();
             });
-            plotEquations('equationDivId', '${equationViewerUrl}', 'form_spatial_stimulus_equations', $fieldsPrefixes, 'temporalEquationAxisParams');
+            BS_plotEquations('equationDivId', '${equationViewerUrl}', 'form_spatial_stimulus_equations', $fieldsPrefixes, 'temporalEquationAxisParams');
         });
     </script>
     

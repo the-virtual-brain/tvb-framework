@@ -36,7 +36,7 @@
  *          'all_param_names': [list_with_all_parameters_names]
  *          }
  */
-function drawSlidersForModelParameters(paramSlidersData) {
+function MP_drawSlidersForModelParameters(paramSlidersData) {
     paramSlidersData = $.parseJSON(paramSlidersData);
     for (var i = 0; i < paramSlidersData['all_param_names'].length; i++) {
         var paramName = paramSlidersData['all_param_names'][i];
@@ -47,7 +47,8 @@ function drawSlidersForModelParameters(paramSlidersData) {
 }
 
 function _drawSlider(name, minValue, maxValue, stepValue, defaultValue) {
-    $("#" + name).slider({
+    var sliderElement = $("#" + name);
+    sliderElement.slider({
         value: defaultValue,
         min: minValue,
         max: maxValue,
@@ -56,7 +57,7 @@ function _drawSlider(name, minValue, maxValue, stepValue, defaultValue) {
 
     $("#value_" + name).text(defaultValue);
 
-    $("#" + name).slider({
+    sliderElement.slider({
         change: function(event, ui) {
             if (GVAR_interestAreaNodeIndexes.length == 0) {
                 displayMessage(NO_NODE_SELECTED_MSG, "errorMessage");
@@ -67,8 +68,7 @@ function _drawSlider(name, minValue, maxValue, stepValue, defaultValue) {
 	                async:false,
 	                type:'GET',
 	                url:'/spatial/modelparameters/regions/update_model_parameter_for_nodes/' + name + '/' + newValue + '/' + $.toJSON(GVAR_interestAreaNodeIndexes),
-	                success:function (data) {
-	                }
+	                success:function (data) { }
 	            });
 			}
         }
@@ -79,14 +79,14 @@ function _drawSlider(name, minValue, maxValue, stepValue, defaultValue) {
 /**
  * @param parentDivId the id of the div in which are drawn the model parameters sliders
  */
-function resetParamSliders(parentDivId) {
+function MP_resetParamSliders(parentDivId) {
     if (GVAR_interestAreaNodeIndexes.length > 0) {
         doAjaxCall({
             async:false,
             type:'GET',
             url:'/spatial/modelparameters/regions/reset_model_parameters_for_nodes/' + $.toJSON(GVAR_interestAreaNodeIndexes),
             success:function (data) {
-                parentDiv = $("#" + parentDivId);
+                var parentDiv = $("#" + parentDivId);
                 parentDiv.empty();
                 parentDiv.append(data);
             }
@@ -94,14 +94,14 @@ function resetParamSliders(parentDivId) {
     }
 }
 
-function loadModelForConnectivityNode(connectivityNodeIndex, paramSlidersDivId) {
+function _loadModelForConnectivityNode(connectivityNodeIndex, paramSlidersDivId) {
     if (connectivityNodeIndex >= 0) {
         doAjaxCall({
             async:false,
             type:'GET',
             url:'/spatial/modelparameters/regions/load_model_for_connectivity_node/' + connectivityNodeIndex,
             success:function (data) {
-                paramSlidersDiv = $("#" + paramSlidersDivId);
+                var paramSlidersDiv = $("#" + paramSlidersDivId);
                 paramSlidersDiv.empty();
                 paramSlidersDiv.append(data);
             }
@@ -118,22 +118,22 @@ function loadModelForConnectivityNode(connectivityNodeIndex, paramSlidersDivId) 
  *
  * @param nodeIndex the index of the node that hast to be toggled.
  */
-function toggleAndLoadModel(nodeIndex) {
-    toggleSelection(nodeIndex);
+function MP_toggleAndLoadModel(nodeIndex) {
+    BS_toggleNodeSelection(nodeIndex);
     if (GFUNC_isNodeAddedToInterestArea(nodeIndex)) {
         if (GVAR_interestAreaNodeIndexes.length == 1) {
-            loadModelForConnectivityNode(GVAR_interestAreaNodeIndexes[0], 'div_spatial_model_params');
+            _loadModelForConnectivityNode(GVAR_interestAreaNodeIndexes[0], 'div_spatial_model_params');
         } else if (GVAR_interestAreaNodeIndexes.length > 1) {
-            copyModel(GVAR_interestAreaNodeIndexes[0], [nodeIndex]);
+            _copyModel(GVAR_interestAreaNodeIndexes[0], [nodeIndex]);
         }
     }
 }
 
 
-function copyAndLoadModel() {
+function MP_copyAndLoadModel() {
     if (GVAR_interestAreaNodeIndexes.length != 0) {
-        copyModel(GVAR_interestAreaNodeIndexes[0], GVAR_interestAreaNodeIndexes.slice(1));
-        loadModelForConnectivityNode(GVAR_interestAreaNodeIndexes[0], 'div_spatial_model_params');
+        _copyModel(GVAR_interestAreaNodeIndexes[0], GVAR_interestAreaNodeIndexes.slice(1));
+        _loadModelForConnectivityNode(GVAR_interestAreaNodeIndexes[0], 'div_spatial_model_params');
     }
 }
 
@@ -144,7 +144,7 @@ function copyAndLoadModel() {
  * @param fromNode the index of the node from where will be copied the model
  * @param toNodes a list with the nodes indexes for which will be replaced the model
  */
-function copyModel(fromNode, toNodes) {
+function _copyModel(fromNode, toNodes) {
     $.ajax({
         async:false,
         type:'POST',
@@ -158,7 +158,7 @@ function copyModel(fromNode, toNodes) {
 /**
  * Applies an equation for computing a model parameter.
  */
-function applyEquationForParameter() {
+function MP_applyEquationForParameter() {
     var paramName = $("#modelParameterSelect").val();
     var formInputs = $("#form_spatial_model_param_equations").serialize();
     var plotAxisInputs = $('#equationPlotAxisParams').serialize();
@@ -169,27 +169,10 @@ function applyEquationForParameter() {
         type:'POST',
         url:url,
         success:function (data) {
-            spatialModelParamsDiv = $("#div_spatial_model_params");
+            var spatialModelParamsDiv = $("#div_spatial_model_params");
             spatialModelParamsDiv.empty();
             spatialModelParamsDiv.append(data);
-            displayFocalPoints();
-        }
-    });
-}
-
-
-/**
- * Resets all the equations for all the model parameters.
- */
-function resetAllEquations() {
-    $.ajax({
-        async:false,
-        type:'POST',
-        url:'/spatial/modelparameters/surface/reset_all_equations',
-        success:function (data) {
-            spatialModelParamsDiv = $("#div_spatial_model_params");
-            spatialModelParamsDiv.empty();
-            spatialModelParamsDiv.append(data);
+            MP_displayFocalPoints();
         }
     });
 }
@@ -199,7 +182,7 @@ function resetAllEquations() {
  * Removes the given vertexIndex from the list of focal points specified for the
  * equation used for computing the selected model parameter.
  */
-function removeFocalPointForSurfaceModelParam(vertexIndex) {
+function MP_removeFocalPointForSurfaceModelParam(vertexIndex) {
     var paramName = $("select[name='model_param']").val();
     var url = '/spatial/modelparameters/surface/remove_focal_point?model_param=' + paramName;
         url += "&vertex_index=" + vertexIndex;
@@ -208,7 +191,7 @@ function removeFocalPointForSurfaceModelParam(vertexIndex) {
         type:'POST',
         url:url,
         success:function (data) {
-            focalPointsDiv = $("#focalPointsDiv");
+            var focalPointsDiv = $("#focalPointsDiv");
             focalPointsDiv.empty();
             focalPointsDiv.append(data);
         }
@@ -220,7 +203,7 @@ function removeFocalPointForSurfaceModelParam(vertexIndex) {
  * Adds the selected vertex to the list of focal points specified for the
  * equation used for computing the selected model parameter.
  */
-function addFocalPointForSurfaceModelParam() {
+function MP_addFocalPointForSurfaceModelParam() {
     if (TRIANGLE_pickedIndex == undefined || TRIANGLE_pickedIndex < 0) {
         displayMessage(NO_VERTEX_SELECTED_MSG, "errorMessage");
         return;
@@ -234,7 +217,7 @@ function addFocalPointForSurfaceModelParam() {
         type:'POST',
         url:url,
         success:function (data) {
-            focalPointsDiv = $("#focalPointsDiv");
+            var focalPointsDiv = $("#focalPointsDiv");
             focalPointsDiv.empty();
             focalPointsDiv.append(data);
         }
@@ -242,18 +225,18 @@ function addFocalPointForSurfaceModelParam() {
 }
 
 
-function redrawSurfaceFocalPoints(focalPointsJson) {
-	/*
-	 * Redraw the left side (3D surface view) of the focal points recieved in the json.
-	 */
+/*
+ * Redraw the left side (3D surface view) of the focal points recieved in the json.
+ */
+function MP_redrawSurfaceFocalPoints(focalPointsJson) {
 	BASE_PICK_clearFocalPoints();
-	addedFocalPointsTriangles = []
+	BS_addedFocalPointsTriangles = [];
 	var focalPointsTriangles = $.parseJSON(focalPointsJson);
 	for (var i = 0; i < focalPointsTriangles.length; i++) {
 			TRIANGLE_pickedIndex = parseInt(focalPointsTriangles[i]);
-			moveBrainNavigator(true);
+			BASE_PICK_moveBrainNavigator(true);
 			BASE_PICK_addFocalPoint(TRIANGLE_pickedIndex);
-			addedFocalPointsTriangles.push(TRIANGLE_pickedIndex);
+			BS_addedFocalPointsTriangles.push(TRIANGLE_pickedIndex);
 		}
 }
 
@@ -263,7 +246,7 @@ function redrawSurfaceFocalPoints(focalPointsJson) {
  * Displays all the selected focal points for the equation
  * used for computing selected model param.
  */
-function displayFocalPoints() {
+function MP_displayFocalPoints() {
     var paramName = $("select[name='model_param']").val();
     var url = '/spatial/modelparameters/surface/get_focal_points?model_param=' + paramName;
     $.ajax({
@@ -271,7 +254,7 @@ function displayFocalPoints() {
         type:'POST',
         url:url,
         success:function (data) {
-            focalPointsDiv = $("#focalPointsDiv");
+            var focalPointsDiv = $("#focalPointsDiv");
             focalPointsDiv.empty();
             focalPointsDiv.append(data);
         }
@@ -279,80 +262,44 @@ function displayFocalPoints() {
 }
 
 
-/**
- * Reset the equation for the currently selected model parameter.
- */
-function resetEquationForParameter() {
-    var selectedParam = $('select[name="model_param"]').val();
-    if (selectedParam == undefined || selectedParam.length == 0) {
-        return;
-    }
-
-    var url = '/spatial/modelparameters/surface/reset_equation_for_model_parameter';
-    url += '?selected_param=' + selectedParam;
-    $.ajax({
-        async:false,
-        type:'POST',
-        url: url,
-        success:function (data) {
-            spatialModelParamsDiv = $("#div_spatial_model_params");
-            spatialModelParamsDiv.empty();
-            spatialModelParamsDiv.append(data);
-        }
-    });
-}
-
-function submitSurfaceParametersData(actionUrl){
-	if (addedFocalPointsTriangles.length < 1) {
-        displayMessage("You should define at least one focal point.", "errorMessage");
-        return;
-    }
-    var parametersForm = document.getElementById("base_spatio_temporal_form");
-    parametersForm.method = "POST";
-    parametersForm.action = actionUrl;
-    parametersForm.submit();	
-}
-
 // --------------------------------------------------------------------------------------
 // ---------------------------- NOISE SPECIFIC SETTINGS ---------------------------------
 // --------------------------------------------------------------------------------------
 
-
-function updateNoiseParameters(rootDivID) {
+function NP_updateNoiseParameters(rootDivID) {
 	var noiseValues = {};
-	var displayedValue = '['
-	var inputs = $('#' + rootDivID).find("input[id^='noisevalue']").each(
-		function() {
-			var nodeIdx = this.getAttribute('id').split('__')[1];
-			noiseValues[parseInt(nodeIdx)] = $(this).val();
-			displayedValue += $(this).val() + ' '
-		}
-	)
+	var displayedValue = '[';
+	$('#' + rootDivID).find("input[id^='noisevalue']")
+                      .each( function() {
+                                    var nodeIdx = this.getAttribute('id').split('__')[1];
+                                    noiseValues[parseInt(nodeIdx)] = $(this).val();
+                                    displayedValue += $(this).val() + ' '
+                                } );
 	displayedValue = displayedValue.slice(0, -1);
 	displayedValue += ']';
-	var submitData = {'selectedNodes' : $.toJSON(GVAR_interestAreaNodeIndexes),
-					  'noiseValues' : $.toJSON(noiseValues)}
+	var submitData = {'selectedNodes': $.toJSON(GVAR_interestAreaNodeIndexes),
+					  'noiseValues': $.toJSON(noiseValues)};
 					  
 	$.ajax({  	type: "POST", 
     			async: true,
 				url: '/spatial/noiseconfiguration/update_noise_configuration',
 				data: submitData, 
 				traditional: true,
-                success: function(r) {
+                success: function() {
                 	var nodesLength = GVAR_interestAreaNodeIndexes.length;
 				    for (var i = 0; i < nodesLength; i++) {
 				        $("#nodeScale" + GVAR_interestAreaNodeIndexes[i]).text(displayedValue);
 				        document.getElementById("nodeScale" + GVAR_interestAreaNodeIndexes[i]).className = "node-scale node-scale-selected"
 				    }
 				    GFUNC_removeAllMatrixFromInterestArea();
-                } ,
+                }
             });
 }
 
 /*
  * Load the default values for the table-like connectivity node selection display.
  */
-function loadDefaultNoiseValues() {
+function NP_loadDefaultNoiseValues() {
 	$.ajax({  	type: "POST", 
     			async: true,
 				url: '/spatial/noiseconfiguration/load_initial_values',
@@ -369,31 +316,31 @@ function loadDefaultNoiseValues() {
 				        $("#nodeScale" + i).text(displayedValue);
 				    }
 				    GFUNC_removeAllMatrixFromInterestArea();
-                } ,
+                }
             });
 }
 
-function toggleAndLoadNoise(nodeIndex) {
-    toggleSelection(nodeIndex);
+function NP_toggleAndLoadNoise(nodeIndex) {
+    BS_toggleNodeSelection(nodeIndex);
     if (GFUNC_isNodeAddedToInterestArea(nodeIndex)) {
         if (GVAR_interestAreaNodeIndexes.length == 1) {
-            loadNoiseValuesForConnectivityNode(GVAR_interestAreaNodeIndexes[0]);
+            _loadNoiseValuesForConnectivityNode(GVAR_interestAreaNodeIndexes[0]);
         } else if (GVAR_interestAreaNodeIndexes.length > 1) {
-            copyNoiseConfig(GVAR_interestAreaNodeIndexes[0], [nodeIndex]);
+            _copyNoiseConfig(GVAR_interestAreaNodeIndexes[0], [nodeIndex]);
         }
     }
 }
 
 
-function copyAndLoadNoiseConfig() {
+function NP_copyAndLoadNoiseConfig() {
     if (GVAR_interestAreaNodeIndexes.length != 0) {
-        copyNoiseConfig(GVAR_interestAreaNodeIndexes[0], GVAR_interestAreaNodeIndexes.slice(1));
-        loadNoiseValuesForConnectivityNode(GVAR_interestAreaNodeIndexes[0]);
+        _copyNoiseConfig(GVAR_interestAreaNodeIndexes[0], GVAR_interestAreaNodeIndexes.slice(1));
+        _loadNoiseValuesForConnectivityNode(GVAR_interestAreaNodeIndexes[0]);
     }
 }
 
 
-function loadNoiseValuesForConnectivityNode(connectivityNodeIndex) {
+function _loadNoiseValuesForConnectivityNode(connectivityNodeIndex) {
     if (connectivityNodeIndex >= 0) {
         doAjaxCall({
             async:false,
@@ -410,31 +357,17 @@ function loadNoiseValuesForConnectivityNode(connectivityNodeIndex) {
 }
 
 
-
 /**
  * Replace the model of the nodes 'to_nodes' with the model of the node 'from_node'.
  *
  * @param fromNode the index of the node from where will be copied the model
  * @param toNodes a list with the nodes indexes for which will be replaced the model
  */
-function copyNoiseConfig(fromNode, toNodes) {
+function _copyNoiseConfig(fromNode, toNodes) {
     $.ajax({
         async:false,
         type:'POST',
         url:'/spatial/noiseconfiguration/copy_configuration/' + fromNode + '/' + $.toJSON(toNodes),
         success:function (data) { }
     });
-}
-
-
-/**
- * Simplest drawScene
- */
-function drawScene() {
-
-	if (GL_zoomSpeed != 0) {
-        GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
-        GL_zoomSpeed = 0;
-    }
-    BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 }

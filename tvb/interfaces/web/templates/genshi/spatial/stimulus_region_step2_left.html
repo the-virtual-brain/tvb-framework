@@ -1,4 +1,4 @@
-<section  class="select-regions view-column col-1" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+<section  class="select-regions view-column col-1" xmlns:xi="http://www.w3.org/2001/XInclude">
 	
 	<h4><mark>Select</mark> Regions</h4>
 	
@@ -18,9 +18,9 @@
     <script type="text/javascript">
         $(document).ready(function() {
         	$("select[name='existentEntitiesSelect']").change(function () {
-                load_entity(); 
+                BS_loadEntity();
             });
-            initConnectivityViewer(${node_weights});
+            STIM_initConnectivityViewer(${node_weights});
         });
     </script>
     

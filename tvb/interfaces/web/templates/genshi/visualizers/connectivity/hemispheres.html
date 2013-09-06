@@ -1,4 +1,4 @@
-<div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="True">
+<div xmlns:py="http://genshi.edgewall.org/" py:strip="True">
     <!-- Hemisphere table -->
     <py:def function="drawHemisphereSection(hemisphereName, pointLabels, shiftNumber, usedInArea)">
         <section class="submatrix">
@@ -18,20 +18,20 @@
                                     </py:if>
                                     <py:if test="usedInArea == 'setStimulusScale'">
                                         <td id='nodeSelection${shiftNumber + i*COLS_NUMBER + j}' class='stimulusScale'
-                                            onclick='toggleNodeSelection(${shiftNumber + i*COLS_NUMBER + j});'>
+                                            onclick='STIM_toggleNodeSelection(${shiftNumber + i*COLS_NUMBER + j});'>
                                             ${pointLabels[i*COLS_NUMBER + j]}
                                             <span class="node-scale" id="nodeScale${shiftNumber + i*COLS_NUMBER + j}"></span>
                                         </td>
                                     </py:if>
                                     <py:if test="usedInArea == 'setModelParams'">
                                         <td id='nodeSelection${shiftNumber + i*COLS_NUMBER + j}' class='stimulusScale'
-                                            onclick='toggleAndLoadModel(${shiftNumber + i*COLS_NUMBER + j});'>
+                                            onclick='MP_toggleAndLoadModel(${shiftNumber + i*COLS_NUMBER + j});'>
                                             ${pointLabels[i*COLS_NUMBER + j]}
                                         </td>
                                     </py:if>
                                     <py:if test="usedInArea == 'setNoiseConfig'">
                                         <td id='nodeSelection${shiftNumber + i*COLS_NUMBER + j}' class='stimulusScale'
-                                            onclick='toggleAndLoadNoise(${shiftNumber + i*COLS_NUMBER + j});'>
+                                            onclick='NP_toggleAndLoadNoise(${shiftNumber + i*COLS_NUMBER + j});'>
                                             ${pointLabels[i*COLS_NUMBER + j]}
                                             <span class="node-scale" id="nodeScale${shiftNumber + i*COLS_NUMBER + j}">[1]</span>
                                         </td>

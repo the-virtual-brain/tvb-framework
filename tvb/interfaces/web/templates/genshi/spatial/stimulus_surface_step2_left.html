@@ -1,4 +1,5 @@
-<section xmlns:xi="http://www.w3.org/2001/XInclude" class="select-points view-column col-1" xmlns:py="http://genshi.edgewall.org/">
+<section xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/"
+        class="select-points view-column col-1">
 	
 	<script type="text/javascript" src="/static/js/vertice_pick/base_vertice_pick.js?4266"></script>
     <script type="text/javascript" src="/static/js/vertice_pick/stimulus_vertice_pick.js?4266"></script>
@@ -14,12 +15,12 @@
     	</fieldset>
 	</form>
 	
-    <xi:include href="left_template_brain_pick.html" py:with="callback='initFocalPoints(' + definedFocalPoints + ')'"/>
+    <xi:include href="left_template_brain_pick.html" py:with="callback='STIM_initFocalPoints(' + definedFocalPoints + ')'"/>
 
 	<script type="text/javascript">
         $(document).ready(function() {
         	$("select[name='existentEntitiesSelect']").change(function () {
-                load_entity();
+                BS_loadEntity();
             });
         });
     </script>

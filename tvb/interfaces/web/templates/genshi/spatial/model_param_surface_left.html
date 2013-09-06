@@ -1,5 +1,5 @@
 <div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
-	<script type="text/javascript" src="/static/js/spatial/model_parameters.js?4916" ></script>
+	<script type="text/javascript" src="/static/js/spatial/model_parameters.js?4916"></script>
 	
 	<h4><mark>Surface</mark> Model Configuration</h4>
 	<form id="form_spatial_model_param_equations">
@@ -9,7 +9,7 @@
 	    </fieldset>
 	</form>
 	
-	<button class="action" onclick="applyEquationForParameter()" style="float: right">Apply equation</button>
+	<button class="action" onclick="MP_applyEquationForParameter()" style="float: right">Apply equation</button>
 	<fieldset>
 		<legend>Applied equations:</legend>
 	    <py:if test="applied_equations">
@@ -33,11 +33,11 @@
 	
 	<script type="text/javascript">
 	        $(document).ready(function () {
-	            $("select[name='model_param']").unbind('change.displayFocalPoints');
-	            $("select[name='model_param']").bind('change.displayFocalPoints', function () {
-	                displayFocalPoints();
-	            });
-	            plotEquations('div_spatial_model_params_equation_chart', '${equationViewerUrl}', 'form_spatial_model_param_equations', $equationsPrefixes, 'equationPlotAxisParams');
+                $("select[name='model_param']")
+                        .unbind('change.displayFocalPoints')
+                        .bind('change.displayFocalPoints', MP_displayFocalPoints);
+	            BS_plotEquations('div_spatial_model_params_equation_chart', '${equationViewerUrl}',
+                        'form_spatial_model_param_equations', $equationsPrefixes, 'equationPlotAxisParams');
 	            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
 	        });
     </script>

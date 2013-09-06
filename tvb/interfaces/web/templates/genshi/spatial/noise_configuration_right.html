@@ -21,14 +21,14 @@
 	        <table class="paramSlidersTable" py:if="parametersNames">
 	            <tr py:for="idx, paramName in enumerate(parametersNames)">
 	                <td class="paramName">${paramName}</td>
-	                <td><input type="text" id="noisevalue__${idx}" value="${paramSlidersData[paramName]}"></input></td>
+	                <td><input type="text" id="noisevalue__${idx}" value="${paramSlidersData[paramName]}"/></td>
 	            </tr>
 	            <tr>
 	            	<td></td><td><br/></td>
 	            </tr>
 	            <tr>
 	            	<td></td>
-	            	<td><input type="button" onclick="updateNoiseParameters('div_spatial_noise_config')" value="Save values for selection"/></td>
+	            	<td><input type="button" onclick="NP_updateNoiseParameters('div_spatial_noise_config')" value="Save values for selection"/></td>
 	            </tr> 
 	        </table>
 	    </div>
@@ -36,16 +36,10 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-        	loadDefaultNoiseValues();
-            $(document).on("change", "#availableSelectionsList", function () {
-                copyAndLoadNoiseConfig();
-            });
-            $(document).on("click", "#addAllMatrixToInterestAreaBtn", function () {
-                copyAndLoadNoiseConfig();
-            });
-            $(document).on("click", "#loadSelectionFromTextBtn", function () {
-                copyAndLoadNoiseConfig();
-            });
+        	NP_loadDefaultNoiseValues();
+            $(document).on("change", "#availableSelectionsList", NP_copyAndLoadNoiseConfig);
+            $(document).on("click", "#addAllMatrixToInterestAreaBtn", NP_copyAndLoadNoiseConfig);
+            $(document).on("click", "#loadSelectionFromTextBtn", NP_copyAndLoadNoiseConfig);
         });
     </script>
     

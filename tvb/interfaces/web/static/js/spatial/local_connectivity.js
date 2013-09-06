@@ -17,10 +17,11 @@
  *
  **/
 
-function displayGradientForThePickedVertex() {
-	/**
-	 * Displays a gradient on the surface used by the selected local connectivity.
-	 */
+/**
+ * Displays a gradient on the surface used by the selected local connectivity.
+ */
+function LCON_displayGradientForThePickedVertex() {
+
     if (TRIANGLE_pickedIndex >= 0) {
         if (!LEG_legendBuffers.length) LEG_generateLegendBuffers();         // only generate them on first pick
         var selectedLocalConnectivity = $("select[name='existentEntitiesSelect']").val();
@@ -41,10 +42,11 @@ function displayGradientForThePickedVertex() {
     }
 }
 
+/**
+ * Disable the view button in case we don't have some existing entity loaded
+ */
 function LCONN_disableView(message) {
-	/*
-	 * Disable the view button in case we don't have some existing entity loaded
-	 */
+
 	var stepButton = $("#lconn_step_2");
 	stepButton[0].onclick = null;
 	stepButton.unbind("click");
@@ -52,10 +54,10 @@ function LCONN_disableView(message) {
 	stepButton.addClass("action-idle");
 }
 
+/**
+ * Disable the create button and remove action in case we just loaded an entity.
+ */
 function LCONN_disableCreate(message) {
-	/*
-	 * Disable the create button and remove action in case we just loaded an entity.
-	 */
 	var stepButton = $('#lconn_step_3');
 	stepButton[0].onclick = null;
 	stepButton.unbind("click");
@@ -63,11 +65,11 @@ function LCONN_disableCreate(message) {
 	stepButton.addClass("action-idle");
 }
 
-
+/**
+ * Enable the create button and add the required action to it in case some parameters have changed.
+ */
 function LCONN_enableCreate() {
-	/*
-	 * Enable the create button and add the required action to it in case some parameters have changed.
-	 */
+
 	var stepButton = $('#lconn_step_3');
 	stepButton[0].onclick = null;
 	stepButton.unbind("click");
@@ -76,3 +78,15 @@ function LCONN_enableCreate() {
 }
 
 
+/**
+ * Collects the data defined for the local connectivity and submit it to the server.
+ *
+ * @param actionURL the url at which will be submitted the data
+ * @param formId Form to be submitted.
+ */
+function LCONN_submitLocalConnectivityData(actionURL, formId) {
+    var parametersForm = document.getElementById(formId);
+    parametersForm.method = "POST";
+    parametersForm.action = actionURL;
+    parametersForm.submit();
+}

@@ -1,4 +1,4 @@
-<section xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude"  class="configure-stimulus-shape view-column col-1">
+<section xmlns:xi="http://www.w3.org/2001/XInclude" class="configure-stimulus-shape view-column col-1">
 	
 	<h4><mark>Configure</mark> Node Parameters</h4>
 	<script type="text/javascript" src="/static/js/spatial/model_parameters.js?4916" ></script>
@@ -14,18 +14,14 @@
     </section>
 	
 	<fieldset>
-		<legend>
-			Selected node plot:
-		</legend>
+		<legend> Selected node plot: </legend>
 	</fieldset>
 	<div style="margin-left: 15px; margin-bottom: 30px">
 		<xi:include href="../visualizers/mplh5/figure.html"/>
 	</div>
 	
 	<fieldset>
-		<legend>
-			Configure parameters:
-		</legend>
+		<legend> Configure parameters: </legend>
 		<div id='div_spatial_model_params'>
 	        <xi:include href="model_param_region_param_sliders.html"/>
 	    </div>
@@ -33,15 +29,9 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            $(document).on("change", "#availableSelectionsList", function () {
-                copyAndLoadModel();
-            });
-            $(document).on("click", "#addAllMatrixToInterestAreaBtn", function () {
-                copyAndLoadModel();
-            });
-            $(document).on("click", "#loadSelectionFromTextBtn", function () {
-                copyAndLoadModel();
-            });
+            $(document).on("change", "#availableSelectionsList", MP_copyAndLoadModel);
+            $(document).on("click", "#addAllMatrixToInterestAreaBtn", MP_copyAndLoadModel);
+            $(document).on("click", "#loadSelectionFromTextBtn", MP_copyAndLoadModel);
         });
     </script>
     

@@ -3,8 +3,8 @@
     	<py:if test="focal_points">
 	        <py:for each="idx in xrange(len(focal_points))">
 		        <li>
-		        	<a href="#" onclick="centerNavigatorOnFocalPoint(${focal_points[idx]})">Focal point ${focal_points[idx]}</a>
-		        	<a href="#" onclick="removeFocalPointForSurfaceModelParam(${focal_points[idx]})" class="action action-delete">Delete</a>
+		        	<a href="#" onclick="BS_centerNavigatorOnFocalPoint(${focal_points[idx]})">Focal point ${focal_points[idx]}</a>
+		        	<a href="#" onclick="MP_removeFocalPointForSurfaceModelParam(${focal_points[idx]})" class="action action-delete">Delete</a>
 		        </li>
 	        </py:for>
    		</py:if>
@@ -12,8 +12,8 @@
     
     <script type="text/javascript">
 	    $(document).ready(function () {
-		            redrawSurfaceFocalPoints('${focal_points_json}');
-		       });
+            MP_redrawSurfaceFocalPoints('${focal_points_json}');
+        });
 	</script>
     <py:if test="defined('error_msg')">
         <script>

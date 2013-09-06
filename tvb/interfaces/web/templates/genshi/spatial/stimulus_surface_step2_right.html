@@ -11,16 +11,14 @@
 	<ul class="focal-points"></ul>
 	
 	<ul class="toolbar-inline">
-		<li><a href="#" title="Delete all vertices…" class="action action-delete" onclick="deleteAllFocalPoint()">Delete all</a></li>
+		<li><a href="#" title="Delete all vertices…" class="action action-delete" onclick="STIM_deleteAllFocalPoints()">Delete all</a></li>
 	</ul>
 	
     <script type="text/javascript">
         $(document).ready(function() {
 	        $('#spatial_placeholder_div_id')
                     .unbind('click.displayIndexForThePickedVertex')
-                    .bind('click.displayIndexForThePickedVertex', function () {
-	                                        displayIndexForThePickedVertex();
-	                                        });
+                    .bind('click.displayIndexForThePickedVertex', BS_displayIndexForThePickedVertex);
             ColSch_initColorSchemeParams(0, 0, LEG_updateLegendColors);
         });
     </script>

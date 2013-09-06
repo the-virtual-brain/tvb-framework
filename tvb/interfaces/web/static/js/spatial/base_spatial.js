@@ -17,16 +17,10 @@
  *
  **/
 
-//needed for allowing the user to rotate the brain
-var lastSelected_TRIANGLE_pickedIndex = -5;
-// the default weights values for a region stimulus; needed for reset action
-var originalRegionStimulusWeights = [];
-// the updated weights values for a region stimulus
-var updatedRegionStimulusWeights = [];
 // this array will contain all the focal points selected by the user
-var addedSurfaceFocalPoints = [];
+var BS_addedSurfaceFocalPoints = [];
 // this array will contain all the triangles for the defined focal points
-var addedFocalPointsTriangles = [];
+var BS_addedFocalPointsTriangles = [];
 
 var NO_VERTEX_SELECTED_MSG = "You have no vertex selected.";
 var NO_NODE_SELECTED_MSG = "You have no node selected.";
@@ -35,7 +29,7 @@ var NO_NODE_SELECTED_MSG = "You have no node selected.";
 /**
  * Display the index for the selected vertex.
  */
-function displayIndexForThePickedVertex() {
+function BS_displayIndexForThePickedVertex() {
     if (TRIANGLE_pickedIndex == undefined || TRIANGLE_pickedIndex < 0) {
         displayMessage("No triangle is selected.", "warningMessage");
     } else {
@@ -47,7 +41,7 @@ function displayIndexForThePickedVertex() {
 /**
  * Display the name for the selected connectivity node.
  */
-function displayNameForPickedNode() {
+function BS_displayNameForPickedNode() {
     if (CONN_pickedIndex == undefined || CONN_pickedIndex < 0) {
         displayMessage("No node is currently selected selected.", "warningMessage");
     } else {
@@ -57,87 +51,11 @@ function displayNameForPickedNode() {
 
 
 /**
- * Submits all the region stimulus data to the server for creating a new Stimulus instance.
- *
- * @param actionUrl the url at which will be submitted the data.
- * @param nextStep
- * @param checkScaling
+ * Generate the data from the currently configured stimulus/LC and display as movie.
  */
-function submitRegionStimulusData(actionUrl, nextStep, checkScaling) {
-	if (checkScaling == true) {
-		var scalingSet = false;
-		for (var i=0; i<updatedRegionStimulusWeights.length; i++) {
-			if (updatedRegionStimulusWeights[i] != 0) {
-				scalingSet = true;
-			}
-		}
-		if (scalingSet == false) {
-			displayMessage("You should set scaling that is not 0 for at least some nodes.", "warningMessage");
-        	return;
-		}
-	}
-	submitPageData(actionUrl, {'next_step' : nextStep})
-}
+function BS_startSignalVisualization() {
 
-/*
- * Gather the data from all the forms in the page and submit them to actionUrl.
- * 
- * @param actionUrl: the url to which data will be submitted
- * @param baseData:
- */
-function submitPageData(actionUrl, baseData) {
-	var dataDictionary = baseData;
-	var pageForms = $('form');
-	for (var i=0; i<pageForms.length; i++) {
-		pageForms[i].id = "form_id_" + i;
-		var formData = getSubmitableData(pageForms[i].id, false);
-		for (key in formData) {
-			dataDictionary[key] = formData[key];
-		}
-	}
-		
-    var parametersForm = document.createElement("form");
-    parametersForm.method = "POST";
-    parametersForm.action = actionUrl;
-    document.body.appendChild(parametersForm);
-    
-    for (key in dataDictionary) {
-	        var input = document.createElement('INPUT');
-	        input.type = 'hidden';
-	        input.name = key;
-	        input.value = dataDictionary[key];
-	        parametersForm.appendChild(input);
-	    }
-    
-    parametersForm.submit();
-}
-
-
-/**
- * Collects the data needed for creating a SurfaceStimulus and submit it to the server.
- *
- * @param actionUrl the url at which will be submitted the data.
- * @param nextStep
- * @param includeFocalPoints
- */
-function submitSurfaceStimulusData(actionUrl, nextStep, includeFocalPoints) {
-    if (includeFocalPoints == true && addedSurfaceFocalPoints.length < 1) {
-        displayMessage("You should define at least one focal point.", "errorMessage");
-        return;
-    }
-    var baseDict = {'next_step' : nextStep}
-	if (includeFocalPoints == true) {
-		baseDict['defined_focal_points'] = JSON.stringify(addedFocalPointsTriangles);
-	}
-    submitPageData(actionUrl, baseDict)
-}
-
-/**
- * Generate the data from the currently configured stimulus.
- */
-function startStimulusVisualization() {
-
-    if (addedSurfaceFocalPoints.length < 1) {
+    if (BS_addedSurfaceFocalPoints.length < 1) {
         displayMessage("You should define at least one focal point.", "errorMessage");
         return;
     }
@@ -145,62 +63,35 @@ function startStimulusVisualization() {
     $.ajax({
         async:false,
         type:'GET',
-        url:'/spatial/stimulus/surface/view_stimulus?focal_points=' + JSON.stringify(addedFocalPointsTriangles),
+        url:'/spatial/stimulus/surface/view_stimulus?focal_points=' + JSON.stringify(BS_addedFocalPointsTriangles),
         success:function (data) {
             data = $.parseJSON(data);
             if (data['status'] == 'ok') {
                 STIM_PICK_setVisualizedData(data);
-                $('.action-stop')[0].className = $('.action-stop')[0].className.replace('action-idle', '');
-                $('.action-run')[0].className = $('.action-run')[0].className + " action-idle";
+                var buttonStop = $('.action-stop')[0];
+                buttonStop.className = buttonStop.className.replace('action-idle', '');
+                var buttonRun = $('.action-run')[0];
+                buttonRun.className = buttonRun.className + " action-idle";
             } else {
                 displayMessage(data['errorMsg'], "errorMessage");
             }
 
         },
-        error: function(x, e) {
+        error: function(x) {
             if (x.status == 500) {
-                displayMessage("An error occured probably due to invalid parameters.", "errorMessage");
+                displayMessage("An error occurred probably due to invalid parameters.", "errorMessage");
             }
         }
     });
 }
 
-function stopStimulusVisualization() {
+function BS_stopSignalVisualization() {
 	STIM_PICK_stopDataVisualization();
-	$('.action-run')[0].className = $('.action-run')[0].className.replace('action-idle', '');
-	$('.action-stop')[0].className = $('.action-stop')[0].className + " action-idle";
+    var buttonRun = $('.action-run')[0];
+	buttonRun.className = buttonRun.className.replace('action-idle', '');
+    var buttonStop = $('.action-stop')[0];
+	buttonStop.className = buttonStop.className + " action-idle";
     LEG_legendBuffers = [];
-}
-
-
-/**
- * Displays with a different color all the nodes that have a weight grater than 0.
- */
-function refreshWeights() {
-    $("input[name='weight']").val($.toJSON(updatedRegionStimulusWeights));
-    for (var i = 0; i < updatedRegionStimulusWeights.length; i++) {
-        $("#nodeScale" + i).text(updatedRegionStimulusWeights[i]);
-        if (updatedRegionStimulusWeights[i] > 0) {
-            GFUNC_addNodeToNodesWithPositiveWeight(i);
-            document.getElementById("nodeScale" + i).className = "node-scale node-scale-selected"
-        } else {
-            GFUNC_removeNodeFromNodesWithPositiveWeight(i);
-            document.getElementById("nodeScale" + i).className = "node-scale"
-        }
-    }
-    displayNumberOfSelections();
-}
-
-
-/**
- * Displays the number of selected nodes.
- */
-function displayNumberOfSelections() {
-    if (GVAR_interestAreaNodeIndexes.length > 0) {
-        $("#selectionMsg").text("You have " + GVAR_interestAreaNodeIndexes.length + " node(s) selected.");
-    } else {
-        $("#selectionMsg").text("You have no node selected.");
-    }
 }
 
 
@@ -210,7 +101,7 @@ function displayNumberOfSelections() {
  *
  * @param nodeIndex the index of the node that hast to be toggled.
  */
-function toggleSelection(nodeIndex) {
+function BS_toggleNodeSelection(nodeIndex) {
     if (nodeIndex >= 0) {
         if (GFUNC_isNodeAddedToInterestArea(nodeIndex)) {
             GFUNC_removeNodeFromInterestArea(nodeIndex);
@@ -223,28 +114,52 @@ function toggleSelection(nodeIndex) {
 }
 
 
-function centerNavigatorOnFocalPoint(focalPointTriangle) {
-	/*
-	 * Move the brain navigator on this focal point.
-	 */
-	TRIANGLE_pickedIndex = parseInt(focalPointTriangle);
-	moveBrainNavigator(true);
+/**
+ * Displays all the focal points that were selected by the user.
+ */
+function BS_drawSurfaceFocalPoints() {
+	var focalPointsContainer = $('.focal-points');
+    focalPointsContainer.empty();
+    var dummyDiv = document.createElement('DIV');
+    for (var i = 0; i < BS_addedFocalPointsTriangles.length; i++) {
+        dummyDiv.innerHTML = '<li> <a href="#" onclick="BS_centerNavigatorOnFocalPoint(' + BS_addedFocalPointsTriangles[i] + ')">Focal point ' + BS_addedFocalPointsTriangles[i] + '</a>' +
+            '<a href="#" onclick="BS_removeFocalPoint(' + i + ')" title="Delete focal point: ' + BS_addedFocalPointsTriangles[i] + '" class="action action-delete">Delete</a>' +
+            '</li>';
+	    var focalPointElement = dummyDiv.firstChild;
+	    focalPointsContainer.append(focalPointElement);
+    }
 }
 
 
 /**
- * Displays all the focal points that were selected by the user.
+ * Move the brain navigator on this focal point.
  */
-function drawSurfaceFocalPoints() {
-	var focalPointsContainer = $('.focal-points');
-    focalPointsContainer.empty();
-    var dummyDiv = document.createElement('DIV');
-    for (var i = 0; i < addedFocalPointsTriangles.length; i++) {
-        dummyDiv.innerHTML = '<li> <a href="#" onclick="centerNavigatorOnFocalPoint(' + addedFocalPointsTriangles[i] + ')">Focal point ' + addedFocalPointsTriangles[i] + '</a>' +
-            '<a href="#" onclick="removeFocalPoint(' + i + ')" title="Delete focal point: ' + addedFocalPointsTriangles[i] + '" class="action action-delete">Delete</a>' +
-            '</li>';
-	    var focalPointElement = dummyDiv.firstChild;
-	    focalPointsContainer.append(focalPointElement);
+function BS_centerNavigatorOnFocalPoint(focalPointTriangle) {
+
+	TRIANGLE_pickedIndex = parseInt(focalPointTriangle);
+	BASE_PICK_moveBrainNavigator(true);
+}
+
+
+/**
+ * Add a focal point for the currently selected surface.
+ */
+function BS_addSurfaceFocalPoint() {
+    if (TRIANGLE_pickedIndex < 0) {
+        displayMessage(NO_VERTEX_SELECTED_MSG, "errorMessage");
+    } else if (BS_addedSurfaceFocalPoints.length >= 20) {
+        displayMessage("The max number of focal points you are allowed to add is 20.", "errorMessage");
+    } else {
+        var valIndex = $.inArray(TRIANGLE_pickedIndex, BS_addedFocalPointsTriangles);
+        if (valIndex < 0) {
+        	displayMessage("Adding focal point with number: "+ (BS_addedSurfaceFocalPoints.length + 1)); //clear msg
+            BS_addedSurfaceFocalPoints.push(VERTEX_pickedIndex);
+            BS_addedFocalPointsTriangles.push(TRIANGLE_pickedIndex);
+            BS_drawSurfaceFocalPoints();
+            BASE_PICK_addFocalPoint(TRIANGLE_pickedIndex);
+        } else {
+        	displayMessage("The focal point " + TRIANGLE_pickedIndex + " is already in the focal points list.", "warningMessage"); //clear msg
+        }
     }
 }
 
@@ -254,35 +169,12 @@ function drawSurfaceFocalPoints() {
  *
  * @param focalPointIndex the index of the focal point that has to be removed.
  */
-function removeFocalPoint(focalPointIndex) {
-	var focalIndex = addedFocalPointsTriangles[focalPointIndex];
+function BS_removeFocalPoint(focalPointIndex) {
+	var focalIndex = BS_addedFocalPointsTriangles[focalPointIndex];
 	BASE_PICK_removeFocalPoint(focalIndex);
-	addedFocalPointsTriangles.splice(focalPointIndex, 1);
-    addedSurfaceFocalPoints.splice(focalPointIndex, 1);
-    drawSurfaceFocalPoints();
-}
-
-/*
- * Remove all the defined focal points
- */
-function deleteAllFocalPoint() {
-	for (var i = addedFocalPointsTriangles.length - 1; i >= 0; i--) {
-		removeFocalPoint(i);
-	}
-}
-
-
-/**
- * Collects the data defined for the local connectivity and submit it to the server.
- *
- * @param actionURL the url at which will be submitted the data
- * @param formId
- */
-function submitLocalConnectivityData(actionURL, formId) {
-    var parametersForm = document.getElementById(formId);
-    parametersForm.method = "POST";
-    parametersForm.action = actionURL;
-    parametersForm.submit();
+	BS_addedFocalPointsTriangles.splice(focalPointIndex, 1);
+    BS_addedSurfaceFocalPoints.splice(focalPointIndex, 1);
+    BS_drawSurfaceFocalPoints();
 }
 
 
@@ -296,7 +188,7 @@ function submitLocalConnectivityData(actionURL, formId) {
  * field that starts with one of this prefixes is changed than the equation chart will be redrawn.
  * @param axisDataId
  */
-function plotEquations(containerId, url, formDataId, fieldsPrefixes, axisDataId) {
+function BS_plotEquations(containerId, url, formDataId, fieldsPrefixes, axisDataId) {
     _plotEquations(containerId, url, formDataId, axisDataId);
     _applyEvents(containerId, url, formDataId, axisDataId, fieldsPrefixes);
 }
@@ -344,7 +236,7 @@ function _applyEvents(containerId, url, formDataId, axisDataId, fieldsPrefixes) 
 /**
  * Loads the interface found at the given url.
  */
-function load_entity() {
+function BS_loadEntity() {
     var selectedEntityGid = $("select[name='existentEntitiesSelect']").val();
     var myForm;
 

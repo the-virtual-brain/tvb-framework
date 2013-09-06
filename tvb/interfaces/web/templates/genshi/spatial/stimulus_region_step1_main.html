@@ -1,4 +1,4 @@
-<div id="main"  class="columnized colscheme-2-even" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+<div id="main" class="columnized colscheme-2-even" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
     <xi:include href="stimulus_region_step1_left.html"/>
     <xi:include href="stimulus_region_step1_right.html"/>
     
@@ -16,13 +16,13 @@
                <!-- </form> -->
             </li>
 			<li>
-				<button class="action action-view" onclick="submitRegionStimulusData('${next_step_url}', 2);return false;">
+				<button class="action action-view" onclick="STIM_submitRegionStimulusData('${next_step_url}', 2);return false;">
 					Set Regions Scaling
 				</button>
 			</li>
 			<li>
 				<py:if test="anyScaling">
-					<button class="action action-plus" onclick="submitRegionStimulusData('${next_step_url}', 3);return false;">
+					<button class="action action-plus" onclick="STIM_submitRegionStimulusData('${next_step_url}', 3);return false;">
 						Save Stimulus Region
 					</button>
 				</py:if>

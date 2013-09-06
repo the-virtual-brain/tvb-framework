@@ -1,6 +1,6 @@
-<div id="main" class="columnized colscheme-2-2nd-narrow">
+<div id="main" class="columnized colscheme-2-2nd-narrow" xmlns:xi="http://www.w3.org/2001/XInclude">
 	
-	<div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+	<div>
 		
 		<script type="text/javascript" src="/static/js/vertice_pick/base_vertice_pick.js?4266"></script>
     	<script type="text/javascript" src="/static/js/vertice_pick/local_connectivity_vertice_pick.js?4266"></script>
@@ -16,7 +16,7 @@
 			   <div class="dropdown-pane">
 		        <ul>
 	                <li>
-	                	<button id="lconn_step_1" class="action action-analyze" onclick="submitLocalConnectivityData('${next_step_url}', 'base_spatio_temporal_form');return false;">
+	                	<button id="lconn_step_1" class="action action-analyze" onclick="LCONN_submitLocalConnectivityData('${next_step_url}', 'base_spatio_temporal_form');return false;">
 	                		Edit Local Connectivity Equation
 	                	</button>
 	                </li>

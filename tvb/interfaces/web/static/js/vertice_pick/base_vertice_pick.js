@@ -52,7 +52,7 @@ var BASE_PICK_navigatorBuffers = [];
  * arr[i][2] Triangles indices buffer
  * arr[i][3] Color buffer (same length as vertices /3 * 4)
  */ 
-//Setting this to true allows to pick form the images aswell as the classic
+//Setting this to true allows to pick form the images as well as the classic
 //color picking scheme. TODO: picking this way is not correct if any zoom is done.
 var BASE_PICK_allowPickFrom2DImages = true;
 //If we are in movie mode stop the custom redraw on all events since it will
@@ -68,7 +68,7 @@ var drawingMode;
 GL_zoomSpeed = 0;
 
 var BRAIN_CANVAS_ID = "GLcanvas";
-var BASE_PICK_pinBuffers = []
+var BASE_PICK_pinBuffers = [];
 var BRAIN_CENTER = null;
 
 function BASE_PICK_customInitGL(canvas) {
@@ -429,7 +429,7 @@ function BASE_PICK_doVerticePick() {
 	    	x_inc += 1;
 	    	y_inc += 1;
 	    }
-        moveBrainNavigator(false);
+        BASE_PICK_moveBrainNavigator(false);
     }
     
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -447,7 +447,7 @@ function BASE_PICK_doVerticePick() {
 /**
  * Moves the brain navigator to a certain position.
  */
-function moveBrainNavigator(shouldRedrawScene) {
+function BASE_PICK_moveBrainNavigator(shouldRedrawScene) {
     if (TRIANGLE_pickedIndex != GL_NOTFOUND && TRIANGLE_pickedIndex != GL_BACKGROUND) {
         // If we managed to find an index find the triangle that corresponds to it from the list of splitted triangles
         // Then take the first vertice as new navigator coordinate. TODO: this could be replaced with some other metric
@@ -623,7 +623,7 @@ function initBrainNavigatorBuffers() {
 				        0.0, 0.0,  1.0,
 				        0.0, 0.0,  1.0,
 				        0.0, 0.0,  1.0,
-				        0.0, 0.0,  1.0,
+				        0.0, 0.0,  1.0
 				    ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
     BASE_PICK_navigatorBuffers[1].itemSize = 3;
