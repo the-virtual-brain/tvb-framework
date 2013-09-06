@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
 #
 # (c) 2012-2013, Baycrest Centre for Geriatric Care ("Baycrest")
 #
-# This program is free software; you can redistribute it and/or modify it under 
+# This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License version 2 as published by the Free
 # Software Foundation. This program is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
-# License for more details. You should have received a copy of the GNU General 
+# License for more details. You should have received a copy of the GNU General
 # Public License along with this program; if not, you can download it here
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0
 #
@@ -29,11 +29,21 @@
 #
 
 """
-List here all Python modules where Visualization adapters are described.
-Listed modules will be introspected and DB filled.
+.. moduleauthor:: Ciprian Tomoiaga <ciprian.tomoiaga@codemart.ro>
 """
 
-__all__ = ["brain", "connectivity", "cross_correlation", "cross_coherence",
-           "covariance", "histogram", "ica", "eeg_monitor",
-           "mplh5_coherence_spectrum", "mplh5_fourier_spectrum", "mplh5_topographic", "mplh5_wavelet_spectrogram",
-           "pse_discrete", "pse_isocline", "pca", "time_series", "time_series_volume"]
+from tvb.core.adapters.abcdisplayer import ABCDisplayer
+from tvb.datatypes.time_series import TimeSeriesVolume
+import json
+
+
+class TimeSeriesVolumeVisualiser(ABCDisplayer):
+    def get_input_tree(self):
+        return [{'name': 'time_series_volume', 'label': 'Time Series Volume',
+                 'type': TimeSeriesVolume, 'required': True}]
+
+    def launch(self, time_series_volume):
+        dataUrls = [self.paths2url(time_series_volume, "get_volume_slice", parameter="from_idx=0;to_idx=1")]
+        return self.build_display_result("time_series_volume/view", dict(title="Volumetric Time Series",
+                                                                         dataUrls=json.dumps(dataUrls)))
+

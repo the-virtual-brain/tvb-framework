@@ -1,0 +1,11 @@
+<div xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+    <script type="text/javascript" src="/static_view/time_series_volume/scripts/timeseriesVolume.js"></script>
+
+    <canvas id="volumetric-ts-canvas"></canvas>
+
+    <script type="text/javascript">
+        $().ready(function() {
+            startVisualiser('${dataUrls}')
+        })
+    </script>
+</div>
