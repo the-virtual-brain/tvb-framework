@@ -198,13 +198,19 @@ def timedelta2string(timedelta):
     if timedelta is None:
         return None
     result = str(timedelta)
+
     days = 0
     if 'days,' in result:
         result = result.split('days,')
         days = int(result[0])
         result = result[1].split(':')
+    elif 'day,' in result:
+        result = result.split('day,')
+        days = int(result[0])
+        result = result[1].split(':')
     else:
         result = result.split(':')
+
     hours = int(result[0])
     minutes = int(result[1])
     seconds = int(float(result[2]))
@@ -401,7 +407,7 @@ def matlab_cmd(matlab_path, script_name, log_file):
         if os.name == 'nt':
             opts = '-minimize ' + opts
         command = base + opts
-    if OCTAVE in exe_name:
+    else:  # if OCTAVE in exe_name:
         command = exe_name + ' %s.m >> %s' % (script_name, log_file)
     return os.system(command)
 
