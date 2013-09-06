@@ -44,6 +44,8 @@ class TimeSeriesVolumeVisualiser(ABCDisplayer):
 
     def launch(self, time_series_volume):
         dataUrls = [self.paths2url(time_series_volume, "get_volume_slice", parameter="from_idx=0;to_idx=1")]
-        return self.build_display_result("time_series_volume/view", dict(title="Volumetric Time Series",
-                                                                         dataUrls=json.dumps(dataUrls)))
+        minValue, maxValue = time_series_volume.get_min_max_values()
+        return self.build_display_result("time_series_volume/view",
+                                         dict(title="Volumetric Time Series", minValue=minValue, maxValue=maxValue,
+                                              dataUrls=json.dumps(dataUrls)))
 
