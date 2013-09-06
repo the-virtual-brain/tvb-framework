@@ -544,67 +544,50 @@ function setOperationRelevant(operationGID, isGroup, toBeRelevant, submitFormId)
 }
 
 
-function stopOperation(operationId, isGroup) {
-    // Take an operation Identifier and reload previously selected input parameters for it.
-    $.ajax({ async : false,
-        type: 'POST',
-        url: "/flow/stop_operation/" + operationId + '/' + isGroup,
-        success: function(r) {  if (r == 'true') {				
-        							displayMessage("The operation was succesfully stopped.", "infoMessage")
-        						} else {
-        							displayMessage("The operation was already finished.",'warningMessage');
-        						}		
-        					  },
-		error: function(r) {
-								 displayMessage("Some error occured during operation stop.",'errorMessage'); 
-							}
-      });
+function _stopOperationsOrBurst(operationId, isGroup, isBurst, removeAfter) {
+
+    var urlBase = "/flow/stop_operation/";
+    if (isBurst) {
+        urlBase = "/flow/stop_burst_operation/";
+    }
+    urlBase += operationId + '/' + isGroup ;
+    if (removeAfter) {
+        urlBase += '/True';
+    }
+
+    $.ajax({async: false,
+            type: 'POST',
+            url: urlBase,
+            success: function(r) {  if (r.toLowerCase() == 'true') {
+                                        displayMessage("The operation was successfully removed.", "infoMessage")
+                                    } else {
+                                        displayMessage("Could not remove operation.",'warningMessage');
+                                    }},
+            error: function(r) { displayMessage("Some error occurred while removing operation.",'errorMessage'); }
+    });
 }
 
 
+function stopOperation(operationId, isGroup) {
+    // Take an operation Identifier and reload previously selected input parameters for it.
+    _stopOperationsOrBurst(operationId, isGroup, false, false);
+}
+
 function stopBurstOperation(operationId, isGroup) {
     // Take an operation Identifier and reload previously selected input parameters for it.
-    $.ajax({ async : false,
-        type: 'POST',
-        url: "/flow/stop_burst_operation/" + operationId + '/' + isGroup,
-        success: function(r) {  if (r == 'true') {				
-        							displayMessage("The burst was succesfully stopped.", "infoMessage")
-        						} else {
-        							displayMessage("The burst was already finished.",'warningMessage');
-        						}		
-        					  },
-		error: function(r) {
-								 displayMessage("Some error occured during burst stop.",'errorMessage'); 
-							}
-      });
+    _stopOperationsOrBurst(operationId, isGroup, true, false);
 }
 
 
 function deleteOperation(operationId, isGroup) {
-	// Delete a operation that was not part of a group
-	$.ajax({ async : false,
-        type: 'POST',
-        url: "/flow/stop_operation/" + operationId + '/' + isGroup + '/True',
-        success: function(r) {  if (r == 'true') {				
-        							displayMessage("The operation was succesfully removed.", "infoMessage")
-        						} else {
-        							displayMessage("Could not remove operation.",'warningMessage');
-        						}},
-		error: function(r) { displayMessage("Some error occured while removing operation.",'errorMessage'); }});
+	// Delete a operation that was not part of a Burst
+	_stopOperationsOrBurst(operationId, isGroup, false, true);
 }
 
 
 function deleteBurstOperation(operationId, isGroup) {
 	// Delete a operation that was part of a burst launch
-	$.ajax({ async : false,
-        type: 'POST',
-        url: "/flow/stop_burst_operation/" + operationId + '/' + isGroup + '/True',
-        success: function(r) {  if (r == 'true') {				
-        							displayMessage("The burst was succesfully removed.", "infoMessage")
-        						} else {
-        							displayMessage("Could not remove burst.",'warningMessage');
-        						}},
-		error: function(r) { displayMessage("Some error occured while removing burst.",'errorMessage'); }});
+    _stopOperationsOrBurst(operationId, isGroup, true, true);
 }
 
 

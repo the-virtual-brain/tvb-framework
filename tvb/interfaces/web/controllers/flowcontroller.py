@@ -744,15 +744,17 @@ class FlowController(base.BaseController):
             op_group = ProjectService.get_operation_group_by_id(operation_id)
             first_op = ProjectService.get_operations_in_group(op_group)[0]
             operation = self.flow_service.load_operation(int(first_op.id))
+
         try:
             burst_service = BurstService()
-            burst_service.stop_burst(operation.burst)
+            result = burst_service.stop_burst(operation.burst)
             if remove_after_stop:
                 current_burst = base.get_from_session(base.KEY_BURST_CONFIG)
                 if current_burst and current_burst.id == operation.burst.id:
                     base.remove_from_session(base.KEY_BURST_CONFIG)
-                burst_service.remove_burst(operation.burst.id)
-            return True
+                return burst_service.remove_burst(operation.burst.id)
+
+            return result
         except Exception, ex:
             self.logger.exception(ex)
             return False

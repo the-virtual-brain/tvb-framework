@@ -270,15 +270,17 @@ class ClusterSchedulerClient(object):
         result = 0
         ## Try to kill only if operation job process is not None
         if operation_process is not None:
-            LOGGER.debug("Stopping cluster operation: %s, with job id: %s" % (operation_id, operation_process.job_id))
-            result = os.system(config.CLUSTER_STOP_COMMAND % operation_process.job_id)
+            stop_command = config.CLUSTER_STOP_COMMAND % operation_process.job_id
+            LOGGER.info("Stopping cluster operation: %s" % stop_command)
+            result = os.system(stop_command)
+            if result != 0:
+                LOGGER.error("Stopping cluster operation was unsuccessful. "
+                             "Try following with 'oarstat' for job ID: %s" % operation_process.job_id)
 
-        ## Set operation as canceled, if kill command succeed, otherwise no operation process was found...
-        if result == 0:
-            operation.mark_cancelled()
-            dao.store_entity(operation)
-            return True
-        return False
+        operation.mark_cancelled()
+        dao.store_entity(operation)
+
+        return result == 0
 
 
 
