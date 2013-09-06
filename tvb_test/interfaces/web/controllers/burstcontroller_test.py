@@ -270,7 +270,7 @@ class BurstContollerTest(BaseControllersTest):
         burst = self._store_burst(self.test_project.id, 'started', {'test': 'test'}, 'burst1')
         cherrypy.session[b_c.KEY_BURST_CONFIG] = burst
         burst_id = burst.id
-        BurstService().remove_burst(burst_id)
+        BurstService().cancel_or_remove_burst(burst_id)
         self.assertRaises(Exception, self.burst_c.load_burst, burst_id)
         self.assertTrue(b_c.KEY_BURST_CONFIG not in cherrypy.session)
 
@@ -283,7 +283,7 @@ class BurstContollerTest(BaseControllersTest):
         burst = self._store_burst(self.test_project.id, 'finished', {'test': 'test'}, 'burst1')
         cherrypy.session[b_c.KEY_BURST_CONFIG] = burst
         another_burst = self._store_burst(self.test_project.id, 'finished', {'test': 'test'}, 'burst1')
-        result = self.burst_c.remove_burst_entity(another_burst.id)
+        result = self.burst_c.cancel_or_remove_burst(another_burst.id)
         self.assertEqual(result, 'done')
 
 
@@ -294,7 +294,7 @@ class BurstContollerTest(BaseControllersTest):
         """
         burst = self._store_burst(self.test_project.id, 'finished', {'test': 'test'}, 'burst1')
         cherrypy.session[b_c.KEY_BURST_CONFIG] = burst
-        result = self.burst_c.remove_burst_entity(burst.id)
+        result = self.burst_c.cancel_or_remove_burst(burst.id)
         self.assertEqual(result, 'reset-new')
 
 

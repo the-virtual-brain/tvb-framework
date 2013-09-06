@@ -183,13 +183,13 @@ function scheduleNewUpdate(withFullUpdate, refreshCurrent) {
 }
 
 /*
- * Remove the burst entity given by burst_id. Also update the history column accordingly.
+ * Cancel or Remove the burst entity given by burst_id. Also update the history column accordingly.
  */
-function removeBurstEntity(burst_id) {
+function cancelOrRemoveBurst(burst_id) {
 	
 	doAjaxCall({  	
 			type: "POST", 
-			url: '/burst/remove_burst_entity/' + burst_id,
+			url: '/burst/cancel_or_remove_burst/' + burst_id,
 	        success: function(r) {    
 	        	var liParent = document.getElementById("burst_id_"+ burst_id);
 	        	if (r == 'canceled') {
@@ -208,7 +208,7 @@ function removeBurstEntity(burst_id) {
 	        	}
 	        } ,
 	        error: function(r) {
-	            displayMessage("Could not remove simulation.", "errorMessage");
+	            displayMessage("Could not cancel/remove simulation.", "errorMessage");
 	        }
 		});
 }

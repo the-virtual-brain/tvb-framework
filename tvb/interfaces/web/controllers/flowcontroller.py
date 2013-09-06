@@ -736,6 +736,7 @@ class FlowController(base.BaseController):
     def stop_burst_operation(self, operation_id, is_group, remove_after_stop=False):
         """
         For a given operation id that is part of a burst just stop the given burst.
+        :returns True when stopped operation was successfully.
         """
         operation_id = int(operation_id)
         if int(is_group) == 0:
@@ -752,7 +753,7 @@ class FlowController(base.BaseController):
                 current_burst = base.get_from_session(base.KEY_BURST_CONFIG)
                 if current_burst and current_burst.id == operation.burst.id:
                     base.remove_from_session(base.KEY_BURST_CONFIG)
-                return burst_service.remove_burst(operation.burst.id)
+                burst_service.cancel_or_remove_burst(operation.burst.id)
 
             return result
         except Exception, ex:

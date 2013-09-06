@@ -34,7 +34,7 @@
 									<p class="burst-prop-age" py:if="burst_list[idx].status=='running'">This simulation is still running....</p>
 								</py:if>
 								
-								<button class="action action-delete" onclick="removeBurstEntity(${burst_list[idx].id})" title="Remove this simulation and all its data">
+								<button class="action action-delete" onclick="cancelOrRemoveBurst(${burst_list[idx].id})" title="Stop/Remove this simulation and all its data">
 									${'Cancel' if burst_list[idx].status == 'running' else 'Delete'}</button>
 							</div>
 						</div>

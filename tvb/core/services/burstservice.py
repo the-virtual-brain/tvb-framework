@@ -505,9 +505,10 @@ class BurstService():
         
     
     @transactional 
-    def remove_burst(self, burst_id):
+    def cancel_or_remove_burst(self, burst_id):
         """
-        Remove the burst given by burst_id. If burst is still running just stop it.
+        Cancel (if burst is still running) or Remove the burst given by burst_id.
+        :returns True when Remove operation was done and False when Cancel
         """
         burst_entity = dao.get_burst_by_id(burst_id)
         if burst_entity.status == burst_entity.BURST_RUNNING:
@@ -632,10 +633,10 @@ class BurstService():
                     ## Since entry is not selected, just recurse on the default option and ###
                     ## all it's subtree will come up one level in the input tree         #####
                     for option in param[ABCAdapter.KEY_OPTIONS]:
-                        if (param_name in selection_dictionary and option.has_key(ABCAdapter.KEY_ATTRIBUTES) and
+                        if (param_name in selection_dictionary and ABCAdapter.KEY_ATTRIBUTES in option and
                             option[ABCAdapter.KEY_VALUE] == selection_dictionary[param_name][model.KEY_SAVED_VALUE]):
                             new_prefix = option[ABCAdapter.KEY_VALUE] + '_' + prefix
-                            recursive_results = self.select_simulator_inputs(option[ABCAdapter.KEY_ATTRIBUTES], 
+                            recursive_results = self.select_simulator_inputs(option[ABCAdapter.KEY_ATTRIBUTES],
                                                                              selection_dictionary, new_prefix)
                             result.extend(recursive_results)
         return result

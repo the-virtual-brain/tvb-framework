@@ -354,7 +354,7 @@ class BurstServiceTest(BaseTestCase):
         Test the remove burst method added to burst_service.
         """
         loaded_burst, _ = self._prepare_and_launch_sync_burst()
-        self.burst_service.remove_burst(loaded_burst.id)
+        self.burst_service.cancel_or_remove_burst(loaded_burst.id)
         ## Since the _prepare_and_launch_sync_burst creates a Datatype1 entry with
         ## the DatatypesFactory() we should have 1 operation remaining and 1 datatype
         ## of type Datatype1
@@ -402,7 +402,7 @@ class BurstServiceTest(BaseTestCase):
         if burst_config.status != BurstConfiguration.BURST_FINISHED:
             self.burst_service.stop_burst(burst_config)
             self.fail("Burst status should have been FINISH. Instead got %s" % (burst_config.status,))
-        got_deleted = self.burst_service.remove_burst(burst_config.id)
+        got_deleted = self.burst_service.cancel_or_remove_burst(burst_config.id)
         self.assertTrue(got_deleted, "Burst should be deleted if status is cancelled.")
 
         launched_workflows = dao.get_workflows_for_burst(burst_config.id)
@@ -419,12 +419,12 @@ class BurstServiceTest(BaseTestCase):
         burst_entity = self._prepare_and_launch_async_burst(length=20000)
         self.assertEqual(BurstConfiguration.BURST_RUNNING, burst_entity.status,
                          'A 20000 length simulation should still be started immediately after launch.')
-        got_deleted = self.burst_service.remove_burst(burst_entity.id)
+        got_deleted = self.burst_service.cancel_or_remove_burst(burst_entity.id)
         self.assertFalse(got_deleted, "Burst should be cancelled before deleted.")
         burst_entity = dao.get_burst_by_id(burst_entity.id)
         self.assertEqual(BurstConfiguration.BURST_CANCELED, burst_entity.status,
                          'Deleting a running burst should just cancel it first.')
-        got_deleted = self.burst_service.remove_burst(burst_entity.id)
+        got_deleted = self.burst_service.cancel_or_remove_burst(burst_entity.id)
         self.assertTrue(got_deleted, "Burst should be deleted if status is cancelled.")
         burst_entity = dao.get_burst_by_id(burst_entity.id)
         self.assertTrue(burst_entity is None, "Removing a canceled burst should delete it from db.")
