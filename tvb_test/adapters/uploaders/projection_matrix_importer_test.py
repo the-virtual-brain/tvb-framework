@@ -33,8 +33,8 @@
 """
 import os
 import unittest
-import demoData.projectionMatrix as dataset
-import demoData.sensors as sensors_dataset
+import demo_data.projectionMatrix as dataset
+import demo_data.sensors as sensors_dataset
 from tvb.datatypes.projections import ProjectionRegionEEG, ProjectionSurfaceEEG
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.sensors import SensorsEEG
@@ -58,7 +58,7 @@ class ProjectionMatrixTest(TransactionalTestCase):
         """
         self.test_user = TestFactory.create_user('CFF_User')
         self.test_project = TestFactory.create_project(self.test_user, "CFF_Project")
-        TestFactory.import_cff(test_user = self.test_user, test_project=self.test_project)
+        TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
         zip_path = os.path.join(os.path.dirname(sensors_dataset.__file__), 
                                 'EEG_unit_vectors_BrainProducts_62.txt.bz2')
         TestFactory.import_sensors(self.test_user, self.test_project, zip_path, 'EEG Sensors')
@@ -82,8 +82,8 @@ class ProjectionMatrixTest(TransactionalTestCase):
                               DataTypeMetaData.KEY_STATE: "RAW"}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 
                                 'region_conn_74_eeg_1020_62.mat')
-        args = {'projection_file' : zip_path, 'dataset_name' : 'ProjectionMatrix',
-                'connectivity' : self.connectivity.gid, 'sensors' : self.sensors.gid}
+        args = {'projection_file': zip_path, 'dataset_name': 'ProjectionMatrix',
+                'connectivity': self.connectivity.gid, 'sensors': self.sensors.gid}
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
         dt_count_after = TestFactory.get_entity_count(self.test_project, ProjectionRegionEEG())
         self.assertTrue(dt_count_after == dt_count_before + 1)
@@ -101,9 +101,9 @@ class ProjectionMatrixTest(TransactionalTestCase):
                               DataTypeMetaData.KEY_STATE: "RAW"}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 
                                 'region_conn_74_eeg_1020_62.mat')
-        args = {'projection_file' : zip_path, 'dataset_name' : 'ProjectionMatrix',
-                'connectivity' : self.connectivity.gid, 'sensors' : self.sensors.gid,
-                'surface' : self.surface.gid}
+        args = {'projection_file': zip_path, 'dataset_name': 'ProjectionMatrix',
+                'connectivity': self.connectivity.gid, 'sensors': self.sensors.gid,
+                'surface': self.surface.gid}
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
         dt_count_after = TestFactory.get_entity_count(self.test_project, ProjectionRegionEEG())
         self.assertTrue(dt_count_after == dt_count_before + 1)

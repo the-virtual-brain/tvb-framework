@@ -124,7 +124,7 @@ class BaseProfile():
     # When launched on cluster, the MAX_DB_ASYNC_CONNECTIONS overwrites MAX_DB_CONNECTIONS value 
     MAX_DB_CONNECTIONS = 20
     MAX_DB_ASYNC_CONNECTIONS = 2
-    BASE_VERSION = "1.0.7"
+    BASE_VERSION = "1.0.8"
     # Nested transactions are not supported by all databases and not really necessary in TVB so far so
     # we don't support them yet. However when running tests we can use them to out advantage to rollback 
     # any database changes between tests.
@@ -177,10 +177,7 @@ class BaseProfile():
     @staticmethod
     def CURRENT_VERSION():
         """ Concatenate BASE_VERSION with svn revision number"""
-        if FrameworkSettings.SVN_VERSION == -1:
-            return FrameworkSettings.BASE_VERSION
-        else:
-            return FrameworkSettings.BASE_VERSION + '-' + str(FrameworkSettings.SVN_VERSION)
+        return FrameworkSettings.BASE_VERSION + '-' + str(FrameworkSettings.SVN_VERSION)
 
 
     @ClassProperty

@@ -43,7 +43,7 @@ from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
 from tvb.core.services.exceptions import OperationException
 
-import demoData.sensors as demo_data
+import demo_data.sensors as demo_data
 
 
 

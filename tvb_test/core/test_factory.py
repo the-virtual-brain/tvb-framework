@@ -41,7 +41,7 @@ Project, User, Operation, basic imports (e.g. CFF).
 import os
 import json
 import random
-import demoData.cff as cff_dataset
+import demo_data.cff as cff_dataset
 from hashlib import md5
 from tvb.config import EVENTS_FOLDER
 from tvb.core.entities import model

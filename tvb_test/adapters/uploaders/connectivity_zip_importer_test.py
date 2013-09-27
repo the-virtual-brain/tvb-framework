@@ -33,7 +33,7 @@
 """
 import os
 import unittest
-import demoData.connectivity as dataset
+import demo_data.connectivity as dataset
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter

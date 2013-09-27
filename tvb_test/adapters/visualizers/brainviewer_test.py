@@ -32,8 +32,8 @@
 """
 import os
 import unittest
-import demoData.surfaceData as surface_dataset
-import demoData.sensors as sensors_dataset
+import demo_data.surfaceData as surface_dataset
+import demo_data.sensors as sensors_dataset
 from tvb.core.entities.file.fileshelper import FilesHelper
 from tvb_test.datatypes.datatypes_factory import DatatypesFactory
 from tvb_test.core.base_testcase import TransactionalTestCase

@@ -37,7 +37,7 @@ import csv
 import numpy
 import zipfile
 import thread
-import demoData.connectivity as demo_root
+import demo_data.connectivity as demo_root
 import tvb.core.utils as utils
 from tvb.basic.traits.util import read_list_data
 from tvb.basic.config.settings import TVBSettings

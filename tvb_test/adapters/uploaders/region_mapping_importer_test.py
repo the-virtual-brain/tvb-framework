@@ -33,7 +33,7 @@
 import unittest
 import os
 import datetime
-import demoData.regionMapping as demo_data
+import demo_data.regionMapping as demo_data
 import tvb_test.adapters.uploaders.test_data as test_data
 from tvb.basic.filters.chain import FilterChain
 from tvb.core.entities.file.fileshelper import FilesHelper

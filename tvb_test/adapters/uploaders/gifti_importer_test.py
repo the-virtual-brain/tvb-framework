@@ -43,7 +43,7 @@ from tvb.datatypes.surfaces import CorticalSurface
 from tvb.core.services.exceptions import OperationException
 from tvb.adapters.uploaders.gifti.gifti_parser import GIFTIParser
 
-import demoData.gifti as demo_data
+import demo_data.gifti as demo_data
 
 
 

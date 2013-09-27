@@ -33,7 +33,7 @@
 """
 import os
 import unittest
-import demoData.tables as dataset
+import demo_data.tables as dataset
 from tvb.datatypes.lookup_tables import NerfTable, PsiTable
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -66,7 +66,7 @@ class LookupTableImporterTest(TransactionalTestCase):
         importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
                               DataTypeMetaData.KEY_STATE: "RAW"}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'psi.npz')
-        args = {'psi_table_file': zip_path, 'table_type' : 'Psi Table'}
+        args = {'psi_table_file': zip_path, 'table_type': 'Psi Table'}
         ### Launch Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
         dt_count_after = TestFactory.get_entity_count(self.test_project, PsiTable())
@@ -83,7 +83,7 @@ class LookupTableImporterTest(TransactionalTestCase):
         importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
                               DataTypeMetaData.KEY_STATE: "RAW"}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'nerf_int.npz')
-        args = {'psi_table_file': zip_path, 'table_type' : 'Nerf Table'}
+        args = {'psi_table_file': zip_path, 'table_type': 'Nerf Table'}
         ### Launch Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
         dt_count_after = TestFactory.get_entity_count(self.test_project, NerfTable())
