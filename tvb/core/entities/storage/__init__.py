@@ -40,11 +40,11 @@ because they are too many to easily follow.
 
 """
 
-from tvb.core.entities.storage.sessionmaker import transactional, SA_SESSIONMAKER
-from tvb.core.entities.storage.caseDAO import CaseDAO
-from tvb.core.entities.storage.datatypeDAO import DatatypeDAO
-from tvb.core.entities.storage.operationDAO import OperationDAO
-from tvb.core.entities.storage.workflowDAO import WorkflowDAO
+from tvb.core.entities.storage.session_maker import transactional, SA_SESSIONMAKER
+from tvb.core.entities.storage.project_dao import CaseDAO
+from tvb.core.entities.storage.datatype_dao import DatatypeDAO
+from tvb.core.entities.storage.operation_dao import OperationDAO
+from tvb.core.entities.storage.workflow_dao import WorkflowDAO
 
 
 class DAO(DatatypeDAO, OperationDAO, CaseDAO, WorkflowDAO):

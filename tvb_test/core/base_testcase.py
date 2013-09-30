@@ -35,15 +35,13 @@ try:
 except ImportError:
     import unittest
 import os
-import cherrypy
 import shutil
 from types import FunctionType
-from tvb.basic.config.utils import EnhancedDictionary
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
 from tvb.core.utils import get_matlab_executable
 from tvb.core.entities.storage import dao
-from tvb.core.entities.storage.sessionmaker import SessionMaker
+from tvb.core.entities.storage.session_maker import SessionMaker
 from tvb.core.entities import model
 from tvb.core.entities.modelmanager import reset_database
 from tvb.core.services.initializer import initialize
@@ -52,6 +50,7 @@ from tvb.core.services.operationservice import OperationService
 LOGGER = get_logger(__name__)
 MATLAB_EXECUTABLE = get_matlab_executable()
 
+
 def init_test_env():
     """
         This method prepares all necessary data for tests execution
@@ -59,7 +58,7 @@ def init_test_env():
     default_mlab_exe = cfg.MATLAB_EXECUTABLE
     cfg.MATLAB_EXECUTABLE = get_matlab_executable()
     reset_database()
-    initialize(["tvb.config", "tvb_test"], load_xml_events = False)
+    initialize(["tvb.config", "tvb_test"], load_xml_events=False)
     cfg.MATLAB_EXECUTABLE = default_mlab_exe
     
     
@@ -98,6 +97,7 @@ def transactional_test(func, callback=None):
     else:
         return func
 
+
 class TransactionalTestMeta(type):
     """
     New MetaClass.
@@ -118,7 +118,8 @@ class TransactionalTestMeta(type):
                     new_class_dict[attr_name] = attribute
             else:
                 new_class_dict[attr_name] = attribute
-        return  type.__new__(mcs, classname, bases, new_class_dict)
+        return type.__new__(mcs, classname, bases, new_class_dict)
+
 
 # Following code is executed once / tests execution to reduce time.
 if "TEST_INITIALIZATION_DONE" not in globals():
@@ -133,9 +134,11 @@ class BaseTestCase(unittest.TestCase):
     """
     EXCLUDE_TABLES = ["ALGORITHMS", "ALGORITHM_GROUPS", "ALGORITHM_CATEGORIES", "PORTLETS", 
                       "MAPPED_INTERNAL__CLASS", "MAPPED_MAPPED_TEST_CLASS"]
-    
+
+
     def assertEqual(self, expected, actual, message=""):
-        super(BaseTestCase, self).assertEqual(expected, actual, message + " Expected %s but got %s."%(expected, actual))
+        super(BaseTestCase, self).assertEqual(expected, actual,
+                                              message + " Expected %s but got %s." % (expected, actual))
     
     def clean_database(self, delete_folders=True):
         """
@@ -183,18 +186,17 @@ class BaseTestCase(unittest.TestCase):
         operations = self.get_all_entities(model.Operation)
         for operation in operations:
             op_service.stop_operation(operation.id)
-        
-    
+
+
     def delete_project_folders(self):
         """
-            This method deletes folders for all projects from TVB folder.
-            This is done without any check on database. You might get 
-            projects in DB but no folder for them on disk.
+        This method deletes folders for all projects from TVB folder.
+        This is done without any check on database. You might get projects in DB but no folder for them on disk.
         """
         if os.path.exists(cfg.TVB_STORAGE):
             for current_file in os.listdir(cfg.TVB_STORAGE):
-                full_path = os.path.join(cfg.TVB_STORAGE, current_file) 
-                if (current_file != "db_repo" and os.path.isdir(full_path)):
+                full_path = os.path.join(cfg.TVB_STORAGE, current_file)
+                if current_file != "db_repo" and os.path.isdir(full_path):
                     shutil.rmtree(full_path, ignore_errors=True)
     
                 
@@ -220,12 +222,13 @@ class BaseTestCase(unittest.TestCase):
         
     def reset_database(self):
         init_test_env()
-        
+
+
 class TransactionalTestCase(BaseTestCase):
     """
     This class makes sure that any test case it contains is ran in a transactional
     environment and a rollback is issued at the end of that transaction. This should
-    imporve performance for most cases. 
+    improve performance for most cases.
     
     WARNING! Do not use this is any test class that has uses multiple threads to do
     dao related operations since that might cause errors/leave some dangling sessions.

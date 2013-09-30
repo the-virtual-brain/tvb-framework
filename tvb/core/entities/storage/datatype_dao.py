@@ -46,7 +46,7 @@ from sqlalchemy.types import Text
 from sqlalchemy.orm.exc import NoResultFound
 
 from tvb.core.entities import model
-from tvb.core.entities.storage.rootDAO import RootDAO
+from tvb.core.entities.storage.root_dao import RootDAO
 
 
 

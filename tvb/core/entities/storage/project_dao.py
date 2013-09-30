@@ -40,7 +40,7 @@ from sqlalchemy.sql.expression import desc
 from sqlalchemy.orm.exc import NoResultFound
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.entities import model
-from tvb.core.entities.storage.rootDAO import RootDAO
+from tvb.core.entities.storage.root_dao import RootDAO
 
 
 

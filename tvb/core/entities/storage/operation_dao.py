@@ -40,7 +40,7 @@ from sqlalchemy import func as func
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import case as case_, desc
 from tvb.core.entities import model
-from tvb.core.entities.storage.rootDAO import RootDAO
+from tvb.core.entities.storage.root_dao import RootDAO
 
 
 

@@ -37,12 +37,13 @@ from tvb.config import EVENTS_FOLDER
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao, transactional
-from tvb.core.entities.storage.sessionmaker import add_session, SessionMaker
+from tvb.core.entities.storage.session_maker import add_session, SessionMaker
 from tvb.core.entities.storage.exceptions import NestedTransactionUnsupported
 from tvb_test.core.test_factory import TestFactory
 from tvb_test.core.base_testcase import BaseTestCase, transactional_test
 
 SESSIONMAKER = SessionMaker()
+
 
 class TransactionalTests(BaseTestCase):
     """
@@ -75,9 +76,8 @@ class TransactionalTests(BaseTestCase):
         n_of_users = 21
         self._store_users_happy_flow(n_of_users)
         final_user_count = dao.get_all_users(is_count=True)
-        error_msg = ("Transaction should have committed and %s more users "
-                    "should have been available in the database. Expected %s but got %s"%(n_of_users, 
-                                                        initial_user_count + n_of_users, final_user_count))
+        error_msg = ("Transaction should have committed and %s more users should have been available in the database. "
+                     "Expected %s but got %s" % (n_of_users, initial_user_count + n_of_users, final_user_count))
         self.assertEqual(initial_user_count + n_of_users, final_user_count, error_msg)
     
     
@@ -95,7 +95,7 @@ class TransactionalTests(BaseTestCase):
             pass
         final_user_count = dao.get_all_users(is_count=True)
         self.assertEqual(initial_user_count, final_user_count, "Transaction should have rolled back due to exception."
-                         "Expected %s but got %s"%(initial_user_count, final_user_count))
+                         "Expected %s but got %s" % (initial_user_count, final_user_count))
         
         
     def test_add_entity_forget_commit(self):
@@ -106,8 +106,9 @@ class TransactionalTests(BaseTestCase):
         initial_user_count = len(all_users) if all_users is not None else 0
         self._dao_add_user_forget_commit()
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count + 1, final_user_count, "Commit should have been done automatically and one more user expected."
-                         "Expected %s but got %s"%(initial_user_count, final_user_count))
+        self.assertEqual(initial_user_count + 1, final_user_count, "Commit should have been done automatically and one "
+                                                                   "more user expected. Expected %s but got %s" % (
+                                                                   initial_user_count, final_user_count))
         
         
     def test_edit_entity_forget_commit(self):
@@ -118,7 +119,8 @@ class TransactionalTests(BaseTestCase):
         user_id = stored_user.id
         self._dao_change_user_forget_commit(user_id, 'new_name')
         edited_user = dao.get_user_by_id(user_id)
-        self.assertEqual(edited_user.username, 'new_name', "User should be edited but isnt. Expected 'new_name' got %s"%(edited_user.username,))
+        self.assertEqual(edited_user.username, 'new_name',
+                         "User should be edited but it is not. Expected 'new_name' got %s" % edited_user.username)
         
         
     def test_delete_entity_forget_commit(self):
@@ -131,8 +133,9 @@ class TransactionalTests(BaseTestCase):
         user_id = stored_user.id
         self._dao_delete_user_forget_commit(user_id)
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count, final_user_count, "Added user should have been deleted even without explicti commit call.."
-                         "Expected %s but got %s"%(initial_user_count, final_user_count))
+        self.assertEqual(initial_user_count, final_user_count,
+                         "Added user should have been deleted even without explicit commit call.."
+                         "Expected %s but got %s" % (initial_user_count, final_user_count))
 
     
     def test_multi_threaded_access(self):
@@ -146,10 +149,11 @@ class TransactionalTests(BaseTestCase):
         n_of_users_per_thread = 4
         self._run_transaction_multiple_threads(n_of_threads, n_of_users_per_thread)
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count, 
+        self.assertEqual(initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count,
                          "Each thread should have created %s more users to a total of 16."
-                         "Expected %s but got %s"%(n_of_threads * n_of_users_per_thread, 
-                                                   initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count))
+                         "Expected %s but got %s" % (n_of_threads * n_of_users_per_thread,
+                                                     initial_user_count + n_of_threads * n_of_users_per_thread,
+                                                     final_user_count))
         
             
     def test_multi_threaded_access_overflow_db_connection(self):
@@ -163,10 +167,11 @@ class TransactionalTests(BaseTestCase):
         n_of_users_per_thread = 6
         self._run_transaction_multiple_threads(n_of_threads, n_of_users_per_thread)
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count, 
+        self.assertEqual(initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count,
                          "Each of %s threads should have created %s more users to a total of %s. "
-                         "Expected %s but got %s"%(n_of_threads, n_of_users_per_thread, n_of_threads * n_of_users_per_thread, 
-                                                   initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count))
+                         "Expected %s but got %s" % (
+                         n_of_threads, n_of_users_per_thread, n_of_threads * n_of_users_per_thread,
+                         initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count))
 
     @transactional_test
     def test_transaction_nested(self):
@@ -186,8 +191,8 @@ class TransactionalTests(BaseTestCase):
         Spawn a number of threads each storing a number of users. Wait on them by joining.
         """
         for idx in xrange(n_of_threads):
-            th = threading.Thread(target=self._store_users_happy_flow, args=(n_of_users_per_thread,), 
-                                  kwargs={'prefix' : str(idx)})
+            th = threading.Thread(target=self._store_users_happy_flow, args=(n_of_users_per_thread,),
+                                  kwargs={'prefix': str(idx)})
             th.start()
             
         for t in threading.enumerate():
@@ -218,22 +223,13 @@ class TransactionalTests(BaseTestCase):
         """
         user = self.session.query(model.User).filter(model.User.id == user_id).one()
         self.session.delete(user)
-    
-    @add_session
-    def _dao_add_user_raise_ex(self, n_users):
-        """
-        A dao method that is not marked transactional. Even if exception is raised the added user should be 
-        present in database unless this is part of a parent transaction that is rolled back by it.
-        """
-        self.session.add(model.User('username', 'password', 'mail', True, 'role'))
-        self.session.commit()
-        raise Exception("Just to trigger session level rollback instead of transaction level rollback.")
 
     @transactional
     def _store_users_nested(self, n_users, inner_trans_func):
         """
-        This method stores n_users, after which it calls inner_trans_func with n_users as parameter. At the end it raises an exception so
-        transaction will fail. All changes should be reverted regardless if inner_trans_func succedes or fails.
+        This method stores n_users, after which it calls inner_trans_func with n_users as parameter.
+        At the end it raises an exception so transaction will fail.
+        All changes should be reverted regardless if inner_trans_func succeeds or fails.
         
         :param n_users: number of users to be stored both by this method and by the passed inner_trans_func
         :param inner_trans_func: either _store_users_happy_flow or _store_users_raises_exception

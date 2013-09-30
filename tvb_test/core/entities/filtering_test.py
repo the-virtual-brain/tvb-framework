@@ -35,7 +35,7 @@ import unittest
 ## Used in sql filter eval
 from sqlalchemy import and_
 from tvb.core.entities.transient.filtering import StaticFiltersFactory
-from tvb.core.entities.storage.sessionmaker import SessionMaker 
+from tvb.core.entities.storage.session_maker import SessionMaker
 from tvb.basic.filters.chain import FilterChain
 from tvb_test.core.base_testcase import TransactionalTestCase
 from tvb_test.datatypes import datatypes_factory
@@ -55,14 +55,15 @@ class FilteringTest(TransactionalTestCase):
         attribute_2 = None
         attribute_3 = None
         
-        def __init__(self, attribute_1 = None, attribute_2 = None, attribute_3 = None):
+        def __init__(self, attribute_1=None, attribute_2=None, attribute_3=None):
             self.attribute_1 = attribute_1
             self.attribute_2 = attribute_2
             self.attribute_3 = attribute_3
-            
+
+
         def __str__(self):
-            return self.__class__.__name__ + '(attribute_1=%s, attribute_2=%s, attribute_3=%s)'% (
-                    self.attribute_1, self.attribute_2, self.attribute_3)
+            return self.__class__.__name__ + '(attribute_1=%s, attribute_2=%s, attribute_3=%s)' % (
+                self.attribute_1, self.attribute_2, self.attribute_3)
             
             
     def tearDown(self):
@@ -98,19 +99,19 @@ class FilteringTest(TransactionalTestCase):
         data_type.row1 = "value1"
         data_type.row2 = "value3"
         datatypes_factory.DatatypesFactory()._store_datatype(data_type)
-        
-        test_filter_1 = FilterChain(fields = [FilterChain.datatype + '._row1'], 
-                                    operations = ['=='], values = ['value1'])
-        test_filter_2 = FilterChain(fields = [FilterChain.datatype + '._row1'], 
-                                    operations = ['=='], values = ['vaue2'])
-        test_filter_3 = FilterChain(fields = [FilterChain.datatype + '._row1', FilterChain.datatype + '._row2'], 
-                                    operations = ['==', 'in'], values = ["value1", ['value1', 'value2']])
-        test_filter_4 = FilterChain(fields = [FilterChain.datatype + '._row1', FilterChain.datatype + '._row2'], 
-                                    operations = ['==', 'in'], values = ["value1", ['value5', 'value6']])
+
+        test_filter_1 = FilterChain(fields=[FilterChain.datatype + '._row1'],
+                                    operations=['=='], values=['value1'])
+        test_filter_2 = FilterChain(fields=[FilterChain.datatype + '._row1'],
+                                    operations=['=='], values=['vaue2'])
+        test_filter_3 = FilterChain(fields=[FilterChain.datatype + '._row1', FilterChain.datatype + '._row2'],
+                                    operations=['==', 'in'], values=["value1", ['value1', 'value2']])
+        test_filter_4 = FilterChain(fields=[FilterChain.datatype + '._row1', FilterChain.datatype + '._row2'],
+                                    operations=['==', 'in'], values=["value1", ['value5', 'value6']])
         
         all_stored_dts = self.get_all_entities(Datatype1)
         self.assertTrue(len(all_stored_dts) == 3, "Expected 3 DTs to be stored for "
-                        "test_filte_sql_equivalent. Got %s instead."%(len(all_stored_dts,)))
+                        "test_filte_sql_equivalent. Got %s instead." % len(all_stored_dts))
         
         self._evaluate_db_filter(test_filter_1, 2)
         self._evaluate_db_filter(test_filter_2, 0)
@@ -134,7 +135,7 @@ class FilteringTest(TransactionalTestCase):
             session.close_session()
             raise excep
         self.assertEquals(expected_number, len(result), "Expected %s DTs after filtering with %s, "
-                          "but got %s instead."%(expected_number, filter_chain, len(result,)))
+                          "but got %s instead." % (expected_number, filter_chain, len(result,)))
 
 
 def suite():
