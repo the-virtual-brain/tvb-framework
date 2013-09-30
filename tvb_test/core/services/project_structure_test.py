@@ -46,6 +46,7 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb_test.core.base_testcase import TransactionalTestCase
 from tvb_test.core.test_factory import TestFactory
 from tvb_test.core.services.project_service_test import ProjectServiceTest
+from tvb_test.core.services.flow_service_test import TEST_ADAPTER_VALID_MODULE, TEST_ADAPTER_VALID_CLASS
 
 
 
@@ -646,7 +647,7 @@ class ProjectStructureTest(TransactionalTestCase):
         """
         categ1 = model.AlgorithmCategory('one', True)
         self.categ1 = dao.store_entity(categ1)
-        algo = model.AlgorithmGroup("tvb_test.core.services.flowservice_test", "ValidTestAdapter", categ1.id)
+        algo = model.AlgorithmGroup(TEST_ADAPTER_VALID_MODULE, TEST_ADAPTER_VALID_CLASS, categ1.id)
         adapter = dao.store_entity(algo)
         algo = model.Algorithm(adapter.id, 'ident', name='', req_data='', param_name='', output='')
         self.algo_inst = dao.store_entity(algo)

@@ -52,39 +52,33 @@ from tvb_test.core.base_testcase import TransactionalTestCase
 from tvb_test.core.test_factory import TestFactory
 
 
+TEST_ADAPTER_VALID_MODULE = "tvb_test.core.services.flow_service_test"
+TEST_ADAPTER_VALID_CLASS = "ValidTestAdapter"
+TEST_ADAPTER_INVALID_CLASS = "InvalidTestAdapter"
+
+CATEGORY1 = 1
+CATEGORY2 = 2
+
 
 class ValidTestAdapter(ABCSynchronous):
-    """
-    Adapter used for testing purposes. """
-
+    """ Adapter used for testing purposes. """
 
     def __init__(self):
         ABCSynchronous.__init__(self)
 
-
     def get_input_tree(self):
         return [{'name': 'test', 'type': 'int', 'default': '0'}]
-
 
     def get_output(self):
         return []
 
-
     def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
         # Don't know how much memory is needed.
         return -1
-
 
     def get_required_disk_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
         # Don't know how much memory is needed.
         return -1
-
 
     def launch(self, test):
         pass
@@ -92,28 +86,16 @@ class ValidTestAdapter(ABCSynchronous):
 
 
 class InvalidTestAdapter():
-    """
-    Invalid adapter used for testing purposes.
-    """
-
+    """ Invalid adapter used for testing purposes. """
 
     def __init__(self):
         pass
 
-
     def interface(self):
-        """ Dummy method. """
         pass
-
 
     def launch(self):
-        """ Dummy method. """
         pass
-
-
-
-CATEGORY1 = 1
-CATEGORY2 = 2
 
 
 
@@ -124,10 +106,8 @@ class FlowServiceTest(TransactionalTestCase):
 
 
     def setUp(self):
-        """
-        Reset the database before each test.
-        """
-        #        self.reset_database()
+        """ Clean the database before each test. """
+
         self.flow_service = FlowService()
         self.test_user = TestFactory.create_user()
         self.test_project = TestFactory.create_project(admin=self.test_user)
@@ -141,7 +121,7 @@ class FlowServiceTest(TransactionalTestCase):
         self.algo1 = dao.store_entity(algo)
         algo = model.AlgorithmGroup("test_module2", "classname2", categ2.id)
         dao.store_entity(algo)
-        algo = model.AlgorithmGroup("tvb_test.core.services.flowservice_test", "ValidTestAdapter", categ2.id)
+        algo = model.AlgorithmGroup(TEST_ADAPTER_VALID_MODULE, TEST_ADAPTER_VALID_CLASS, categ2.id)
         adapter = dao.store_entity(algo)
 
         algo = model.Algorithm(adapter.id, 'ident', name='', req_data='', param_name='', output='')
@@ -176,7 +156,7 @@ class FlowServiceTest(TransactionalTestCase):
             if algorithm.module not in ["test_module1", "test_module3"]:
                 self.fail("Some invalid data retrieved")
         for algorithm in category2:
-            if algorithm.module not in ["test_module2", "tvb_test.core.services.flowservice_test"]:
+            if algorithm.module not in ["test_module2", TEST_ADAPTER_VALID_MODULE]:
                 self.fail("Some invalid data retrieved")
         self.assertEqual(len(category2), 2)
         self.assertEqual(len(unexisting_cat), 0)
@@ -197,9 +177,7 @@ class FlowServiceTest(TransactionalTestCase):
         """
         Test standard flow for building an adapter instance.
         """
-        module = "tvb_test.core.services.flowservice_test"
-        class_name = "ValidTestAdapter"
-        algo_group = dao.find_group(module, class_name)
+        algo_group = dao.find_group(TEST_ADAPTER_VALID_MODULE, TEST_ADAPTER_VALID_CLASS)
         adapter = ABCAdapter.build_adapter(algo_group)
         self.assertTrue(isinstance(adapter, ABCSynchronous), "Something went wrong with valid data!")
 
@@ -208,9 +186,7 @@ class FlowServiceTest(TransactionalTestCase):
         """
         Test flow for trying to build an adapter that does not inherit from ABCAdapter.
         """
-        module = "tvb_test.core.services.flowservice_test"
-        class_name = "InvalidTestAdapter"
-        group = dao.find_group(module, class_name)
+        group = dao.find_group(TEST_ADAPTER_VALID_MODULE, TEST_ADAPTER_INVALID_CLASS)
         self.assertRaises(OperationException, self.flow_service.build_adapter_instance, group)
 
 
@@ -218,9 +194,7 @@ class FlowServiceTest(TransactionalTestCase):
         """
         Test preparation of an adapter.
         """
-        module = "tvb_test.core.services.flowservice_test"
-        class_name = "ValidTestAdapter"
-        algo_group = dao.find_group(module, class_name)
+        algo_group = dao.find_group(TEST_ADAPTER_VALID_MODULE, TEST_ADAPTER_VALID_CLASS)
         group, interface = self.flow_service.prepare_adapter(self.test_project.id, algo_group)
         self.assertTrue(isinstance(group, model.AlgorithmGroup), "Something went wrong with valid data!")
         self.assertTrue("name" in interface[0], "Bad interface created!")
@@ -235,9 +209,7 @@ class FlowServiceTest(TransactionalTestCase):
         """
         Test preparation of an adapter and launch mechanism.
         """
-        module = "tvb_test.core.services.flowservice_test"
-        class_name = "ValidTestAdapter"
-        algo_group = dao.find_group(module, class_name)
+        algo_group = dao.find_group(TEST_ADAPTER_VALID_MODULE, TEST_ADAPTER_VALID_CLASS)
         adapter = self.flow_service.build_adapter_instance(algo_group)
         data = {"test": 5}
         result = self.flow_service.fire_operation(adapter, self.test_user, self.test_project.id,
