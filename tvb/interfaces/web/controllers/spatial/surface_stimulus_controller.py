@@ -276,13 +276,14 @@ class SurfaceStimulusController(SpatioTemporalController):
             stimulus.configure_time(time)
             data = []
             max_value = numpy.max(stimulus())
+            min_value = numpy.min(stimulus())
             for i in range(min(CHUNK_SIZE, stimulus.temporal_pattern.shape[1])):
                 step_data = stimulus(i).tolist()
                 data.append(step_data)
             stimulus.surface = surface.gid
             base.add2session(KEY_STIMULUS, stimulus)
-            result = {'status': 'ok', 'max': max_value, 'data': data, "time_min": min_time, "time_max": max_time,
-                      "chunk_size": CHUNK_SIZE}
+            result = {'status': 'ok', 'max': max_value, 'min': min_value,
+                      'data': data, "time_min": min_time, "time_max": max_time, "chunk_size": CHUNK_SIZE}
             return result
         except (NameError, ValueError, SyntaxError):
             return {'status': 'error',

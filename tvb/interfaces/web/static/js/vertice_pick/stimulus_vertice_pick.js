@@ -56,6 +56,7 @@ function STIM_PICK_setVisualizedData(data) {
 	DATA_CHUNK_SIZE = data['chunk_size'];
     var colorValuesChanged = (maxValue != data['max']);
 	maxValue = data['max'];
+    minValue = data['min'];
 
 	// If for some reason the draw timeout was not cleared, clear it now.
 	if (drawTickInterval != null) {
@@ -67,9 +68,9 @@ function STIM_PICK_setVisualizedData(data) {
 	displayedStep = 0;
 	totalTimeStep = minTime;
 
-	BASE_PICK_initLegendInfo(maxValue);
+	BASE_PICK_initLegendInfo(maxValue, minValue);
     if (colorValuesChanged) {
-        ColSch_initColorSchemeParams(0, maxValue, LEG_updateLegendColors);
+        ColSch_initColorSchemeParams(minValue, maxValue, LEG_updateLegendColors);
     }
 
 	//Create the slider to display the total time.
@@ -79,12 +80,12 @@ function STIM_PICK_setVisualizedData(data) {
 	document.getElementById("slider-div").appendChild(sliderDiv);
 	
 	$("#slider").slider({ min:minTime, max: maxTime, disabled: true,
-	            slide: function(event, ui) {
+	            slide: function() {
 	            	sliderSel = true;
 	                totalTimeStep = $("#slider").slider("option", "value");
 	                displayedStep = parseInt((totalTimeStep - minTime) % DATA_CHUNK_SIZE);
 	            },
-	            stop: function(event, ui) {
+	            stop: function() {
 	            	sliderSel = false;
 	            } });
 }
@@ -160,17 +161,19 @@ function tick() {
     }
 	if (sliderSel == false) {
 		//If we reached maxTime, the movie ended
+        var buttonRun = $('.action-run')[0];
+        var buttonStop = $('.action-stop')[0];
+
 		if (BASE_PICK_isMovieMode == true && totalTimeStep < maxTime) {
 			// We are still in movie mode and didn't pass the end of the data.
 		    if (displayedStep >= currentStimulusData.length) {
 		    	if (currentStimulusData.length > maxTime - minTime || endReached == true) {
 		    		//We had reached the end of the movie mode.
 		    		STIM_PICK_stopDataVisualization();
-					$('.action-run')[0].className = $('.action-run')[0].className.replace('action-idle', '');
-					$('.action-stop')[0].className = $('.action-stop')[0].className + " action-idle";
+					buttonRun.className = buttonRun.className.replace('action-idle', '');
+					buttonStop.className = buttonStop.className + " action-idle";
 		    	} else {
-		    		//If the async load of the next data chunk is done, do the switch
-		    		//otherwise just wait
+		    		//If the async load of the next data chunk is done, do the switch otherwise just wait
 		    		if (nextStimulusData != null) {
 		    			currentStimulusData = nextStimulusData;
 		    			displayedStep = 0;
@@ -200,8 +203,8 @@ function tick() {
 		} else {
 			//We had reached the end of the movie mode.
     		STIM_PICK_stopDataVisualization();
-			$('.action-run')[0].className = $('.action-run')[0].className.replace('action-idle', '');
-			$('.action-stop')[0].className = $('.action-stop')[0].className + " action-idle";
+			buttonRun.className = buttonRun.className.replace('action-idle', '');
+			buttonStop.className = buttonStop.className + " action-idle";
 		}
 	}
 }

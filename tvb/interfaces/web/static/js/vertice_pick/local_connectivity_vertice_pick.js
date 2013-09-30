@@ -58,11 +58,11 @@ function LCONN_PICK_updateBrainDrawing(data_from_server) {
     var minValue = data_from_server['min_value'];
     var maxValue = data_from_server['max_value'];
 
-    BASE_PICK_initLegendInfo(maxValue);     // setup the legend
-    ColSch_initColorSchemeParams(minValue, maxValue,
-        function() { LEG_updateLegendColors();
-                    _updateBrainColors(data, minValue, maxValue);
-                    drawScene() })
+    BASE_PICK_initLegendInfo(maxValue, minValue);     // setup the legend
+    ColSch_initColorSchemeParams(minValue, maxValue, function() {
+                                                        LEG_updateLegendColors();
+                                                        _updateBrainColors(data, minValue, maxValue);
+                                                        drawScene() });
 
     if (BASE_PICK_brainDisplayBuffers.length != data.length) {
         displayMessage("Could not draw the gradient view. Invalid data received from the server.", "errorMessage");
@@ -83,7 +83,7 @@ function _updateBrainColors(data, minValue, maxValue) {
         var fakeColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
         var thisBufferColors = new Float32Array(data[i].length * 4);
-        getGradientColorArray(data[i], minValue, maxValue, thisBufferColors)
+        getGradientColorArray(data[i], minValue, maxValue, thisBufferColors);
         gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
         BASE_PICK_brainDisplayBuffers[i][3] = fakeColorBuffer;
     }

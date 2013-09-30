@@ -58,7 +58,7 @@ var BASE_PICK_allowPickFrom2DImages = true;
 //If we are in movie mode stop the custom redraw on all events since it will
 //redraw automatically anyway.
 var BASE_PICK_isMovieMode = false;
-//A dictionary that hold informatrion needed to draw the surface focal points
+//A dictionary that hold information needed to draw the surface focal points
 var surfaceFocalPoints= {};
 
 var TRI = 3;
@@ -209,9 +209,9 @@ function __createPickingColorBuffers() {
             thisBufferColors[4 * idx + 2] = GL_colorPickerInitColors[(pointsSoFar + idx - (idx + pointsSoFar) % 3) / 3][2];
             thisBufferColors[4 * idx + 3] = GL_colorPickerInitColors[(pointsSoFar + idx - (idx + pointsSoFar) % 3) / 3][3];
         }
-        //Since the colorPickingArray is not splitted we need to keep track of the absolute index of the triangles
+        //Since the colorPickingArray is not split we need to keep track of the absolute index of the triangles
         //considering all the files that were processed before, this pointsSoFar keeps track of this
-        pointsSoFar += picking_triangles_number[j]
+        pointsSoFar += picking_triangles_number[j];
         gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
         colorPickingBuffer.push(newColorBuffer);
     }
@@ -340,12 +340,12 @@ function BASE_PICK_doVerticePick() {
         return;
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
-	gl.disable(gl.BLEND) 
-    gl.disable(gl.DITHER)
-    gl.disable(gl.FOG) 
-    gl.disable(gl.LIGHTING) 
-    gl.disable(gl.TEXTURE_1D) 
-    gl.disable(gl.TEXTURE_2D) 	
+	gl.disable(gl.BLEND);
+    gl.disable(gl.DITHER);
+    gl.disable(gl.FOG);
+    gl.disable(gl.LIGHTING);
+    gl.disable(gl.TEXTURE_1D);
+    gl.disable(gl.TEXTURE_2D);
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	// View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
@@ -382,45 +382,38 @@ function BASE_PICK_doVerticePick() {
 			GL_mouseXRelToCanvas = orig_x + x_inc;
 			GL_mouseYRelToCanvas = orig_y;
             TRIANGLE_pickedIndex = GL_getPickedIndex();
-	    	if (TRIANGLE_pickedIndex != GL_NOTFOUND) { break; };
-	    	
+	    	if (TRIANGLE_pickedIndex != GL_NOTFOUND) { break; }
 	    	
 			GL_mouseXRelToCanvas = orig_x + x_inc;
 			GL_mouseYRelToCanvas = orig_y + y_inc;
             TRIANGLE_pickedIndex = GL_getPickedIndex();
 	    	if (TRIANGLE_pickedIndex != GL_NOTFOUND) { break; }
 	    	
-	    	
 			GL_mouseXRelToCanvas = orig_x;
 			GL_mouseYRelToCanvas = orig_y + y_inc;
             TRIANGLE_pickedIndex = GL_getPickedIndex();
 	    	if (TRIANGLE_pickedIndex != GL_NOTFOUND) { break; }
-	    	
-	    	
+
 			GL_mouseXRelToCanvas = orig_x - x_inc;
 			GL_mouseYRelToCanvas = orig_y + y_inc;
             TRIANGLE_pickedIndex = GL_getPickedIndex();
 	    	if (TRIANGLE_pickedIndex != GL_NOTFOUND) { break; }
-	    	
-	    	
+
 			GL_mouseXRelToCanvas = orig_x - x_inc;
 			GL_mouseYRelToCanvas = orig_y;
             TRIANGLE_pickedIndex = GL_getPickedIndex();
 	    	if (TRIANGLE_pickedIndex != GL_NOTFOUND) { break; }
-	    	
-	    	
+
 			GL_mouseXRelToCanvas = orig_x - x_inc;
 			GL_mouseYRelToCanvas = orig_y - y_inc;
             TRIANGLE_pickedIndex = GL_getPickedIndex();
 	    	if (TRIANGLE_pickedIndex != GL_NOTFOUND) { break; }
-	    	
-	    	
+
 	    	GL_mouseXRelToCanvas = orig_x;
 			GL_mouseYRelToCanvas = orig_y - y_inc;
             TRIANGLE_pickedIndex = GL_getPickedIndex();
 	    	if (TRIANGLE_pickedIndex != GL_NOTFOUND) { break; }
-	    	
-	    	
+
 	    	GL_mouseXRelToCanvas = orig_x + x_inc;
 			GL_mouseYRelToCanvas = orig_y - y_inc;
             TRIANGLE_pickedIndex = GL_getPickedIndex();
@@ -600,7 +593,7 @@ function initBrainNavigatorBuffers() {
 					1, -0.5, 12,
 					0.5, -1, 12,
 					-0.5, -1, 12,
-					-1, -0.5, 12]
+					-1, -0.5, 12];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     BASE_PICK_navigatorBuffers[0].itemSize = 3;
     BASE_PICK_navigatorBuffers[0].numItems = 16;
@@ -713,21 +706,21 @@ function BASE_PICK_drawBrain(brainBuffers, noOfUnloadedBuffers) {
     }
 	
     if (BASE_PICK_doPick == false) {
-    	gl.enable(gl.BLEND) 
-	    gl.enable(gl.DITHER)
-	    gl.enable(gl.FOG) 
-	    gl.enable(gl.LIGHTING) 
-	    gl.enable(gl.TEXTURE_1D) 
-	    gl.enable(gl.TEXTURE_2D)
-    	addLight()
+    	gl.enable(gl.BLEND);
+	    gl.enable(gl.DITHER);
+	    gl.enable(gl.FOG);
+	    gl.enable(gl.LIGHTING);
+	    gl.enable(gl.TEXTURE_1D);
+	    gl.enable(gl.TEXTURE_2D);
+    	addLight();
     	gl.uniform1f(shaderProgram.isPicking, 0);
     } else {
-		gl.disable(gl.BLEND) 
-	    gl.disable(gl.DITHER)
-	    gl.disable(gl.FOG) 
-	    gl.disable(gl.LIGHTING) 
-	    gl.disable(gl.TEXTURE_1D) 
-	    gl.disable(gl.TEXTURE_2D)
+		gl.disable(gl.BLEND);
+	    gl.disable(gl.DITHER);
+	    gl.disable(gl.FOG);
+	    gl.disable(gl.LIGHTING);
+	    gl.disable(gl.TEXTURE_1D);
+	    gl.disable(gl.TEXTURE_2D);
     	gl.uniform1f(shaderProgram.isPicking, 1);
     }
 		
@@ -755,11 +748,11 @@ function BASE_PICK_drawBrain(brainBuffers, noOfUnloadedBuffers) {
 	}
 	
     for (var key in surfaceFocalPoints) {
-    	var focalPointPosition = surfaceFocalPoints[key]['position']
+    	var focalPointPosition = surfaceFocalPoints[key]['position'];
     	mvPushMatrix();
     	mvTranslate(focalPointPosition);
     	mvRotate(surfaceFocalPoints[key]['xRotation'], [1, 0, 0]);
-    	mvRotate(surfaceFocalPoints[key]['yRotation'], [0, 1, 0])
+    	mvRotate(surfaceFocalPoints[key]['yRotation'], [0, 1, 0]);
     	drawBuffers(gl.TRIANGLES, [BASE_PICK_pinBuffers]);
     	mvPopMatrix();
     }
@@ -856,7 +849,7 @@ function handleXLocale(event) {
         
     	sectionViewRotationMatrix = createRotationMatrix(90, [0, 1, 0]).x(createRotationMatrix(270, [1, 0, 0]));
     	multMatrix(sectionViewRotationMatrix);
-    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 0)
+    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 0);
     	NAV_navigatorY = result[1];
     	NAV_navigatorZ = -result[2];
 		_redrawSectionView = true;
@@ -891,7 +884,7 @@ function handleYLocale(event) {
     	
     	sectionViewRotationMatrix = createRotationMatrix(90, [1, 0, 0]).x(createRotationMatrix(180, [1, 0, 0]));
     	multMatrix(sectionViewRotationMatrix);
-    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 1)
+    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 1);
     	NAV_navigatorX = result[0];
     	NAV_navigatorZ = -result[2];
 		_redrawSectionView = true;
@@ -926,7 +919,7 @@ function handleZLocale(event) {
     	
     	sectionViewRotationMatrix = createRotationMatrix(180, [0, 1, 0]).x(Matrix.I(4));
     	multMatrix(sectionViewRotationMatrix);
-    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 2)
+    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 2);
     	NAV_navigatorX = -result[0];
     	NAV_navigatorY = result[1];
 		_redrawSectionView = true;
@@ -945,11 +938,10 @@ function BASE_PICK_handleMouseWeel(event) {
  * Init the legend labels, from minValue to maxValue
  *
  * @param maxValue Maximum value for the gradient end
- * @param [minValue=0] Minimum value for the gradient start
+ * @param minValue Minimum value for the gradient start
  */
 function BASE_PICK_initLegendInfo(maxValue, minValue) {
-    if (minValue == undefined)
-        minValue = 0;
+
 	var brainLegendDiv = document.getElementById('brainLegendDiv');
     ColSch_updateLegendLabels(brainLegendDiv, minValue, maxValue, "100%")
 }

@@ -192,7 +192,7 @@ class SettingsService():
         kb_value = max_space * (2 ** 10)
         if not (0 < kb_value < available_mem_kb):
             raise InvalidSettingsException("Not enough disk space. There is a maximum of " +
-                                           (available_mem_kb / (2 ** 10)) + "Mb available on the partition.")
+                                           str(available_mem_kb / (2 ** 10)) + "Mb available on the partition.")
         data[self.KEY_MAX_DISK_SPACE_USR] = kb_value
 
         #Save data to file, all while checking if any data has changed
