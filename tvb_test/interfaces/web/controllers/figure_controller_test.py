@@ -27,9 +27,11 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import unittest
 import cherrypy
 from tvb.interfaces.web.controllers.project.figure_controller import FigureController
@@ -70,7 +72,8 @@ class FigureControllerTest(TransactionalTestCase, BaseControllersTest):
                                             path="path-to-figure2", session_name="test")
         result_dict = self.figure_c.displayresultfigures()
         figures = result_dict['selected_sessions_data']['test']
-        self.assertEqual(set([fig.id for fig in figures]), {figure1.id, figure2.id})
+        ## We still use the old form of set() constructor, due to Python 2.6 on Linux x32 build machine
+        self.assertEqual(set([fig.id for fig in figures]), set([figure1.id, figure2.id]))
         
         
     def test_editresultfigures_remove_fig(self):
