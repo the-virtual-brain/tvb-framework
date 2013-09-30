@@ -32,9 +32,8 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-from tvb.core import utils
 from tvb.core.adapters.abcadapter import ABCSynchronous
-from tvb.core.entities.file.fileshelper import FilesHelper
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.basic.traits.util import read_list_data
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.adapters.exceptions import LaunchException
@@ -68,9 +67,9 @@ class ZIPConnectivityImporter(ABCSynchronous):
         """
         return [{'name': 'uploaded', 'type': 'upload', 'required_type': 'application/zip',
                  'label': 'Connectivity file (zip)', 'required': True},
-                {'name':'rotate_x', 'label': 'Rotate x', 'type':'int', 'default':0, 'minValue':0, 'maxValue':360},
-                {'name':'rotate_y', 'label': 'Rotate y', 'type':'int', 'default':0, 'minValue':0, 'maxValue':360},
-                {'name':'rotate_z', 'label': 'Rotate z', 'type':'int', 'default':0, 'minValue':0, 'maxValue':360}]
+                {'name': 'rotate_x', 'label': 'Rotate x', 'type': 'int', 'default': 0, 'minValue': 0, 'maxValue': 360},
+                {'name': 'rotate_y', 'label': 'Rotate y', 'type': 'int', 'default': 0, 'minValue': 0, 'maxValue': 360},
+                {'name': 'rotate_z', 'label': 'Rotate z', 'type': 'int', 'default': 0, 'minValue': 0, 'maxValue': 360}]
         
         
     def get_output(self):
@@ -90,7 +89,7 @@ class ZIPConnectivityImporter(ABCSynchronous):
         """
         return 0
 
-    def launch(self, uploaded, rotate_x = 0, rotate_y = 0, rotate_z = 0):
+    def launch(self, uploaded, rotate_x=0, rotate_y=0, rotate_z=0):
         """
         Execute import operations: unpack ZIP and build Connectivity object as result.
 
@@ -105,7 +104,7 @@ class ZIPConnectivityImporter(ABCSynchronous):
                       different from the expected number of nodes
         """
         if uploaded is None:
-            raise LaunchException ("Please select ZIP file which contains data to import")
+            raise LaunchException("Please select ZIP file which contains data to import")
         
         files = FilesHelper().unpack_zip(uploaded, self.storage_path)
         
@@ -153,7 +152,7 @@ class ZIPConnectivityImporter(ABCSynchronous):
             raise Exception("Positions for Connectivity Regions are required! "
                             "We expect a file *position* inside the uploaded ZIP.")
         expected_number_of_nodes = len(centres)
-        if expected_number_of_nodes < 2 :
+        if expected_number_of_nodes < 2:
             raise Exception("A connectivity with at least 2 nodes is expected")
         result.centres = centres
         if labels_vector is not None:
@@ -166,7 +165,7 @@ class ZIPConnectivityImporter(ABCSynchronous):
                                 "Please check your file, and use values >= 0")
             if weights_matrix.shape != (expected_number_of_nodes, expected_number_of_nodes):
                 raise Exception("Unexpected shape for weights matrix! "
-                                "Should be %d x %d "%(expected_number_of_nodes, expected_number_of_nodes))
+                                "Should be %d x %d " % (expected_number_of_nodes, expected_number_of_nodes))
             result.weights = weights_matrix
             
         ### Fill and check tracts    
@@ -176,32 +175,32 @@ class ZIPConnectivityImporter(ABCSynchronous):
                                 "Please check your file, and use values >= 0")
             if tract_matrix.shape != (expected_number_of_nodes, expected_number_of_nodes):
                 raise Exception("Unexpected shape for tracts matrix! "
-                                "Should be %d x %d "%(expected_number_of_nodes, expected_number_of_nodes))
+                                "Should be %d x %d " % (expected_number_of_nodes, expected_number_of_nodes))
             result.tract_lengths = tract_matrix
         
         
         if orientation is not None:
             if len(orientation) != expected_number_of_nodes:
                 raise Exception("Invalid size for vector orientation. "
-                                "Expected the same as region-centers number %d"%expected_number_of_nodes)
+                                "Expected the same as region-centers number %d" % expected_number_of_nodes)
             result.orientations = orientation
             
         if areas is not None:
             if len(areas) != expected_number_of_nodes:
                 raise Exception("Invalid size for vector areas. "
-                                "Expected the same as region-centers number %d"%expected_number_of_nodes)
+                                "Expected the same as region-centers number %d" % expected_number_of_nodes)
             result.areas = areas
             
         if cortical_vector is not None:
             if len(cortical_vector) != expected_number_of_nodes:
                 raise Exception("Invalid size for vector cortical. "
-                                "Expected the same as region-centers number %d"%expected_number_of_nodes)
+                                "Expected the same as region-centers number %d" % expected_number_of_nodes)
             result.cortical = cortical_vector
             
         if hemisphere_vector is not None:
             if len(hemisphere_vector) != expected_number_of_nodes:
                 raise Exception("Invalid size for vector hemispheres. "
-                                "Expected the same as region-centers number %d"%expected_number_of_nodes)
+                                "Expected the same as region-centers number %d" % expected_number_of_nodes)
             result.hemispheres = hemisphere_vector
         return result
 

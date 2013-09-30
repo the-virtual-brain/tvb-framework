@@ -38,22 +38,20 @@ import os
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.utils import get_unique_file_name
 from tvb.core.entities.storage import dao
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.surfaces import Surface
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.connectivity import Connectivity
-from tvb.core.entities.file.fileshelper import FilesHelper
-
 from tvb.adapters.uploaders.constants import KEY_SURFACE_UID
 from tvb.adapters.uploaders.constants import KEY_CONNECTIVITY_UID
 
 NUMPY_TEMP_FOLDER = os.path.join(cfg.TVB_STORAGE, "NUMPY_TMP")
 
+
 def get_uids_dict(entity_obj):
     """
-    Returns a dictionary containing the uids for
-    the object graph of the given entity.
-    The given entity should be an instance of: Connectivity,
-    Surface, Cortexor or CortexActivity.
+    Returns a dictionary containing the UIDs for the object graph of the given entity.
+    The given entity should be an instance of: Connectivity, Surface, Cortexor or CortexActivity.
     If an obj do not have an uid then its gid will be returned.
     """
     result = dict()
@@ -87,9 +85,8 @@ def get_gifty_file_name(project_id, desired_name):
 
 def __get_uid(datatype_obj):
     """
-    Retuns the uid of the given entity. If
-    the given object do not have an uid the will
-    be returned its gid.
+    @returns: the UID of the given entity.
+        If the given object do not have an UID the will be returned its GID.
     """
     if datatype_obj.user_tag_1:
         return str(datatype_obj.user_tag_1)

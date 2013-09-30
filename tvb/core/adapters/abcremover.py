@@ -33,7 +33,7 @@ Created on Nov 1, 2011
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-from tvb.core.entities.file.fileshelper import FilesHelper
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 
 

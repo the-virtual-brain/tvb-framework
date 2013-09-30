@@ -41,12 +41,12 @@ from datetime import datetime
 from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
-from tvb.core.entities.file.fileshelper import FilesHelper
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.services.flowservice import FlowService
-from tvb.core.services.projectservice import ProjectService
-from tvb.core.services.operationservice import OperationService
+from tvb.core.services.flow_service import FlowService
+from tvb.core.services.project_service import ProjectService
+from tvb.core.services.operation_service import OperationService
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.surfaces import CorticalSurface
 from tvb.datatypes.time_series import TimeSeries, TimeSeriesEEG, TimeSeriesRegion

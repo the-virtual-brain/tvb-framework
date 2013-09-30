@@ -27,23 +27,28 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
-import unittest
+
 import numpy
-from tvb.core.services.flowservice import FlowService
-from tvb.datatypes.connectivity import Connectivity
-from tvb.core.adapters.abcadapter import ABCAdapter
+import unittest
 import tvb.simulator.models as models_module
+from tvb.core.adapters.abcadapter import ABCAdapter
+from tvb.core.services.flow_service import FlowService
+from tvb.datatypes.connectivity import Connectivity
 from tvb.interfaces.web.entities.context_model_parameters import ContextModelParameters
 from tvb_test.core.test_factory import TestFactory
 from tvb_test.core.base_testcase import TransactionalTestCase
+
+
 
 class ContextModelParametersTest(TransactionalTestCase):
     """
     Test class for the context_model_parameters module.
     """
+
     START = 100.55
     INCREMENT = 122.32
 
@@ -146,7 +151,8 @@ class ContextModelParametersTest(TransactionalTestCase):
         self._update_all_model_params(0)
         for param in model_params:
             value = self.START + self.INCREMENT
-            expected_list = [float(getattr(self.default_model, param)[0]) for i in range(self.connectivity.number_of_regions)]
+            expected_list = [float(getattr(self.default_model, param)[0])
+                             for _i in range(self.connectivity.number_of_regions)]
             expected_list[0] = value
             self.assertEqual(str(expected_list), self.context_model_param.get_values_for_parameter(param))
 
@@ -164,14 +170,14 @@ class ContextModelParametersTest(TransactionalTestCase):
     def _check_model_params_for_default_values(self, model_to_check):
         model_params = self.context_model_param.model_parameter_names
         for param in model_params:
-            self.assertEqual(getattr(self.default_model, param), getattr(model_to_check, param), "The parameters should be equal.")
+            self.assertEqual(getattr(self.default_model, param), getattr(model_to_check, param))
 
 
     def _check_model_params_for_updated_values(self, model_to_check):
         model_params = self.context_model_param.model_parameter_names
         for param in model_params:
             value = self.START + self.INCREMENT
-            self.assertEqual(numpy.array([value]), getattr(model_to_check, param), "The parameters should be equal.")
+            self.assertEqual(numpy.array([value]), getattr(model_to_check, param))
 
 
 

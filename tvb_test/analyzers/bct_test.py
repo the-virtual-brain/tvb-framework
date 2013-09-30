@@ -39,7 +39,7 @@ except Exception:
 from tvb.core.utils import get_matlab_executable
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
-from tvb.core.services.operationservice import OperationService
+from tvb.core.services.operation_service import OperationService
 from tvb.core.adapters.exceptions import InvalidParameterException
 from tvb.datatypes.connectivity import Connectivity
 from tvb_test.core.test_factory import TestFactory
@@ -94,7 +94,8 @@ class BCTTest(TransactionalTestCase):
                 ### Prepare Operation and parameters
                 algorithm = dao.get_algorithm_by_group(self.algo_groups[i].id, bct_identifier)
                 operation = TestFactory.create_operation(algorithm=algorithm, test_user=self.test_user,
-                                                         test_project=self.test_project, operation_status=model.STATUS_STARTED)
+                                                         test_project=self.test_project,
+                                                         operation_status=model.STATUS_STARTED)
                 self.assertEqual(model.STATUS_STARTED, operation.status)
                 ### Launch BCT algorithm
                 submit_data = {self.algo_groups[i].algorithm_param_name: bct_identifier,

@@ -31,9 +31,9 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 import unittest
-from tvb_test.core.entities.file import fileshelper_test
-from tvb_test.core.entities.file import metadatahandler_test
-from tvb_test.core.entities.file import hdf5storage_test
+from tvb_test.core.entities.file import files_helper_test
+from tvb_test.core.entities.file import xml_metadata_handlers_test
+from tvb_test.core.entities.file import hdf5_storage_test
 
 
 def suite():
@@ -41,9 +41,9 @@ def suite():
     Gather all the tests in a test suite.
     """
     test_suite = unittest.TestSuite()
-    test_suite.addTest(fileshelper_test.suite())
-    test_suite.addTest(metadatahandler_test.suite())
-    test_suite.addTest(hdf5storage_test.suite())
+    test_suite.addTest(files_helper_test.suite())
+    test_suite.addTest(xml_metadata_handlers_test.suite())
+    test_suite.addTest(hdf5_storage_test.suite())
     return test_suite
 
 

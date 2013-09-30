@@ -43,9 +43,9 @@ from tvb.core.utils import get_matlab_executable
 from tvb.core.entities.storage import dao
 from tvb.core.entities.storage.session_maker import SessionMaker
 from tvb.core.entities import model
-from tvb.core.entities.modelmanager import reset_database
+from tvb.core.entities.model_manager import reset_database
 from tvb.core.services.initializer import initialize
-from tvb.core.services.operationservice import OperationService
+from tvb.core.services.operation_service import OperationService
 
 LOGGER = get_logger(__name__)
 MATLAB_EXECUTABLE = get_matlab_executable()

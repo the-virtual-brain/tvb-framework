@@ -32,19 +32,19 @@
 """
 import unittest
 
-from tvb_test.interfaces.web.controllers import burstcontroller_test
-from tvb_test.interfaces.web.controllers import explorationcontroller_test
-from tvb_test.interfaces.web.controllers import figurecontroller_test
-from tvb_test.interfaces.web.controllers import flowcontroller_test
-from tvb_test.interfaces.web.controllers import helpcontroller_test
-from tvb_test.interfaces.web.controllers import localconnectivitycontroller_test
-from tvb_test.interfaces.web.controllers import projectcontroller_test
-from tvb_test.interfaces.web.controllers import regionsmodelparameterscontroller_test
-from tvb_test.interfaces.web.controllers import regionstimuluscontroller_test
-from tvb_test.interfaces.web.controllers import settingscontrollers_test
-from tvb_test.interfaces.web.controllers import surfacemodelparameterscontroller_test
-from tvb_test.interfaces.web.controllers import surfacestimuluscontroller_test
-from tvb_test.interfaces.web.controllers import userscontroller_test
+from tvb_test.interfaces.web.controllers import burst_controller_test
+from tvb_test.interfaces.web.controllers import exploration_controller_test
+from tvb_test.interfaces.web.controllers import figure_controller_test
+from tvb_test.interfaces.web.controllers import flow_controller_test
+from tvb_test.interfaces.web.controllers import help_controller_test
+from tvb_test.interfaces.web.controllers import local_connectivity_controller_test
+from tvb_test.interfaces.web.controllers import project_controller_test
+from tvb_test.interfaces.web.controllers import region_model_parameters_controller_test
+from tvb_test.interfaces.web.controllers import region_stimulus_controller_test
+from tvb_test.interfaces.web.controllers import settings_controllers_test
+from tvb_test.interfaces.web.controllers import surface_model_parameters_controller_test
+from tvb_test.interfaces.web.controllers import surface_stimulus_controller_test
+from tvb_test.interfaces.web.controllers import users_controller_test
 
 
 def suite():
@@ -52,19 +52,19 @@ def suite():
     Gather all the tests in a test suite.
     """
     test_suite = unittest.TestSuite()
-    test_suite.addTest(burstcontroller_test.suite())
-    test_suite.addTest(explorationcontroller_test.suite())
-    test_suite.addTest(figurecontroller_test.suite())
-    test_suite.addTest(flowcontroller_test.suite())
-    test_suite.addTest(localconnectivitycontroller_test.suite())
-    test_suite.addTest(helpcontroller_test.suite())
-    test_suite.addTest(projectcontroller_test.suite())
-    test_suite.addTest(regionsmodelparameterscontroller_test.suite())
-    test_suite.addTest(regionstimuluscontroller_test.suite())
-    test_suite.addTest(settingscontrollers_test.suite())
-    test_suite.addTest(surfacemodelparameterscontroller_test.suite())
-    test_suite.addTest(surfacestimuluscontroller_test.suite())
-    test_suite.addTest(userscontroller_test.suite())
+    test_suite.addTest(burst_controller_test.suite())
+    test_suite.addTest(exploration_controller_test.suite())
+    test_suite.addTest(figure_controller_test.suite())
+    test_suite.addTest(flow_controller_test.suite())
+    test_suite.addTest(local_connectivity_controller_test.suite())
+    test_suite.addTest(help_controller_test.suite())
+    test_suite.addTest(project_controller_test.suite())
+    test_suite.addTest(region_model_parameters_controller_test.suite())
+    test_suite.addTest(region_stimulus_controller_test.suite())
+    test_suite.addTest(settings_controllers_test.suite())
+    test_suite.addTest(surface_model_parameters_controller_test.suite())
+    test_suite.addTest(surface_stimulus_controller_test.suite())
+    test_suite.addTest(users_controller_test.suite())
     return test_suite
 
 

@@ -32,18 +32,18 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 import unittest
-from tvb_test.core.services import projectservice_test
-from tvb_test.core.services import projectstructure_test
-from tvb_test.core.services import burstservice_test
-from tvb_test.core.services import userservice_test
-from tvb_test.core.services import eventhandler_test
-from tvb_test.core.services import flowservice_test
-from tvb_test.core.services import settingsservice_test
-from tvb_test.core.services import importservice_test
-from tvb_test.core.services import workflowservice_test
-from tvb_test.core.services import operationservice_test
+from tvb_test.core.services import project_service_test
+from tvb_test.core.services import project_structure_test
+from tvb_test.core.services import burst_service_test
+from tvb_test.core.services import user_service_test
+from tvb_test.core.services import event_handler_test
+from tvb_test.core.services import flow_service_test
+from tvb_test.core.services import settings_service_test
+from tvb_test.core.services import import_service_test
+from tvb_test.core.services import workflow_service_test
+from tvb_test.core.services import operation_service_test
 from tvb_test.core.services import remove_test
-from tvb_test.core.services import dtipipelineservice_test
+from tvb_test.core.services import dti_pipeline_service_test
 
 
 def suite():
@@ -51,18 +51,18 @@ def suite():
     Gather all the tests in a test suite.
     """
     test_suite = unittest.TestSuite()
-    test_suite.addTest(projectservice_test.suite())
-    test_suite.addTest(projectstructure_test.suite())
-    test_suite.addTest(eventhandler_test.suite())
-    test_suite.addTest(userservice_test.suite())
-    test_suite.addTest(flowservice_test.suite())
-    test_suite.addTest(settingsservice_test.suite())
-    test_suite.addTest(burstservice_test.suite())
-    test_suite.addTest(importservice_test.suite())
-    test_suite.addTest(workflowservice_test.suite())
-    test_suite.addTest(operationservice_test.suite())
+    test_suite.addTest(project_service_test.suite())
+    test_suite.addTest(project_structure_test.suite())
+    test_suite.addTest(event_handler_test.suite())
+    test_suite.addTest(user_service_test.suite())
+    test_suite.addTest(flow_service_test.suite())
+    test_suite.addTest(settings_service_test.suite())
+    test_suite.addTest(burst_service_test.suite())
+    test_suite.addTest(import_service_test.suite())
+    test_suite.addTest(workflow_service_test.suite())
+    test_suite.addTest(operation_service_test.suite())
     test_suite.addTest(remove_test.suite())
-    test_suite.addTest(dtipipelineservice_test.suite())
+    test_suite.addTest(dti_pipeline_service_test.suite())
     return test_suite
 
 
@@ -70,6 +70,6 @@ if __name__ == "__main__":
     #So you can run tests individually.
     TEST_RUNNER = unittest.TextTestRunner()
     TEST_SUITE = suite()
-    TEST_RUNNER.run (TEST_SUITE)
+    TEST_RUNNER.run(TEST_SUITE)
     
     

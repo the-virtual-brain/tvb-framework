@@ -42,9 +42,8 @@ from copy import copy
 from cherrypy import Tool
 from sys import platform, argv
 
-### Set running profile from arguments.
+### This will set running profile from arguments.
 from tvb.basic.profile import TvbProfile
-
 TvbProfile.set_profile(argv, True)
 from tvb.basic.config.settings import TVBSettings
 
@@ -53,35 +52,34 @@ if TVBSettings().is_linux():
     os.environ['MATPLOTLIBDATA'] = os.path.join(TVBSettings().get_library_folder(), 'mpl-data')
 
 ### Import MPLH5 to have the back-end Thread started.
-from tvb.interfaces.web.mplh5 import mplh5server
+from tvb.interfaces.web.mplh5 import mplh5_server
 from tvb.basic.logger.builder import get_logger
-
-LOGGER = get_logger('tvb.interfaces.web.mplh5.mplh5server')
-mplh5server.start_server(LOGGER)
+LOGGER = get_logger('tvb.interfaces.web.mplh5.mplh5_server')
+mplh5_server.start_server(LOGGER)
 
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.decorators import user_environment_execution
-from tvb.core.services.settingsservice import SettingsService
+from tvb.core.services.settings_service import SettingsService
 from tvb.core.services.initializer import initialize, reset
 from tvb.core.services.exceptions import InvalidSettingsException
 from tvb.interfaces.web.request_handler import RequestHandler
-from tvb.interfaces.web.controllers.basecontroller import BaseController
-from tvb.interfaces.web.controllers.userscontroller import UserController
-from tvb.interfaces.web.controllers.help.helpcontroller import HelpController
-from tvb.interfaces.web.controllers.project.projectcontroller import ProjectController
-from tvb.interfaces.web.controllers.project.figurecontroller import FigureController
-from tvb.interfaces.web.controllers.project.dtipipelinecontroller import DTIPipelineController
-from tvb.interfaces.web.controllers.flowcontroller import FlowController
-from tvb.interfaces.web.controllers.settingscontroller import SettingsController
-from tvb.interfaces.web.controllers.burst.burstcontroller import BurstController
-from tvb.interfaces.web.controllers.burst.explorationcontroller import ParameterExplorationController
-from tvb.interfaces.web.controllers.spatial.base_spatiotemporalcontroller import SpatioTemporalController
-from tvb.interfaces.web.controllers.spatial.regionsmodelparameterscontroller import RegionsModelParametersController
-from tvb.interfaces.web.controllers.spatial.surfacemodelparameterscontroller import SurfaceModelParametersController
-from tvb.interfaces.web.controllers.spatial.regionstimuluscontroller import RegionStimulusController
-from tvb.interfaces.web.controllers.spatial.surfacestimuluscontroller import SurfaceStimulusController
-from tvb.interfaces.web.controllers.spatial.localconnectivitycontroller import LocalConnectivityController
-from tvb.interfaces.web.controllers.spatial.noiseconfigurationcontroller import NoiseConfigurationController
+from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.users_controller import UserController
+from tvb.interfaces.web.controllers.help.help_controller import HelpController
+from tvb.interfaces.web.controllers.project.project_controller import ProjectController
+from tvb.interfaces.web.controllers.project.figure_controller import FigureController
+from tvb.interfaces.web.controllers.project.dti_pipeline_controller import DTIPipelineController
+from tvb.interfaces.web.controllers.flow_controller import FlowController
+from tvb.interfaces.web.controllers.settings_controller import SettingsController
+from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
+from tvb.interfaces.web.controllers.burst.exploration_controller import ParameterExplorationController
+from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
+from tvb.interfaces.web.controllers.spatial.region_model_parameters_controller import RegionsModelParametersController
+from tvb.interfaces.web.controllers.spatial.surface_model_parameters_controller import SurfaceModelParametersController
+from tvb.interfaces.web.controllers.spatial.region_stimulus_controller import RegionStimulusController
+from tvb.interfaces.web.controllers.spatial.surface_stimulus_controller import SurfaceStimulusController
+from tvb.interfaces.web.controllers.spatial.local_connectivity_controller import LocalConnectivityController
+from tvb.interfaces.web.controllers.spatial.noise_configuration_controller import NoiseConfigurationController
 
 
 LOGGER = get_logger('tvb.interface.web.run')

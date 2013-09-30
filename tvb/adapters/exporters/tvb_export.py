@@ -35,7 +35,7 @@
 import os
 from tvb.core.entities import model 
 from tvb.adapters.exporters.abcexporter import ABCExporter
-from tvb.core.entities.file.fileshelper import FilesHelper
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.exporters.exceptions import ExportException 
 
 
@@ -77,15 +77,17 @@ class TVBExporter(ABCExporter):
             # Create ZIP archive    
             files_helper.zip_folders(zip_file, operation_folders, self.OPERATION_FOLDER_PREFIX)
                         
-            return (download_file_name, zip_file, True)
+            return download_file_name, zip_file, True
+
         else:
             project_folder = files_helper.get_project_folder(project)
             data_file = os.path.join(project_folder, data.get_storage_file_path())
 
-            return (download_file_name, data_file, False)
-            
+            return download_file_name, data_file, False
+
+
     def get_export_file_extension(self, data):
         if self.is_data_a_group(data):
             return "zip"
         else:
-            return "h5"     
+            return "h5"

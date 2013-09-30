@@ -38,15 +38,15 @@ from copy import copy
 from tvb.config import SIMULATOR_CLASS, SIMULATOR_MODULE
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb.core.services.projectservice import ProjectService, initialize_storage
-from tvb.core.services.flowservice import FlowService
-from tvb.core.services.operationservice import OperationService
+from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.transient.structure_entities import DataTypeMetaData
+from tvb.core.services.project_service import ProjectService, initialize_storage
+from tvb.core.services.flow_service import FlowService
+from tvb.core.services.operation_service import OperationService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.time_series import TimeSeriesRegion
 from tvb_test.adapters.storeadapter import StoreAdapter
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb_test.core.base_testcase import TransactionalTestCase
 
 # Default values for simulator's input. These values can be replace with adapter.get_flatten_interface...
@@ -88,7 +88,7 @@ SIMULATOR_PARAMETERS = {
     
 class SimulatorAdapterTest(TransactionalTestCase):
     """
-    Basic testing that SImulator is still working from UI.
+    Basic testing that Simulator is still working from UI.
     """
     CONNECTIVITY_NODES = 74
     
@@ -238,6 +238,7 @@ class SimulatorAdapterTest(TransactionalTestCase):
         sim_result = dao.get_generic_entity(TimeSeriesRegion, 'TimeSeriesRegion', 'type')[0]
         self.assertEquals(sim_result.read_data_shape(), (32, 1, self.CONNECTIVITY_NODES, 1))
         SIMULATOR_PARAMETERS['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_nsig'] = '[1]'
+
         filtered_params = self.simulator_adapter.prepare_ui_inputs(SIMULATOR_PARAMETERS)
         self.simulator_adapter.configure(**filtered_params)
         if hasattr(self.simulator_adapter, 'algorithm'):
@@ -256,7 +257,6 @@ def suite():
     return test_suite
 
 if __name__ == "__main__":
-    #So you can run tests from this package individually.
     #So you can run tests from this package individually.
     TEST_RUNNER = unittest.TextTestRunner()
     TEST_SUITE = suite()

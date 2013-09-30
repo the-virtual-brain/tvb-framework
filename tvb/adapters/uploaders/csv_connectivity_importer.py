@@ -35,10 +35,10 @@
 import os
 from tvb.basic.traits.util import read_list_data
 from tvb.datatypes.connectivity import Connectivity
-from tvb.core.services import dtipipelineservice
+from tvb.core.services.dti_pipeline_service import DTIPipelineService
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.core.entities.file.fileshelper import FilesHelper
+from tvb.core.entities.file.files_helper import FilesHelper
 
 
 class CSVConnectivityImporter(ABCSynchronous):
@@ -94,7 +94,7 @@ class CSVConnectivityImporter(ABCSynchronous):
 
         :raises LaunchException: when the number of nodes in CSV files doesn't match the one in the connectivity
         """
-        dti_service = dtipipelineservice.DTIPipelineService()
+        dti_service = DTIPipelineService()
         dti_service._process_csv_file(weights, dti_service.WEIGHTS_FILE)
         dti_service._process_csv_file(tracts, dti_service.TRACT_FILE)
         weights_matrix = read_list_data(os.path.join(os.path.dirname(weights), dti_service.WEIGHTS_FILE))

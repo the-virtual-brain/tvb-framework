@@ -41,7 +41,7 @@ from tvb.datatypes.sensors import SensorsEEG
 from tvb.datatypes.surfaces import CorticalSurface
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.services.flowservice import FlowService
+from tvb.core.services.flow_service import FlowService
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb_test.core.test_factory import TestFactory
 from tvb_test.core.base_testcase import TransactionalTestCase

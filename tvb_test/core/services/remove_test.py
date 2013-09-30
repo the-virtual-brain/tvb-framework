@@ -35,10 +35,11 @@
 import unittest
 import numpy
 from tvb.core.entities.storage import dao
-from tvb.core.services.importservice import ImportService
-from tvb.core.services.flowservice import FlowService
-from tvb.core.services.projectservice import ProjectService
-from tvb.core.services.operationservice import OperationService
+from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.services.import_service import ImportService
+from tvb.core.services.flow_service import FlowService
+from tvb.core.services.project_service import ProjectService
+from tvb.core.services.operation_service import OperationService
 from tvb.core.services.exceptions import RemoveDataTypeException
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.mapped_values import ValueWrapper
@@ -46,13 +47,12 @@ from tvb.datatypes.time_series import TimeSeries
 from tvb_test.core.test_factory import TestFactory
 from tvb_test.adapters.storeadapter import StoreAdapter
 from tvb_test.core.base_testcase import TransactionalTestCase
-from tvb.core.entities.file.fileshelper import FilesHelper
 
 
 
 class RemoveTest(TransactionalTestCase):
     """
-    This class contains tests for the tvb.core.services.flowservice module.
+    This class contains tests for the service layer related to remove of DataTypes.
     """
 
 

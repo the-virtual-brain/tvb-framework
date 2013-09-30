@@ -34,7 +34,7 @@
 import os
 import shutil
 import cherrypy
-import tvb.interfaces.web.controllers.basecontroller as bc
+import tvb.interfaces.web.controllers.base_controller as bc
 from tvb.basic.logger.builder import get_logger
 
 # Constants for upload

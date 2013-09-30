@@ -33,19 +33,19 @@
 import os
 import unittest
 import demo_data.sensors as sensors_dataset
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb_test.datatypes.datatypes_factory import DatatypesFactory
-from tvb_test.core.base_testcase import TransactionalTestCase
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.visualizers.eeg_monitor import EegMonitor
 from tvb.datatypes.surfaces import CorticalSurface
 from tvb.datatypes.connectivity import Connectivity
-from tvb_test.core.test_factory import TestFactory
 from tvb.datatypes.sensors import SensorsEEG
+from tvb_test.core.test_factory import TestFactory
+from tvb_test.datatypes.datatypes_factory import DatatypesFactory
+from tvb_test.core.base_testcase import TransactionalTestCase
 
 
 class EEGMonitorTest(TransactionalTestCase):
     """
-    Unit-tests for BrainViewer.
+    Unit-tests for EEG Viewer.
     """
     def setUp(self):
         """

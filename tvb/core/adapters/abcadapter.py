@@ -47,8 +47,8 @@ from tvb.basic.logger.builder import get_logger
 from tvb.basic.traits.types_mapped import MappedType
 from tvb.core.utils import date2string, string2array, LESS_COMPLEX_TIME_FORMAT
 from tvb.core.entities.storage import dao
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb.core.entities.file.filesupdatemanager import FilesUpdateManager
+from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.file.files_update_manager import FilesUpdateManager
 from tvb.core.entities.file.exceptions import FileVersioningException
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.adapters.exceptions import IntrospectionException, InvalidParameterException, LaunchException

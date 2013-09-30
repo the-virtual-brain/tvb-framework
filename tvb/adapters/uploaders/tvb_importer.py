@@ -37,11 +37,11 @@ import zipfile
 import shutil
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.core.services.importservice import ImportService
+from tvb.core.services.import_service import ImportService
 from tvb.core.entities.storage import dao
-from tvb.core.entities.file.hdf5storage import HDF5StorageManager
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb.core.entities.file.filesupdatemanager import FilesUpdateManager
+from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
+from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.file.files_update_manager import FilesUpdateManager
 
 
 class TVBImporter(ABCSynchronous):
@@ -101,7 +101,7 @@ class TVBImporter(ABCSynchronous):
 
         """
         if data_file is None:
-            raise LaunchException ("Please select file which contains data to import")
+            raise LaunchException("Please select file which contains data to import")
 
         if os.path.exists(data_file):
             if zipfile.is_zipfile(data_file):
@@ -137,9 +137,9 @@ class TVBImporter(ABCSynchronous):
                         raise LaunchException("Invalid file received as input. Most probably incomplete "
                                               "meta-data ...  " + str(excep))
                 else:
-                    raise LaunchException("Uploaded file: %s is neither in ZIP or HDF5 format"%data_file)
+                    raise LaunchException("Uploaded file: %s is neither in ZIP or HDF5 format" % data_file)
                 
         else:
-            raise LaunchException("File: %s to import does not exists."%data_file)
+            raise LaunchException("File: %s to import does not exists." % data_file)
         
         

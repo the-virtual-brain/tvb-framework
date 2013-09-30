@@ -33,16 +33,16 @@ Class responsible for all TVB exports (datatype or project).
 
 .. moduleauthor:: Calin Pavel
 """
+
 import os
 import json
 from datetime import datetime
-
 from tvb.adapters.exporters.tvb_export import TVBExporter 
 from tvb.adapters.exporters.cifti_export import CIFTIExporter 
 from tvb.adapters.exporters.exceptions import ExportException, InvalidExportDataException
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.entities.model.model_burst import BURST_INFO_FILE, BURSTS_DICT_KEY, DT_BURST_MAP
-from tvb.core.entities.file.fileshelper import FilesHelper
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.transient.burst_export_entities import BurstInformation, WorkflowInformation
 from tvb.core.entities.transient.burst_export_entities import WorkflowStepInformation, WorkflowViewStepInformation
 from tvb.core.entities.storage import dao
@@ -52,11 +52,12 @@ LOG = get_logger(__name__)
 BURST_PAGE_SIZE = 100
 DATAYPES_PAGE_SIZE = 100
 
+
 class ExportManager:
     """
-        This class provides basic methods for exporting data types of projects in different formats.
+    This class provides basic methods for exporting data types of projects in different formats.
     """
-    all_exporters = {} # Dictionary containing all available exporters
+    all_exporters = {}  # Dictionary containing all available exporters
     export_folder = None
     EXPORT_FOLDER_NAME = "EXPORT_TMP"
     ZIP_FILE_EXTENSION = "zip"
@@ -118,8 +119,7 @@ class ExportManager:
         if exporter_id is None:
             raise ExportException("Please select the exporter to be used for this operation")
         
-        
-        if not self.all_exporters.has_key(exporter_id):
+        if exporter_id not in self.all_exporters:
             raise ExportException("Provided exporter identifier is not a valid one")
         
         exporter = self.all_exporters[exporter_id]
@@ -153,8 +153,6 @@ class ExportManager:
         Given a project root and the TVB storage_path, create a ZIP
         ready for export.
         :param project: project object which identifies project to be exported
-        :param project)name: name of the project to be exported
-        :param export_folder: folder where to store export result( e.g zip file)
         """
         if project is None:
             raise ExportException("Please provide project to be exported")
@@ -166,17 +164,17 @@ class ExportManager:
         datatype_burst_mapping = {}
         bursts_count = dao.get_bursts_for_project(project.id, count=True)
         for start_idx in range(0, bursts_count, BURST_PAGE_SIZE):
-            bursts = dao.get_bursts_for_project(project.id, page_start=start_idx, page_end=start_idx+BURST_PAGE_SIZE)
+            bursts = dao.get_bursts_for_project(project.id, page_start=start_idx, page_end=start_idx + BURST_PAGE_SIZE)
             for burst in bursts:
                 self._build_burst_export_dict(burst, bursts_dict)
                 
         datatypes_count = dao.get_datatypes_for_project(project.id, count=True)
         for start_idx in range(0, datatypes_count, DATAYPES_PAGE_SIZE):
-            datatypes = dao.get_datatypes_for_project(project.id, page_start=start_idx, page_end=start_idx+DATAYPES_PAGE_SIZE)
+            datatypes = dao.get_datatypes_for_project(project.id, page_start=start_idx,
+                                                      page_end=start_idx + DATAYPES_PAGE_SIZE)
             for datatype in datatypes:
                 datatype_burst_mapping[datatype.gid] = datatype.fk_parent_burst
-        
-            
+
         # Compute path and name of the zip file
         now = datetime.now()
         date_str = now.strftime("%Y-%m-%d_%H-%M")
@@ -186,8 +184,8 @@ class ExportManager:
         result_path = os.path.join(export_folder, zip_file_name) 
         
         bursts_file_name = os.path.join(project_folder, BURST_INFO_FILE)
-        burst_info = {BURSTS_DICT_KEY : bursts_dict,
-                      DT_BURST_MAP : datatype_burst_mapping}
+        burst_info = {BURSTS_DICT_KEY: bursts_dict,
+                      DT_BURST_MAP: datatype_burst_mapping}
         with open(bursts_file_name, 'w') as bursts_file:
             bursts_file.write(json.dumps(burst_info))
             
@@ -262,8 +260,8 @@ class ExportManager:
         stored for a while (e.g until download is done; or for 1 day)
         """
         now = datetime.now()
-        date_str = "%d-%d-%d_%d-%d-%d_%d"%(now.year, now.month, now.day, now.hour,
-                                           now.minute, now.second, now.microsecond)
+        date_str = "%d-%d-%d_%d-%d-%d_%d" % (now.year, now.month, now.day, now.hour,
+                                             now.minute, now.second, now.microsecond)
         tmp_str = date_str + "@" + data.gid
         data_export_folder = os.path.join(self.export_folder, tmp_str)
         files_helper = FilesHelper()

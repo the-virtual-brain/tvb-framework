@@ -43,15 +43,15 @@ import json
 import random
 import demo_data.cff as cff_dataset
 from hashlib import md5
-from tvb.config import EVENTS_FOLDER
+import tvb.config as config
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.model import BurstConfiguration
 from tvb.core.entities.transient.burst_configuration_entities import WorkflowStepConfiguration as wf_cfg
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.services.projectservice import ProjectService
-from tvb.core.services.flowservice import FlowService
-from tvb.core.services.operationservice import OperationService
+from tvb.core.services.project_service import ProjectService
+from tvb.core.services.flow_service import FlowService
+from tvb.core.services.operation_service import OperationService
 from tvb.core.adapters.abcadapter import ABCAdapter
 
 
@@ -314,7 +314,7 @@ class ExtremeTestFactory():
                                 CLINICIAN and RESEARCHER and random validated state)
         :param nr_projects: maximum number of projects to be generated for each user
         """
-        EVENTS_FOLDER = ''
+        config.EVENTS_FOLDER = ''
         users = []
         
         for i in range(nr_users):

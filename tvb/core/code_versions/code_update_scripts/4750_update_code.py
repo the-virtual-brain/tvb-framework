@@ -32,9 +32,9 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import tvb.core.services.eventhandler as eventhandler
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.storage import dao
+from tvb.core.services.event_handlers import handle_event
 
 
 LOGGER = get_logger(__name__)
@@ -50,11 +50,12 @@ def update():
     projects_count = dao.get_all_projects(is_count=True)
     
     for page_start in range(0, projects_count, PAGE_SIZE):
-        projects_page = dao.get_all_projects(page_start=page_start, page_end=min(page_start +PAGE_SIZE, projects_count))
+        projects_page = dao.get_all_projects(page_start=page_start,
+                                             page_end=min(page_start + PAGE_SIZE, projects_count))
         
         for project in projects_page:
             try:
-                eventhandler.handle_event(EVENT_FILE_IDENTIFIER, dao.get_system_user(), project)
+                handle_event(EVENT_FILE_IDENTIFIER, dao.get_system_user(), project)
             except Exception, excep:
                 LOGGER.exception(excep)
     

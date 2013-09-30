@@ -41,15 +41,15 @@ import cherrypy
 from tvb.basic.config.settings import TVBSettings as cfg
 import tvb.basic.traits as trait
 import tvb.interfaces.web.templates.genshi.flow as root_html
-import tvb.interfaces.web.controllers.basecontroller as base
+import tvb.interfaces.web.controllers.base_controller as base
 from BeautifulSoup import BeautifulSoup
 from genshi.template.loader import TemplateLoader
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.introspector import Introspector
 from tvb.core.entities.storage import dao
-from tvb.core.services.flowservice import FlowService
-from tvb.core.services.operationservice import OperationService
-from tvb.interfaces.web.controllers.flowcontroller import FlowController
+from tvb.core.services.flow_service import FlowService
+from tvb.core.services.operation_service import OperationService
+from tvb.interfaces.web.controllers.flow_controller import FlowController
 from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
 from tvb_test.adapters.ndimensionarrayadapter import NDimensionArrayAdapter
 from tvb_test.core.base_testcase import BaseTestCase
@@ -217,7 +217,7 @@ class GenshiTestSimple(GenshiTest):
         all_inputs = self.soup.findAll('input', attrs=dict(name=exp))
         count_disabled = 0
         for one_entry in all_inputs:
-            if one_entry.has_key('disabled'):
+            if 'disabled' in one_entry:
                 count_disabled += 1
         self.assertEqual(len(all_inputs), 5, "Some inputs not generated or too many inputs generated")
         self.assertEqual(count_disabled, 4, "Disabling input fields was not done correctly")
@@ -375,7 +375,7 @@ class GenshiTestGroup(GenshiTest):
         self.assertTrue(len(sub_algos) == 2, fail_message)
         disabled = 0
         for one_entry in sub_algos:
-            if one_entry.has_key('disabled'):
+            if 'disabled' in one_entry:
                 disabled += 1
         self.assertTrue(disabled == 1, fail_message)
 

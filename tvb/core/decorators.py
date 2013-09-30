@@ -34,6 +34,7 @@
 
 import os
 
+
 def synchronized(lock):
     """ 
     Synchronization annotation. 

@@ -39,15 +39,15 @@ from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.exceptions import MethodUnimplementedException, NoMemoryAvailableException
-from tvb.core.services.operationservice import OperationService
-from tvb.core.services.flowservice import FlowService
+from tvb.core.services.operation_service import OperationService
+from tvb.core.services.flow_service import FlowService
 from tvb_test.core.base_testcase import TransactionalTestCase
 from tvb_test.core.test_factory import TestFactory
 
 
 class AdapterMemoryUsageTest(TransactionalTestCase):
     """
-    Test class for the introspector module.
+    Test class for the module handling methods computing required memory for an adapter to run.
     """
     
     def setUp(self):
@@ -60,18 +60,18 @@ class AdapterMemoryUsageTest(TransactionalTestCase):
     
     def test_adapter_memory_not_implemented(self):
         """
-        Test that a method not implemeted exception is raised in case the
+        Test that a method not implemented exception is raised in case the
         get_required_memory_size method is not implemented.
         """
         module = "tvb_test.adapters.testadapter3"
         class_name = "TestAdapterNoMemoryImplemented"
         algo_group = dao.find_group(module, class_name)
         adapter = FlowService().build_adapter_instance(algo_group)
-        data = {"test" : 5}
-        
-        operation = model.Operation(self.test_user.id, self.test_project.id, algo_group.id, 
-                                         json.dumps(data), json.dumps({}), status=model.STATUS_STARTED,
-                                         method_name = ABCAdapter.LAUNCH_METHOD)
+        data = {"test": 5}
+
+        operation = model.Operation(self.test_user.id, self.test_project.id, algo_group.id,
+                                    json.dumps(data), json.dumps({}), status=model.STATUS_STARTED,
+                                    method_name=ABCAdapter.LAUNCH_METHOD)
         operation = dao.store_entity(operation)
         self.assertRaises(MethodUnimplementedException, OperationService().initiate_prelaunch, operation, adapter, {})
         
@@ -84,14 +84,16 @@ class AdapterMemoryUsageTest(TransactionalTestCase):
         class_name = "TestAdapterHugeMemoryRequired"
         algo_group = dao.find_group(module, class_name)
         adapter = FlowService().build_adapter_instance(algo_group)
-        data = {"test" : 5}
-        
-        operation = model.Operation(self.test_user.id, self.test_project.id, algo_group.id, 
-                                         json.dumps(data), json.dumps({}), status=model.STATUS_STARTED,
-                                         method_name = ABCAdapter.LAUNCH_METHOD)
+        data = {"test": 5}
+
+        operation = model.Operation(self.test_user.id, self.test_project.id, algo_group.id,
+                                    json.dumps(data), json.dumps({}), status=model.STATUS_STARTED,
+                                    method_name=ABCAdapter.LAUNCH_METHOD)
         operation = dao.store_entity(operation)
         self.assertRaises(NoMemoryAvailableException, OperationService().initiate_prelaunch, operation, adapter, {})
-        
+
+
+
 def suite():
     """
     Gather all the tests in a test suite.
@@ -99,6 +101,7 @@ def suite():
     test_suite = unittest.TestSuite()
     test_suite.addTest(unittest.makeSuite(AdapterMemoryUsageTest))
     return test_suite
+
 
 if __name__ == "__main__":
     #So you can run tests from this package individually.

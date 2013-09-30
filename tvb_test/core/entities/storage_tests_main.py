@@ -32,7 +32,7 @@
 """
 
 import unittest
-from tvb_test.core.entities import modelmanager_test
+from tvb_test.core.entities import model_manager_test
 from tvb_test.core.entities import filtering_test
 from tvb_test.core.entities import transactional_test
 from tvb_test.core.entities.file import file_tests_main
@@ -44,7 +44,7 @@ def suite():
     """
     test_suite = unittest.TestSuite()
     test_suite.addTest(file_tests_main.suite())
-    test_suite.addTest(modelmanager_test.suite())
+    test_suite.addTest(model_manager_test.suite())
     test_suite.addTest(filtering_test.suite())
     test_suite.addTest(transactional_test.suite())
     return test_suite

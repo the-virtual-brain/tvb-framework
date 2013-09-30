@@ -35,7 +35,7 @@ It will store in current user's session information about
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-import tvb.interfaces.web.controllers.basecontroller as base
+import tvb.interfaces.web.controllers.base_controller as base
 
 
 class SelectedAdapterContext(object):

@@ -36,16 +36,16 @@ import datetime
 import demo_data.regionMapping as demo_data
 import tvb_test.adapters.uploaders.test_data as test_data
 from tvb.basic.filters.chain import FilterChain
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb_test.datatypes.datatypes_factory import DatatypesFactory
-from tvb_test.core.base_testcase import TransactionalTestCase
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.services.flowservice import FlowService
+from tvb.core.services.flow_service import FlowService
+from tvb.core.services.exceptions import OperationException
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.surfaces import RegionMapping, CorticalSurface  
 from tvb.datatypes.connectivity import Connectivity
-from tvb.core.services.exceptions import OperationException
+from tvb_test.datatypes.datatypes_factory import DatatypesFactory
+from tvb_test.core.base_testcase import TransactionalTestCase
 from tvb_test.core.test_factory import TestFactory
 
 

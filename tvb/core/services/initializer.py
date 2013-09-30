@@ -31,18 +31,16 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 import datetime
-import tvb.core.services.eventhandler as eventhandler
-from tvb.core.entities.model import ROLE_ADMINISTRATOR
-from tvb.core.entities.modelmanager import initialize_startup
-from tvb.core.entities.modelmanager import reset_database
-from tvb.core.code_versions.code_update_manager import CodeUpdateManager
-from tvb.core.services.projectservice import initialize_storage
-from tvb.core.services.userservice import UserService
-from tvb.core.services.settingsservice import SettingsService
-from tvb.core.adapters.introspector import Introspector
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
+from tvb.core.entities.model_manager import initialize_startup, reset_database
+from tvb.core.code_versions.code_update_manager import CodeUpdateManager
+from tvb.core.services.project_service import initialize_storage
+from tvb.core.services.user_service import UserService
+from tvb.core.services.settings_service import SettingsService
+from tvb.core.services.event_handlers import read_events
+from tvb.core.adapters.introspector import Introspector
 from tvb.core.traits import db_events
 
 
@@ -83,7 +81,7 @@ def initialize(introspected_modules, load_xml_events=True):
    
     ## Populate events
     if load_xml_events:
-        eventhandler.read_events(event_folders)
+        read_events(event_folders)
     
     ## Make sure DB events are linked.
     db_events.attach_db_events()
@@ -92,7 +90,7 @@ def initialize(introspected_modules, load_xml_events=True):
     if is_db_empty:
         dao.store_entity(model.User(cfg.SYSTEM_USER_NAME, None, None, True, None))
         UserService().create_user(username=cfg.ADMINISTRATOR_NAME, password=cfg.ADMINISTRATOR_PASSWORD,
-                                  email=cfg.ADMINISTRATOR_EMAIL, role=ROLE_ADMINISTRATOR)
+                                  email=cfg.ADMINISTRATOR_EMAIL, role=model.ROLE_ADMINISTRATOR)
         
     ## In case actions related to latest code-changes are needed, make sure they are executed.
     CodeUpdateManager().update_all()

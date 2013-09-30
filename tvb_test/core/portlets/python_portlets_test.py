@@ -38,8 +38,8 @@ import unittest
 from tvb.core.entities import model
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.entities.storage import dao
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.portlets.portlet_configurer import PortletConfigurer
-from tvb.core.entities.file.fileshelper import FilesHelper
 from tvb_test.core.base_testcase import TransactionalTestCase
 
 

@@ -32,10 +32,10 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import tvb.core.services.eventhandler as eventhandler
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.utils import get_matlab_executable
+from tvb.core.services.event_handlers import handle_event
 from tvb.core.entities.storage import dao
 
 
@@ -52,15 +52,16 @@ def update():
     projects_count = dao.get_all_projects(is_count=True)
     
     for page_start in range(0, projects_count, PAGE_SIZE):
-        projects_page = dao.get_all_projects(page_start=page_start, page_end=min(page_start +PAGE_SIZE, projects_count))
+        projects_page = dao.get_all_projects(page_start=page_start,
+                                             page_end=min(page_start + PAGE_SIZE, projects_count))
         
         for project in projects_page:
             try:
-                eventhandler.handle_event(EVENT_FILE_IDENTIFIER, dao.get_system_user(), project)
+                handle_event(EVENT_FILE_IDENTIFIER, dao.get_system_user(), project)
             except Exception, excep:
                 LOGGER.exception(excep)
                 
-    cfg.add_entries_to_config_file({cfg.KEY_MATLAB_EXECUTABLE : get_matlab_executable()})
+    cfg.add_entries_to_config_file({cfg.KEY_MATLAB_EXECUTABLE: get_matlab_executable()})
     
     
     

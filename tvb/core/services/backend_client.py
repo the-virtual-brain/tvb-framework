@@ -47,7 +47,7 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.utils import parse_json_parameters
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
-from tvb.core.services.workflowservice import WorkflowService
+from tvb.core.services.workflow_service import WorkflowService
 
 
 LOGGER = get_logger(__name__)

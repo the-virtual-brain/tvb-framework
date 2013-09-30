@@ -41,14 +41,14 @@ from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
-from tvb.core.entities.file.fileshelper import FilesHelper
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.adapters.analyzers.metrics_group_timeseries import TimeseriesMetricsAdapter
 from tvb.datatypes.time_series import TimeSeriesRegion
 from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.services.operationservice import OperationService
-from tvb.core.services.flowservice import FlowService
+from tvb.core.services.operation_service import OperationService
+from tvb.core.services.flow_service import FlowService
 
 from tvb_test.core.test_factory import TestFactory
 from tvb_test.core.base_testcase import TransactionalTestCase

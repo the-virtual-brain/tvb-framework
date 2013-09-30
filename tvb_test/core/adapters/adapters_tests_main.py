@@ -35,7 +35,7 @@ Created on Jul 21, 2011
 """
 
 import unittest
-from tvb_test.core.adapters import xmlreader_test
+from tvb_test.core.adapters import xml_reader_test
 from tvb_test.core.adapters import introspector_test
 from tvb_test.core.adapters import adapters_memory_usage_tests
 from tvb_test.core.adapters import abcadapter_test
@@ -46,7 +46,7 @@ def suite():
     """
     test_suite = unittest.TestSuite()
     test_suite.addTest(introspector_test.suite())
-    test_suite.addTest(xmlreader_test.suite())
+    test_suite.addTest(xml_reader_test.suite())
     test_suite.addTest(adapters_memory_usage_tests.suite())
     test_suite.addTest(abcadapter_test.suite())
     return test_suite

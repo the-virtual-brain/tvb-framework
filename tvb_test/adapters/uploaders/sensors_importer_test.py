@@ -32,16 +32,16 @@
 """
 import unittest
 import os
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb_test.datatypes.datatypes_factory import DatatypesFactory
-from tvb_test.core.base_testcase import TransactionalTestCase
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.services.flowservice import FlowService
+from tvb.core.services.exceptions import OperationException
+from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
-from tvb.core.services.exceptions import OperationException
+from tvb_test.datatypes.datatypes_factory import DatatypesFactory
+from tvb_test.core.base_testcase import TransactionalTestCase
 
 import demo_data.sensors as demo_data
 

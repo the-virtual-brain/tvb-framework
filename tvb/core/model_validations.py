@@ -40,8 +40,8 @@ tvb_profile.set_profile(["-profile", "CONSOLE_PROFILE"], try_reload=False)
 import sys
 from time import sleep
 from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
-from tvb.core.services.flowservice import FlowService
-from tvb.core.services.operationservice import PARAM_RANGE_PREFIX, OperationService
+from tvb.core.services.flow_service import FlowService
+from tvb.core.services.operation_service import PARAM_RANGE_PREFIX, OperationService
 from tvb.core.entities.storage import dao
 from tvb.core.entities.model import STATUS_STARTED, STATUS_FINISHED, STATUS_ERROR
 
@@ -131,7 +131,8 @@ class ModelValidator(object):
                 sys.stdout.write('.')
                 sys.stdout.flush()
         if error_count:
-            return "%s operations in error; %s operations successfull." %(error_count, len(self.launched_operations) - error_count)
+            return "%s operations in error; %s operations successfully." % (error_count,
+                                                                            len(self.launched_operations) - error_count)
         return "All operations finished successfully!"
 
 

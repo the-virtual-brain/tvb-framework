@@ -38,12 +38,13 @@ from tvb.core.entities.transient.burst_configuration_entities import PortletConf
 from tvb.core.entities.transient.burst_configuration_entities import WorkflowStepConfiguration as wf_cfg
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.portlets.portlet_XML_reader import XMLPortletReader, KEY_STATIC, KEY_DYNAMIC, KEY_FIELD, ATT_OVERWRITE
+from tvb.core.portlets.xml_reader import XMLPortletReader, KEY_STATIC, KEY_DYNAMIC, KEY_FIELD, ATT_OVERWRITE
 
 
 #The root of each prefix. The index in the adapter chain for each adapter will
 #be added to form specific prefixes for each adapter from the portlet.
 ADAPTER_PREFIX_ROOT = 'portlet_step_'
+
 
 
 class PortletConfigurer():
@@ -57,26 +58,32 @@ class PortletConfigurer():
         created one with a new set of parameters
         
     """
+
+
     def __init__(self, portlet_entity):
         self.log = get_logger(self.__class__.__module__)
         self.reader = XMLPortletReader.get_instance(portlet_entity.xml_path)
         self.portlet_entity = portlet_entity
-        
+
+
     @property
     def portlet_id(self):
         """Portlet DB identifier"""
         return self.portlet_entity.id
-    
+
+
     @property
     def algo_identifier(self):
         """Unique identifier for current portlet."""
         return self.portlet_entity.algorithm_identifier
-    
+
+
     @property
     def ui_name(self):
         """ Portlet name to be displayed in UI"""
         return self.portlet_entity.name
-    
+
+
     def get_configurable_interface(self):
         """
         Given an algorithm identifier, go trough the adapter chain, and merge
@@ -85,33 +92,35 @@ class PortletConfigurer():
         chain_adapters = self.reader.get_adapters_chain(self.algo_identifier)
         result = []
         for adapter_declaration in chain_adapters:
-            
+
             adapter_instance, algorithm_group = self.build_adapter_from_declaration(adapter_declaration)
-            
+
             algorithm_field = adapter_declaration[KEY_FIELD]
             if algorithm_field:
                 default_algorithm = adapter_declaration[ABCAdapter.KEY_DEFAULT]
             else:
                 default_algorithm = ''
-                
+
             all_portlet_defined_params = self.reader.get_inputs(self.algo_identifier)
-            specific_adapter_overwrites = [entry for entry in all_portlet_defined_params if ATT_OVERWRITE
-                                        in entry and entry[ATT_OVERWRITE] == adapter_declaration[ABCAdapter.KEY_NAME]]
-            
-            if (default_algorithm):
+            specific_adapter_overwrites = [entry for entry in all_portlet_defined_params
+                                           if ATT_OVERWRITE in entry and entry[ATT_OVERWRITE] ==
+                                              adapter_declaration[ABCAdapter.KEY_NAME]]
+
+            if default_algorithm:
                 alg_inputs = adapter_instance.xml_reader.get_inputs(default_algorithm)
                 prefix = ABCAdapter.form_prefix(algorithm_field, None, default_algorithm)
             else:
                 alg_inputs = adapter_instance.get_input_tree()
                 prefix = ''
-                
+
             replace_values = self._prepare_input_tree(alg_inputs, specific_adapter_overwrites, prefix)
-            adapter_configuration = AdapterConfiguration(replace_values, algorithm_group, prefix=prefix, 
-                                                         subalgorithm_field=algorithm_field, 
+            adapter_configuration = AdapterConfiguration(replace_values, algorithm_group, prefix=prefix,
+                                                         subalgorithm_field=algorithm_field,
                                                          subalgorithm_value=default_algorithm)
             result.append(adapter_configuration)
         return result
-    
+
+
     @classmethod
     def build_adapter_from_declaration(cls, adapter_declaration):
         """
@@ -119,7 +128,7 @@ class PortletConfigurer():
         """
         adapter_import_path = adapter_declaration[ABCAdapter.KEY_TYPE]
         class_name = adapter_import_path.split('.')[-1]
-        module = adapter_import_path.replace('.'+class_name, '')
+        module = adapter_import_path.replace('.' + class_name, '')
         if 'initparam' in adapter_declaration:
             algo_group = dao.find_group(module, class_name, adapter_declaration['initparam'])
         else:
@@ -128,7 +137,8 @@ class PortletConfigurer():
             return ABCAdapter.build_adapter(algo_group), algo_group
         else:
             return None, None
-    
+
+
     def _prepare_input_tree(self, input_list, default_values, prefix=''):
         """
         Replace the default values from the portlet interface in the adapters 
@@ -147,23 +157,21 @@ class PortletConfigurer():
                         ## For now just display all dynamic parameters as being disabled.
                         ## If at some point we would like user to be able to select dynamic entry
                         ## should treat this case differently.
-                        param[ABCAdapter.KEY_DISABLED] = True 
+                        param[ABCAdapter.KEY_DISABLED] = True
                         param[KEY_DYNAMIC] = True
-            if (param.has_key(ABCAdapter.KEY_OPTIONS) and
-                param[ABCAdapter.KEY_OPTIONS] is not None):
+
+            if ABCAdapter.KEY_OPTIONS in param and param[ABCAdapter.KEY_OPTIONS] is not None:
                 new_prefix = prefix + param[ABCAdapter.KEY_NAME] + ABCAdapter.KEYWORD_PARAMS
-                self._prepare_input_tree(param[ABCAdapter.KEY_OPTIONS], 
-                                         default_values, new_prefix)
-            if (param.has_key(ABCAdapter.KEY_ATTRIBUTES) and 
-                param[ABCAdapter.KEY_ATTRIBUTES] is not None):
+                self._prepare_input_tree(param[ABCAdapter.KEY_OPTIONS], default_values, new_prefix)
+
+            if ABCAdapter.KEY_ATTRIBUTES in param and param[ABCAdapter.KEY_ATTRIBUTES] is not None:
                 new_prefix = prefix
-                is_dict = (param.has_key(ABCAdapter.KEY_TYPE) and param[ABCAdapter.KEY_TYPE]=='dict')
-                if is_dict:
+                if ABCAdapter.KEY_TYPE in param and param[ABCAdapter.KEY_TYPE] == 'dict':
                     new_prefix = prefix + param[ABCAdapter.KEY_NAME] + ABCAdapter.KEYWORD_PARAMS
                 self._prepare_input_tree(param[ABCAdapter.KEY_ATTRIBUTES], default_values, new_prefix)
         return input_list
-    
-    
+
+
     @staticmethod
     def update_default_values(portlet_interface, portlet_configuration):
         """
@@ -178,15 +186,15 @@ class PortletConfigurer():
         if portlet_configuration.analyzers:
             for adapter_idx in xrange(len(portlet_interface[:-1])):
                 saved_configuration = portlet_configuration.analyzers[adapter_idx]
-                replaced_defaults_dict = ABCAdapter.fill_defaults(portlet_interface[adapter_idx].interface, 
-                                                                     saved_configuration.static_param)
+                replaced_defaults_dict = ABCAdapter.fill_defaults(portlet_interface[adapter_idx].interface,
+                                                                  saved_configuration.static_param)
                 portlet_interface[adapter_idx].interface = replaced_defaults_dict
-                        
+
         #Check for visualization defaults
         if portlet_configuration.visualizer:
             saved_configuration = portlet_configuration.visualizer
-            replaced_defaults_dict = ABCAdapter.fill_defaults(portlet_interface[-1].interface, 
-                                                                 saved_configuration.static_param)
+            replaced_defaults_dict = ABCAdapter.fill_defaults(portlet_interface[-1].interface,
+                                                              saved_configuration.static_param)
             portlet_interface[-1].interface = replaced_defaults_dict
 
 
@@ -199,13 +207,13 @@ class PortletConfigurer():
         step_idx, datatype_idx = value.replace('step_', '').replace(']', '').split('[')
         try:
             datatype_idx = int(datatype_idx)
-            self.log.debug("%s defines an output as an entry to a workflow step."%(value,))
+            self.log.debug("%s defines an output as an entry to a workflow step." % (value,))
         except ValueError, _:
-            self.log.debug("%s defines an input as an entry to a workflow step."%(value,))
+            self.log.debug("%s defines an input as an entry to a workflow step." % (value,))
         workflow_value = {wf_cfg.STEP_INDEX_KEY: int(step_idx), wf_cfg.DATATYPE_INDEX_KEY: datatype_idx}
         return workflow_value
-    
-    
+
+
     def prefix_adapters_parameters(self, adapter_config_list):
         """
         Prepend separate prefix to the name of each entry of the adapter interfaces.
@@ -219,7 +227,8 @@ class PortletConfigurer():
         for index, adapter_config in enumerate(adapter_config_list):
             specific_prefix = ADAPTER_PREFIX_ROOT + str(index)
             self._prepend_prefix(adapter_config.interface, specific_prefix)
-            
+
+
     def _prepend_prefix(self, input_list, prefix):
         """
         Prepend a prefix to the name of each entry form the given input tree.
@@ -228,15 +237,14 @@ class PortletConfigurer():
         """
         for param in input_list:
             param[ABCAdapter.KEY_NAME] = prefix + param[ABCAdapter.KEY_NAME]
-            if (param.has_key(ABCAdapter.KEY_OPTIONS) and param[ABCAdapter.KEY_OPTIONS] is not None):
+            if ABCAdapter.KEY_OPTIONS in param and param[ABCAdapter.KEY_OPTIONS] is not None:
                 for option in param[ABCAdapter.KEY_OPTIONS]:
-                    if (option.has_key(ABCAdapter.KEY_ATTRIBUTES) and option[ABCAdapter.KEY_ATTRIBUTES] is not None):
+                    if ABCAdapter.KEY_ATTRIBUTES in option and option[ABCAdapter.KEY_ATTRIBUTES] is not None:
                         self._prepend_prefix(option[ABCAdapter.KEY_ATTRIBUTES], prefix)
-            if (param.has_key(ABCAdapter.KEY_ATTRIBUTES) and 
-                param[ABCAdapter.KEY_ATTRIBUTES] is not None):
+            if ABCAdapter.KEY_ATTRIBUTES in param and param[ABCAdapter.KEY_ATTRIBUTES] is not None:
                 self._prepend_prefix(param[ABCAdapter.KEY_ATTRIBUTES], prefix)
-    
-    
+
+
     def create_new_portlet_configuration(self, name=''):
         """
         Create a PortletConfiguration entity with the default values from the portlet
@@ -245,7 +253,7 @@ class PortletConfigurer():
         chain_adapters = self.reader.get_adapters_chain(self.algo_identifier)
         analyze_steps = []
         view_step = None
-        
+
         idx = 0
         for adapter_declaration in chain_adapters:
             adapter_instance, algorithm_group = self.build_adapter_from_declaration(adapter_declaration)
@@ -256,21 +264,22 @@ class PortletConfigurer():
                 default_algorithm = adapter_declaration[ABCAdapter.KEY_DEFAULT]
             else:
                 default_algorithm = ''
-            if (default_algorithm):
+            if default_algorithm:
                 prefix = ABCAdapter.form_prefix(algorithm_field, None, default_algorithm)
                 alg_inputs = adapter_instance._flaten(adapter_instance.xml_reader.get_inputs(default_algorithm), prefix)
             else:
                 alg_inputs = adapter_instance.flaten_input_interface()
-            ###################################################################  
-            
+            ###################################################################
+
             ### Get the overwrites defined in the portlet configuration #######
             ### for this specific adapter in the adapter chain          #######
             ### split in static and dynamic ones                        #######
-            prepared_params = {KEY_STATIC : {}, KEY_DYNAMIC : {}}
+            prepared_params = {KEY_STATIC: {}, KEY_DYNAMIC: {}}
             all_portlet_defined_params = self.reader.get_inputs(self.algo_identifier)
-            specific_adapter_overwrites = [entry for entry in all_portlet_defined_params if ATT_OVERWRITE
-                                        in entry and entry[ATT_OVERWRITE] == adapter_declaration[ABCAdapter.KEY_NAME]]
-            
+            specific_adapter_overwrites = [entry for entry in all_portlet_defined_params
+                                           if ATT_OVERWRITE in entry and entry[ATT_OVERWRITE] ==
+                                              adapter_declaration[ABCAdapter.KEY_NAME]]
+
             for entry in specific_adapter_overwrites:
                 if ABCAdapter.KEY_DEFAULT in entry:
                     declared_value = entry[ABCAdapter.KEY_DEFAULT]
@@ -298,34 +307,34 @@ class PortletConfigurer():
             if default_algorithm:
                 prepared_params[KEY_STATIC][algorithm_field] = default_algorithm
             ###################################################################
-            
+
             ### Now parse the dynamic inputs declared in the portlets XML ######
             ### into workflow_step specific format.                        ####
             for param_name in prepared_params[KEY_DYNAMIC]:
                 new_value = self._portlet_dynamic2workflow_step(prepared_params[KEY_DYNAMIC][param_name])
                 prepared_params[KEY_DYNAMIC][param_name] = new_value
-            ###################################################################     
-            
+            ###################################################################
+
             ###Finally get the actual algorithm id from the DB as we need the #
             ###algorithm id, then build the workflow step given the computed  #
             ###parameter set, then build and return the portlet configuration##
             algorithm = dao.get_algorithm_by_group(algorithm_group.id, default_algorithm)
-            
-            if idx == len(chain_adapters) - 1 :
-                view_step = WorkflowStepView(algorithm_id = algorithm.id, portlet_id = self.portlet_id, 
-                                             ui_name = name, static_param = prepared_params[KEY_STATIC], 
-                                             dynamic_param = prepared_params[KEY_DYNAMIC])
+
+            if idx == len(chain_adapters) - 1:
+                view_step = WorkflowStepView(algorithm_id=algorithm.id, portlet_id=self.portlet_id,
+                                             ui_name=name, static_param=prepared_params[KEY_STATIC],
+                                             dynamic_param=prepared_params[KEY_DYNAMIC])
             else:
-                workflow_step = WorkflowStep(algorithm_id = algorithm.id, static_param = prepared_params[KEY_STATIC], 
-                                             dynamic_param = prepared_params[KEY_DYNAMIC])
+                workflow_step = WorkflowStep(algorithm_id=algorithm.id, static_param=prepared_params[KEY_STATIC],
+                                             dynamic_param=prepared_params[KEY_DYNAMIC])
                 analyze_steps.append(workflow_step)
             idx += 1
         portlet_configuration = PortletConfiguration(self.portlet_id)
         portlet_configuration.set_analyzers(analyze_steps)
-        portlet_configuration.set_visualizer(view_step)      
+        portlet_configuration.set_visualizer(view_step)
         return portlet_configuration
-    
-    
+
+
     @staticmethod
     def update_portlet_configuration(portlet_configuration, submited_parameters):
         """
@@ -349,7 +358,7 @@ class PortletConfigurer():
                     static_parameters[param_name.replace(adapter_prefix, '')] = submited_value
             analyze_step.static_param = static_parameters
             adapter_index += 1
-            
+
         visualizer_prefix = ADAPTER_PREFIX_ROOT + str(adapter_index)
         visualizer = portlet_configuration.visualizer
         static_parameters = visualizer.static_param
@@ -357,11 +366,11 @@ class PortletConfigurer():
             if param_name.startswith(visualizer_prefix):
                 static_parameters[param_name.replace(visualizer_prefix, '')] = submited_value
         visualizer.static_param = static_parameters
-        
+
         return relaunch_needed
-    
-    
-    @staticmethod            
+
+
+    @staticmethod
     def clear_data_for_portlet(stored_portlet):
         """
         Remove any reference towards a given portlet already selected in a BurstConfiguration.

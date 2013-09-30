@@ -34,20 +34,21 @@ import os
 import unittest
 import demo_data.surfaceData as surface_dataset
 import demo_data.sensors as sensors_dataset
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb_test.datatypes.datatypes_factory import DatatypesFactory
-from tvb_test.core.base_testcase import TransactionalTestCase
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.surfaces import CorticalSurface, FaceSurface, EEGCap
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.sensors import SensorsEEG
 from tvb.adapters.visualizers.brain import BrainViewer, BrainEEG
 from tvb_test.core.test_factory import TestFactory
+from tvb_test.datatypes.datatypes_factory import DatatypesFactory
+from tvb_test.core.base_testcase import TransactionalTestCase
 
 
 class BrainViewerTest(TransactionalTestCase):
     """
     Unit-tests for BrainViewer.
     """
+
     def setUp(self):
         """
         Sets up the environment for running the tests;

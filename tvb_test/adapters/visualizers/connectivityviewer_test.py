@@ -31,20 +31,18 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 import unittest
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb_test.datatypes.datatypes_factory import DatatypesFactory
-from tvb_test.core.base_testcase import TransactionalTestCase
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.visualizers.connectivity import ConnectivityViewer
-from tvb.core.services.flowservice import FlowService
-from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.surfaces import CorticalSurface
 from tvb.datatypes.connectivity import Connectivity
 from tvb_test.core.test_factory import TestFactory
+from tvb_test.datatypes.datatypes_factory import DatatypesFactory
+from tvb_test.core.base_testcase import TransactionalTestCase
 
 
 class ConnectivityViewerTest(TransactionalTestCase):
     """
-    Unit-tests for BrainViewer.
+    Unit-tests for Connectivity Viewer.
     """
     def setUp(self):
         """
@@ -56,7 +54,7 @@ class ConnectivityViewerTest(TransactionalTestCase):
         self.test_project = self.datatypeFactory.get_project()
         self.test_user = self.datatypeFactory.get_user()
         
-        TestFactory.import_cff(test_user = self.test_user, test_project=self.test_project)
+        TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
         self.connectivity = TestFactory.get_entity(self.test_project, Connectivity())
         self.assertTrue(self.connectivity is not None)
         self.surface = TestFactory.get_entity(self.test_project, CorticalSurface())

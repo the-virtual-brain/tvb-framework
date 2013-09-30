@@ -40,7 +40,7 @@ from tvb.basic.traits import types_basic as basic
 from tvb.basic.traits.types_mapped import MappedType
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao, SA_SESSIONMAKER
-from tvb.core.services.flowservice import FlowService
+from tvb.core.services.flow_service import FlowService
 from tvb_test.core.test_factory import TestFactory
 from tvb_test.core.base_testcase import BaseTestCase
 
@@ -79,7 +79,7 @@ class MappingTest(BaseTestCase):
     def test_db_mapping(self):
         """ Test DB storage/retrieval of a simple traited attribute"""
         session = SA_SESSIONMAKER()
-        model.Base.metadata.create_all(bind = session.connection())
+        model.Base.metadata.create_all(bind=session.connection())
         session.commit()
         session.close()
         
@@ -91,7 +91,7 @@ class MappingTest(BaseTestCase):
 
         test_inst = MappedTestClass()
         test_inst.dikt = copy.deepcopy(dikt)
-        test_inst.tup  = copy.deepcopy(tup)
+        test_inst.tup = copy.deepcopy(tup)
         test_inst.dtype = copy.deepcopy(dtype)
         test_inst.json = copy.deepcopy(json)
         test_inst.set_operation_id(self.operation.id)
@@ -114,16 +114,16 @@ class MappingTest(BaseTestCase):
         shapes = [test_array.shape, (2, 8), (2, 2, 4), (2, 2, 2, 2)]
         storage_path = self.flow_service.file_helper.get_project_folder(self.operation.project, str(self.operation.id))
         for i in range(4):
-            datatype_inst = MappedArray(title= "dim_" + str(i + 1), d_type = "MappedArray", 
-                                        storage_path = storage_path, module = "tvb.datatypes.arrays", 
-                                        subject = "John Doe", state = "RAW", operation_id= self.operation.id)
+            datatype_inst = MappedArray(title="dim_" + str(i + 1), d_type="MappedArray",
+                                        storage_path=storage_path, module="tvb.datatypes.arrays",
+                                        subject="John Doe", state="RAW", operation_id=self.operation.id)
             datatype_inst.array_data = test_array.reshape(shapes[i])
-            result = dao.store_entity(datatype_inst) 
+            result = dao.store_entity(datatype_inst)
             result.array_data = None
         
-        inserted_data = self.flow_service.get_available_datatypes(self.test_project.id, 
+        inserted_data = self.flow_service.get_available_datatypes(self.test_project.id,
                                                                   "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(inserted_data), 4, "Found "+ str(len(inserted_data)))
+        self.assertEqual(len(inserted_data), 4, "Found " + str(len(inserted_data)))
  
         for i in range(4):
             actual_datatype = dao.get_generic_entity(MappedArray, inserted_data[i][2], 'gid')[0]

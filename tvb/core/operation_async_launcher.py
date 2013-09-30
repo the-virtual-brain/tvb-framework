@@ -59,8 +59,8 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
 from tvb.core.utils import parse_json_parameters
 from tvb.core.traits import db_events
-from tvb.core.services.operationservice import OperationService
-from tvb.core.services.workflowservice import WorkflowService
+from tvb.core.services.operation_service import OperationService
+from tvb.core.services.workflow_service import WorkflowService
 
 
 LOGGER = get_logger('tvb.core.operation_async_launcher')

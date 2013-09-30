@@ -33,16 +33,16 @@
 import os
 import shutil
 import unittest
-from tvb.core.entities.file.fileshelper import FilesHelper
-from tvb.core.services.exceptions import OperationException
 from tvb.adapters.exporters.export_manager import ExportManager
-from tvb_test.datatypes.datatypes_factory import DatatypesFactory
-from tvb_test.core.base_testcase import TransactionalTestCase
 from tvb.basic.config.settings import TVBSettings as cfg
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.services.flowservice import FlowService
+from tvb.core.services.exceptions import OperationException
+from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
+from tvb_test.datatypes.datatypes_factory import DatatypesFactory
+from tvb_test.core.base_testcase import TransactionalTestCase
 
 
 
