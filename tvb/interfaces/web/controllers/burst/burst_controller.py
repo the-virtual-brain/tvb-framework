@@ -669,9 +669,10 @@ class BurstController(base.BaseController):
 
 class BurstNameForm(formencode.Schema):
     """
-    Validate Recover Password Form
+    Validate Burst name string
     """
-    burst_name = formencode.All(validators.UnicodeString(not_empty=True), validators.Regex(regex=r"^[a-zA-Z _\-0-9]*$"))
+    burst_name = formencode.All(validators.UnicodeString(not_empty=True),
+                                validators.Regex(regex=r"^[a-zA-Z\. _\-0-9]*$"))
     
     
     
