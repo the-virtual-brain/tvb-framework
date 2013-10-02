@@ -95,10 +95,19 @@ def upgrade(migrate_engine):
                                     ELSE '1-ERROR'
                                 END
                              WHERE status IN ('FINISHED', 'CANCELED', 'STARTED', 'ERROR');"""))
-    for sim_state in session.query(SimulationState).filter(SimulationState.fk_datatype_group != None).all():
-        session.delete(sim_state)
     session.commit()
     session.close()
+
+    try:
+        session = SA_SESSIONMAKER()
+        for sim_state in session.query(SimulationState).filter(SimulationState.fk_datatype_group != None).all():
+            session.delete(sim_state)
+        session.commit()
+        session.close()
+    except Exception, excep:
+        ## It might happen that SimulationState table is not yet created, e.g. if user has version 1.0.2
+        logger = get_logger(__name__)
+        logger.exception(excep)
 
 
 def downgrade(migrate_engine):
