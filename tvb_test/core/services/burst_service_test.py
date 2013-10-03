@@ -40,11 +40,17 @@ import numpy
 import json
 from time import sleep
 from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
-from tvb.core.entities import model
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.datatypes.connectivity import Connectivity
+from tvb.datatypes.mapped_values import DatatypeMeasure
+from tvb.datatypes.time_series import TimeSeriesRegion
+from tvb.datatypes.simulation_state import SimulationState
+from tvb.core.entities import model
+from tvb.core.entities.model import BurstConfiguration
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.transient.burst_configuration_entities import WorkflowStepConfiguration as wf_cfg
+from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.burst_service import BurstService, KEY_SAVED_VALUE, KEY_PARAMETER_CHECKED
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.workflow_service import WorkflowService
@@ -54,12 +60,6 @@ from tvb.core.services.exceptions import InvalidPortletConfiguration
 from tvb.core.portlets.xml_reader import KEY_DYNAMIC
 from tvb.core.portlets.portlet_configurer import ADAPTER_PREFIX_ROOT
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.entities.model import BurstConfiguration, STATUS_FINISHED, STATUS_ERROR
-from tvb.core.entities.transient.burst_configuration_entities import WorkflowStepConfiguration as wf_cfg
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.datatypes.mapped_values import DatatypeMeasure
-from tvb.datatypes.time_series import TimeSeriesRegion
-from tvb.datatypes.simulation_state import SimulationState
 from tvb_test.core.base_testcase import BaseTestCase
 from tvb_test.core.test_factory import TestFactory
 from tvb_test.datatypes.datatype1 import Datatype1
@@ -509,7 +509,7 @@ class BurstServiceTest(BaseTestCase):
         launch_params = copy.deepcopy(SIMULATOR_PARAMETERS)
         launch_params['connectivity'] = dao.get_datatype_by_id(connectivity.id).gid
         launch_params['simulation_length'] = '[1, 2, 3]'
-        launch_params['range_1'] = 'simulation_length'
+        launch_params[model.RANGE_PARAMETER_1] = 'simulation_length'
 
         burst_config = self.burst_service.new_burst_configuration(self.test_project.id)
         burst_config.update_simulator_configuration(launch_params)
@@ -599,10 +599,10 @@ class BurstServiceTest(BaseTestCase):
         self.assertTrue(len(wf_steps) == 2,
                         "Should have exactly 2 wf steps. One for 'simulation' one for portlet analyze operation.")
         simulator_op = dao.get_operation_by_id(wf_steps[0].fk_operation)
-        self.assertEqual(simulator_op.status, STATUS_FINISHED,
+        self.assertEqual(simulator_op.status, model.STATUS_FINISHED,
                          "First operation should be simulator which should have 'finished' status.")
         portlet_analyze_op = dao.get_operation_by_id(wf_steps[1].fk_operation)
-        self.assertEqual(portlet_analyze_op.status, STATUS_ERROR,
+        self.assertEqual(portlet_analyze_op.status, model.STATUS_ERROR,
                          "Second operation should be portlet analyze step which should have 'error' status.")
 
 
@@ -614,7 +614,7 @@ class BurstServiceTest(BaseTestCase):
         burst_config = self._prepare_and_launch_async_burst(length=1, is_range=True, nr_ops=4, wait_to_finish=140)
         if burst_config.status != BurstConfiguration.BURST_FINISHED:
             self.burst_service.stop_burst(burst_config)
-            self.fail("Burst should have finished succesfully.")
+            self.fail("Burst should have finished successfully.")
 
         op_groups = self.get_all_entities(model.OperationGroup)
         dt_groups = self.get_all_entities(model.DataTypeGroup)
@@ -633,7 +633,7 @@ class BurstServiceTest(BaseTestCase):
         SIMULATOR_MODULE = 'tvb_test.adapters.testadapter1'
         SIMULATOR_CLASS = 'TestAdapter1'
         algo_id = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)[0].id
-        kwargs_replica = {'test1_val1': '[0, 1, 2]', 'test1_val2': '0', 'range_1': 'test1_val1'}
+        kwargs_replica = {'test1_val1': '[0, 1, 2]', 'test1_val2': '0', model.RANGE_PARAMETER_1: 'test1_val1'}
         test_portlet = dao.get_portlet_by_identifier(self.PORTLET_ID)
         tab_config = {test_portlet.id: [(0, 0), (0, 1), (1, 0)]}
         self._add_portlets_to_burst(burst_config, tab_config)
@@ -733,7 +733,7 @@ class BurstServiceTest(BaseTestCase):
         launch_params['connectivity'] = dao.get_datatype_by_id(connectivity.id).gid
         if is_range:
             launch_params['simulation_length'] = str(range(length, length + nr_ops))
-            launch_params['range_1'] = 'simulation_length'
+            launch_params[model.RANGE_PARAMETER_1] = 'simulation_length'
         else:
             launch_params['simulation_length'] = str(length)
 

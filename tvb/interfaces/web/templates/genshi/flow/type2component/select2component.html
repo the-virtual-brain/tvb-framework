@@ -13,9 +13,9 @@
         </table>
         <hr/>
         <input type="button" tabindex='1' class="right-display" value="V" id="${parentId}_buttonExpand" py:if="not disabled"
-        	   onclick="prepareSelectRangeComponent('$parentId');" />
+        	   onclick="prepareSelectRangeComponent('$parentId', '$inputRow.name');" />
 		<input type="button" tabindex='1' class="right-display" value="V" id="${parentId}_buttonExpand" disabled='disabled' py:if="disabled"
-			   onclick="prepareSelectRangeComponent('$parentId');" />
+			   onclick="prepareSelectRangeComponent('$parentId', '$inputRow.name');" />
         <input tabindex='1' type="button" class="right-display" value="//" id="${parentId}_buttonCollapse" disabled='disabled'
     	   	   onclick="disableRangeComponent('$parentId', '$inputRow.name')" />
       </p>

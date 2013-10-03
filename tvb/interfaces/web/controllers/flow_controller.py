@@ -46,7 +46,7 @@ from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.exceptions import OperationException
-from tvb.core.services.operation_service import OperationService, PARAM_RANGE_1
+from tvb.core.services.operation_service import OperationService, RANGE_PARAMETER_1
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.burst_service import BurstService
 from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
@@ -171,9 +171,9 @@ class FlowController(base.BaseController):
     @using_template('base_template')
     def prepare_group_launch(self, group_gid, step_key, adapter_key, **data):
         """
-        Recieves as input a group gid and an algorithm given by category and id, along 
+        Receives as input a group gid and an algorithm given by category and id, along
         with data that gives the name of the required input parameter for the algorithm.
-        Having these generate a range of gid's for all the datatypes in the group and
+        Having these generate a range of GID's for all the DataTypes in the group and
         launch a new operation group.
         """
         prj_service = ProjectService()
@@ -181,7 +181,7 @@ class FlowController(base.BaseController):
         datatypes = prj_service.get_datatypes_from_datatype_group(dt_group.id)
         range_param_name = data['range_param_name']
         del data['range_param_name']
-        data[PARAM_RANGE_1] = range_param_name
+        data[RANGE_PARAMETER_1] = range_param_name
         data[range_param_name] = ','.join([dt.gid for dt in datatypes])
         OperationService().group_operation_launch(base.get_logged_user().id, base.get_current_project().id, 
                                                   int(adapter_key), int(step_key), **data)

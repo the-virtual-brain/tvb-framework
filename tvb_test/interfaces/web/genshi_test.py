@@ -48,7 +48,7 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.introspector import Introspector
 from tvb.core.entities.storage import dao
 from tvb.core.services.flow_service import FlowService
-from tvb.core.services.operation_service import OperationService
+from tvb.core.services.operation_service import OperationService, RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.interfaces.web.controllers.flow_controller import FlowController
 from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
 from tvb_test.adapters.ndimensionarrayadapter import NDimensionArrayAdapter
@@ -225,8 +225,8 @@ class GenshiTestSimple(GenshiTest):
         """ 
         Check that the default ranger hidden fields are generated correctly 
         """
-        ranger1 = self.soup.findAll('input', attrs=dict(type="hidden", id="range_1"))
-        ranger2 = self.soup.findAll('input', attrs=dict(type="hidden", id="range_2"))
+        ranger1 = self.soup.findAll('input', attrs=dict(type="hidden", id=RANGE_PARAMETER_1))
+        ranger2 = self.soup.findAll('input', attrs=dict(type="hidden", id=RANGE_PARAMETER_2))
         self.assertEqual(len(ranger1), 1, "First ranger generated wrong")
         self.assertEqual(len(ranger2), 1, "Second ranger generated wrong")
 

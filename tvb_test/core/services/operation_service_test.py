@@ -27,11 +27,11 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-"""
-Created on Jul 22, 2011
 
+"""
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import unittest
 import json
 import numpy
@@ -40,11 +40,11 @@ from tvb.core.utils import string2array
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.project_service import initialize_storage, ProjectService
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb_test.datatypes.datatype1 import Datatype1
 from tvb_test.datatypes.datatype2 import Datatype2
 from tvb_test.adapters.ndimensionarrayadapter import NDimensionArrayAdapter
@@ -93,7 +93,7 @@ class OperationServiceTest(BaseTestCase):
         algogroup = dao.find_group('tvb_test.adapters.testadapter3', 'TestAdapter3')
         group, _ = flow_service.prepare_adapter(self.test_project.id, algogroup)
         adapter_instance = flow_service.build_adapter_instance(group)
-        data = {'range_1': 'param_5', 'param_5': [1, 2]}
+        data = {model.RANGE_PARAMETER_1: 'param_5', 'param_5': [1, 2]}
         ## Create Group of operations
         flow_service.fire_operation(adapter_instance, self.test_user, self.test_project.id, **data)
 

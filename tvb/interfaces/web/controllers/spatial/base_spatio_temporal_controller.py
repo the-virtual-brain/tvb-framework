@@ -46,6 +46,7 @@ from tvb.basic.traits.parameters_factory import get_traited_instance_for_name
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.flow_service import FlowService
+from tvb.core.services.operation_service import RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.adapters.visualizers.connectivity import ConnectivityViewer
 from tvb.simulator.models import Model
 from tvb.simulator.integrators import Integrator
@@ -113,8 +114,8 @@ class SpatioTemporalController(base.BaseController):
         burst_configuration = base.get_from_session(base.KEY_BURST_CONFIG)
         if burst_configuration is None:
             return None, None, None
-        first_range = burst_configuration.get_simulation_parameter_value('range_1')
-        second_range = burst_configuration.get_simulation_parameter_value('range_2')
+        first_range = burst_configuration.get_simulation_parameter_value(RANGE_PARAMETER_1)
+        second_range = burst_configuration.get_simulation_parameter_value(RANGE_PARAMETER_2)
         if ((first_range is not None and str(first_range).startswith(MODEL_PARAMETERS)) or
                 (second_range is not None and str(second_range).startswith(MODEL_PARAMETERS))):
             base.set_error_message("When configuring model parameters you are not allowed to specify range values.")

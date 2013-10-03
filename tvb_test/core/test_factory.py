@@ -161,7 +161,7 @@ class TestFactory():
         adapter_inst = TestFactory.create_adapter(algo_group=algo_group, test_project=test_project)
         adapter_inst.meta_data = {DataTypeMetaData.KEY_SUBJECT: subject,
                                   DataTypeMetaData.KEY_STATE: "INTERMEDIATE"}
-        args = {'range_1': 'param_5', 'param_5': [1, 2]}
+        args = {model.RANGE_PARAMETER_1: 'param_5', 'param_5': [1, 2]}
         
         ### Prepare Operations group. Execute them synchronously
         service = OperationService()

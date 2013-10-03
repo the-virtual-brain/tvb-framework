@@ -45,6 +45,7 @@ from tvb.core.utils import generate_guid
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.burst_service import BurstService, KEY_PARAMETER_CHECKED
 from tvb.core.services.workflow_service import WorkflowService
+from tvb.core.services.operation_service import RANGE_PARAMETER_1, RANGE_PARAMETER_2
 import tvb.interfaces.web.controllers.base_controller as base
 from tvb.interfaces.web.controllers.users_controller import logged
 from tvb.interfaces.web.controllers.base_controller import using_template, ajax_call
@@ -565,8 +566,8 @@ class BurstController(base.BaseController):
         burst_config = base.get_from_session(base.KEY_BURST_CONFIG)
         first_range, second_range = '0', '0'
         if burst_config is not None:
-            first_range = burst_config.get_simulation_parameter_value('range_1') or '0'
-            second_range = burst_config.get_simulation_parameter_value('range_2') or '0'
+            first_range = burst_config.get_simulation_parameter_value(RANGE_PARAMETER_1) or '0'
+            second_range = burst_config.get_simulation_parameter_value(RANGE_PARAMETER_2) or '0'
         return [first_range, second_range]
 
 
@@ -593,7 +594,8 @@ class BurstController(base.BaseController):
             burst_config.name = data[BURST_NAME]
         data = json.loads(data['simulator_parameters'])
         for entry in data:
-            if exclude_ranges and (entry.endswith("_checked") or entry == 'range_1' or entry == 'range_2'):
+            if exclude_ranges and (entry.endswith("_checked") or
+                                   entry == RANGE_PARAMETER_1 or entry == RANGE_PARAMETER_2):
                 continue
             burst_config.update_simulation_parameter(entry, data[entry])
             checkbox_for_entry = entry + "_checked"

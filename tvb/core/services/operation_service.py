@@ -65,9 +65,9 @@ except Exception:
     Part = FieldStorage
 
 TEMPORARY_PREFIX = ".tmp"
-PARAM_RANGE_PREFIX = 'range_'
-PARAM_RANGE_1 = 'range_1'
-PARAM_RANGE_2 = 'range_2'
+
+RANGE_PARAMETER_1 = model.RANGE_PARAMETER_1
+RANGE_PARAMETER_2 = model.RANGE_PARAMETER_2
 
 UIKEY_SUBJECT = "RESERVEDsubject"
 UIKEY_USERGROUP = "RESERVEDusergroup"
@@ -428,7 +428,7 @@ class OperationService:
 
 
     def _range_name(self, range_no):
-        return PARAM_RANGE_PREFIX + str(range_no)
+        return model.PARAM_RANGE_PREFIX + str(range_no)
 
 
     def _prepare_group(self, project_id, kwargs):

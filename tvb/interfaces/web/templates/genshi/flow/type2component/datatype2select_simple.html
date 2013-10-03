@@ -1,4 +1,3 @@
-
 <div xmlns:py="http://genshi.edgewall.org/" py:strip="True">
 
 	<py:def function="draw_datatype_select(inputRow, disabled, parentDivId, treeSessionKey)">
@@ -8,7 +7,7 @@
 					   add_attrs= {'disabled': 'disabled'} if disabled else {};">                  
 
 	        <select tabindex='1' name="$inputRow.name" id="$inputRow.name" class="dataset-selector" py:attrs="add_attrs"
-	                onchange="updateDivContent('data_$inputRow.name', this, '$parentDivId'); updateDatatypeDiv('data_$inputRow.name', this);$linkedFilter">
+	                onchange="updateDivContent('data_$inputRow.name', this, '$parentDivId'); updateDatatypeDiv(this);$linkedFilter">
 	                
 	            <option value="" py:if="('required' not in inputRow) or (not inputRow.required)">None</option>
 	            

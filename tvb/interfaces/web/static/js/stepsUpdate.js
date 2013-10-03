@@ -30,13 +30,13 @@ function updateDivContent(divID, selectComponent, parentDIV, radioComponent) {
     //Get the input fields that hold the active rangers
    	var first_ranger = document.getElementById('range_1');
 	var second_ranger = document.getElementById('range_2');
-	//
+
 	$('div[id^="' + divID +'"]').hide();
 	$('div[id^="' + divID +'"] input').attr('disabled', 'disabled');
     $('div[id^="' + divID +'"] select').attr('disabled', 'disabled');
 	$('div[id^="' + divID +'"] table[class="ranger-div-class"]').each(function () { 
 													disableRangeComponent(this.id, this.id.replace('_RANGER', ''));
-													})	  
+													});
     //Switched tabs so reset ranger values
 	if (first_ranger != null && first_ranger.value.indexOf(component.name) == 0){
 		first_ranger.value= '0';
@@ -55,7 +55,7 @@ function updateDivContent(divID, selectComponent, parentDIV, radioComponent) {
 	
 	 //Get all input type fields from the div to be shown that are not part of 
 	 //a range component, remove the disable attribute and set display style to inline
-	selector_name = 'div[id="' + divID + selectedValue + '"] input'
+	var selector_name = 'div[id="' + divID + selectedValue + '"] input';
 	if (parentDIV != null &&  parentDIV != '') {
 	    selector_name = 'div[id="'+ parentDIV + '"] '+ selector_name;
 	}
@@ -66,34 +66,34 @@ function updateDivContent(divID, selectComponent, parentDIV, radioComponent) {
 	 }  	 
 	 //Get all dictionary type fields from the div to be shown that are not part of 
 	 //a range component, remove the disable attribute and set display style to inline
-	selector_name = 'div[id^="dict"]'
+	selector_name = 'div[id^="dict"]';
 	if (parentDIV != null &&  parentDIV != '') {
 	    selector_name = 'div[id="'+ parentDIV + '"] '+ selector_name;
 	}
 	var dicts =  $(selector_name).filter(function() { return (this.id.indexOf("_RANGER") == -1); });
     dicts.removeAttr('disabled');
-	for (var i=0; i<dicts.length; ++i){
-		 dicts[i].style.display = 'inline'; 
+	for (var j=0; j < dicts.length; ++j){
+		 dicts[j].style.display = 'inline';
 	 }  	 
 	 //Get all select type fields from the div to be shown that are not part of 
 	 //a range component, remove the disable attribute and set display style to inline	 
-	selector_name = 'div[id="' + divID + selectedValue + '"] select'
+	selector_name = 'div[id="' + divID + selectedValue + '"] select';
     if (parentDIV != null && parentDIV != '') {
         selector_name = 'div[id="'+ parentDIV + '"] '+ selector_name;
     }
 	var selectors =  $(selector_name).filter(function() { return (this.id.indexOf("_RANGER") == -1); });
     selectors.removeAttr('disabled');
-	for (var i=0; i<selectors.length; ++i) {
-		 selectors[i].style.display = 'inline'; 
+	for (var k=0; k < selectors.length; ++k) {
+		 selectors[k].style.display = 'inline';
 	}  
     $('#' + divID+ selectedValue + ' select').trigger("change");
     $('#' + divID+ selectedValue + ' input[type="radio"][checked="checked"]').trigger("change");
 }
 
 
-function updateDatatypeDiv(divID, selectComponent) {	
+function updateDatatypeDiv(selectComponent) {
 	//When updating a dataType, supplementary range checks are needed
-	var component = eval(selectComponent)
+	var component = eval(selectComponent);
     if (component.options.length == 0) {
         return;
     }
@@ -104,17 +104,14 @@ function updateDatatypeDiv(divID, selectComponent) {
 	selectedName = selectedName.replace(/[^a-z]/gi,'');
 	if (selectedName == 'All') {
 		if (first_ranger.value == '0') {
-			//If a spot is available set it to the current component name
-			//and mark the previous selection as the current one
+			//If a spot is available set it to the current component name and mark the previous selection as the new one
 			first_ranger.value = component.name;
 		}
 		else if (second_ranger.value == '0') {
 			second_ranger.value = component.name;
 		} else {
-			//If no selections are available, get the previous selection
-			//and re-set the select component
-			var previousOption = getPreviousSelection(component);
-			component.selectedIndex = previousOption; 
+			//If no selections are available, get the previous selection and re-set the select component
+			component.selectedIndex = getPreviousSelection(component);
 			displayMessage("TVB has reached the maximum number of supported parameters for Parameter Space Exploration!", 'warningMessage');
 		}
 	} else {
@@ -124,20 +121,19 @@ function updateDatatypeDiv(divID, selectComponent) {
 
 
 function getPreviousSelection(component) {
-	//This will use the defaultSelected attribute to store
-	//not only the selected option but also the one selected before,
-	//In case a ranger is no longer available
+	//  This will use the defaultSelected attribute to store not only the selected option but
+	// also the one selected before, in case a ranger is no longer available.
 	var options = component.options;
-	for (var i=0; i < options.length; i++) {
+	for (var i = 0; i < options.length; i++) {
 		if (options[i].defaultSelected == true) {
 			return i;
 		}
 	}
+    return undefined;
 }
 
 function setPreviousSelection(component, optionId) {
-	//This will set the defaultSelected in order to mark the previous
-	//selection, in case a return to it is needed.
+	//  This will set the defaultSelected in order to mark the previous selection, in case a return to it is needed.
 	var options = component.options;
 	for (var i=0; i < options.length; i++) {
 		options[i].defaultSelected = false;
@@ -149,8 +145,7 @@ function setPreviousSelection(component, optionId) {
 
 
 function multipleSelect(obj, divID) {
-    //   When changing the selected values in a multi-select controll, 
-    // update the sub-controlls div.
+    //   When changing the selected values in a multi-select controll, update the sub-controlls div.
 	$('div[id^="' + divID +'"]').hide();
     $('div[id^="' + divID +'"] input').attr('disabled', 'disabled');
     $('div[id^="' + divID +'"] select').attr('disabled', 'disabled');
@@ -158,8 +153,9 @@ function multipleSelect(obj, divID) {
     	if(obj[i].selected) {
     		$('#' + divID + obj[i].value).show();
             $('#' + divID + obj[i].value +' input').removeAttr('disabled');
-            $('#' + divID + obj[i].value +' select').removeAttr('disabled');
-            $('#' + divID + obj[i].value +' select').trigger("change");
+            var selectRef = $('#' + divID + obj[i].value +' select');
+            selectRef.removeAttr('disabled');
+            selectRef.trigger("change");
             $('#' + divID + obj[i].value +' input[type="radio"][checked="checked"]').trigger("change");
     	}
     }
@@ -183,7 +179,7 @@ function updateDimensionsSelect(selectName, parameters_prefix, required_dimensio
                 });
         //if the parent select is disabled then disable all its children
         if ($("select[name='" + selectName + "']").is(':disabled')) {
-            $("select[name^='" + selectName + "_" + parameters_prefix + "_']").each(function (i) {
+            $("select[name^='" + selectName + "_" + parameters_prefix + "_']").each(function () {
                 $(this).attr('disabled', 'disabled');
             });
         }
@@ -196,8 +192,8 @@ function updateDimensionsSelect(selectName, parameters_prefix, required_dimensio
  */
 function updateShapeLabel(selectNamePrefix, genshiParam, dimensionIndex) {
     var spanId = selectNamePrefix + "_span_shape";
-    var hiddenShapeId = selectNamePrefix + "_array_shape";
-    var hiddenShape = $.parseJSON($("#" + hiddenShapeId).val());
+    var hiddenShapeRef = $("#" + selectNamePrefix + "_array_shape");
+    var hiddenShape = $.parseJSON(hiddenShapeRef.val());
 
     var expectedArrayDim = parseInt(($("#" + selectNamePrefix + "_expected_dim").val()).split("requiredDim_")[1]);
     var expectedSpanDimId = selectNamePrefix + "_span_expected_dim";
@@ -236,7 +232,7 @@ function updateShapeLabel(selectNamePrefix, genshiParam, dimensionIndex) {
     }
 
     $("#" + spanId).text("Array shape:" + $.toJSON(hiddenShape) + dimLbl);
-    $("#" + hiddenShapeId).val($.toJSON(hiddenShape));
+    hiddenShapeRef.val($.toJSON(hiddenShape));
 }
 
 

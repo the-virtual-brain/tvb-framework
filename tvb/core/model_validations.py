@@ -41,9 +41,9 @@ import sys
 from time import sleep
 from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
 from tvb.core.services.flow_service import FlowService
-from tvb.core.services.operation_service import PARAM_RANGE_PREFIX, OperationService
+from tvb.core.services.operation_service import OperationService
 from tvb.core.entities.storage import dao
-from tvb.core.entities.model import STATUS_STARTED, STATUS_FINISHED, STATUS_ERROR
+from tvb.core.entities.model import STATUS_STARTED, STATUS_FINISHED, STATUS_ERROR, PARAM_RANGE_PREFIX
 
 KEY_PROJECT = 'project'
 

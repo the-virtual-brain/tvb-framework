@@ -55,6 +55,10 @@ BURSTS_DICT_KEY = "bursts_dict"
 DT_BURST_MAP = "dt_mapping"
 
 
+PARAM_RANGE_PREFIX = 'range_'
+RANGE_PARAMETER_1 = "range_1"
+RANGE_PARAMETER_2 = "range_2"
+
 
 class BurstConfiguration(Base, Exportable):
     """
@@ -144,7 +148,11 @@ class BurstConfiguration(Base, Exportable):
         """
         :returns: True, when current burst configuration will generate a group.
         """
-        for param in ['range_1', 'range_2']:
+        ## After launch and storage, if we have multiple workflows in current burst, it means there is a group.
+        if self.workflows_number > 1:
+            return True
+
+        for param in [RANGE_PARAMETER_1, RANGE_PARAMETER_2]:
             if param in self.simulator_configuration and KEY_SAVED_VALUE in self.simulator_configuration[param] \
                     and self.simulator_configuration[param][KEY_SAVED_VALUE] != '0':
                 return True
