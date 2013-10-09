@@ -210,6 +210,7 @@ class ABCAdapter(object):
         pass
 
 
+    @abstractmethod
     def get_required_memory_size(self, **kwargs):
         """
         Abstract method to be implemented in each adapter. Should return the required memory
@@ -219,6 +220,7 @@ class ABCAdapter(object):
         to be implemented in each class that inherits from ABCAdapter.""")
 
 
+    @abstractmethod
     def get_required_disk_size(self, **kwargs):
         """
         Abstract method to be implemented in each adapter. Should return the required memory
@@ -227,7 +229,7 @@ class ABCAdapter(object):
         raise MethodUnimplementedException(""" You need to implement a method get_required_disk_size(self, **kwargs)
         that should estimate the required disk size for the result of an succesfull launch (in kiloBytes).""")
         
-        
+
     def get_execution_time_approximation(self, **kwargs):
         """
         Method should approximate based on input arguments, the time it will take for the operation 

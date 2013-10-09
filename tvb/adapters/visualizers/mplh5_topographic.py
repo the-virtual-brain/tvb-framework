@@ -220,7 +220,7 @@ class BaseTopography():
 
 
 
-class TopographicViewer(ABCMPLH5Displayer, BaseTopography):
+class TopographicViewer(BaseTopography, ABCMPLH5Displayer):
     """
     Interface between TVB Framework and web display of a topography viewer.
     """

@@ -39,7 +39,7 @@ import sqlalchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from tvb.core.traits.sql_mapping import get_sql_mapping
-from tvb.basic.traits.core import MetaType, Type, SPECIAL_KWDS, KWARG_STORAGE_PATH, KWARS_USE_STORAGE
+from tvb.basic.traits.core import MetaType, Type, SPECIAL_KWDS, KWARS_USE_STORAGE
 from tvb.basic.logger.builder import get_logger
 
 
@@ -97,8 +97,8 @@ class DeclarativeMetaType(DeclarativeMeta, MetaType):
         all_parents = []
         for b in bases:
             all_parents.extend(b.mro())
-        mapped_parent = filter(lambda cls: issubclass(cls, Type) and hasattr(cls, '__tablename__') 
-                                            and getattr(cls, '__tablename__') is not None, all_parents)
+        mapped_parent = filter(lambda cls: issubclass(cls, Type) and hasattr(cls, '__tablename__')
+                               and getattr(cls, '__tablename__') is not None, all_parents)
         # Identify DATA_TYPE class, to be used for specific references
         datatype_class = filter(lambda cls: hasattr(cls, '__tablename__') and cls.__tablename__ == 'DATA_TYPES', 
                                 all_parents)[0]
@@ -108,7 +108,8 @@ class DeclarativeMetaType(DeclarativeMeta, MetaType):
         super_traits = dict()
         for parent_class in filter(lambda cls: issubclass(cls, Type), all_parents):
             super_traits.update(getattr(parent_class, 'trait', {}))
-        newclass_only_traits = dict([(key, all_class_traits[key]) for key in all_class_traits if key not in super_traits])
+        newclass_only_traits = dict([(key, all_class_traits[key])
+                                     for key in all_class_traits if key not in super_traits])
 
         LOG.debug('mapped, typed class has traits %r', newclass_only_traits)
         for key, attr in newclass_only_traits.iteritems():
@@ -127,7 +128,7 @@ class DeclarativeMetaType(DeclarativeMeta, MetaType):
                         args = arg
                     elif type(arg) is dict:
                         kwds = arg
-                setattr(newcls, '_' + key, sqlalchemy.Column('_'+key, sqltype, *args, **kwds))
+                setattr(newcls, '_' + key, sqlalchemy.Column('_' + key, sqltype, *args, **kwds))
 
             elif Type in attr.__class__.mro() and hasattr(attr.__class__, 'gid'):
                 #### Is MappedType
@@ -135,13 +136,15 @@ class DeclarativeMetaType(DeclarativeMeta, MetaType):
                 setattr(newcls, '_' + key, sqlalchemy.Column('_' + key, sqlalchemy.String, fk))
                 if newcls.__tablename__:
                     #### Add relationship for specific class, to have the original entity loaded
+                    #### In case of cascade = 'save-update' we would need to SET the exact instance type
+                    #### as defined in atrr description
                     rel = relationship(attr.__class__, lazy='joined', cascade="none",
-                    ####In case of 'save-update' we would need to SET the exact instance type as defined in atrr description
-                                       primaryjoin=(eval('newcls._'+key)==attr.__class__.gid),
+                                       primaryjoin=(eval('newcls._' + key) == attr.__class__.gid),
                                        enable_typechecks = False)
                     setattr(newcls, '__' + key, rel)
 
-            else: #### no default, nothing given
+            else:
+                ####  no default, nothing given
                 LOG.warning('no sql column generated for attr %s, %r', key, attr)
         DeclarativeMetaType.__add_class_mapping_attributes(newcls, mapped_parent)
         return newcls
@@ -162,7 +165,8 @@ class DeclarativeMetaType(DeclarativeMeta, MetaType):
             column_id = sqlalchemy.Column('id', sqlalchemy.Integer,
                                           sqlalchemy.ForeignKey(fkparentid, ondelete="CASCADE"), primary_key=True)
             setattr(newcls, 'id', column_id)
-            ### We can not use such a backref for cascading deletes, as we will have a cyclic dependency (DataType > Mapped DT > Operation).
+            ### We can not use such a backref for cascading deletes, as we will have a cyclic dependency
+            # (DataType > Mapped DT > Operation).
 #            rel = relationship(mapped_parent, primaryjoin=(eval('newcls.id')==mapped_parent.id),
 #                               backref = backref('__' +newcls.__name__, cascade="delete"))
 #            setattr(newcls, '__id_' + mapped_parent.__name__, rel)
@@ -173,7 +177,7 @@ class DeclarativeMetaType(DeclarativeMeta, MetaType):
 
             if 'polymorphic_on' in mapper_arg and isinstance(mapper_arg['polymorphic_on'], (str, unicode)):
                 discriminator_name = mapper_arg['polymorphic_on']
-                LOG.debug("Polymorphic_on %s - %s "% (newcls.__name__, discriminator_name))
+                LOG.debug("Polymorphic_on %s - %s " % (newcls.__name__, discriminator_name))
                 mapper_arg['polymorphic_on'] = getattr(newcls, '_' + discriminator_name)
             mapper_arg['inherit_condition'] = (newcls.id == mapped_parent.id)
             if 'exclude_properties' in mapper_arg:
