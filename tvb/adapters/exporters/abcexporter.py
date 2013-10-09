@@ -45,17 +45,17 @@ EXCLUDED_DATATYPES = ['Cortex', 'CortexActivity', 'CapEEGActivity', 'Cap', 'Valu
 
 class ABCExporter:
     """
-        Base class for all data type exporters 
-        This should provide common functionality for all TVB exporters.
+    Base class for all data type exporters
+    This should provide common functionality for all TVB exporters.
     """
     __metaclass__ = ABCMeta
     
     @abstractmethod
     def get_supported_types(self):
         """
-            This method specify what types are accepted by this exporter.
-            Method should be implemented by each subclass and return
-            an array with the supported types.
+        This method specify what types are accepted by this exporter.
+        Method should be implemented by each subclass and return
+        an array with the supported types.
             
             :returns: an array with the supported data types.
         """
@@ -63,17 +63,17 @@ class ABCExporter:
     
     def get_label(self):
         """
-            This method returns a string to be used on the UI controls to initiate export
-            :returns: string to be used on UI for starting this export.
-            By default class name is returned
+        This method returns a string to be used on the UI controls to initiate export
+        :returns: string to be used on UI for starting this export.
+                    By default class name is returned
         """
         return self.__class__.__name__
     
     def accepts(self, data):
         """
-            This method specify if the current exporter can export provided data.
-            :param data: data to be checked
-            :returns: true if this data can be exported by current exporter, false otherwise.
+        This method specify if the current exporter can export provided data.
+        :param data: data to be checked
+        :returns: true if this data can be exported by current exporter, false otherwise.
         """
         effective_data_type = self._get_effective_data_type(data)
         
@@ -94,10 +94,10 @@ class ABCExporter:
     
     def _get_effective_data_type(self, data):
         """
-            This method returns the data type for the provided data.
-            - If current data is a simple data type is returned. 
-            - If it is an data type group, we return the first element. Only one element is 
-              necessary since all group elements are the same type.
+        This method returns the data type for the provided data.
+        - If current data is a simple data type is returned.
+        - If it is an data type group, we return the first element. Only one element is
+        necessary since all group elements are the same type.
         """
         # first check if current data is a DataTypeGroup
         if self.is_data_a_group(data):
@@ -113,9 +113,9 @@ class ABCExporter:
     
     def _get_all_data_types_arr(self, data):
         """
-            This method builds an array with all data types to be processed later.
-            - If current data is a simple data type is added to an array. 
-            - If it is an data type group all its children are loaded and added to array.
+        This method builds an array with all data types to be processed later.
+        - If current data is a simple data type is added to an array.
+        - If it is an data type group all its children are loaded and added to array.
         """
         # first check if current data is a DataTypeGroup
         if self.is_data_a_group(data):
@@ -134,29 +134,29 @@ class ABCExporter:
     
     def is_data_a_group(self, data):
         """
-            Checks if the provided data, ready for export is a DataTypeGroup or not
+        Checks if the provided data, ready for export is a DataTypeGroup or not
         """
         return isinstance(data, DataTypeGroup)        
     
     @abstractmethod
     def export(self, data, export_folder, project):
         """
-            Actual export method, to be implemented in each sub-class.
-            :param data: data type to be exported
-            :param export_folder: folder where to write results of the export if needed
+        Actual export method, to be implemented in each sub-class.
+        :param data: data type to be exported
+        :param export_folder: folder where to write results of the export if needed
             This is necessary in case new files are generated.
-            :param project: project that contains data to be exported
+        :param project: project that contains data to be exported
             
-            :returns: a tuple with the following elements
-                1. name of the file to be shown to user
-                2. full path of the export file (available for download)
-                3. boolean which specify if file can be deleted after download
+        :returns: a tuple with the following elements
+            1. name of the file to be shown to user
+            2. full path of the export file (available for download)
+            3. boolean which specify if file can be deleted after download
         """
         pass
     
     def get_export_file_name(self, data):
         """
-            This method computes the name used to save exported data on user computer
+        This method computes the name used to save exported data on user computer
         """
         file_ext = self.get_export_file_extension(data)
         data_type_name = data.__class__.__name__
@@ -168,8 +168,8 @@ class ABCExporter:
     @abstractmethod
     def get_export_file_extension(self, data):
         """
-            This method computes the extension of the export file 
-            :param data: data type to be exported
-            :returns: the extension of the file to be exported (e.g zip or h5)
+        This method computes the extension of the export file
+        :param data: data type to be exported
+        :returns: the extension of the file to be exported (e.g zip or h5)
         """
         pass

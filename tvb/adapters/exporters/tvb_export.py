@@ -41,7 +41,7 @@ from tvb.adapters.exporters.exceptions import ExportException
 
 class TVBExporter(ABCExporter):
     """ 
-        This exporter simply provides for download data in TVB format
+    This exporter simply provides for download data in TVB format
     """
     OPERATION_FOLDER_PREFIX = "Operation_"
     
@@ -53,9 +53,9 @@ class TVBExporter(ABCExporter):
     
     def export(self, data, export_folder, project):
         """
-            Exports data type
-            1. If data is a normal data type, simply exports storage file (HDF format)
-            2. If data is a DataTypeGroup creates a zip with all files for all data types
+        Exports data type:
+        1. If data is a normal data type, simply exports storage file (HDF format)
+        2. If data is a DataTypeGroup creates a zip with all files for all data types
         """
         download_file_name = self.get_export_file_name(data)
         files_helper = FilesHelper()

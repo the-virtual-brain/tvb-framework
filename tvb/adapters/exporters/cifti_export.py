@@ -37,7 +37,7 @@ from tvb.adapters.exporters.abcexporter import ABCExporter
 
 class CIFTIExporter(ABCExporter):
     """ 
-        This exporter will produce a CIFTI file with all data in it.
+    This exporter will produce a CIFTI file with all data in it.
     """
     
     def get_supported_types(self):
@@ -48,7 +48,7 @@ class CIFTIExporter(ABCExporter):
               
     def export(self, data, export_folder, project):
         """
-            Export data in CIFTI format
+        Export data in CIFTI format
         """
         raise Exception ("Not implemented yet")
     

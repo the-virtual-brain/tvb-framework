@@ -72,8 +72,8 @@ class ExportManager:
     
     def __registerExporter(self, exporter):
         """
-            This method register into an internal format available exporters.
-            :param exporter: Instance of a data type exporter (extends ABCExporter)
+        This method register into an internal format available exporters.
+        :param exporter: Instance of a data type exporter (extends ABCExporter)
         """
         if exporter is not None:
             self.all_exporters[exporter.__class__.__name__] = exporter
@@ -103,15 +103,15 @@ class ExportManager:
     
     def export_data(self, data, exporter_id, project):
         """
-            Export provided data using given exporter
-            :param data: data type to be exported
-            :param exporter_id: identifier of the exporter to be used
-            :param project: project that contains data to be exported
+        Export provided data using given exporter
+        :param data: data type to be exported
+        :param exporter_id: identifier of the exporter to be used
+        :param project: project that contains data to be exported
             
-            :returns: a tuple with the following elements
-                1. name of the file to be shown to user
-                2. full path of the export file (available for download)
-                3. boolean which specify if file can be deleted after download 
+        :returns: a tuple with the following elements
+            1. name of the file to be shown to user
+            2. full path of the export file (available for download)
+            3. boolean which specify if file can be deleted after download
         """
         if data is None:
             raise InvalidExportDataException("Could not export null data. Please select data to be exported")

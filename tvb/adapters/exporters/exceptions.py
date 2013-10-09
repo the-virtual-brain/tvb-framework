@@ -27,16 +27,19 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 Exceptions for Export mechanism. 
    
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
+
 from tvb.basic.traits.exceptions import TVBException
+
 
 class InvalidExportDataException(TVBException):
     """
-      Exception thrown when an invalid data is provided for export
+    Exception thrown when an invalid data is provided for export
     """
     def __init__(self, message):
         TVBException.__init__(self, message)
@@ -44,7 +47,8 @@ class InvalidExportDataException(TVBException):
 
 class ExportException(TVBException):
     """
-        Generic export exception.
+    Generic export exception.
     """
     def __init__(self, message):
         TVBException.__init__(self, message)
+
