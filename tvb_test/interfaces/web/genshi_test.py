@@ -96,13 +96,17 @@ class TraitAdapter(ABCAdapter):
         traited.trait.bound = 'attributes-only'
         return traited.interface['attributes']
 
-
     def get_output(self):
         return []
 
-
     def launch(self, **kwargs):
         pass
+
+    def get_required_memory_size(self, **kwargs):
+        return 0
+
+    def get_required_disk_size(self, **kwargs):
+        return 0
 
 
 

@@ -29,16 +29,15 @@
 #
 
 """
-Created on Jul 21, 2011
-
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from tvb.datatypes.arrays import MappedArray
+from tvb.datatypes.mapped_values import ValueWrapper
 from tvb.core.adapters.abcadapter import ABCAdapter, ABCAsynchronous, ABCSynchronous
 from tvb_test.datatypes.datatype1 import Datatype1
 from tvb_test.datatypes.datatype2 import Datatype2
-from tvb.datatypes.arrays import MappedArray
-from tvb.datatypes.mapped_values import ValueWrapper
+
 
 
 class TestAdapter3(ABCAsynchronous):
@@ -48,13 +47,13 @@ class TestAdapter3(ABCAsynchronous):
     """ 
         
     def get_input_tree(self):
-        return [    {'name': 'param_1', 'label': 'Param 1:', 'type': MappedArray, 'datatype': True},
-                    {'name': 'param_2', 'label': 'Param 2:', 'type': MappedArray, 'datatype': True},
-                    {'name': 'param_3', 'label': 'Param 3:', 'type': MappedArray, 'datatype': True},
-                    {'name': 'param_4', 'label': 'Param 4:', 'type': ValueWrapper, 'datatype': True},
-                    {'name': 'param_5', 'label': 'Param 5:', 'type':'int', 'default':'0'},
-                    {'name': 'param_6', 'label': 'Param 6:', 'type':'int', 'default':'0'},
-                    {'name':'test', 'type':Datatype1, 'default':'0'}
+        return [{'name': 'param_1', 'label': 'Param 1:', 'type': MappedArray, 'datatype': True},
+                {'name': 'param_2', 'label': 'Param 2:', 'type': MappedArray, 'datatype': True},
+                {'name': 'param_3', 'label': 'Param 3:', 'type': MappedArray, 'datatype': True},
+                {'name': 'param_4', 'label': 'Param 4:', 'type': ValueWrapper, 'datatype': True},
+                {'name': 'param_5', 'label': 'Param 5:', 'type': 'int', 'default': '0'},
+                {'name': 'param_6', 'label': 'Param 6:', 'type': 'int', 'default': '0'},
+                {'name': 'test', 'type': Datatype1, 'default': '0'}
                 ]
                 
     def get_output(self):
@@ -64,9 +63,7 @@ class TestAdapter3(ABCAsynchronous):
         return -1
     
     def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
+        """ Returns the required disk size to be able to run the adapter. """
         return 0
         
     def launch(self, **kwargs):
@@ -90,25 +87,22 @@ class TestAdapterHugeMemoryRequired(ABCAdapter):
         ABCAdapter.__init__(self)
         
     def get_input_tree(self):
-        return [{'name':'test', 'type':'int', 'default':'0'}]
+        return [{'name': 'test', 'type': 'int', 'default': '0'}]
                 
     def get_output(self):
         return []
     
     def get_required_memory_size(self, **kwargs):
-        """
-        Huge memory requirement, should fail launch.
-        """
+        """ Huge memory requirement, should fail launch.  """
         return 999999999999999
     
     def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
+        """ Returns the required disk size to be able to run the adapter. """
         return 0
     
     def launch(self, test):
         str(test)
+
 
 
 class TestAdapterHDDRequired(ABCSynchronous):
@@ -120,21 +114,17 @@ class TestAdapterHDDRequired(ABCSynchronous):
         ABCAdapter.__init__(self)
         
     def get_input_tree(self):
-        return [{'name':'test', 'type':'int', 'default':'0'}]
+        return [{'name': 'test', 'type': 'int', 'default': '0'}]
                 
     def get_output(self):
         return [Datatype2]
     
     def get_required_memory_size(self, **kwargs):
-        """
-        Huge memory requirement, should fail launch.
-        """
-        return 0
+        """ Value test to be correctly returned """
+        return 42
     
     def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
+        """ Returns the required disk size to be able to run the adapter. """
         return int(kwargs['test']) * 8 / 2 ** 10
     
     def launch(self, test):
@@ -153,24 +143,5 @@ class TestAdapterHDDRequired(ABCSynchronous):
             res_array.append("data")
         result.string_data = res_array
         return result
-    
-class TestAdapterNoMemoryImplemented(ABCAdapter):
-    """
-    Test adapter for TVB capability to launch algorithm with memory constraints.
-    """
-    
-    def __init__(self):
-        ABCAdapter.__init__(self)
-        
-    def get_input_tree(self):
-        return [{'name':'test', 'type':'int', 'default':'0'}]
-                
-    def get_output(self):
-        return []
-    
-    def launch(self, test):
-        str(test)
-    
-    
-    
+
     

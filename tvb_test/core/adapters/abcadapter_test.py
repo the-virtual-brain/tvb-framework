@@ -41,29 +41,36 @@ from tvb_test.core.test_factory import TestFactory
 
 class ComplexInterfaceAdapter(ABCSynchronous):
     """Adapter with a complex interface, target for testing ABCAdapter methods."""
-        
+
+
     def get_input_tree(self):
-        return [{'name':'surface', 'type':'tvb.core.entities.model.DataType', "datatype": True,
-                 'attributes': [{'name':'att1', 'type':'int', 'default':'0'},
-                                {'name':'att2', 'type':'float', 'default':'1'}]},
-                {'name':'monitors', 'type':'selectMultiple', 'default':'["EEG", "MEEG"]',
+        return [{'name': 'surface', 'type': 'tvb.core.entities.model.DataType', "datatype": True,
+                 'attributes': [{'name': 'att1', 'type': 'int', 'default': '0'},
+                                {'name': 'att2', 'type': 'float', 'default': '1'}]},
+                {'name': 'monitors', 'type': 'selectMultiple', 'default': '["EEG", "MEEG"]',
                  'options': [{'name': 'EEG', 'value': 'EEG',
-                              'attributes': [{'name':'mon_att1', 'type':'int', 'default':'0'},
-                                             {'name':'mon_att2', 'type':'float', 'default':'1'}]},
+                              'attributes': [{'name': 'mon_att1', 'type': 'int', 'default': '0'},
+                                             {'name': 'mon_att2', 'type': 'float', 'default': '1'}]},
                              {'name': 'MEEG', 'value': 'MEEG',
-                              'attributes': [{'name':'mon_att1', 'type':'int', 'default':'0'},
-                                             {'name':'mon_att3', 'type':'str', 'default':'1'}]},
+                              'attributes': [{'name': 'mon_att1', 'type': 'int', 'default': '0'},
+                                             {'name': 'mon_att3', 'type': 'str', 'default': '1'}]},
                              {'name': 'BOLD', 'value': 'BOLD',
-                              'attributes': [{'name':'mon_att1', 'type':'int', 'default':'0'},
-                                             {'name':'mon_att4', 'type':'str', 'default':'1'}]}]
-                },
-                {'name':'length', 'type':'int', 'default':'0'}]
+                              'attributes': [{'name': 'mon_att1', 'type': 'int', 'default': '0'},
+                                             {'name': 'mon_att4', 'type': 'str', 'default': '1'}]}]
+                 },
+                {'name': 'length', 'type': 'int', 'default': '0'}]
     
     def get_output(self):
         pass
     
     def launch(self, **kwargs):
         pass
+
+    def get_required_memory_size(self, **kwargs):
+        return 0
+
+    def get_required_disk_size(self, **kwargs):
+        return 0
         
  
 
@@ -165,7 +172,7 @@ class AdapterABCTest(TransactionalTestCase):
         Test for ABCAdapter.prepare_ui_inputs method when submitting DataType with sub-attributes.
         """
         parent_op = TestFactory.create_operation()
-        test_entity = dao.store_entity(model.DataType(operation_id= parent_op.id))
+        test_entity = dao.store_entity(model.DataType(operation_id=parent_op.id))
         dataset_3 = {}
         for key, value in self.SUBMIT_DATASET_3.iteritems():
             dataset_3[key.replace("$GID$", test_entity.gid)] = value.replace("$GID$", test_entity.gid)

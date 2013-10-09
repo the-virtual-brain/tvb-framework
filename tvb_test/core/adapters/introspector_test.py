@@ -78,7 +78,7 @@ class IntrospectorTest(BaseTestCase):
         all_categories = dao.get_algorithm_categories()
         category_ids = [cat.id for cat in all_categories if cat.displayname == "AdaptersTest"]
         groups = dao.get_groups_by_categories(category_ids)
-        self.assertEqual(len(groups), 11, "Introspection failed!")
+        self.assertEqual(10, len(groups), "Introspection failed!")
         nr_adapters_mod2 = 0
         for algorithm in groups:
             self.assertTrue(algorithm.module in ['tvb_test.adapters.testadapter1', 'tvb_test.adapters.testadapter2',
@@ -86,11 +86,11 @@ class IntrospectorTest(BaseTestCase):
                                                  'tvb_test.adapters.ndimensionarrayadapter', 
                                                  "tvb.adapters.analyzers.group_python_adapter",
                                                  "tvb_test.adapters.testgroupadapter"],
-                            "Unknown Adapter:" + str(algorithm.module))
+                            "Unknown Adapter module:" + str(algorithm.module))
             self.assertTrue(algorithm.classname in ["TestAdapter1", "TestAdapterDatatypeInput", "TestAdapter2",
                                                     "TestAdapter22", "TestAdapter3", "TestGroupAdapter",
                                                     "NDimensionArrayAdapter", "PythonAdapter", "TestAdapterHDDRequired",
-                                                    "TestAdapterHugeMemoryRequired", "TestAdapterNoMemoryImplemented"],
+                                                    "TestAdapterHugeMemoryRequired"],
                             "Unknown Adapter Class:" + str(algorithm.classname))
             if algorithm.module == 'tvb_test.adapters.testadapter2':
                 nr_adapters_mod2 += 1

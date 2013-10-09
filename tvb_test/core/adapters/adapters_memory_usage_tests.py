@@ -29,16 +29,15 @@
 #
 
 """
-Created on Jul 6, 2012
-
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import json
 import unittest
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.adapters.exceptions import MethodUnimplementedException, NoMemoryAvailableException
+from tvb.core.adapters.exceptions import NoMemoryAvailableException
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.flow_service import FlowService
 from tvb_test.core.base_testcase import TransactionalTestCase
@@ -58,22 +57,14 @@ class AdapterMemoryUsageTest(TransactionalTestCase):
         self.test_project = TestFactory.create_project(admin=self.test_user)
     
     
-    def test_adapter_memory_not_implemented(self):
+    def test_adapter_memory(self):
         """
         Test that a method not implemented exception is raised in case the
         get_required_memory_size method is not implemented.
         """
-        module = "tvb_test.adapters.testadapter3"
-        class_name = "TestAdapterNoMemoryImplemented"
-        algo_group = dao.find_group(module, class_name)
+        algo_group = dao.find_group("tvb_test.adapters.testadapter3", "TestAdapterHDDRequired")
         adapter = FlowService().build_adapter_instance(algo_group)
-        data = {"test": 5}
-
-        operation = model.Operation(self.test_user.id, self.test_project.id, algo_group.id,
-                                    json.dumps(data), json.dumps({}), status=model.STATUS_STARTED,
-                                    method_name=ABCAdapter.LAUNCH_METHOD)
-        operation = dao.store_entity(operation)
-        self.assertRaises(MethodUnimplementedException, OperationService().initiate_prelaunch, operation, adapter, {})
+        self.assertEqual(42, adapter.get_required_memory_size())
         
         
     def test_adapter_huge_memory_requirement(self):
