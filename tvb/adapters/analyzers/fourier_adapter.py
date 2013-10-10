@@ -68,15 +68,15 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         for node in tree:
             if node['name'] == 'time_series':
                 node['conditions'] = entities_filter.FilterChain(
-                    fields = [entities_filter.FilterChain.datatype + '._nr_dimensions'], 
-                    operations = ["=="],
-                    values = [4])
+                    fields=[entities_filter.FilterChain.datatype + '._nr_dimensions'],
+                    operations=["=="], values=[4])
         return tree
     
     
     def get_output(self):
         return [spectral.FourierSpectrum]
-    
+
+
     def __init__(self):
         super(FourierAdapter, self).__init__()
         self.algorithm = fft.FFT()
@@ -101,7 +101,7 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         if segment_length is not None:
             self.algorithm.segment_length = segment_length
         if (window_function is not None 
-            and isinstance(window_function, str) and len(window_function) > 1):
+                and isinstance(window_function, str) and len(window_function) > 1):
             self.algorithm.window_function = window_function
         self.algorithm.time_series = time_series
         LOG.debug("Using segment_length is %s" % (str(self.algorithm.segment_length)))
@@ -120,7 +120,8 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         while total_required_memory / self.memory_factor / total_free_memory > 0.8:
             self.memory_factor += 1
         return total_required_memory / self.memory_factor
-    
+
+
     def get_required_disk_size(self, **kwargs):
         """
         Returns the required disk size to be able to run the adapter (in kB).
@@ -129,7 +130,8 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         output_size = self.algorithm.result_size(input_shape, self.algorithm.segment_length,
                                                  self.algorithm.time_series.sample_period)
         return output_size * TVBSettings.MAGIC_NUMBER / 8 / 2 ** 10
-    
+
+
     def launch(self, time_series, segment_length=None, window_function=None):
         """
         Launch algorithm and build results.
@@ -149,10 +151,10 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         blocks = int(math.ceil(time_series.read_data_shape()[2] / block_size))
         
         ##----------- Prepare a FourierSpectrum object for result ------------##
-        spectra = spectral.FourierSpectrum(source = time_series, 
-                                  segment_length = self.algorithm.segment_length,
-                                  window_function = self.algorithm.window_function,
-                                  storage_path = self.storage_path)
+        spectra = spectral.FourierSpectrum(source=time_series,
+                                           segment_length=self.algorithm.segment_length,
+                                           window_function=self.algorithm.window_function,
+                                           storage_path=self.storage_path)
         
         ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         node_slice = [slice(shape[0]), slice(shape[1]), None, slice(shape[3])]
@@ -161,9 +163,7 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         small_ts = datatypes_time_series.TimeSeries(use_storage=False)
         small_ts.sample_period = time_series.sample_period
         for block in range(blocks):
-            node_slice[2] = slice(block*block_size,
-                                  min([(block+1)*block_size, shape[2]]),
-                                  1)
+            node_slice[2] = slice(block * block_size, min([(block+1) * block_size, shape[2]]), 1)
             small_ts.data = time_series.read_data_slice(tuple(node_slice))
             self.algorithm.time_series = small_ts
             partial_result = self.algorithm.evaluate()

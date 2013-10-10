@@ -72,20 +72,19 @@ class ContinuousWaveletTransformAdapter(ABCAsynchronous):
         tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
         for node in tree:
             if node['name'] == 'time_series':
-                node['conditions'] = FilterChain(fields = [FilterChain.datatype + '._nr_dimensions'], 
-                                            operations = ["=="], values = [4])
+                node['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                                 operations=["=="], values=[4])
         return tree
     
     
     def get_output(self):
         return [WaveletCoefficients]
-    
-    def configure(self, time_series, mother=None, sample_period=None, 
-                  normalisation=None, q_ratio=None, frequencies='Range',
-                  frequencies_parameters=None):
+
+
+    def configure(self, time_series, mother=None, sample_period=None, normalisation=None, q_ratio=None,
+                  frequencies='Range', frequencies_parameters=None):
         """
-        Store the input shape to be later used to estimate memory usage. Also
-        create the algorithm instance.
+        Store the input shape to be later used to estimate memory usage. Also create the algorithm instance.
         """
         self.input_shape = time_series.read_data_shape()
         log_debug_array(LOG, time_series, "time_series")
@@ -99,7 +98,7 @@ class ContinuousWaveletTransformAdapter(ABCAsynchronous):
             algorithm.sample_period = sample_period
         
         if (frequencies_parameters is not None and 'lo' in frequencies_parameters 
-            and 'hi' in frequencies_parameters and frequencies_parameters['hi'] != frequencies_parameters['lo']):
+                and 'hi' in frequencies_parameters and frequencies_parameters['hi'] != frequencies_parameters['lo']):
             algorithm.frequencies = Range(**frequencies_parameters)
         
         if normalisation is not None:
@@ -111,6 +110,7 @@ class ContinuousWaveletTransformAdapter(ABCAsynchronous):
         self.algorithm = algorithm
         self.algorithm.time_series = time_series
 
+
     def get_required_memory_size(self, **kwargs):
         """
         Return the required memory to run this algorithm.
@@ -119,14 +119,16 @@ class ContinuousWaveletTransformAdapter(ABCAsynchronous):
         input_size = numpy.prod(used_shape) * 8.0
         output_size = self.algorithm.result_size(used_shape)
         return input_size + output_size   
-    
+
+
     def get_required_disk_size(self, **kwargs):
         """
         Returns the required disk size to be able to run the adapter.(in kB)
         """
         used_shape = (self.input_shape[0], self.input_shape[1], 1, self.input_shape[3])
         return self.algorithm.result_size(used_shape) * TVBSettings.MAGIC_NUMBER / 8 / 2 ** 10
-    
+
+
     def launch(self, time_series, mother=None, sample_period=None, normalisation=None, q_ratio=None,
                frequencies='Range', frequencies_parameters=None):
         """ 
@@ -136,9 +138,9 @@ class ContinuousWaveletTransformAdapter(ABCAsynchronous):
         frequencies_array = numpy.array([])
         if self.algorithm.frequencies is not None:
             frequencies_array = numpy.array(list(self.algorithm.frequencies))
-        wavelet = WaveletCoefficients(source = time_series, mother = self.algorithm.mother, q_ratio = self.algorithm.q_ratio,
-                                      sample_period = self.algorithm.sample_period, frequencies = frequencies_array,
-                                      normalisation = self.algorithm.normalisation, storage_path = self.storage_path)
+        wavelet = WaveletCoefficients(source=time_series, mother=self.algorithm.mother, q_ratio=self.algorithm.q_ratio,
+                                      sample_period=self.algorithm.sample_period, frequencies=frequencies_array,
+                                      normalisation=self.algorithm.normalisation, storage_path=self.storage_path)
         
         ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         node_slice = [slice(self.input_shape[0]), slice(self.input_shape[1]), None, slice(self.input_shape[3])]

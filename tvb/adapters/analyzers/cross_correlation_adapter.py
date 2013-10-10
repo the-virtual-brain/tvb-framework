@@ -35,6 +35,7 @@ Adapter that uses the traits module to generate interfaces for ... Analyzer.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
+
 import numpy
 from tvb.basic.config.settings import TVBSettings
 from tvb.analyzers.cross_correlation import CrossCorrelate
@@ -54,8 +55,8 @@ class CrossCorrelateAdapter(ABCAsynchronous):
     _ui_name = "Cross-correlation of nodes"
     _ui_description = "Cross-correlate two one-dimensional arrays."
     _ui_subsection = "crosscorr"
-    
-    
+
+
     def get_input_tree(self):
         """
         Return a list of lists describing the interface to the analyzer. This
@@ -65,19 +66,20 @@ class CrossCorrelateAdapter(ABCAsynchronous):
         algorithm = CrossCorrelate()
         algorithm.trait.bound = self.INTERFACE_ATTRIBUTES_ONLY
         tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
-        tree[0]['conditions'] = FilterChain(fields = [FilterChain.datatype + '._nr_dimensions'], operations = ["=="], values = [4])
+        tree[0]['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                            operations=["=="], values=[4])
         return tree
     
     
     def get_output(self):
         return [CrossCorrelation]
-    
+
+
     def configure(self, time_series):
         """
-        Store the input shape to be later used to estimate memory usage. Also
-        create the algorithm instance.
+        Store the input shape to be later used to estimate memory usage. Also create the algorithm instance.
 
-        :param time_series: the input timeseries for which cross correlation should be computed
+        :param time_series: the input time-series for which cross correlation should be computed
         """
         self.input_shape = time_series.read_data_shape()
         log_debug_array(LOG, time_series, "time_series")
@@ -112,13 +114,14 @@ class CrossCorrelateAdapter(ABCAsynchronous):
         :rtype: `CrossCorrelation`
         """
         ##--------- Prepare a CrossCorrelation object for result ------------##
-        cross_corr = CrossCorrelation(source = time_series,
-                                      storage_path = self.storage_path)
+        cross_corr = CrossCorrelation(source=time_series,
+                                      storage_path=self.storage_path)
         
         node_slice = [slice(self.input_shape[0]), None, slice(self.input_shape[2]), slice(self.input_shape[3])]
         ##---------- Iterate over slices and compose final result ------------##
         small_ts = TimeSeries(use_storage=False)
         small_ts.sample_period = time_series.sample_period
+        partial_cross_corr = None
         for var in range(self.input_shape[1]):
             node_slice[1] = slice(var, var + 1)
             small_ts.data = time_series.read_data_slice(tuple(node_slice))

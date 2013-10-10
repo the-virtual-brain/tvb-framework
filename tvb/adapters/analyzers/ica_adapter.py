@@ -34,6 +34,7 @@ Adapter that uses the traits module to generate interfaces for ICA Analyzer.
 .. moduleauthor:: Paula Sanz Leon
 
 """
+
 import numpy
 from tvb.analyzers.ica import fastICA
 from tvb.core.adapters.abcadapter import ABCAsynchronous
@@ -57,19 +58,16 @@ class ICAAdapter(ABCAsynchronous):
     def get_input_tree(self):
         """
         Return a list of lists describing the interface to the analyzer. This
-        is used by the GUI to generate the menus and fields necessary for
-        defining a simulation.
+        is used by the GUI to generate the menus and fields necessary for defining a simulation.
         """
         algorithm = fastICA()
         algorithm.trait.bound = self.INTERFACE_ATTRIBUTES_ONLY
         tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
         for node in tree:
             if node['name'] == 'time_series':
-                node['conditions'] = FilterChain(fields = [FilterChain.datatype + '._nr_dimensions'], 
-                                            operations = ["=="], values = [4])
+                node['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                                 operations=["=="], values=[4])
         return tree
-        #tree[0]['conditions'] = FilterChain(fields = [FilterChain.datatype + '._nr_dimensions'], operations = ["=="], values = [4])
-        #return tree
     
     
     def get_output(self):
@@ -88,8 +86,7 @@ class ICAAdapter(ABCAsynchronous):
         if n_components is not None:
             algorithm.n_components = n_components
         else:
-            ## TODO LD: Is this correct? when no number is specified, the number of nodes is taken
-            ## It will only work for Simulator results. SK: Correct, the same thing is already done in the Analyser.
+            ## It will only work for Simulator results.
             algorithm.n_components = self.input_shape[2]
         self.algorithm = algorithm
         
@@ -114,9 +111,9 @@ class ICAAdapter(ABCAsynchronous):
         Launch algorithm and build results. 
         """
         ##--------- Prepare a IndependentComponents object for result ----------##
-        ica_result = IndependentComponents(source = time_series, 
-                                           n_components = int(self.algorithm.n_components),
-                                           storage_path = self.storage_path)
+        ica_result = IndependentComponents(source=time_series,
+                                           n_components=int(self.algorithm.n_components),
+                                           storage_path=self.storage_path)
         
         ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         node_slice = [slice(self.input_shape[0]), None, slice(self.input_shape[2]), slice(self.input_shape[3])]

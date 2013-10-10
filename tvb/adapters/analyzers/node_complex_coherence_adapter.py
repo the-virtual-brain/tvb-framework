@@ -68,11 +68,8 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
         tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
         for node in tree:
             if node['name'] == 'time_series':
-                node['conditions'] = FilterChain(
-                                     fields = [FilterChain.datatype + '._nr_dimensions'], 
-                                     operations = ["=="], 
-                                     values = [4])
-                                            
+                node['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                                 operations=["=="], values=[4])
         return tree
     
     
@@ -103,18 +100,17 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
         """
         used_shape = self.algorithm.time_series.read_data_shape()
         return self.algorithm.result_size(used_shape, self.algorithm.max_freq,
-                                                 self.algorithm.epoch_length,
-                                                 self.algorithm.segment_length,
-                                                 self.algorithm.segment_shift,
-                                                 self.algorithm.time_series.sample_period,
-                                                 self.algorithm.zeropad,
-                                                 self.algorithm.average_segments) * TVBSettings.MAGIC_NUMBER / 8 / 2 ** 10
+                                          self.algorithm.epoch_length,
+                                          self.algorithm.segment_length,
+                                          self.algorithm.segment_shift,
+                                          self.algorithm.time_series.sample_period,
+                                          self.algorithm.zeropad,
+                                          self.algorithm.average_segments) * TVBSettings.MAGIC_NUMBER / 8 / 2 ** 10
         
         
     def configure(self, time_series):
         """
-        Do any configuration needed before launching and create an instance of
-        the algorithm.
+        Do any configuration needed before launching and create an instance of the algorithm.
         """
         shape = time_series.read_data_shape()
         LOG.debug("time_series shape is %s" % (str(shape)))
@@ -128,13 +124,13 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
         """
         Launch algorithm and build results.
 
-        :returns: the `ComplexCoherenceSpectrum` built with the given timeseries
+        :returns: the `ComplexCoherenceSpectrum` built with the given time-series
         """
         shape = time_series.read_data_shape()
         
         ##------- Prepare a ComplexCoherenceSpectrum object for result -------##
-        spectra = ComplexCoherenceSpectrum(source = time_series,
-                                           storage_path = self.storage_path)
+        spectra = ComplexCoherenceSpectrum(source=time_series,
+                                           storage_path=self.storage_path)
         
         ##------------------- NOTE: Assumes 4D TimeSeries. -------------------##
         node_slice = [slice(shape[0]), slice(shape[1]), slice(shape[2]), slice(shape[3])]

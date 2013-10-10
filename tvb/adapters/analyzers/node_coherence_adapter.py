@@ -35,6 +35,7 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
+
 import numpy
 from tvb.basic.config.settings import TVBSettings
 from tvb.analyzers.node_coherence import NodeCoherence
@@ -67,18 +68,19 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
         for node in tree:
             if node['name'] == 'time_series':
-                node['conditions'] = FilterChain(fields = [FilterChain.datatype + '._nr_dimensions'], 
-                                            operations = ["=="], values = [4])
+                node['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                                 operations=["=="], values=[4])
         return tree
     
     
     def get_output(self):
         return [CoherenceSpectrum]
-    
+
+
     def configure(self, time_series, nfft=None):
         """
-        Store the input shape to be later used to estimate memory usage. Also
-        create the algorithm instance.
+        Store the input shape to be later used to estimate memory usage.
+        Also create the algorithm instance.
         """
         self.input_shape = time_series.read_data_shape()
         log_debug_array(LOG, time_series, "time_series")
@@ -88,6 +90,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         if nfft is not None:
             self.algorithm.nfft = nfft
 
+
     def get_required_memory_size(self, **kwargs):
         """
         Return the required memory to run this algorithm.
@@ -96,22 +99,24 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         input_size = numpy.prod(used_shape) * 8.0
         output_size = self.algorithm.result_size(used_shape)
         return input_size + output_size    
-    
+
+
     def get_required_disk_size(self, **kwargs):
         """
         Returns the required disk size to be able to run the adapter (in kB).
         """
         used_shape = (self.input_shape[0], 1, self.input_shape[2], self.input_shape[3])
         return self.algorithm.result_size(used_shape) * TVBSettings.MAGIC_NUMBER / 8 / 2 ** 10
-    
+
+
     def launch(self, time_series, nfft=None):
         """ 
         Launch algorithm and build results. 
         """
         ##--------- Prepare a CoherenceSpectrum object for result ------------##
-        coherence = CoherenceSpectrum(source = time_series,
-                                      nfft = self.algorithm.nfft,
-                                      storage_path = self.storage_path)
+        coherence = CoherenceSpectrum(source=time_series,
+                                      nfft=self.algorithm.nfft,
+                                      storage_path=self.storage_path)
         
         ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         node_slice = [slice(self.input_shape[0]), None, slice(self.input_shape[2]), slice(self.input_shape[3])]
@@ -119,6 +124,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         ##---------- Iterate over slices and compose final result ------------##
         small_ts = TimeSeries(use_storage=False)
         small_ts.sample_rate = time_series.sample_rate
+        partial_coh = None
         for var in range(self.input_shape[1]):
             node_slice[1] = slice(var, var + 1)
             small_ts.data = time_series.read_data_slice(tuple(node_slice))

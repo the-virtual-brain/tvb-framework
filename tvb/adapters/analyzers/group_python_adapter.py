@@ -27,9 +27,11 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
+
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCGroupAdapter
 
@@ -69,23 +71,9 @@ class PythonAdapter(ABCAsynchronous, ABCGroupAdapter):
         python_code = self.get_call_code(algorithm)
         self.log.info("Starting execution of PYTHON code:" + python_code)
         algo_inputs = self.xml_reader.get_inputs(algorithm)
-        result = eval('algorithm_module.' +python_code, globals(), locals())
+        result = eval('algorithm_module.' + python_code, globals(), locals())
         self.log.debug("Finished PYTHON execution:" + str(result))
         
         #Now build PYTHON result objects
         return self.build_result(algorithm, [result], kwargs)
 
-   
-#class NetworkAnalyzers(SimpleAnalyzers):
-#    """
-#    Interface between some networkx analyzers and TVB Framework.
-#    """
-#    
-#    _ui_name = "NetworkX algorithms"
-#    
-#    def __init__(self):
-#        ABCAsynchronous.__init__(self)
-#        ABCGroupAdapter.__init__(self, tvb.analyzers.__file__, 
-#                                 "network_analyzers.xml")
-#        self.log = get_logger(self.__class__.__module__)
-        
