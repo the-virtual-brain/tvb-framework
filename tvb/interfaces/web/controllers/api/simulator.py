@@ -37,15 +37,12 @@ Defines a controller providing an HTTP/JSON API for the simulator
 """
 
 import os
-import re
-import sys
 import md5
 import json
 import datetime
 import functools
 import threading
 import multiprocessing
-
 import h5py
 import numpy
 import cherrypy
@@ -53,24 +50,25 @@ import cherrypy
 # simulator imports 
 from tvb.datatypes import connectivity, equations, surfaces, patterns
 from tvb.simulator import noise, integrators, models, coupling, monitors, simulator
-
 # framework
-from tvb.interfaces.web.controllers import basecontroller as base
+from tvb.interfaces.web.controllers import base_controller as base
+
 
 def threadsafe(f):
     """
     Decorate f with a re-entrant lock to ensure that only
-    one CherryPy request is processed by f at once. 
-
+    one CherryPy request is processed by f at once.
     """
 
     lock = threading.RLock()
+
     @functools.wraps(f)
     def synchronized(*args, **kwds):
         with lock:
             r = f(*args, **kwds)
         return r
     return synchronized
+
 
 def build_sim_part(mod, opt):
     """
@@ -80,10 +78,8 @@ def build_sim_part(mod, opt):
 
     If 'class' entry has multiple lines, and the first line
     is used to identify the class; see the SimulatorController.dir() 
-    method below. 
-
+    method below.
     """
-
     class_ = opt.pop('class')
     if '\n' in class_:
         class_ = class_.split('\n')[0]
@@ -95,14 +91,13 @@ def build_sim_part(mod, opt):
         setattr(obj, k, v)
     return obj
 
+
 def build_and_run_(spec):
     """
     Builds a simulator from spec, run & collect output.
 
     Returns an HDF5 file with the results.
-
     """
-
     opt = spec['opt']
     print "pool starting ", opt
 
@@ -165,6 +160,7 @@ def build_and_run_(spec):
     print "pool finished", opt
     return h5fname
 
+
 def build_and_run(spec):
     try:
         r = build_and_run_(spec)
@@ -174,6 +170,8 @@ def build_and_run(spec):
         r = e
     return r
 
+
+
 class SimulatorController(base.BaseController):
 
     # keep track of simulations
@@ -182,19 +180,21 @@ class SimulatorController(base.BaseController):
 
     exposed = True
 
+
     def __init__(self, nproc=2):
         super(SimulatorController, self).__init__()
         self.reset(nproc=2)
+
 
     @cherrypy.expose
     def index(self):
         return 'Please see the documentation of the tvb.interfaces.web.controllers.api.simulator module'
 
+
     @cherrypy.expose
     def read(self, ix=None):
         """
         Get information on simulation(s)
-
         """
 
         if ix is not None:
@@ -221,16 +221,16 @@ class SimulatorController(base.BaseController):
 
         return json.dumps(dump)
 
+
     @cherrypy.expose
     @threadsafe
     def create(self, js):
         """
         Create a new simulation and add to computational pool.
-
         """
 
         spec = json.loads(js)
-        self.nsim = self.nsim + 1
+        self.nsim += 1
         ix = self.nsim
         spec['ix'] = ix
         spec['datetime'] = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
@@ -239,6 +239,7 @@ class SimulatorController(base.BaseController):
         self.sims[ix] = spec
         return str(ix)
 
+
     @cherrypy.expose
     def dir(self):
         """
@@ -246,7 +247,6 @@ class SimulatorController(base.BaseController):
         a json blob and return it.
 
         If a particular class is requested, full doc is returned.
-
         """
 
         info = {}
@@ -260,14 +260,14 @@ class SimulatorController(base.BaseController):
             info[m.__name__.split('.')[-1]] = minfo
 
         return json.dumps(info)
-        
+
+
     @cherrypy.expose
     @threadsafe
     def reset(self, nproc=2):
         """
         Reset the simulation list & restarts the process pool with 
-        certain number of processes. 
-
+        certain number of processes.
         """
 
         nproc = int(nproc)
@@ -280,6 +280,7 @@ class SimulatorController(base.BaseController):
         return str(nproc)
 
 
+
 if __name__ == '__main__':
     # not true if we're running in the TVB distribution
 
@@ -288,7 +289,7 @@ if __name__ == '__main__':
 
         @cherrypy.expose
         def version(self):
-            return '0.0' # TODO TVB version
+            return '0.0'  # TODO TVB version
 
     api = API()
     api.simulator = SimulatorController()
@@ -299,7 +300,7 @@ if __name__ == '__main__':
         'global': {
             'server.socket_host': '0.0.0.0',
             'server.socket_port': 8080,
-            },
-        }
-        )
+        },
+    }
+    )
 
