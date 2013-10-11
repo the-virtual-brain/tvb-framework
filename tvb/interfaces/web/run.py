@@ -81,7 +81,7 @@ from tvb.interfaces.web.controllers.spatial.surface_stimulus_controller import S
 from tvb.interfaces.web.controllers.spatial.local_connectivity_controller import LocalConnectivityController
 from tvb.interfaces.web.controllers.spatial.noise_configuration_controller import NoiseConfigurationController
 
-from tvb.api.http import SimulatorController as SimulatorAPIController
+from tvb.interfaces.web.controllers.simulator import SimulatorController as SimulatorAPIController
 
 LOGGER = get_logger('tvb.interface.web.run')
 CONFIG_EXISTS = not SettingsService.is_first_run()
