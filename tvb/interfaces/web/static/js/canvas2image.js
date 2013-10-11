@@ -31,8 +31,9 @@ function C2I_exportFigures(operationId) {
         __storeCanvas(this, operationId)
     });
 
-    $("svg").attr({ version: '1.1' , xmlns:"http://www.w3.org/2000/svg"});
-    $("svg").each(function () {
+    var svgRef = $("svg");
+    svgRef.attr({ version: '1.1' , xmlns:"http://www.w3.org/2000/svg"});
+    svgRef.each(function () {
         __storeSVG(this, operationId)
     });
 }
@@ -60,18 +61,17 @@ function __storeSVG(svgElement, operationId) {
 
         // embed the styles in svg
         var startingTag = data.substr(0, data.indexOf(">") + 1);
-        var restOfSvg = data.substr(data.indexOf(">") + 1, data.length + 1)
+        var restOfSvg = data.substr(data.indexOf(">") + 1, data.length + 1);
         var styleAddedData = startingTag + svgStyle + restOfSvg;
-
 
         // send it to server
         $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/svg/' + operationId,
             data: {"export_data": styleAddedData},
-            success: function(r) {
+            success: function() {
                 displayMessage("Figure successfully saved!<br/> See Project section, Image archive sub-section.",
                                "infoMessage")
             } ,
-            error: function(r) {
+            error: function() {
                 displayMessage("Could not store preview image, sorry!", "warningMessage")
             }
         });
@@ -93,14 +93,14 @@ function __storeSVG(svgElement, operationId) {
  */
 function __tryExport(canvas, operationId, remainingTrials) {
     if (remainingTrials <= 0) {         // only try to export a limited number of times
-        displayMessage("Could not export canvas data, sorry!", "warningMessage")
+        displayMessage("Could not export canvas data, sorry!", "warningMessage");
         return
     }
 
     if (canvas.notReadyForExport)
         // the mplh5 canvases will set this flag to TRUE after they finish resizing, so they can be exported at Hi Res
         // undefined or FALSE means it CAN BE exported
-        setTimeout(function() { __tryExport(canvas, operationId, remainingTrials - 1) }, 200)
+        setTimeout(function() { __tryExport(canvas, operationId, remainingTrials - 1) }, 200);
 
     else {              // canvas is ready for export
         var data = canvas.toDataURL("image/png");
@@ -108,17 +108,17 @@ function __tryExport(canvas, operationId, remainingTrials) {
         if (data)       // don't store empty images
             $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/png/' + operationId,
                         data: {"export_data": data.replace('data:image/png;base64,', '')},
-                        success: function(r) {
+                        success: function() {
                             displayMessage("Figure successfully saved!<br/> See Project section, " +
                                            "Image archive sub-section.", "infoMessage")
                         } ,
-                        error: function(r) {
+                        error: function() {
                             displayMessage("Could not store preview image, sorry!", "warningMessage")
                         }
                     });
         else            // there was no image data
             displayMessage("Canvas contains no image data. Try again or report to your TVB technical contact",
-                           "warningMessage")
+                           "warningMessage");
 
         // restore original canvas size; non-webGL canvases (EEG, mplh5, JIT) have custom resizing methods
         if (canvas.afterImageExport)
@@ -139,5 +139,5 @@ function __storeCanvas(canvas, operationId) {
         return;
     canvas.drawForImageExport();        // interface-like function that redraws the canvas at bigger dimension
 
-    __tryExport(canvas, operationId, 5);
+    __tryExport(canvas, operationId, 15);
 }
