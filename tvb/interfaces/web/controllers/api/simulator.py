@@ -176,6 +176,8 @@ class SimulatorController(object):
     nsim = 0
     sims = {}
 
+    exposed = True
+
     def __init__(self, nproc=2):
         self.reset(nproc=2)
 
