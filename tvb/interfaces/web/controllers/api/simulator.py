@@ -50,8 +50,12 @@ import h5py
 import numpy
 import cherrypy
 
+# simulator imports 
 from tvb.datatypes import connectivity, equations, surfaces, patterns
 from tvb.simulator import noise, integrators, models, coupling, monitors, simulator
+
+# framework
+from tvb.interfaces.web.controllers import basecontroller as base
 
 def threadsafe(f):
     """
@@ -170,7 +174,7 @@ def build_and_run(spec):
         r = e
     return r
 
-class SimulatorController(object):
+class SimulatorController(base.BaseController):
 
     # keep track of simulations
     nsim = 0
@@ -179,7 +183,12 @@ class SimulatorController(object):
     exposed = True
 
     def __init__(self, nproc=2):
+        super(SimulatorController, self).__init__()
         self.reset(nproc=2)
+
+    @cherrypy.expose
+    def index(self):
+        return 'Please see the documentation of the tvb.interfaces.web.controllers.api.simulator module'
 
     @cherrypy.expose
     def read(self, ix=None):
