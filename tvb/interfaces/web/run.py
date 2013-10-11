@@ -126,7 +126,7 @@ def init_cherrypy(arguments=None):
     cherrypy.tree.mount(NoiseConfigurationController(), "/spatial/noiseconfiguration/", config=CONFIGUER)
 
     # mount basic controller; later, mount one that uses BurstService & cetera
-    cherrypy.tree.mount(SimulatorAPIController(), "/api/simulator")
+    cherrypy.tree.mount(SimulatorAPIController(), "/api_simulator/", config={})
 
     cherrypy.config.update(CONFIGUER)
 
