@@ -220,8 +220,8 @@ class PortletConfigurer():
 
         :param adapter_config_list: a list of AdapterConfiguration entities.
         :returns: same list with the difference that a separate prefix is prepended to
-        the name of each parameter from the adapter interface, specific to the step it
-        is in the adapter chain.
+                  the name of each parameter from the adapter interface, specific to the step it
+                  is in the adapter chain.
 
         """
         for index, adapter_config in enumerate(adapter_config_list):
@@ -340,7 +340,7 @@ class PortletConfigurer():
         """
         :param portlet_configuration: the portlet configuration that need to be updated
         :param submited_parameters: a list of parameters as submitted from the UI. This 
-        All names are prefixed with adapter specific generated prefix.
+                                    All names are prefixed with adapter specific generated prefix.
         """
         adapter_index = 0
         relaunch_needed = False

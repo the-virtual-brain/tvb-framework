@@ -442,7 +442,7 @@ class ABCAdapter(object):
     def review_operation_inputs(self, parameters):
         """
         :returns: a list with the inputs from the parameters list that are instances of DataType,
-                 and a dictionary with all parameters which are different than the declared defauts
+                  and a dictionary with all parameters which are different than the declared defauts
         """
         flat_interface = self.flaten_input_interface()
         return self._review_operation_inputs(parameters, flat_interface)

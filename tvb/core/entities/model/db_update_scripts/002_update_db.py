@@ -28,7 +28,7 @@
 #
 #
 """
- Change of DB structure from TVB version 1.0.1 to TVB 1.0.2.
+Change of DB structure from TVB version 1.0.1 to TVB 1.0.2.
 
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """

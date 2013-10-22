@@ -192,11 +192,14 @@ class ImportService():
     def import_workflows(self, project, bursts_dict, burst_ids_mapping):
         """
         Import the workflow entities for all bursts imported in the project.
+
         :param project: the current
+
         :param bursts_dict: a dictionary that holds all the required information in order to
                             import the bursts from the new project
+
         :param burst_ids_mapping: a dictionary of the form {old_burst_id : new_burst_id} so we
-                            know what burst to link each workflow to
+                                  know what burst to link each workflow to
         """
         for burst_id in bursts_dict:
             workflows_info = bursts_dict[burst_id].get_workflows()
@@ -216,9 +219,11 @@ class ImportService():
         in the same method, since if a wf_step has to be omited for some reason, we also need to
         omit that view step.
         :param workflow: a model.Workflow entity from which we need to add workflow steps
-        :param wf_steps: a list of WorkflowStepInformation entities, from which we will rebuild \
+
+        :param wf_steps: a list of WorkflowStepInformation entities, from which we will rebuild 
                          the workflow steps
-        :param view_steps: a list of WorkflowViewStepInformation entities, from which we will \
+
+        :param view_steps: a list of WorkflowViewStepInformation entities, from which we will 
                            rebuild the workflow view steps
 
         """

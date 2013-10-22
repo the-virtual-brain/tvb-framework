@@ -161,9 +161,10 @@ class SettingsService():
     def save_settings(self, **data):
         """
         Check if new settings are correct.  Make necessary changes, then save new data in configuration file.
-        @:returns two boolean values
-            -there were any changes to the configuration;
-            -a reset should be performed on the TVB relaunch.
+        
+        :returns: two boolean values
+                    -there were any changes to the configuration;
+                    -a reset should be performed on the TVB relaunch.
         """
         new_storage = data[self.KEY_STORAGE]
         previous_storage = cfg.TVB_STORAGE

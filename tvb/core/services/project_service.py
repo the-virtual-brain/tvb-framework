@@ -553,7 +553,8 @@ class ProjectService:
     def get_datatype_details(datatype_gid):
         """
         :returns: an array. First entry in array is an instance of DataTypeOverlayDetails
-        The second one contains all the possible states for the specified dataType.
+                  The second one contains all the possible states for the specified dataType.        
+                  
         """
         meta_atts = DataTypeOverlayDetails()
         states = DataTypeMetaData.STATES

@@ -57,15 +57,16 @@ class ABCExporter:
         Method should be implemented by each subclass and return
         an array with the supported types.
             
-            :returns: an array with the supported data types.
+        :returns: an array with the supported data types.
         """
         pass
     
     def get_label(self):
         """
         This method returns a string to be used on the UI controls to initiate export
+        
         :returns: string to be used on UI for starting this export.
-                    By default class name is returned
+                  By default class name is returned
         """
         return self.__class__.__name__
     
@@ -142,15 +143,19 @@ class ABCExporter:
     def export(self, data, export_folder, project):
         """
         Actual export method, to be implemented in each sub-class.
+
         :param data: data type to be exported
-        :param export_folder: folder where to write results of the export if needed
-            This is necessary in case new files are generated.
+
+        :param export_folder: folder where to write results of the export if needed.
+                              This is necessary in case new files are generated.
+
         :param project: project that contains data to be exported
             
-        :returns: a tuple with the following elements
-            1. name of the file to be shown to user
-            2. full path of the export file (available for download)
-            3. boolean which specify if file can be deleted after download
+        :returns: a tuple with the following elements:
+
+                        1. name of the file to be shown to user
+                        2. full path of the export file (available for download)
+                        3. boolean which specify if file can be deleted after download
         """
         pass
     

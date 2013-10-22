@@ -29,7 +29,7 @@
 #
 
 """
- Change of DB structure to TVB 1.0.3.
+Change of DB structure to TVB 1.0.3.
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
