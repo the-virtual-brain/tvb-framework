@@ -49,6 +49,7 @@ from tvb.core.services.settings_service import SettingsService
 from tvb.core.services.user_service import UserService
 from tvb.core.services.flow_service import FlowService
 from tvb.interfaces.web.structure import WebStructure
+from functools import wraps
 
 #These are global constants, used for session attributes and template variables.
 #Message, Current Project and User values are stored in session, because they 
@@ -154,12 +155,10 @@ def using_template(template_name):
     template_path = os.path.join(cfg.TEMPLATE_ROOT, template_name + '.html')
 
 
-    def dec(func):
-        """ Allow to get the signature back"""
+    def dec(func):       
 
-
+        @wraps(func)
         def deco(*a, **b):
-            """ Allow to get the docstring back"""
             try:
                 ## Un-comment bellow for profiling each request:
                 #import cherrypy.lib.profiler as profiler
@@ -174,7 +173,6 @@ def using_template(template_name):
                 template = loader.load(template_path)
                 stream = template.generate(**template_dict)
                 return stream.render('xhtml')
-
             except Exception, excep:
                 if isinstance(excep, cherrypy.HTTPRedirect):
                     raise excep
@@ -182,10 +180,7 @@ def using_template(template_name):
                 set_error_message("An unexpected exception appeared. Please contact your system administrator.")
                 raise cherrypy.HTTPRedirect("/tvb?error=True")
 
-
         return deco
-
-
     return dec
 
 
@@ -195,13 +190,10 @@ def ajax_call(json_form=True):
     Annotation to wrap all JSON calls, and log on server in case of an exception.
     """
 
-
     def dec(func):
-        """ Allow to get the signature back"""
 
-
+        @wraps(func)
         def deco(*a, **b):
-            """ Allow to get the docstring back"""
             try:
                 result = func(*a, **b)
                 if json_form:
@@ -209,17 +201,14 @@ def ajax_call(json_form=True):
                 return result
 
             except Exception, excep:
-
                 if isinstance(excep, cherrypy.HTTPRedirect):
                     raise excep
-
                 logger = get_logger("tvb.interface.web.controllers.base_controller")
                 logger.error("Encountered exception when calling asynchronously :" + str(func))
                 logger.exception(excep)
                 raise excep
 
         return deco
-
     return dec
 
 

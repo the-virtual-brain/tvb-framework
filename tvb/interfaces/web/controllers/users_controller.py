@@ -47,6 +47,7 @@ from tvb.core.services.exceptions import UsernameException
 from tvb.core.services.settings_service import SettingsService
 from tvb.interfaces.web.controllers.base_controller import using_template, ajax_call, settings
 import tvb.interfaces.web.controllers.base_controller as basecontroller
+from functools import wraps
 
 KEY_SERVER_VERSION = "versionInfo"
 KEY_CURRENT_VERSION_FULL = "currentVersionLongText"
@@ -59,10 +60,8 @@ def logged():
     """
 
     def dec(func):
-        """ Allow to get the signature back"""
-
-        def deco(*a, **b):
-            """ Allow to get the docstring back"""
+        @wraps(func)
+        def deco(*a, **b):            
             if hasattr(cherrypy, basecontroller.KEY_SESSION):
                 if basecontroller.get_logged_user():
                     return func(*a, **b)

@@ -40,7 +40,7 @@ from sys import platform
 from subprocess import Popen, PIPE
 from tvb.basic.profile import TvbProfile as tvb_profile
 from tvb.basic.config.utils import ClassProperty, EnhancedDictionary
-
+from functools import wraps
 
 
 def settings_loaded():
@@ -48,21 +48,13 @@ def settings_loaded():
     Annotation to check if file settings are loaded before returning attribute.
     """
 
-
     def dec(func):
-        """ Allow to get the signature back"""
-
-
-        def deco(*a, **b):
-            """ Allow to get the doc-string back"""
+        @wraps(func)        
+        def deco(*a, **b):            
             if FrameworkSettings.FILE_SETTINGS is None:
                 FrameworkSettings.read_config_file()
             return func(*a, **b)
-
-
         return deco
-
-
     return dec
 
 
