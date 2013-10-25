@@ -28,8 +28,8 @@
 #
 #
 """
- Define in __all__ attribute, modules to be introspected for finding adapters.
- Define in ____xml_folders__ attribute, folders (relative to TVB root) where 
+Define in __all__ attribute, modules to be introspected for finding adapters.
+Define in ____xml_folders__ attribute, folders (relative to TVB root) where 
 XML interfaces for analyzers are found.
 """
 import os
