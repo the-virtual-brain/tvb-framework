@@ -264,15 +264,24 @@ class FlowController(base.BaseController):
         create a DICT for each of those lists. The key will be the name of the function and
         the value will be its label.
 
-        entity_gid - the GID of the entity for which is displayed the component
-        select_name - the name of the parent select. The select in which
-                      is displayed the entity with the given GID
-        parameters_prefix - a string which will be used for computing the names of the component
-        required_dimension - the expected dimension for the resulted array
-        expected_shape and operations - used for applying conditions on the resulted array
-         e.g.: If the resulted array is a 3D array and we want that the length of the second
-         dimension to be smaller then 512 then the expected_shape and operations should be:
-         expected_shape='x,512,x' and operations='x,&lt;,x'
+        entity_gid 
+            the GID of the entity for which is displayed the component
+        
+        select_name
+            the name of the parent select. The select in which
+            is displayed the entity with the given GID
+  
+        parameters_prefix 
+            a string which will be used for computing the names of the component
+
+        required_dimension
+            the expected dimension for the resulted array
+
+        expected_shape and operations
+            used for applying conditions on the resulted array
+            e.g.: If the resulted array is a 3D array and we want that the length of the second
+            dimension to be smaller then 512 then the expected_shape and operations should be:
+            ``expected_shape=x,512,x`` and ``operations='x,&lt;,x``
         """
         template_params = dict()
         template_params["select_name"] = ""
@@ -560,7 +569,7 @@ class FlowController(base.BaseController):
         :param dataset_name: name of the dataType property /method 
         :param flatten: result should be flatten before return (use with WebGL data mainly e.g vertices/triangles)
         :param datatype_kwargs: if passed, will contain a dictionary of type {'name' : 'gid'}, and for each such
-                                pair, a load_entity will be performed and kwargs will be updated to contain the result
+        pair, a load_entity will be performed and kwargs will be updated to contain the result
         :param kwargs: extra parameters to be passed when dataset_name is method. 
         """
         try:

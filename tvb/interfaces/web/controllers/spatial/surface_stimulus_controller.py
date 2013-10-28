@@ -237,10 +237,13 @@ class SurfaceStimulusController(SpatioTemporalController):
     def reload_default(self, from_step):
         """
         Just reload default data as if stimulus is None. 
-        :param from_step: not actually used here since when the user selects None
+        
+        from_step:
+            not actually used here since when the user selects None
             from the stimulus entities select we want to take him back to step 1
             always. Kept just for compatibility with the normal load entity of a 
             stimulus where we want to stay in the same page.
+
         """
         context = base.get_from_session(KEY_SURFACE_CONTEXT)
         context.reset()

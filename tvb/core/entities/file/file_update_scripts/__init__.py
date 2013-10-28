@@ -41,7 +41,7 @@ CONVENTIONS:
     
     - Each file corresponding to ${VERSION_NR} should have a public function `upgrade(input_file)` which takes as input
       a string representing a file path and does any changes required to bring that file from:
-       ${VERSION_NR} - 1 to ${VERSION_NR}
+      ${VERSION_NR} - 1 to ${VERSION_NR}
 """  
 
 

@@ -72,8 +72,8 @@ class LocalConnectivityController(SpatioTemporalController):
     def step_1(self, do_reset=0, **kwargs):
         """
         Generate the html for the first step of the local connectivity page. 
-        :param kwargs: not actually used, but parameters are still submitted from UI since we just
-            use the same js function for this. TODO: do this in a smarter way
+        :param kwargs: not actually used, but parameters are still submitted from UI since we just\
+               use the same js function for this. TODO: do this in a smarter way
         """
         if int(do_reset) == 1:
             new_context = ContextLocalConnectivity()
@@ -104,8 +104,8 @@ class LocalConnectivityController(SpatioTemporalController):
     def step_2(self, **kwargs):
         """
         Generate the html for the second step of the local connectivity page.
-        :param kwargs: not actually used, but parameters are still submitted from UI since we just
-            use the same js function for this. TODO: do this in a smarter way
+        :param kwargs: not actually used, but parameters are still submitted from UI since we just\
+               use the same js function for this. TODO: do this in a smarter way
         """
         context = base.get_from_session(KEY_LCONN_CONTEXT)
         left_side_interface = self.get_select_existent_entities('Load Local Connectivity:', LocalConnectivity,
@@ -186,8 +186,8 @@ class LocalConnectivityController(SpatioTemporalController):
         Reset the context and reset to the first step. This method is called when the None entry is
         selected from the select.
         :param from_step: is not used in local connectivity case since we don't want to remain in
-            step 2 in case none was selected. We are keeping it so far to remain compatible with the
-            stimulus pages.
+        step 2 in case none was selected. We are keeping it so far to remain compatible with the
+        stimulus pages.
         """
         context = base.get_from_session(KEY_LCONN_CONTEXT)
         context.reset()
