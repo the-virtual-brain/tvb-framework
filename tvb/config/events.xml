@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
- 
-		
+
 <events  xmlns="http://www.thevirtualbrain.org/tvb"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocator="http://www.thevirtualbrain.org/tvb events.xsd">
+	xsi:noNamespaceSchemaLocation="../core/schema/events.xsd">
+
 	<!-- Supported variables to be available from runtime are so far $$CURRENT_USER$$ and $$CURRENT_PROJECT$$-->
  	<event hookpoint="UserService.create_user" type="generic">
         <launcher module="tvb.core.services.project_service" class="ProjectService" instance="True"/>
