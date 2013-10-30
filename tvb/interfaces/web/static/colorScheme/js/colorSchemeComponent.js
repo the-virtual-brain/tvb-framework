@@ -42,8 +42,8 @@ function getNewNodeColor() {
  * @param endColorComponentId id of the container in which will be drawn the color picker for the end color
  */
 function drawColorPickerComponent(startColorComponentId, endColorComponentId) {
-	start_color_css = 'rgb(' + startColorRGB[0] + ',' + startColorRGB[1] + ',' + startColorRGB[2] + ')';
-	end_color_css = 'rgb(' + endColorRGB[0] + ',' + endColorRGB[1] + ',' + endColorRGB[2] + ')';
+	var start_color_css = 'rgb(' + startColorRGB[0] + ',' + startColorRGB[1] + ',' + startColorRGB[2] + ')';
+	var end_color_css = 'rgb(' + endColorRGB[0] + ',' + endColorRGB[1] + ',' + endColorRGB[2] + ')';
     $('#' + startColorComponentId).ColorPicker({
         color: start_color_css,
         onShow: function (colpkr) {
@@ -83,13 +83,12 @@ function drawColorPickerComponent(startColorComponentId, endColorComponentId) {
             }
         }
     });
-
     $('#' + startColorComponentId + ' div').css('backgroundColor', start_color_css);
     $('#' + endColorComponentId + ' div').css('backgroundColor', end_color_css);
 }
 
 function getGradientColorString(pointValue, min, max) {
-    rgb_values = getGradientColor(pointValue, min, max);
+    var rgb_values = getGradientColor(pointValue, min, max);
     return "rgb("+Math.round(rgb_values[0]*255)+","+ Math.round(rgb_values[1]*255)+","+ Math.round(rgb_values[2]*255)+")";
 }
 
@@ -191,12 +190,18 @@ function ColSch_initColorSchemeParams(minValue, maxValue, refreshFunction) {
  * according to the current <code>_colorScheme</code>
  *
  * @param pointValue The value whose corresponding color is returned
+ * @param max   The maximum value of the array, to use for computing gradient
+ * @param min   Maximum value in colors array.
  *
  * NOTE: The following condition should be true: <code> min <= pointValue <= max </code>
  */
 function getGradientColor(pointValue, min, max) {
     if (min == max)         // the interval is empty, so start color is the only possible one
         return [normalizedStartColorRGB[0], normalizedStartColorRGB[1], normalizedStartColorRGB[2]];
+    if (pointValue < min)
+        pointValue = min;   // avoid rounding problems
+    if (pointValue > max)
+        pointValue = max;
     var result = [];
     var normalizedValue = (pointValue - min) / (max - min);
     if (!_colorScheme || _colorScheme == "linear")                // default is "linear"
@@ -218,6 +223,8 @@ function getGradientColor(pointValue, min, max) {
  *
  * @param {Array} values The values for which the colors are generated;
  *                       Condition: min <= values[i] <= max (for every values[i])
+ * @param {Float} max   The maximum value of the array, to use for computing gradient
+ * @param {Float} min   Maximum value in colors array.
  * @param {Float32Array} outputArray If specified, this is filled with the computed
  *                     Condition: outputArray.length = 4 * values.length (RGBA colors)
  * @returns {Array} If <code>outputArray</code> was not specified, a normal array is returned;
@@ -227,7 +234,7 @@ function getGradientColorArray(values, min, max, outputArray) {
     var result = [], color = [];
     for (var i = 0; i < values.length; ++i) {
         color = getGradientColor(values[i], min, max);
-        color.push(1)                               // add the alpha value
+        color.push(1);                               // add the alpha value
         if (outputArray)
             outputArray.set(color, i * 4);
         else
