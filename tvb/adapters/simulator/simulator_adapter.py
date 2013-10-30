@@ -45,7 +45,6 @@ from tvb.simulator.models import Model
 from tvb.simulator.monitors import Monitor
 from tvb.simulator.integrators import Integrator
 from tvb.simulator.coupling import Coupling
-from tvb.simulator.noise import Noise
 from tvb.core.adapters.abcadapter import ABCAsynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.traits.parameters_factory import get_traited_subclasses
@@ -69,7 +68,6 @@ class SimulatorAdapter(ABCAsynchronous):
     available_monitors = get_traited_subclasses(Monitor)
     available_integrators = get_traited_subclasses(Integrator)
     available_couplings = get_traited_subclasses(Coupling)
-    available_noise = get_traited_subclasses(Noise)
 
 
 ### Info: This are the possible results returned with this adapter from different Monitors.
