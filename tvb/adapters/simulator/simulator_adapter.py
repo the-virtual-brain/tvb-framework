@@ -164,7 +164,7 @@ class SimulatorAdapter(ABCAsynchronous):
         coupling_inst = self.available_couplings[str(coupling)](**coupling_parameters)
 
         self.log.debug("Initializing Cortex...")
-        if surface is not None and surface_parameters is not None:
+        if self._is_surface_simulation(surface, surface_parameters):
             cortex_entity = Cortex(use_storage=False).populate_cortex(surface, surface_parameters)
             if cortex_entity.region_mapping_data.connectivity.number_of_regions != connectivity.number_of_regions:
                 raise LaunchException("Incompatible RegionMapping -- Connectivity !!")
@@ -272,7 +272,7 @@ class SimulatorAdapter(ABCAsynchronous):
                                                                   sample_period=sample_period,
                                                                   title=' ' + m_name, start_time=start_time)
 
-            elif surface is None:
+            elif not self._is_surface_simulation(surface, surface_parameters):
                 ## We do not have a surface selected from UI, or regions only result.
                 result_datatypes[m_name] = time_series.TimeSeriesRegion(storage_path=self.storage_path,
                                                                         connectivity=connectivity,
@@ -354,4 +354,10 @@ class SimulatorAdapter(ABCAsynchronous):
         msg += " It is an array of length " + str(actual_size) + "."
         return msg
 
+    @staticmethod
+    def _is_surface_simulation(surface, surface_parameters):
+        """
+        Is this a surface simulation?
+        """
+        return surface is not None and surface_parameters is not None
 
