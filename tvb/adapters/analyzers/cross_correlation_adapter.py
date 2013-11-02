@@ -37,14 +37,17 @@ Adapter that uses the traits module to generate interfaces for ... Analyzer.
 """
 
 import numpy
-from tvb.basic.config.settings import TVBSettings
-from tvb.analyzers.cross_correlation import CrossCorrelate
 from tvb.core.adapters.abcadapter import ABCAsynchronous
+from tvb.core.adapters.exceptions import LaunchException
+from tvb.basic.config.settings import TVBSettings
+from tvb.basic.logger.builder import get_logger
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.traits.util import log_debug_array
-from tvb.datatypes.time_series import TimeSeries
+from tvb.datatypes.time_series import TimeSeries, TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
 from tvb.datatypes.temporal_correlations import CrossCorrelation
-from tvb.basic.logger.builder import get_logger
+from tvb.datatypes.graph import CorrelationCoefficients
+from tvb.analyzers.cross_correlation import CrossCorrelate
+from tvb.analyzers.correlation_coefficient import CorrelationCoefficient
 
 LOG = get_logger(__name__)
 
@@ -135,3 +138,89 @@ class CrossCorrelateAdapter(ABCAsynchronous):
         return cross_corr
 
 
+class PearsonCrossCorrelationAdapter(ABCAsynchronous):
+    """ TVB adapter for calling the Pearson CrossCorrelation algorithm. """
+
+    _ui_name = "Pearson correlation coefficient"
+    _ui_description = "Cross Correlation"
+    _ui_subsection = "crosscorr"
+
+
+    def get_input_tree(self):
+        """
+        Return a list of lists describing the interface to the analyzer. This
+        is used by the GUI to generate the menus and fields necessary for
+        defining a simulation.
+        """
+        algorithm = CorrelationCoefficient()
+        algorithm.trait.bound = self.INTERFACE_ATTRIBUTES_ONLY
+        tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
+        tree[0]['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                            operations=["=="], values=[4])
+        return tree
+
+
+    def get_output(self):
+        return [CorrelationCoefficients]
+
+
+    def configure(self, time_series, t_start, t_end):
+        """
+        Store the input shape to be later used to estimate memory usage. Also create the algorithm instance.
+
+        :param time_series: the input time-series for which correlation coefficient should be computed
+        :param t_start: the physical time interval start for the analysis
+        :param t_end: physical time, interval end
+        """
+        if t_start >= t_end or t_start < 0:
+            raise LaunchException("Can not launch operation without monitors selected !!!")
+
+        shape_tuple = time_series.read_data_shape()
+        self.input_shape = [shape_tuple[0], shape_tuple[1], shape_tuple[2], shape_tuple[3]]
+        self.input_shape[0] = int((t_end - t_start) / time_series.sample_period)
+        log_debug_array(LOG, time_series, "time_series")
+
+        self.algorithm = CorrelationCoefficient(time_series=time_series, t_start=t_start, t_end=t_end)
+
+
+    def get_required_memory_size(self, **kwargs):
+        """
+        Returns the required memory to be able to run this adapter.
+        """
+        in_memory_input = [self.input_shape[0], 1, self.input_shape[2], 1]
+        input_size = numpy.prod(in_memory_input) * 8.0
+        output_size = self.algorithm.result_size(self.input_shape)
+        return input_size + output_size
+
+
+    def get_required_disk_size(self, **kwargs):
+        """
+        Returns the required disk size to be able to run the adapter (in kB).
+        """
+        output_size = self.algorithm.result_size(self.input_shape)
+        return output_size * TVBSettings.MAGIC_NUMBER / 8 / 2 ** 10
+
+
+    def launch(self, time_series, t_start, t_end):
+        """
+        Launch algorithm and build results.
+
+        :param time_series: the input time-series for which correlation coefficient should be computed
+        :param t_start: the physical time interval start for the analysis
+        :param t_end: physical time, interval end
+        :returns: the correlation coefficient for the given time series
+        :rtype: `CorrelationCoefficients`
+        """
+        not_stored_result = self.algorithm.evaluate()
+        result = CorrelationCoefficients(storage_path=self.storage_path, source=time_series)
+        result.write_data_slice(not_stored_result.array_data)
+
+        if isinstance(time_series, TimeSeriesEEG) or isinstance(time_series, TimeSeriesMEG) \
+                or isinstance(time_series, TimeSeriesSEEG):
+            result.labels_ordering = ["Sensor", "Sensor", "1", "1"]
+        else:
+            result.labels_ordering[0] = time_series.labels_ordering[2]
+            result.labels_ordering[1] = time_series.labels_ordering[2]
+
+        result.close_file()
+        return result

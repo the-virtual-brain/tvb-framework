@@ -29,50 +29,49 @@
 #
 
 """
-Change of DB structure from TVB version 1.0.6 to 1.0.8
+Change of DB structure from TVB version 1.0.8 to 1.1.
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-from sqlalchemy.sql import text
+from sqlalchemy import Column, String
+from migrate.changeset.schema import create_column, drop_column
 from tvb.basic.logger.builder import get_logger
-from tvb.core.entities.storage import SA_SESSIONMAKER
+from tvb.core.entities import model
+
+meta = model.Base.metadata
+COL_LABELS = Column('_labels_ordering', String, default=0)
 
 
-def upgrade(_migrate_engine):
+def upgrade(migrate_engine):
     """
     Upgrade operations go here.
     Don't create your own engine; bind migrate_engine to your metadata.
     """
     try:
-        session = SA_SESSIONMAKER()
-        session.execute(text("""UPDATE "BURST_CONFIGURATIONS" SET _simulator_configuration =
-                                REPLACE(REPLACE(_simulator_configuration, "first_range", "range_1"),
-                                                                          "second_range", "range_2");"""))
-        session.execute(text("""UPDATE "OPERATIONS" SET parameters =
-                                REPLACE(REPLACE(parameters, "first_range", "range_1"), "second_range", "range_2");"""))
-        session.commit()
-        session.close()
-    except Exception, excep:
-        ## This update is not critical. We can run even in case of error at update
+        meta.bind = migrate_engine
+        table = meta.tables['MAPPED_CORRELATION_COEFFICIENTS_DATA']
+        create_column(COL_LABELS, table)
+
+    except Exception:
+        ## This update might fail, in case people are having an older version of TVB
+        ## (in which current datatypes does not even exists)
         logger = get_logger(__name__)
-        logger.exception(excep)
+        logger.warning("We do not update table MAPPED_CORRELATION_COEFFICIENTS_DATA, because it is not yet created")
 
 
-def downgrade(_migrate_engine):
-    """Operations to reverse the above upgrade go here."""
+def downgrade(migrate_engine):
+    """
+    Operations to reverse the above upgrade go here.
+    """
     try:
-        session = SA_SESSIONMAKER()
-        session.execute(text("""UPDATE "BURST_CONFIGURATIONS" SET _simulator_configuration =
-                                REPLACE(REPLACE(_simulator_configuration, "range_1", "first_range"),
-                                                                          "range_2", "second_range");"""))
-        session.execute(text("""UPDATE "OPERATIONS" SET parameters =
-                                REPLACE(REPLACE(parameters, "range_1", "first_range"), "range_2", "second_range");"""))
-        session.commit()
-        session.close()
-    except Exception, excep:
+        meta.bind = migrate_engine
+        table = meta.tables['MAPPED_CORRELATION_COEFFICIENTS_DATA']
+        drop_column(COL_LABELS, table)
+
+    except Exception:
         ## This update is not critical. We can run even in case of error at update
         logger = get_logger(__name__)
-        logger.exception(excep)
+        logger.warning("We do not update table MAPPED_CORRELATION_COEFFICIENTS_DATA, because it is not yet created")
 
 
