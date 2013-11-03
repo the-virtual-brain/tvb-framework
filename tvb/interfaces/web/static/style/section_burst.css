@@ -514,7 +514,10 @@ background-image: -moz-radial-gradient(center 30%, circle farthest-corner, rgba(
 background-image: -webkit-gradient(radial, center 30%, 0, center 30%, 300, from(rgba(0, 0, 0, 0.2)), to(rgba(0, 0, 0, 0.8))), url("./img/portlets/xcorr.png");
 background-image: -moz-radial-gradient(center 30%, circle farthest-corner, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8)), url("./img/portlets/xcorr.png");
 }
-
+.view-portlets .portlet-container.portlet-preview .portlet.portlet-type-xpcc {
+background-image: -webkit-gradient(radial, center 30%, 0, center 30%, 300, from(rgba(0, 0, 0, 0.2)), to(rgba(0, 0, 0, 0.8))), url("./img/portlets/xpcc.png");
+background-image: -moz-radial-gradient(center 30%, circle farthest-corner, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8)), url("./img/portlets/xpcc.png");
+}
 
 /* --- Portlet mode: Configuring a single portlet's parameters */
 /* This mode is triggered by .portlet-container.portlet-configure */

@@ -138,12 +138,12 @@ class CrossCorrelateAdapter(ABCAsynchronous):
         return cross_corr
 
 
-class PearsonCrossCorrelationAdapter(ABCAsynchronous):
+class PearsonCorrelationCoefficientAdapter(ABCAsynchronous):
     """ TVB adapter for calling the Pearson CrossCorrelation algorithm. """
 
-    _ui_name = "Pearson correlation coefficient"
+    _ui_name = "Pearson correlation coefficients"
     _ui_description = "Cross Correlation"
-    _ui_subsection = "crosscorr"
+    _ui_subsection = "ccpearson"
 
 
     def get_input_tree(self):
@@ -213,7 +213,7 @@ class PearsonCrossCorrelationAdapter(ABCAsynchronous):
         """
         not_stored_result = self.algorithm.evaluate()
         result = CorrelationCoefficients(storage_path=self.storage_path, source=time_series)
-        result.write_data_slice(not_stored_result.array_data)
+        result.array_data = not_stored_result.array_data
 
         if isinstance(time_series, TimeSeriesEEG) or isinstance(time_series, TimeSeriesMEG) \
                 or isinstance(time_series, TimeSeriesSEEG):
@@ -222,5 +222,4 @@ class PearsonCrossCorrelationAdapter(ABCAsynchronous):
             result.labels_ordering[0] = time_series.labels_ordering[2]
             result.labels_ordering[1] = time_series.labels_ordering[2]
 
-        result.close_file()
         return result

@@ -208,6 +208,35 @@
         </algorithm>
 
 
+        <algorithm name="Pearson-correlation-coefficient" identifier="XPCC">
+            <code value=""/>
+            <inputs>
+                <input>
+                    <name value="chain_1"/>
+                    <label value="First adapter from chain"/>
+                    <type value="tvb.adapters.analyzers.cross_correlation_adapter.PearsonCorrelationCoefficientAdapter" field=""/>
+                </input>
+                <input overwrite="chain_1">
+                    <name value="time_series"/>
+                    <label value="Overwrite with first input of the simulator adapter."/>
+                    <type value="dynamic" default="step_0[0]" />
+                </input>
+
+                <input>
+                    <name value="chain_2"/>
+                    <label value="Second adapter from chain"/>
+                    <type value="tvb.adapters.visualizers.cross_correlation.PearsonCorrelationCoefficientVisualizer" field=""/>
+                </input>
+                <input overwrite="chain_2">
+                	<name value="cross_correlation"/>
+                	<label value="Overwrite input_data parameter of second adapter with the first release of the first adapter."/>
+                	<type value="dynamic" default="step_1[0]"/>
+                </input>
+
+            </inputs>
+        </algorithm>
+
+
          <algorithm name="Cross-coherence" identifier="XCOHER">
             <code value=""/>
             <inputs>

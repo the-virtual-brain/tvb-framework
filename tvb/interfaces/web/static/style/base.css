@@ -511,6 +511,9 @@ background-image: url("./img/nav/img_ss_generic5.png");
 header nav li#nav-analyze-crosscorr {
 background-image: url("./img/nav/img_ss_generic1.png");
 }
+header nav li#nav-analyze-ccpearson {
+background-image: url("./img/nav/img_ss_generic1.png");
+}
 header nav li#nav-analyze-fourier {
 background-image: url("./img/nav/img_ss_generic2.png");
 }
@@ -520,41 +523,38 @@ background-image: url("./img/nav/img_ss_generic3.png");
 header nav li#nav-analyze-coherence {
 background-image: url("./img/nav/img_ss_generic4.png");
 }
+header nav li#nav-analyze-complexcoherence {
+background-image: url("./img/nav/img_ss_generic4.png");
+}
 header nav li#nav-analyze-covariance {
 background-image: url("./img/nav/img_ss_generic5.png");
 }
 header nav li#nav-analyze-components {
 background-image: url("./img/nav/img_ss_generic6.png");
 }
-header nav li#nav-analyze-doublevariance { /* is this still used ?*/
-background-image: url("./img/nav/img_ss_generic7.png");
-}
-header nav li#nav-analyze-globalvariance { /* is this still used ?*/
-background-image: url("./img/nav/img_ss_generic8.png");
-}
 header nav li#nav-analyze-wavelet {
-background-image: url("./img/nav/img_ss_generic9.png");
-}
-header nav li#nav-analyze-ica {
-background-image: url("./img/nav/img_ss_generic1.png");
-}
-header nav li#nav-analyze-bct {
-background-image: url("./img/nav/img_ss_generic2.png");
-}
-header nav li#nav-analyze-bctcentrality {
-background-image: url("./img/nav/img_ss_generic3.png");
-}
-header nav li#nav-analyze-bctclustering {
-background-image: url("./img/nav/img_ss_generic4.png");
-}
-header nav li#nav-analyze-bctdegree {
 background-image: url("./img/nav/img_ss_generic5.png");
 }
+header nav li#nav-analyze-ica {
+background-image: url("./img/nav/img_ss_generic8.png");
+}
+header nav li#nav-analyze-bct {
+background-image: url("./img/nav/img_ss_generic9.png");
+}
+header nav li#nav-analyze-bctcentrality {
+background-image: url("./img/nav/img_ss_generic9.png");
+}
+header nav li#nav-analyze-bctclustering {
+background-image: url("./img/nav/img_ss_generic9.png");
+}
+header nav li#nav-analyze-bctdegree {
+background-image: url("./img/nav/img_ss_generic9.png");
+}
 header nav li#nav-analyze-bctdistance {
-background-image: url("./img/nav/img_ss_generic6.png");
+background-image: url("./img/nav/img_ss_generic9.png");
 }
 header nav li#nav-analyze-bctdensity {
-background-image: url("./img/nav/img_ss_generic7.png");
+background-image: url("./img/nav/img_ss_generic9.png");
 }
 
 /* TODO: Real nav images for section VIEW */

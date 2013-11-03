@@ -59,8 +59,8 @@ class ImaginaryCoherenceDisplay(ABCMPLH5Displayer):
     and returns required parameters for a MatplotLib representation.
     """
 
-    _ui_name = "Complex Coherence "
-    _ui_subsection = "coherence"
+    _ui_name = "Complex (Imaginary) Coherence "
+    _ui_subsection = "complex_coherence"
 
 
     def get_input_tree(self):

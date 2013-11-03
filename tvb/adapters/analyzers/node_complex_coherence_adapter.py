@@ -53,8 +53,8 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
     """ TVB adapter for calling the NodeComplexCoherence algorithm. """
     
     _ui_name = "Complex Coherence of Nodes"
-    _ui_description = "Compute the node complex coherence for a TimeSeries input DataType."
-    _ui_subsection = "coherence"
+    _ui_description = "Compute the node complex (imaginary) coherence for a TimeSeries input DataType."
+    _ui_subsection = "complexcoherence"
     
     
     def get_input_tree(self):

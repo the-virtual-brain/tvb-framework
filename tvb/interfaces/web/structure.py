@@ -67,19 +67,21 @@ class WebStructure(object):
     ### These subsections can extends, and depend on existing analyzers in the system.
     SUB_SECTION_ANALYZE_MENU = "analyze"
     SUB_SECTION_ANALYZE_1 = "crosscorr"
-    SUB_SECTION_ANALYZE_2 = "fourier"
-    SUB_SECTION_ANALYZE_3 = "timeseries"
-    SUB_SECTION_ANALYZE_4 = "coherence"
+    SUB_SECTION_ANALYZE_2 = "ccpearson"
+    SUB_SECTION_ANALYZE_3 = "coherence"
+    SUB_SECTION_ANALYZE_4 = "complexcoherence"
     SUB_SECTION_ANALYZE_5 = "covariance"
     SUB_SECTION_ANALYZE_6 = "components"
-    SUB_SECTION_ANALYZE_7 = "ica"
-    SUB_SECTION_ANALYZE_8 = "wavelet"
-    SUB_SECTION_ANALYZE_9 = "bct"
-    SUB_SECTION_ANALYZE_10 = "bctcentrality"
-    SUB_SECTION_ANALYZE_11 = "bctclustering"
-    SUB_SECTION_ANALYZE_12 = "bctdegree"
-    SUB_SECTION_ANALYZE_13 = "bctdensity"
-    SUB_SECTION_ANALYZE_14 = "bctdistance"
+    SUB_SECTION_ANALYZE_7 = "fourier"
+    SUB_SECTION_ANALYZE_8 = "ica"
+    SUB_SECTION_ANALYZE_9 = "timeseries"
+    SUB_SECTION_ANALYZE_10 = "wavelet"
+    SUB_SECTION_ANALYZE_11 = "bct"
+    SUB_SECTION_ANALYZE_12 = "bctcentrality"
+    SUB_SECTION_ANALYZE_13 = "bctclustering"
+    SUB_SECTION_ANALYZE_14 = "bctdegree"
+    SUB_SECTION_ANALYZE_15 = "bctdensity"
+    SUB_SECTION_ANALYZE_16 = "bctdistance"
 
     ### Subsections for STIMULUS section.
     SUB_SECTION_STIMULUS_MENU = "stimulus"
@@ -93,22 +95,25 @@ class WebStructure(object):
 
     ### Subsections used under BURST and PROJECT sections.
     ### These subsections can extend, and depend on existing visualizers in the system.
+    SUB_SECTION_VIEW_0 = "view_connectivity"
     SUB_SECTION_VIEW_1 = "view_brain"
-    SUB_SECTION_VIEW_2 = "view_connectivity"
-    SUB_SECTION_VIEW_3 = "view_covariance"
-    SUB_SECTION_VIEW_4 = "view_coherence"
-    SUB_SECTION_VIEW_5 = "view_correlation"
-    SUB_SECTION_VIEW_6 = "view_eeg"
-    SUB_SECTION_VIEW_7 = "view_histogram"
-    SUB_SECTION_VIEW_8 = "view_ica"
-    SUB_SECTION_VIEW_9 = "view_complex_coherence"
+    SUB_SECTION_VIEW_2 = "view_brain_eeg"
+    SUB_SECTION_VIEW_3 = "view_brain_seeg"
+    SUB_SECTION_VIEW_4 = "view_covariance"
+    SUB_SECTION_VIEW_5 = "view_coherence"
+    SUB_SECTION_VIEW_6 = "view_complex_coherence"
+    SUB_SECTION_VIEW_7 = "view_correlation"
+    SUB_SECTION_VIEW_8 = "view_correlation_pearson"
+    SUB_SECTION_VIEW_9 = "view_eeg"
     SUB_SECTION_VIEW_10 = "view_fourier"
-    SUB_SECTION_VIEW_11 = "view_topography"
-    SUB_SECTION_VIEW_12 = "view_wavelet"
+    SUB_SECTION_VIEW_11 = "view_histogram"
+    SUB_SECTION_VIEW_12 = "view_ica"
     SUB_SECTION_VIEW_13 = "view_pca"
     SUB_SECTION_VIEW_14 = "view_pse"
     SUB_SECTION_VIEW_15 = "view_pse_iso"
     SUB_SECTION_VIEW_16 = "view_timeseries"
+    SUB_SECTION_VIEW_17 = "view_topography"
+    SUB_SECTION_VIEW_18 = "view_wavelet"
 
 
     ### Texts to appear in HTML page headers as section-title.
@@ -144,19 +149,21 @@ class WebStructure(object):
 
         SUB_SECTION_ANALYZE_MENU: "",
         SUB_SECTION_ANALYZE_1: "Cross Correlation",
-        SUB_SECTION_ANALYZE_2: "Fourier",
-        SUB_SECTION_ANALYZE_3: "TimeSeries",
-        SUB_SECTION_ANALYZE_4: "Coherence",
+        SUB_SECTION_ANALYZE_2: "Correlation Coefficients",
+        SUB_SECTION_ANALYZE_3: "Coherence",
+        SUB_SECTION_ANALYZE_4: "Complex Coherence",
         SUB_SECTION_ANALYZE_5: "Covariance",
         SUB_SECTION_ANALYZE_6: "Principal Components",
-        SUB_SECTION_ANALYZE_7: "ICA",
-        SUB_SECTION_ANALYZE_8: "Wavelet",
-        SUB_SECTION_ANALYZE_9: "BCT",
-        SUB_SECTION_ANALYZE_10: "BCT Centrality",
-        SUB_SECTION_ANALYZE_11: "BCT Clusteing",
-        SUB_SECTION_ANALYZE_12: "BCT Degree",
-        SUB_SECTION_ANALYZE_13: "BCT Density",
-        SUB_SECTION_ANALYZE_14: "BCT Distance",
+        SUB_SECTION_ANALYZE_7: "Fourier",
+        SUB_SECTION_ANALYZE_8: "ICA",
+        SUB_SECTION_ANALYZE_9: "TimeSeries",
+        SUB_SECTION_ANALYZE_10: "Wavelet",
+        SUB_SECTION_ANALYZE_11: "BCT",
+        SUB_SECTION_ANALYZE_12: "BCT Centrality",
+        SUB_SECTION_ANALYZE_13: "BCT Clustering",
+        SUB_SECTION_ANALYZE_14: "BCT Degree",
+        SUB_SECTION_ANALYZE_15: "BCT Density",
+        SUB_SECTION_ANALYZE_16: "BCT Distance",
 
         SUB_SECTION_STIMULUS_MENU: "",
         SUB_SECTION_STIMULUS_SURFACE: "Region",
@@ -166,45 +173,51 @@ class WebStructure(object):
         SUB_SECTION_CONNECTIVITY: "Large Scale",
         SUB_SECTION_LOCAL_CONNECTIVITY: "Local",
 
+        SUB_SECTION_VIEW_0: "Connectivity Viewer",
         SUB_SECTION_VIEW_1: "Brain Viewer",
-        SUB_SECTION_VIEW_2: "Connectivity Viewer",
-        SUB_SECTION_VIEW_3: "Covariance Viewer",
-        SUB_SECTION_VIEW_4: "Coherence Viewer",
-        SUB_SECTION_VIEW_5: "Correlation Viewer",
-        SUB_SECTION_VIEW_6: "EEG Viewer",
-        SUB_SECTION_VIEW_7: "Histogram Viewer",
-        SUB_SECTION_VIEW_8: "ICA Viewer",
-        SUB_SECTION_VIEW_9: "Complex Coherence Viewer",
+        SUB_SECTION_VIEW_2: "EEG Viewer",
+        SUB_SECTION_VIEW_3: "SEEG Viewer",
+        SUB_SECTION_VIEW_4: "Covariance Viewer",
+        SUB_SECTION_VIEW_5: "Coherence Viewer",
+        SUB_SECTION_VIEW_6: "Complex Coherence Viewer",
+        SUB_SECTION_VIEW_7: "Cross Correlation Viewer",
+        SUB_SECTION_VIEW_8: "Pearson Correlation Coefficients Viewer",
+        SUB_SECTION_VIEW_9: "EEG Viewer",
         SUB_SECTION_VIEW_10: "Fourier Viewer",
-        SUB_SECTION_VIEW_11: "Topography Viewer",
-        SUB_SECTION_VIEW_12: "Wavelet Viewer",
+        SUB_SECTION_VIEW_11: "Histogram Viewer",
+        SUB_SECTION_VIEW_12: "ICA Viewer",
         SUB_SECTION_VIEW_13: "PCA Viewer",
         SUB_SECTION_VIEW_14: "Discrete PSE Viewer",
         SUB_SECTION_VIEW_15: "Isocline PSE Viewer",
-        SUB_SECTION_VIEW_16: "TimeSeries Viewer"
+        SUB_SECTION_VIEW_16: "TimeSeries Viewer",
+        SUB_SECTION_VIEW_17: "Topography Viewer",
+        SUB_SECTION_VIEW_18: "Wavelet Viewer"
     }
 
 
     ### ID of the HTML generated paragraph, to jump to it directly, in the online help overlay.
     VISUALIZERS_ONLINE_HELP_SHORTCUTS = {
 
-        SUB_SECTION_VIEW_1: "brain-activity-visualizer",
         ## Connectivity subsection link will not be needed, as we will have a full section in the help for this.
-        ## SUB_SECTION_VIEW_2: "connectivity-visualizer**",
-        SUB_SECTION_VIEW_3: "covariance-visualizer",
-        SUB_SECTION_VIEW_4: "cross-coherence-visualizer",
-        SUB_SECTION_VIEW_5: "cross-correlation-visualizer",
-        SUB_SECTION_VIEW_6: "eeg-time-series-visualizer",
-        SUB_SECTION_VIEW_7: "connectivity-measure-visualizer",
-        SUB_SECTION_VIEW_8: "independent-component-visualizer",
-        SUB_SECTION_VIEW_9: "complex-coherence-visualizer",
+        ## SUB_SECTION_VIEW_0: "connectivity-visualizer**",
+        SUB_SECTION_VIEW_1: "brain-activity-visualizer",
+        SUB_SECTION_VIEW_2: "dual-brain-eeg-visualizer",
+        SUB_SECTION_VIEW_3: "dual-brain-seeg-visualizer",
+        SUB_SECTION_VIEW_4: "covariance-visualizer",
+        SUB_SECTION_VIEW_5: "cross-coherence-visualizer",
+        SUB_SECTION_VIEW_6: "complex-coherence-visualizer",
+        SUB_SECTION_VIEW_7: "cross-correlation-visualizer",
+        SUB_SECTION_VIEW_8: "pearson-coefficients-visualizer",
+        SUB_SECTION_VIEW_9: "eeg-time-series-visualizer",
         SUB_SECTION_VIEW_10: "fourier-spectrum-visualizer",
-        SUB_SECTION_VIEW_11: "topographic-visualizer",
-        SUB_SECTION_VIEW_12: "wavelet-spectogram-visualizer",
+        SUB_SECTION_VIEW_11: "connectivity-measure-visualizer",
+        SUB_SECTION_VIEW_12: "independent-component-visualizer",
         SUB_SECTION_VIEW_13: "principal-component-visualizer",
         SUB_SECTION_VIEW_14: "discrete-pse-visualizer",
         SUB_SECTION_VIEW_15: "isocline-pse-visualizer",
-        SUB_SECTION_VIEW_16: "time-series-visualizer-svg-d3"
+        SUB_SECTION_VIEW_16: "time-series-visualizer-svg-d3",
+        SUB_SECTION_VIEW_17: "topographic-visualizer",
+        SUB_SECTION_VIEW_18: "wavelet-spectrogram-visualizer"
     }
 
 
@@ -212,19 +225,21 @@ class WebStructure(object):
     ANALYZERS_ONLINE_HELP_SHORTCUTS = {
 
         SUB_SECTION_ANALYZE_1: "cross-correlation-of-nodes",
-        SUB_SECTION_ANALYZE_2: "fourier-spectral-analysis",
-        SUB_SECTION_ANALYZE_3: "timeseries-metrics",
-        SUB_SECTION_ANALYZE_4: "cross-coherence-of-nodes",
+        SUB_SECTION_ANALYZE_2: "pearson-correlation-coefficient",
+        SUB_SECTION_ANALYZE_3: "cross-coherence-of-nodes",
+        SUB_SECTION_ANALYZE_4: "complex-coherence-of-nodes",
         SUB_SECTION_ANALYZE_5: "temporal-covariance-of-nodes",
         SUB_SECTION_ANALYZE_6: "principal-component-analysis-pca",
-        SUB_SECTION_ANALYZE_7: "independent-component-analysis-ica",
-        SUB_SECTION_ANALYZE_8: "continous-wavelet-transform-cwt",
-        SUB_SECTION_ANALYZE_9: "brain-connectivity-toolbox-analyzers",
-        SUB_SECTION_ANALYZE_10: "brain-connectivity-toolbox-analyzers",
+        SUB_SECTION_ANALYZE_7: "fourier-spectral-analysis",
+        SUB_SECTION_ANALYZE_8: "independent-component-analysis-ica",
+        SUB_SECTION_ANALYZE_9: "timeseries-metrics",
+        SUB_SECTION_ANALYZE_10: "continuous-wavelet-transform-cwt",
         SUB_SECTION_ANALYZE_11: "brain-connectivity-toolbox-analyzers",
         SUB_SECTION_ANALYZE_12: "brain-connectivity-toolbox-analyzers",
         SUB_SECTION_ANALYZE_13: "brain-connectivity-toolbox-analyzers",
         SUB_SECTION_ANALYZE_14: "brain-connectivity-toolbox-analyzers",
+        SUB_SECTION_ANALYZE_15: "brain-connectivity-toolbox-analyzers",
+        SUB_SECTION_ANALYZE_16: "brain-connectivity-toolbox-analyzers",
     }
     
     

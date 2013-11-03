@@ -273,7 +273,8 @@ class BrainEEG(BrainViewer):
     """
     Visualizer merging Brain 3D display and EEG lines display.
     """
-    _ui_name = "Brain Activity with Measure Points"
+    _ui_name = "Brain EEG Activity in 3D and 2D"
+    _ui_subsection = "brain_eeg"
 
     def get_input_tree(self):
         
@@ -352,7 +353,8 @@ class BrainSEEG(BrainEEG):
     """
     Visualizer merging Brain 3D display and MEG lines display.
     """
-    _ui_name = "Brain Activity SEEG Viewer"
+    _ui_name = "Brain SEEG Activity in 3D and 2D"
+    _ui_subsection = "brain_seeg"
 
 
     def get_input_tree(self):
