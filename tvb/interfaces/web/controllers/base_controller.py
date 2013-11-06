@@ -175,7 +175,7 @@ def using_template(template_name):
                 return stream.render('xhtml')
             except Exception, excep:
                 if isinstance(excep, cherrypy.HTTPRedirect):
-                    raise excep
+                    raise
                 get_logger("tvb.interface.web.controllers.base_controller").exception(excep)
                 set_error_message("An unexpected exception appeared. Please contact your system administrator.")
                 raise cherrypy.HTTPRedirect("/tvb?error=True")
@@ -202,11 +202,11 @@ def ajax_call(json_form=True):
 
             except Exception, excep:
                 if isinstance(excep, cherrypy.HTTPRedirect):
-                    raise excep
+                    raise
                 logger = get_logger("tvb.interface.web.controllers.base_controller")
                 logger.error("Encountered exception when calling asynchronously :" + str(func))
                 logger.exception(excep)
-                raise excep
+                raise
 
         return deco
     return dec
@@ -242,9 +242,7 @@ def set_info_message(msg):
 
 def get_from_session(attribute):
     """ check if something exists in session and return"""
-    if attribute in cherrypy.session:
-        return cherrypy.session[attribute]
-    return None
+    return cherrypy.session.get(attribute)
 
 
 

@@ -113,7 +113,7 @@ class SpatioTemporalController(base.BaseController):
         ### Read from session current burst-configuration
         burst_configuration = base.get_from_session(base.KEY_BURST_CONFIG)
         if burst_configuration is None:
-            return None, None, None
+            return None, None, None, None
         first_range = burst_configuration.get_simulation_parameter_value(RANGE_PARAMETER_1)
         second_range = burst_configuration.get_simulation_parameter_value(RANGE_PARAMETER_2)
         if ((first_range is not None and str(first_range).startswith(MODEL_PARAMETERS)) or
