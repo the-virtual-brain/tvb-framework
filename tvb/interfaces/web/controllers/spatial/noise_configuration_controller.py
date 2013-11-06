@@ -116,6 +116,9 @@ class NoiseConfigurationController(SpatioTemporalController):
     @ajax_call()
     @logged()
     def load_noise_values_for_connectivity_node(self, connectivity_index):
+        """
+        Gets currently configured noise parameters for the specified connectivity node
+        """
         connectivity_index = int(connectivity_index)
         context_noise_config = base.get_from_session(KEY_CONTEXT_NC)
         node_values = {}
@@ -128,6 +131,11 @@ class NoiseConfigurationController(SpatioTemporalController):
     @ajax_call()
     @logged()
     def copy_configuration(self, from_node, to_nodes):
+        """
+        Loads a noise configuration from ``from_node`` and copies that to all
+        nodes named in the ``to_nodes`` array
+        :returns: noise values json array
+        """
         from_node = int(from_node)
         to_nodes = json.loads(to_nodes)
         if from_node < 0 or not len(to_nodes):
@@ -135,7 +143,7 @@ class NoiseConfigurationController(SpatioTemporalController):
         context_model_parameters = base.get_from_session(KEY_CONTEXT_NC)
         context_model_parameters.set_noise_connectivity_nodes(from_node, to_nodes)
         base.add2session(KEY_CONTEXT_NC, context_model_parameters)
-
+        return context_model_parameters.noise_values
 
     @cherrypy.expose
     @ajax_call()

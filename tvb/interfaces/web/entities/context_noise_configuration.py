@@ -60,11 +60,10 @@ class ContextNoiseParameters(BaseSpatialContext):
             noise_values = self.default_integrator.noise.nsig.tolist()
             if len(noise_values) == 1:
                 # Only one number for noise
-                self.noise_values = [[noise_values[0] for _ in xrange(nr_nodes)] for _ in self.state_variables]
+                self.noise_values = [noise_values * nr_nodes for _ in self.state_variables]
             elif not isinstance(noise_values[0], list):
                 # Only one number per state variable
-                self.noise_values = [[noise_values[idx] for _ in xrange(nr_nodes)] for idx in 
-                                                                             xrange(len(self.state_variables))]
+                self.noise_values = [[noise_values[idx]] * nr_nodes for idx in self.state_variables]
             elif len(noise_values[0]) == nr_nodes and len(noise_values) == len(self.state_variables):
                 # Proper noise config for current number of state variables
                 self.noise_values = noise_values

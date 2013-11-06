@@ -45,7 +45,7 @@ from tvb_test.interfaces.web.controllers import settings_controllers_test
 from tvb_test.interfaces.web.controllers import surface_model_parameters_controller_test
 from tvb_test.interfaces.web.controllers import surface_stimulus_controller_test
 from tvb_test.interfaces.web.controllers import users_controller_test
-
+from tvb_test.interfaces.web.controllers import noise_configuration_controller_test
 
 def suite():
     """
@@ -65,6 +65,7 @@ def suite():
     test_suite.addTest(surface_model_parameters_controller_test.suite())
     test_suite.addTest(surface_stimulus_controller_test.suite())
     test_suite.addTest(users_controller_test.suite())
+    test_suite.addTest(noise_configuration_controller_test.suite())
     return test_suite
 
 

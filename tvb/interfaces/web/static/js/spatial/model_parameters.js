@@ -296,6 +296,19 @@ function NP_updateNoiseParameters(rootDivID) {
             });
 }
 
+function _fill_node_selection_with_noise_values(data) {
+    var nodesData = $.parseJSON(data);
+    for (var i = 0; i < nodesData[0].length; i++) {
+        var displayedValue = '[';
+        for (var j = 0; j < nodesData.length; j++) {
+            displayedValue += nodesData[j][i] + ' ';
+        }
+        displayedValue = displayedValue.slice(0, -1);
+        displayedValue += ']';
+        $("#nodeScale" + i).text(displayedValue);
+    }
+}
+
 /*
  * Load the default values for the table-like connectivity node selection display.
  */
@@ -305,16 +318,7 @@ function NP_loadDefaultNoiseValues() {
 				url: '/spatial/noiseconfiguration/load_initial_values',
 				traditional: true,
                 success: function(r) {
-                	var nodesData = $.parseJSON(r);
-				    for (var i = 0; i < nodesData[0].length; i++) {
-				    	var displayedValue = '[';
-				    	for (var j = 0; j < nodesData.length; j++) {
-				    		displayedValue += nodesData[j][i] + ' ';
-				    	}
-				    	displayedValue = displayedValue.slice(0, -1);
-						displayedValue += ']';
-				        $("#nodeScale" + i).text(displayedValue);
-				    }
+                    _fill_node_selection_with_noise_values(r);
 				    GFUNC_removeAllMatrixFromInterestArea();
                 }
             });
@@ -368,6 +372,6 @@ function _copyNoiseConfig(fromNode, toNodes) {
         async:false,
         type:'POST',
         url:'/spatial/noiseconfiguration/copy_configuration/' + fromNode + '/' + $.toJSON(toNodes),
-        success:function (data) { }
+        success: _fill_node_selection_with_noise_values
     });
 }
