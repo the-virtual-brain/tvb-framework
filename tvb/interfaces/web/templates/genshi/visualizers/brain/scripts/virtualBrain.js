@@ -241,7 +241,7 @@ function _webGLStart(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList,
             displayMessage("The number of activity points should equal the number of surface vertices", "errorMessage");
         }
     } else {
-        if (noOfMeasurePoints === activitiesData[0].length){
+        if (NO_OF_MEASURE_POINTS === activitiesData[0].length){
             setInterval(tick, TICK_STEP);
         } else{
             displayMessage("The number of activity points should equal the number of regions", "errorMessage");
