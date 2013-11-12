@@ -252,7 +252,10 @@ class PhasePlaneInteractive(object):
         pos_shp = [0.04, 0.365, 0.125, 0.025]
         sax = self.ipp_fig.add_axes(pos_shp, axisbg=AXCOLOUR)
 
-        self.noise_slider = Slider(sax, "Noise", 0.0, 1.0, valinit=self.integrator.noise.nsig)
+        ## Only get the first value in the array of noise nsig,
+        ## because otherwise the slider does not know what to do with more
+        init_point = self.integrator.noise.nsig.flatten()[0]
+        self.noise_slider = Slider(sax, "Noise", 0.0, 1.0, valinit=init_point)
         self.noise_slider.on_changed(self._update_noise)
 
 

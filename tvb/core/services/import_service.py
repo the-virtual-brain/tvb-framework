@@ -276,7 +276,8 @@ class ImportService():
         imported_operations = []
 
         # Now we sort operations by start date, to be sure data dependency is resolved correct
-        operations = sorted(operations, key=lambda operation: operation.start_date)
+        operations = sorted(operations, key=lambda operation: (operation.start_date or
+                                                               operation.create_date or datetime.now()))
 
         # Here we process each operation found
         for operation in operations:
