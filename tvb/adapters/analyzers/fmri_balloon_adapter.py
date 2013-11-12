@@ -79,7 +79,7 @@ class BalloonModelAdapter(ABCAsynchronous):
     def get_output(self):
         return [TimeSeriesRegion]
     
-    def configure(self, time_series, dt=None, non_linear=None, RBM=None, neural_input_transformation=None):
+    def configure(self, time_series, dt=None, bold_model=None, RBM=None, neural_input_transformation=None):
         """
         Store the input shape to be later used to estimate memory usage. Also
         create the algorithm instance.
@@ -95,8 +95,8 @@ class BalloonModelAdapter(ABCAsynchronous):
         else:
             algorithm.dt = time_series.sample_period / 1000.
 
-        if non_linear is not None:
-            algorithm.non_linear = non_linear
+        if bold_model is not None:
+            algorithm.bold_model = bold_model
         if RBM is not None:
             algorithm.RBM = RBM
         if neural_input_transformation is not None:
@@ -121,7 +121,7 @@ class BalloonModelAdapter(ABCAsynchronous):
         used_shape = (self.input_shape[0], self.input_shape[1], self.input_shape[2], self.input_shape[3])
         return self.algorithm.result_size(used_shape) * TVBSettings.MAGIC_NUMBER / 8 / 2 ** 10
     
-    def launch(self, time_series, dt=None, non_linear=None, RBM=None, neural_input_transformation=None):
+    def launch(self, time_series, dt=None, bold_model=None, RBM=None, neural_input_transformation=None):
         """
         Launch algorithm and build results.
 
