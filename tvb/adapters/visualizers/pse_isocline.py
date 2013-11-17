@@ -201,11 +201,10 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         nan_indices = numpy.isnan(apriori_data)
         self.nan_indices[figure.number] = nan_indices
         apriori_data = numpy.nan_to_num(apriori_data)
-        # Attempt order-3 interpolation.
-        kx = ky = 3
-        if len(self.range1) <= 3 or len(self.range2) <= 3:
-            # Number of points is too small, just do linear interpolation
-            kx = ky = 1
+        # NOTE: we could attempt a better interpolation strategy, (eg, changing basis function)
+        # For the time being, correctness wins over beauty. The plot will not be as smooth as it
+        # was, but it will be sufficiently correct. 
+        kx = ky = 1
         s = interpolate.RectBivariateSpline(apriori_x, apriori_y, apriori_data, kx=kx, ky=ky)
         # Get data of higher resolution that we'll plot later on
         posteriori_x = numpy.arange(self.range1[0], self.range1[-1],
@@ -237,7 +236,7 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         axes = figure.gca()
         img = axes.imshow(posteriori_data, extent=(min(self.range1), max(self.range1),
                                                    min(self.range2), max(self.range2)),
-                          aspect='auto', interpolation='nearest')
+                          aspect='auto', interpolation='bilinear')
         axes.set_title("Interpolated values for metric %s" % (metric,))
         figure.colorbar(img)
         axes.set_xlabel(range1_name)
