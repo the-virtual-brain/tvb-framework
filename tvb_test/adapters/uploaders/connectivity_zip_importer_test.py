@@ -57,10 +57,12 @@ class ConnectivityZipTest(TransactionalTestCase):
 
     @staticmethod
     def import_test_connectivity96(test_user, test_project, subject=DataTypeMetaData.DEFAULT_SUBJECT):
+        """
+        Import a connectivity with 96 regions from demo_data.
+        """
         group = dao.find_group('tvb.adapters.uploaders.zip_connectivity_importer', 'ZIPConnectivityImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: subject,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: subject}
 
         data_dir = path.abspath(path.dirname(demo_data.__file__))
         zip_path = path.join(data_dir, 'connectivity', 'connectivity_regions_96.zip')
@@ -73,15 +75,9 @@ class ConnectivityZipTest(TransactionalTestCase):
         Test that importing a CFF generates at least one DataType in DB.
         """
         dt_count_before = TestFactory.get_entity_count(self.test_project, Connectivity())
-        group = dao.find_group('tvb.adapters.uploaders.zip_connectivity_importer', 'ZIPConnectivityImporter')
-        importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
-        zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'connectivity_regions_96.zip')
-        args = {'uploaded': zip_path}
         
-        ### Launch Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
+        ConnectivityZipTest.import_test_connectivity96(self.test_user, self.test_project)
+
         dt_count_after = TestFactory.get_entity_count(self.test_project, Connectivity())
         self.assertEqual(dt_count_before + 1, dt_count_after)
 
