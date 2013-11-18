@@ -460,8 +460,7 @@ class OperationDAO(RootDAO):
         """
         try:
             if init_parameter is not None:
-                result = self.session.query(model.AlgorithmGroup).filter_by(module=module,
-                                                                            classname=class_name,
+                result = self.session.query(model.AlgorithmGroup).filter_by(module=module, classname=class_name,
                                                                             init_parameter=init_parameter).one()
             else:
                 result = self.session.query(model.AlgorithmGroup).filter_by(module=module, classname=class_name).one()
@@ -470,21 +469,24 @@ class OperationDAO(RootDAO):
             return None
 
 
-    def get_apliable_algo_groups(self, datatype, launch_categ):
+    def get_apliable_algo_groups(self, compatible_class_names, launch_categ):
         """
-        Retrieve a list of algorithms in a given category with a given dataType
-        as required input.
+        Retrieve a list of algorithms in a given list of categories with a given dataType classes as required input.
         """
         try:
-            groups_list = self.session.query(model.AlgorithmGroup
-                                             ).filter(model.AlgorithmGroup.fk_category.in_(launch_categ)).all()
+            # Filter only groups with applicable algorithms for current DataType
+            groups_list = self.session.query(model.AlgorithmGroup).join(model.Algorithm
+                                        ).filter(model.AlgorithmGroup.fk_category.in_(launch_categ)
+                                        ).filter(model.Algorithm.required_datatype.in_(compatible_class_names)).all()
         except Exception, excep:
             self.logger.exception(excep)
             groups_list = []
+
+        # Remove duplicate algorithms and populate attribute .children
         result = []
         for one_group in groups_list:
-            algos_list = [algo for algo in one_group.algorithms if algo.required_datatype == datatype]
-            if algos_list:
+            algos_list = [algo for algo in one_group.algorithms if algo.required_datatype in compatible_class_names]
+            if algos_list and one_group not in result:
                 one_group.children = algos_list
                 result.append(one_group)
 

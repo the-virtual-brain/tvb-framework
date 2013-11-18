@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
 #
 # (c) 2012-2013, Baycrest Centre for Geriatric Care ("Baycrest")
 #
-# This program is free software; you can redistribute it and/or modify it under 
+# This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License version 2 as published by the Free
 # Software Foundation. This program is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
-# License for more details. You should have received a copy of the GNU General 
+# License for more details. You should have received a copy of the GNU General
 # Public License along with this program; if not, you can download it here
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0
 #
@@ -30,7 +30,7 @@
 
 """
 Service Layer for the Project entity.
-   
+
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
@@ -40,7 +40,7 @@ import copy
 import json
 import formencode
 from tvb.core import utils
-from inspect import stack
+from inspect import stack, getmro
 from tvb.basic.traits.types_mapped import MappedType
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.filters.chain import FilterChain
@@ -96,8 +96,8 @@ class ProjectService:
 
 
     def store_project(self, current_user, is_create, selected_id, **data):
-        """ 
-        We want to create/update a project entity. 
+        """
+        We want to create/update a project entity.
         """
         #Validate Unique Name
         new_name = data["name"]
@@ -136,7 +136,7 @@ class ProjectService:
 
         #Retrieve, to initialize lazy attributes
         current_proj = dao.get_project_by_id(current_proj.id)
-        #Update share settings on current Project entity 
+        #Update share settings on current Project entity
         visited_pages = []
         prj_admin = current_proj.administrator.username
         if 'visited_pages' in data and data['visited_pages']:
@@ -154,8 +154,8 @@ class ProjectService:
 
 
     def find_project(self, project_id):
-        """ 
-        Simply retrieve Project entity from Database. 
+        """
+        Simply retrieve Project entity from Database.
         """
         try:
             return dao.get_project_by_id(project_id)
@@ -215,12 +215,10 @@ class ProjectService:
                         datatype = dao.get_datatype_by_id(datatype_group.id)
                         result["datatype_group_gid"] = datatype.gid
                         result["gid"] = operation_group.gid
-                        
-                        all_categs = dao.get_algorithm_categories()
+
+                        ## Filter only viewers for DataTypeGroup
                         view_categ = dao.get_visualisers_categories()[0]
-                        excludes = [categ.id for categ in all_categs if categ.id != view_categ.id]
-                        algo = self.retrieve_launchers("DataTypeGroup", datatype.gid,
-                                                       exclude_categories=excludes).values()[0]
+                        algo = self.retrieve_launchers(datatype.gid, include_categories=[view_categ.id]).values()[0]
 
                         view_groups = []
                         for algo in algo.values():
@@ -277,7 +275,7 @@ class ProjectService:
                         figures_folder = self.structure_helper.get_images_folder(figure.project.name,
                                                                                  figure.operation.id)
                         figure_full_path = os.path.join(figures_folder, figure.file_path)
-                        # Compute the path available from browser 
+                        # Compute the path available from browser
                         figure.figure_path = utils.path2url_part(figure_full_path)
 
                     result['figures'] = operation_figures
@@ -553,8 +551,8 @@ class ProjectService:
     def get_datatype_details(datatype_gid):
         """
         :returns: an array. First entry in array is an instance of DataTypeOverlayDetails\
-            The second one contains all the possible states for the specified dataType.        
-                  
+            The second one contains all the possible states for the specified dataType.
+
         """
         meta_atts = DataTypeOverlayDetails()
         states = DataTypeMetaData.STATES
@@ -625,7 +623,7 @@ class ProjectService:
 
     def remove_operation(self, operation_id):
         """
-        Remove a given operation 
+        Remove a given operation
         """
         operation = dao.get_operation_by_id(operation_id)
         if operation is not None:
@@ -635,7 +633,7 @@ class ProjectService:
             dao.remove_entity(model.Operation, operation.id)
         else:
             self.logger.warning("Attempt to delete operation with id=%s which no longer exists." % operation_id)
-        
+
 
     def remove_datatype(self, project_id, datatype_gid, skip_validation=False):
         """
@@ -693,68 +691,73 @@ class ProjectService:
             dao.store_entity(user)
 
 
-    def retrieve_launchers(self, dataname, datatype_gid=None, inspect_group=False, exclude_categories=None):
+    def retrieve_launchers(self, datatype_gid, inspect_group=False, include_categories=None):
         """
         Returns all the available launch-able algorithms from the database.
         Filter the ones accepting as required input a specific DataType.
 
-        :param dataname: String or class representing DataType to retrieve filters for it.
-        :param datatype_gid: Optional GID, to filter algorithms for this particular entity.
+        :param datatype_gid: GID, to filter algorithms for this particular entity.
         :param inspect_group: TRUE if we are now in the inspection of sub-entities in a DataTypeGroup
-        :param exclude_categories: List of categories to be excluded from the result.
+        :param include_categories: List of categories to be included in the result.
+                When None, all lanchable categories are included
         """
-        if exclude_categories is None:
-            exclude_categories = []
-        launch_categ = dao.get_launchable_categories()
-        launch_categ = dict((categ.id, categ.displayname) for categ in launch_categ
-                            if categ.id not in exclude_categories)
-        launch_groups = dao.get_apliable_algo_groups(dataname, launch_categ.keys())
-
-        if datatype_gid is None:
-            return ProjectService.__prepare_group_result(launch_groups, launch_categ, inspect_group)
-
         try:
+            all_launch_categ = dao.get_launchable_categories()
+            launch_categ = dict((categ.id, categ.displayname) for categ in all_launch_categ
+                                if include_categories is None or categ.id in include_categories)
+
             datatype_instance = dao.get_datatype_by_gid(datatype_gid)
             data_class = datatype_instance.__class__
-            for one_class in data_class.__bases__:
-                launch_groups.extend(dao.get_apliable_algo_groups(one_class.__name__, launch_categ.keys()))
-            specific_datatype = dao.get_generic_entity(data_class, datatype_gid, "gid")
+            all_compatible_classes = [data_class.__name__]
+            for one_class in getmro(data_class):
+                if issubclass(one_class, MappedType) and one_class.__name__ not in all_compatible_classes:
+                    all_compatible_classes.append(one_class.__name__)
+
+            launchable_groups = dao.get_apliable_algo_groups(all_compatible_classes, launch_categ.keys())
+
             to_remove = []
-            for one_group in launch_groups:
-                valid_algorithms = []
+            for one_group in launchable_groups:
+                compatible_algorithms = []
                 for one_algo in one_group.children:
                     filter_chain = FilterChain.from_json(one_algo.datatype_filter)
-                    if not filter_chain or filter_chain.get_python_filter_equivalent(specific_datatype[0]):
-                        valid_algorithms.append(one_algo)
-                if len(valid_algorithms) > 0:
-                    one_group.children = copy.deepcopy(valid_algorithms)
+                    if not filter_chain or filter_chain.get_python_filter_equivalent(datatype_instance):
+                        compatible_algorithms.append(one_algo)
+                if len(compatible_algorithms) > 0:
+                    one_group.children = copy.deepcopy(compatible_algorithms)
                 else:
                     to_remove.append(one_group)
-            for one_group in to_remove:
-                launch_groups.remove(one_group)
-                del one_group
-            launchers = ProjectService.__prepare_group_result(launch_groups, launch_categ, inspect_group)
 
-            if dataname == model.DataTypeGroup.__name__:
-                # If part of a group, update also with specific launchers of that datatype
+            for one_group in to_remove:
+                launchable_groups.remove(one_group)
+                del one_group
+
+            launchers = ProjectService.__prepare_group_result(launchable_groups, launch_categ, inspect_group)
+
+            if data_class.__name__ == model.DataTypeGroup.__name__:
+                # If part of a group, update also with specific launchers of the child datatype
                 dt_group = dao.get_datatype_group_by_gid(datatype_gid)
                 datatypes = dao.get_datatypes_from_datatype_group(dt_group.id)
                 if len(datatypes):
                     datatype = datatypes[-1]
                     datatype = dao.get_datatype_by_gid(datatype.gid)
+
                     views_categ_id = dao.get_visualisers_categories()[0].id
-                    specific_launchers = self.retrieve_launchers(datatype.__class__.__name__, datatype.gid,
-                                                                 True, [views_categ_id] + exclude_categories)
-                    for key in specific_launchers:
-                        if key in launchers:
-                            launchers[key].update(specific_launchers[key])
-                        else:
-                            launchers[key] = specific_launchers[key]
+                    categories_for_small_type = [categ.id for categ in all_launch_categ
+                                                 if categ.id != views_categ_id and (include_categories is None or
+                                                                                    categ.id in include_categories)]
+                    if categories_for_small_type is not None:
+                        specific_launchers = self.retrieve_launchers(datatype.gid, True, categories_for_small_type)
+                        for key in specific_launchers:
+                            if key in launchers:
+                                launchers[key].update(specific_launchers[key])
+                            else:
+                                launchers[key] = specific_launchers[key]
             return launchers
+
         except Exception, excep:
             ProjectService().logger.exception(excep)
-            ProjectService().logger.warning("Attempting to filter launcher  for group despite exception!")
-            return ProjectService.__prepare_group_result(launch_groups, launch_categ, inspect_group)
+            ProjectService().logger.warning("Attempting to filter launcher for group despite exception!")
+            return ProjectService.__prepare_group_result([], [], inspect_group)
 
 
     @staticmethod
@@ -980,11 +983,11 @@ class ProjectService:
     def get_datatypegroup_by_gid(datatypegroup_gid):
         """ Returns the DataTypeGroup with the specified gid. """
         return dao.get_datatype_group_by_gid(datatypegroup_gid)
-    
+
     @staticmethod
     def count_datatypes_generated_from(datatype_gid):
         """
-        A list with all the datatypes resulted from operations that had as 
+        A list with all the datatypes resulted from operations that had as
         input the datatype given by 'datatype_gid'.
         """
         return dao.count_datatypes_generated_from(datatype_gid)
@@ -1013,5 +1016,5 @@ class ProjectService:
     def is_datatype_group(datatype_gid):
         """ Used to check if the dataType with the specified GID is a DataTypeGroup. """
         return dao.is_datatype_group(datatype_gid)
-    
-    
+
+

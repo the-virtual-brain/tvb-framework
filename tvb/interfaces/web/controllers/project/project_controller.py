@@ -353,8 +353,7 @@ class ProjectController(bc.BaseController):
         datatype_gid = datatype_details.gid
         categories = {}
         if not entity.invalid:
-            categories = self.getalgorithmsfordatatype(str(current_type), str(datatype_gid))
-            categories = json.loads(categories)
+            categories = self._get_algorithms_for_datatype(str(datatype_gid))
 
         datatype_id = datatype_details.data_type_id
         is_group = False
@@ -434,6 +433,24 @@ class ProjectController(bc.BaseController):
         #template_specification[bc.KEY_OVERLAY_PREVIOUS] = "alert(1);"
         #template_specification[bc.KEY_OVERLAY_NEXT] = "alert(2);"
         return FlowController().fill_default_attributes(template_specification)
+
+
+    def _get_algorithms_for_datatype(self, datatype_gid):
+        """
+        Retrieve the available algorithms for a DataType as a JSON, will be used for creating overlay context.
+        We will return a dictionary, grouped by category.
+        """
+        algorithms = self.project_service.retrieve_launchers(datatype_gid)
+        for category in algorithms:
+            available_launchers = algorithms[category]
+            for launcher in available_launchers:
+                info = available_launchers[launcher]
+                if info['part_of_group'] is False:
+                    info['url'] = self.get_url_adapter(info['category'], info['id'])
+                else:
+                    info['url'] = '/flow/prepare_group_launch/' + datatype_gid + '/' + str(
+                        info['category']) + '/' + str(info['id'])
+        return algorithms
 
 
     @cherrypy.expose
@@ -642,28 +659,6 @@ class ProjectController(bc.BaseController):
                     linked_result[project.id] = project.name
             return to_link_result, linked_result
         return to_link_result
-
-
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
-    def getalgorithmsfordatatype(self, dataname, datatype_gid):
-        """
-        Retrieve the available algorithms for a DataType as a JSON, will
-        be used for creating menu items for the context-menu.
-        We will return a dictionary, grouped by category.
-        """
-        algorithms = self.project_service.retrieve_launchers(dataname, datatype_gid)
-        for category in algorithms:
-            available_launchers = algorithms[category]
-            for launcher in available_launchers:
-                info = available_launchers[launcher]
-                if info['part_of_group'] is False:
-                    info['url'] = self.get_url_adapter(info['category'], info['id'])
-                else:
-                    info['url'] = '/flow/prepare_group_launch/' + datatype_gid + '/' + str(
-                        info['category']) + '/' + str(info['id'])
-        return algorithms
 
 
     @cherrypy.expose
