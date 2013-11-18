@@ -43,7 +43,6 @@ from tvb_test.core.services import import_service_test
 from tvb_test.core.services import workflow_service_test
 from tvb_test.core.services import operation_service_test
 from tvb_test.core.services import remove_test
-from tvb_test.core.services import dti_pipeline_service_test
 
 
 def suite():
@@ -62,7 +61,6 @@ def suite():
     test_suite.addTest(workflow_service_test.suite())
     test_suite.addTest(operation_service_test.suite())
     test_suite.addTest(remove_test.suite())
-    test_suite.addTest(dti_pipeline_service_test.suite())
     return test_suite
 
 

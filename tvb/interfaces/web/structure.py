@@ -140,7 +140,6 @@ class WebStructure(object):
         SUB_SECTION_LIST_PROJECTS: "List",
         SUB_SECTION_PROPERTIES_PROJECT: "Properties",
         SUB_SECTION_FIGURES: "Image Archive",
-        SUB_SECTION_PIPELINE: "DTI Pipeline",
 
         SUB_SECTION_BURST: "",
         SUB_SECTION_MODEL_REGIONS: "Region Model Parameters",

@@ -186,18 +186,3 @@ class RemoveDataTypeError(ServicesBaseException):
 
     def __init__(self, message):
         ServicesBaseException.__init__(self, message)
-
-
-
-class ConnectException(ServicesBaseException):
-    """ 
-    Exception to be thrown when DTI Pipeline error happened.  
-    """
-    pass
-
-
-
-
-
-
-        

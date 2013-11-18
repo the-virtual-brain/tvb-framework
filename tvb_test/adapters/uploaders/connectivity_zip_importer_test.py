@@ -31,9 +31,9 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
-import os
+from os import path
 import unittest
-import demo_data.connectivity as dataset
+import demo_data
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -47,15 +47,27 @@ class ConnectivityZipTest(TransactionalTestCase):
     """
     Unit-tests for CFF-importer.
     """
-    
+
     def setUp(self):
         """
         Reset the database before each test.
         """
         self.test_user = TestFactory.create_user('CFF_User')
         self.test_project = TestFactory.create_project(self.test_user, "CFF_Project")
-        
-    
+
+    @staticmethod
+    def import_test_connectivity96(test_user, test_project, subject=DataTypeMetaData.DEFAULT_SUBJECT):
+        group = dao.find_group('tvb.adapters.uploaders.zip_connectivity_importer', 'ZIPConnectivityImporter')
+        importer = ABCAdapter.build_adapter(group)
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: subject,
+                              DataTypeMetaData.KEY_STATE: "RAW"}
+
+        data_dir = path.abspath(path.dirname(demo_data.__file__))
+        zip_path = path.join(data_dir, 'connectivity', 'connectivity_regions_96.zip')
+        ### Launch Operation
+        FlowService().fire_operation(importer, test_user, test_project.id, uploaded=zip_path)
+
+
     def test_happy_flow_import(self):
         """
         Test that importing a CFF generates at least one DataType in DB.
@@ -63,15 +75,17 @@ class ConnectivityZipTest(TransactionalTestCase):
         dt_count_before = TestFactory.get_entity_count(self.test_project, Connectivity())
         group = dao.find_group('tvb.adapters.uploaders.zip_connectivity_importer', 'ZIPConnectivityImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
+                              DataTypeMetaData.KEY_STATE: "RAW"}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'connectivity_regions_96.zip')
         args = {'uploaded': zip_path}
         
         ### Launch Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
         dt_count_after = TestFactory.get_entity_count(self.test_project, Connectivity())
-        self.assertTrue(dt_count_after == dt_count_before + 1)
-    
+        self.assertEqual(dt_count_before + 1, dt_count_after)
+
+
         
 def suite():
     """

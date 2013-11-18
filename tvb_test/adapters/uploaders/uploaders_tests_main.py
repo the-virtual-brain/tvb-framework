@@ -42,7 +42,7 @@ from tvb_test.adapters.uploaders import region_mapping_importer_test
 from tvb_test.adapters.uploaders import projection_matrix_importer_test
 from tvb_test.adapters.uploaders import connectivity_zip_importer_test
 from tvb_test.adapters.uploaders import lookuptable_importer_test
-
+from tvb_test.adapters.uploaders import csv_importer_test
 
 def suite():
     """
@@ -58,6 +58,7 @@ def suite():
     test_suite.addTest(projection_matrix_importer_test.suite())
     test_suite.addTest(connectivity_zip_importer_test.suite())
     test_suite.addTest(lookuptable_importer_test.suite())
+    test_suite.addTest(csv_importer_test.suite())
     return test_suite
 
 

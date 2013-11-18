@@ -68,7 +68,6 @@ from tvb.interfaces.web.controllers.users_controller import UserController
 from tvb.interfaces.web.controllers.help.help_controller import HelpController
 from tvb.interfaces.web.controllers.project.project_controller import ProjectController
 from tvb.interfaces.web.controllers.project.figure_controller import FigureController
-from tvb.interfaces.web.controllers.project.dti_pipeline_controller import DTIPipelineController
 from tvb.interfaces.web.controllers.flow_controller import FlowController
 from tvb.interfaces.web.controllers.settings_controller import SettingsController
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
@@ -113,7 +112,6 @@ def init_cherrypy(arguments=None):
     cherrypy.tree.mount(FigureController(), "/project/figure/", config=CONFIGUER)
     cherrypy.tree.mount(FlowController(), "/flow/", config=CONFIGUER)
     cherrypy.tree.mount(SettingsController(), "/settings/", config=CONFIGUER)
-    cherrypy.tree.mount(DTIPipelineController(), "/pipeline/", config=CONFIGUER)
     cherrypy.tree.mount(HelpController(), "/help/", config=CONFIGUER)
     cherrypy.tree.mount(BurstController(), "/burst/", config=CONFIGUER)
     cherrypy.tree.mount(ParameterExplorationController(), "/burst/explore/", config=CONFIGUER)
