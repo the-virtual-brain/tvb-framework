@@ -78,8 +78,7 @@ class ProjectionMatrixTest(TransactionalTestCase):
         group = dao.find_group('tvb.adapters.uploaders.projection_matrix_importer', 
                                'ProjectionMatrixRegionEEGImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 
                                 'region_conn_74_eeg_1020_62.mat')
         args = {'projection_file': zip_path, 'dataset_name': 'ProjectionMatrix',
@@ -97,8 +96,7 @@ class ProjectionMatrixTest(TransactionalTestCase):
         group = dao.find_group('tvb.adapters.uploaders.projection_matrix_importer', 
                                'ProjectionMatrixSurfaceEEGImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 
                                 'region_conn_74_eeg_1020_62.mat')
         args = {'projection_file': zip_path, 'dataset_name': 'ProjectionMatrix',

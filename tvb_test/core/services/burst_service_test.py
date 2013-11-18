@@ -836,7 +836,7 @@ class BurstServiceTest(BaseTestCase):
         """
         Create a connectivity that will be used in "non-dummy" burst launches (with the actual simulator).
         """
-        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW"}
+        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW_DATA"}
         algorithm, algo_group = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
         self.operation = model.Operation(self.test_user.id, self.test_project.id, algo_group.id, json.dumps(''),
                                          meta=json.dumps(meta), status=model.STATUS_STARTED,

@@ -96,8 +96,7 @@ class TVBImporterTest(TransactionalTestCase):
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.tvb_importer', 'TVBImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: "",
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: ""}
 
         args = {'data_file': import_file_path}
 

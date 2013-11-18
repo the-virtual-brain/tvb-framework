@@ -86,7 +86,7 @@ class TimeSeriesMetricsAdapterTest(TransactionalTestCase):
         """
         Test that the adapters launches and successfully generates a datatype measure entry.
         """
-        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW"}
+        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW_DATA"}
         algo_group = FlowService().get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)[1]
         self.operation = model.Operation(self.test_user.id, self.test_project.id, algo_group.id, json.dumps(''),
                                          meta=json.dumps(meta), status=model.STATUS_STARTED,

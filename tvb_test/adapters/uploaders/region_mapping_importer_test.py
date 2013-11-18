@@ -109,8 +109,7 @@ class RegionMappingImporterTest(TransactionalTestCase):
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.region_mapping_importer', 'RegionMapping_Importer')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: "test",
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: "test"}
         
         args = {'mapping_file': import_file_path, 'surface': surface_gid, 'connectivity': connectivity_gid}
         

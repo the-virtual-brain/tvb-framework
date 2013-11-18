@@ -63,8 +63,7 @@ class ConnectivityZipTest(TransactionalTestCase):
         dt_count_before = TestFactory.get_entity_count(self.test_project, Connectivity())
         group = dao.find_group('tvb.adapters.uploaders.zip_connectivity_importer', 'ZIPConnectivityImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'connectivity_regions_96.zip')
         args = {'uploaded': zip_path}
         

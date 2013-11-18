@@ -192,7 +192,7 @@ class DatatypesFactory():
         """
         Create a operation entity. Return the operation, algo_id and the storage path.
         """
-        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW"}
+        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW_DATA"}
         algorithm, algo_group = FlowService().get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
         operation = model.Operation(self.user.id, self.project.id, algo_group.id, json.dumps(''), meta=json.dumps(meta),
                                     status=model.STATUS_STARTED, method_name=ABCAdapter.LAUNCH_METHOD)

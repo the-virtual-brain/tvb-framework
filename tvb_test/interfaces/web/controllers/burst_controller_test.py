@@ -316,7 +316,7 @@ class BurstContollerTest(BaseControllersTest):
         TODO: This is duplicate code from burstservice_test. Should go into the 'generic' DataType factory
         once that is done.
         """
-        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW"}
+        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW_DATA"}
         algorithm, algo_group = FlowService().get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
         self.operation = model.Operation(self.test_user.id, self.test_project.id, algo_group.id,
                                          json.dumps(''),

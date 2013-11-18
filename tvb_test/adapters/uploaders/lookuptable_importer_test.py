@@ -63,8 +63,7 @@ class LookupTableImporterTest(TransactionalTestCase):
         dt_count_before = TestFactory.get_entity_count(self.test_project, PsiTable())
         group = dao.find_group('tvb.adapters.uploaders.lookup_table_importer', 'LookupTableImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'psi.npz')
         args = {'psi_table_file': zip_path, 'table_type': 'Psi Table'}
         ### Launch Operation
@@ -80,8 +79,7 @@ class LookupTableImporterTest(TransactionalTestCase):
         dt_count_before = TestFactory.get_entity_count(self.test_project, NerfTable())
         group = dao.find_group('tvb.adapters.uploaders.lookup_table_importer', 'LookupTableImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'nerf_int.npz')
         args = {'psi_table_file': zip_path, 'table_type': 'Nerf Table'}
         ### Launch Operation

@@ -135,7 +135,7 @@ class TestFactory():
             test_project = TestFactory.create_project(test_user)
             
         meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe",
-                DataTypeMetaData.KEY_STATE: "RAW"}
+                DataTypeMetaData.KEY_STATE: "RAW_DATA"}
         operation = model.Operation(test_user.id, test_project.id, algorithm.id, parameters, meta=json.dumps(meta),
                                     status=operation_status, method_name=ABCAdapter.LAUNCH_METHOD)
         dao.store_entity(operation)
@@ -159,8 +159,7 @@ class TestFactory():
         algo = dao.get_algorithm_by_group(algo_group.id) 
         
         adapter_inst = TestFactory.create_adapter(algo_group=algo_group, test_project=test_project)
-        adapter_inst.meta_data = {DataTypeMetaData.KEY_SUBJECT: subject,
-                                  DataTypeMetaData.KEY_STATE: "INTERMEDIATE"}
+        adapter_inst.meta_data = {DataTypeMetaData.KEY_SUBJECT: subject}
         args = {model.RANGE_PARAMETER_1: 'param_5', 'param_5': [1, 2]}
         
         ### Prepare Operations group. Execute them synchronously
@@ -246,8 +245,7 @@ class TestFactory():
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.cff_importer', 'CFF_Importer')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         args = {'cff': cff_path}
         
         ### Launch Operation
@@ -259,8 +257,7 @@ class TestFactory():
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.zip_surface_importer', 'ZIPSurfaceImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         args = {'uploaded': zip_path, 'surface_type': surface_type,
                 'zero_based_triangles': zero_based}
         
@@ -273,8 +270,7 @@ class TestFactory():
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.sensors_importer', 'Sensors_Importer')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT,
-                              DataTypeMetaData.KEY_STATE: "RAW"}
+        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         args = {'sensors_file': zip_path, 'sensors_type': sensors_type}
         ### Launch Operation
         FlowService().fire_operation(importer, user, project.id, **args)

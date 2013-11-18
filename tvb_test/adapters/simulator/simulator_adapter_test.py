@@ -102,7 +102,7 @@ class SimulatorAdapterTest(TransactionalTestCase):
         data = dict(name='test_proj', description='desc', users=[])
         self.test_project = ProjectService().store_project(self.test_user, True, None, **data)
         meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe",
-                DataTypeMetaData.KEY_STATE: "RAW"}
+                DataTypeMetaData.KEY_STATE: "INTERMEDIATE"}
         algo_group = dao.find_group(SIMULATOR_MODULE, SIMULATOR_CLASS)
         self.simulator_adapter = FlowService().build_adapter_instance(algo_group)
                                             

@@ -545,7 +545,7 @@ class ProjectStructureTest(TransactionalTestCase):
         """
         algorithm = dao.get_algorithm_by_id(algorithm_id)
         meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe",
-                DataTypeMetaData.KEY_STATE: "RAW"}
+                DataTypeMetaData.KEY_STATE: "RAW_DATA"}
         operation = model.Operation(self.test_user.id, project_id, algorithm.id, 'test params',
                                     meta=json.dumps(meta), status=model.STATUS_FINISHED,
                                     method_name=ABCAdapter.LAUNCH_METHOD)
