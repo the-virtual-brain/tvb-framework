@@ -253,8 +253,9 @@ function replaceSelect(parentDiv, newSelect, selectName) {
 
 /**
  * Filter fields which are linked with current entity.
- * @param {Object} linkedDataList list of lists.
- * @param {Object} currentSelected GID for current input
+ * @param {list} linkedDataList list of lists.
+ * @param {string} currentSelectedGID for current input
+ * @param {string} treeSessionKey Key
  */
 function filterLinked(linkedDataList, currentSelectedGID, treeSessionKey) {
     if (currentSelectedGID.length < 1) {
@@ -265,8 +266,15 @@ function filterLinked(linkedDataList, currentSelectedGID, treeSessionKey) {
         var filterData = {'fields': [filterField],
             'operations': ["in"],
             'values': [currentSelectedGID.split(' ')]};
+
+
+        if (!linkedDataList[i]['linked_elem_parent_name'] && !linkedDataList[i]['linked_elem_parent_option']) {
+            refreshData("", linkedDataList[i]['linked_elem_name'] + 'data_select', linkedDataList[i]['linked_elem_name'], treeSessionKey, filterData);
+        }
+
         var linkedInputName = linkedDataList[i]['linked_elem_parent_name'] + "_parameters_option_";
         var parentDivID = 'data_' + linkedDataList[i]['linked_elem_parent_name'];
+
         if (linkedDataList[i]['linked_elem_parent_option']) {
             linkedInputName = linkedInputName + linkedDataList[i]['linked_elem_parent_option'] + "_" + linkedDataList[i]['linked_elem_name'];
             parentDivID = parentDivID + linkedDataList[i]['linked_elem_parent_option'];
@@ -276,7 +284,7 @@ function filterLinked(linkedDataList, currentSelectedGID, treeSessionKey) {
                 if ($(this)[0].id.indexOf("_" + linkedDataList[i]['linked_elem_name']) < 0) {
                     return;
                 }
-                ;
+
                 var option_name = $(this)[0].id.replace("_" + linkedDataList[i]['linked_elem_name'], '').replace(linkedInputName, '');
                 linkedInputName = $(this)[0].id;
                 parentDivID = parentDivID + option_name;
