@@ -99,21 +99,27 @@ function drawConnectivity(json, shouldRefreshNodes) {
     	selection_empty = false;
     	rootNode = first_json_node;
     }
-    //load graph.
-    if (shouldRefreshNodes) {
-        rgraph.loadJSON(json, rootNode);
-    } else {
-        rgraph.loadJSON(json, 1);
+
+    if (selection_empty) {
+        rgraph.loadJSON([{id:'root', name:'SELECT A NODE FROM THIS HEMISPHERE'}]);
+    }else{
+        //load graph.
+        if (shouldRefreshNodes) {
+            rgraph.loadJSON(json, rootNode);
+        } else {
+            rgraph.loadJSON(json, 1);
+        }
+
+        // remove all the nodes that were not selected by the user
+
+        rgraph.graph.eachNode(function(node) {
+            if (shouldRefreshNodes && selectedPoints.length > 0 && !isNodeSelected(node.id)) {
+                rgraph.graph.removeNode(node.id);
+            }
+        });
+
     }
 
-    // remove all the nodes that were not selected by the user
-    if (selection_empty == false) {
-	    rgraph.graph.eachNode(function(node) {
-	        if (shouldRefreshNodes && selectedPoints.length > 0 && !isNodeSelected(node.id)) {
-	            rgraph.graph.removeNode(node.id);
-	        }
-	    });    	
-    }
     //compute positions and plot
     rgraph.refresh();
     rgraph.plot();
