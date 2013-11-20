@@ -28,6 +28,10 @@
 #
 #
 
+"""
+.. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
+"""
+
 import json
 from tvb.basic.filters.chain import UIFilter, FilterChain
 from tvb.basic.traits.core import KWARG_FILTERS_UI
@@ -38,10 +42,12 @@ from tvb.datatypes.surfaces_data import SurfaceData
 
 class SurfaceViewer(ABCDisplayer):
     """
-    SurfaceData visualizer
+    Static SurfaceData visualizer - for visual inspecting imported surfaces in TVB.
+    Optionally it can display associated RegionMapping entities.
     """
+    _ui_name = "Surface Visualizer"
+    _ui_subsection = "surface"
 
-    _ui_name = "SurfaceData Visualizer"
     def get_input_tree(self):
         ui_filter = UIFilter(linked_elem_name="region_map",
                              linked_elem_field=FilterChain.datatype + "._surface")
@@ -50,11 +56,10 @@ class SurfaceViewer(ABCDisplayer):
 
         return [{'name': 'surface', 'label': 'Brain surface',
                  'type': SurfaceData, 'required': True,
-                 'description': '',
-                 KWARG_FILTERS_UI : json_ui_filter},
+                 'description': '', KWARG_FILTERS_UI: json_ui_filter},
                 {'name': 'region_map', 'label': 'region mapping',
                  'type': RegionMapping, 'required': False,
-                 'description': 'A region map' }]
+                 'description': 'A region map'}]
 
 
     def compute_parameters(self, surface, region_map):
@@ -79,9 +84,13 @@ class SurfaceViewer(ABCDisplayer):
                     urlMeasurePointsLabels=url_measure_points_labels, boundaryURL=boundary_url,
                     extended_view=False, isOneToOneMapping=False, hasRegionMap=region_map is not None)
 
+
     def launch(self, surface, region_map=None):
         params = self.compute_parameters(surface, region_map)
-        return self.build_display_result("brain/surface_view", params, pages={"controlPage":"brain/surface_viewer_controls"})
+        return self.build_display_result("brain/surface_view", params,
+                                         pages={"controlPage": "brain/surface_viewer_controls"})
+
 
     def get_required_memory_size(self):
         return -1
+

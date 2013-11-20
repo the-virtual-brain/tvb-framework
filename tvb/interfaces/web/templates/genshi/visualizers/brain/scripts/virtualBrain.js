@@ -74,11 +74,6 @@ var MAX_TIME_STEP = 0;
 var NO_OF_MEASURE_POINTS = 0;
 var NEXT_PAGE_THREASHOLD = 100;
 
-var GL_DEFAULT_Z_POS = 250;
-var GL_currentRotationMatrix;
-var GL_zTranslation;
-var NAV_navigatorX, NAV_navigatorY, GL_lastMouseX, GL_lastMouseY;
-
 var displayMeasureNodes = false;
 
 var activityMin = 0, activityMax = 0;
@@ -87,9 +82,10 @@ var isDoubleView = false;
 var isMovie = true;
 var drawingMode;
 
+GL_DEFAULT_Z_POS = 250;
 
 function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesList, urlNormalsList,
-                              urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
+                                urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
 	isPreview = true;
 	GL_zTranslation = GL_DEFAULT_Z_POS;
 	pageSize = 1;
@@ -122,9 +118,9 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
     setInterval(tick, TICK_STEP);
 }
 
-function VS_StartRegionViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints, 
-                              noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                              boundaryURL){
+function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
+                               noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
+                               boundaryURL){
     // initialize global configuration
     isPreview = false;
     isDoubleView = false;
@@ -165,7 +161,7 @@ function VS_StartRegionViewer(urlVerticesList, urlLinesList, urlTrianglesList, u
     }
 }
 
-function VS_StartTimeSeriesViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList, 
+function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
                     urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, 
                     oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
@@ -438,7 +434,7 @@ function updateColors(currentTimeValue) {
         }
     } else {
         for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-        	var rgb = getGradientColor(activitiesData[currentTimeInFrame][i], activityMin, activityMax)
+        	var rgb = getGradientColor(activitiesData[currentTimeInFrame][i], activityMin, activityMax);
             gl.uniform4f(shaderProgram.colorsUniform[i], rgb[0], rgb[1], rgb[2], 1);
         }
         // default color for a measure point
@@ -476,7 +472,7 @@ function addLight() {
 function toggleMeasureNodes() {
     displayMeasureNodes = ! displayMeasureNodes;
     if (displayMeasureNodes && isDoubleView) {
-        $("input[type=checkbox][id^='channelChk_']").each(function (i) {
+        $("input[type=checkbox][id^='channelChk_']").each(function () {
             if (this.checked) {
                 var index = this.id.split("channelChk_")[1];
                 EX_changeColorBufferForMeasurePoint(index, true);

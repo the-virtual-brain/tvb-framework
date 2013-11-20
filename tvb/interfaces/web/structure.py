@@ -114,6 +114,7 @@ class WebStructure(object):
     SUB_SECTION_VIEW_16 = "view_timeseries"
     SUB_SECTION_VIEW_17 = "view_topography"
     SUB_SECTION_VIEW_18 = "view_wavelet"
+    SUB_SECTION_VIEW_19 = "view_surface"
 
 
     ### Texts to appear in HTML page headers as section-title.
@@ -190,7 +191,8 @@ class WebStructure(object):
         SUB_SECTION_VIEW_15: "Isocline PSE Viewer",
         SUB_SECTION_VIEW_16: "TimeSeries Viewer",
         SUB_SECTION_VIEW_17: "Topography Viewer",
-        SUB_SECTION_VIEW_18: "Wavelet Viewer"
+        SUB_SECTION_VIEW_18: "Wavelet Viewer",
+        SUB_SECTION_VIEW_19: "Surface Viewer"
     }
 
 
@@ -216,7 +218,8 @@ class WebStructure(object):
         SUB_SECTION_VIEW_15: "isocline-pse-visualizer",
         SUB_SECTION_VIEW_16: "time-series-visualizer-svg-d3",
         SUB_SECTION_VIEW_17: "topographic-visualizer",
-        SUB_SECTION_VIEW_18: "wavelet-spectrogram-visualizer"
+        SUB_SECTION_VIEW_18: "wavelet-spectrogram-visualizer",
+        SUB_SECTION_VIEW_19: "surface-visualizer"
     }
 
 

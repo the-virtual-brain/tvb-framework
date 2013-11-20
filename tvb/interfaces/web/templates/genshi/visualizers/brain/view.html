@@ -125,7 +125,7 @@
                 return false; // prevent default
             });
 
-            VS_StartTimeSeriesViewer('${base_activity_url}', ${pageSize}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
+            VS_StartBrainActivityViewer('${base_activity_url}', ${pageSize}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
                         $noOfMeasurePoints, '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}',
                         ${'true' if extended_view else 'false'}, ${"'" + shelfObject +"'" if shelfObject else 'null'}, '${urlMeasurePointsLabels}', 
                         '${boundary_url}');
@@ -173,6 +173,5 @@
         <li>SPACE key to have a top view.</li>
         <li>Cursor Keys to quickly rotate brain.</li>
         <li>Mouse wheel to zoom in/out the brain.</li>
-        <li>Left cursor key and the right bottom corner of the canvas to resize it.</li>
     </ul>
 </div>

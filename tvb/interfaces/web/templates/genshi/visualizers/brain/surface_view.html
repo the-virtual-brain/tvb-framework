@@ -112,7 +112,7 @@
                 return false; // prevent default
             });
 
-            VS_StartRegionViewer('${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${urlMeasurePoints}',
+            VS_StartSurfaceViewer('${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${urlMeasurePoints}',
                               '${noOfMeasurePoints}', '${urlAlphas}', '${urlAlphasIndices}', '${urlMeasurePointsLabels}',
                               '${boundaryURL}');
         });
@@ -157,6 +157,5 @@
         <li>SPACE key to have a top view.</li>
         <li>Cursor Keys to quickly rotate brain.</li>
         <li>Mouse wheel to zoom in/out the brain.</li>
-        <li>Left cursor key and the right bottom corner of the canvas to resize it.</li>
     </ul>
 </div>
