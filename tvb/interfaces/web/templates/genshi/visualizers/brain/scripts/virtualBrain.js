@@ -83,7 +83,7 @@ var isDoubleView = false;
 var drawingMode;
 
 
-function _webGLPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesList, urlNormalsList,
+function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesList, urlNormalsList,
                               urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
 	isPreview = true;
 	GL_DEFAULT_Z_POS = 250;
@@ -118,66 +118,90 @@ function _webGLPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesList
     setInterval(tick, TICK_STEP);
 }
 
-function _webGLStart(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
-                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
+function VS_StartTimeSeriesViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList, 
+                    urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
+                    urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, 
+                    oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
+    // initialize global configuration    
 	isPreview = false;
     isDoubleView = doubleView;
-    GL_DEFAULT_Z_POS = 250;
-    if (isDoubleView) {
-    	GL_currentRotationMatrix = createRotationMatrix(270, [1, 0, 0]).x(createRotationMatrix(270, [0, 0, 1]));
-    	GL_DEFAULT_Z_POS = 300;
-    	$("#displayFaceChkId").trigger('click');
-    }
-    GL_zTranslation = GL_DEFAULT_Z_POS;
-    
-    if (noOfMeasurePoints > 0) {
-	    measurePoints = HLPR_readJSONfromFile(urlMeasurePoints);
-        measurePointsLabels = HLPR_readJSONfromFile(urlMeasurePointsLabels);
-	    NO_OF_MEASURE_POINTS = measurePoints.length;
-	} else if (noOfMeasurePoints < 0) {
-		measurePoints = $.parseJSON(urlMeasurePoints);
-		measurePointsLabels = HLPR_readJSONfromFile(urlMeasurePointsLabels);
-	    NO_OF_MEASURE_POINTS = measurePoints.length;
-	} else {
-		NO_OF_MEASURE_POINTS = 0;
-		measurePoints = [];
-		measurePointsLabels = [];
-	}
-    
-    var timeUrls = $.parseJSON(urlTimeList);
-    for (var i = 0; i < timeUrls.length; i++) {
-    	timeData = timeData.concat(HLPR_readJSONfromFile(timeUrls[i]));
-    }
-    
-	pageSize = onePageSize;
-	urlBase = baseDatatypeURL;
-	initActivityData();
-
     if (oneToOneMapping == 'True') {
         isOneToOneMapping = true;
     }
     activityMin = parseFloat(minActivity);
     activityMax = parseFloat(maxActivity);
+    pageSize = onePageSize;
+    urlBase = baseDatatypeURL;
+
+    // initialize global data    
+    _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePointsLabels);
+    _initTimeData(urlTimeList);    
+    initActivityData();
+
+    if (isDoubleView) {
+        GL_currentRotationMatrix = createRotationMatrix(270, [1, 0, 0]).x(createRotationMatrix(270, [0, 0, 1]));
+        GL_DEFAULT_Z_POS = 300;
+        $("#displayFaceChkId").trigger('click');
+    }else{
+       GL_DEFAULT_Z_POS = 250;
+    }
+
+    GL_zTranslation = GL_DEFAULT_Z_POS;
     
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
+    
+    _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList, 
+                  urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject);
+    _bindEvents(canvas);
+
+    if (!isPreview) {
+        _initSliders();
+    }
+
+    //specify the re-draw function.
+    if (_isValidActivityData()){
+        setInterval(tick, TICK_STEP);
+    }
+}
+
+function _isValidActivityData(){
+    if(isOneToOneMapping){
+        if(3 * activitiesData[0].length !== brainBuffers[0][0].numItems ){            
+            displayMessage("The number of activity points should equal the number of surface vertices", "errorMessage");
+            return false;
+        }
+    } else {
+        if (NO_OF_MEASURE_POINTS !== activitiesData[0].length){
+            displayMessage("The number of activity points should equal the number of regions", "errorMessage");
+            return false;
+        }
+    }
+    return true; 
+}
+
+/**
+ * Scene setup common to all webgl brain viewers
+ */
+function _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList, 
+                       urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject){
     customInitGL(canvas);
     GL_initColorPickFrameBuffer();
     initShaders();
     NAV_initBrainNavigatorBuffers();
-
     LEG_initMinMax(activityMin, activityMax);
 
     if ($.parseJSON(urlVerticesList)) {
-	    brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
-	    						   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
-    		}
+        brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
+                                   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
+    }
+
     brainLinesBuffers = HLPR_getDataBuffers(gl, $.parseJSON(urlLinesList), isDoubleView, true);
     LEG_generateLegendBuffers();
     initRegionBoundaries(boundaryURL);
     
     if (shelfObject) {
-    	shelfObject = $.parseJSON(shelfObject);
-    	shelfBuffers = initBuffers(shelfObject[0], shelfObject[1], shelfObject[2], false, false, true);
+        shelfObject = $.parseJSON(shelfObject);
+        shelfBuffers = initBuffers(shelfObject[0], shelfObject[1], shelfObject[2], false, false, true);
     }
     // Initialize the buffers for the measure points
     for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
@@ -188,65 +212,77 @@ function _webGLStart(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList,
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
+}
+
+function _bindEvents(canvas){
     // Enable keyboard and mouse interaction
     canvas.onkeydown = GL_handleKeyDown;
     canvas.onkeyup = GL_handleKeyUp;
     canvas.onmousedown = customMouseDown;
     document.onmouseup = NAV_customMouseUp;
     document.onmousemove = customMouseMove; 
-    
-    if (!isPreview) {
-	    if (timeData.length > 0) {
-	        MAX_TIME_STEP = timeData.length - 1;
-	        $("#sliderStep").slider({min:1, max: 50, step: 1,
-	            stop: function(ev, ui) {
-	            	var newStep = $("#sliderStep").slider("option", "value");
-	                setTimeStep(newStep);
-	                refreshCurrentDataSlice();
-	                sliderSel = false;
-	            },
-	            slide: function(event, ui) {
-	            	sliderSel = true;
-	            }
-	            });
-	        // Initialize slider for timeLine
-	        $("#slider").slider({ min:0, max: MAX_TIME_STEP,
-	            slide: function(event, ui) {
-	                sliderSel = true;
-	                currentTimeValue = $("#slider").slider("option", "value");
-	            },
-	            stop: function(event, ui) {
-	                sliderSel = false;
-	                loadFromTimeStep($("#slider").slider("option", "value"));
-	            } });
-	    } else {
-	        $("#fieldSetForSliderSpeed").hide();
-	    }
-	    document.getElementById("Infobox").innerHTML = "";
-	}
-	if (!isDoubleView) {
-		canvasX = document.getElementById('brain-x');
-    	if (canvasX) canvasX.onmousedown = handleXLocale;
-	    canvasY = document.getElementById('brain-y');
-	    if (canvasY) canvasY.onmousedown = handleYLocale;
-	    canvasZ = document.getElementById('brain-z');
-	    if (canvasZ) canvasZ.onmousedown = handleZLocale;
-	}
 
-    //validate activitiesData and specify the re-draw function.
-    if(isOneToOneMapping){
-        if(3 * activitiesData[0].length === brainBuffers[0][0].numItems ){            
-            setInterval(tick, TICK_STEP);
-        } else{
-            displayMessage("The number of activity points should equal the number of surface vertices", "errorMessage");
-        }
-    } else {
-        if (NO_OF_MEASURE_POINTS === activitiesData[0].length){
-            setInterval(tick, TICK_STEP);
-        } else{
-            displayMessage("The number of activity points should equal the number of regions", "errorMessage");
-        }
+    if (!isDoubleView) {
+        canvasX = document.getElementById('brain-x');
+        if (canvasX) canvasX.onmousedown = handleXLocale;
+        canvasY = document.getElementById('brain-y');
+        if (canvasY) canvasY.onmousedown = handleYLocale;
+        canvasZ = document.getElementById('brain-z');
+        if (canvasZ) canvasZ.onmousedown = handleZLocale;
     }
+}
+
+function _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePointsLabels){
+    if (noOfMeasurePoints > 0) {
+        measurePoints = HLPR_readJSONfromFile(urlMeasurePoints);
+        measurePointsLabels = HLPR_readJSONfromFile(urlMeasurePointsLabels);
+        NO_OF_MEASURE_POINTS = measurePoints.length;
+    } else if (noOfMeasurePoints < 0) {
+        measurePoints = $.parseJSON(urlMeasurePoints);
+        measurePointsLabels = HLPR_readJSONfromFile(urlMeasurePointsLabels);
+        NO_OF_MEASURE_POINTS = measurePoints.length;
+    } else {
+        NO_OF_MEASURE_POINTS = 0;
+        measurePoints = [];
+        measurePointsLabels = [];
+    }
+}
+
+function _initTimeData(urlTimeList){
+    var timeUrls = $.parseJSON(urlTimeList);
+    for (var i = 0; i < timeUrls.length; i++) {
+        timeData = timeData.concat(HLPR_readJSONfromFile(timeUrls[i]));
+    }
+}
+
+function _initSliders(){
+    if (timeData.length > 0) {
+        MAX_TIME_STEP = timeData.length - 1;
+        $("#sliderStep").slider({min:1, max: 50, step: 1,
+            stop: function(ev, ui) {
+                var newStep = $("#sliderStep").slider("option", "value");
+                setTimeStep(newStep);
+                refreshCurrentDataSlice();
+                sliderSel = false;
+            },
+            slide: function(event, ui) {
+                sliderSel = true;
+            }
+            });
+        // Initialize slider for timeLine
+        $("#slider").slider({ min:0, max: MAX_TIME_STEP,
+            slide: function(event, ui) {
+                sliderSel = true;
+                currentTimeValue = $("#slider").slider("option", "value");
+            },
+            stop: function(event, ui) {
+                sliderSel = false;
+                loadFromTimeStep($("#slider").slider("option", "value"));
+            } });
+    } else {
+        $("#fieldSetForSliderSpeed").hide();
+    }
+    document.getElementById("Infobox").innerHTML = "";
 }
 
 ////////////////////////////////////////// GL Initializations //////////////////////////////////////////
@@ -338,16 +374,18 @@ function customMouseMove(event) {
     
 function updateColors(currentTimeValue) {
     var currentTimeInFrame = Math.floor((currentTimeValue - totalPassedActivitiesData) / TIME_STEP);
+    var currentActivity = activitiesData[currentTimeInFrame];
+
     if (isOneToOneMapping) {
-        for (i = 0; i < brainBuffers.length; i++) {
+        for (var i = 0; i < brainBuffers.length; i++) {
         	// Reset color buffers at each step.
         	brainBuffers[i][3] = null;
             var upperBorder = brainBuffers[i][0].numItems / 3;
             var colors = new Float32Array(upperBorder * 4);
             var offset_start = i * 40000;
+            var currentActivitySlice = currentActivity.slice(offset_start, offset_start + upperBorder);
 
-            getGradientColorArray(activitiesData[currentTimeInFrame].slice(offset_start, offset_start + upperBorder),
-                                  activityMin, activityMax, colors);
+            getGradientColorArray(currentActivitySlice, activityMin, activityMax, colors);
             brainBuffers[i][3] = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, brainBuffers[i][3]);
             gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
