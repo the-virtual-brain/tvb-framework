@@ -48,7 +48,7 @@
                 attribute vec3 alphaIndices;
                 attribute vec2 alpha;
 
-                uniform vec4 uVertexColors[${noOfMeasurePoints + 2} + 127];
+                uniform vec4 uVertexColors[${abs(noOfMeasurePoints) + 2} + 127];
             </py:otherwise>
         </py:choose>
 		uniform mat4 uPMatrix;
@@ -113,7 +113,7 @@
      
     <script type="text/javascript">
         function launchViewer(width, height) {
-        	_webGLPortletPreview('${base_activity_url}', '${urlVertices}', '${urlTriangles}', '${urlNormals}',
+        	VS_StartPortletPreview('${base_activity_url}', '${urlVertices}', '${urlTriangles}', '${urlNormals}',
                     '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}');
         }
     </script>

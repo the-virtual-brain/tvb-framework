@@ -1,4 +1,4 @@
-<div id="s-brain" class="${'brain' if not extended_view else ''}" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+<div id="s-brain" class="brain" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
     <script type="text/javascript" src="/static/jquery/jquery.mousewheel.js"></script>
     <script type="text/javascript" src="/static/js/sylvester.js"></script>
     <script type="text/javascript" src="/static/js/glUtils.js"></script>
@@ -12,7 +12,6 @@
     <script type="text/javascript" src="/static_view/brain/scripts/brainLegend.js?4266"></script>
     <script type="text/javascript" src="/static_view/brain/scripts/brainNavigator.js?4266"></script>
     <script type="text/javascript" src="/static_view/brain/scripts/virtualBrain.js"></script>
-    <script type="text/javascript" src="/static_view/brain/scripts/extendedViewFunctions.js?4266"></script>
     <script type="text/javascript" src="/static/colorScheme/js/colorSchemeComponent.js"></script>
     
     <link type="text/css" rel="stylesheet" href="/static/style/subsection_brain.css"/>
@@ -38,17 +37,12 @@
 	<script id="shader-vs" type="x-shader/x-vertex">
 	    attribute vec3 aVertexPosition;
 		attribute vec3 aVertexNormal;
-        <py:choose test="">
-            <py:when test="isOneToOneMapping">
-                attribute vec4 aVertexColor;
-            </py:when>
-            <py:otherwise>
-                attribute vec3 alphaIndices;
-                attribute vec2 alpha;
 
-                uniform vec4 uVertexColors[${abs(noOfMeasurePoints) + 2} + 127];
-            </py:otherwise>
-        </py:choose>
+        attribute vec3 alphaIndices;
+        attribute vec2 alpha;
+
+        uniform vec4 uVertexColors[${abs(noOfMeasurePoints) + 2} + 127];
+
 		uniform mat4 uPMatrix;
 		uniform mat4 uMVMatrix;
 		uniform mat4 uNMatrix;
@@ -94,16 +88,9 @@
 		                float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), uMaterialShininess);
 		
 				        vLightWeighting = uAmbientColor  + uDirectionalColor * directionalLightWeighting  + uPointLightingSpecularColor * specularLightWeighting;
-		
-		                <py:choose test="">
-		                    <py:when test="isOneToOneMapping">
-		                        vColor = aVertexColor;
-		                    </py:when>
-		                    <py:otherwise>
-		                        vColor = uVertexColors[int(alphaIndices[0])] * alpha[0] + uVertexColors[int(alphaIndices[1])] * alpha[1] +
+
+                        vColor = uVertexColors[int(alphaIndices[0])] * alpha[0] + uVertexColors[int(alphaIndices[1])] * alpha[1] +
 					                 uVertexColors[int(alphaIndices[2])] * (1.0 - alpha[0] - alpha[1]);
-		                    </py:otherwise>
-		                </py:choose>
 	           		}
 				} else {
 					if (uDrawLines) {
@@ -125,50 +112,47 @@
                 return false; // prevent default
             });
 
-            VS_StartTimeSeriesViewer('${base_activity_url}', ${pageSize}, '${time}', '${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${measure_points}',
-                        $noOfMeasurePoints, '${alphas}', '${alphas_indices}', '${minActivity}', '${maxActivity}', '${isOneToOneMapping}',
-                        ${'true' if extended_view else 'false'}, ${"'" + shelfObject +"'" if shelfObject else 'null'}, '${urlMeasurePointsLabels}', 
-                        '${boundary_url}');
-            EX_initializeChannels();
+            VS_StartRegionViewer('${urlVertices}', '${urlLines}', '${urlTriangles}', '${urlNormals}', '${urlMeasurePoints}',
+                              '${noOfMeasurePoints}', '${urlAlphas}', '${urlAlphasIndices}', '${urlMeasurePointsLabels}',
+                              '${boundaryURL}');
         });
     </script>
 
     <div class="monitor master assisted" id="brain-3d">
         <!--Draw brain-->
         <xi:include href="brain_component.html"/>
-        ${draw_brain_component("GLcanvas", minActivityLabels)}
-
+        
+        ${draw_brain_component("GLcanvas", None)}
+        
         <div class="helper">
             <span> Refresh Step: </span><span id="TimeStep">0.0</span><span> ms </span>
             <br/>
             <span> Refresh Rate: </span><span id="FramesPerSecond">0.0</span><span> fps</span>
             <br/>
-            <span> Time Line: </span><span id="TimeNow">0.0</span><span> ms  </span>
-            <br/>
             <span id="Infobox"></span>
         </div>
     </div>
     
-    <div class="monitor slave" id="brain-x" py:if="not extended_view">
+    <div class="monitor slave" id="brain-x">
         <br/>
         <span class="brainArea"></span>
     </div>
 
-    <div class="monitor slave" id="brain-y" py:if="not extended_view">
+    <div class="monitor slave" id="brain-y">
         <br/>
         <span class="brainArea"></span>
     </div>
 
-    <div class="monitor slave" id="brain-z" py:if="not extended_view">
+    <div class="monitor slave" id="brain-z">
         <br/>
         <span class="brainArea"></span>
     </div>
     
-    <div class="slider-div ${'lastChild' if not extended_view else 'lastChild'}">
+    <div class="slider-div lastChild">
         <div id="slider" class="shadow"></div>
     </div>
     
-    <ul class="usecaseClass lastChild" py:if="not extended_view"><b>USE :</b>
+    <ul class="usecaseClass lastChild"><b>USE :</b>
         <li>Your mouse to rotate the brain.</li>
         <li>SPACE key to have a top view.</li>
         <li>Cursor Keys to quickly rotate brain.</li>

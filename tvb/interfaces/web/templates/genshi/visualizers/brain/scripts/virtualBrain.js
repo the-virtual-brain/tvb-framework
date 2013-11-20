@@ -74,19 +74,23 @@ var MAX_TIME_STEP = 0;
 var NO_OF_MEASURE_POINTS = 0;
 var NEXT_PAGE_THREASHOLD = 100;
 
+var GL_DEFAULT_Z_POS = 250;
+var GL_currentRotationMatrix;
+var GL_zTranslation;
+var NAV_navigatorX, NAV_navigatorY, GL_lastMouseX, GL_lastMouseY;
+
 var displayMeasureNodes = false;
 
 var activityMin = 0, activityMax = 0;
 var isOneToOneMapping = false;
 var isDoubleView = false;
-
+var isMovie = true;
 var drawingMode;
 
 
 function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesList, urlNormalsList,
                               urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
 	isPreview = true;
-	GL_DEFAULT_Z_POS = 250;
 	GL_zTranslation = GL_DEFAULT_Z_POS;
 	pageSize = 1;
 	urlBase = baseDatatypeURL;
@@ -118,6 +122,49 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
     setInterval(tick, TICK_STEP);
 }
 
+function VS_StartRegionViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints, 
+                              noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
+                              boundaryURL){
+    // initialize global configuration
+    isPreview = false;
+    isDoubleView = false;
+    isOneToOneMapping = false;
+    shouldIncrementTime = false;
+    isMovie = false;
+
+    // initialize global data    
+    if (noOfMeasurePoints == 0){
+        // we are viewing a surface with no region mapping
+        // we mock 1 measure point
+        measurePoints = [[0, 0, 0]];
+        measurePointsLabels = [''];
+        NO_OF_MEASURE_POINTS = 1;
+    }else{
+        _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePointsLabels);
+    }
+
+    // mock activity data
+    activitiesData = [[]];
+    activityMin = 0;
+    activityMax = NO_OF_MEASURE_POINTS;    
+
+    for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
+        activitiesData[0].push(i);
+    }
+
+    GL_zTranslation = GL_DEFAULT_Z_POS;
+    
+    var canvas = document.getElementById(BRAIN_CANVAS_ID);
+    _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList, 
+                  urlAlphasIndicesList, urlLinesList, boundaryURL, null);
+    _bindEvents(canvas);
+
+    //specify the re-draw function.
+    if (_isValidActivityData()){
+        setInterval(tick, TICK_STEP);
+    }
+}
+
 function VS_StartTimeSeriesViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList, 
                     urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, 
@@ -142,10 +189,7 @@ function VS_StartTimeSeriesViewer(baseDatatypeURL, onePageSize, urlTimeList, url
         GL_currentRotationMatrix = createRotationMatrix(270, [1, 0, 0]).x(createRotationMatrix(270, [0, 0, 1]));
         GL_DEFAULT_Z_POS = 300;
         $("#displayFaceChkId").trigger('click');
-    }else{
-       GL_DEFAULT_Z_POS = 250;
     }
-
     GL_zTranslation = GL_DEFAULT_Z_POS;
     
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
@@ -188,15 +232,16 @@ function _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList
     GL_initColorPickFrameBuffer();
     initShaders();
     NAV_initBrainNavigatorBuffers();
+    
     LEG_initMinMax(activityMin, activityMax);
-
+    LEG_generateLegendBuffers();
+    
     if ($.parseJSON(urlVerticesList)) {
         brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
                                    $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
     }
 
     brainLinesBuffers = HLPR_getDataBuffers(gl, $.parseJSON(urlLinesList), isDoubleView, true);
-    LEG_generateLegendBuffers();
     initRegionBoundaries(boundaryURL);
     
     if (shelfObject) {
@@ -223,11 +268,11 @@ function _bindEvents(canvas){
     document.onmousemove = customMouseMove; 
 
     if (!isDoubleView) {
-        canvasX = document.getElementById('brain-x');
+        var canvasX = document.getElementById('brain-x');
         if (canvasX) canvasX.onmousedown = handleXLocale;
-        canvasY = document.getElementById('brain-y');
+        var canvasY = document.getElementById('brain-y');
         if (canvasY) canvasY.onmousedown = handleYLocale;
-        canvasZ = document.getElementById('brain-z');
+        var canvasZ = document.getElementById('brain-z');
         if (canvasZ) canvasZ.onmousedown = handleZLocale;
     }
 }
@@ -401,11 +446,13 @@ function updateColors(currentTimeValue) {
         // color used for a picked measure point
         gl.uniform4f(shaderProgram.colorsUniform[NO_OF_MEASURE_POINTS + 1], 0.99, 0.99, 0.0, 1.0);
     }
-    if (shouldLoadNextActivitiesFile()) {
-        loadNextActivitiesFile();
-    }
-    if (shouldChangeCurrentActivitiesFile()) {
-        changeCurrentActivitiesFile();
+    if(isMovie){
+        if (shouldLoadNextActivitiesFile()) {
+            loadNextActivitiesFile();
+        }
+        if (shouldChangeCurrentActivitiesFile()) {
+            changeCurrentActivitiesFile();
+        }
     }
 }
 
@@ -413,12 +460,14 @@ function updateColors(currentTimeValue) {
  * Draw the light
  */
 function addLight() {
-    gl.uniform3f(shaderProgram.ambientColorUniform, 0.8, 0.8, 0.7);
+    gl.uniform3f(shaderProgram.ambientColorUniform, 0.6, 0.6, 0.5);
+
     var lightingDirection = Vector.create([0.85, 0.8, 0.75]);
     var adjustedLD = lightingDirection.toUnitVector().x(-1);
     var flatLD = adjustedLD.flatten();
     gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
     gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
+
     gl.uniform3f(shaderProgram.pointLightingLocationUniform, 0, -10, -400);
     gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform, 0.8, 0.8, 0.8);
     gl.uniform1f(shaderProgram.materialShininessUniform, 30.0);
@@ -783,8 +832,10 @@ function drawScene() {
 		    }
 		    var medianTime = Math.floor(1000 / ((eval(framestime.join("+"))) / framestime.length));
 		    document.getElementById("FramesPerSecond").innerHTML = medianTime;
-		    document.getElementById("slider-value").innerHTML = TIME_STEP;
-		    if (sliderSel == false && !isPreview) {
+            if(isMovie){
+		        document.getElementById("slider-value").innerHTML = TIME_STEP;
+            }
+		    if (! sliderSel && !isPreview) {
 		        $("#slider").slider("option", "value", currentTimeValue);
 		    }
 		}
@@ -795,8 +846,7 @@ function drawScene() {
 	    perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
 	    loadIdentity();
 	    addLight();
-		drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
-	    
+	    drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
 	    // Translate to get a good view.
 	    mvTranslate([0.0, -5.0, -GL_zTranslation]);
 	    multMatrix(GL_currentRotationMatrix);
@@ -804,7 +854,7 @@ function drawScene() {
 		
 		// If we are in the middle of waiting for the next data file just
 		// stop and wait since we might have an index that is 'out' of this data slice
-		if (AG_isStopped == false) {
+		if (! AG_isStopped ) {
 	        updateColors(currentTimeValue);
 	        if (shouldIncrementTime && !isPreview) {
             	currentTimeValue = currentTimeValue + TIME_STEP;
@@ -954,7 +1004,6 @@ function loadFromTimeStep(step) {
 	currentAsyncCall = null;
 	readFileData(nextUrl, false);
 	currentTimeValue = step;
-	activitiesData = null;
     activitiesData = nextActivitiesFileData.slice(0);
     nextActivitiesFileData = null;
     currentActivitiesFileLength = activitiesData.length * TIME_STEP;
@@ -1029,7 +1078,7 @@ function changeCurrentActivitiesFile() {
         shouldIncrementTime = false;
         return;
     }
-    activitiesData = null;
+
     activitiesData = nextActivitiesFileData.slice(0);
     nextActivitiesFileData = null;
     totalPassedActivitiesData = totalPassedActivitiesData + currentActivitiesFileLength;

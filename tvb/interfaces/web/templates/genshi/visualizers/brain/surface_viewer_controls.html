@@ -1,0 +1,41 @@
+<!-- Pursuant to TVB-703, this code should be changed to the standard <fieldset> structure! -->
+
+<div xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+    <fieldset>
+        <xi:include href='../commons/state_mode_selector.html'/>
+
+        <py:if test ="defined('labelsStateVar') and defined('labelsModes')">
+            ${drawStateModeSelector(labelsStateVar, 'state-variable-select', 'State variable:', 'changeStateVariable')}
+            ${drawStateModeSelector(labelsModes, 'mode-select', 'Mode:', 'changeMode')}
+        </py:if>
+
+        <py:if test="hasRegionMap">
+            <input id="showBrainBoundaries" type="checkbox" onchange="toggleDrawBoundaries();" tabindex="1"/>
+            <label for="showBrainLines" >Show region boundaries</label>
+            <br/>
+        </py:if>
+
+
+        <input id="showBrainLines" type="checkbox"
+               onchange="toggleDrawTriangleLines();" tabindex="1" />
+        <label for="showBrainLines">Show surface triangles</label>
+
+    </fieldset>
+
+
+	<ul class="toolbar-inline">
+		<li>
+            <button id="ctrl-action-points" class="action action-view" title="Display only cloud of points, without triagles."
+                    onclick="wireFrame();" tabindex="1">
+                Points
+            </button>
+        </li>
+
+        <py:if test="hasRegionMap">
+            <button id="ctrl-action-nodes" class="action action-view" title="Display measurement nodes"
+                    onclick="toggleMeasureNodes();" tabindex="1">Nodes</button>
+        </py:if>
+    </ul>
+
+    <xi:include href='../../flow/color_scheme.html'/>
+</div>
