@@ -101,7 +101,8 @@ function drawConnectivity(json, shouldRefreshNodes) {
     }
 
     if (selection_empty) {
-        rgraph.loadJSON([{id:'root', name:'SELECT A NODE FROM THIS HEMISPHERE'}]);
+        rgraph.loadJSON([{id:'root', name:'SELECT AT LEAST ONE NODE FROM THIS REGION TO REVEAL CONNECTIONS...',
+                          data: {radius: 0, angle: 0} }]);
 
     } else {
         //load graph.
