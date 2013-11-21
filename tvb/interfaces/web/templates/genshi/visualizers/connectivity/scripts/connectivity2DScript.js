@@ -239,8 +239,9 @@ function isNodeSelected(nodeId) {
 }
 
 function prepareConnectivity2D(left_json, full_json, right_json) {
-    GVAR_hemisphere_jsons = {}
-    GVAR_hemisphere_jsons['left'] = left_json;
-    GVAR_hemisphere_jsons['both'] = full_json;
-    GVAR_hemisphere_jsons['right'] = right_json;	
+    GVAR_hemisphere_jsons = {
+        left:left_json,
+        both:full_json,
+        right:right_json
+    };
 }

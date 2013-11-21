@@ -300,7 +300,7 @@ function drawScene() {
 	    // Translate to get a good view.
 	    mvTranslate([0.0, 0.0, GL_zTranslation]);
 	    multMatrix(GL_currentRotationMatrix);
-	    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0])
+	    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
 	    applyConnectivityNoseCorrection();
 	    _drawLines(linesBuffer);
 	    mvPopMatrix();
@@ -310,12 +310,12 @@ function drawScene() {
 	    // Translate to get a good view.
 	    mvTranslate([0.0, 0.0, GL_zTranslation]);
 	    multMatrix(GL_currentRotationMatrix);
-	    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0])
+	    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
 	    applyConnectivityNoseCorrection();
 	    displayPoints();
 	    mvPopMatrix();
 	
-	   ORIENTATION_draw_nose_and_ears()
+	   ORIENTATION_draw_nose_and_ears();
 	
 	    // draw the brain cortical surface
 	    if (noOfBuffersToLoad == 0) {
@@ -328,7 +328,7 @@ function drawScene() {
 	        addLightForCorticalSurface();
 	        multMatrix(GL_currentRotationMatrix);
 	        applyConnectivityNoseCorrection();
-	        mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0])
+	        mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
 	        drawHemispheres(gl.TRIANGLES);
 	        gl.disable(gl.BLEND);
 	        gl.enable(gl.DEPTH_TEST);
@@ -337,13 +337,13 @@ function drawScene() {
 	   }
 	   else {
 	   		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
-	   		gl.disable(gl.BLEND) 
-            gl.disable(gl.DITHER)
-            gl.disable(gl.FOG) 
-            gl.disable(gl.LIGHTING) 
-            gl.disable(gl.TEXTURE_1D) 
-            gl.disable(gl.TEXTURE_2D) 
-            gl.disable(gl.TEXTURE_3D) 
+	   		gl.disable(gl.BLEND);
+            gl.disable(gl.DITHER);
+            gl.disable(gl.FOG);
+            gl.disable(gl.LIGHTING);
+            gl.disable(gl.TEXTURE_1D);
+            gl.disable(gl.TEXTURE_2D);
+            gl.disable(gl.TEXTURE_3D);
 	   		gl.uniform1f(shaderProgram.isPicking, 1);	
 	   		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	    	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -360,7 +360,7 @@ function drawScene() {
 			mvPushMatrix();
 		    mvTranslate([0.0, 0.0, GL_zTranslation]);
 		    multMatrix(GL_currentRotationMatrix);
-		    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0])
+		    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
 		    applyConnectivityNoseCorrection();   
 		    
 		    for (var i = 0; i < NO_POSITIONS; i++){
@@ -855,8 +855,12 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
 	conductionSpeed = parseFloat(condSpeed);
     // Initialize the buffers for drawing the points
     for (i = 0; i < NO_POSITIONS; i++) {
-    	if (raysWeights) ray_value = computeRay(raysWeights[i], parseFloat($('#rayMinId').val()), parseFloat($('#rayMaxId').val()));
-        else ray_value = 3;
+    	if (raysWeights) {
+            ray_value = computeRay(raysWeights[i], parseFloat($('#rayMinId').val()), parseFloat($('#rayMaxId').val()));
+        }
+        else {
+            ray_value = 3;
+        }
         positionsBuffers_3D[i] = HLPR_sphereBufferAtPoint(gl, GVAR_positionsPoints[i], ray_value);
         positionsBuffers[i] = HLPR_bufferAtPoint(gl, GVAR_positionsPoints[i]);
     }

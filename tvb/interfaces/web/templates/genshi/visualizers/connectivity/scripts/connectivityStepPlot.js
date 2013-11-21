@@ -210,6 +210,7 @@ function generateColors(tractValue, intervalLength) {
 	var maxWeightsValue = GVAR_interestAreaVariables[1].max_val;
 	var nrElems = matrixWeightsValues.length;
 	var colors = new Float32Array(nrElems * nrElems * 3 * 4);
+
 	for (var i = 0; i < nrElems; i++) {
 		for (var j = 0; j < nrElems; j++) {
 			for (var k = 0; k < 4; k++) {
@@ -239,32 +240,64 @@ function generateColors(tractValue, intervalLength) {
  * Update the header with informations about matrices.
  */ 
 function updateSpaceTimeHeader() {
-	var minTract = $('#fromTractValue').val();
-	if (minTract == "") {
-		minTract = minTractValue;
-	} else {
-		minTract = parseFloat(minTract);
-	}
-	
-	var maxTract = $('#toTractValue').val();
-	if (maxTract == "") {
-		maxTract = maxTractValue;
-	} else {
-		maxTract = parseFloat(maxTract);
-	}
-	
-	if (minTract < GVAR_interestAreaVariables[2].min_val) minTract = GVAR_interestAreaVariables[2].min_val;
-	if (maxTract < 0) maxTract = maxTractValue;
-	if (maxTract > GVAR_interestAreaVariables[2].max_val) maxTract = GVAR_interestAreaVariables[2].max_val;
-	if (minTract > maxTract) {
-		var swapAux = minTract;
-		minTract = maxTract;
-		maxTract = swapAux;
-	}
+
+    function parseFloatDefault(val, def){
+        var ret = parseFloat(val);
+        if(isNaN(ret)){
+            return def;
+        }else{
+            return ret;
+        }
+    }
+
+    var fromTractInput = $('#fromTractValue');
+    var toTractInput = $('#toTractValue');
+    var conductionSpeedInput = $('#conductionSpeedValue');
+    var minTract, maxTract;
+    var uiConductionSpeed = parseFloatDefault(conductionSpeedInput.val(), conductionSpeed);
+
+    // if conduction speed has changed adjust tract bounds
+    if(uiConductionSpeed !== conductionSpeed){
+        minTract = GVAR_interestAreaVariables[2].min_val;
+        maxTract = GVAR_interestAreaVariables[2].max_val / uiConductionSpeed;
+    }else{
+        // read tract bounds
+        minTract = parseFloatDefault(fromTractInput.val(), minTractValue);
+        maxTract = parseFloatDefault(toTractInput.val(), maxTractValue);
+
+        // ensure validity for tract bounds
+        var maxDelay = GVAR_interestAreaVariables[2].max_val / conductionSpeed;
+
+        if (minTract < GVAR_interestAreaVariables[2].min_val){
+            minTract = GVAR_interestAreaVariables[2].min_val;
+        }
+
+        if (maxTract > maxDelay) {
+            maxTract = maxDelay;
+        }
+        // in this cases it might be less confusing to reset the fields to their defaults?
+        if (maxTract < 0) {
+            maxTract = maxTractValue;
+        }
+
+        if (minTract > maxTract) {
+            var swapAux = minTract;
+            minTract = maxTract;
+            maxTract = swapAux;
+        }
+    }
+
+    //set globals
 	minTractValue = minTract;
 	maxTractValue = maxTract;
-	$('#fromTractValue').val(minTractValue.toFixed(2));
-	$('#toTractValue').val(maxTractValue.toFixed(2));
+    conductionSpeed = uiConductionSpeed;
+
+    //update ui
+	fromTractInput.val(minTractValue.toFixed(2));
+	toTractInput.val(maxTractValue.toFixed(2));
+    conductionSpeedInput.val(conductionSpeed.toFixed(2));
+    _connectivitySpaceTimeUpdateLegend();
+
 	initColorBuffers();
 	if (clickedMatrix >= 0) {
 		doZoomOutAnimation();
@@ -319,13 +352,19 @@ function conectivitySpaceTime_initCanvas() {
 	
     updateSpaceTimeHeader();
     clickedMatrix = -1;
-    
-    document.getElementById("leg_min_tract").innerHTML = "Min tract length : " + GVAR_interestAreaVariables[2].min_val + ' mm';
-    document.getElementById("leg_max_tract").innerHTML = "Max tract length : " + GVAR_interestAreaVariables[2].max_val + ' mm';
-    document.getElementById("leg_min_weights").innerHTML = "Min weight : " + GVAR_interestAreaVariables[1].min_val;
-    document.getElementById("leg_max_weights").innerHTML = "Max weight : " + GVAR_interestAreaVariables[1].max_val;
+
+    _connectivitySpaceTimeUpdateLegend();
 }
 
+function _connectivitySpaceTimeUpdateLegend(){
+    $('#leg_min_tract').html("Min tract length : " + GVAR_interestAreaVariables[2].min_val.toFixed(2) + ' mm');
+    $('#leg_max_tract').html("Max tract length : " + GVAR_interestAreaVariables[2].max_val.toFixed(2) + ' mm');
+    $('#leg_min_weights').html("Min weight : " + GVAR_interestAreaVariables[1].min_val.toFixed(2));
+    $('#leg_max_weights').html("Max weight : " + GVAR_interestAreaVariables[1].max_val.toFixed(2));
+    $('#leg_conduction_speed').html("Conduction speed : " + conductionSpeed.toFixed(2));
+    $('#leg_min_delay').html('Min delay : ' + minTractValue.toFixed(2) + ' ms');
+    $('#leg_max_delay').html('Max delay : ' + maxTractValue.toFixed(2) + ' ms');
+}
 
 /*
  * Draw the full matrix, with the outline square.
@@ -419,8 +458,8 @@ function animationStep(step, animationSteps, animations, zoomIn) {
 			zoomedInMatrix = clickedMatrix;
 			var stepValue = (maxTractValue - minTractValue) / nrOfSteps;
 			if (zoomedInMatrix != 0) {
-				var fromTractVal = (minTractValue + stepValue * (zoomedInMatrix - 1)).toFixed(2)
-				var toTractVal = (minTractValue + stepValue * zoomedInMatrix).toFixed(2)
+				var fromTractVal = (minTractValue + stepValue * (zoomedInMatrix - 1)).toFixed(2);
+				var toTractVal = (minTractValue + stepValue * zoomedInMatrix).toFixed(2);
 				matrixSelected.innerHTML = '[' + fromTractVal + '..' + toTractVal + ']';
 			} else {
 				matrixSelected.innerHTML = 'Full matrix';
@@ -498,13 +537,13 @@ function drawSceneSpaceTime() {
 	    //gl.enable(gl.DEPTH_TEST);
 	} else {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
-   		gl.disable(gl.BLEND) 
-        gl.disable(gl.DITHER)
-        gl.disable(gl.FOG) 
-        gl.disable(gl.LIGHTING) 
-        gl.disable(gl.TEXTURE_1D) 
-        gl.disable(gl.TEXTURE_2D) 
-        gl.disable(gl.TEXTURE_3D) 
+   		gl.disable(gl.BLEND);
+        gl.disable(gl.DITHER);
+        gl.disable(gl.FOG) ;
+        gl.disable(gl.LIGHTING);
+        gl.disable(gl.TEXTURE_1D);
+        gl.disable(gl.TEXTURE_2D);
+        gl.disable(gl.TEXTURE_3D);
    		gl.uniform1f(shaderProgram.isPicking, 1);	
    		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
