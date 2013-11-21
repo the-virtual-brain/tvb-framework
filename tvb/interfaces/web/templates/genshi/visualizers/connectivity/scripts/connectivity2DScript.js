@@ -102,22 +102,20 @@ function drawConnectivity(json, shouldRefreshNodes) {
 
     if (selection_empty) {
         rgraph.loadJSON([{id:'root', name:'SELECT A NODE FROM THIS HEMISPHERE'}]);
-    }else{
+
+    } else {
         //load graph.
         if (shouldRefreshNodes) {
             rgraph.loadJSON(json, rootNode);
         } else {
             rgraph.loadJSON(json, 1);
         }
-
         // remove all the nodes that were not selected by the user
-
         rgraph.graph.eachNode(function(node) {
             if (shouldRefreshNodes && selectedPoints.length > 0 && !isNodeSelected(node.id)) {
                 rgraph.graph.removeNode(node.id);
             }
         });
-
     }
 
     //compute positions and plot
@@ -131,18 +129,15 @@ function drawConnectivity(json, shouldRefreshNodes) {
  * Draws the slider which allows the user to change the weight af an edge.
  */
 function drawSliderForWeightsScale() {
-    $("#weightsScaleFactor").slider({
-        value: 1,
-        min: 1,
-        max: 10
-    });
 
-    $("#weightsScaleFactor").slider({
-        change: function(event, ui) {
-            scaleFactor = $('#weightsScaleFactor').slider("option", "value");
-            $("#display-weights-scale").html(" " + scaleFactor);
-        	drawConnectivity(GVAR_hemisphere_jsons[C2D_selectedView], C2D_shouldRefreshNodes);
-        }
+    var weightsFactorObj = $("#weightsScaleFactor");
+    weightsFactorObj.slider({ value: 1, min: 1, max: 10 });
+    weightsFactorObj.slider({
+                            change: function(event, ui) {
+                                scaleFactor = $('#weightsScaleFactor').slider("option", "value");
+                                $("#display-weights-scale").html(" " + scaleFactor);
+                                drawConnectivity(GVAR_hemisphere_jsons[C2D_selectedView], C2D_shouldRefreshNodes);
+                            }
     });
 }
 
@@ -189,7 +184,6 @@ function change2DView() {
  * Each time when the user check/uncheck a check box this method will be called to redraw the main view.
  */
 function C2D_displaySelectedPoints() {
-    var setRoot = true;
     selectedPoints = [];
     rootNode = parseInt(GVAR_interestAreaNodeIndexes[0]);
 	for (var i = 0; i < GVAR_interestAreaNodeIndexes.length; i++) {
