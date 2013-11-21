@@ -33,6 +33,7 @@
 """
 
 import threading
+from functools import wraps
 from types import FunctionType
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -312,7 +313,7 @@ def transactional(func):
     This is indended to be used on service layer methods.
     """
 
-
+    @wraps(func)
     def dec(*args, **kwargs):
         """
         Decorate methods.
@@ -321,9 +322,9 @@ def transactional(func):
         session_maker.start_transaction()
         try:
             result = func(*args, **kwargs)
-        except Exception, ex:
+        except Exception:
             session_maker.rollback_transaction()
-            raise ex
+            raise
         finally:
             session_maker.close_transaction()
         return result
@@ -340,7 +341,7 @@ def add_session(func):
     This is intended to be used on all DAO methods
     """
 
-
+    @wraps(func)
     def dec(*args, **kwargs):
         """
         Decorate by populating self.session
@@ -348,12 +349,12 @@ def add_session(func):
         args[0].session.open_session()
         try:
             result = func(*args, **kwargs)
-        except NoResultFound, ex:
-            raise ex
+        except NoResultFound:
+            raise
         except Exception, ex:
             args[0].session.rollback()
             LOGGER.exception(ex)
-            raise ex
+            raise
         finally:
             args[0].session.close_session()
         return result

@@ -148,10 +148,11 @@ class ABCDisplayer(ABCSynchronous):
         """
         Prepare a File System Path for passing into an URL.
         """
-        if parameter is None:
-            return ABCDisplayer.VISUALIZERS_URL_PREFIX + datatype_entity.gid + '/'+ attribute_name + '/' + str(flatten)
-        return (ABCDisplayer.VISUALIZERS_URL_PREFIX + datatype_entity.gid + '/' + attribute_name + 
-                '/' + str(flatten) + "?" + str(parameter))
+        url = ABCDisplayer.VISUALIZERS_URL_PREFIX + datatype_entity.gid + '/' + attribute_name + '/' + str(flatten)
+
+        if parameter is not None:
+            url += "?" + str(parameter)
+        return url
             
     
     def get_submit_method_url(self, method_name):

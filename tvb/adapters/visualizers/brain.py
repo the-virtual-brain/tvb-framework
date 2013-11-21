@@ -118,9 +118,8 @@ class BrainViewer(ABCDisplayer):
         if surface is None:
             raise Exception("No not-none Mapping Surface found for display!")
 
-        url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices = surface.get_urls_for_rendering(
-            True, region_map)
-        return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices
+        rendering_urls = surface.get_urls_for_rendering(True, region_map)
+        return (one_to_one_map, ) + rendering_urls
     
     
     def _get_url_for_region_boundaries(self, time_series):
@@ -167,7 +166,7 @@ class BrainViewer(ABCDisplayer):
             alphas, alphas_indices = self._prepare_surface_urls(time_series)
 
         measure_points, measure_points_labels, measure_points_no = self._retrieve_measure_points(time_series)
-        if (not one_to_one_map) and (measure_points_no > MAX_MEASURE_POINTS_LENGTH):
+        if not one_to_one_map and measure_points_no > MAX_MEASURE_POINTS_LENGTH:
             raise Exception("Max number of measure points " + str(MAX_MEASURE_POINTS_LENGTH) + " exceeded.")
 
         base_activity_url, time_urls = self._prepare_data_slices(time_series)
@@ -208,11 +207,11 @@ class BrainViewer(ABCDisplayer):
             vert_map_dict = mappings_dict[key]
             vertices_indexes = vert_map_dict['indices']
             this_mappings.append(vertices_indexes[0].tolist())
-            for i in range(1, len(vertices_indexes)):
+            for i in xrange(1, len(vertices_indexes)):
                 if vertices_indexes[i][0] == vertices_indexes[i][1]:
                     this_mappings.append(vertices_indexes[i][0])
                 else:
-                    for index in range(vertices_indexes[i][0], vertices_indexes[i][1] + 1):
+                    for index in xrange(vertices_indexes[i][0], vertices_indexes[i][1] + 1):
                         this_mappings.append(index)
             prepared_mappings.append(this_mappings)
         return prepared_mappings
@@ -251,7 +250,7 @@ class BrainViewer(ABCDisplayer):
             processed_min_val = float(min_integer + '.' + min_decimals[:idx])
             processed_max_val = float(max_integer + '.' + max_decimals[:idx])
         value_diff = (processed_max_val - processed_min_val) / (nr_labels + 1)
-        inter_values = [round(processed_min_val + value_diff * i, idx) for i in reversed(range(1, (nr_labels + 1)))]
+        inter_values = [round(processed_min_val + value_diff * i, idx) for i in xrange(nr_labels, 0, -1)]
         return [processed_max_val] + inter_values + [processed_min_val]
 
 

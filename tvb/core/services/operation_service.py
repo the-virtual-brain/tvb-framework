@@ -190,7 +190,7 @@ class OperationService:
                     set_values.append(val)
                     values_str = values_str + " " + str(val)
             values = values_str
-        return str(values).lstrip().rstrip()
+        return str(values).strip()
     
     
     def group_operation_launch(self, user_id, project_id, adapter_id, category_id, **kwargs):
