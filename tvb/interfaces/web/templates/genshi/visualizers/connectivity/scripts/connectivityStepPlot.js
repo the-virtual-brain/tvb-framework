@@ -261,6 +261,7 @@ function updateSpaceTimeHeader() {
         conductionSpeed = uiConductionSpeed;
         currentMinDelay = GVAR_interestAreaVariables[2].min_val / conductionSpeed;
         currentMaxDelay = GVAR_interestAreaVariables[2].max_val / conductionSpeed;
+        _connectivitySpaceTimeUpdateLegend();
 
     } else {
         // read delay bounds specified by user in UI, in case invalid defaults are previous values
@@ -292,7 +293,6 @@ function updateSpaceTimeHeader() {
 	fromDelaysInput.val(minSelectedDelayValue.toFixed(2));
 	toDelaysInput.val(maxSelectedDelayValue.toFixed(2));
     conductionSpeedInput.val(conductionSpeed.toFixed(2));
-    _connectivitySpaceTimeUpdateLegend();
 
 	initColorBuffers();
 	if (clickedMatrix >= 0) {
