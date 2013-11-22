@@ -16,7 +16,7 @@ var doPick = false;					// No picking by default
 var nrOfSteps = 6;					// Number of space-time plots we will draw in scene
 var colorsForPicking = [];			// The colors which are used for the picking scheme
 
-var plotTranslations = [];			// Keep track of the transation for each plot. 
+var plotTranslations = [];			// Keep track of the translation for each plot.
 var plotRotations = [];				// Keep track of the rotations for each plot
 var zoomedInMatrix = -1;			// The matrix witch is currently zoomed in on
 var clickedMatrix = -1;
@@ -25,8 +25,8 @@ var backupRotations = [];
 var animationStarted = false;
 var alphaValueSpaceTime = 1.0;				// original alpha value for default plot		
 var backupAlphaValue = alphaValueSpaceTime;	// backup used in animations
-var minTractValue = -1;
-var maxTractValue = -1;
+var minSelectedDelayValue = -1;
+var maxSelectedDelayValue = -1;
 var animationTimeout = 3;
 var animationGranularity = 50;
 
@@ -54,7 +54,7 @@ function initColorsForPicking() {
 		var r = parseInt(1.0 / (i + 1) * 255);
 		var g = parseInt(i / nrOfSteps * 255);
 		var b = 0.0;
-		colorsForPicking.push([r / 255, g / 255, b / 255])
+		colorsForPicking.push([r / 255, g / 255, b / 255]);
 		var colorKey = r + '' + g + '0';
 		GL_colorPickerMappingDict[colorKey] = i;
 	}
@@ -241,60 +241,56 @@ function generateColors(tractValue, intervalLength) {
  */ 
 function updateSpaceTimeHeader() {
 
-    function parseFloatDefault(val, def){
-        var ret = parseFloat(val);
-        if(isNaN(ret)){
-            return def;
+    function parseFloatDefault(valueUI, defaultValue){
+        var resultValue = parseFloat(valueUI);
+        if(isNaN(resultValue)){
+            return defaultValue;
         }else{
-            return ret;
+            return resultValue;
         }
     }
 
-    var fromTractInput = $('#fromTractValue');
-    var toTractInput = $('#toTractValue');
+    var fromDelaysInput = $('#fromDelaysValue');
+    var toDelaysInput = $('#toDelaysValue');
     var conductionSpeedInput = $('#conductionSpeedValue');
-    var minTract, maxTract;
+    var currentMinDelay, currentMaxDelay;
     var uiConductionSpeed = parseFloatDefault(conductionSpeedInput.val(), conductionSpeed);
 
     // if conduction speed has changed adjust tract bounds
     if(uiConductionSpeed !== conductionSpeed){
-        minTract = GVAR_interestAreaVariables[2].min_val;
-        maxTract = GVAR_interestAreaVariables[2].max_val / uiConductionSpeed;
-    }else{
-        // read tract bounds
-        minTract = parseFloatDefault(fromTractInput.val(), minTractValue);
-        maxTract = parseFloatDefault(toTractInput.val(), maxTractValue);
+        conductionSpeed = uiConductionSpeed;
+        currentMinDelay = GVAR_interestAreaVariables[2].min_val / conductionSpeed;
+        currentMaxDelay = GVAR_interestAreaVariables[2].max_val / conductionSpeed;
+
+    } else {
+        // read delay bounds specified by user in UI, in case invalid defaults are previous values
+        currentMinDelay = parseFloatDefault(fromDelaysInput.val(), minSelectedDelayValue);
+        currentMaxDelay = parseFloatDefault(toDelaysInput.val(), maxSelectedDelayValue);
 
         // ensure validity for tract bounds
-        var maxDelay = GVAR_interestAreaVariables[2].max_val / conductionSpeed;
+        var maxAcceptedDelay = GVAR_interestAreaVariables[2].max_val / conductionSpeed;
+        var minAcceptedDelay = GVAR_interestAreaVariables[2].min_val / conductionSpeed;
 
-        if (minTract < GVAR_interestAreaVariables[2].min_val){
-            minTract = GVAR_interestAreaVariables[2].min_val;
+        if (currentMinDelay > currentMaxDelay) {
+            var swapAux = currentMinDelay;
+            currentMinDelay = currentMaxDelay;
+            currentMaxDelay = swapAux;
         }
-
-        if (maxTract > maxDelay) {
-            maxTract = maxDelay;
+        if (currentMinDelay < minAcceptedDelay){
+            currentMinDelay = minAcceptedDelay;
         }
-        // in this cases it might be less confusing to reset the fields to their defaults?
-        if (maxTract < 0) {
-            maxTract = maxTractValue;
-        }
-
-        if (minTract > maxTract) {
-            var swapAux = minTract;
-            minTract = maxTract;
-            maxTract = swapAux;
+        if (currentMaxDelay > maxAcceptedDelay || currentMaxDelay < 0) {
+            currentMaxDelay = maxAcceptedDelay;
         }
     }
 
     //set globals
-	minTractValue = minTract;
-	maxTractValue = maxTract;
-    conductionSpeed = uiConductionSpeed;
+	minSelectedDelayValue = currentMinDelay;
+	maxSelectedDelayValue = currentMaxDelay;
 
     //update ui
-	fromTractInput.val(minTractValue.toFixed(2));
-	toTractInput.val(maxTractValue.toFixed(2));
+	fromDelaysInput.val(minSelectedDelayValue.toFixed(2));
+	toDelaysInput.val(maxSelectedDelayValue.toFixed(2));
     conductionSpeedInput.val(conductionSpeed.toFixed(2));
     _connectivitySpaceTimeUpdateLegend();
 
@@ -310,11 +306,11 @@ function updateSpaceTimeHeader() {
 function initColorBuffers() {
 	initColorsForPicking();
     plotColorBuffers = [];
-	var stepValue = (maxTractValue - minTractValue) / nrOfSteps;
-	plotColorBuffers.push(generateColors((maxTractValue + minTractValue) / 2, maxTractValue - minTractValue));
+	var stepValue = (maxSelectedDelayValue - minSelectedDelayValue) / nrOfSteps;
+	plotColorBuffers.push(generateColors((maxSelectedDelayValue + minSelectedDelayValue) / 2, maxSelectedDelayValue - minSelectedDelayValue));
 	// In order to avoid floating number approximations which keep the loop for one more iteration just approximate by
 	// substracting 0.1
-	for (var tractValue = minTractValue + stepValue / 2; tractValue < parseInt(maxTractValue) - 0.1; tractValue = tractValue + stepValue) {
+	for (var tractValue = minSelectedDelayValue + stepValue / 2; tractValue < parseInt(maxSelectedDelayValue) - 0.1; tractValue = tractValue + stepValue) {
 		plotColorBuffers.push(generateColors(tractValue, stepValue));
 	} 
 }
@@ -343,11 +339,11 @@ function conectivitySpaceTime_initCanvas() {
     	plotRotations.push([80 - i * nrOfSteps, [0, 1, 0]]);
     }
     
-    if (minTractValue < 0) {
-    	minTractValue = GVAR_interestAreaVariables[2].min_val / conductionSpeed;
+    if (minSelectedDelayValue < 0) {
+    	minSelectedDelayValue = GVAR_interestAreaVariables[2].min_val / conductionSpeed;
     }
-	if (maxTractValue < 0) {
-		maxTractValue = GVAR_interestAreaVariables[2].max_val / conductionSpeed;
+	if (maxSelectedDelayValue < 0) {
+		maxSelectedDelayValue = GVAR_interestAreaVariables[2].max_val / conductionSpeed;
 	}
 	
     updateSpaceTimeHeader();
@@ -362,8 +358,8 @@ function _connectivitySpaceTimeUpdateLegend(){
     $('#leg_min_weights').html("Min weight : " + GVAR_interestAreaVariables[1].min_val.toFixed(2));
     $('#leg_max_weights').html("Max weight : " + GVAR_interestAreaVariables[1].max_val.toFixed(2));
     $('#leg_conduction_speed').html("Conduction speed : " + conductionSpeed.toFixed(2));
-    $('#leg_min_delay').html('Min delay : ' + minTractValue.toFixed(2) + ' ms');
-    $('#leg_max_delay').html('Max delay : ' + maxTractValue.toFixed(2) + ' ms');
+    $('#leg_min_delay').html('Min delay : ' + (GVAR_interestAreaVariables[2].min_val / conductionSpeed).toFixed(2) + ' ms');
+    $('#leg_max_delay').html('Max delay : ' + (GVAR_interestAreaVariables[2].max_val / conductionSpeed).toFixed(2) + ' ms');
 }
 
 /*
@@ -456,10 +452,10 @@ function animationStep(step, animationSteps, animations, zoomIn) {
 		var matrixSelected = document.getElementById('selectedMatrixValue');
 		if (zoomIn) {
 			zoomedInMatrix = clickedMatrix;
-			var stepValue = (maxTractValue - minTractValue) / nrOfSteps;
+			var stepValue = (maxSelectedDelayValue - minSelectedDelayValue) / nrOfSteps;
 			if (zoomedInMatrix != 0) {
-				var fromTractVal = (minTractValue + stepValue * (zoomedInMatrix - 1)).toFixed(2);
-				var toTractVal = (minTractValue + stepValue * zoomedInMatrix).toFixed(2);
+				var fromTractVal = (minSelectedDelayValue + stepValue * (zoomedInMatrix - 1)).toFixed(2);
+				var toTractVal = (minSelectedDelayValue + stepValue * zoomedInMatrix).toFixed(2);
 				matrixSelected.innerHTML = '[' + fromTractVal + '..' + toTractVal + ']';
 			} else {
 				matrixSelected.innerHTML = 'Full matrix';
@@ -529,8 +525,8 @@ function drawSceneSpaceTime() {
 	    // Translate to get a good view.
 	    mvTranslate([0.0, 0.0, -600]);
 	    
-		for (var i = 0; i < plotColorBuffers.length; i++) {
-			drawFullMatrix(false, i);
+		for (var ii = 0; ii < plotColorBuffers.length; ii++) {
+			drawFullMatrix(false, ii);
 		}
 		
 	    //gl.disable(gl.BLEND);
