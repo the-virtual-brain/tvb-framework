@@ -28,43 +28,42 @@
 #
 #
 
+"""
+.. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
+"""
+
 import json
-from tvb.adapters.visualizers.brain import BrainEEG, BrainViewer, BrainSEEG
-from tvb.basic.filters.chain import UIFilter, FilterChain
-from tvb.basic.traits.core import KWARG_FILTERS_UI
+from tvb.adapters.visualizers.brain import BrainEEG, BrainViewer
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
-from tvb.datatypes.sensors import SensorsEEG, SensorsMEG
-from tvb.datatypes.sensors_data import SensorsData, SensorsInternalData
+from tvb.datatypes.sensors import SensorsInternal, SensorsEEG, SensorsMEG
 from tvb.datatypes.surfaces import EEGCap
-from tvb.datatypes.surfaces_data import SurfaceData
 
 
 class InternalSensorViewer(ABCDisplayer):
     """
-    Sensor visualizer - for visual inspecting imported sensors in TVB.
+    Sensor visualizer - for visual inspecting Internal Sensors of TVB.
     """
+
     _ui_name = "Internal sensor Visualizer"
-    _ui_subsection = "sensor"
+    _ui_subsection = "sensors"
 
     def get_input_tree(self):
-        return [{'name': 'sensors', 'label': 'Brain surface',
-                 'type': SensorsInternalData, 'required': True,
-                 'description': ''},
-               ]
+        return [{'name': 'sensors', 'label': 'Sensors', 'description': 'Internals sensors to view',
+                 'type': SensorsInternal, 'required': True}]
 
     def launch(self, sensors):
-        # SensorsInternalData is the one with directions only?
-        # For seeg sensors we need to include seegbrain.js
-        # where drawscene is overwritten by a version that draws needles
+        """
+        SensorsInternal have full 3D positions to diaplay
+        """
         measure_points_info = BrainEEG.get_sensor_measure_points(sensors)
 
         params = {
-            'shelfObject' : BrainViewer.get_default_face(),
+            'shelfObject': BrainViewer.get_default_face(),
             'urlVertices': '', 'urlTriangles': '',
             'urlLines': '[]', 'urlNormals': '',
-            'urlMeasurePoints' : measure_points_info[0],
-            'urlMeasurePointsLabels' : measure_points_info[1],
-            'noOfMeasurePoints' : measure_points_info[2] }
+            'urlMeasurePoints': measure_points_info[0],
+            'urlMeasurePointsLabels': measure_points_info[1],
+            'noOfMeasurePoints': measure_points_info[2]}
 
         return self.build_display_result('brain/sensors_seeg', params,
                                          pages={'controlPage': 'brain/sensors_controls'})
@@ -77,19 +76,20 @@ class InternalSensorViewer(ABCDisplayer):
 
 class EegSensorViewer(ABCDisplayer):
     """
-    Sensor visualizer - for visual inspecting imported sensors in TVB.
+    Sensor visualizer - for visual inspecting EEG sensors of TVB.
     """
     _ui_name = "EEG sensor Visualizer"
-    _ui_subsection = "sensor"
+    _ui_subsection = "sensors"
+
 
     def get_input_tree(self):
-        return [{'name': 'sensors', 'label': 'Brain surface',
-                 'type': SensorsEEG, 'required': True,
-                 'description': 'The sensors datatype to be viewed'},
+        return [{'name': 'sensors', 'label': 'Sensors', 'description': 'Sensors to be displayed on a surface',
+                 'type': SensorsEEG, 'required': True},
                 {'name': 'eeg_cap', 'label': 'EEG Cap',
                  'type': EEGCap, 'required': False,
-                 'description': 'The EEG Cap surface on which to display the results!'}
-               ]
+                 'description': 'The EEG Cap surface on which to display the results. '
+                                'When missing, we will take the first EEGCap from current project'}
+                ]
 
     @staticmethod
     def _compute_surface_params(surface):
@@ -104,14 +104,14 @@ class EegSensorViewer(ABCDisplayer):
         measure_points_info = BrainEEG.compute_sensor_surfacemapped_measure_points(sensors, eeg_cap)
 
         params = {
-            'displayMeasureNodes' : True,
-            'shelfObject' : BrainViewer.get_default_face(),
+            'displayMeasureNodes': True,
+            'shelfObject': BrainViewer.get_default_face(),
             'urlVertices': '', 'urlTriangles': '',
             'urlLines': '[]', 'urlNormals': '',
-            'boundaryURL' : '', 'urlAlphas' : '', 'urlAlphasIndices' : '',
-            'urlMeasurePoints' : measure_points_info[0],
-            'urlMeasurePointsLabels' : measure_points_info[1],
-            'noOfMeasurePoints' : measure_points_info[2] }
+            'boundaryURL': '', 'urlAlphas': '', 'urlAlphasIndices': '',
+            'urlMeasurePoints': measure_points_info[0],
+            'urlMeasurePointsLabels': measure_points_info[1],
+            'noOfMeasurePoints': measure_points_info[2]}
 
         if eeg_cap is not None:
             params.update(self._compute_surface_params(eeg_cap))
@@ -124,18 +124,18 @@ class EegSensorViewer(ABCDisplayer):
         return -1
 
 
+
 class MEGSensorViewer(EegSensorViewer):
     """
-    Sensor visualizer - for visual inspecting imported sensors in TVB.
+    Sensor visualizer - for visual inspecting MEG sensors of TVB.
     """
     _ui_name = "MEEG sensor Visualizer"
-    _ui_subsection = "sensor"
+    _ui_subsection = "sensors"
 
     def get_input_tree(self):
-        return [{'name': 'sensors', 'label': 'Brain surface',
-                 'type': SensorsMEG, 'required': True,
-                 'description': 'The sensors datatype to be viewed'},
-                {'name': 'eeg_cap', 'label': 'EEG Cap',
-                 'type': EEGCap, 'required': False,
-                 'description': 'The EEG Cap surface on which to display the results!'}
-               ]
+        """
+        Overwrite method from parent, and replace required input datatype
+        """
+        input_tree = super(MEGSensorViewer, self).get_input_tree()
+        input_tree[0]["type"] = SensorsMEG
+        return input_tree
