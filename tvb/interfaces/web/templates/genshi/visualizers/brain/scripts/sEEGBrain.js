@@ -48,7 +48,7 @@ function computeAlphas(vertices, measurePoints) {
 
 
 function bufferAtPoint(p, idx) {
-	var result = HLPR_sphereBufferAtPoint(gl, p, 3);
+	var result = HLPR_sphereBufferAtPoint(gl, p, 3, 12, 12);
     var bufferVertices= result[0];
     var bufferNormals = result[1];
     var bufferTriangles = result[2];

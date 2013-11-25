@@ -102,13 +102,13 @@ function HLPR_readJSONfromFile(fileName, staticFiles) {
 }
 
 
-function HLPR_sphereBufferAtPoint(gl, point, radius) {
+function HLPR_sphereBufferAtPoint(gl, point, radius, latitudeBands, longitudeBands) {
     var moonVertexPositionBuffer;
     var moonVertexNormalBuffer;
     var moonVertexIndexBuffer;
 
-    var latitudeBands = 30;
-    var longitudeBands = 30;
+    latitudeBands = latitudeBands || 30;
+    longitudeBands = longitudeBands || 30;
 
     var vertexPositionData = [];
     var normalData = [];
