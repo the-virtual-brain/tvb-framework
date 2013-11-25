@@ -81,6 +81,7 @@ var isOneToOneMapping = false;
 var isDoubleView = false;
 var isMovie = true;
 var drawingMode;
+var VS_showLegend = true;
 
 GL_DEFAULT_Z_POS = 250;
 
@@ -120,13 +121,16 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
 
 function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                               boundaryURL){
+                               boundaryURL, shelfObject, showLegend, argDisplayMeasureNodes, argIsFaceToDisplay){
     // initialize global configuration
     isPreview = false;
     isDoubleView = false;
     isOneToOneMapping = false;
     shouldIncrementTime = false;
     isMovie = false;
+    VS_showLegend = showLegend;
+    displayMeasureNodes = argDisplayMeasureNodes;
+    isFaceToDisplay = argIsFaceToDisplay;
 
     // initialize global data    
     if (noOfMeasurePoints == 0){
@@ -152,7 +156,7 @@ function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, 
     
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
     _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList, 
-                  urlAlphasIndicesList, urlLinesList, boundaryURL, null);
+                  urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject);
     _bindEvents(canvas);
 
     //specify the re-draw function.
@@ -228,10 +232,12 @@ function _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList
     GL_initColorPickFrameBuffer();
     initShaders();
     NAV_initBrainNavigatorBuffers();
-    
-    LEG_initMinMax(activityMin, activityMax);
-    LEG_generateLegendBuffers();
-    
+
+    if(VS_showLegend){
+        LEG_initMinMax(activityMin, activityMax);
+        LEG_generateLegendBuffers();
+    }
+
     if ($.parseJSON(urlVerticesList)) {
         brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
                                    $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
@@ -379,7 +385,7 @@ var doPick = false;
 
 function customMouseDown(event) {
 	GL_handleMouseDown(event, $("#" + BRAIN_CANVAS_ID));
-    NAV_inTimeRefresh = false
+    NAV_inTimeRefresh = false;
     if (displayMeasureNodes && isDoubleView) {
     	doPick = true;
     }
@@ -842,7 +848,9 @@ function drawScene() {
 	    perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
 	    loadIdentity();
 	    addLight();
-	    drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+        if(VS_showLegend){
+	        drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+        }
 	    // Translate to get a good view.
 	    mvTranslate([0.0, -5.0, -GL_zTranslation]);
 	    multMatrix(GL_currentRotationMatrix);

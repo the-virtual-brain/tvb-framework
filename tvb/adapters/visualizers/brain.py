@@ -120,8 +120,8 @@ class BrainViewer(ABCDisplayer):
 
         rendering_urls = surface.get_urls_for_rendering(True, region_map)
         return (one_to_one_map, ) + rendering_urls
-    
-    
+
+
     def _get_url_for_region_boundaries(self, time_series):
         one_to_one_map = isinstance(time_series, TimeSeriesSurface)
         if not one_to_one_map and hasattr(time_series, 'connectivity'):
@@ -140,7 +140,7 @@ class BrainViewer(ABCDisplayer):
         one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
             alphas, alphas_indices = self._prepare_surface_urls(time_series)
 
-        _, _, measure_points_no = self._retrieve_measure_points(time_series)
+        _, _, measure_points_no = self.retrieve_measure_points(time_series)
         min_val, max_val = time_series.get_min_max_values()
         legend_labels = self._compute_legend_labels(min_val, max_val)
 
@@ -151,6 +151,13 @@ class BrainViewer(ABCDisplayer):
                     isOneToOneMapping=one_to_one_map, minActivity=min_val, maxActivity=max_val,
                     minActivityLabels=legend_labels, noOfMeasurePoints=measure_points_no)
 
+    @staticmethod
+    def get_default_face():
+        face_surface = dao.get_generic_entity(FaceSurface, 'FaceSurface', 'type')
+        if not face_surface:
+            raise Exception('No face object found in database.')
+        face_vertices, face_normals, _, face_triangles = face_surface[0].get_urls_for_rendering()
+        return json.dumps([face_vertices, face_normals, face_triangles])
 
     def compute_parameters(self, time_series):
         """
@@ -165,7 +172,7 @@ class BrainViewer(ABCDisplayer):
         one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
             alphas, alphas_indices = self._prepare_surface_urls(time_series)
 
-        measure_points, measure_points_labels, measure_points_no = self._retrieve_measure_points(time_series)
+        measure_points, measure_points_labels, measure_points_no = self.retrieve_measure_points(time_series)
         if not one_to_one_map and measure_points_no > MAX_MEASURE_POINTS_LENGTH:
             raise Exception("Max number of measure points " + str(MAX_MEASURE_POINTS_LENGTH) + " exceeded.")
 
@@ -173,11 +180,7 @@ class BrainViewer(ABCDisplayer):
         min_val, max_val = time_series.get_min_max_values()
         legend_labels = self._compute_legend_labels(min_val, max_val)
 
-        face_surface = dao.get_generic_entity(FaceSurface, "FaceSurface", "type")
-        if len(face_surface) == 0:
-            raise Exception("No face object found in database.")
-        face_vertices, face_normals, _, face_triangles = face_surface[0].get_urls_for_rendering()
-        face_object = json.dumps([face_vertices, face_normals, face_triangles])
+        face_object = BrainViewer.get_default_face()
 
         data_shape = time_series.read_data_shape()
         state_variables = time_series.labels_dimensions.get(time_series.labels_ordering[1], [])
@@ -185,14 +188,14 @@ class BrainViewer(ABCDisplayer):
         boundary_url = self._get_url_for_region_boundaries(time_series)
 
         return dict(title="Cerebral Activity", isOneToOneMapping=one_to_one_map,
-                    urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles), 
-                    urlLines=json.dumps(url_lines), urlNormals=json.dumps(url_normals), 
-                    urlMeasurePointsLabels=measure_points_labels, measure_points=measure_points, 
-                    noOfMeasurePoints=measure_points_no, alphas=json.dumps(alphas), 
+                    urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
+                    urlLines=json.dumps(url_lines), urlNormals=json.dumps(url_normals),
+                    urlMeasurePointsLabels=measure_points_labels, measure_points=measure_points,
+                    noOfMeasurePoints=measure_points_no, alphas=json.dumps(alphas),
                     alphas_indices=json.dumps(alphas_indices), base_activity_url=base_activity_url,
-                    time=json.dumps(time_urls), minActivity=min_val, maxActivity=max_val, 
-                    minActivityLabels=legend_labels, labelsStateVar=state_variables, labelsModes=range(data_shape[3]), 
-                    extended_view=False, shelfObject=face_object, time_series=time_series, pageSize=self.PAGE_SIZE, 
+                    time=json.dumps(time_urls), minActivity=min_val, maxActivity=max_val,
+                    minActivityLabels=legend_labels, labelsStateVar=state_variables, labelsModes=range(data_shape[3]),
+                    extended_view=False, shelfObject=face_object, time_series=time_series, pageSize=self.PAGE_SIZE,
                     boundary_url=boundary_url)
 
 
@@ -217,14 +220,14 @@ class BrainViewer(ABCDisplayer):
         return prepared_mappings
 
 
-    def _retrieve_measure_points(self, time_series):
+    def retrieve_measure_points(self, time_series):
         """
         To be overwritten method, for retrieving the measurement points (region centers, EEG sensors).
         """
         if isinstance(time_series, TimeSeriesSurface):
             return [], [], 0
-        measure_points = self.paths2url(time_series.connectivity, 'centres')
-        measure_points_labels = self.paths2url(time_series.connectivity, 'region_labels')
+        measure_points = ABCDisplayer.paths2url(time_series.connectivity, 'centres')
+        measure_points_labels = ABCDisplayer.paths2url(time_series.connectivity, 'region_labels')
         measure_points_no = time_series.connectivity.number_of_regions
         return measure_points, measure_points_labels, measure_points_no
 
@@ -288,32 +291,50 @@ class BrainEEG(BrainViewer):
                 {'name': 'eeg_cap', 'label': 'EEG Cap',
                  'type': EEGCap, 'required': False,
                  'description': 'The EEG Cap surface on which to display the results!'}]
-        
-        
-    def _retrieve_measure_points(self, surface_activity):
-        """
-        Overwrite, and compute sensors positions after mapping or skin surface of unit-vectors
 
+
+    @staticmethod
+    def get_sensor_measure_points(sensors):
+        """
+            Returns urls from where to fetch the measure points and their labels
+        """
+        measure_points = ABCDisplayer.paths2url(sensors, 'locations')
+        measure_points_no = sensors.number_of_sensors
+        measure_points_labels = ABCDisplayer.paths2url(sensors, 'labels')
+        return measure_points, measure_points_labels, measure_points_no
+
+
+    @staticmethod
+    def compute_sensor_surfacemapped_measure_points(sensors, eeg_cap=None):
+        """
+        Compute sensors positions by mapping them to the ``eeg_cap`` surface
+        If ``eeg_cap`` is not specified the mapping will use a default.
+        It returns the positions as json.
+        If no default is available it returns None
         :returns: measure points, measure points labels, measure points number
         :rtype: tuple
         """
-        measure_points, measure_points_no = None, 0
-        if not hasattr(self, 'eeg_cap') or self.eeg_cap is None:
+
+        if eeg_cap is None:
             cap_eeg = dao.get_generic_entity(EEGCap, "EEGCap", "type")
-            if len(cap_eeg) < 1:
-                measure_points = self.paths2url(surface_activity.sensors, 'locations')
-                measure_points_no = surface_activity.sensors.number_of_sensors
-                self.eeg_cap = None
-            else:
-                self.eeg_cap = cap_eeg[0]
-        if self.eeg_cap:
-            sensor_locations = surface_activity.sensors.sensors_to_surface(self.eeg_cap)[1]
+            if cap_eeg:
+                eeg_cap = cap_eeg[0]
+
+        if eeg_cap:
+            sensor_locations = sensors.sensors_to_surface(eeg_cap)[1]
             measure_points = json.dumps(sensor_locations.tolist())
-            measure_points_no = - surface_activity.sensors.number_of_sensors
+            measure_points_no = - sensors.number_of_sensors
+            measure_points_labels = ABCDisplayer.paths2url(sensors, 'labels')
+            return measure_points, measure_points_labels, measure_points_no
 
-        measure_points_labels = self.paths2url(surface_activity.sensors, 'labels')
-        return measure_points, measure_points_labels, measure_points_no
 
+    def retrieve_measure_points(self, surface_activity, eeg_cap=None):
+        measure_point_info = BrainEEG.compute_sensor_surfacemapped_measure_points(
+                                        surface_activity.sensors,
+                                        eeg_cap)
+        if measure_point_info is None:
+            measure_point_info = BrainEEG.get_sensor_measure_points(surface_activity.sensors)
+        return measure_point_info
 
     def launch(self, surface_activity, eeg_cap=None):
         """
@@ -361,20 +382,9 @@ class BrainSEEG(BrainEEG):
                  'type': TimeSeriesSEEG, 'required': True,
                  'description': 'Results after SEEG Monitor are expected!'}]
         
-    
-    def _retrieve_measure_points(self, surface_activity):
-        """
-        Overwrite, and compute sensors positions after mapping or skin surface of unit-vectors
+    def retrieve_measure_points(self, surface_activity):
+        return BrainEEG.get_sensor_measure_points(surface_activity.sensors)
 
-        :returns: measure points, measure points labels, measure points number
-        :rtype: tuple
-        """
-        measure_points = self.paths2url(surface_activity.sensors, 'locations')
-        measure_points_no = surface_activity.sensors.number_of_sensors
-        measure_points_labels = self.paths2url(surface_activity.sensors, 'labels')
-        return measure_points, measure_points_labels, measure_points_no
-    
-    
     def launch(self, surface_activity, eeg_cap=None):
         result_params = BrainEEG.launch(self, surface_activity)
         result_params['brainViewerTemplate'] = "seeg_view.html"

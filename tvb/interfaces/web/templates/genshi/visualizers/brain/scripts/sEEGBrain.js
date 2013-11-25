@@ -130,8 +130,10 @@ function drawScene() {
 		    }
 		    var medianTime = Math.floor(1000 / ((eval(framestime.join("+"))) / framestime.length));
 		    document.getElementById("FramesPerSecond").innerHTML = medianTime;
-		    document.getElementById("slider-value").innerHTML = TIME_STEP;
-		    if (sliderSel == false && !isPreview) {
+            if(isMovie){
+                document.getElementById("slider-value").innerHTML = TIME_STEP;
+            }
+		    if (!sliderSel && !isPreview) {
 		        $("#slider").slider("option", "value", currentTimeValue);
 		    }
 		}
@@ -142,8 +144,9 @@ function drawScene() {
 	    perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
 	    loadIdentity();
 	    addLight();
-		drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
-	    
+        if(VS_showLegend){
+		    drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+        }
 	    // Translate to get a good view.
 	    mvTranslate([0.0, -5.0, -GL_zTranslation]);
 	    multMatrix(GL_currentRotationMatrix);
@@ -182,13 +185,13 @@ function drawScene() {
         
 	} else {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
-   		gl.disable(gl.BLEND) 
-        gl.disable(gl.DITHER)
-        gl.disable(gl.FOG) 
-        gl.disable(gl.LIGHTING) 
-        gl.disable(gl.TEXTURE_1D) 
-        gl.disable(gl.TEXTURE_2D) 
-        gl.disable(gl.TEXTURE_3D) 
+   		gl.disable(gl.BLEND);
+        gl.disable(gl.DITHER);
+        gl.disable(gl.FOG);
+        gl.disable(gl.LIGHTING);
+        gl.disable(gl.TEXTURE_1D);
+        gl.disable(gl.TEXTURE_2D);
+        gl.disable(gl.TEXTURE_3D);
    		gl.uniform1f(shaderProgram.isPicking, 1);	
    		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -223,8 +226,10 @@ function drawScene() {
          }    
         var pickedIndex = GL_getPickedIndex();
 		if (pickedIndex != undefined) {
-            $("#channelChk_" + pickedIndex).attr('checked', !($("#channelChk_" + pickedIndex).attr('checked')));
-            $("#channelChk_" + pickedIndex).trigger('change');
+            var pickedChannel = $("#channelChk_" + pickedIndex);
+
+            pickedChannel.attr('checked', !pickedChannel.attr('checked'));
+            pickedChannel.trigger('change');
 		}
 	    mvPopMatrix();		 
 		doPick = false;
