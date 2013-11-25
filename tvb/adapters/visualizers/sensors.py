@@ -33,7 +33,7 @@ from tvb.adapters.visualizers.brain import BrainEEG, BrainViewer, BrainSEEG
 from tvb.basic.filters.chain import UIFilter, FilterChain
 from tvb.basic.traits.core import KWARG_FILTERS_UI
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
-from tvb.datatypes.sensors import SensorsEEG
+from tvb.datatypes.sensors import SensorsEEG, SensorsMEG
 from tvb.datatypes.sensors_data import SensorsData, SensorsInternalData
 from tvb.datatypes.surfaces import EEGCap
 from tvb.datatypes.surfaces_data import SurfaceData
@@ -85,7 +85,7 @@ class EegSensorViewer(ABCDisplayer):
     def get_input_tree(self):
         return [{'name': 'sensors', 'label': 'Brain surface',
                  'type': SensorsEEG, 'required': True,
-                 'description': ''},
+                 'description': 'The sensors datatype to be viewed'},
                 {'name': 'eeg_cap', 'label': 'EEG Cap',
                  'type': EEGCap, 'required': False,
                  'description': 'The EEG Cap surface on which to display the results!'}
@@ -122,3 +122,20 @@ class EegSensorViewer(ABCDisplayer):
 
     def get_required_memory_size(self):
         return -1
+
+
+class MEGSensorViewer(EegSensorViewer):
+    """
+    Sensor visualizer - for visual inspecting imported sensors in TVB.
+    """
+    _ui_name = "MEEG sensor Visualizer"
+    _ui_subsection = "sensor"
+
+    def get_input_tree(self):
+        return [{'name': 'sensors', 'label': 'Brain surface',
+                 'type': SensorsMEG, 'required': True,
+                 'description': 'The sensors datatype to be viewed'},
+                {'name': 'eeg_cap', 'label': 'EEG Cap',
+                 'type': EEGCap, 'required': False,
+                 'description': 'The EEG Cap surface on which to display the results!'}
+               ]
