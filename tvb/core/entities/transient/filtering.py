@@ -76,10 +76,10 @@ class StaticFiltersFactory():
         filter_data = json.loads(filter_data)
         if filter_data['type'] == 'from_burst':
             return FilterChain('Burst', [FilterChain.datatype + '.fk_parent_burst'],
-                                                [filter_data['value']], operations=["=="])
+                               [filter_data['value']], operations=["=="])
         if filter_data['type'] == 'from_datatype':
             return FilterChain('Datatypes', [FilterChain.operation + '.parameters'],
-                                                    [filter_data['value']], operations=["like"])
+                               [filter_data['value']], operations=["like"])
         return None
     
 

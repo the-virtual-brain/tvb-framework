@@ -29,10 +29,9 @@
 #
 
 """
-Created on Aug 21, 2012
-
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import json
 from tvb.core.adapters.abcadapter import ABCAdapter
 
@@ -40,6 +39,7 @@ SURFACE_PARAMETER = 'surface'
 CONNECTIVITY_PARAMETER = 'connectivity'
 FOCAL_POINTS_PARAMETER = 'focal_points_triangles'
 SCALING_PARAMETER = 'weight'
+
 
 class SurfaceStimulusContext():
     
@@ -83,13 +83,15 @@ class SurfaceStimulusContext():
         for entry in stimuli_interface:
             #Update this entry
             if (ABCAdapter.KEY_DEFAULT in entry and (entry[ABCAdapter.KEY_TYPE] != 'dict' or 
-                                                     (len(entry[ABCAdapter.KEY_ATTRIBUTES]) == 0 and entry[ABCAdapter.KEY_TYPE] == 'dict'))):
+                                                     (len(entry[ABCAdapter.KEY_ATTRIBUTES]) == 0
+                                                      and entry[ABCAdapter.KEY_TYPE] == 'dict'))):
                 self.equation_kwargs[entry[ABCAdapter.KEY_NAME]] = entry[ABCAdapter.KEY_DEFAULT]
             #To cover more complex trees
             if ABCAdapter.KEY_OPTIONS in entry:
                 for option in entry[ABCAdapter.KEY_OPTIONS]:
-                    if (ABCAdapter.KEY_ATTRIBUTES in option and 
-                        (ABCAdapter.KEY_DEFAULT not in entry or entry[ABCAdapter.KEY_DEFAULT] == option[ABCAdapter.KEY_VALUE])):
+                    if (ABCAdapter.KEY_ATTRIBUTES in option and
+                            (ABCAdapter.KEY_DEFAULT not in entry or
+                             entry[ABCAdapter.KEY_DEFAULT] == option[ABCAdapter.KEY_VALUE])):
                         self.update_from_interface(option[ABCAdapter.KEY_ATTRIBUTES])
             #To cover equation parameters that are of type dict
             if ABCAdapter.KEY_ATTRIBUTES in entry and entry[ABCAdapter.KEY_ATTRIBUTES]:
@@ -135,13 +137,15 @@ class RegionStimulusContext():
         for entry in stimuli_interface:
             #Update this entry
             if (ABCAdapter.KEY_DEFAULT in entry and (entry[ABCAdapter.KEY_TYPE] != 'dict' or 
-                                                     (len(entry[ABCAdapter.KEY_ATTRIBUTES]) == 0 and entry[ABCAdapter.KEY_TYPE] == 'dict'))):
+                                                     (len(entry[ABCAdapter.KEY_ATTRIBUTES]) == 0
+                                                      and entry[ABCAdapter.KEY_TYPE] == 'dict'))):
                 self.equation_kwargs[entry[ABCAdapter.KEY_NAME]] = entry[ABCAdapter.KEY_DEFAULT]
             #To cover more complex trees
             if ABCAdapter.KEY_OPTIONS in entry:
                 for option in entry[ABCAdapter.KEY_OPTIONS]:
                     if (ABCAdapter.KEY_ATTRIBUTES in option and 
-                        (ABCAdapter.KEY_DEFAULT not in entry or entry[ABCAdapter.KEY_DEFAULT] == option[ABCAdapter.KEY_VALUE])):
+                        (ABCAdapter.KEY_DEFAULT not in entry
+                         or entry[ABCAdapter.KEY_DEFAULT] == option[ABCAdapter.KEY_VALUE])):
                         self.update_from_interface(option[ABCAdapter.KEY_ATTRIBUTES])
             #To cover equation parameters that are of type dict
             if ABCAdapter.KEY_ATTRIBUTES in entry and entry[ABCAdapter.KEY_ATTRIBUTES]:

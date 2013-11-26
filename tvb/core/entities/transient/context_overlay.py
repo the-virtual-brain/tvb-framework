@@ -75,7 +75,7 @@ class CommonDetails(EnhancedDictionary):
         self.metadata[self.CODE_OPERATION_GROUP_ID] = {"name": "groupId", "hidden": "True"}
         
         self.operation_group_name = None
-        self.metadata[self.CODE_OPERATION_GROUP_NAME] = {"name": "operationGroupName", "hidden":"True"}
+        self.metadata[self.CODE_OPERATION_GROUP_NAME] = {"name": "operationGroupName", "hidden": "True"}
         
         self.burst_name = None
         self.metadata['burst_name'] = {"name": "Simulation", "disabled": "True"}
@@ -86,10 +86,10 @@ class CommonDetails(EnhancedDictionary):
         :param extra_fields_dict a dictionary of fields to be added in a distinct category.
         """
         for key, value in extra_fields_dict.iteritems():
-            if (value is not None and isinstance(value, numpy.ndarray)):
+            if value is not None and isinstance(value, numpy.ndarray):
                 # Make sure arrays are displayed in a compatible form: [1, 2, 3]
                 value = str(value.tolist())
-            elif (value is not None and isinstance(value, list) and len(value) > 0 and isinstance(value[0], unicode)):
+            elif value is not None and isinstance(value, list) and len(value) > 0 and isinstance(value[0], unicode):
                 value = [str(v) for v in value]
             self.scientific_details[key] = {"name": key, "value": str(value), "disabled": "True"}
 
@@ -153,13 +153,13 @@ class OperationOverlayDetails(CommonDetails):
         self.metadata['start_date'] = {"name": "Start date", "disabled": "True"}
         
         self.end_date = "None" if operation.completion_date is None else date2string(operation.completion_date)
-        self.metadata['end_date'] = {"name": "End date", "disabled":"True"}
+        self.metadata['end_date'] = {"name": "End date", "disabled": "True"}
         
         self.result_datatypes = count_results
         self.metadata['result_datatypes'] = {"name": "No. of resulted DataTypes", "disabled": "True"}
         
         self.input_datatypes = count_inputs
-        self.metadata['input_datatypes'] =  {"name": "No. of input DataTypes", "disabled": "True"}
+        self.metadata['input_datatypes'] = {"name": "No. of input DataTypes", "disabled": "True"}
         
         ### Now set/update generic fields
         self.gid = operation.gid
@@ -247,7 +247,7 @@ class DataTypeOverlayDetails(CommonDetails):
         """
         
         self.gid = datatype_result.gid
-        self.data_type_id  = datatype_result.id
+        self.data_type_id = datatype_result.id
         self.data_state = datatype_result.state
         self.datatype_title = datatype_result.display_name
         self.subject = datatype_result.subject
@@ -278,7 +278,7 @@ class DataTypeOverlayDetails(CommonDetails):
         ### Populate Group attributes
         if isinstance(datatype_result, model.DataTypeGroup):
             self.count = datatype_result.count_results
-            self.operation_group_name  = datatype_result.parent_operation.operation_group.name
+            self.operation_group_name = datatype_result.parent_operation.operation_group.name
             self.operation_label = datatype_result.parent_operation.operation_group.name
             self.operation_group_id = datatype_result.parent_operation.operation_group.id
         else:

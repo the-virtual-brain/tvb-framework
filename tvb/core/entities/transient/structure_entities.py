@@ -52,9 +52,8 @@ class StructureNode:
     
     SEP = "__"
 
-    
-    
-    def __init__(self, nid, node_name, ntype = TYPE_FOLDER, meta = None, children= None):
+
+    def __init__(self, nid, node_name, ntype=TYPE_FOLDER, meta=None, children=None):
         """
         Constructor 
         
@@ -88,15 +87,17 @@ class StructureNode:
         return (self.metadata is not None 
                 and DataTypeMetaData.KEY_LINK in self.metadata and
                 self.metadata[DataTypeMetaData.KEY_LINK] > 0)
-        
+
+
     @property
     def is_irelevant(self):
         """Check that current node is marked as not-relevant."""
-        if (self.metadata is not None and  DataTypeMetaData.KEY_RELEVANCY in 
-            self.metadata and self.metadata[DataTypeMetaData.KEY_RELEVANCY]==False):
+        if (self.metadata is not None and DataTypeMetaData.KEY_RELEVANCY in self.metadata and
+                not self.metadata[DataTypeMetaData.KEY_RELEVANCY]):
             return True
         return False
-        
+
+
     @property
     def is_group(self):
         """
@@ -129,7 +130,7 @@ class StructureNode:
             level_one = str(meta[first_level])
             level_two = str(meta[second_level])
             if level_one not in levels:
-                levels[level_one] = {level_two:[meta]}
+                levels[level_one] = {level_two: [meta]}
             else:
                 existent_sublevels = levels[level_one]
                 if level_two not in existent_sublevels:
@@ -158,9 +159,9 @@ class StructureNode:
                     else:
                         parent._type = meta[meta.KEY_NODE_TYPE]
                     datas.append(parent)
-                sublevel_id = level.replace(" ","") + StructureNode.SEP + sublevel.replace(" ","")
+                sublevel_id = level.replace(" ", "") + StructureNode.SEP + sublevel.replace(" ", "")
                 sublevel_name = StructureNode._prepare_node_name(sublevel, second_level)
-                sublevel_node = StructureNode(sublevel_id, sublevel_name, children= datas)
+                sublevel_node = StructureNode(sublevel_id, sublevel_name, children=datas)
                 sublevel_node._type = StructureNode._capitalize_first_letter(second_level)
                 level_children.append(sublevel_node)
                 
@@ -172,13 +173,13 @@ class StructureNode:
         json_children = StructureNode.__convert2json(forest, project_id)
         if len(json_children) > 0:
             result = '{data: [{ data: {title: "' + project_name + '"'
-            result = result + ',icon: "/static/style/nodes/nodeRoot.png"},'
-            result = result + 'state:"open", attr:{id:"' + StructureNode.PREFIX_ID_PROJECT
-            result = result + '"}, children: [' + json_children + '] } ] }'
+            result += ',icon: "/static/style/nodes/nodeRoot.png"},'
+            result += 'state:"open", attr:{id:"' + StructureNode.PREFIX_ID_PROJECT
+            result += '"}, children: [' + json_children + '] } ] }'
         else:
             result = '{data: [{ data: {title: "' + project_name + '"'
-            result = result + ',icon: "/static/style/nodes/nodeRoot.png"}'
-            result = result + ',attr:{id:"' + StructureNode.PREFIX_ID_PROJECT + '"}}]}'
+            result += ',icon: "/static/style/nodes/nodeRoot.png"}'
+            result += ',attr:{id:"' + StructureNode.PREFIX_ID_PROJECT + '"}}]}'
             
         return result
 
@@ -211,39 +212,38 @@ class StructureNode:
         place_comma = False
         for node in nodes_list:
             json_node = '{data: {title:"' + (node.name if len(node.name) < 100 else node.name[:95] + "...")
-            json_node = json_node + '",icon: "/static/style/nodes/node'
+            json_node += '",icon: "/static/style/nodes/node'
             if node.is_group:
-                json_node = json_node + 'Group.png"},'
+                json_node += 'Group.png"},'
             else:
-                json_node = json_node + node.type +'.png"},'
-            if (node.metadata is None and node.has_children):
-                json_node = json_node + ' state:"open", '
+                json_node += node.type + '.png"},'
+            if node.metadata is None and node.has_children:
+                json_node += ' state:"open", '
 
-            json_node = (json_node + 'attr:{id:"' + StructureNode.PREFIX_ID_NODE + 
-                         node.id + '"')
-            json_node = json_node + ', separator: ">>", projectId:"' 
-            json_node = json_node + str(project_id) + '"'
+            json_node += 'attr:{id:"' + StructureNode.PREFIX_ID_NODE + node.id + '", separator: ">>", '
+            json_node += 'projectId:"' + str(project_id) + '"'
             if node.metadata is not None:
                 meta_str = json.dumps(node.metadata)
-                meta_str = meta_str.replace('{','').replace('}', '')
-                json_node = json_node + ',' + meta_str
-                
-            json_node = json_node + ', style: "'    
+                meta_str = meta_str.replace('{', '').replace('}', '')
+                json_node += ',' + meta_str
+
+            json_node += ', style: "'
             if node.is_irelevant:
-                json_node = json_node + 'background-color: #666;'
+                json_node += 'background-color: #666;'
             if node.is_link:
-                json_node = json_node + 'font-style: italic;'
-            json_node = json_node + '" }'
+                json_node += 'font-style: italic;'
+            json_node += '" }'
             
             if node.has_children:
-                json_node = json_node + ', children:[' 
-                json_node = json_node + StructureNode.__convert2json(node.children, project_id)+']'
+                json_node += ', children:[' + StructureNode.__convert2json(node.children, project_id) + ']'
 
-            json_node = json_node + '}'
+            json_node += '}'
+
             if place_comma:
-                result = result + ','
+                result += ','
             place_comma = True
-            result = result + json_node
+
+            result += json_node
         return result  
 
 
@@ -328,7 +328,7 @@ class DataTypeMetaData(GenericMetaData):
     KEY_FK_OPERATION_GROUP = 'fk_operation_group'
 
     
-    def __init__(self, data= None, invalid= False):
+    def __init__(self, data=None, invalid=False):
         GenericMetaData.__init__(self, data)
         self.invalid = invalid
         
@@ -355,7 +355,7 @@ class DataTypeMetaData(GenericMetaData):
         """
         Return the group tag in which the operation was launched
         """
-        if(self.KEY_OPERATION_TAG in self.keys()):
+        if self.KEY_OPERATION_TAG in self.keys():
             return self[self.KEY_OPERATION_TAG]
         return None
     
@@ -379,7 +379,8 @@ class DataTypeMetaData(GenericMetaData):
                
                
     #####   CLASS METHODS start Here ########################################
-    
+
+
     @classmethod
     def get_filterable_meta(cls):
         """
@@ -389,22 +390,22 @@ class DataTypeMetaData(GenericMetaData):
         corresponding DataTypeMetaData object.
         """
         return [
-                {cls.KEY_NODE_TYPE: "Data Type"},
-                {cls.KEY_SUBJECT: "Subject"},
-                {cls.KEY_STATE: "State"},
-                {cls.KEY_OPERATION_TAG: "Operation group name"},
-                {cls.KEY_GID: "Unique Global Identifier"},
-                {cls.KEY_DATATYPE_ID: "Entity id"},
-                {cls.KEY_CREATE_DATA_DAY: "Create data day"},
-                {cls.KEY_CREATE_DATA_MONTH: "Create data month"},
-                {cls.KEY_OPERATION_ALGORITHM: "Operation algorithm"},
-                {cls.KEY_BURST: "Simulation name"},
-                {cls.KEY_TAG_1: "DataType Tag 1"},
-                {cls.KEY_TAG_2: "DataType Tag 2"},
-                {cls.KEY_TAG_3: "DataType Tag 3"},
-                {cls.KEY_TAG_4: "DataType Tag 4"},
-                {cls.KEY_TAG_5: "DataType Tag 5"}
-                ]
+            {cls.KEY_NODE_TYPE: "Data Type"},
+            {cls.KEY_SUBJECT: "Subject"},
+            {cls.KEY_STATE: "State"},
+            {cls.KEY_OPERATION_TAG: "Operation group name"},
+            {cls.KEY_GID: "Unique Global Identifier"},
+            {cls.KEY_DATATYPE_ID: "Entity id"},
+            {cls.KEY_CREATE_DATA_DAY: "Create data day"},
+            {cls.KEY_CREATE_DATA_MONTH: "Create data month"},
+            {cls.KEY_OPERATION_ALGORITHM: "Operation algorithm"},
+            {cls.KEY_BURST: "Simulation name"},
+            {cls.KEY_TAG_1: "DataType Tag 1"},
+            {cls.KEY_TAG_2: "DataType Tag 2"},
+            {cls.KEY_TAG_3: "DataType Tag 3"},
+            {cls.KEY_TAG_4: "DataType Tag 4"},
+            {cls.KEY_TAG_5: "DataType Tag 5"}
+        ]
 
 
 

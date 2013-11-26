@@ -27,18 +27,19 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-"""
-Created on Aug 23, 2012
 
+"""
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
+
 
 class ContextLocalConnectivity():
     """
     Keep the required data to redo the whole page. We don't need to keep the kwargs since
     we never return to that page in 'create mode', so the local connectivity entity and the
     selected surface should suffice.
-    """    
+    """
+
     def __init__(self):
         self.selected_entity = None
         self.selected_surface = None

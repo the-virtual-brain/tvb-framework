@@ -35,12 +35,16 @@
 import datetime
 from tvb.core.utils import date2string
 
+
 class Exportable(object):
     
-    def to_dict(self, excludes=['id']):
+    def to_dict(self, excludes=None):
         """
         For a model entity, return a equivalent dictionary.
         """
+        if excludes is None:
+            excludes = ["id"]
+
         dict_equivalent = {}
         for key in self.__dict__:
             if '_sa_' not in key[:5] and key not in excludes:
@@ -49,6 +53,7 @@ class Exportable(object):
                 else:
                     dict_equivalent[key] = self.__dict__[key]
         return self.__class__.__name__, dict_equivalent
-        
+
+
     def from_dict(self, dictionary):
         pass

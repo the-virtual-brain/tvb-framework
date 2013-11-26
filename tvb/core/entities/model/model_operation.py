@@ -215,14 +215,15 @@ class OperationGroup(Base, Exportable):
     project = relationship(Project, backref=backref('OPERATION_GROUPS', order_by=id, cascade="all,delete"))
 
 
-    def __init__(self, project_id, name='incomplete', ranges=[]):
+    def __init__(self, project_id, name='incomplete', ranges=None):
         self.name = name
-        if len(ranges) > 0:
-            self.range1 = ranges[0]
-        if len(ranges) > 1:
-            self.range2 = ranges[1]
-        if len(ranges) > 2:
-            self.range3 = ranges[2]
+        if ranges:
+            if len(ranges) > 0:
+                self.range1 = ranges[0]
+            if len(ranges) > 1:
+                self.range2 = ranges[1]
+            if len(ranges) > 2:
+                self.range3 = ranges[2]
         self.gid = generate_guid()
         self.fk_launched_in = project_id
 

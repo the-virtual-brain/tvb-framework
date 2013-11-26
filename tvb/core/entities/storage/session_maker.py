@@ -82,7 +82,7 @@ def singleton(cls):
 
 
 
-def MetaClassFactory(decorator_functions=[], new_attributes={}):
+def MetaClassFactory(decorator_functions, new_attributes):
     """
     A metaclass factory that creates a metaclass which makes sure a list of decorators
     are applied to all it's classes and also adds a dictionary of attributes.

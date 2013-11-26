@@ -33,30 +33,38 @@ Created on Jan 15, 2013
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+
+
 class BaseStorageException(Exception):
     """
     Base class for all TVB storage exceptions.
     """
+
     def __init__(self, message):
         Exception.__init__(self, message)
         self.message = message
 
+
     def __repr__(self):
         return self.message
-    
-    
+
+
+
 class NestedTransactionUnsupported(BaseStorageException):
     """
     Nested transactions are not supported unless in testing.
     """
+
     def __init__(self, message):
         BaseStorageException.__init__(self, message)
-        
-        
+
+
+
 class InvalidTransactionAccess(BaseStorageException):
     """
     Exception raised in case you have any faulty access to a transaction.
     """
+
     def __init__(self, message):
         BaseStorageException.__init__(self, message)
         

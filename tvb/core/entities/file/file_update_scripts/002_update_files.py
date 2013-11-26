@@ -43,7 +43,7 @@ from tvb.core.utils import string2date, date2string, string2bool, bool2string
 from tvb.core.entities.file.exceptions import FileVersioningException
 
 PYTHON_EXE_PATH = cfg().get_python_path()
-DATA_BUFFER_SIZE = 50000000 / 8 #500 MB maximum read at once (just assume worst case float64)
+DATA_BUFFER_SIZE = 50000000 / 8  # 500 MB maximum read at once (just assume worst case float64)
 
 # ---------------------- TVB 1.0 Specific constants and functions start here --------------------------
 # We duplicate these constants here since they were the ones used in TVB 1.0 and 
@@ -107,7 +107,7 @@ def _deserialize_value(value):
                 return string2bool(value[len(BOOL_VALUE_PREFIX):])
             if value.startswith(DATETIME_VALUE_PREFIX):
                 # Remove datetime prefix and transform to datetime
-                return string2date(value[len(DATETIME_VALUE_PREFIX):], date_format = DATE_TIME_FORMAT)
+                return string2date(value[len(DATETIME_VALUE_PREFIX):], date_format=DATE_TIME_FORMAT)
     return value
 # ---------------------- TVB 1.0 Specific constants and functions end here --------------------------
 
@@ -172,7 +172,7 @@ def __upgrade_file(input_file_name, output_file_name):
                 full_slice = slice(None, None, None)
                 data_slice = [full_slice for _ in node_shape]
                 for idx in range(0, node_shape[max_dimension], slice_size):
-                    specific_slice = slice(idx, idx+slice_size, 1)
+                    specific_slice = slice(idx, idx + slice_size, 1)
                     data_slice[max_dimension] = specific_slice
                     tables_data = tables_node[tuple(data_slice)]
                     h5py_node = h5py_h5_file[node_path]
@@ -199,7 +199,7 @@ def upgrade(input_file):
     # and if case of a fault in the os.system call just rename back and remove the output file.
     if not os.path.isfile(input_file):
         raise FileVersioningException("The input path %s received for upgrading from 1 -> 2 is not a "
-                                      "valid file on the disk."%(input_file,))
+                                      "valid file on the disk." % input_file)
     # Use a file-path with no spaces both for the temporary file and the input file
     # that is passed to the os.system call and just rename to original file at the 
     # end of the processing to avoid any problems with parameters passed to os.system.
@@ -207,7 +207,7 @@ def upgrade(input_file):
     path_to, file_name = os.path.split(input_file_no_spaces)
     tmp_convert_file = os.path.join(path_to, 'tmp_' + file_name)
     os.rename(input_file, tmp_convert_file)
-    ok_status = os.system(PYTHON_EXE_PATH + ' -m %s %s %s'%(__name__, tmp_convert_file, input_file_no_spaces))
+    ok_status = os.system(PYTHON_EXE_PATH + ' -m %s %s %s' % (__name__, tmp_convert_file, input_file_no_spaces))
     if ok_status == 0:
         # Call finished successfully
         os.remove(tmp_convert_file)
@@ -215,7 +215,7 @@ def upgrade(input_file):
     else:
         # Call failed for some reason, just rename back the input file
         os.rename(tmp_convert_file, input_file)
-        raise FileVersioningException("Something went wrong during the upgrade to file %s."%(input_file,))
+        raise FileVersioningException("Something went wrong during the upgrade to file %s." % input_file)
     
 
 ### This main is important, and used by the update() method from above.

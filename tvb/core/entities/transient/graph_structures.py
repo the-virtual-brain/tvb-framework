@@ -84,7 +84,7 @@ class NodeData():
         json += ", \"$color\": \"" + self.shape_color + "\""
         json += ", \"$type\": \"" + self.shape_type + "\""
         json += ", \"dataType\": \"" + self.dataType + "\""
-        json += ", \"entity_id\": \"" + str(self.entity_id) +"\""
+        json += ", \"entity_id\": \"" + str(self.entity_id) + "\""
         json += ", \"subtitle\": \"" + str(self.subtitle) + "\""
         json += "}"
         return json
@@ -282,7 +282,7 @@ class GraphStructure():
         final_json += self._create_fake_root(fake_root_adjacencies).to_json()
         for branch in self.graph_branches:
             branch_levels = branch.get_branch_levels()
-            #todo: refactor
+
             for node in branch_levels[DT_INPUTS_KEY]:
                 final_json += "," + node.to_json()
             for node in branch_levels[PARENT_OP_KEY]:
@@ -313,8 +313,7 @@ class GraphStructure():
 
 
     @staticmethod
-    def __set_nodes_adjacencies(list_of_nodes, adjacencies, 
-                                only_for_selected_node = False):
+    def __set_nodes_adjacencies(list_of_nodes, adjacencies, only_for_selected_node=False):
         """
         Sets adjacencies for a list of nodes.
         """
