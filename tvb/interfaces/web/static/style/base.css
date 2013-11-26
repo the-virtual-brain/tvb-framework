@@ -408,7 +408,7 @@ float: left;
 font-size: 21px;
 font-weight: bold;
 margin: 0 20px 25px 0;
-min-height: 64px;
+min-height: 56px;
 padding: 0 0 10px 0;
 text-shadow: rgba(0, 0, 0, 0.3) 1px 1px 0px;
 width: 478px;
@@ -425,7 +425,7 @@ color: #c8d4de;
 header nav li a {
 display: block;
 height: 100%;
-min-height: 64px;
+min-height: 56px;
 padding: 0 0 0 135px;
 width: 100%;
 -webkit-box-sizing: border-box;
@@ -537,6 +537,9 @@ background-image: url("./img/nav/img_ss_generic5.png");
 }
 header nav li#nav-analyze-ica {
 background-image: url("./img/nav/img_ss_generic8.png");
+}
+header nav li#nav-analyze-balloon {
+background-image: url("./img/nav/img_ss_generic6.png");
 }
 header nav li#nav-analyze-bct {
 background-image: url("./img/nav/img_ss_generic9.png");

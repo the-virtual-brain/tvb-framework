@@ -76,12 +76,13 @@ class WebStructure(object):
     SUB_SECTION_ANALYZE_8 = "ica"
     SUB_SECTION_ANALYZE_9 = "timeseries"
     SUB_SECTION_ANALYZE_10 = "wavelet"
-    SUB_SECTION_ANALYZE_11 = "bct"
-    SUB_SECTION_ANALYZE_12 = "bctcentrality"
-    SUB_SECTION_ANALYZE_13 = "bctclustering"
-    SUB_SECTION_ANALYZE_14 = "bctdegree"
-    SUB_SECTION_ANALYZE_15 = "bctdensity"
-    SUB_SECTION_ANALYZE_16 = "bctdistance"
+    SUB_SECTION_ANALYZE_11 = "balloon"
+    SUB_SECTION_ANALYZE_12 = "bct"
+    SUB_SECTION_ANALYZE_13 = "bctcentrality"
+    SUB_SECTION_ANALYZE_14 = "bctclustering"
+    SUB_SECTION_ANALYZE_15 = "bctdegree"
+    SUB_SECTION_ANALYZE_16 = "bctdensity"
+    SUB_SECTION_ANALYZE_17 = "bctdistance"
 
     ### Subsections for STIMULUS section.
     SUB_SECTION_STIMULUS_MENU = "stimulus"
@@ -159,12 +160,13 @@ class WebStructure(object):
         SUB_SECTION_ANALYZE_8: "ICA",
         SUB_SECTION_ANALYZE_9: "TimeSeries",
         SUB_SECTION_ANALYZE_10: "Wavelet",
-        SUB_SECTION_ANALYZE_11: "BCT",
-        SUB_SECTION_ANALYZE_12: "BCT Centrality",
-        SUB_SECTION_ANALYZE_13: "BCT Clustering",
-        SUB_SECTION_ANALYZE_14: "BCT Degree",
-        SUB_SECTION_ANALYZE_15: "BCT Density",
-        SUB_SECTION_ANALYZE_16: "BCT Distance",
+        SUB_SECTION_ANALYZE_11: "Model Balloon",
+        SUB_SECTION_ANALYZE_12: "BCT",
+        SUB_SECTION_ANALYZE_13: "BCT Centrality",
+        SUB_SECTION_ANALYZE_14: "BCT Clustering",
+        SUB_SECTION_ANALYZE_15: "BCT Degree",
+        SUB_SECTION_ANALYZE_16: "BCT Density",
+        SUB_SECTION_ANALYZE_17: "BCT Distance",
 
         SUB_SECTION_STIMULUS_MENU: "",
         SUB_SECTION_STIMULUS_SURFACE: "Region",
@@ -228,6 +230,8 @@ class WebStructure(object):
 
 
     ### ID of the HTML generated paragraph, to jump to it directly, in the online help overlay.
+    ### This can be wither a specific manual written description in UserGuide-UI_Analyzer.rst,
+    ### or it can refer to a automatic generated paragraph for an analyzer, as mapped by api_anbalyzers.py
     ANALYZERS_ONLINE_HELP_SHORTCUTS = {
 
         SUB_SECTION_ANALYZE_1: "cross-correlation-of-nodes",
@@ -240,12 +244,13 @@ class WebStructure(object):
         SUB_SECTION_ANALYZE_8: "independent-component-analysis-ica",
         SUB_SECTION_ANALYZE_9: "timeseries-metrics",
         SUB_SECTION_ANALYZE_10: "continuous-wavelet-transform-cwt",
-        SUB_SECTION_ANALYZE_11: "brain-connectivity-toolbox-analyzers",
+        SUB_SECTION_ANALYZE_11: "model-balloon",
         SUB_SECTION_ANALYZE_12: "brain-connectivity-toolbox-analyzers",
         SUB_SECTION_ANALYZE_13: "brain-connectivity-toolbox-analyzers",
         SUB_SECTION_ANALYZE_14: "brain-connectivity-toolbox-analyzers",
         SUB_SECTION_ANALYZE_15: "brain-connectivity-toolbox-analyzers",
         SUB_SECTION_ANALYZE_16: "brain-connectivity-toolbox-analyzers",
+        SUB_SECTION_ANALYZE_17: "brain-connectivity-toolbox-analyzers",
     }
     
     
