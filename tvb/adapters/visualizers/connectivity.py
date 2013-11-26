@@ -143,7 +143,8 @@ class ConnectivityViewer(ABCDisplayer):
         """
         result = []
         conn = self.load_entity_by_gid(original_connectivity)
-        result_connectivity = conn.generate_new_connectivity(new_weights, interest_area_indexes, self.storage_path, new_tracts)
+        result_connectivity = conn.generate_new_connectivity(new_weights, interest_area_indexes,
+                                                             self.storage_path, new_tracts)
         result.append(result_connectivity)
 
         linked_region_mappings = dao.get_generic_entity(RegionMapping, original_connectivity, '_connectivity')
@@ -369,7 +370,7 @@ class Connectivity2DViewer():
         form = "circle"
         default_dimension = 6
         angle += math.atan2(y_coord, x_coord)
-        radius = math.sqrt(math.pow(x_coord, 2) + math.pow((y_coord), 2))
+        radius = math.sqrt(math.pow(x_coord, 2) + math.pow(y_coord, 2))
 
         result_json = '{"id": "' + node_lbl + '",' + '"name": "' + node_lbl + '", '
         result_json += '"data": {"$dim": ' + str(default_dimension) + ', "$type": "' + form + '",'

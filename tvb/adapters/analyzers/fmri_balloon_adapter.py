@@ -42,7 +42,6 @@ from tvb.analyzers.fmri_balloon import BalloonModel
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.time_series import TimeSeriesRegion
 from tvb.core.adapters.abcadapter import ABCAsynchronous
-from tvb.basic.traits.types_basic import Range
 from tvb.basic.traits.util import log_debug_array
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
@@ -71,14 +70,15 @@ class BalloonModelAdapter(ABCAsynchronous):
         tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
         for node in tree:
             if node['name'] == 'time_series':
-                node['conditions'] = FilterChain(fields = [FilterChain.datatype + '._nr_dimensions'], 
-                                            operations = ["=="], values = [4])
+                node['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                                 operations=["=="], values=[4])
         return tree
     
     
     def get_output(self):
         return [TimeSeriesRegion]
-    
+
+
     def configure(self, time_series, dt=None, bold_model=None, RBM=None, neural_input_transformation=None):
         """
         Store the input shape to be later used to estimate memory usage. Also
@@ -105,6 +105,7 @@ class BalloonModelAdapter(ABCAsynchronous):
         self.algorithm = algorithm
         self.algorithm.time_series = time_series
 
+
     def get_required_memory_size(self, **kwargs):
         """
         Return the required memory to run this algorithm.
@@ -113,14 +114,16 @@ class BalloonModelAdapter(ABCAsynchronous):
         input_size = numpy.prod(used_shape) * 8.0
         output_size = self.algorithm.result_size(used_shape)
         return input_size + output_size   
-    
+
+
     def get_required_disk_size(self, **kwargs):
         """
         Returns the required disk size to be able to run the adapter.(in kB)
         """
         used_shape = (self.input_shape[0], self.input_shape[1], self.input_shape[2], self.input_shape[3])
         return self.algorithm.result_size(used_shape) * TVBSettings.MAGIC_NUMBER / 8 / 2 ** 10
-    
+
+
     def launch(self, time_series, dt=None, bold_model=None, RBM=None, neural_input_transformation=None):
         """
         Launch algorithm and build results.
@@ -131,8 +134,7 @@ class BalloonModelAdapter(ABCAsynchronous):
         """
         bold_signal = TimeSeriesRegion(storage_path=self.storage_path)
 
-
-                ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
+        ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         node_slice = [slice(self.input_shape[0]), slice(self.input_shape[1]), None, slice(self.input_shape[3])]
         
         ##---------- Iterate over slices and compose final result ------------##

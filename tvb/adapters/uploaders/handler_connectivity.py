@@ -56,6 +56,7 @@ def _get_coord_xform(darray):
 # GRAPHML <-> Connectivity
 # 
 
+
 def connectivity2networkx(connectivity):
     """
     Build NetworkX object from internal DataType Connectivity.
@@ -126,7 +127,7 @@ def networkx2connectivity(network_obj, storage_path):
     result.weights = weights_matrix
     result.centres = positions
     result.region_labels = labels_vector
-    result.set_metadata({'description':'Array Columns: labels, X, Y, Z'},'centres')
+    result.set_metadata({'description': 'Array Columns: labels, X, Y, Z'}, 'centres')
     result.orientations = orientation
     result.areas = areas
     result.tract_lengths = tract_matrix

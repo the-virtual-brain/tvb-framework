@@ -29,12 +29,10 @@
 #
 
 """
-Created on Mar 13, 2012
-
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import numpy
-from tvb.core import utils
 from tvb.datatypes.sensors import Sensors, SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
@@ -62,15 +60,15 @@ class Sensors_Importer(ABCSynchronous):
         """
         Define input parameters for this importer.
         """
-        return [{'name': 'sensors_file', 'type': 'upload', 'required_type':'txt', 
+        return [{'name': 'sensors_file', 'type': 'upload', 'required_type': 'txt',
                  'label': 'Please upload sensors file (txt or bz2 format)', 'required': True,
-                 'description': 'Expected a text/bz2 file containing sensor measurements.' },
+                 'description': 'Expected a text/bz2 file containing sensor measurements.'},
                 
                 {'name': 'sensors_type', 'type': 'select', 
                  'label': 'Sensors type: ', 'required': True,
-                 'options': [{'name':self.EEG_SENSORS,'value': self.EEG_SENSORS},
-                             {'name':self.MEG_SENSORS,'value': self.MEG_SENSORS},
-                             {'name':self.INTERNAL_SENSORS,'value': self.INTERNAL_SENSORS}]
+                 'options': [{'name': self.EEG_SENSORS, 'value': self.EEG_SENSORS},
+                             {'name': self.MEG_SENSORS, 'value': self.MEG_SENSORS},
+                             {'name': self.INTERNAL_SENSORS, 'value': self.INTERNAL_SENSORS}]
                  },
                 ]
                              
@@ -105,9 +103,8 @@ class Sensors_Importer(ABCSynchronous):
                     * sensors_type is "MEG sensors" and no orientation is specified
         """
         if sensors_file is None:
-            raise LaunchException ("Please select sensors file which contains data to import")
-        sensors_inst = None
-        
+            raise LaunchException("Please select sensors file which contains data to import")
+
         self.logger.debug("Create sensors instance")
         if sensors_type == self.EEG_SENSORS:
             sensors_inst = SensorsEEG()
@@ -120,13 +117,12 @@ class Sensors_Importer(ABCSynchronous):
             raise LaunchException(exception_str)
             
         sensors_inst.storage_path = self.storage_path
-        
-        sensors_inst.locations = read_list_data(sensors_file, usecols=[1,2,3])
+        sensors_inst.locations = read_list_data(sensors_file, usecols=[1, 2, 3])
         sensors_inst.labels = read_list_data(sensors_file, dtype=numpy.str, usecols=[0])
         
         if isinstance(sensors_inst, SensorsMEG):
             try:
-                sensors_inst.orientations = read_list_data(sensors_file, usecols=[4,5,6])
+                sensors_inst.orientations = read_list_data(sensors_file, usecols=[4, 5, 6])
             except IndexError:
                 raise LaunchException("Uploaded file does not contains sensors orientation.")
          

@@ -54,7 +54,7 @@ class GIFTITimeSeriesImporter(ABCSynchronous):
         return [{'name': 'data_file', 'type': 'upload', 'required_type': '',
                  'label': 'Please select file to import (.gii)', 'required': True},
                 {'name': 'surface', 'label': 'Brain Surface', 
-                 'type' : CorticalSurface, 'required':True, 
+                 'type': CorticalSurface, 'required': True,
                  'description': 'The Brain Surface used to generate imported TimeSeries.'}
                 ]
         
@@ -78,28 +78,25 @@ class GIFTITimeSeriesImporter(ABCSynchronous):
 
     def launch(self, data_file, surface=None):
         """
-            Execute import operations: 
+        Execute import operations:
         """
         if surface is None:
-            raise LaunchException("No surface selected. Please initiate " 
-                                  + "upload again and select a brain surface.")
+            raise LaunchException("No surface selected. Please initiate upload again and select a brain surface.")
             
         parser = GIFTIParser(self.storage_path, self.operation_id)
         try:
             time_series = parser.parse(data_file)
-
             ts_data_shape = time_series.read_data_shape()
+
             if surface.number_of_vertices != ts_data_shape[1]:
-                msg = ("Imported time series doesn't have values for all surface vertices."
-                       + "Surface has %d vertices while time series has %d values.")%\
-                       (surface.number_of_vertices, ts_data_shape[1])
-                       
+                msg = "Imported time series doesn't have values for all surface vertices. Surface has %d vertices " \
+                      "while time series has %d values." % (surface.number_of_vertices, ts_data_shape[1])
                 raise LaunchException(msg)
             else:
                 time_series.surface = surface
-                
-                 
-            return [time_series]             
+
+            return [time_series]
+
         except ParseException, excep:
             logger = get_logger(__name__)
             logger.exception(excep)

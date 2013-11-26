@@ -27,8 +27,11 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
-Factory for mapping DataTypes to Remove handlers.
+This module contains custom functionality to be executed at remove time on various complex DataTypes.
+
+Factory for mapping DataTypes to Remove handlers is build here.
 """
 
 from tvb.datatype_removers.remover_connectivity import ConnectivityRemover

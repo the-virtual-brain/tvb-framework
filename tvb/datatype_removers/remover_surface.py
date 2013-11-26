@@ -49,7 +49,7 @@ class SurfaceRemover(ABCRemover):
         ABCRemover.__init__(self, handled_datatype)
 
 
-    def remove_datatype(self, skip_validation = False):
+    def remove_datatype(self, skip_validation=False):
         """
         Called when a Surface is to be removed.
         """

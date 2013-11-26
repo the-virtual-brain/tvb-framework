@@ -52,7 +52,7 @@ class ConnectivityRemover(ABCRemover):
     def __init__(self, handled_datatype): 
         ABCRemover.__init__(self, handled_datatype)
         
-    def remove_datatype(self, skip_validation = False):
+    def remove_datatype(self, skip_validation=False):
         """
         Called when a Connectivity is to be removed.
         """
@@ -78,7 +78,7 @@ class ConnectivityRemover(ABCRemover):
             for one_conn in child_conns[1:]:
                 one_conn.parent_connectivity = child_conns[0].gid
             if child_conns and child_conns[0]:
-                child_conns[0].parent_connectivity =  self.handled_datatype.parent_connectivity
+                child_conns[0].parent_connectivity = self.handled_datatype.parent_connectivity
             for one_child in child_conns:
                 dao.store_entity(one_child)
         ABCRemover.remove_datatype(self, skip_validation)

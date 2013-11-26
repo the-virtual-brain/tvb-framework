@@ -50,7 +50,7 @@ class CIFTIExporter(ABCExporter):
         """
         Export data in CIFTI format
         """
-        raise Exception ("Not implemented yet")
+        raise Exception("Not implemented yet")
     
     def get_export_file_extension(self, data):
         return "cifti"         

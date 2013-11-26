@@ -33,6 +33,7 @@
 """
 from tvb.interfaces.web.entities.context_spatial import BaseSpatialContext
 
+
 class ContextNoiseParameters(BaseSpatialContext):
     """
     This class behaves like a controller. The model for this controller will
@@ -42,8 +43,9 @@ class ContextNoiseParameters(BaseSpatialContext):
     This class may also be used into the desktop application.
     """
 
-    def __init__(self, connectivity, default_model = None, default_integrator = None):
-        BaseSpatialContext.__init__(self, connectivity, default_model=default_model, default_integrator=default_integrator)
+    def __init__(self, connectivity, default_model=None, default_integrator=None):
+        BaseSpatialContext.__init__(self, connectivity, default_model=default_model,
+                                    default_integrator=default_integrator)
         self.init_noise_config_values()
         
         

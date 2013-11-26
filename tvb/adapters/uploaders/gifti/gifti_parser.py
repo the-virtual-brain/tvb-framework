@@ -62,11 +62,11 @@ class GIFTIParser():
         """
             Parse NIFTI file and returns TimeSeries for it. 
         """
-        self.logger.debug("Start to parse GIFTI file: %s"%data_file)
+        self.logger.debug("Start to parse GIFTI file: %s" % data_file)
         if data_file is None:
-            raise ParseException ("Please select GIFTI file which contains data to import")
+            raise ParseException("Please select GIFTI file which contains data to import")
         if not os.path.exists(data_file):
-            raise ParseException ("Provided file %s does not exists"%data_file)
+            raise ParseException("Provided file %s does not exists" % data_file)
         try:
             gifti_image = giftiio.read(data_file)
             self.logger.debug("File parsed successfully")
@@ -83,10 +83,10 @@ class GIFTIParser():
         
         # First check if it's a surface
         if (len(data_arrays) == 2 
-            and intent_codes.code["NIFTI_INTENT_POINTSET"] == data_arrays[0].intent
-            and data_type_codes.code["NIFTI_TYPE_FLOAT32"] == data_arrays[0].datatype
-            and intent_codes.code["NIFTI_INTENT_TRIANGLE"] == data_arrays[1].intent
-            and data_type_codes.code["NIFTI_TYPE_INT32"] == data_arrays[1].datatype):
+                and intent_codes.code["NIFTI_INTENT_POINTSET"] == data_arrays[0].intent
+                and data_type_codes.code["NIFTI_TYPE_FLOAT32"] == data_arrays[0].datatype
+                and intent_codes.code["NIFTI_INTENT_TRIANGLE"] == data_arrays[1].intent
+                and data_type_codes.code["NIFTI_TYPE_INT32"] == data_arrays[1].datatype):
             
             # Now try to determine what type of surface we have
             data_array_meta = data_arrays[0].meta
@@ -96,7 +96,7 @@ class GIFTIParser():
             title = None
             
             if (data_array_meta is not None and data_array_meta.data is not None 
-                   and len(data_array_meta.data) > 0):
+                    and len(data_array_meta.data) > 0):
                 anatomical_structure_primary = None
                 
                 for meta_pair in data_array_meta.data:
@@ -138,8 +138,8 @@ class GIFTIParser():
             return surface
         
         elif(len(data_arrays) > 1 
-            and intent_codes.code["NIFTI_INTENT_TIME_SERIES"] == data_arrays[0].intent
-            and data_type_codes.code["NIFTI_TYPE_FLOAT32"] == data_arrays[0].datatype):
+                and intent_codes.code["NIFTI_INTENT_TIME_SERIES"] == data_arrays[0].intent
+                and data_type_codes.code["NIFTI_TYPE_FLOAT32"] == data_arrays[0].datatype):
             
             # Create TVB time series to be filled
             time_series = TimeSeriesSurface()
@@ -151,7 +151,7 @@ class GIFTIParser():
             # First process first data_array and extract important data from it's metadata            
             data_array_meta = data_arrays[0].meta
             if (data_array_meta is not None and data_array_meta.data is not None 
-                   and len(data_array_meta.data) > 0):
+                    and len(data_array_meta.data) > 0):
                 for meta_pair in data_array_meta.data:
                     if meta_pair.name == self.UNIQUE_ID_ATTR:
                         gid = meta_pair.value.replace("{", "").replace("}", "")

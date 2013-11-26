@@ -157,7 +157,7 @@ class OperationService:
             return self._send_to_cluster(operations, adapter_instance)
 
 
-    def _prepare_metadata(self, initial_metadata, algo_category, operation_group=None, submit_data={}):
+    def _prepare_metadata(self, initial_metadata, algo_category, operation_group, submit_data):
         """
         Gather metadata from submitted fields and current to be execute algorithm.
         Will populate STATE, GROUP in metadata

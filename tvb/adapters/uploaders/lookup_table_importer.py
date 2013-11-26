@@ -40,6 +40,7 @@ from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.logger.builder import get_logger
 
+
 class LookupTableImporter(ABCSynchronous):
 
     _ui_name = "Lookup Table"
@@ -57,13 +58,13 @@ class LookupTableImporter(ABCSynchronous):
         """
         Define input parameters for this importer.
         """
-        return [{'name': 'psi_table_file', 'type': 'upload', 'required_type':'txt', 
+        return [{'name': 'psi_table_file', 'type': 'upload', 'required_type': 'txt',
                  'label': 'Please upload Psi table file in NPZ format.', 'required': True,
-                 'description': 'Expected a NPZ file containing Psi table data.' },
+                 'description': 'Expected a NPZ file containing Psi table data.'},
                 {'name': 'table_type', 'type': 'select', 
                  'label': 'Table type: ', 'required': True,
-                 'options': [{'name':self.PSI_TABLE,'value': self.PSI_TABLE},
-                             {'name':self.NERF_TABLE,'value': self.NERF_TABLE}]
+                 'options': [{'name': self.PSI_TABLE, 'value': self.PSI_TABLE},
+                             {'name': self.NERF_TABLE, 'value': self.NERF_TABLE}]
                  },
                 ]
                              
@@ -88,7 +89,7 @@ class LookupTableImporter(ABCSynchronous):
         Created required sensors from the uploaded file.
         """
         if psi_table_file is None:
-            raise LaunchException ("Please select Psi table file which contains data to import")
+            raise LaunchException("Please select Psi table file which contains data to import")
         try:
             table_data = numpy.load(psi_table_file)
         except IOError, msg:
@@ -116,7 +117,7 @@ class LookupTableImporter(ABCSynchronous):
             table_inst.dx = numpy.array(float(table_inst.xmax - table_inst.xmin) / table_inst.number_of_values)
             table_inst.invdx = numpy.array(1 / table_inst.dx)
         else:
-            raise LaunchException("Could not determine table type from selected option %s"%(table_type,))
+            raise LaunchException("Could not determine table type from selected option %s" % table_type)
         
         return [table_inst]
     

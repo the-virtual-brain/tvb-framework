@@ -36,14 +36,15 @@ A mapping from traited datatypes to sql types.
 import sqlalchemy
 
 MAPPINGS = {
-            'tvb.basic.traits.types_basic.String' : (sqlalchemy.String, ),
-            'tvb.basic.traits.types_basic.Bool' : (sqlalchemy.Boolean, ),
-            'tvb.basic.traits.types_basic.Integer' : (sqlalchemy.Integer, ),
-            'tvb.basic.traits.types_basic.Float' : (sqlalchemy.Float, ),
-            'tvb.basic.traits.types_basic.Complex' : None,
-            'tvb.basic.traits.types_basic.MapAsJson' : (sqlalchemy.String, ),
-            'tvb.basic.traits.types_mapped_light.Array' : (sqlalchemy.String, )
-            }
+    'tvb.basic.traits.types_basic.String': (sqlalchemy.String, ),
+    'tvb.basic.traits.types_basic.Bool': (sqlalchemy.Boolean, ),
+    'tvb.basic.traits.types_basic.Integer': (sqlalchemy.Integer, ),
+    'tvb.basic.traits.types_basic.Float': (sqlalchemy.Float, ),
+    'tvb.basic.traits.types_basic.Complex': None,
+    'tvb.basic.traits.types_basic.MapAsJson': (sqlalchemy.String, ),
+    'tvb.basic.traits.types_mapped_light.Array': (sqlalchemy.String, )
+}
+
 
 def get_sql_mapping(input_class):
     """

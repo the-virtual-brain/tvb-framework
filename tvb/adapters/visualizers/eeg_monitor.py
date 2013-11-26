@@ -73,7 +73,7 @@ class EegMonitor(ABCDisplayer):
         return -1
 
 
-    def compute_parameters(self, input_data, data_2=None, data_3=None, is_preview=False, selected_dimensions=[0, 2]):
+    def compute_parameters(self, input_data, data_2=None, data_3=None, is_preview=False, selected_dimensions=None):
         """
         Start the JS visualizer, similar to EEG-lab
 
@@ -105,7 +105,7 @@ class EegMonitor(ABCDisplayer):
             original_timeseries.append(data_3)
             multiple_input = True
 
-        self.selected_dimensions = selected_dimensions
+        self.selected_dimensions = selected_dimensions or [0, 2]
         # Compute distance between channels
         step, translations, channels_per_set = self.compute_required_info(original_timeseries)
 

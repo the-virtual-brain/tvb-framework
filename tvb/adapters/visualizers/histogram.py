@@ -65,8 +65,7 @@ class HistogramViewer(ABCDisplayer):
         :type input_data: `ConnectivityMeasure`
         """
         params = self.prepare_parameters(input_data)
-        return self.build_display_result("histogram/view", params,
-                                         pages=dict(controlPage="histogram/controls"))
+        return self.build_display_result("histogram/view", params, pages=dict(controlPage="histogram/controls"))
 
 
     def get_required_memory_size(self, input_data, figure_size):

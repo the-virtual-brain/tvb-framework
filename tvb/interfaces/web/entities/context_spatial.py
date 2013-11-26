@@ -38,9 +38,10 @@ import tvb.simulator.models as models_module
 import tvb.simulator.integrators as integrators_module
 from tvb.basic.logger.builder import get_logger
 
+
 class BaseSpatialContext():
     
-    def __init__(self, connectivity, default_model = None, default_integrator = None):
+    def __init__(self, connectivity, default_model=None, default_integrator=None):
         self.logger = get_logger(self.__class__.__module__)
         self.default_model = default_model
         self.default_integrator = default_integrator

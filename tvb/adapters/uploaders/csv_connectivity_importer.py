@@ -45,6 +45,7 @@ from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.files_helper import FilesHelper
 import demo_data.connectivity
 
+
 class CSVConnectivityImporter(ABCSynchronous):
     """
     Handler for uploading a Connectivity archive, with files holding 

@@ -32,7 +32,10 @@ class ICA(ABCDisplayer):
 
 
     def get_required_memory_size(self, **kwargs):
-        "Return required memory. Here, it's unknown/insignificant."
+        """
+        :param kwargs: Parameters to launch viewer with
+        :return: required memory. Here, it's unknown/insignificant.
+        """
         return -1
 
 
@@ -47,7 +50,6 @@ class ICA(ABCDisplayer):
         matrix_strides = json.dumps(map(lambda x: x / matrix.itemsize, matrix.strides))
 
         view_pars = dict(matrix_data=matrix_data, matrix_shape=matrix_shape, matrix_strides=matrix_strides)
-
         return self.build_display_result("ica/view", view_pars)
 
 
@@ -59,6 +61,5 @@ class ICA(ABCDisplayer):
         """
         Dump a list of numbers into a string, each at the specified precision. 
         """
-
         return "[" + ",".join(map(lambda x: ("%0." + str(prec) + "g") % (x,), xs)) + "]"
 

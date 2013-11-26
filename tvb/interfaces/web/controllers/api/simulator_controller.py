@@ -183,7 +183,7 @@ class SimulatorController(base.BaseController):
 
     def __init__(self, nproc=2):
         super(SimulatorController, self).__init__()
-        self.reset(nproc=2)
+        self.reset(nproc=nproc)
 
 
     @cherrypy.expose
@@ -289,7 +289,7 @@ if __name__ == '__main__':
 
         @cherrypy.expose
         def version(self):
-            return '0.0'  # TODO TVB version
+            return '1.1'  # TODO TVB version
 
     api = API()
     api.simulator = SimulatorController()

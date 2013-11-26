@@ -115,7 +115,7 @@ class RegionMapping_Importer(ABCSynchronous):
             raise LaunchException("No connectivity selected. Please initiate upload again and select one.")
             
         self.logger.debug("Reading mappings from uploaded file")
-        array_data = None
+
         if zipfile.is_zipfile(mapping_file):
             tmp_folder = tempfile.mkdtemp(prefix='region_mapping_zip_', dir=cfg.TVB_TEMP_FOLDER)
             try:

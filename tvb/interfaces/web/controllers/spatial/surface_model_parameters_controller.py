@@ -242,10 +242,10 @@ class SurfaceModelParametersController(SpatioTemporalController):
                 equation = model_param_data[KEY_EQUATION]
                 equation_name = equation.__class__.__name__
                 equation_params = equation.parameters
-                for input in input_list:
-                    if input['name'] == 'model_param_equation':
-                        input['default'] = equation_name
-                        for option in input['options']:
+                for input_ in input_list:
+                    if input_['name'] == 'model_param_equation':
+                        input_['default'] = equation_name
+                        for option in input_['options']:
                             if option['name'] == equation_name:
                                 for attr in option['attributes']:
                                     if attr['name'] == 'parameters':

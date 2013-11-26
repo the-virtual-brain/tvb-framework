@@ -50,13 +50,13 @@ class NIFTIParser():
         
     def parse(self, data_file):
         """
-            Parse NIFTI file and returns TimeSeries for it. 
+        Parse NIFTI file and returns TimeSeries for it.
         """
         if data_file is None:
-            raise ParseException ("Please select NIFTI file which contains data to import")
+            raise ParseException("Please select NIFTI file which contains data to import")
 
         if not os.path.exists(data_file):
-            raise ParseException ("Provided file %s does not exists"%data_file)
+            raise ParseException("Provided file %s does not exists" % data_file)
         try:
             nifti_image = nib.load(data_file)
         except nib.spatialimages.ImageFileError, e:
@@ -67,12 +67,12 @@ class NIFTIParser():
         nifti_image_hdr = nifti_image.get_header()
         
         # Create volume for time series
-        volume = Volume(storage_path = self.storage_path)
+        volume = Volume(storage_path=self.storage_path)
         volume.set_operation_id(self.operation_id)
         volume.origin = [[0.0, 0.0, 0.0]]
         
         # Now create TimeSeries and fill it with data from NIFTI image                
-        time_series = TimeSeriesVolume(storage_path = self.storage_path)
+        time_series = TimeSeriesVolume(storage_path=self.storage_path)
         time_series.set_operation_id(self.operation_id)
         time_series.volume = volume
         time_series.title = "NIFTI Import - " + os.path.split(data_file)[1]
@@ -95,7 +95,7 @@ class NIFTIParser():
                 time_series.write_data_slice([nifti_data[:, :, :, i, ...]])
         else:
             time_series.write_data_slice([nifti_data])
-        time_series.close_file() # Force closing HDF5 file 
+        time_series.close_file()  # Force closing HDF5 file
             
         # Extract sample unit measure
         units = nifti_image_hdr.get_xyzt_units()
@@ -109,7 +109,7 @@ class NIFTIParser():
         if has_time_dimension:
             time_series.sample_period = float(zooms[3])
         else:
-            time_series.sample_period = 1.0 # If no time dim, set sampling to 1 sec
+            time_series.sample_period = 1.0  # If no time dim, set sampling to 1 sec
               
         # Get voxtel dimensions for x,y, z
         volume.voxel_size = [zooms[0], zooms[1], zooms[2]]

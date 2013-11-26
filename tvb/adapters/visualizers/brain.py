@@ -151,6 +151,7 @@ class BrainViewer(ABCDisplayer):
                     isOneToOneMapping=one_to_one_map, minActivity=min_val, maxActivity=max_val,
                     minActivityLabels=legend_labels, noOfMeasurePoints=measure_points_no)
 
+
     @staticmethod
     def get_default_face():
         face_surface = dao.get_generic_entity(FaceSurface, 'FaceSurface', 'type')
@@ -158,6 +159,7 @@ class BrainViewer(ABCDisplayer):
             raise Exception('No face object found in database.')
         face_vertices, face_normals, _, face_triangles = face_surface[0].get_urls_for_rendering()
         return json.dumps([face_vertices, face_normals, face_triangles])
+
 
     def compute_parameters(self, time_series):
         """
@@ -271,12 +273,14 @@ class BrainViewer(ABCDisplayer):
         return activity_base_url, time_urls
 
 
+
 class BrainEEG(BrainViewer):
     """
     Visualizer merging Brain 3D display and EEG lines display.
     """
     _ui_name = "Brain EEG Activity in 3D and 2D"
     _ui_subsection = "brain_eeg"
+
 
     def get_input_tree(self):
         
@@ -329,12 +333,11 @@ class BrainEEG(BrainViewer):
 
 
     def retrieve_measure_points(self, surface_activity, eeg_cap=None):
-        measure_point_info = BrainEEG.compute_sensor_surfacemapped_measure_points(
-                                        surface_activity.sensors,
-                                        eeg_cap)
+        measure_point_info = BrainEEG.compute_sensor_surfacemapped_measure_points(surface_activity.sensors, eeg_cap)
         if measure_point_info is None:
             measure_point_info = BrainEEG.get_sensor_measure_points(surface_activity.sensors)
         return measure_point_info
+
 
     def launch(self, surface_activity, eeg_cap=None):
         """
@@ -369,6 +372,7 @@ class BrainEEG(BrainViewer):
         return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices
 
 
+
 class BrainSEEG(BrainEEG):
     """
     Visualizer merging Brain 3D display and MEG lines display.
@@ -381,9 +385,11 @@ class BrainSEEG(BrainEEG):
         return [{'name': 'surface_activity', 'label': 'SEEG activity',
                  'type': TimeSeriesSEEG, 'required': True,
                  'description': 'Results after SEEG Monitor are expected!'}]
-        
+
+
     def retrieve_measure_points(self, surface_activity):
         return BrainEEG.get_sensor_measure_points(surface_activity.sensors)
+
 
     def launch(self, surface_activity, eeg_cap=None):
         result_params = BrainEEG.launch(self, surface_activity)
