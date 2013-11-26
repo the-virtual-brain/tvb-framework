@@ -24,13 +24,13 @@
 function EX_initializeChannels() {
     if (isDoubleView) {
         $("#checkAllChannelsBtn").click(function() {
-            $("input[id^='channelChk_']").each(function (i) {
+            $("input[id^='channelChk_']").each(function () {
                 var index = this.id.split("channelChk_")[1];
                 EX_changeColorBufferForMeasurePoint(index, this.checked);
             });
         });
         $("#clearAllChannelsBtn").click(function() {
-            $("input[id^='channelChk_']").each(function (i) {
+            $("input[id^='channelChk_']").each(function () {
                 var index = this.id.split("channelChk_")[1];
                 EX_changeColorBufferForMeasurePoint(index, this.checked);
             });
@@ -43,7 +43,7 @@ function EX_initializeChannels() {
         	initActivityData();
         });
     }
-};
+}
 
 
 /**
@@ -59,3 +59,43 @@ function EX_changeColorBufferForMeasurePoint(measurePointIndex, isPicked) {
     measurePointsBuffers[measurePointIndex][colorBufferIndex] = createColorBufferForCube(isPicked);
 }
 
+
+/**
+ * Initialization function for Channels, when sensor internals.
+ */
+function EX_initializeChannelsForSensorsInternal() {
+    $("#checkAllChannelsBtn").click(function() {
+        $("input[id^='channelChk_']").each(function () {
+            var index = this.id.split("channelChk_")[1];
+            _changeColorBufferForMeasurePointSensorInternal(index, this.checked);
+        });
+    });
+    $("#clearAllChannelsBtn").click(function() {
+        $("input[id^='channelChk_']").each(function () {
+            var index = this.id.split("channelChk_")[1];
+            _changeColorBufferForMeasurePointSensorInternal(index, this.checked);
+        });
+    });
+    $("input[id^='channelChk_']").change(function() {
+        var index = this.id.split("channelChk_")[1];
+        _changeColorBufferForMeasurePointSensorInternal(index, this.checked);
+    });
+    $("#refreshChannelsButton").click(function() {
+        initActivityData();
+    });
+}
+
+/**
+ * In the extended view if a certain EEG channel was selected then we
+ * have to draw the measure point corresponding to it with a different color.
+ *
+ * @param measurePointIndex the index of the measure point to which correspond the EEG channel
+ * @param isPicked if <code>true</code> then the point will be drawn with the color corresponding
+ * to the selected channels, otherwise with the default color
+ */
+function _changeColorBufferForMeasurePointSensorInternal(measurePointIndex, isPicked) {
+    var colorBufferIndex = measurePointsBuffers[measurePointIndex].length - 1;
+    var alphaAndColors = createColorBufferForSphere(isPicked, measurePointIndex, measurePointsBuffers[measurePointIndex][0].numItems * 3);
+    measurePointsBuffers[measurePointIndex][colorBufferIndex - 1] = alphaAndColors[0];
+    measurePointsBuffers[measurePointIndex][colorBufferIndex] = alphaAndColors[1];
+}
