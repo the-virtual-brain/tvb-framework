@@ -652,10 +652,11 @@ function initBrainNavigatorBuffers() {
  * Draw the light
  */
 function addLight() {
-    gl.uniform3f(shaderProgram.ambientColorUniform, 0.8, 0.8, 0.7);
-    var lightingDirection = Vector.create([0.85, 0.8, 0.75]);
+    var lightingDirection = Vector.create([-0.5, 0, -1]);
     var adjustedLD = lightingDirection.toUnitVector().x(-1);
     var flatLD = adjustedLD.flatten();
+
+    gl.uniform3f(shaderProgram.ambientColorUniform, 0.6, 0.6, 0.5);
     gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
     gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
     gl.uniform3f(shaderProgram.pointLightingLocationUniform, 0, -10, -400);

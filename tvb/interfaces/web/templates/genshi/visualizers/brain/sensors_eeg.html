@@ -73,7 +73,7 @@
 			
 			picked = isPicking;
 			if (isPicking == 0.0) {
-			    vec4 transformedNormal = - uNMatrix * vec4(aVertexNormal, 1.0);
+			    vec4 transformedNormal = uNMatrix * vec4(aVertexNormal, 1.0);
 			    float directionalLightWeighting = max(dot(transformedNormal.xyz, uLightingDirection), 0.0);
 				
 				if (uUseVertexLineColor || !uDrawLines) {
