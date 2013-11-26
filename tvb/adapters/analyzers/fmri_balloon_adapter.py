@@ -29,8 +29,7 @@
 #
 
 """
-Adapter that uses the traits module to generate interfaces for
-BalloonModel Analyzer.
+Adapter that uses the traits module to generate interfaces for BalloonModel Analyzer.
 
 .. moduleauthor:: Paula Sanz Leon <Paula@tvb.invalid>
 
@@ -132,19 +131,24 @@ class BalloonModelAdapter(ABCAsynchronous):
         :returns: the simulated BOLD signal
         :rtype: `TimeSeries`
         """
-        bold_signal = TimeSeriesRegion(storage_path=self.storage_path)
+        time_line = time_series.read_time_page(0, self.input_shape[0])
+        bold_signal = TimeSeriesRegion(storage_path=self.storage_path,
+                                       sample_period=time_series.sample_period,
+                                       start_time=time_series.start_time,
+                                       connectivity=time_series.connectivity)
 
-        ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
-        node_slice = [slice(self.input_shape[0]), slice(self.input_shape[1]), None, slice(self.input_shape[3])]
-        
         ##---------- Iterate over slices and compose final result ------------##
-        small_ts = TimeSeries(use_storage=False)
+
+        node_slice = [slice(self.input_shape[0]), slice(self.input_shape[1]), None, slice(self.input_shape[3])]
+        small_ts = TimeSeries(use_storage=False, sample_period=time_series.sample_period, time=time_line)
+        
         for node in range(self.input_shape[2]):
             node_slice[2] = slice(node, node + 1)
             small_ts.data = time_series.read_data_slice(tuple(node_slice))
             self.algorithm.time_series = small_ts
             partial_bold = self.algorithm.evaluate()
-            bold_signal.write_data_slice(partial_bold)
-        
+            bold_signal.write_data_slice(partial_bold.data, grow_dimension=2)
+
+        bold_signal.write_time_slice(time_line)
         bold_signal.close_file()
         return bold_signal
