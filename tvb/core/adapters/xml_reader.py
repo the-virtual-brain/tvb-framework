@@ -27,6 +27,7 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """ 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
@@ -143,10 +144,10 @@ class XMLGroupReader():
         Validate and read XML.
         Private constructor. Should not be used directly, but rather through XMLGroupReader.get_instance
         """
-        self.logger = get_logger(self.__class__.__module__+'.')
-        self.logger.debug("Starting to validate XML file "+ interface_file)
+        self.logger = get_logger(self.__class__.__module__ + '.')
+        self.logger.debug("Starting to validate XML file " + interface_file)
         try:
-            pyxsval.parseAndValidate (interface_file)
+            pyxsval.parseAndValidate(interface_file)
         except pyxsval.XsvalError, errstr:
             msg = "The XML file " + str(interface_file) + " is not valid. "
             self.logger.error(msg + "Error message: " + str(errstr))
@@ -159,12 +160,13 @@ class XMLGroupReader():
             self.logger.warning("Could not validate XML due to internet connection being down!")
             #self.logger.exception(excep)
             # Do not raise exception in this case
-        self.logger.debug("Starting to parse XML file "+ interface_file)
+
+        self.logger.debug("Starting to parse XML file " + interface_file)
         doc_xml = xml.dom.minidom.parse(interface_file)
         tvb_node = doc_xml.lastChild
         root_node = None
         for child in tvb_node.childNodes:
-            if (child.nodeType == Node.ELEMENT_NODE and child.nodeName == ELEM_ALGORITHM_GROUP):
+            if child.nodeType == Node.ELEMENT_NODE and child.nodeName == ELEM_ALGORITHM_GROUP:
                 root_node = child
                 break
         if root_node is None:
@@ -212,8 +214,7 @@ class XMLGroupReader():
         Returns a list with all outputs for the current group. The result is a list of dictionaries.
         """
         result = []
-        if (self._algorithm_group is None or 
-            ALGORITHMS_KEY not in self._algorithm_group):
+        if self._algorithm_group is None or ALGORITHMS_KEY not in self._algorithm_group:
             return result
         algorithms = self._algorithm_group[ALGORITHMS_KEY]
         for key in algorithms.keys():
@@ -225,8 +226,7 @@ class XMLGroupReader():
     def get_algorithms_dictionary(self):
         """ Retrieve the dictionary of available sub-Algorithm references."""
         result = dict()
-        if (self._algorithm_group is None or 
-            ALGORITHMS_KEY not in self._algorithm_group):
+        if self._algorithm_group is None or ALGORITHMS_KEY not in self._algorithm_group:
             return result
         algorithms = self._algorithm_group[ALGORITHMS_KEY]
         for key in algorithms.keys():
@@ -313,7 +313,7 @@ class XMLGroupReader():
 
     def _get_algorithm(self, algorithm_identifier):
         """"Input tree for an algorithm."""
-        if (self._algorithm_group is None or ALGORITHMS_KEY not in self._algorithm_group):
+        if self._algorithm_group is None or ALGORITHMS_KEY not in self._algorithm_group:
             return None
         algorithms_dict = self._algorithm_group[ALGORITHMS_KEY]
         if algorithm_identifier not in algorithms_dict:
@@ -323,7 +323,7 @@ class XMLGroupReader():
 
     def _parse_algorithm_group(self, node):
         """"Method which knows how to parse an algorithm group node"""
-        if (node.nodeType != Node.ELEMENT_NODE or node.nodeName != ELEM_ALGORITHM_GROUP):
+        if node.nodeType != Node.ELEMENT_NODE or node.nodeName != ELEM_ALGORITHM_GROUP:
             return None
         algorithm_group = XMLGroupReader._read_all_attributes(node)
         algorithms = {}
@@ -339,8 +339,7 @@ class XMLGroupReader():
 
     def _parse_algorithm(self, node):
         """"Method used for parsing an algorithm node"""
-        if (node.nodeType != Node.ELEMENT_NODE or
-            node.nodeName != ELEM_ALGORITHM):
+        if node.nodeType != Node.ELEMENT_NODE or node.nodeName != ELEM_ALGORITHM:
             return None
 
         algorithm = AlgorithmWrapper()
@@ -368,12 +367,11 @@ class XMLGroupReader():
         """Read the inputs"""
         result = []
         for node in nodes_list:
-            if (node.nodeType != Node.ELEMENT_NODE or
-                node.nodeName != ELEM_INPUT):
+            if node.nodeType != Node.ELEMENT_NODE or node.nodeName != ELEM_INPUT:
                 continue
             input_ = XMLGroupReader._read_all_attributes(node)
             req = node.getAttribute(ATT_REQUIRED)
-            if req is not None and  len(str(req)) > 0:
+            if req is not None and len(str(req)) > 0:
                 input_[ATT_REQUIRED] = eval(req)
             if len(node.childNodes) > 0:
                 for child_node in node.childNodes:
@@ -403,15 +401,15 @@ class XMLGroupReader():
         input_.update(type_attrs)
         input_[ATT_TYPE] = str(child_node.getAttribute(ATT_VALUE))
         field_val = child_node.getAttribute(ATT_FIELD)
-        if field_val is not None and  len(str(field_val)) > 0:
+        if field_val is not None and len(str(field_val)) > 0:
             input_[ATT_FIELD] = str(field_val)
         default_value = child_node.getAttribute(ATT_DEFAULT)
-        if (default_value is not None and len(str(default_value)) > 0):
+        if default_value is not None and len(str(default_value)) > 0:
             input_[ATT_DEFAULT] = str(default_value)
         if len(child_node.childNodes) > 0:
             for type_child in child_node.childNodes:
                 if ((input_[ATT_TYPE] == TYPE_SELECT or input_[ATT_TYPE] == TYPE_MULTIPLE) and
-                    type_child.nodeType == Node.ELEMENT_NODE and type_child.nodeName == ELEM_OPTIONS):
+                        type_child.nodeType == Node.ELEMENT_NODE and type_child.nodeName == ELEM_OPTIONS):
                     ops = self._parse_options(type_child.childNodes)
                     input_[ELEM_OPTIONS] = ops
                 if type_child.nodeName == ELEM_CONDITIONS:
@@ -427,19 +425,17 @@ class XMLGroupReader():
         """ Read output specifications"""
         result = []
         for node in nodes_list:
-            if (node.nodeType != Node.ELEMENT_NODE or node.nodeName != ELEM_OUTPUT):
+            if node.nodeType != Node.ELEMENT_NODE or node.nodeName != ELEM_OUTPUT:
                 continue
-            output = {}
-            output[ATT_TYPE] = node.getAttribute(ATT_TYPE)
+            output = {ATT_TYPE: node.getAttribute(ATT_TYPE)}
             fields = []
             if len(node.childNodes) > 0:
                 for field_n in node.childNodes:
-                    if (field_n.nodeType != Node.ELEMENT_NODE or field_n.nodeName != ELEM_FIELD):
+                    if field_n.nodeType != Node.ELEMENT_NODE or field_n.nodeName != ELEM_FIELD:
                         continue
-                    field = {}
-                    field[ATT_NAME] = field_n.getAttribute(ATT_NAME)
+                    field = {ATT_NAME: field_n.getAttribute(ATT_NAME)}
                     field_val = field_n.getAttribute(ATT_VALUE)
-                    if field_val is not None and  len(str(field_val)) > 0:
+                    if field_val is not None and len(str(field_val)) > 0:
                         field[ATT_VALUE] = str(field_val)
                     field[ATT_REFERENCE] = field_n.getAttribute(ATT_REFERENCE)
                     fields.append(field)
@@ -466,7 +462,7 @@ class XMLGroupReader():
                 params = {}
                 if len(node.childNodes) > 0:
                     for child in node.childNodes:
-                        if (child.nodeType == Node.ELEMENT_NODE and child.nodeName == ELEM_PARAMETER):
+                        if child.nodeType == Node.ELEMENT_NODE and child.nodeName == ELEM_PARAMETER:
                             params[child.getAttribute(ATT_NAME)] = XMLGroupReader._read_all_attributes(child)
                 result[ELEM_PARAMETERS] = params
         return result
@@ -476,13 +472,13 @@ class XMLGroupReader():
         """Private - parse an XML nodes for Options"""
         result = []
         for node in child_nodes:
-            if (node.nodeType != Node.ELEMENT_NODE or node.nodeName != ELEM_OPTION):
+            if node.nodeType != Node.ELEMENT_NODE or node.nodeName != ELEM_OPTION:
                 continue
             option = XMLGroupReader._read_all_attributes(node)
             option[ATT_VALUE] = node.getAttribute(ATT_VALUE)
             if len(node.childNodes) > 0:
                 for child in node.childNodes:
-                    if (child.nodeType != Node.ELEMENT_NODE or child.nodeName != ELEM_INPUTS):
+                    if child.nodeType != Node.ELEMENT_NODE or child.nodeName != ELEM_INPUTS:
                         continue
                     option[ATT_ATTRIBUTES] = self._parse_inputs(child.childNodes)
                     break
@@ -514,8 +510,8 @@ class XMLGroupReader():
             if node.nodeName == ELEM_COND_OPS:
                 operations = eval(node.getAttribute(ATT_FILTER_VALUES))
             if node.nodeName == ELEM_COND_VALUES:
-                values = eval(node.getAttribute(ATT_FILTER_VALUES))        
-        return FilterChain(fields = fields, values = values, operations = operations)
+                values = eval(node.getAttribute(ATT_FILTER_VALUES))
+        return FilterChain(fields=fields, values=values, operations=operations)
 
 
 class AlgorithmWrapper:
@@ -527,8 +523,8 @@ class AlgorithmWrapper:
         self.file_name = None
         self.code = None
         self.code_import = None
-        self.inputs = [] #list of dictionaries
-        self.outputs = [] #list of dictionaries
+        self.inputs = []   # list of dictionaries
+        self.outputs = []  # list of dictionaries
 
     def to_dict(self):
         """Convert into the expected UI tree"""

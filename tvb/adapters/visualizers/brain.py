@@ -96,7 +96,7 @@ class BrainViewer(ABCDisplayer):
             normalization_factor = figure_size[1] / 600
         params['width'] = figure_size[0] * normalization_factor
         params['height'] = figure_size[1] * normalization_factor
-        return self.build_display_result("brain/portlet_preview", params, pages=dict())
+        return self.build_display_result("brain/portlet_preview", params)
 
 
     def _prepare_surface_urls(self, time_series):

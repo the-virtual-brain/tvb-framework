@@ -133,7 +133,7 @@ class ConnectivityViewer(ABCDisplayer):
         """
         parameters, _ = Connectivity2DViewer().compute_preview_parameters(input_data, figure_size[0], figure_size[1],
                                                                           colors, rays, step)
-        return self.build_display_result("connectivity/portlet_preview", parameters, {})
+        return self.build_display_result("connectivity/portlet_preview", parameters)
 
 
     def submit_connectivity(self, original_connectivity, new_weights, new_tracts, interest_area_indexes, **_):

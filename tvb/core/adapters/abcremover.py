@@ -27,12 +27,12 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-"""
-Created on Nov 1, 2011
 
+"""
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
+
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 
@@ -44,7 +44,7 @@ class ABCRemover:
         self.handled_datatype = handled_datatype
         
         
-    def remove_datatype(self, skip_validation = False):
+    def remove_datatype(self, skip_validation=False):
         """
         Perform basic operation, should overwrite in specific implementations.
         """

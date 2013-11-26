@@ -81,7 +81,7 @@ class HistogramViewer(ABCDisplayer):
         The preview for the burst page.
         """
         params = self.prepare_parameters(input_data)
-        return self.build_display_result("histogram/view", params, {})
+        return self.build_display_result("histogram/view", params)
 
 
     def prepare_parameters(self, input_data):

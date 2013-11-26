@@ -656,7 +656,7 @@ class ABCAdapter(object):
                 input_data = eval(str(input_data))
                 # TODO move at a different level
                 equation_type = input_data.get(self.KEY_DTYPE, None)
-                if equation_type == None:
+                if equation_type is None:
                     self.log.warning("Cannot figure out type of equation from input dictionary: %s. "
                                      "Returning []." % (str(input_data,)))
                     return []
@@ -1162,7 +1162,7 @@ class ABCGroupAdapter(ABCAdapter):
         return eval("reference." + class_name)
 
 
-    def build_result(self, algorithm, result, inputs={}):
+    def build_result(self, algorithm, result, inputs):
         """
         Build an actual Python object, based on the XML interface description.
         Put inside the resulting Python object, the call result. 

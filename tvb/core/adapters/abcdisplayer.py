@@ -66,7 +66,7 @@ class ABCDisplayer(ABCSynchronous):
         """
         Should be implemented by all visualizers that can be used by portlets.
         """
-        raise LaunchException("%s used as Portlet but doesn't implement 'generate_preview'"%(self.__class__,))
+        raise LaunchException("%s used as Portlet but doesn't implement 'generate_preview'" % self.__class__)
 
 
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
@@ -87,7 +87,7 @@ class ABCDisplayer(ABCSynchronous):
         return 0
 
 
-    def build_display_result(self, template, parameters = dict(), pages=dict()):
+    def build_display_result(self, template, parameters, pages=None):
         """
         Helper method for building the result of the ABCDisplayer.
         :param template : path towards the HTML template to display. It can be absolute path, or relative
@@ -109,13 +109,14 @@ class ABCDisplayer(ABCSynchronous):
             template = os.path.join(relative_path, template)
         if not os.path.isabs(template):
             template = os.path.join(os.path.dirname(sys.executable), template)
-        for key, value in pages.items():
-            if value is not None:
-                if not os.path.isabs(value):
-                    value = os.path.join(relative_path, value)
-                if not os.path.isabs(value):
-                    value = os.path.join(os.path.dirname(sys.executable), value)
-            parameters[key] = value
+        if pages:
+            for key, value in pages.items():
+                if value is not None:
+                    if not os.path.isabs(value):
+                        value = os.path.join(relative_path, value)
+                    if not os.path.isabs(value):
+                        value = os.path.join(os.path.dirname(sys.executable), value)
+                parameters[key] = value
         parameters[self.KEY_CONTENT] = template
         parameters[self.KEY_IS_ADAPTER] = True
 
@@ -220,7 +221,7 @@ class ABCMPLH5Displayer(ABCDisplayer):
             del kwargs[self.SHOW_FULL_TOOLBAR]
         if self.PARAM_FIGURE_SIZE in kwargs:
             figsize = kwargs[self.PARAM_FIGURE_SIZE]
-            figsize = ((figsize[0])/100, (figsize[1])/120)
+            figsize = ((figsize[0]) / 100, (figsize[1]) / 120)
             del kwargs[self.PARAM_FIGURE_SIZE]
         else:
             figsize = (15, 7)
@@ -228,10 +229,10 @@ class ABCMPLH5Displayer(ABCDisplayer):
         self.kwargs = kwargs
         self.figure = self._create_new_figure(figsize)
         self.plot(self.figure, **kwargs)
-        self.figure.canvas.draw() 
-        
-        parameters = dict(title= self._ui_name, figureNumber= self.figure.number, showFullToolbar= show_full_toolbar,
-                          serverIp= config.SERVER_IP, serverPort= config.MPLH5_SERVER_PORT)
+        self.figure.canvas.draw()
+
+        parameters = dict(title=self._ui_name, figureNumber=self.figure.number, showFullToolbar=show_full_toolbar,
+                          serverIp=config.SERVER_IP, serverPort=config.MPLH5_SERVER_PORT)
 
         return self.build_display_result("mplh5/figure", parameters)
 
@@ -241,8 +242,5 @@ class ABCMPLH5Displayer(ABCDisplayer):
         """
         synchronized method to avoid creating the same figure number.
         """
-        return pylab.figure(figsize = figsize)
-
-
-
+        return pylab.figure(figsize=figsize)
 
