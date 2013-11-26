@@ -269,6 +269,11 @@ function _bindEvents(canvas){
     document.onmouseup = NAV_customMouseUp;
     document.onmousemove = customMouseMove; 
 
+    $(canvas).mousewheel(function(event, delta) {
+        GL_handleMouseWeel(delta);
+        return false; // prevent default
+    });
+
     if (!isDoubleView) {
         var canvasX = document.getElementById('brain-x');
         if (canvasX) canvasX.onmousedown = handleXLocale;
