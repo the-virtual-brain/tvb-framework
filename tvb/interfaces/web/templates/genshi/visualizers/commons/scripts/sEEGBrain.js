@@ -187,16 +187,11 @@ function drawScene() {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
    		gl.disable(gl.BLEND);
         gl.disable(gl.DITHER);
-        gl.disable(gl.FOG);
-        gl.disable(gl.LIGHTING);
-        gl.disable(gl.TEXTURE_1D);
-        gl.disable(gl.TEXTURE_2D);
-        gl.disable(gl.TEXTURE_3D);
    		gl.uniform1f(shaderProgram.isPicking, 1);	
    		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     	// View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
-    	aspect = gl.viewportWidth / gl.viewportHeight;
+    	var aspect = gl.viewportWidth / gl.viewportHeight;
     	perspective(45, aspect , near, 800.0);
     	loadIdentity();
     	

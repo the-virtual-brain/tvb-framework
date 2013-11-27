@@ -87,7 +87,7 @@ function NAV_initBrainNavigatorBuffers() {
     NAV_navigatorBuffers[2].numItems = 18;
     // Fake buffers, these won't be used, they only need to be passed
     if (isOneToOneMapping) {
-    	same_color = [];
+    	var same_color = [];
         for (var i=0; i<NAV_navigatorBuffers[0].numItems* 4; i++) {
         	same_color = same_color.concat(0.34, 0.95, 0.37, 1.0);
         }

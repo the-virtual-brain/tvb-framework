@@ -113,12 +113,12 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
     isOneToOneMapping = true;
 
     //Custom handlers for each of the dimensions for different transforms need to be applied
-    if (BASE_PICK_allowPickFrom2DImages == true) {
-    	canvasX = document.getElementById('brain-x');
+    if (BASE_PICK_allowPickFrom2DImages) {
+    	var canvasX = document.getElementById('brain-x');
     	if (canvasX) canvasX.onmousedown = handleXLocale;
-	    canvasY = document.getElementById('brain-y');
+	    var canvasY = document.getElementById('brain-y');
 	    if (canvasY) canvasY.onmousedown = handleYLocale;
-	    canvasZ = document.getElementById('brain-z');
+	    var canvasZ = document.getElementById('brain-z');
 	    if (canvasZ) canvasZ.onmousedown = handleZLocale;
     }
     
@@ -342,14 +342,10 @@ function BASE_PICK_doVerticePick() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
 	gl.disable(gl.BLEND);
     gl.disable(gl.DITHER);
-    gl.disable(gl.FOG);
-    gl.disable(gl.LIGHTING);
-    gl.disable(gl.TEXTURE_1D);
-    gl.disable(gl.TEXTURE_2D);
-	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	// View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
-	aspect = gl.viewportWidth / gl.viewportHeight;
+	var aspect = gl.viewportWidth / gl.viewportHeight;
 	perspective(45, aspect , near, 800.0);
 	loadIdentity();
 	
@@ -487,8 +483,8 @@ function BASE_PICK_addFocalPoint(triangleIndex) {
 	/*
 	 * Store all required information in order to draw this focal point.
 	 */
-	x_rot = (360 - Math.atan2(navigatorY - BRAIN_CENTER[1], navigatorZ - BRAIN_CENTER[2]) * 180 / Math.PI) % 360;
-    y_rot = Math.atan2(navigatorX - BRAIN_CENTER[0], Math.sqrt((navigatorZ - BRAIN_CENTER[2]) * (navigatorZ - BRAIN_CENTER[2]) + (navigatorY - BRAIN_CENTER[1]) * (navigatorY - BRAIN_CENTER[1]))) * 180 / Math.PI;
+	var x_rot = (360 - Math.atan2(navigatorY - BRAIN_CENTER[1], navigatorZ - BRAIN_CENTER[2]) * 180 / Math.PI) % 360;
+    var y_rot = Math.atan2(navigatorX - BRAIN_CENTER[0], Math.sqrt((navigatorZ - BRAIN_CENTER[2]) * (navigatorZ - BRAIN_CENTER[2]) + (navigatorY - BRAIN_CENTER[1]) * (navigatorY - BRAIN_CENTER[1]))) * 180 / Math.PI;
     surfaceFocalPoints[triangleIndex] = {'xRotation' : x_rot, 'yRotation' : y_rot, 'position' : [navigatorX, navigatorY, navigatorZ]};
     BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 }
@@ -564,7 +560,7 @@ function createStimulusPinBuffers() {
     BASE_PICK_pinBuffers[2].itemSize = 1;
     BASE_PICK_pinBuffers[2].numItems = 75;
     
-	same_color = [];
+	var same_color = [];
     for (var i=0; i<BASE_PICK_pinBuffers[0].numItems* 4; i++) {
     	same_color = same_color.concat(1.0, 0.6, 0.0, 1.0);
     }
@@ -637,7 +633,7 @@ function initBrainNavigatorBuffers() {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
     BASE_PICK_navigatorBuffers[2].itemSize = 1;
     BASE_PICK_navigatorBuffers[2].numItems = 54;
-	same_color = [];
+	var same_color = [];
     for (var i=0; i<BASE_PICK_navigatorBuffers[0].numItems* 4; i++) {
     	same_color = same_color.concat(0.0, 0.0, 1.0, 1.0);
     }
@@ -706,29 +702,21 @@ function BASE_PICK_drawBrain(brainBuffers, noOfUnloadedBuffers) {
         return;
     }
 	
-    if (BASE_PICK_doPick == false) {
-    	gl.enable(gl.BLEND);
+    if (BASE_PICK_doPick ) {
+    	gl.disable(gl.BLEND);
+	    gl.disable(gl.DITHER);
+    	gl.uniform1f(shaderProgram.isPicking, 1);
+    } else {
+        gl.enable(gl.BLEND);
 	    gl.enable(gl.DITHER);
-	    gl.enable(gl.FOG);
-	    gl.enable(gl.LIGHTING);
-	    gl.enable(gl.TEXTURE_1D);
-	    gl.enable(gl.TEXTURE_2D);
     	addLight();
     	gl.uniform1f(shaderProgram.isPicking, 0);
-    } else {
-		gl.disable(gl.BLEND);
-	    gl.disable(gl.DITHER);
-	    gl.disable(gl.FOG);
-	    gl.disable(gl.LIGHTING);
-	    gl.disable(gl.TEXTURE_1D);
-	    gl.disable(gl.TEXTURE_2D);
-    	gl.uniform1f(shaderProgram.isPicking, 1);
     }
 		
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	// View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
-	aspect = gl.viewportWidth / gl.viewportHeight;
+	var aspect = gl.viewportWidth / gl.viewportHeight;
 	perspective(45, aspect , near, 800.0);
 	loadIdentity();
     

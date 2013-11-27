@@ -374,7 +374,7 @@ var GVAR_interestAreaVariables = {
 		 'min_val':0, 
 		 'max_val':0,
 		 'legend_div_id': 'tracts-legend'}
-}
+};
 
 function hideRightSideTabs(selectedHref) {
 	$(".matrix-switcher li").each(function (listItem){
