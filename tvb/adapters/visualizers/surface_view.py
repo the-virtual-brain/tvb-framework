@@ -87,8 +87,8 @@ class SurfaceViewer(ABCDisplayer):
 
     def launch(self, surface, region_map=None):
         params = self.compute_parameters(surface, region_map)
-        return self.build_display_result("brain/surface_view", params,
-                                         pages={"controlPage": "brain/surface_viewer_controls"})
+        return self.build_display_result("surface/surface_view", params,
+                                         pages={"controlPage": "surface/surface_viewer_controls"})
 
 
     def get_required_memory_size(self):

@@ -102,20 +102,12 @@ function NAV_initBrainNavigatorBuffers() {
 
 function NAV_setInTimeRefresh(checkbox) {
 	_inTimeRefreshCheckbox = checkbox;
-	if (checkbox.checked) {
-		NAV_inTimeRefresh = true;
-	} else {
-		NAV_inTimeRefresh = false;
-	}
+	NAV_inTimeRefresh = checkbox.checked;
 }
 
 function NAV_customMouseUp(event) {
     GL_handleMouseUp(event);
-	if (_inTimeRefreshCheckbox && _inTimeRefreshCheckbox.checked) {
-	    NAV_inTimeRefresh = true;
-	} else {
-		NAV_inTimeRefresh = false;
-	}
+	NAV_inTimeRefresh = _inTimeRefreshCheckbox && _inTimeRefreshCheckbox.checked;
 }
 
 ////////////////////////////////////~~~~~~~~END BRAIN NAVIGATOR RELATED CODE~~~~~~~~~~~/////////////////////////////

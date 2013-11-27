@@ -85,6 +85,20 @@ function createColorBufferForSphere(isPicked, nodeIdx, nrOfVertices) {
     return [alphaBuffer, cubeColorBuffer];
 }
 
+/**
+ * In the extended view if a certain EEG channel was selected then we
+ * have to draw the measure point corresponding to it with a different color.
+ *
+ * @param measurePointIndex the index of the measure point to which correspond the EEG channel
+ * @param isPicked if <code>true</code> then the point will be drawn with the color corresponding
+ * to the selected channels, otherwise with the default color
+ */
+function EX_changeColorBufferForMeasurePoint(measurePointIndex, isPicked) {
+    var colorBufferIndex = measurePointsBuffers[measurePointIndex].length - 1;
+    var alphaAndColors = createColorBufferForSphere(isPicked, measurePointIndex, measurePointsBuffers[measurePointIndex][0].numItems * 3);
+    measurePointsBuffers[measurePointIndex][colorBufferIndex - 1] = alphaAndColors[0];
+    measurePointsBuffers[measurePointIndex][colorBufferIndex] = alphaAndColors[1];
+}
 
 /**
  * Draw from buffers.

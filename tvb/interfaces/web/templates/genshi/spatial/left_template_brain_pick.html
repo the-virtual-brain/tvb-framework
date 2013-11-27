@@ -10,7 +10,7 @@
     <script type="text/javascript" src="/static/js/webGL_Connectivity.js?4411"></script>
     <script type="text/javascript" src="/static/colorScheme/js/colorSchemeComponent.js"></script>
 
-    <xi:include href="fragment_shader.html" />
+    <xi:include href="../visualizers/commons/fragment_shader.html" />
 
 	<script id="shader-vs" type="x-shader/x-vertex">
 	    attribute vec3 aVertexPosition;
@@ -71,7 +71,7 @@
         </div>
         <div class="brainDiv">
             <!--Draw brain-->
-            <xi:include href="../visualizers/brain/brain_component.html"/>
+            <xi:include href="../visualizers/commons/brain_component.html"/>
             ${draw_brain_component("GLcanvas", None)}
         </div>
         <div class="helper">

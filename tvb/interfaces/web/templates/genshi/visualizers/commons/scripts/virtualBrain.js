@@ -20,6 +20,7 @@
 /**
  * WebGL methods "inheriting" from webGL_xx.js in static/js.
  */
+
 var BRAIN_CANVAS_ID = "GLcanvas";
 /**
  * Variables for displaying Time and computing Frames/Sec

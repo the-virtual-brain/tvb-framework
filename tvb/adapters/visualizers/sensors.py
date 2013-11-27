@@ -65,8 +65,8 @@ class InternalSensorViewer(ABCDisplayer):
             'urlMeasurePointsLabels': measure_points_info[1],
             'noOfMeasurePoints': measure_points_info[2]}
 
-        return self.build_display_result('brain/sensors_seeg', params,
-                                         pages={'controlPage': 'brain/sensors_controls'})
+        return self.build_display_result('sensors/sensors_seeg', params,
+                                         pages={'controlPage': 'sensors/sensors_controls'})
 
 
     def get_required_memory_size(self):
@@ -116,8 +116,8 @@ class EegSensorViewer(ABCDisplayer):
         if eeg_cap is not None:
             params.update(self._compute_surface_params(eeg_cap))
 
-        return self.build_display_result("brain/sensors_eeg", params,
-                                         pages={"controlPage": "brain/sensors_controls"})
+        return self.build_display_result("sensors/sensors_eeg", params,
+                                         pages={"controlPage": "sensors/sensors_controls"})
 
 
     def get_required_memory_size(self):

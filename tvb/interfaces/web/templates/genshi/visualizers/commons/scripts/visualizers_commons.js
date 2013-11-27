@@ -7,7 +7,7 @@ function checkAll(entryArray, channelsArray) {
 	 * Add all channels to the channelsArray list and make sure that 
 	 * all of the checkbox are checked.
 	 */
-	divId = 'table_' + entryArray;
+	var divId = 'table_' + entryArray;
     $('div[id^="'+ divId + '"] input').each(function () {
         if (this.type == "checkbox") {
             var channelId = parseInt(this.id.split("channelChk_")[1]);
@@ -25,7 +25,7 @@ function clearAll(entryArray, channelsArray) {
 	 * Remove all channels to the channelsArray list and make sure that 
 	 * none of the checkbox are checked.
 	 */
-	divId = 'table_' + entryArray;
+	var divId = 'table_' + entryArray;
     $('div[id^="'+ divId + '"] input').each(function () {
         if (this.type == "checkbox") {
             var channelId = this.id.split("channelChk_")[1];
