@@ -2,7 +2,7 @@
      <div class="monitor master assisted" id="brain-3d">
         <!--Draw brain-->
         <xi:include href="brain_component.html"/>
-        ${draw_brain_component("GLcanvas", value_of('minActivityLabels', 'null'))}
+        ${draw_brain_component("GLcanvas", value_of('minActivityLabels'))}
 
         <div class="helper">
             <span> Refresh Step: </span><span id="TimeStep">0.0</span><span> ms </span>

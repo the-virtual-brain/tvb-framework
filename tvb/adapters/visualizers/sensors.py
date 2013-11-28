@@ -59,8 +59,6 @@ class InternalSensorViewer(ABCDisplayer):
 
         params = {
             'shelfObject': BrainViewer.get_default_face(),
-            'urlVertices': '', 'urlTriangles': '',
-            'urlLines': '[]', 'urlNormals': '',
             'urlMeasurePoints': measure_points_info[0],
             'urlMeasurePointsLabels': measure_points_info[1],
             'noOfMeasurePoints': measure_points_info[2]}
@@ -104,7 +102,6 @@ class EegSensorViewer(ABCDisplayer):
         measure_points_info = BrainEEG.compute_sensor_surfacemapped_measure_points(sensors, eeg_cap)
 
         params = {
-            'displayMeasureNodes': True,
             'shelfObject': BrainViewer.get_default_face(),
             'urlVertices': '', 'urlTriangles': '',
             'urlLines': '[]', 'urlNormals': '',

@@ -83,15 +83,16 @@ var isDoubleView = false;
 var isMovie = true;
 var drawingMode;
 var VS_showLegend = true;
+var isInternalSensorView = false;
 
 GL_DEFAULT_Z_POS = 250;
 
 function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesList, urlNormalsList,
                                 urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
-	isPreview = true;
-	GL_zTranslation = GL_DEFAULT_Z_POS;
-	pageSize = 1;
-	urlBase = baseDatatypeURL;
+    isPreview = true;
+    GL_zTranslation = GL_DEFAULT_Z_POS;
+    pageSize = 1;
+    urlBase = baseDatatypeURL;
     activitiesData = HLPR_readJSONfromFile(readDataPageURL(urlBase, 0, 1, selectedStateVar, selectedMode, TIME_STEP));
     if (oneToOneMapping == 'True') {
         isOneToOneMapping = true;
@@ -102,8 +103,8 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
     customInitGL(canvas);
     initShaders();
     if ($.parseJSON(urlVerticesList)) {
-    	brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
-    						   $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), false);
+        brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
+                               $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), false);
     }
     LEG_generateLegendBuffers();
     
@@ -117,10 +118,10 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
     canvas.onmousedown = customMouseDown;
     document.onmouseup = NAV_customMouseUp;
     document.onmousemove = customMouseMove;
-    setInterval(tick, TICK_STEP);
+    setInterval(drawScene, TICK_STEP);
 }
 
-function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
+function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
                                boundaryURL, shelfObject, showLegend, argDisplayMeasureNodes, argIsFaceToDisplay){
     // initialize global configuration
@@ -158,6 +159,7 @@ function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, 
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
     _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList, 
                   urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject);
+
     _bindEvents(canvas);
 
     //specify the re-draw function.
@@ -166,12 +168,12 @@ function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, 
     }
 }
 
-function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
+function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
                     urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
-                    urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, 
+                    urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
                     oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
-    // initialize global configuration    
-	isPreview = false;
+    // initialize global configuration
+    isPreview = false;
     isDoubleView = doubleView;
     if (oneToOneMapping == 'True') {
         isOneToOneMapping = true;
@@ -181,9 +183,9 @@ function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, 
     pageSize = onePageSize;
     urlBase = baseDatatypeURL;
 
-    // initialize global data    
+    // initialize global data
     _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePointsLabels);
-    _initTimeData(urlTimeList);    
+    _initTimeData(urlTimeList);
     initActivityData();
 
     if (isDoubleView) {
@@ -192,11 +194,12 @@ function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, 
         $("#displayFaceChkId").trigger('click');
     }
     GL_zTranslation = GL_DEFAULT_Z_POS;
-    
+
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
-    
-    _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList, 
+
+    _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList,
                   urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject);
+
     _bindEvents(canvas);
 
     if (!isPreview) {
@@ -207,6 +210,69 @@ function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, 
     if (_isValidActivityData()){
         setInterval(tick, TICK_STEP);
     }
+}
+
+function _VS_init_cubicalMeasurePoints(){
+    for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
+        measurePointsBuffers[i] = bufferAtPoint(measurePoints[i], i);
+    }
+}
+
+function _VS_init_sphericalMeasurePoints(){
+    for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
+        measurePointsBuffers[i] = SEEG_bufferAtPoint(measurePoints[i], i);
+    }
+}
+
+
+
+function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
+                               noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
+                               boundaryURL){
+
+    _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
+                       noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
+                       boundaryURL, null, false, false, false);
+    _VS_init_cubicalMeasurePoints();
+}
+
+function VS_StartEEGSensorViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
+                               noOfMeasurePoints, urlMeasurePointsLabels,
+                               shelfObject){
+    _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
+                               noOfMeasurePoints, '', '', urlMeasurePointsLabels,
+                               '', shelfObject, false, true, true);
+    _VS_init_cubicalMeasurePoints();
+}
+
+function VS_StartInternalSensorViewer(urlMeasurePoints,  noOfMeasurePoints, urlMeasurePointsLabels, shelfObject){
+    _VS_static_entrypoint('', '[]', '', '', urlMeasurePoints, noOfMeasurePoints, '', '',
+                         urlMeasurePointsLabels, '', shelfObject, false, false, true);
+    isInternalSensorView = true;
+    isFaceToDisplay = true;
+    _VS_init_sphericalMeasurePoints();
+
+}
+
+function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
+                    urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
+                    urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
+                    oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
+
+    _VS_movie_entrypoint.apply(this, arguments);
+    _VS_init_cubicalMeasurePoints();
+
+}
+
+function VS_StartInternalActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
+                    urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
+                    urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
+                    oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
+
+    _VS_movie_entrypoint.apply(this, arguments);
+    isInternalSensorView = true;
+    isFaceToDisplay = true;
+    _VS_init_sphericalMeasurePoints();
 }
 
 function _isValidActivityData(){
@@ -250,10 +316,6 @@ function _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList
     if (shelfObject) {
         shelfObject = $.parseJSON(shelfObject);
         shelfBuffers = initBuffers(shelfObject[0], shelfObject[1], shelfObject[2], false, false, true);
-    }
-    // Initialize the buffers for the measure points
-    for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-        measurePointsBuffers[i] = bufferAtPoint(measurePoints[i], i);
     }
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -341,10 +403,10 @@ function _initSliders(){
 ////////////////////////////////////////// GL Initializations //////////////////////////////////////////
 
 function customInitGL(canvas) {
-	window.onresize = function() {
-		updateGLCanvasSize(BRAIN_CANVAS_ID);
-	};
-	initGL(canvas);
+    window.onresize = function() {
+        updateGLCanvasSize(BRAIN_CANVAS_ID);
+    };
+    initGL(canvas);
     canvas.redrawFunctionRef = drawScene;            // interface-like function used in HiRes image exporting
     drawingMode = gl.TRIANGLES;
     gl.newCanvasWidth = canvas.clientWidth;
@@ -390,10 +452,10 @@ function initShaders() {
 var doPick = false;
 
 function customMouseDown(event) {
-	GL_handleMouseDown(event, $("#" + BRAIN_CANVAS_ID));
+    GL_handleMouseDown(event, $("#" + BRAIN_CANVAS_ID));
     NAV_inTimeRefresh = false;
     if (displayMeasureNodes && isDoubleView) {
-    	doPick = true;
+        doPick = true;
     }
 }
 
@@ -406,8 +468,8 @@ function customMouseMove(event) {
     var deltaX = newX - GL_lastMouseX;
     var deltaY = newY - GL_lastMouseY;
     if (NAV_isMouseControlOverBrain) {
-	    var newRotationMatrix = createRotationMatrix(deltaX / 10, [0, 1, 0]);
-	    newRotationMatrix = newRotationMatrix.x(createRotationMatrix(deltaY / 10, [1, 0, 0]));
+        var newRotationMatrix = createRotationMatrix(deltaX / 10, [0, 1, 0]);
+        newRotationMatrix = newRotationMatrix.x(createRotationMatrix(deltaY / 10, [1, 0, 0]));
         GL_currentRotationMatrix = newRotationMatrix.x(GL_currentRotationMatrix);
     } else {
         NAV_navigatorX = NAV_navigatorX - deltaX * 250 / 800;
@@ -431,8 +493,8 @@ function updateColors(currentTimeValue) {
 
     if (isOneToOneMapping) {
         for (var i = 0; i < brainBuffers.length; i++) {
-        	// Reset color buffers at each step.
-        	brainBuffers[i][3] = null;
+            // Reset color buffers at each step.
+            brainBuffers[i][3] = null;
             var upperBorder = brainBuffers[i][0].numItems / 3;
             var colors = new Float32Array(upperBorder * 4);
             var offset_start = i * 40000;
@@ -446,7 +508,7 @@ function updateColors(currentTimeValue) {
         }
     } else {
         for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-        	var rgb = getGradientColor(activitiesData[currentTimeInFrame][i], activityMin, activityMax);
+            var rgb = getGradientColor(activitiesData[currentTimeInFrame][i], activityMin, activityMax);
             gl.uniform4f(shaderProgram.colorsUniform[i], rgb[0], rgb[1], rgb[2], 1);
         }
         // default color for a measure point
@@ -495,7 +557,7 @@ function toggleMeasureNodes() {
 
 var isFaceToDisplay = false;
 function switchFaceObject() {
-	isFaceToDisplay = !isFaceToDisplay;
+    isFaceToDisplay = !isFaceToDisplay;
 }
 
 /**
@@ -535,20 +597,20 @@ function setTimeStep(newStep) {
 }
 
 function resetSpeedSlider() {
-	if (!isPreview) {
-		setTimeStep(1);
-    	$("#sliderStep").slider("option", "value", 1);
-    	refreshCurrentDataSlice();
-	}
+    if (!isPreview) {
+        setTimeStep(1);
+        $("#sliderStep").slider("option", "value", 1);
+        refreshCurrentDataSlice();
+    }
 }
 
 
 function toggleDrawTriangleLines() {
-	drawTriangleLines = !drawTriangleLines;
+    drawTriangleLines = !drawTriangleLines;
 }
 
 function toggleDrawBoundaries() {
-	drawBoundaries = !drawBoundaries;
+    drawBoundaries = !drawBoundaries;
 }
 
 /**
@@ -650,7 +712,7 @@ function createColorBufferForCube(isPicked) {
 
 
 function bufferAtPoint(p) {
-	var result = HLPR_bufferAtPoint(gl, p);
+    var result = HLPR_bufferAtPoint(gl, p);
     var bufferVertices= result[0];
     var bufferNormals = result[1];
     var bufferTriangles = result[2];
@@ -660,12 +722,12 @@ function bufferAtPoint(p) {
     }
 
     if (isOneToOneMapping) {
-    	return [bufferVertices, bufferNormals, bufferTriangles, createColorBufferForCube(false)];
+        return [bufferVertices, bufferNormals, bufferTriangles, createColorBufferForCube(false)];
     } else {
-    	var alphaBuffer = gl.createBuffer();
-	    gl.bindBuffer(gl.ARRAY_BUFFER, alphaBuffer);
-	    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(alphas), gl.STATIC_DRAW);
-    	return [bufferVertices, bufferNormals, bufferTriangles, alphaBuffer, createColorBufferForCube(false)];
+        var alphaBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, alphaBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(alphas), gl.STATIC_DRAW);
+        return [bufferVertices, bufferNormals, bufferTriangles, alphaBuffer, createColorBufferForCube(false)];
     }
 }
 
@@ -689,53 +751,53 @@ function initBuffers(urlVertices, urlNormals, urlTriangles, urlAlphas, urlAlphas
     }
     var result = [];
     for (var i=0; i< vertices.length; i++) {
-    	if (isOneToOneMapping) {
-    		var fakeColorBuffer = gl.createBuffer();
-		    gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
-		    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices[i].numItems * 4), gl.STATIC_DRAW);
-    		result.push([vertices[i], normals[i], indexes[i], fakeColorBuffer]);
-    	} else {
-    		result.push([vertices[i], normals[i], indexes[i], alphas[i], alphasIndices[i]]);
-    	}
+        if (isOneToOneMapping) {
+            var fakeColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices[i].numItems * 4), gl.STATIC_DRAW);
+            result.push([vertices[i], normals[i], indexes[i], fakeColorBuffer]);
+        } else {
+            result.push([vertices[i], normals[i], indexes[i], alphas[i], alphasIndices[i]]);
+        }
     }
     return result;
 }
 
 
 function initRegionBoundaries(boundariesURL) {
-	if (boundariesURL) {
-		$.ajax({
-	        url: boundariesURL,
-	        async: true,
-	        success: function(data) {
-	        	data = $.parseJSON(data);
-	        	var boundaryVertices = data[0];
-			    var boundaryEdges = data[1];
-			    var boundaryNormals = data[2];
-			    for (var i = 0; i < boundaryVertices.length; i++) {
-			    	boundaryVertexBuffers.push(HLPR_createWebGlBuffer(gl, boundaryVertices[i], false, false));
-			    	boundaryNormalsBuffers.push(HLPR_createWebGlBuffer(gl, boundaryNormals[i], false, false));
-			    	boundaryEdgesBuffers.push(HLPR_createWebGlBuffer(gl, boundaryEdges[i], true, false));
-			    }
-	        }
-	    });
-	}
+    if (boundariesURL) {
+        $.ajax({
+            url: boundariesURL,
+            async: true,
+            success: function(data) {
+                data = $.parseJSON(data);
+                var boundaryVertices = data[0];
+                var boundaryEdges = data[1];
+                var boundaryNormals = data[2];
+                for (var i = 0; i < boundaryVertices.length; i++) {
+                    boundaryVertexBuffers.push(HLPR_createWebGlBuffer(gl, boundaryVertices[i], false, false));
+                    boundaryNormalsBuffers.push(HLPR_createWebGlBuffer(gl, boundaryNormals[i], false, false));
+                    boundaryEdgesBuffers.push(HLPR_createWebGlBuffer(gl, boundaryEdges[i], true, false));
+                }
+            }
+        });
+    }
 }
 
 
 function drawBuffers(drawMode, buffersSets, useBlending) {
-	if (useBlending) {
-		gl.uniform1i(shaderProgram.useBlending, true);
-    	gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-    	gl.enable(gl.BLEND);
-    	// Add gray color for semi-transparent object.
-    	gl.uniform3f(shaderProgram.ambientColorUniform, 0.2, 0.2, 0.2);
-	    var lightingDirection = Vector.create([-0.25, -0.25, -1]);
-	    var adjustedLD = lightingDirection.toUnitVector().x(-1);
-	    var flatLD = adjustedLD.flatten();
-	    gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
-	    gl.uniform3f(shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8);
-	}
+    if (useBlending) {
+        gl.uniform1i(shaderProgram.useBlending, true);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.enable(gl.BLEND);
+        // Add gray color for semi-transparent object.
+        gl.uniform3f(shaderProgram.ambientColorUniform, 0.2, 0.2, 0.2);
+        var lightingDirection = Vector.create([-0.25, -0.25, -1]);
+        var adjustedLD = lightingDirection.toUnitVector().x(-1);
+        var flatLD = adjustedLD.flatten();
+        gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
+        gl.uniform3f(shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8);
+    }
     for (var i = 0; i < buffersSets.length; i++) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][0]);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -755,44 +817,44 @@ function drawBuffers(drawMode, buffersSets, useBlending) {
         gl.drawElements(drawMode, buffersSets[i][2].numItems, gl.UNSIGNED_SHORT, 0);
     }
     if (useBlending) {
-    	gl.depthFunc(gl.LEQUAL);
-    	gl.disable(gl.BLEND);
-    	gl.uniform1i(shaderProgram.useBlending, false);
+        gl.depthFunc(gl.LEQUAL);
+        gl.disable(gl.BLEND);
+        gl.uniform1i(shaderProgram.useBlending, false);
     }
 }
 
 
 function drawRegionBoundaries() {
-	if (boundaryVertexBuffers && boundaryEdgesBuffers) {
-		gl.uniform1i(shaderProgram.drawLines, true);
-		gl.uniform3f(shaderProgram.linesColor, 0.7, 0.7, 0.1);
-	    gl.lineWidth(3.0);
-	    for (var i=0; i < boundaryVertexBuffers.length; i++) {
-	    	gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVertexBuffers[i]);
-	        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-	        gl.bindBuffer(gl.ARRAY_BUFFER, boundaryNormalsBuffers[i]);
-	        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-	    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boundaryEdgesBuffers[i]);
-	        setMatrixUniforms();
-	        gl.drawElements(gl.LINES, boundaryEdgesBuffers[i].numItems, gl.UNSIGNED_SHORT, 0);
-	    }
-	    gl.uniform1i(shaderProgram.drawLines, false);
-	} else {
-		displayMessage('Boundaries data not yet loaded. Dispaly will refresh automatically when load is finished.', 'infoMessage')		
-	}
+    if (boundaryVertexBuffers && boundaryEdgesBuffers) {
+        gl.uniform1i(shaderProgram.drawLines, true);
+        gl.uniform3f(shaderProgram.linesColor, 0.7, 0.7, 0.1);
+        gl.lineWidth(3.0);
+        for (var i=0; i < boundaryVertexBuffers.length; i++) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVertexBuffers[i]);
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, boundaryNormalsBuffers[i]);
+            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boundaryEdgesBuffers[i]);
+            setMatrixUniforms();
+            gl.drawElements(gl.LINES, boundaryEdgesBuffers[i].numItems, gl.UNSIGNED_SHORT, 0);
+        }
+        gl.uniform1i(shaderProgram.drawLines, false);
+    } else {
+        displayMessage('Boundaries data not yet loaded. Dispaly will refresh automatically when load is finished.', 'infoMessage')      
+    }
 }
 
 
 function drawBrainLines(linesBuffers, brainObjBuffers) {
-	gl.uniform1i(shaderProgram.drawLines, true);
+    gl.uniform1i(shaderProgram.drawLines, true);
     gl.uniform3f(shaderProgram.linesColor, 0.3, 0.1, 0.3);
     gl.lineWidth(1.0);
     for (var i=0; i < linesBuffers.length; i++) {
-    	gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][0]);
+        gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][0]);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
         gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][1]);
         gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesBuffers[i]);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesBuffers[i]);
         setMatrixUniforms();
         gl.drawElements(gl.LINES, linesBuffers[i].numItems, gl.UNSIGNED_SHORT, 0);
     }
@@ -803,9 +865,9 @@ function drawBrainLines(linesBuffers, brainObjBuffers) {
  * Actual scene drawing step.
  */
 function tick() {
-	if (!sliderSel) drawScene();
+    if (!sliderSel) drawScene();
     if (isDoubleView && !AG_isStopped && !sliderSel) {
-    	drawGraph(true, TIME_STEP);
+        drawGraph(true, TIME_STEP);
     }
 }
 
@@ -813,148 +875,162 @@ function tick() {
  * Draw from buffers.
  */
 function drawScene() {
-    // COMPUTE FR/SEC
-	if (!doPick) {
-		gl.uniform1f(shaderProgram.isPicking, 0);
-		gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
-		if (!isPreview) {
-		    var timeNow = new Date().getTime();
-		    if (lastTime != 0) {
-		        var elapsed = timeNow - lastTime;
-		        framestime.shift();
-		        framestime.push(elapsed);
-		
-		        if (GL_zoomSpeed != 0 && NAV_isMouseControlOverBrain) {
-		            GL_zTranslation -= GL_zoomSpeed * elapsed;
-		            GL_zoomSpeed = 0;
-		        } else if (GL_zoomSpeed != 0) {
-		            NAV_navigatorZ = NAV_navigatorZ + GL_zoomSpeed * 4;
-		            GL_zoomSpeed = 0;
-		        }
-		    }
-		    lastTime = timeNow;
-		    document.getElementById("TimeStep").innerHTML = elapsed;
-		    if (timeData.length > 0) {
-		        document.getElementById("TimeNow").innerHTML = (timeData[currentTimeValue] * 10 / 10).toString().substring(0.4);
-		    }
-		    var medianTime = Math.floor(1000 / ((eval(framestime.join("+"))) / framestime.length));
-		    document.getElementById("FramesPerSecond").innerHTML = medianTime;
-            if(isMovie){
-		        document.getElementById("slider-value").innerHTML = TIME_STEP;
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    // View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
+    perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
+
+    loadIdentity();
+    mvPushMatrix();
+    // Translate to get a good view.
+    mvTranslate([0.0, -5.0, -GL_zTranslation]);
+    multMatrix(GL_currentRotationMatrix);
+    mvRotate(180, [0, 0, 1]);
+
+    if (!doPick) {
+        gl.uniform1f(shaderProgram.isPicking, 0);
+        gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
+        if (!isPreview) {
+            var timeNow = new Date().getTime();
+            var elapsed = timeNow - lastTime;
+
+            if (lastTime !== 0) {
+                framestime.shift();
+                framestime.push(elapsed);
+
+                if (GL_zoomSpeed != 0){
+                    if (NAV_isMouseControlOverBrain) {
+                        GL_zTranslation -= GL_zoomSpeed * elapsed;
+                    } else {
+                        NAV_navigatorZ = NAV_navigatorZ + GL_zoomSpeed * 4;
+                    }
+                    GL_zoomSpeed = 0;
+                }
+
+                lastTime = timeNow;
+                document.getElementById("TimeStep").innerHTML = elapsed;
             }
-		    if (! sliderSel && !isPreview) {
-		        $("#slider").slider("option", "value", currentTimeValue);
-		    }
-		}
-	    // END COMPUTE FR/SEC
-	    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-	    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	    // View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
-	    perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
-	    loadIdentity();
-	    addLight();
-        if(VS_showLegend){
-	        drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+
+            if (timeData.length > 0) {
+                document.getElementById("TimeNow").innerHTML = timeData[currentTimeValue].toFixed(2);
+            }
+            var fps = Math.floor(1000 / ((eval(framestime.join("+"))) / framestime.length));
+            document.getElementById("FramesPerSecond").innerHTML = fps;
+
+            if(isMovie){
+                document.getElementById("slider-value").innerHTML = TIME_STEP;
+            }
+            if (! sliderSel) {
+                $("#slider").slider("option", "value", currentTimeValue);
+            }
         }
-	    // Translate to get a good view.
-	    mvTranslate([0.0, -5.0, -GL_zTranslation]);
-	    multMatrix(GL_currentRotationMatrix);
-	    mvRotate(180, [0, 0, 1]);
-		
-		// If we are in the middle of waiting for the next data file just
-		// stop and wait since we might have an index that is 'out' of this data slice
-		if (! AG_isStopped ) {
-	        updateColors(currentTimeValue);
-	        if (shouldIncrementTime && !isPreview) {
-            	currentTimeValue = currentTimeValue + TIME_STEP;
+
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        addLight();
+
+        if(VS_showLegend){
+            mvPushMatrix();
+            loadIdentity();
+            drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+            mvPopMatrix();
+        }
+
+        // If we are in the middle of waiting for the next data file just
+        // stop and wait since we might have an index that is 'out' of this data slice
+        if (! AG_isStopped ) {
+            updateColors(currentTimeValue);
+            if (shouldIncrementTime && !isPreview) {
+                currentTimeValue = currentTimeValue + TIME_STEP;
            }
-	        if (currentTimeValue > MAX_TIME_STEP && !isPreview) {
-	        	// Next time value is no longer in activity data.
-	            initActivityData();
-	            if (isDoubleView) {
-					loadEEGChartFromTimeStep(0);
-				}
-	        }
-	    } else {
-	    	updateColors(currentTimeValue);
-	    }
-	    drawBuffers(drawingMode, brainBuffers, false);
-	    if (drawingMode == gl.POINTS) {
-	    	gl.uniform1i(shaderProgram.vertexLineColor, true);
-	    }
-	    if (drawBoundaries) {
-	    	drawRegionBoundaries();
-	    }
-	    if (drawTriangleLines) {
-	    	drawBrainLines(brainLinesBuffers, brainBuffers);
-	    }
-        gl.uniform1i(shaderProgram.vertexLineColor, false);
+            if (currentTimeValue > MAX_TIME_STEP && !isPreview) {
+                // Next time value is no longer in activity data.
+                initActivityData();
+                if (isDoubleView) {
+                    loadEEGChartFromTimeStep(0);
+                }
+            }
+        } else {
+            updateColors(currentTimeValue);
+        }
+
+        if(isInternalSensorView){
+            // for internal sensors we render only the sensors
+            if (!isPreview) {
+                drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
+            }
+        }else{
+            // draw surface
+            drawBuffers(drawingMode, brainBuffers, false);
+
+            if (drawingMode == gl.POINTS) {
+                gl.uniform1i(shaderProgram.vertexLineColor, true);
+            }
+            if (drawBoundaries) {
+                drawRegionBoundaries();
+            }
+            if (drawTriangleLines) {
+                drawBrainLines(brainLinesBuffers, brainBuffers);
+            }
+            gl.uniform1i(shaderProgram.vertexLineColor, false);
         
-	    if (!isPreview) {
-	    	if (displayMeasureNodes) {
-		        drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
-		    } 
-		    if (!isDoubleView) {
-		    	NAV_draw_navigator();
-		    }
-		    if (isFaceToDisplay) {
-		        mvPushMatrix();
-		    	if (isDoubleView) {
-		    		mvTranslate([0, -5, -22]);
-		    	} else {
-		    		mvTranslate([0, -5, -10]);
-		    	}
-		    	mvRotate(180, [0, 0, 1]);
-		    	drawBuffers(gl.TRIANGLES, shelfBuffers, true);
-		        mvPopMatrix();
-		    }
-	    }
-	} else {
-		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
-   		gl.disable(gl.BLEND);
+            if (!isPreview) {
+                if (displayMeasureNodes) {
+                    drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
+                }
+                if (!isDoubleView) {
+                    NAV_draw_navigator();
+                }
+            }
+        }
+
+        if (isFaceToDisplay) {
+            var faceDrawMode = isInternalSensorView ? drawingMode : gl.TRIANGLES;
+            mvPushMatrix();
+            if (isDoubleView) {
+                mvTranslate([0, -5, -22]);
+            } else {
+                mvTranslate([0, -5, -10]);
+            }
+            mvRotate(180, [0, 0, 1]);
+            drawBuffers(faceDrawMode, shelfBuffers, true);
+            mvPopMatrix();
+        }
+    } else {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
+        gl.disable(gl.BLEND);
         gl.disable(gl.DITHER);
-   		gl.uniform1f(shaderProgram.isPicking, 1);	
-   		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-    	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    	// View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
-    	var aspect = gl.viewportWidth / gl.viewportHeight;
-    	perspective(45, aspect , near, 800.0);
-    	loadIdentity();
-    	
-   	    if (GL_colorPickerInitColors.length == 0) {
-   			GL_initColorPickingData(NO_OF_MEASURE_POINTS);
-   		}	 
-   		     
-    	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    	
-		mvPushMatrix();
-		mvTranslate([0.0, -5.0, -GL_zTranslation]);
-	    multMatrix(GL_currentRotationMatrix);
-	    mvRotate(180, [0, 0, 1]);
-	    
-	    for (var i = 0; i < NO_OF_MEASURE_POINTS; i++){
-	    	gl.uniform3f(shaderProgram.pickingColor, GL_colorPickerInitColors[i][0], 
-	    											 GL_colorPickerInitColors[i][1], 
-	    											 GL_colorPickerInitColors[i][2]);
+        gl.uniform1f(shaderProgram.isPicking, 1);   
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        if (GL_colorPickerInitColors.length == 0) {
+            GL_initColorPickingData(NO_OF_MEASURE_POINTS);
+        }    
+             
+        for (var i = 0; i < NO_OF_MEASURE_POINTS; i++){
+            gl.uniform3f(shaderProgram.pickingColor, GL_colorPickerInitColors[i][0], 
+                                                     GL_colorPickerInitColors[i][1], 
+                                                     GL_colorPickerInitColors[i][2]);
             gl.bindBuffer(gl.ARRAY_BUFFER, measurePointsBuffers[i][0]);
-	        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-			gl.bindBuffer(gl.ARRAY_BUFFER, measurePointsBuffers[i][1]);
-	        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-	        
-	        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, measurePointsBuffers[i][2]);
-	        setMatrixUniforms();
-    		gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, measurePointsBuffers[i][1]);
+            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, measurePointsBuffers[i][2]);
+            setMatrixUniforms();
+            gl.drawElements(gl.TRIANGLES, measurePointsBuffers[i][2].numItems, gl.UNSIGNED_SHORT, 0);
          }    
         var pickedIndex = GL_getPickedIndex();
-		if (pickedIndex != undefined) {
+        if (pickedIndex != undefined) {
             var pickedChannel = $("#channelChk_" + pickedIndex);
-            pickedChannel.attr('checked', !(pickedChannel.attr('checked')));
+            pickedChannel.attr('checked', !pickedChannel.attr('checked'));
             pickedChannel.trigger('change');
-		}
-	    mvPopMatrix();		 
-		doPick = false;
+        }
+        doPick = false;
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	}
+    }
+
+    mvPopMatrix();
+
 }
 
 ////////////////////////////////////////~~~~~~~~~ END WEB GL RELATED RENDERING ~~~~~~~/////////////////////////////////
@@ -967,9 +1043,9 @@ function drawScene() {
  * and read the first page of the new mode/state var combination.
  */
 function changeStateVariable() {
-	selectedStateVar = $('#state-variable-select').val();
+    selectedStateVar = $('#state-variable-select').val();
     $("#slider").slider("option", "value", currentTimeValue);
-	initActivityData();
+    initActivityData();
 }
 
 /**
@@ -977,16 +1053,16 @@ function changeStateVariable() {
  * and read the first page of the new mode/state var combination.
  */
 function changeMode() {
-	selectedMode = $('#mode-select').val();
-	$("#slider").slider("option", "value", currentTimeValue);
-	initActivityData();
+    selectedMode = $('#mode-select').val();
+    $("#slider").slider("option", "value", currentTimeValue);
+    initActivityData();
 }
 
 /**
  * Just read the first slice of activity data and set the time step to 0.
  */
 function initActivityData() {
-	currentTimeValue = 0;
+    currentTimeValue = 0;
     //read the first file
     var initUrl = getUrlForPageFromIndex(0);
     activitiesData = HLPR_readJSONfromFile(initUrl);
@@ -1000,43 +1076,43 @@ function initActivityData() {
  * Load the brainviewer from this given time step.
  */
 function loadFromTimeStep(step) {
-	showBlockerOverlay(50000);
-	if (step % TIME_STEP != 0) {
-		step = step - step % TIME_STEP + TIME_STEP; // Set time to be multiple of step
-	}
-	var nextUrl = getUrlForPageFromIndex(step);
-	currentAsyncCall = null;
-	readFileData(nextUrl, false);
-	currentTimeValue = step;
+    showBlockerOverlay(50000);
+    if (step % TIME_STEP != 0) {
+        step = step - step % TIME_STEP + TIME_STEP; // Set time to be multiple of step
+    }
+    var nextUrl = getUrlForPageFromIndex(step);
+    currentAsyncCall = null;
+    readFileData(nextUrl, false);
+    currentTimeValue = step;
     activitiesData = nextActivitiesFileData.slice(0);
     nextActivitiesFileData = null;
     currentActivitiesFileLength = activitiesData.length * TIME_STEP;
-	totalPassedActivitiesData = currentTimeValue;
-	// Also sync eeg monitor if in double view
-	if (isDoubleView) {
-		loadEEGChartFromTimeStep(step);
-	}
-	closeBlockerOverlay();
+    totalPassedActivitiesData = currentTimeValue;
+    // Also sync eeg monitor if in double view
+    if (isDoubleView) {
+        loadEEGChartFromTimeStep(step);
+    }
+    closeBlockerOverlay();
 }
 
 /**
  * Refresh the current data with the new time step.
  */
 function refreshCurrentDataSlice() {
-	if (currentTimeValue % TIME_STEP != 0) {
-		currentTimeValue = currentTimeValue - currentTimeValue % TIME_STEP + TIME_STEP; // Set time to be multiple of step
-	}
-	loadFromTimeStep(currentTimeValue);
+    if (currentTimeValue % TIME_STEP != 0) {
+        currentTimeValue = currentTimeValue - currentTimeValue % TIME_STEP + TIME_STEP; // Set time to be multiple of step
+    }
+    loadFromTimeStep(currentTimeValue);
 }
 
 /**
  * Generate the url that reads one page of data starting from @param index
  */
 function getUrlForPageFromIndex(index) {
-	var fromIdx = index;
-	if (fromIdx > MAX_TIME_STEP) fromIdx = 0;
-	var toIdx = fromIdx + pageSize * TIME_STEP;
-	return readDataPageURL(urlBase, fromIdx, toIdx, selectedStateVar, selectedMode, TIME_STEP)
+    var fromIdx = index;
+    if (fromIdx > MAX_TIME_STEP) fromIdx = 0;
+    var toIdx = fromIdx + pageSize * TIME_STEP;
+    return readDataPageURL(urlBase, fromIdx, toIdx, selectedStateVar, selectedMode, TIME_STEP)
 }
 
 /**
@@ -1057,8 +1133,8 @@ function shouldLoadNextActivitiesFile() {
  * Start a new async call that should load required data for the next activity slice.
  */
 function loadNextActivitiesFile() {
-	var nextFileIndex = totalPassedActivitiesData + currentActivitiesFileLength;
-	var nextUrl = getUrlForPageFromIndex(nextFileIndex);
+    var nextFileIndex = totalPassedActivitiesData + currentActivitiesFileLength;
+    var nextUrl = getUrlForPageFromIndex(nextFileIndex);
     var asyncCallId = new Date().getTime();
     currentAsyncCall = asyncCallId;
     readFileData(nextUrl, true, asyncCallId);
@@ -1077,8 +1153,8 @@ function shouldChangeCurrentActivitiesFile() {
  * the next one.
  */
 function changeCurrentActivitiesFile() {
-    if ((nextActivitiesFileData == null || nextActivitiesFileData == undefined || nextActivitiesFileData.length == 0)) {
-    	// Async data call was not finished, stop incrementing call and wait for data.
+    if (nextActivitiesFileData == null || !nextActivitiesFileData.length ) {
+        // Async data call was not finished, stop incrementing call and wait for data.
         shouldIncrementTime = false;
         return;
     }
@@ -1088,7 +1164,7 @@ function changeCurrentActivitiesFile() {
     totalPassedActivitiesData = totalPassedActivitiesData + currentActivitiesFileLength;
     currentActivitiesFileLength = activitiesData.length * TIME_STEP;
     currentAsyncCall = null;
-    if (activitiesData != undefined && activitiesData.length > 0) {
+    if (activitiesData && activitiesData.length ) {
         shouldIncrementTime = true;
     }
     if (totalPassedActivitiesData >= MAX_TIME_STEP) {
@@ -1098,19 +1174,19 @@ function changeCurrentActivitiesFile() {
 
 
 function readFileData(fileUrl, async, callIdentifier) {
-	nextActivitiesFileData = null;
-	// Keep a call identifier so we don't "intersect" async calls when two
-	// async calls are started before the first one finishes.
-	var self = this;
-	self.callIdentifier = callIdentifier;
+    nextActivitiesFileData = null;
+    // Keep a call identifier so we don't "intersect" async calls when two
+    // async calls are started before the first one finishes.
+    var self = this;
+    self.callIdentifier = callIdentifier;
     $.ajax({
         url: fileUrl,
         async: async,
         success: function(data) {
-        	if ((self.callIdentifier == currentAsyncCall) || !async) {
-        		nextActivitiesFileData = eval(data);
-            	data = null;
-        	}
+            if ((self.callIdentifier == currentAsyncCall) || !async) {
+                nextActivitiesFileData = eval(data);
+                data = null;
+            }
         }
     });
 }
