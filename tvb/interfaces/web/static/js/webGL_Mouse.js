@@ -33,7 +33,7 @@ function GL_handleMouseDown(event, canvas) {
     GL_lastMouseY = event.clientY;
 
    // // Get the mouse position relative to the canvas element.
-    canvasOffset = $(canvas).offset();
+    var canvasOffset = $(canvas).offset();
     GL_mouseXRelToCanvas = GL_lastMouseX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canvasOffset.left);
     GL_mouseYRelToCanvas = GL_lastMouseY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canvasOffset.top) + 1;
 }
@@ -48,7 +48,7 @@ function GL_handleMouseMove(event) {
     }
     var newX = event.clientX;
     var newY = event.clientY;
-    var deltaX = newX - GL_lastMouseX
+    var deltaX = newX - GL_lastMouseX;
     var newRotationMatrix = createRotationMatrix(deltaX / 10, [0, 1, 0]);
     var deltaY = newY - GL_lastMouseY;
     newRotationMatrix = newRotationMatrix.x(createRotationMatrix(deltaY / 10, [1, 0, 0]));
@@ -114,8 +114,9 @@ function updateGLCanvasSize(canvasId) {
      * Get the actual size of the canvas after all styles are applied and resizing is done, and
      * update the gl context with these new values.
      */
-    var width = $("#" + canvasId).parent().width();
-    var height = $("#" + canvasId).parent().height();
+    var canvas = $("#" + canvasId);
+    var width = canvas.parent().width();
+    var height = canvas.parent().height();
 
     gl.newCanvasWidth = width;
     gl.newCanvasHeight = height;
@@ -123,8 +124,8 @@ function updateGLCanvasSize(canvasId) {
     gl.clientHeight = height;
     gl.viewportWidth = width;
     gl.viewportHeight = height;
-    $("#" + canvasId).attr("width", width);
-    $("#" + canvasId).attr("height", height);
+    canvas.attr("width", width);
+    canvas.attr("height", height);
     LEG_updateLegendVerticesBuffers();
 }
 // ------ RESHAPE FUNCTIONS END -------------------------------------------------

@@ -29,7 +29,7 @@
 function HLPR_readPointsAndLabels(filePoints) {
     var positions = HLPR_readJSONfromFile(filePoints);
     var labels = HLPR_readJSONfromFile(filePoints.replace('/centres', '/region_labels'));
-	var steps = HLPR_computeNormalizationSteps(positions)
+	var steps = HLPR_computeNormalizationSteps(positions);
     return [positions, labels, steps[0], steps[1]];
 }
 
@@ -66,16 +66,18 @@ function HLPR_computeNormalizationSteps(positions) {
  */
 function HLPR_removeByElement(arrayName, arrayElement) {
   for(var i=0; i<arrayName.length; i++ ) { 
-	  if(arrayName[i]==arrayElement)  { arrayName.splice(i, 1); }
-	  } 
+	  if(arrayName[i]==arrayElement)  {
+          arrayName.splice(i, 1);
+      }
   }
+}
 
 /**
  * Initiate a HTTP GET request for a given file name and return its content, parsed as a JSON object.
  * When staticFiles = True, return without evaluating JSON from response.
  */
 function HLPR_readJSONfromFile(fileName, staticFiles) {
-    oxmlhttp = null;
+    var oxmlhttp;
     try {
         oxmlhttp = new XMLHttpRequest();
         oxmlhttp.overrideMimeType("text/plain");
@@ -83,22 +85,26 @@ function HLPR_readJSONfromFile(fileName, staticFiles) {
         try {
             oxmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
         } catch(e) {
-            return null;
         }
     }
+
     if (!oxmlhttp) return null;
+
     try {
         oxmlhttp.open("GET", fileName, false);
         oxmlhttp.send(null);
     } catch(e) {
         return null;
     }
+
+    var fileData = oxmlhttp.responseText;
+
     if (staticFiles) {
-    	var fileData = oxmlhttp.responseText;
     	fileData = fileData.replace(/\n/g, " ").replace(/\t/g, " ").replace(/    /g, " ").replace(/   /g, " ").replace(/  /g, " ").replace('[', '').replace(']', '');
 		return $.trim(fileData).split(" ");
+    }else{
+        return jQuery.parseJSON(fileData);
     }
-    return jQuery.parseJSON(oxmlhttp.responseText);
 }
 
 

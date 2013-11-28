@@ -41,9 +41,9 @@ function initGL(canvas) {
             gl.newCanvasHeight = gl.viewportHeight = canvas.height *= this.scale;
             if (canvas.redrawFunctionRef)
                 canvas.redrawFunctionRef();
-        }
-        canvas.drawForImageExport = function() {scaleAndRedraw(true)}       // small
-        canvas.afterImageExport   = function() {scaleAndRedraw(false)}      // big
+        };
+        canvas.drawForImageExport = function() {scaleAndRedraw(true)} ;      // small
+        canvas.afterImageExport   = function() {scaleAndRedraw(false)} ;     // big
     } catch(e) {
     }
     if (!gl) {

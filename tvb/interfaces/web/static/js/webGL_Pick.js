@@ -40,11 +40,11 @@ var _DUMMY_COLOR_PICKING_ARRAY = [
                                   0.0,  1000.0,  0.0,
                                  -1000.0, -1000.0, -1000.0,
                                  -1000.0, -1000.0,  1000.0
-                 				]
+                 				];
 //color array that holds for each node a unique color                 				
-var GL_colorPickerInitColors = []
+var GL_colorPickerInitColors = [];
 //color dictionary used for quick lookups that gives the node index for a given color
-var GL_colorPickerMappingDict = {}
+var GL_colorPickerMappingDict = {};
 //a buffer used to draw the nodes 'behind the scene' and do the picking computations
 var GL_colorPickerBuffer;
 
@@ -59,15 +59,13 @@ function GL_initColorPickingData(numberOfObjects) {
 	//Compute a increment that will allow to optimally 'spread' the range of available colors
     var TOTAL_COLOR_NR = 255 * 255 * 255;
     var inc = (TOTAL_COLOR_NR - 1)/ numberOfObjects;
-    idx = 0;
-    
-    var is_sane = true;	
-    var count = 0;
-    var result_string = '';
+
+    var idx = 0;
+    var r, g, b, input_col;
 
     for (var i = 1; i < TOTAL_COLOR_NR; i += inc) {
      	r = parseInt(parseInt(i/255)/255);
-    	g = (parseInt(i/255)%255);
+    	g = parseInt(i/255)%255;
     	b = parseInt(i%255); 
     	input_col = '' + r + g + b;
     	GL_colorPickerInitColors.push([r/255, g/255, b/255, 1]);  	

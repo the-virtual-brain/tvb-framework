@@ -39,7 +39,7 @@ function sortOnKeys(dict) {
 function addFilter(div_id, filters) {
     var div = document.getElementById(div_id);
     //Create a new div for the filter
-    var newDiv = document.createElement("div")
+    var newDiv = document.createElement("div");
     //Create a label
     var label = document.createElement("label");
     var text = document.createTextNode("Filter:");
@@ -59,7 +59,7 @@ function addFilter(div_id, filters) {
     //Order dictionary, to always keep the same display order.
     filters = sortOnKeys(filters);
     //Iterate over the filters dictionary and create the possible values
-    for (i in filters) {
+    for (var i in filters) {
         filter.options[pos] = new Option(filters[i]['display'], i);
         //Fill default options for the operation select
         if (pos == 0) {
@@ -76,7 +76,7 @@ function addFilter(div_id, filters) {
     //Input field
     var input = document.createElement("input");
     input.type = "text";
-    input.id = "calendar" + String(nextId)
+    input.id = "calendar" + nextId;
     nextId++;
     input.name = "values";
 
@@ -122,19 +122,19 @@ function addFilter(div_id, filters) {
                 calendarImg.src = "/static/style/img/calendar.png";
                 calendarImg.onclick = function () {
                     NewCssCal(inputWithId.id);
-                }
+                };
                 this.parentNode.insertBefore(calendarImg, inputWithId.nextSibling);
             }
         }
         $(input).val("");
-    }
+    };
     //Remove button
     var button = document.createElement("input");
     button.type = "button";
     button.value = "-";
     button.onclick = function () {
         div.removeChild(newDiv);
-    }
+    };
 
     //Add all components to div
     newDiv.insertBefore(button, newDiv.firstChild);
@@ -156,9 +156,9 @@ function refreshData(parentDivId, divSufix, name, sessionStoredTreeKey, gathered
         //ajax request to get new data
         var filterDiv = document.getElementById(divId);
         var children = filterDiv.childNodes;
-        var fields = new Array();
-        var operations = new Array();
-        var values = new Array();
+        var fields = [];
+        var operations = [];
+        var values = [];
         //First gather all the information
         for (var i = 0; i < children.length; i++) {
             //There is a new div for each filter.
@@ -179,7 +179,8 @@ function refreshData(parentDivId, divSufix, name, sessionStoredTreeKey, gathered
         if (fields.length == 0 && operations.length == 0 && values.length == 0) {
             displayMessage("Cleared filters");
         }
-        var gatheredData = {
+
+        gatheredData = {
             'fields': fields,
             'operations': operations,
             'values': values

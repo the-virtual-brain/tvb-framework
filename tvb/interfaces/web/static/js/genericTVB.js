@@ -47,10 +47,10 @@ function displayMessage(msg, className) {
 
 function checkForIE() {
 	var browserName=navigator.appName;
-	var msg;
+
 	if (browserName=="Microsoft Internet Explorer") {
-	  	msg = "Internet Explorer is not supported. Please use Google Chrome, Mozilla Firefox or Apple Safari.";
-	 	displayMessage("Internet Explorer is not supported. Please use Google Chrome, Mozilla Firefox or Apple Safari.", 'errorMessage')
+	  	var msg = "Internet Explorer is not supported. Please use Google Chrome, Mozilla Firefox or Apple Safari.";
+	 	displayMessage(msg, 'errorMessage')
 	 }	
 }
 
@@ -136,7 +136,7 @@ function updateCallOutProject() {
 function includeAdapterInterface(divId, projectId, algorithmId, back_page) {
     // Populate in divId, the interface of the adapter, specified by algorihmId.
     // The interface will be automatically populated with dataTypes from projectId     
-    get_url = "/flow/getadapterinterface/"+ projectId+ "/" + algorithmId + '/' +back_page;
+    var get_url = "/flow/getadapterinterface/"+ projectId+ "/" + algorithmId + '/' +back_page;
     $.ajax({ async : false,
              type: 'GET',
              url: get_url,
@@ -153,7 +153,7 @@ function includeAdapterInterface(divId, projectId, algorithmId, back_page) {
 function getSubmitableData(inputDivId, allowDisabled) {
 	
 	var inputs = $("#" + inputDivId + " input");
-	var submitableData = {}
+	var submitableData = {};
 	for (var i = 0; i < inputs.length; i++) {
 		var thisInput = inputs[i];
 		if (!allowDisabled && thisInput.disabled) {
@@ -178,7 +178,7 @@ function getSubmitableData(inputDivId, allowDisabled) {
 			continue
 		}
 		if (thisSelect.multiple == true) {
-			var selectedOptions = []
+			var selectedOptions = [];
 			for (var j=0; j < thisSelect.options.length; j++) {
 				if (thisSelect.options[j].selected == true) {
 					selectedOptions.push(thisSelect.options[j].value);
@@ -197,11 +197,11 @@ function getSubmitableData(inputDivId, allowDisabled) {
  * Generic function to maximize /minimize a column in Michael's columized framework.
  */
 function toggleMaximizeColumn(link, maximizeColumnId) {
-	
+	var mainDiv = $("div[id='main']");
 	if (link.text == "Maximize") {
-		if (!$("div[id='main']").hasClass('is-maximized')) {
-			$("div[id='main']")[0].className = $("div[id='main']")[0].className + " is-maximized";
-			var maximizeColumn = $("#" + maximizeColumnId)[0]
+		if (!mainDiv.hasClass('is-maximized')) {
+			mainDiv[0].className = mainDiv[0].className + " is-maximized";
+			var maximizeColumn = $("#" + maximizeColumnId)[0];
 			maximizeColumn.className = maximizeColumn.className + ' shows-maximized';
 		}
 		link.innerHTML = "Minimize";
@@ -240,7 +240,7 @@ function changeMembersPage(projectId, pageNo, divId, editEnabled) {
         $('span[class^="user_on_page_"]').hide(); 
         $('span[class="user_on_page_'+ pageNo+'"]').show(); 
     } else {
-        my_url = '/project/getmemberspage/' + pageNo;
+        var my_url = '/project/getmemberspage/' + pageNo;
         if (projectId) {
             my_url = my_url + "/"+ projectId;
         }
@@ -259,7 +259,7 @@ function changeMembersPage(projectId, pageNo, divId, editEnabled) {
 
 
 function show_hide(show_class, hide_class) {
-	elems = $(show_class);
+	var elems = $(show_class);
 	for (var i=0; i< elems.length; i++) {
 		elems[i].style.display = 'inline';
 	}
@@ -316,8 +316,8 @@ function validateMatlabPath(matlab_path){
 function changeDBValue(selectComponent) {
 	var component = eval(selectComponent);
 	var selectedValue = $(component).val();
-    correspondingValue = component.options[component.selectedIndex].attributes.correspondingVal.nodeValue;
-    correspondingTextField = document.getElementById('URL_VALUE');
+    var correspondingValue = component.options[component.selectedIndex].attributes.correspondingVal.nodeValue;
+    var correspondingTextField = document.getElementById('URL_VALUE');
     correspondingTextField.value = correspondingValue;
     if (selectedValue == 'sqlite') {
     	correspondingTextField.setAttribute('readonly', 'readonly');	
@@ -373,7 +373,7 @@ function displayNodeDetails(entity_gid, entityType, backPage, excludeTabs) {
     if (entity_gid == undefined || entity_gid == "firstOperation" || entity_gid == "fakeRootNode" || TVB_skipDisplayOverlay) {
         return;
     }
-    var url = '';
+    var url;
 	if (entityType == TVB_NODE_OPERATION_TYPE) {
 		url = '/project/get_operation_details/' + entity_gid + "/0";
 	} else if (entityType == TVB_NODE_OPERATION_GROUP_TYPE) {
@@ -382,7 +382,7 @@ function displayNodeDetails(entity_gid, entityType, backPage, excludeTabs) {
 		url = '/project/get_datatype_details/' + entity_gid;
 	}
 
-    if (backPage == undefined || backPage == '') {
+    if (!backPage) {
         backPage = get_URL_param('back_page');
     }
 	if (backPage) {
@@ -506,10 +506,10 @@ function _markEntityVisibility(entityGID, entityType, toBeVisible) {
 	$.ajax({ async: false, 
 			 type: 'POST',
 			 url: "/project/set_visibility/" + entityType+"/"+ entityGID+"/"+ toBeVisible,
-			 success: function(r) {
+			 success: function() {
 			 	displayMessage("Visibility was changed.");
 			 },
-			 error: function(r) {
+			 error: function() {
 			 	displayMessage("Error when trying to change visibility! Check logs...", "errorMessage");
 			 	returnCode = 1;
 			 }
@@ -533,10 +533,12 @@ function _markEntityVisibility(entityGID, entityType, toBeVisible) {
  * @param toBeRelevant <code>True</code> if the operation is to be set relevant, otherwise <code>False</code>.
  */
 function setOperationRelevant(operationGID, isGroup, toBeRelevant, submitFormId) {
-	entityType = "operation";
+	var entityType;
 	if (isGroup) {
 		entityType = "operationGroup"
-	}
+	}else{
+        entityType = "operation";
+    }
 	var returnCode = _markEntityVisibility(operationGID, entityType, toBeRelevant);
 	if (returnCode == 0){
 		document.getElementById(submitFormId).submit();
@@ -597,7 +599,7 @@ function resetOperationFilters(submitFormId) {
 	input.type = "hidden";
 	input.name = "reset_filters";
 	input.value = "true";
-	form = document.getElementById(submitFormId);
+	var form = document.getElementById(submitFormId);
 	form.appendChild(input);
 	form.submit()
 }
@@ -613,7 +615,6 @@ function applyOperationFilter(filterName, submitFormId) {
  * Refresh the operation page is no overlay is currently displayed.
  */
 function refreshOperations() {
-
 	if (document.getElementById("overlay") == null) {
 		document.getElementById('operationsForm').submit();
 	} else {
@@ -635,6 +636,7 @@ function importerSelectRadio(prefixRadio, selectedType) {
 			this.className = new_class;
 		}
 	});
+    //maybe addclass would work?
 	$(".img" + selectedType).attr("class", $(".img" + selectedType).attr("class") + ' labelSelected');
 	$("#"+ prefixRadio + selectedType).attr("checked", 'true');
 }
@@ -649,7 +651,7 @@ function importerSelectRadio(prefixRadio, selectedType) {
  *
  * @param url URL to be called in order to get overlay code
  */
-KEY_UP_EVENT = "keyup"
+KEY_UP_EVENT = "keyup";
 function showOverlay(url, allowClose, message_data) {
 
     $.ajax({
@@ -807,7 +809,7 @@ function closeBlockerOverlay() {
  * @param {Object} subsection
  */
 function showHelpOverlay(section, subsection) {
-	var url = "/help/showOnlineHelp"
+	var url = "/help/showOnlineHelp";
 	if (section != null) {
 		url += "/" + section
 	}
@@ -924,7 +926,7 @@ function doAjaxCall(params) {
 		showBlockerOverlay(params.overlay_timeout, params.overlay_data);
 	}
 
-	successFunc = function(result) {
+	var successFunc = function(result) {
 		if( typeof params.success != 'undefined') {
 			params.success(result);
 		}
@@ -933,7 +935,7 @@ function doAjaxCall(params) {
 		}
 	};
 
-	errorFunc = function(result) {
+	var errorFunc = function(result) {
 		if(showBlockerOverlay) {
 			closeBlockerOverlay();
 		}
