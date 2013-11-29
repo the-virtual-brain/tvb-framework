@@ -133,6 +133,8 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
     VS_showLegend = showLegend;
     displayMeasureNodes = argDisplayMeasureNodes;
     isFaceToDisplay = argIsFaceToDisplay;
+    // make checkbox consistent with this flag
+    $("#displayFaceChkId").attr('checked', isFaceToDisplay);
 
     // initialize global data    
     if (noOfMeasurePoints == 0){
@@ -218,14 +220,6 @@ function _VS_init_cubicalMeasurePoints(){
     }
 }
 
-function _VS_init_sphericalMeasurePoints(){
-    for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-        measurePointsBuffers[i] = SEEG_bufferAtPoint(measurePoints[i], i);
-    }
-}
-
-
-
 function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
                                boundaryURL){
@@ -245,15 +239,6 @@ function VS_StartEEGSensorViewer(urlVerticesList, urlLinesList, urlTrianglesList
     _VS_init_cubicalMeasurePoints();
 }
 
-function VS_StartInternalSensorViewer(urlMeasurePoints,  noOfMeasurePoints, urlMeasurePointsLabels, shelfObject){
-    _VS_static_entrypoint('', '[]', '', '', urlMeasurePoints, noOfMeasurePoints, '', '',
-                         urlMeasurePointsLabels, '', shelfObject, false, false, true);
-    isInternalSensorView = true;
-    isFaceToDisplay = true;
-    _VS_init_sphericalMeasurePoints();
-
-}
-
 function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
                     urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
@@ -262,17 +247,6 @@ function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, 
     _VS_movie_entrypoint.apply(this, arguments);
     _VS_init_cubicalMeasurePoints();
 
-}
-
-function VS_StartInternalActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
-                    urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
-                    urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
-                    oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
-
-    _VS_movie_entrypoint.apply(this, arguments);
-    isInternalSensorView = true;
-    isFaceToDisplay = true;
-    _VS_init_sphericalMeasurePoints();
 }
 
 function _isValidActivityData(){

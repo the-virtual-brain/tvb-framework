@@ -6,5 +6,18 @@
 
     </fieldset>
 
+    <ul class="toolbar-inline">
+		<li>
+            <button id="ctrl-action-points" class="action action-view" title="Display only cloud of points, without triagles."
+                    onclick="wireFrame();" tabindex="1">Points</button>
+        </li>
+    </ul>
+
+
+    <fieldset>
+        <input id="displayFaceChkId" title="Face approximative will move along with brain navigator."
+                   type="checkbox" onchange="switchFaceObject();" tabindex="1" />
+        <label for="displayFaceChkId" >Display face approximative shade</label>
+    </fieldset>
 
 </div>

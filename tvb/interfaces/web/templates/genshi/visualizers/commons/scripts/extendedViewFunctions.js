@@ -94,7 +94,7 @@ function EX_initializeChannelsForSensorsInternal() {
  */
 function _changeColorBufferForMeasurePointSensorInternal(measurePointIndex, isPicked) {
     var colorBufferIndex = measurePointsBuffers[measurePointIndex].length - 1;
-    var alphaAndColors = SEEG_createColorBufferForSphere(isPicked, measurePointIndex, measurePointsBuffers[measurePointIndex][0].numItems * 3);
+    var alphaAndColors = VSI_createColorBufferForSphere(isPicked, measurePointIndex, measurePointsBuffers[measurePointIndex][0].numItems * 3);
     measurePointsBuffers[measurePointIndex][colorBufferIndex - 1] = alphaAndColors[0];
     measurePointsBuffers[measurePointIndex][colorBufferIndex] = alphaAndColors[1];
 }

@@ -16,14 +16,13 @@
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0
  *
  **/
-displayMeasureNodes = true;
 
-function SEEG_bufferAtPoint(p, idx) {
+function _VSI_bufferAtPoint(p, idx) {
     var result = HLPR_sphereBufferAtPoint(gl, p, 3, 12, 12);
     var bufferVertices= result[0];
     var bufferNormals = result[1];
     var bufferTriangles = result[2];
-    var alphaAndColors = SEEG_createColorBufferForSphere(false, idx, bufferVertices.numItems * 3);
+    var alphaAndColors = VSI_createColorBufferForSphere(false, idx, bufferVertices.numItems * 3);
     return [bufferVertices, bufferNormals, bufferTriangles, alphaAndColors[0], alphaAndColors[1]];
 }
 
@@ -34,7 +33,7 @@ function SEEG_bufferAtPoint(p, idx) {
  * the one used for drawing the measure points for which the
  * corresponding eeg channels are selected.
  */
-function SEEG_createColorBufferForSphere(isPicked, nodeIdx, nrOfVertices) {
+function VSI_createColorBufferForSphere(isPicked, nodeIdx, nrOfVertices) {
     var pointColor = [];
     var alphas = [];
     pointColor = [nodeIdx, 0, 0];
@@ -54,4 +53,33 @@ function SEEG_createColorBufferForSphere(isPicked, nodeIdx, nrOfVertices) {
     gl.bindBuffer(gl.ARRAY_BUFFER, cubeColorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
     return [alphaBuffer, cubeColorBuffer];
+}
+
+
+function _VSI_init_sphericalMeasurePoints(){
+    for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
+        measurePointsBuffers[i] = _VSI_bufferAtPoint(measurePoints[i], i);
+    }
+}
+
+function VSI_StartInternalSensorViewer(urlMeasurePoints,  noOfMeasurePoints, urlMeasurePointsLabels, shelfObject){
+    _VS_static_entrypoint('', '[]', '', '', urlMeasurePoints, noOfMeasurePoints, '', '',
+                         urlMeasurePointsLabels, '', shelfObject, false, false, true);
+    isInternalSensorView = true;
+    displayMeasureNodes = true;
+
+    _VSI_init_sphericalMeasurePoints();
+
+}
+
+function VSI_StartInternalActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
+                    urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
+                    urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
+                    oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
+
+    _VS_movie_entrypoint.apply(this, arguments);
+    isInternalSensorView = true;
+    displayMeasureNodes = true;
+
+    _VSI_init_sphericalMeasurePoints();
 }

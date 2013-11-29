@@ -63,7 +63,7 @@ class InternalSensorViewer(ABCDisplayer):
             'urlMeasurePointsLabels': measure_points_info[1],
             'noOfMeasurePoints': measure_points_info[2]}
 
-        return self.build_display_result('sensors/sensors_seeg', params,
+        return self.build_display_result('sensors/sensors_internal', params,
                                          pages={'controlPage': 'sensors/sensors_controls'})
 
 

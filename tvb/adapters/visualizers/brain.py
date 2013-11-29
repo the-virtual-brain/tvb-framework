@@ -393,7 +393,7 @@ class BrainSEEG(BrainEEG):
 
     def launch(self, surface_activity, eeg_cap=None):
         result_params = BrainEEG.launch(self, surface_activity)
-        result_params['brainViewerTemplate'] = "seeg_view.html"
+        result_params['brainViewerTemplate'] = "internal_view.html"
         # Mark as None since we only display shelf face and no point to load these as well
         result_params['urlVertices'] = None
         result_params['isSEEG'] = True

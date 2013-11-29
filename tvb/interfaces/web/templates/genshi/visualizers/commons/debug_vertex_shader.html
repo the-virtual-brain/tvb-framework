@@ -1,4 +1,10 @@
 <script id="shader-vs" type="x-shader/x-vertex">
+    // This shader is used only for debugging
+    // It visualizes normals as colors
+    // It is meant to be  used with fragment_shader.html
+    // It is interchangable with vertex_shader.html (declares the same attributes and uniforms)
+    // It makes the same model-view and perspective transforms
+
     attribute vec3 aVertexPosition;
     attribute vec3 aVertexNormal;
 
@@ -40,6 +46,7 @@
         vec3 normal = normalize(transformedNormal.xyz);
 
         vLightWeighting = vec3(1,1,1);
+
         // debug normals as colors
         vColor = vec4(normal, 1.0);
 

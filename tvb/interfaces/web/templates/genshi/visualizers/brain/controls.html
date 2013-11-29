@@ -4,10 +4,14 @@
     <fieldset id="fieldSetForSliderSpeed">
         <ul> 
             <li> 
-                <dl><dt><label for="ctrl-input-speed">Speed</label> 
-                        <span class="slider-value" id="slider-value">0</span><span class="slider-value"> timesteps per Frame.</span> 
+                <dl>
+                    <dt>
+                        <label for="ctrl-input-speed">Speed</label>
+                        <span class="slider-value" id="slider-value">0</span>
+                        <span class="slider-value"> timesteps per Frame.</span>
                     </dt> 
-                    <dd><div class="sliderStepDiv" ondblclick="resetSpeedSlider();">
+                    <dd>
+                        <div class="sliderStepDiv" ondblclick="resetSpeedSlider();">
                             <div id="sliderStep" class="shadow"></div>
                         </div> 
                     </dd>
@@ -17,26 +21,56 @@
     </fieldset> 
      
 	<ul class="toolbar-inline">
-		<li><button id="ctrl-action-points" class="action action-view" title="Display only cloud of points, without triagles." onclick="wireFrame();" tabindex="1">Points</button></li>
-		<li py:if="not defined('isSEEG') and not isOneToOneMapping"><button id="ctrl-action-nodes" class="action action-view" title="Display measurement nodes" onclick="toggleMeasureNodes();" tabindex="1">Nodes</button></li>
-		<li><button id="ctrl-action-pause" class="action action-controller-pause" title="Pause/Start Drawing" onclick="pauseMovie();" tabindex="1">Pause</button> </li>
+		<li>
+            <button id="ctrl-action-points" class="action action-view" title="Display only cloud of points, without triagles."
+                    onclick="wireFrame();" tabindex="1">Points</button>
+        </li>
+		<li py:if="not defined('isSEEG') and not isOneToOneMapping">
+            <button id="ctrl-action-nodes" class="action action-view" title="Display measurement nodes"
+                    onclick="toggleMeasureNodes();" tabindex="1">Nodes</button>
+        </li>
+		<li>
+            <button id="ctrl-action-pause" class="action action-controller-pause" title="Pause/Start Drawing"
+                    onclick="pauseMovie();" tabindex="1">Pause</button>
+        </li>
     </ul>
 
     <fieldset>
 		<xi:include href='../commons/state_mode_selector.html'/>
 		${drawStateModeSelector(labelsStateVar, 'state-variable-select', 'State variable:', 'changeStateVariable')}
 		${drawStateModeSelector(labelsModes, 'mode-select', 'Mode:', 'changeMode')}
-		<input id="showBrainLines" type="checkbox" onchange="toggleDrawBoundaries(this);" tabindex="1" py:if="not extended_view and not isOneToOneMapping and not defined('isSEEG')"/>
-        <label for="showBrainLines" py:if="not extended_view and not isOneToOneMapping">Show region boundaries</label>
-        <br py:if="not extended_view and not isOneToOneMapping"/>
-		<input id="showBrainLines" type="checkbox" onchange="toggleDrawTriangleLines(this);" tabindex="1" py:if="not defined('isSEEG')"/>
-        <label for="showBrainLines" py:if="not defined('isSEEG')">Show surface triangles</label>
+
+        <py:if test="not extended_view and not isOneToOneMapping">
+            <input id="showBrainLines" type="checkbox" onchange="toggleDrawBoundaries(this);"
+                   tabindex="1" py:if="not defined('isSEEG')"/>
+
+            <label for="showBrainLines">Show region boundaries</label>
+            <br/>
+        </py:if>
+
+        <py:if test="not defined('isSEEG')">
+            <input id="showBrainLines" type="checkbox" onchange="toggleDrawTriangleLines(this);" tabindex="1"/>
+
+            <label for="showBrainLines">Show surface triangles</label>
+        </py:if>
+
         <br/>
-        <input id="inTimeRefreshChkId" type="checkbox" onchange="NAV_setInTimeRefresh(this);" tabindex="1" py:if="not extended_view"/>
-        <label for="inTimeRefreshChkId" py:if="not extended_view">In time refresh</label>
+
+        <py:if test="not extended_view">
+            <input id="inTimeRefreshChkId" type="checkbox" onchange="NAV_setInTimeRefresh(this);"
+                   tabindex="1" />
+
+            <label for="inTimeRefreshChkId">In time refresh</label>
+        </py:if>
+
         <br/>
-        <input id="displayFaceChkId" title="Face approximative will move along with brain navigator." type="checkbox" onchange="switchFaceObject();" tabindex="1" py:if="not defined('isSEEG')"/>
-        <label for="displayFaceChkId" py:if="not defined('isSEEG')">Display face approximative shade</label>
+
+        <py:if test="not defined('isSEEG')">
+            <input id="displayFaceChkId" title="Face approximative will move along with brain navigator."
+                   type="checkbox" onchange="switchFaceObject();" tabindex="1" />
+            <label for="displayFaceChkId" >Display face approximative shade</label>
+        </py:if>
+
     </fieldset>
 
     <xi:include href='../../flow/color_scheme.html'/>
