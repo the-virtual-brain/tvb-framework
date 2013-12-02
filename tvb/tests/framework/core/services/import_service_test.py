@@ -48,9 +48,9 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.adapters.exporters.export_manager import ExportManager
 from tvb.datatypes.mapped_values import ValueWrapper
 from tvb.datatypes.time_series import TimeSeries
-from tvb_test.core.test_factory import TestFactory
-from tvb_test.adapters.storeadapter import StoreAdapter
-from tvb_test.core.base_testcase import TransactionalTestCase
+from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.adapters.storeadapter import StoreAdapter
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
 
 

@@ -40,7 +40,7 @@ from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.services.settings_service import SettingsService, InvalidSettingsException
 
 
-TEST_CONFIG_FILE = os.path.expanduser(os.path.join("~", 'tvb_test.configuration'))
+TEST_CONFIG_FILE = os.path.expanduser(os.path.join("~", 'tvb.tests.framework.configuration'))
 
 
 class SettingsServiceTest(unittest.TestCase):
@@ -189,9 +189,9 @@ class SettingsServiceTest(unittest.TestCase):
         Test than storage is changed, the data is copied in proper place.
         """
         #Add some additional entries that would normaly come from the UI.
-        old_storage = os.path.join(cfg.TVB_STORAGE, 'tvb_test_old')
-        new_storage = os.path.join(cfg.TVB_STORAGE, 'tvb_test_new')
-        test_data = 'tvb_test_data'
+        old_storage = os.path.join(cfg.TVB_STORAGE, 'tvb.tests.framework_old')
+        new_storage = os.path.join(cfg.TVB_STORAGE, 'tvb.tests.framework_new')
+        test_data = 'tvb.tests.framework_data'
         if os.path.exists(old_storage):
             shutil.rmtree(old_storage)
         os.makedirs(old_storage)

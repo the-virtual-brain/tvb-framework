@@ -37,8 +37,8 @@ import time
 import tvb.core.services.event_handlers as event_handlers
 from tvb.core.entities.storage import dao
 from tvb.core.services.project_service import ProjectService
-from tvb_test.core.test_factory import TestFactory
-from tvb_test.core.base_testcase import BaseTestCase
+from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.base_testcase import BaseTestCase
 
 
 class EventHandlerTest(BaseTestCase):

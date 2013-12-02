@@ -40,7 +40,7 @@ from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.portlets.portlet_configurer import PortletConfigurer
-from tvb_test.core.base_testcase import TransactionalTestCase
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
 
 class PythonPortletsTest(TransactionalTestCase):
@@ -56,9 +56,9 @@ class PythonPortletsTest(TransactionalTestCase):
         self.test_user = dao.store_entity(user) 
         project = model.Project("test_proj", self.test_user.id, "description")
         self.test_project = dao.store_entity(project) 
-        import tvb_test
+        import tvb.tests.framework
         self.old_config_file = cfg.CURRENT_DIR
-        cfg.CURRENT_DIR = os.path.dirname(tvb_test.__file__) 
+        cfg.CURRENT_DIR = os.path.dirname(tvb.tests.framework.__file__)
         
         
     def tearDown(self):

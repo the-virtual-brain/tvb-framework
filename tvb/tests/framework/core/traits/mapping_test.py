@@ -41,8 +41,8 @@ from tvb.basic.traits.types_mapped import MappedType
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao, SA_SESSIONMAKER
 from tvb.core.services.flow_service import FlowService
-from tvb_test.core.test_factory import TestFactory
-from tvb_test.core.base_testcase import BaseTestCase
+from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.base_testcase import BaseTestCase
 
 
 class MappedTestClass(MappedType):
