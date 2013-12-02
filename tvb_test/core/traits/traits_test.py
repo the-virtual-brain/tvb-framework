@@ -36,19 +36,8 @@ import unittest
 import numpy
 import os
 import shutil
-import json
-from copy import deepcopy
-import tvb.datatypes.equations as equations 
-import tvb.datatypes.surfaces as surfaces
-import tvb.datatypes.arrays as arrays
-import tvb.datatypes.time_series as time_series
-from tvb.datatypes.equations import Equation
-from tvb.basic.traits.types_basic import MapAsJson
 from tvb.basic.traits.types_mapped import MappedType
-from tvb.basic.traits import types_basic as basic
 from tvb.basic.config.settings import TVBSettings as config
-from tvb.simulator.models import WilsonCowan, ReducedSetHindmarshRose
-from tvb_library_test.base_testcase import BaseTestCase
 
 
 class MappedTypeStorageTests(unittest.TestCase):
@@ -107,12 +96,12 @@ class MappedTypeStorageTests(unittest.TestCase):
         
         key = "meta_key"
         value = "meva_val"
-        self.data_type.set_metadata({key:value}, self.data_name)
+        self.data_type.set_metadata({key: value}, self.data_name)
         read_meta_data = self.data_type.get_metadata(self.data_name)
         self.assertEqual(value, read_meta_data[key], "Meta value is not correct")
         
         # Now we'll store metadata on file /root node
-        self.data_type.set_metadata({key:value})
+        self.data_type.set_metadata({key: value})
         read_meta_data = self.data_type.get_metadata()
         self.assertEqual(value, read_meta_data[key], "Meta value is not correct")
         
@@ -125,7 +114,7 @@ class MappedTypeStorageTests(unittest.TestCase):
         
         key = "meta_key"
         value = "meva_val"
-        self.data_type.set_metadata({key:value}, self.data_name)
+        self.data_type.set_metadata({key: value}, self.data_name)
         read_meta_data = self.data_type.get_metadata(self.data_name)
         self.assertEqual(value, read_meta_data[key], "Meta value is not correct")
         
