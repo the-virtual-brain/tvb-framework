@@ -652,8 +652,8 @@ class BaseProfile():
         """
         tvb_root = os.path.dirname(BaseProfile.CURRENT_DIR)
         return (os.path.exists(os.path.join(tvb_root, 'AUTHORS'))
-                and os.path.exists(os.path.join(tvb_root, 'ui_test'))
-                and os.path.exists(os.path.join(tvb_root, 'tvb_test'))
+                and os.path.exists(os.path.join(os.path.dirname(tvb_root), 'third_party_licenses'))
+                and os.path.exists(os.path.join(os.path.dirname(tvb_root), 'externals'))
                 and os.path.exists(os.path.join(os.path.dirname(tvb_root), 'documentor')))
 
 
