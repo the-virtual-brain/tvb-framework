@@ -39,8 +39,8 @@ from tvb.core.entities import model
 from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.storage.session_maker import add_session, SessionMaker
 from tvb.core.entities.storage.exceptions import NestedTransactionUnsupported
-from tvb_test.core.test_factory import TestFactory
-from tvb_test.core.base_testcase import BaseTestCase, transactional_test
+from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.base_testcase import BaseTestCase, transactional_test
 
 SESSIONMAKER = SessionMaker()
 

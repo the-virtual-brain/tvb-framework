@@ -41,8 +41,8 @@ from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.exceptions import FileStructureException
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb_test.core.base_testcase import TransactionalTestCase
-from tvb_test.core.test_factory import TestFactory
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
+from tvb.tests.framework.core.test_factory import TestFactory
 
 
 root_storage = cfg.TVB_STORAGE

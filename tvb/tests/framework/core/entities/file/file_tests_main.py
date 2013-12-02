@@ -31,9 +31,9 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 import unittest
-from tvb_test.core.entities.file import files_helper_test
-from tvb_test.core.entities.file import xml_metadata_handlers_test
-from tvb_test.core.entities.file import hdf5_storage_test
+from tvb.tests.framework.core.entities.file import files_helper_test
+from tvb.tests.framework.core.entities.file import xml_metadata_handlers_test
+from tvb.tests.framework.core.entities.file import hdf5_storage_test
 
 
 def suite():

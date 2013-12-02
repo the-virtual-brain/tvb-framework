@@ -37,7 +37,7 @@ import unittest
 from tvb.core.entities.storage import dao
 from tvb.core.entities.model_manager import initialize_startup
 from tvb.core.entities.model_manager import reset_database
-from tvb_test.core.base_testcase import BaseTestCase, init_test_env
+from tvb.tests.framework.core.base_testcase import BaseTestCase, init_test_env
 
 class ModelManagerTests(BaseTestCase):
     """

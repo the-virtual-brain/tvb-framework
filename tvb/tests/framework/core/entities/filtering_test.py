@@ -37,9 +37,9 @@ from sqlalchemy import and_
 from tvb.core.entities.transient.filtering import StaticFiltersFactory
 from tvb.core.entities.storage.session_maker import SessionMaker
 from tvb.basic.filters.chain import FilterChain
-from tvb_test.core.base_testcase import TransactionalTestCase
-from tvb_test.datatypes import datatypes_factory
-from tvb_test.datatypes.datatype1 import Datatype1
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
+from tvb.tests.framework.datatypes import datatypes_factory
+from tvb.tests.framework.datatypes.datatype1 import Datatype1
 
 
 class FilteringTest(TransactionalTestCase):

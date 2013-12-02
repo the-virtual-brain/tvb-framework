@@ -32,10 +32,10 @@
 """
 
 import unittest
-from tvb_test.core.entities import model_manager_test
-from tvb_test.core.entities import filtering_test
-from tvb_test.core.entities import transactional_test
-from tvb_test.core.entities.file import file_tests_main
+from tvb.tests.framework.core.entities import model_manager_test
+from tvb.tests.framework.core.entities import filtering_test
+from tvb.tests.framework.core.entities import transactional_test
+from tvb.tests.framework.core.entities.file import file_tests_main
 
 
 def suite():
