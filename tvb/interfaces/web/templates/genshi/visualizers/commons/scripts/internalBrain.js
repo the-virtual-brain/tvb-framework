@@ -80,6 +80,7 @@ function VSI_StartInternalActivityViewer(baseDatatypeURL, onePageSize, urlTimeLi
     _VS_movie_entrypoint.apply(this, arguments);
     isInternalSensorView = true;
     displayMeasureNodes = true;
+    isFaceToDisplay = true;
 
     _VSI_init_sphericalMeasurePoints();
 }

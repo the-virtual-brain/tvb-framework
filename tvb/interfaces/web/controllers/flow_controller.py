@@ -578,14 +578,14 @@ class FlowController(base.BaseController):
             if kwargs is None:
                 kwargs = {}
             datatype_kwargs = json.loads(datatype_kwargs)
-            if datatype_kwargs is not None:
-                for key in datatype_kwargs:
-                    kwargs[key] = ABCAdapter.load_entity_by_gid(datatype_kwargs[key])
-            if len(kwargs) < 1:
+            if datatype_kwargs:
+                for key, value in datatype_kwargs.iteritems():
+                    kwargs[key] = ABCAdapter.load_entity_by_gid(value)
+            if not kwargs:
                 numpy_array = copy.deepcopy(getattr(entity, dataset_name))
             else:
-                numpy_array = eval("entity." + dataset_name + "(**kwargs)")
-            if (flatten is True) or (flatten == "True"):
+                numpy_array = getattr(entity, dataset_name)(**kwargs)
+            if flatten is True or flatten == "True":
                 numpy_array = numpy_array.flatten()
             return numpy_array.tolist()
         except Exception, excep:

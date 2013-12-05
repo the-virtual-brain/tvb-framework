@@ -326,10 +326,6 @@ function _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePoint
         measurePoints = HLPR_readJSONfromFile(urlMeasurePoints);
         measurePointsLabels = HLPR_readJSONfromFile(urlMeasurePointsLabels);
         NO_OF_MEASURE_POINTS = measurePoints.length;
-    } else if (noOfMeasurePoints < 0) {
-        measurePoints = $.parseJSON(urlMeasurePoints);
-        measurePointsLabels = HLPR_readJSONfromFile(urlMeasurePointsLabels);
-        NO_OF_MEASURE_POINTS = measurePoints.length;
     } else {
         NO_OF_MEASURE_POINTS = 0;
         measurePoints = [];

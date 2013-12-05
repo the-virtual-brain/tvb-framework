@@ -313,7 +313,7 @@ class BrainEEG(BrainViewer):
         """
         Compute sensors positions by mapping them to the ``eeg_cap`` surface
         If ``eeg_cap`` is not specified the mapping will use a default.
-        It returns the positions as json.
+        It returns a url from where to fetch the positions
         If no default is available it returns None
         :returns: measure points, measure points labels, measure points number
         :rtype: tuple
@@ -325,9 +325,9 @@ class BrainEEG(BrainViewer):
                 eeg_cap = cap_eeg[0]
 
         if eeg_cap:
-            sensor_locations = sensors.sensors_to_surface(eeg_cap)[1]
-            measure_points = json.dumps(sensor_locations.tolist())
-            measure_points_no = - sensors.number_of_sensors
+            datatype_kwargs = json.dumps({'surface_to_map': eeg_cap.gid})
+            measure_points = ABCDisplayer.paths2url(sensors, 'sensors_to_surface') + '/' + datatype_kwargs
+            measure_points_no = sensors.number_of_sensors
             measure_points_labels = ABCDisplayer.paths2url(sensors, 'labels')
             return measure_points, measure_points_labels, measure_points_no
 
