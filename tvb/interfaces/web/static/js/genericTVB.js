@@ -615,7 +615,14 @@ function applyOperationFilter(filterName, submitFormId) {
  * Refresh the operation page is no overlay is currently displayed.
  */
 function refreshOperations() {
+    // do not cancel another request
+    if(tvbPageSubmited){
+       return;
+    }
+
 	if (document.getElementById("overlay") == null) {
+        // let other requests cancel the refresh . Do not set the flag
+        // tvbPageSubmited = true
 		document.getElementById('operationsForm').submit();
 	} else {
 		setTimeout(refreshOperations, 30000);

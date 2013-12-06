@@ -29,6 +29,9 @@ var lastSelectedNodeType = undefined;
 // presses more times on the same graph node
 var skipReload = false;
 
+// a global flag to be set when the page has been submitted and is about to reload
+// Any function that wants to submit the page should do so only if this flag is not set
+var tvbPageSubmited = false;
 
 /**
  * Function selecting previously selected TAB between TREE / GRAPH, on pahe refresh.
@@ -393,49 +396,55 @@ function updateLinkableProjects(datatype_id, isGroup, entity_gid) {
 }
 
 /**
+ * Submits the page to the action url using a http post
+ * @param params a dict with the request parameters {name:value}
+ */
+function tvbSubmitPage(action, params){
+    if (tvbPageSubmited){
+        return;
+    }
+    var input;
+    var form = document.createElement("form");
+
+    form.method="POST" ;
+    form.action = action;
+
+    for (var name in params){
+        if(params.hasOwnProperty(name)){
+            input = document.createElement("input");
+            input.setAttribute("name", name);
+            input.setAttribute("value", params[name]);
+            input.setAttribute("type", "hidden");
+            form.appendChild(input);
+        }
+    }
+    document.body.appendChild(form);
+	tvbPageSubmited = true;
+    form.submit();
+	document.body.removeChild(form);
+}
+
+/**
  * Launch from DataType overlay an analysis or a visualize algorithm.
  */
 function doLaunch(visualizer_url, param_name, data_gid, param_algo, algo_ident, back_page_link) {
-	
-	var myForm = document.createElement("form");
-	myForm.method="POST" ;
-	myForm.action = visualizer_url + "?back_page="+back_page_link;
-	var myInput = document.createElement("input");
-	myInput.setAttribute("name", param_name);
-	myInput.setAttribute("value", data_gid);
-	myForm.appendChild(myInput);
-	if (param_algo != ''){
-		var myInput = document.createElement("input");
-		myInput.setAttribute("name", param_algo);
-		myInput.setAttribute("value", algo_ident);
-		myForm.appendChild(myInput);
-	}
-	document.body.appendChild(myForm);
-	myForm.submit();
-	document.body.removeChild(myForm);
+    var params = {};
+    params[param_name] = data_gid;
+    if(param_algo){
+        params[param_algo] = algo_ident;
+    }
+    tvbSubmitPage(visualizer_url + "?back_page="+back_page_link, params)
 }
 
 /**
  * Launch from DataType overlay an analysis or a visualize algorithm.
  */
 function doGroupLaunch(visualizer_url, param_name, param_algo, algo_ident) {
-	
-	var myForm = document.createElement("form");
-	myForm.method="POST" ;
-	myForm.action = visualizer_url;
-	var myInput = document.createElement("input");
-	myInput.setAttribute("name", 'range_param_name');
-	myInput.setAttribute("value", param_name);
-	myForm.appendChild(myInput);
-	if (param_algo != ''){
-		var myInput = document.createElement("input");
-		myInput.setAttribute("name", param_algo);
-		myInput.setAttribute("value", algo_ident);
-		myForm.appendChild(myInput);
-	}
-	document.body.appendChild(myForm);
-	myForm.submit();
-	document.body.removeChild(myForm);
+    var params = {range_param_name: param_name};
+    if(param_algo){
+        params[param_algo] = algo_ident;
+    }
+    tvbSubmitPage(visualizer_url, params);
 }
 
 
