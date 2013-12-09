@@ -304,7 +304,7 @@ function _bindEvents(canvas){
     canvas.onkeyup = GL_handleKeyUp;
     canvas.onmousedown = customMouseDown;
     document.onmouseup = NAV_customMouseUp;
-    document.onmousemove = customMouseMove; 
+    document.onmousemove = GL_handleMouseMove;
 
     $(canvas).mousewheel(function(event, delta) {
         GL_handleMouseWeel(delta);
@@ -429,24 +429,6 @@ function customMouseDown(event) {
     }
 }
 
-function customMouseMove(event) {
-    if (NAV_isMouseControlOverBrain) {
-        GL_handleMouseMove(event);
-    } else {
-        if (!GL_mouseDown) {
-            return;
-        }
-        var newX = event.clientX;
-        var newY = event.clientY;
-        var deltaX = newX - GL_lastMouseX;
-        var deltaY = newY - GL_lastMouseY;
-        GL_lastMouseX = newX;
-        GL_lastMouseY = newY;
-
-        NAV_navigatorX -= deltaX * 250 / 800;
-        NAV_navigatorY += deltaY * 250 / 800;
-    }
-}
 
 /////////////////////////////////////////~~~~~~~~END MOUSE RELATED CODE~~~~~~~~~~~//////////////////////////////////
 
@@ -867,11 +849,7 @@ function drawScene() {
                 framestime.push(elapsed);
 
                 if (GL_zoomSpeed != 0){
-                    if (NAV_isMouseControlOverBrain) {
-                        GL_zTranslation -= GL_zoomSpeed * elapsed;
-                    } else {
-                        NAV_navigatorZ = NAV_navigatorZ + GL_zoomSpeed * 4;
-                    }
+                    GL_zTranslation -= GL_zoomSpeed * elapsed;
                     GL_zoomSpeed = 0;
                 }
 

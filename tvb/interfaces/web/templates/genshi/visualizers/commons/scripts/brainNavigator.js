@@ -22,8 +22,6 @@
 var NAV_navigatorX = 0.0, NAV_navigatorY = 0.0, NAV_navigatorZ = 0.0;
 // As we draw the 3D navigator as WebGL object, we need buffers for it.
 var NAV_navigatorBuffers = [];
-/// No brain rotation happens, but the brain-navigator is working.
-var NAV_isMouseControlOverBrain = true;
 /// When brain Navigator is manipulated and this check is True, projections on X, Y, Z are refreshed at each redraw.
 var NAV_inTimeRefresh = false;
 var _inTimeRefreshCheckbox;
