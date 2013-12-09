@@ -7,7 +7,7 @@
     </fieldset>
 
     <ul class="toolbar-inline">
-		<li>
+		<li py:if="value_of('urlVertices')">
             <button id="ctrl-action-points" class="action action-view" title="Display only cloud of points, without triagles."
                     onclick="wireFrame();" tabindex="1">Points</button>
         </li>
@@ -20,5 +20,5 @@
         <label for="displayFaceChkId" >Display face approximative shade</label>
     </fieldset>
 
-    <xi:include href='../../flow/color_scheme.html'/>
+    <xi:include href='../../flow/color_scheme.html' py:if="value_of('urlVertices')"/>
 </div>
