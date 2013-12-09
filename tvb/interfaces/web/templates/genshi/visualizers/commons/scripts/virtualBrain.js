@@ -430,23 +430,22 @@ function customMouseDown(event) {
 }
 
 function customMouseMove(event) {
-    if (!GL_mouseDown) {
-        return;
-    }
-    var newX = event.clientX;
-    var newY = event.clientY;
-    var deltaX = newX - GL_lastMouseX;
-    var deltaY = newY - GL_lastMouseY;
     if (NAV_isMouseControlOverBrain) {
-        var newRotationMatrix = createRotationMatrix(deltaX / 10, [0, 1, 0]);
-        newRotationMatrix = newRotationMatrix.x(createRotationMatrix(deltaY / 10, [1, 0, 0]));
-        GL_currentRotationMatrix = newRotationMatrix.x(GL_currentRotationMatrix);
+        GL_handleMouseMove(event);
     } else {
-        NAV_navigatorX = NAV_navigatorX - deltaX * 250 / 800;
-        NAV_navigatorY = NAV_navigatorY + deltaY * 250 / 800;
+        if (!GL_mouseDown) {
+            return;
+        }
+        var newX = event.clientX;
+        var newY = event.clientY;
+        var deltaX = newX - GL_lastMouseX;
+        var deltaY = newY - GL_lastMouseY;
+        GL_lastMouseX = newX;
+        GL_lastMouseY = newY;
+
+        NAV_navigatorX -= deltaX * 250 / 800;
+        NAV_navigatorY += deltaY * 250 / 800;
     }
-    GL_lastMouseX = newX;
-    GL_lastMouseY = newY;
 }
 
 /////////////////////////////////////////~~~~~~~~END MOUSE RELATED CODE~~~~~~~~~~~//////////////////////////////////
@@ -876,9 +875,10 @@ function drawScene() {
                     GL_zoomSpeed = 0;
                 }
 
-                lastTime = timeNow;
                 document.getElementById("TimeStep").innerHTML = elapsed;
             }
+
+            lastTime = timeNow;
 
             if (timeData.length > 0) {
                 document.getElementById("TimeNow").innerHTML = timeData[currentTimeValue].toFixed(2);

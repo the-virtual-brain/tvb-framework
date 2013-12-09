@@ -36,6 +36,11 @@ function GL_handleMouseDown(event, canvas) {
     var canvasOffset = $(canvas).offset();
     GL_mouseXRelToCanvas = GL_lastMouseX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canvasOffset.left);
     GL_mouseYRelToCanvas = GL_lastMouseY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canvasOffset.top) + 1;
+
+    // Dragging in the canvas should not start a selection in the document
+    event.preventDefault();
+    // A default we want back is focus on click; to receive keyboard events
+    event.target.focus();
 }
 
 function GL_handleMouseUp(event) {
@@ -49,12 +54,13 @@ function GL_handleMouseMove(event) {
     var newX = event.clientX;
     var newY = event.clientY;
     var deltaX = newX - GL_lastMouseX;
-    var newRotationMatrix = createRotationMatrix(deltaX / 10, [0, 1, 0]);
     var deltaY = newY - GL_lastMouseY;
-    newRotationMatrix = newRotationMatrix.x(createRotationMatrix(deltaY / 10, [1, 0, 0]));
-    GL_currentRotationMatrix = newRotationMatrix.x(GL_currentRotationMatrix);
     GL_lastMouseX = newX;
     GL_lastMouseY = newY;
+
+    var newRotationMatrix = createRotationMatrix(deltaX / 10, [0, 1, 0]);
+    newRotationMatrix = newRotationMatrix.x(createRotationMatrix(deltaY / 10, [1, 0, 0]));
+    GL_currentRotationMatrix = newRotationMatrix.x(GL_currentRotationMatrix);
 }
 
 // ------ MOUSE FUNCTIONS END -----------------------------------------------------
