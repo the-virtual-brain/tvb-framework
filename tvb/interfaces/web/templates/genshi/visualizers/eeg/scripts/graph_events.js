@@ -21,39 +21,39 @@
 * Handle zooming speed and scale related settings for animated graph.
 **/
 //The zoom stack used for keeping track of zoom events for the 'back' option
-var zoomStack = new Array();
+var zoomStack = [];
 //Previously point when displaying info on mouse hover
 var previousPoint = null;
 
 function initializeCanvasEvents() {
-
     // Prepare functions for Export Canvas as Image
-    var canvas = $("#baseFlot")[0];
+    var canvas = $("#EEGcanvasDiv .flot-base")[0];
+
     canvas.drawForImageExport = function () {
-                /* this canvas is drawn by FLOT library so resizing it directly has no influence;
-                 * therefore, its parent needs resizing before redrawing;
-                 * canvas.afterImageExport() is used to bring is back to original size */
-                 var canvasDiv = $("#EEGcanvasDiv");
-                 var oldHeight = canvasDiv.height();
-                 canvas.scale = C2I_EXPORT_HEIGHT / oldHeight;
+        /* this canvas is drawn by FLOT library so resizing it directly has no influence;
+         * therefore, its parent needs resizing before redrawing;
+         * canvas.afterImageExport() is used to bring is back to original size */
+         var canvasDiv = $("#EEGcanvasDiv");
+         var oldHeight = canvasDiv.height();
+         canvas.scale = C2I_EXPORT_HEIGHT / oldHeight;
 
-                 canvasDiv.width(canvasDiv.width() * canvas.scale);
-                 canvasDiv.height(oldHeight * canvas.scale);
+         canvasDiv.width(canvasDiv.width() * canvas.scale);
+         canvasDiv.height(oldHeight * canvas.scale);
 
-                 redrawPlot(plot.getData());
+         redrawPlot(plot.getData());
     };
     canvas.afterImageExport = function() {
-                // bring it back to original size and redraw
-                var canvasDiv = $("#EEGcanvasDiv");
-                canvasDiv.width(canvasDiv.width() / canvas.scale);
-                canvasDiv.height(canvasDiv.height() / canvas.scale);
-                redrawPlot(plot.getData());
+        // bring it back to original size and redraw
+        var canvasDiv = $("#EEGcanvasDiv");
+        canvasDiv.width(canvasDiv.width() / canvas.scale);
+        canvasDiv.height(canvasDiv.height() / canvas.scale);
+        redrawPlot(plot.getData());
     };
 
     $("#EEGcanvasDiv").resizable({
-         alsoResize: '#baseFlot',
+         alsoResize: canvas,
          stop: function(e, ui) {
-                 redrawPlot(plot.getData());
+             redrawPlot(plot.getData());
          }
     });
 }
@@ -70,10 +70,10 @@ function bindZoomEvent() {
     });
     
     $("#EEGcanvasDiv").bind('plotselected', function (event, ranges) {
-    	zoomStack.push([AG_options['xaxis']['min'], AG_options['xaxis']['max'], AG_options['yaxis']['min'], AG_options['yaxis']['max']])
-    	AG_options['xaxis'] = { min: ranges.xaxis.from, max: ranges.xaxis.to }
-    	AG_defaultYaxis['min'] = ranges.yaxis.from
-    	AG_defaultYaxis['max'] = ranges.yaxis.to
+    	zoomStack.push([AG_options['xaxis']['min'], AG_options['xaxis']['max'], AG_options['yaxis']['min'], AG_options['yaxis']['max']]);
+    	AG_options['xaxis'] = { min: ranges.xaxis.from, max: ranges.xaxis.to };
+    	AG_defaultYaxis['min'] = ranges.yaxis.from;
+    	AG_defaultYaxis['max'] = ranges.yaxis.to;
     	//AG_options['yaxis'] = { min: ranges.yaxis.from, max: ranges.yaxis.to }
     	AG_isSpeedZero = true;
         redrawPlot(plot.getData());
@@ -82,12 +82,13 @@ function bindZoomEvent() {
 
 function stopAnimation() {
     AG_isStopped = !AG_isStopped;
+    var btn = $("#ctrl-action-pause");
     if (AG_isStopped) {
-        $("#ctrl-action-pause").html("Start");
-        $("#ctrl-action-pause").attr("class", "action action-controller-launch");
+        btn.html("Start");
+        btn.attr("class", "action action-controller-launch");
     } else {
-        $("#ctrl-action-pause").html("Pause");
-        $("#ctrl-action-pause").attr("class", "action action-controller-pause");
+        btn.html("Pause");
+        btn.attr("class", "action action-controller-pause");
     }
     if (!AG_isStopped) {
         drawGraph(true, noOfShiftedPoints);
@@ -99,12 +100,12 @@ function resetToDefaultView() {
 	 * When resetting to default view, clear all the data from the zoom stack
 	 * and set the home values for x and y values.
 	 */
-	AG_options['xaxis'] = AG_homeViewXValues;		
+	AG_options.xaxis = AG_homeViewXValues;
 	zoomStack = [];
-	AG_defaultYaxis['min'] = AG_homeViewYValues[0];
-	AG_defaultYaxis['max'] = AG_homeViewYValues[1];
+	AG_defaultYaxis.min = AG_homeViewYValues[0];
+	AG_defaultYaxis.max = AG_homeViewYValues[1];
 	redrawPlot(plot.getData());
-	if (isSmallPreview == false) {
+	if (!isSmallPreview ) {
 	    if ($("#ctrl-input-speed").slider("option", "value") != 0) {
 	        AG_isSpeedZero = false;
 	    }
@@ -117,8 +118,8 @@ function zoomBack() {
 	 * Pop the last entry from the zoom stack and redraw with those option.
 	 */
 	if (zoomStack.length > 1) {
-		previousValues = zoomStack.pop()
-		AG_options['xaxis'] = {min: previousValues[0], max: previousValues[1]}
+		var previousValues = zoomStack.pop();
+		AG_options['xaxis'] = {min: previousValues[0], max: previousValues[1]};
 		AG_defaultYaxis['min'] = previousValues[2];
 		AG_defaultYaxis['max'] = previousValues[3];
 		redrawPlot(plot.getData());
@@ -135,9 +136,9 @@ function zoomBack() {
  */
 function redrawCurrentView() {
     var diff = AG_currentIndex - AG_numberOfVisiblePoints;
-    for (k = 0; k < AG_numberOfVisiblePoints; k++) {
+    for (var k = 0; k < AG_numberOfVisiblePoints; k++) {
     	AG_displayedTimes[k] = AG_time[k + diff];
-        for (i = 0; i < AG_noOfLines; i++) {
+        for (var i = 0; i < AG_noOfLines; i++) {
             AG_displayedPoints[i][k] = [AG_time[k + diff], AG_addTranslationStep(AG_allPoints[i][k + diff], i)];
         }
     }
@@ -203,7 +204,7 @@ function bindHoverEvent() {
 			var dataValue = pos.y.toFixed(4);	
 			var rowIndex = AG_channelColorsDict[item.series.color];
 			if (rowIndex == undefined) {
-				$("#info-channel").html(' None')
+				$("#info-channel").html(' None');
 	            $("#info-time").html(" 0");
 	            $("#info-value").html(" 0");
 		        $("#tooltip").remove();
@@ -227,7 +228,7 @@ function bindHoverEvent() {
 	        }	
 	    }
 	    else {
-	    	$("#info-channel").html(' None')
+	    	$("#info-channel").html(' None');
             $("#info-time").html(" 0");
             $("#info-value").html(" 0");
 	        $("#tooltip").remove();
@@ -281,13 +282,9 @@ function drawSliderForAnimationSpeed() {
 
 
 function updateSpeedFactor() {
-    speed = $("#ctrl-input-speed").slider("option", "value");
+    var speed = $("#ctrl-input-speed").slider("option", "value");
     $('#display-speed').html(''+ speed);
-    if (speed == 0) {
-        AG_isSpeedZero = true;
-    } else {
-        AG_isSpeedZero = false;
-    }
+    AG_isSpeedZero = (speed == 0);
 }
 
 //------------------------------------------------END SPEED RELATED CODE--------------------------------------------------------

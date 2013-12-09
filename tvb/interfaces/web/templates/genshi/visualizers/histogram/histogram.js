@@ -42,7 +42,7 @@ function drawHistogram(canvasDivId, data, labels, colorsPy) {
 
 
     // Prepare functions for Export Canvas as Image
-    var canvas = $("#baseFlot")[0];
+    var canvas = $("#histogramCanvasId .flot-base")[0];
     canvas.drawForImageExport = function () {
                 /* this canvas is drawn by FLOT library so resizing it directly has no influence;
                  * therefore, its parent needs resizing before redrawing;

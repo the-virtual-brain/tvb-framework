@@ -87,7 +87,7 @@ var totalNumberOfChannels = 0;
 // <code>true</code> only if any of the displayed channels contains NaN values
 var nanValueFound = false;
 //Channel prefix for each array of data
-var channelPrefix = "Channel: "
+var channelPrefix = "Channel: ";
 //
 var totalTimeLength = 0;
 //Default values for the x and y axis of the plot
@@ -106,7 +106,7 @@ var cachedFileIndex = 0;
 var labelX = "";
 var chartTitle = "";
 //The displayed labels for the graph
-var chanDisplayLabels = []
+var chanDisplayLabels = [];
 // setup plot
 var AG_options = {
     series: {
@@ -167,37 +167,37 @@ var dataPageSize = [];
 var tsModes = [0, 0, 0];
 var tsStates = [0, 0, 0];
 var longestChannelIndex = 0;
-var channelLengths = []
+var channelLengths = [];
 
 window.onresize = function(event) {
-    if (isDoubleView == false && isSmallPreview == false) {
+    var canvas = $('#EEGcanvasDiv');
+    if (!isDoubleView  && !isSmallPreview ) {
 		// Just use parent section width and height. For width remove some space for the labels to avoid scrolls
 		// For height we have the toolbar there. Using 100% does not seem to work properly with FLOT. 				    	
-    	$('#EEGcanvasDiv').width($('#EEGcanvasDiv').parent().width() - 40);
-    	$('#EEGcanvasDiv').height($('#EEGcanvasDiv').parent().height() - 100);
-    } else {
-    	if (isSmallPreview == true) {
-    		$('#EEGcanvasDiv').width($('#EEGcanvasDiv').parent().width());
-    		$('#EEGcanvasDiv').height($('#EEGcanvasDiv').parent().height());
-    	}
+    	canvas.width(canvas.parent().width() - 40);
+    	canvas.height(canvas.parent().height() - 100);
+    } else if (isSmallPreview) {
+        canvas.width(canvas.parent().width());
+        canvas.height(canvas.parent().height());
     }
     redrawPlot(plot.getData());
-}
+};
 /**
  * This method reads the data from 'dataSet.txt' file. The first line of the file
  */
 function drawAnimatedChart(longestChannelLength, channelsPerSet, baseURLS, pageSize, nrOfPages,	//dataSetPaths, 
 						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found, 
 						   noOfChannels, totalLength, doubleView, channelLabels) {
-    if (document.getElementById('ctrl-input-scale') == undefined) {
+    if (!document.getElementById('ctrl-input-scale')) {
     	isSmallPreview = true;
     }
     isDoubleView = doubleView;
-    if (isDoubleView == false) {
+    var canvas = $('#EEGcanvasDiv');
+    if (!isDoubleView) {
 		// Just use parent section width and height. For width remove some space for the labels to avoid scrolls
 		// For height we have the toolbar there. Using 100% does not seem to work properly with FLOT. 				    	
-    	$('#EEGcanvasDiv').width($('#EEGcanvasDiv').parent().width() - 40);
-    	$('#EEGcanvasDiv').height($('#EEGcanvasDiv').parent().height() - 100);
+    	canvas.width(canvas.parent().width() - 40);
+    	canvas.height(canvas.parent().height() - 100);
     }
     // dataSetUrls = $.parseJSON(dataSetPaths);
     baseDataURLS = $.parseJSON(baseURLS);
@@ -246,8 +246,10 @@ function AG_createYAxisDictionary(nr_channels) {
 	 * all channels. Then store these values in 'AG_homeViewYValues' so they can be used in case of a 
 	 * 'Home' action in a series of zoom events.
 	 */
+    var ticks, yaxis_dict, increment;
+
     if (AG_translationStep > 0) {
-    	ticks = []
+    	ticks = [];
 	    for (var i=0; i<nr_channels; i++) {
 	    	ticks.push([(i * AG_computedStep * AG_translationStep), chanDisplayLabels[displayedChannels[i]]]);
 	    }
@@ -256,7 +258,7 @@ function AG_createYAxisDictionary(nr_channels) {
 	    	max: (nr_channels + 1) * AG_computedStep * AG_translationStep,
 	    	ticks: ticks,
 	    	zoomRange: [0.1, 20]
-	    }    	
+	    };
 	    increment = ((nr_channels + 1) * AG_computedStep * AG_translationStep - AG_computedStep * AG_translationStep) / numberOfPointsForVerticalLine;
 	    for (var k= -(AG_computedStep * AG_translationStep); k<((nr_channels + 1) * AG_computedStep * AG_translationStep); k = k + increment) {
 	    	followingLine.push([0, k])
@@ -269,14 +271,14 @@ function AG_createYAxisDictionary(nr_channels) {
 	    	max: AG_computedStep/2,
 	    	ticks: ticks,
 	    	zoomRange: [0.1, 20]
-	    } 
+	    };
 	    increment = AG_computedStep / numberOfPointsForVerticalLine;
 	    for (var k= - AG_computedStep/2; k<AG_computedStep/2; k = k+increment) {
 	    	followingLine.push([0, k])
 	    }
     }
     AG_options['yaxis'] = yaxis_dict;
-    AG_homeViewYValues = [yaxis_dict['min'], yaxis_dict['max']]
+    AG_homeViewYValues = [yaxis_dict['min'], yaxis_dict['max']];
     AG_defaultYaxis = yaxis_dict;
 }
 
@@ -305,13 +307,13 @@ function refreshChannels() {
 }
 
 function changeMode(selectComp) {
-	var tsIndex = parseInt(selectComp.id.split('--'))
+	var tsIndex = parseInt(selectComp.id.split('--'));
 	tsModes[tsIndex] = parseInt($(selectComp).val());
 	refreshChannels();
 }
 
 function changeStateVariable(selectComp) {
-	var tsIndex = parseInt(selectComp.id.split('--'))
+	var tsIndex = parseInt(selectComp.id.split('--'));
 	tsStates[tsIndex] = parseInt($(selectComp).val());
 	refreshChannels();
 }
@@ -406,7 +408,7 @@ function submitSelectedChannels(isEndOfData) {
 function shouldMoveLine(direction, shiftNo) {
 	var shiftNo = shiftNo || 1;
 	var isEndOfGraph = false;
-	var isStartOfGraph = false
+	var isStartOfGraph = false;
 	if (direction == 1) {
 		isEndOfGraph = ((totalPassedData + AG_currentIndex + noOfShiftedPoints >= totalTimeLength) && (currentLinePosition < AG_numberOfVisiblePoints + shiftNo));	
 		isStartOfGraph = (currentLinePosition < targetVerticalLinePosition);		
@@ -415,18 +417,13 @@ function shouldMoveLine(direction, shiftNo) {
 	    }
 	} else {
 		isEndOfGraph = (currentLinePosition > targetVerticalLinePosition);
-		isStartOfGraph = ((totalPassedData + AG_currentIndex - noOfShiftedPoints < AG_numberOfVisiblePoints) && (currentLinePosition > 0))
+		isStartOfGraph = ((totalPassedData + AG_currentIndex - noOfShiftedPoints < AG_numberOfVisiblePoints) && (currentLinePosition > 0));
 		if (AG_displayedTimes[currentLinePosition] <= 0) {
 	    	isStartOfGraph = false;
 	    }
-	} 
-	if (!isStartOfGraph && !isEndOfGraph) {
-		moveLine = false;
-	} else {
-		moveLine = true;
-	} 
+	}
 	
-	return moveLine;
+	return isStartOfGraph || isEndOfGraph;
 }
 
 var isEndOfData = false;
@@ -454,7 +451,7 @@ function setLabelColors() {
 	 */
 	var labels = $('.tickLabel');
 	for (var i=0; i<labels.length; i++) {
-		var chan_idx = chanDisplayLabels.indexOf(labels[i].firstChild.textContent)
+		var chan_idx = chanDisplayLabels.indexOf(labels[i].firstChild.textContent);
 		if (chan_idx >= 0) {
 			labels[i].style.color = AG_reversedChannelColorsDict[displayedChannels.indexOf(chan_idx)];
 			labels[i].style.width = '100px';
@@ -474,7 +471,7 @@ function drawGraph(executeShift, shiftNo) {
 		isEndOfData = false;
     	submitSelectedChannels(true);
     }
-    if (t != null && t != undefined) {
+    if (t != null) {
         clearTimeout(t);
     }
     if (AG_isStopped) {
@@ -505,7 +502,7 @@ function drawGraph(executeShift, shiftNo) {
                 count = 0;
                 while (count < noOfShiftedPoints && AG_currentIndex - count > AG_numberOfVisiblePoints) {
                     count = count + 1;
-                	AG_displayedTimes.unshift(AG_time[AG_currentIndex - AG_numberOfVisiblePoints - count])
+                	AG_displayedTimes.unshift(AG_time[AG_currentIndex - AG_numberOfVisiblePoints - count]);
                     for (i = 0; i < AG_displayedPoints.length; i++) {
                         AG_displayedPoints[i].unshift(
                                 [   AG_time[AG_currentIndex - AG_numberOfVisiblePoints - count],
@@ -557,7 +554,7 @@ function drawGraph(executeShift, shiftNo) {
     	for (var i=0; i<followingLine.length; i++) {
     		followingLine[i][0] = AG_displayedTimes[currentLinePosition]
     	}
-	    preparedData = [];
+	    var preparedData = [];
 	    for (var i = 0; i < AG_displayedPoints.length; i++) {
 	    	preparedData.push({data: AG_displayedPoints[i].slice(0), color: AG_reversedChannelColorsDict[i]});
 	    }
@@ -626,7 +623,7 @@ function AG_addTranslationStep(value, index) {
 function getTimeoutBasedOnSpeed() {
 	var currentAnimationSpeedValue = 40;
 	if (isSmallPreview == false && !isDoubleView) {
-		var currentAnimationSpeedValue = $("#ctrl-input-speed").slider("option", "value");
+		currentAnimationSpeedValue = $("#ctrl-input-speed").slider("option", "value");
 	}
     if (currentAnimationSpeedValue == 0) {
         return 300;
@@ -886,7 +883,7 @@ function getNextDataFileIndex() {
 	 */
 	var speed = 100;
 	if (isSmallPreview == false && !isDoubleView) {
-		var speed = $("#ctrl-input-speed").slider("option", "value");
+		speed = $("#ctrl-input-speed").slider("option", "value");
 	}
     var nextIndex;
     if (speed > 0) {
@@ -908,8 +905,8 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
         isNextDataLoaded = true;
         // keep data only for the selected channels
         var offset = 0;
-        var selectedData = []
-        channelLengths = []
+        var selectedData = [];
+        channelLengths = [];
         for (var i = 0; i< nextData.length; i++) {
         	selectedChannels = getDisplayedChannels(nextData[i], offset);
             offset = offset + nextData[i].length;
@@ -922,7 +919,7 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
         }
         longestChannelIndex = channelLengths.indexOf(Math.max.apply(Math, channelLengths));
         nextData = selectedData;
-        channelLengths = []
+        channelLengths = [];
         return;
     }
     if (nrOfPages[dataSetIndex] - 1 < currentFileIndex && AG_isLoadStarted) {
