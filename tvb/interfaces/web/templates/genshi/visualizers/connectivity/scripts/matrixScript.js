@@ -101,7 +101,7 @@ function changeSingleCell(table_elem, i, j) {
 	lastEditedElement = table_elem;
 	lastElementClass = table_elem.className;
 	table_elem.className = "node edited";
-	element_position = getMenuPosition(table_elem, inputDiv);
+	var element_position = getMenuPosition(table_elem, inputDiv);
 	inputDiv.style.position = 'fixed';
 	inputDiv.style.left = element_position.x + 'px';
 	inputDiv.style.top = element_position.y + 'px';
@@ -134,51 +134,54 @@ function changeSingleCell(table_elem, i, j) {
 function saveNodeDetails() {
 	var inputText = document.getElementById('weightsValue');
 	var newValue = parseFloat($.trim(inputText.value));
+    var hiddenNodeField = document.getElementById('currentlyEditedNode');
+    var tableNodeID = hiddenNodeField.value;
+    var table_element = document.getElementById(tableNodeID);
+    table_element.className = lastElementClass;
+
 	if (isNaN(newValue)) {
 		displayMessage('The value you entered is not a valid float. Original value is kept.', 'warningMessage');
-    	var hiddenNodeField = document.getElementById('currentlyEditedNode');
-		var tableNodeID = hiddenNodeField.value;
-    	table_element = document.getElementById(tableNodeID);
-		table_element.className = lastElementClass;
-	} else {	
-		//displayMessage('')
-		var hiddenNodeField = document.getElementById('currentlyEditedNode');
-		var tableNodeID = hiddenNodeField.value;
-		var indexes = tableNodeID.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
-		table_element = document.getElementById(tableNodeID);
-		table_element.className = lastElementClass;
-		if (newValue > GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val']) {
-			GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'] = newValue;
+	} else {
+        //displayMessage('')
+        var selectedMatrix = GVAR_interestAreaVariables[GVAR_selectedAreaType];
+        var indexes = tableNodeID.split("td_" + selectedMatrix.prefix + '_')[1].split("_");
+        var idx = indexes[0];
+        var jdx = indexes[1];
+
+		if (newValue > selectedMatrix.max_val){
+			selectedMatrix.max_val = newValue;
 			CONN_initLinesHistorgram();
 		}
 		if (newValue < 0) {
 			newValue = 0;
 		}
-		if (newValue < GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val']) {
-			GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'] = newValue;
+		if (newValue < selectedMatrix.min_val){
+			selectedMatrix.min_val = newValue;
 			CONN_initLinesHistorgram();
 		}
-		if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] == GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val']) {
-			GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] = newValue;
-			GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'] = 0;
-			for (var i=0; i<GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'].length; i++) {
-				for (var j=0; j<GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'].length; j++) {
-					if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j] > GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val']) { GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'] = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j];}
+		if (selectedMatrix.values[idx][jdx] == selectedMatrix.max_val) {
+			selectedMatrix.values[idx][jdx] = newValue;
+			selectedMatrix.max_val = 0;
+			for (var i=0; i<selectedMatrix.values.length; i++) {
+				for (var j=0; j<selectedMatrix.values.length; j++) {
+					if (selectedMatrix.values[i][j] > selectedMatrix.max_val) {
+                        selectedMatrix.max_val = selectedMatrix.values[i][j];
+                    }
 				}
 			}
 			CONN_initLinesHistorgram();
 		}
 		else {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] == 0 && newValue > 0) {
-				CONN_comingInLinesIndices[indexes[1]].push(parseInt(indexes[0]));
-				CONN_comingOutLinesIndices[indexes[0]].push(parseInt(indexes[1]));
+			if (selectedMatrix.values[idx][jdx] == 0 && newValue > 0) {
+				CONN_comingInLinesIndices[jdx].push(parseInt(idx));
+				CONN_comingOutLinesIndices[idx].push(parseInt(jdx));
 			} 
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] > 0 && newValue == 0) {
-				HLPR_removeByElement(CONN_comingInLinesIndices[indexes[1]], parseInt(indexes[0]));
-				HLPR_removeByElement(CONN_comingOutLinesIndices[indexes[0]], parseInt(indexes[1]));
+			if (selectedMatrix.values[idx][jdx] > 0 && newValue == 0) {
+				HLPR_removeByElement(CONN_comingInLinesIndices[jdx], parseInt(idx));
+				HLPR_removeByElement(CONN_comingOutLinesIndices[idx], parseInt(jdx));
 			}			
-			GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[0]][indexes[1]] = newValue;
-			CONN_lineWidthsBins[indexes[0]][indexes[1]] = CONN_getLineWidthValue(newValue);
+			selectedMatrix.values[idx][jdx] = newValue;
+			CONN_lineWidthsBins[idx][jdx] = CONN_getLineWidthValue(newValue);
 		}	
 	}
 	var inputDiv = document.getElementById('editNodeValues');
@@ -405,7 +408,7 @@ function updateNodeInterest(nodeIdx) {
 	var leftSideButtons = $("td[id^='left_change_" + nodeIdx + "_']");    
     
     for (var k = 0; k < upperSideButtons.length; k++) {
-	    if (isInInterest == true) {
+	    if (isInInterest) {
     		upperSideButtons[k].className = 'selected';
     	} else {
     		upperSideButtons[k].className = '';
@@ -413,7 +416,7 @@ function updateNodeInterest(nodeIdx) {
     }
     
     for (var k = 0; k < leftSideButtons.length; k++) {
-	    if (isInInterest == true) {
+	    if (isInInterest) {
     		leftSideButtons[k].className = 'identifier selected';
     	} else {
     		leftSideButtons[k].className = 'identifier';
@@ -421,10 +424,11 @@ function updateNodeInterest(nodeIdx) {
     }    
     
     for (var i=0; i<NO_POSITIONS; i++){	
-    	horiz_table_data_id = 'td_' + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_' + nodeIdx + '_' + i;
-    	vertical_table_data_id = 'td_' + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_' + i + '_' + nodeIdx;
-    	horiz_table_element = document.getElementById(horiz_table_data_id);
-    	vertical_table_element = document.getElementById(vertical_table_data_id);
+    	var horiz_table_data_id = 'td_' + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_' + nodeIdx + '_' + i;
+    	var vertical_table_data_id = 'td_' + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_' + i + '_' + nodeIdx;
+    	var horiz_table_element = document.getElementById(horiz_table_data_id);
+    	var vertical_table_element = document.getElementById(vertical_table_data_id);
+
 	    if (isInInterest && GFUNC_isNodeAddedToInterestArea(i)) {
 	       	vertical_table_element.className = 'node selected';
 	    	horiz_table_element.className = 'node selected'; 		
@@ -508,10 +512,11 @@ function _updateLegendColors(){
  * Method that colors the entire table.
  */
 function MATRIX_colorTable() {
-    var prefix_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'];
-    var dataValues = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'];
-    var minValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'];
-    var maxValue = GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'];
+    var selectedMatrix = GVAR_interestAreaVariables[GVAR_selectedAreaType];
+    var prefix_id = selectedMatrix.prefix;
+    var dataValues = selectedMatrix.values;
+    var minValue = selectedMatrix.min_val;
+    var maxValue = selectedMatrix.max_val;
 
     for (var hemisphereIdx=0; hemisphereIdx<startPointsX.length; hemisphereIdx++)
 	{
@@ -524,8 +529,9 @@ function MATRIX_colorTable() {
 			for (var j=startY; j<endY; j++) {
 				var tableDataID = 'td_' + prefix_id + '_' + i + '_' + j;
 				var tableElement = document.getElementById(tableDataID);
-				if (dataValues)
+				if (dataValues){
                     tableElement.style.backgroundColor = getGradientColorString(dataValues[i][j], minValue, maxValue);
+                }
 			}
 	}
 	_updateLegendColors();

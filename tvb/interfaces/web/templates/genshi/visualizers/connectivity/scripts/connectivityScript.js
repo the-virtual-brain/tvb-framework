@@ -136,14 +136,18 @@ function customKeyDown(event) {
 }
 
 function customMouseDown(event) {
-	GL_handleMouseDown(event, $("#" + CONNECTIVITY_CANVAS_ID));
+	GL_handleMouseDown(event, event.target);
     doPick = true;
+
+    GFUNC_updateContextMenu(CONN_pickedIndex, GVAR_pointsLabels[CONN_pickedIndex],
+           CONN_pickedIndex >= 0 && isAnyPointChecked(CONN_pickedIndex, CONN_comingInLinesIndices[CONN_pickedIndex], 0),
+           CONN_pickedIndex >= 0 && isAnyPointChecked(CONN_pickedIndex, CONN_comingOutLinesIndices[CONN_pickedIndex], 1));
     GFUNC_updateLeftSideVisualization();
 }
 
 function customMouseMove(event) {
-	GL_handleMouseMove(event);
-	GFUNC_updateLeftSideVisualization();		
+    GL_handleMouseMove(event);
+	GFUNC_updateLeftSideVisualization();
 }
 
 
@@ -219,10 +223,7 @@ function displayPoints() {
         gl.vertexAttribPointer(shaderProgram.colorAttribute, currentBuffers[0].itemSize, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentBuffers[2]);
-       GFUNC_updateContextMenu(CONN_pickedIndex, GVAR_pointsLabels[CONN_pickedIndex],
-           CONN_pickedIndex >= 0 && isAnyPointChecked(CONN_pickedIndex, CONN_comingInLinesIndices[CONN_pickedIndex], 0),
-           CONN_pickedIndex >= 0 && isAnyPointChecked(CONN_pickedIndex, CONN_comingOutLinesIndices[CONN_pickedIndex], 1));
-        //}
+
         if (i == CONN_pickedIndex) {
             gl.uniform1i(shaderProgram.colorIndex, YELLOW_COLOR_INDEX);
         } else if (i == highlightedPointIndex1) {
@@ -278,20 +279,22 @@ function addLightForCorticalSurface() {
 }
 
 function drawScene() {
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    // View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
+    perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
+
+    loadIdentity();
+
 	if (!doPick) {
 		createLinesBuffer(getLinesIndexes());
 		gl.uniform1f(shaderProgram.isPicking, 0);
 		gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
 		if (GL_zoomSpeed != 0) {
-	            GL_zTranslation += GL_zoomSpeed * GL_zTranslation;
-	            GL_zoomSpeed = 0;
-	        }
-	    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+            GL_zTranslation += GL_zoomSpeed * GL_zTranslation;
+            GL_zoomSpeed = 0;
+        }
+
 	    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	    // View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
-	    var aspect = gl.viewportWidth / gl.viewportHeight;
-	    perspective(45, aspect , near, 800.0);
-	    loadIdentity();
 	    addLight();     
 	
 	    //draw the lines between the checked points
@@ -339,18 +342,13 @@ function drawScene() {
 	   		gl.disable(gl.BLEND);
             gl.disable(gl.DITHER);
 	   		gl.uniform1f(shaderProgram.isPicking, 1);	
-	   		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+
 	    	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	    	// View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
-	    	var aspect = gl.viewportWidth / gl.viewportHeight;
-	    	perspective(45, aspect , near, 800.0);
-	    	loadIdentity();
-	    	
+
 	   	    if (GL_colorPickerInitColors.length == 0) {
 	   			GL_initColorPickingData(NO_POSITIONS);
 	   		}	 
-	    	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	    	
+
 			mvPushMatrix();
 		    mvTranslate([0.0, 0.0, GL_zTranslation]);
 		    multMatrix(GL_currentRotationMatrix);
