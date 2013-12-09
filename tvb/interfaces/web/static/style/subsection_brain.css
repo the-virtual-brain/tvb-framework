@@ -236,6 +236,14 @@ width: 200px;
     text-align: center;
 }
 
+.brainLegendContent tr{
+    vertical-align:bottom;
+}
+
+.brainLegendContent tr:first-child{
+    height: 20px;
+}
+
 #brainComponentContainer .brainComponentCanvas {
     width: 100%;
     height: 100%;
