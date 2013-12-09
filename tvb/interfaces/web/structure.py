@@ -55,7 +55,6 @@ class WebStructure(object):
     SUB_SECTION_LIST_PROJECTS = "list"
     SUB_SECTION_PROPERTIES_PROJECT = "properties"
     SUB_SECTION_FIGURES = "figures"
-    SUB_SECTION_PIPELINE = "pipeline"
 
     ### Subsections for BURST section.
     SUB_SECTION_BURST = "burst"

@@ -23,8 +23,8 @@
 var GRAPH_TAB = "graphTab";
 var TREE_TAB = "treeTab";
 
-var lastSelectedNode = undefined;
-var lastSelectedNodeType = undefined;
+var TREE_lastSelectedNode = undefined;
+var TREE_lastSelectedNodeType = undefined;
 //we need this flag because we want to know when the user
 // presses more times on the same graph node
 var skipReload = false;
@@ -78,12 +78,13 @@ function showTree() {
  */
 function select_tree_node() {
     if ($("#lastVisibleTab").val() == TREE_TAB) {
-        $("#tree4").jstree("deselect_all");
+        var treeElem = $("#tree4");
+        treeElem.jstree("deselect_all");
         TVB_skipDisplayOverlay = true;
-        if (lastSelectedNode != undefined && lastSelectedNodeType != undefined && lastSelectedNodeType == TVB_NODE_DATATYPE_TYPE) {
-            $("#tree4").jstree("select_node", "#node_" + lastSelectedNode);
+        if (TREE_lastSelectedNode != undefined && TREE_lastSelectedNodeType != undefined && TREE_lastSelectedNodeType == TVB_NODE_DATATYPE_TYPE) {
+            treeElem.jstree("select_node", "#node_" + TREE_lastSelectedNode);
         } else {
-            $("#tree4").jstree("select_node", "#projectID");
+            treeElem.jstree("select_node", "#projectID");
         }
         TVB_skipDisplayOverlay = false;
     }
@@ -92,8 +93,6 @@ function select_tree_node() {
 
 /**
  * Used for updating the tree structure.
- *
- * @param projectId the id of the current project
  */
 function updateTree(projectId, baseUrl, visibilityFilter) {
 	
@@ -110,7 +109,7 @@ function updateTree(projectId, baseUrl, visibilityFilter) {
     var secondLevel = $("#levelTree_2").val();
     var filterValue = $("#filterInput").val();
 
-	var my_error_message = "The filters should not have the same value."
+	var my_error_message = "The filters should not have the same value.";
     if (firstLevel == secondLevel) {
         displayMessage(my_error_message, 'warningMessage');
         return;
@@ -136,33 +135,33 @@ function updateTree(projectId, baseUrl, visibilityFilter) {
 		                        }
 		                    }}
 		            });
-    postInitializeTree(projectId);
+    _postInitializeTree();
     if (filterValue.length <= 2) {
         if (filterValue.length > 0) {
             displayMessage("You have to introduce at least tree letters in order to filter the data.", 'infoMessage');
         }
     } else {
-        lastSelectedNode = undefined;
-        lastSelectedNodeType = undefined;
+        TREE_lastSelectedNode = undefined;
+        TREE_lastSelectedNodeType = undefined;
     }
 }
 
 /**
  * Main function for specifying JSTree attributes.
  */
-function postInitializeTree(projectId) {
+function _postInitializeTree() {
 
 	$("#tree4")
 	.bind("select_node.jstree", function (event, data) {
           if ($("#lastVisibleTab").val() == GRAPH_TAB) {
               return;
           }
-          lastSelectedNode = data.rslt.obj.attr("gid");
-          if (lastSelectedNode != undefined && lastSelectedNode != null) {
-              lastSelectedNodeType = TVB_NODE_DATATYPE_TYPE;
+          TREE_lastSelectedNode = data.rslt.obj.attr("gid");
+          if (TREE_lastSelectedNode != undefined && TREE_lastSelectedNode != null) {
+              TREE_lastSelectedNodeType = TVB_NODE_DATATYPE_TYPE;
           } else {
-              lastSelectedNode = undefined;
-              lastSelectedNodeType = undefined;
+              TREE_lastSelectedNode = undefined;
+              TREE_lastSelectedNodeType = undefined;
           }
           skipReload = false;
           
@@ -170,7 +169,7 @@ function postInitializeTree(projectId) {
 		  if ($("body")[0].id == "s-burst") {
 				backPage = 'burst';
 		  }
-          displayNodeDetails(lastSelectedNode, TVB_NODE_DATATYPE_TYPE, backPage);
+          displayNodeDetails(TREE_lastSelectedNode, TVB_NODE_DATATYPE_TYPE, backPage);
     })
     .bind("loaded.jstree", function () { select_tree_node(); });
 }
@@ -198,7 +197,7 @@ function showGraph() {
     
     $("#" + TREE_TAB).removeClass("active");
     $("#" + GRAPH_TAB).addClass("active");
-    update_workflow_graph('workflowCanvasDiv', lastSelectedNode, lastSelectedNodeType);
+    update_workflow_graph('workflowCanvasDiv', TREE_lastSelectedNode, TREE_lastSelectedNodeType);
 }
 
 
@@ -207,11 +206,11 @@ function update_workflow_graph(containerDivId, nodeGid, nodeType) {
         nodeGid = "firstOperation";
         nodeType = TVB_NODE_OPERATION_TYPE;
     }
-    if (nodeGid == lastSelectedNode && skipReload) {
+    if (nodeGid == TREE_lastSelectedNode && skipReload) {
         return;
     }
-    lastSelectedNode = nodeGid;
-    lastSelectedNodeType = nodeType;
+    TREE_lastSelectedNode = nodeGid;
+    TREE_lastSelectedNodeType = nodeType;
     var visibilityFilter = _getSelectedVisibilityFilter();
     $.ajax({    async : false,
                 type: 'GET',
@@ -320,9 +319,9 @@ function _draw_graph(containerDivId, json) {
 
                     style.fontSize = "1.0em";
                     style.color = "#ddd";
-                    if (node.id == lastSelectedNode) {
+                    if (node.id == TREE_lastSelectedNode) {
                         node.setData('color', "#ff0000");
-                    };
+                    }
 
                     nameContainer.onclick = function() {
                         //skipReload = true;
@@ -462,9 +461,9 @@ function changedVisibilityFilter(projectId, baseUrl, filterElemId) {
     //do NOT use jquery ($("#" + filterElemId)) to select the element because its id may contain spaces
     document.getElementById(filterElemId).classList.add('active');
     
-    lastSelectedNode = undefined;
-    lastSelectedNodeType = undefined;
-    update_workflow_graph('workflowCanvasDiv', lastSelectedNode, lastSelectedNodeType);
+    TREE_lastSelectedNode = undefined;
+    TREE_lastSelectedNodeType = undefined;
+    update_workflow_graph('workflowCanvasDiv', TREE_lastSelectedNode, TREE_lastSelectedNodeType);
     updateTree(projectId, baseUrl);
 }
 

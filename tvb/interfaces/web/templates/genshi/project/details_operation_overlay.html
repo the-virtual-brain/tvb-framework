@@ -3,7 +3,7 @@
 	<fieldset class="toolbar-inline">
 		<ul>
             <li py:if="'operation' not in nodeType">
-            	<button type="submit" value="Save" tabindex="4" onclick="overlaySubmitMetadata('${entity_gid}', 'form_edit_metadata', '$backPageIdentifier'); return false;"
+            	<button type="submit" value="Save" tabindex="4" onclick="overlaySubmitMetadata('form_edit_metadata', '$backPageIdentifier'); return false;"
                         class="action action-confirm" title="Submit current changes to node attributes">Save</button>
             </li>
             <li py:if="'operation' in nodeType and displayReloadBtn">

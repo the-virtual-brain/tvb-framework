@@ -86,7 +86,6 @@ class HelpConfig:
         self._add_mapping(WebStructure.SECTION_PROJECT, WebStructure.SUB_SECTION_LIST_PROJECTS, self.PROJECT_HELP_PAGE, "view-all-projects")
         self._add_mapping(WebStructure.SECTION_PROJECT, WebStructure.SUB_SECTION_PROPERTIES_PROJECT, self.PROJECT_HELP_PAGE, "basic-properties")
         self._add_mapping(WebStructure.SECTION_PROJECT, WebStructure.SUB_SECTION_FIGURES, self.PROJECT_HELP_PAGE, "image-archive")
-        self._add_mapping(WebStructure.SECTION_PROJECT, WebStructure.SUB_SECTION_PIPELINE, self.PROJECT_HELP_PAGE, None)
         for subsection, paragraph in WebStructure.VISUALIZERS_ONLINE_HELP_SHORTCUTS.iteritems():
             self._add_mapping(WebStructure.SECTION_PROJECT, subsection, self.PROJECT_HELP_PAGE, paragraph)
 
