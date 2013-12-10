@@ -535,6 +535,7 @@ function MATRIX_colorTable() {
 			}
 	}
 	_updateLegendColors();
+    initColorBuffers();
 }
 
 function saveChanges() {

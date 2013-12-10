@@ -503,9 +503,7 @@ function startMPLH5ConnectivityView() {
 }
 
 function startSpaceTimeConnectivity() {
-	$("#monitor-plot-id").show()
-        .find('#GLcanvas_SPACETIME')[0].redrawFunctionRef = drawSceneSpaceTime;   // interface-like function used in HiRes image exporting
-	conectivitySpaceTime_initCanvas();
+	$("#monitor-plot-id").show().find('#GLcanvas_SPACETIME')[0].redrawFunctionRef = drawSceneSpaceTime;   // interface-like function used in HiRes image exporting
 	connectivitySpaceTime_startGL();
 	SELECTED_TAB = CONNECTIVITY_SPACE_TIME_TAB;
 }
