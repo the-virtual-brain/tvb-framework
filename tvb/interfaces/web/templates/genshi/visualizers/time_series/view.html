@@ -61,13 +61,13 @@
 				</nav>
 			</li>
 			
-			<li py:if="channelsPage != None" class="channel-selector">
+			<li py:if="preview == False" class="channel-selector">
 				<nav class="inline-menu">
 					<button class="action action-menu">Select channels</button>
 
 					<div class="extension">
 		    			<div class="dropdown-pane">
-	    					<xi:include href="${channelsPage}" />
+	    					<xi:include href="../commons/channel_selector.html" />
 						    ${drawCheckboxes(shape[0], 7, ts_title, [(value, idx) for idx, value in enumerate(labels)], 'TS_SVG_selectedChannels')}
 		    			</div>
 		    		</div>

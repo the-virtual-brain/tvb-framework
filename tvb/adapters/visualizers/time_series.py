@@ -80,12 +80,17 @@ class TimeSeries(ABCDisplayer):
         state_variables = time_series.labels_dimensions.get(time_series.labels_ordering[1], [])
         labels = time_series.get_space_labels()
 
+        # when surface-result, the labels will be empty, so fill some of them,
+        # but not all, otherwise the viewer will take ages to load.
+        if shape[2] > 0 and len(labels) == 0:
+            for n in xrange(min(self.MAX_PREVIEW_DATA_LENGTH, shape[2])):
+                labels.append("Node-" + str(n))
+
         pars = {'baseURL': ABCDisplayer.VISUALIZERS_URL_PREFIX + time_series.gid,
                 'labels': labels, 'labels_json': json.dumps(labels),
                 'ts_title': time_series.title, 'preview': preview, 'figsize': figsize,
                 'shape': repr(list(shape)), 't0': ts[0],
                 'dt': ts[1] - ts[0] if len(ts) > 1 else 1,
-                'channelsPage': '../commons/channel_selector.html' if not preview else None,
                 'labelsStateVar': state_variables, 'labelsModes': range(shape[3]),
                 }
 
