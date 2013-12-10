@@ -265,7 +265,7 @@ tv.ndar.range = function (a, b, c) {
 };
 
 tv.ndar.zeros = function (n) {
-    return tv.ndar.range(n).imap(function (x) {
+    return tv.ndar.range(n).imap(function () {
         return 0.0;
     });
 };
@@ -289,12 +289,6 @@ tv.plot = {
             // inspect data
             var n = f.mat().shape[0];
             var m = f.mat().shape[1];
-
-            // setup svg of config'd dims
-            // var svg = root.append("svg").attr("width", f.w()).attr("heigh", f.h());
-
-            var svg = root;
-
             // setup scales, axes and groups for matrix and colorbar
             var ma_sc_x = d3.scale.linear().domain([0, m]).range([0, f.w() * (1 - 4 * f.pad())])
                 , ma_sc_y = d3.scale.linear().domain([0, n]).range([0, f.h() * (1 - 2 * f.pad())])
@@ -306,8 +300,8 @@ tv.plot = {
                 , ma_ax_y = d3.svg.axis().orient("left").scale(ma_sc_y)
                 , cb_ax_y = d3.svg.axis().orient("right").scale(cb_sc_y)
 
-                , ma_gp = svg.append("g").attr("transform", "translate(" + f.pad() * f.w() + ", " + f.h() * f.pad() + ")")
-                , cb_gp = svg.append("g").attr("transform", "translate(" + (f.w() * (1 - 2 * f.pad())) + ", " + f.h() * f.pad() + ")")
+                , ma_gp = root.append("g").attr("transform", "translate(" + f.pad() * f.w() + ", " + f.h() * f.pad() + ")")
+                , cb_gp = root.append("g").attr("transform", "translate(" + (f.w() * (1 - 2 * f.pad())) + ", " + f.h() * f.pad() + ")")
 
                 ;
 
@@ -397,7 +391,7 @@ tv.plot = {
         }
 
         function mean_axis_1_2(A) { // B = A.mean(axis=1).mean(axis=2)
-            B = tv.ndar.zeros(A.shape[0]);
+            var B = tv.ndar.zeros(A.shape[0]);
             for (var i = 0; i < A.shape[0]; i++) {
                 for (var j = 0; j < A.strides[1]; j++) {
                     B.data[i] += A.data[i * A.strides[0] + j];
@@ -428,8 +422,8 @@ tv.plot = {
             f.pad(f.pad() || 0.1);
 
             // create svg of configured dimensions
-            var svg = root//.append("svg").attr("width", f.w()).attr("height", f.h()) // TODO: clearup
-                , llxf = xl(f.pad() * f.w(), f.h() * (1 - f.pad()));
+            var svg = root;
+            var llxf = xl(f.pad() * f.w(), f.h() * (1 - f.pad()));
 
             // get the data, compute average coherence spectrum
             var f_d = f.f(), coh_d = f.coh(), acoh_d = mean_axis_1_2(coh_d);
@@ -466,20 +460,18 @@ tv.plot = {
             
             // setup matrix plot, initialized with all freq bands
             var selcoh_d = mean_axis_0(coh_d, 0, coh_d.shape[0]);
+            var mp_pl = tv.plot.mat().w(f.w() / 2 - 1.5 * f.pad() * f.w()).h(f.h() * (1 - 2 * f.pad())).mat(selcoh_d).pad(0);
+            var mp_gp = svg.append("g").attr("transform", "translate(" + f.w() / 2 + ", " + f.pad() * f.h() + ")");
 
-            var mp_pl = tv.plot.mat().w(f.w() / 2 - 1.5 * f.pad() * f.w()).h(f.h() * (1 - 2 * f.pad())).mat(selcoh_d).pad(0)
-                , mp_gp = svg.append("g").attr("transform", "translate(" + f.w() / 2 + ", " + f.pad() * f.h() + ")")
-                ;
             // Implement mat_over method set on mat() function
 			mp_pl.mat_over = function() {
-											var callback = function (d, i) {
-														var matShape = f.coh().shape[1];
-														var yVal = Math.floor(i / matShape);
-														var xVal = i % matShape;
-									                    f.infoelem().text("Value is " + d + " for Node " + xVal + " x Node " + yVal);
-									               };
-									        return callback;
-									    };
+                return function (d, i) {
+                            var matShape = f.coh().shape[1];
+                            var yVal = Math.floor(i / matShape);
+                            var xVal = i % matShape;
+                            f.infoelem().text("Value is " + d + " for Node " + xVal + " x Node " + yVal);
+                        };
+				};
             mp_pl(mp_gp);
 
             // add brush to select coherence data to show
@@ -538,9 +530,8 @@ tv.plot = {
             f.t0(+f.t0());
 
             // Create the required UI elements.
-            var div = root
-                , svg = div.append("svg").attr("width", f.w()).attr("height", f.h())
-                , rgp = svg.append("g").attr("transform", "scale(1, 1)");
+            var svg = root.append("svg").attr("width", f.w()).attr("height", f.h());
+            var rgp = svg.append("g").attr("transform", "scale(1, 1)");
 
             rgp.append("g").append("rect").attr("width", f.w()).attr("height", f.h()).classed("tv-fig-bg", true);
 
@@ -664,20 +655,18 @@ tv.plot = {
             return el.append("defs").append("clipPath").attr("id", id)
         };
 
-        f.mouse_scroll = function (scroll_dim) {
+        f.mouse_scroll = function () {
             var ev = window.event
                 , da = ev.detail ? ev.detail : ev.wheelDelta
                 , sh = ev.shiftKey
                 , dr = !!(da > 0);
 
             if (sh) {
-                var scl = dr ? 1.2 : 1 / 1.2;
-                f.magic_fcs_amp_scl *= scl;
+                f.magic_fcs_amp_scl *= dr ? 1.2 : 1 / 1.2;
                 // TODO scale transform instead via direct access...
                 f.prepare_data();
                 f.render_focus()
             } else {
-                var br = scroll_dim === "horizontal";
                 if (!(f.br_ctx_y.empty())) {
                     var ext = f.br_ctx_y.extent();
                     var dx = dr ? 1 : -1;
@@ -770,7 +759,6 @@ tv.plot = {
                 , ys_mean = ys.mean()
                 , ys_std = ys.std()
                 , n_chan = ys.shape[1]
-                , ts_max = ts.max()
                 , datum;
 
             // center and scale to std an average signal
@@ -827,10 +815,11 @@ tv.plot = {
                     .append("path")
             }
 
-            g.select("path").attr("d", function (d, j) {
-                return d3.svg.line().x(function (dd, i) {
-                    return f.sc_ctx_x(ts.data[i])
-                })
+            g.select("path").attr("d", function (d) {
+                return d3.svg.line()
+                    .x(function (dd, i) {
+                        return f.sc_ctx_x(ts.data[i])
+                    })
                     .y(function (dd) {
                         return dd
                     })
@@ -846,7 +835,7 @@ tv.plot = {
             var f1 = f.gp_ctx_x.append("g").attr("style", "clip-path: url(#fig-ctx-x-clip)");
             var f2 = f1.selectAll("g").data([f.da_x]).enter();
             var f3 = f2.append("g")
-                .attr("transform", function (d, i) {
+                .attr("transform", function () {
                     return "translate(0, " + (f.sz_ctx_x.y / 2) + ") scale(1, 0.5)"
                 })
                 .classed("tv-ctx-line", true);
@@ -926,12 +915,13 @@ tv.plot = {
 
             // vertical context brush
                 , br_ctx_y_fn = function () {
-                    var dom = f.br_ctx_y.empty() ? f.sc_ctx_y.domain() : f.br_ctx_y.extent()
-                        , yscl = f.sz_fcs.y / (dom[1] - dom[0]) / 5;
+                    var dom = f.br_ctx_y.empty() ? f.sc_ctx_y.domain() : f.br_ctx_y.extent();
+                    var yscl = f.sz_fcs.y / (dom[1] - dom[0]) / 5;
                     f.sc_fcs_y.domain(dom);
                     f.gp_ax_fcs_y.call(f.ax_fcs_y);
                     f.gp_lines.selectAll("g").attr("transform", function (d, i) {
-                        return "translate(0, " + f.sc_fcs_y(i) + ") scale (1, " + yscl + ")"
+                        // Have a maximum line thickness of 2, to avoid situations in which blue lines become huge
+                        return "translate(0, " + f.sc_fcs_y(i) + ") scale (1, " + Math.min(yscl, 2) + ")"
                     })
                 }
 
@@ -999,7 +989,8 @@ tv.plot = {
             f.gp_br_ctx_x.append("g").classed("brush", true).call(f.br_ctx_x).selectAll("rect").attr("height", f.sz_ctx_x.y)
         };
 
-        f.parameters = ["w", "h", "p", "baseURL", "preview", "labels", "shape", "t0", "dt", "ts", "ys", "point_limit", "channels", "mode", "state_var"];
+        f.parameters = ["w", "h", "p", "baseURL", "preview", "labels", "shape",
+            "t0", "dt", "ts", "ys", "point_limit", "channels", "mode", "state_var"];
         f.parameters.map(function (name) {
             f[name] = tv.util.gen_access(f, name)
         });
