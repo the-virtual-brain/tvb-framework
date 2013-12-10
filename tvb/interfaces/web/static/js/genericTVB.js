@@ -526,6 +526,10 @@ function _markEntityVisibility(entityGID, entityType, toBeVisible) {
 //              OPERATIONS FUNCTIONS
 // ---------------------------------------------------------
 
+// a global flag to be set when the page has been submitted and is about to reload
+// Any function that wants to submit the page should do so only if this flag is not set
+var TVB_pageSubmitted = false;
+
 /**
  * Sets the visibility for an operation, from specifically the View Operation page. 
  * This will also trigger operation reload.
@@ -619,13 +623,13 @@ function applyOperationFilter(filterName, submitFormId) {
  */
 function refreshOperations() {
     // do not cancel another request
-    if(tvbPageSubmited){
+    if(TVB_pageSubmitted){
        return;
     }
 
 	if (document.getElementById("overlay") == null) {
         // let other requests cancel the refresh . Do not set the flag
-        // tvbPageSubmited = true
+        // TVB_pageSubmitted = true
 		document.getElementById('operationsForm').submit();
 	} else {
 		setTimeout(refreshOperations, 30000);

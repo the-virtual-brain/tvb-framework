@@ -29,10 +29,6 @@ var TREE_lastSelectedNodeType = undefined;
 // presses more times on the same graph node
 var skipReload = false;
 
-// a global flag to be set when the page has been submitted and is about to reload
-// Any function that wants to submit the page should do so only if this flag is not set
-var tvbPageSubmited = false;
-
 /**
  * Function selecting previously selected TAB between TREE / GRAPH, on pahe refresh.
  */
@@ -397,9 +393,10 @@ function updateLinkableProjects(datatype_id, isGroup, entity_gid) {
 /**
  * Submits the page to the action url using a http post
  * @param params a dict with the request parameters {name:value}
+ * @param action Form action string
  */
 function tvbSubmitPage(action, params){
-    if (tvbPageSubmited){
+    if (TVB_pageSubmitted){
         return;
     }
     var input;
@@ -418,7 +415,7 @@ function tvbSubmitPage(action, params){
         }
     }
     document.body.appendChild(form);
-	tvbPageSubmited = true;
+	TVB_pageSubmitted = true;
     form.submit();
 	document.body.removeChild(form);
 }
