@@ -112,8 +112,12 @@ width: 100%;
 }
 
 .ss-connectivity .specialviewer {
-background: #000;
 position: relative;
+}
+
+.ss-connectivity .specialviewer canvas{
+    width:100%;
+    height:720px;
 }
 
 .ss-connectivity .specialviewer canvas:focus {

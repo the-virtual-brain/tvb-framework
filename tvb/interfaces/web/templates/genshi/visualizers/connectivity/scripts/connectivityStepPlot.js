@@ -30,23 +30,6 @@ var maxSelectedDelayValue = -1;
 var animationTimeout = 3;
 var animationGranularity = 50;
 
-var light_theme = {
-    lineColor: [0.7, 0.7, 0.8],
-    noValueColor: [0.9, 0.9, 0.9],
-    backgroundColor: [0.9, 0.9, 0.9],
-    outlineColor: [0.5, 0.5, 0.5],
-    selectedOutlineColor: [0.4, 0.4, 0.7]
-};
-
-var dark_theme = {
-    lineColor: [0.1, 0.1, 0.2],
-    noValueColor: [0.0, 0.0, 0.0],
-    backgroundColor: [0.0, 0.0, 0.0],
-    outlineColor: [0.3, 0.3, 0.3],
-    selectedOutlineColor: [0.2, 0.2, 0.8]
-};
-
-var theme = dark_theme;
 
 function customMouseDown_SpaceTime(event) {
 	if (!animationStarted) {
@@ -216,6 +199,7 @@ function createOutlineSquare(startX, startY, elementSize, nrElems) {
  * 			 rest the color black is used.
  */
 function generateColors(tractValue, intervalLength) {
+    var theme = ColSchGetTheme().connectivityStepPlot;
 	var matrixWeightsValues = GVAR_interestAreaVariables[1].values;
 	var matrixTractsValues = GVAR_interestAreaVariables[2].values;
 	var minWeightsValue = GVAR_interestAreaVariables[1].min_val;
@@ -307,7 +291,7 @@ function updateSpaceTimeHeader() {
 	toDelaysInput.val(maxSelectedDelayValue.toFixed(2));
     conductionSpeedInput.val(conductionSpeed.toFixed(2));
 
-	initColorBuffers();
+	ConnStepPlotInitColorBuffers();
 	if (clickedMatrix >= 0) {
 		doZoomOutAnimation();
 	} else {
@@ -316,7 +300,7 @@ function updateSpaceTimeHeader() {
 }
 
 
-function initColorBuffers() {
+function ConnStepPlotInitColorBuffers() {
 	initColorsForPicking();
     plotColorBuffers = [];
 	var stepValue = (maxSelectedDelayValue - minSelectedDelayValue) / nrOfSteps;
@@ -326,6 +310,9 @@ function initColorBuffers() {
 	for (var tractValue = minSelectedDelayValue + stepValue / 2; tractValue < parseInt(maxSelectedDelayValue) - 0.1; tractValue = tractValue + stepValue) {
 		plotColorBuffers.push(generateColors(tractValue, stepValue));
 	} 
+    var theme = ColSchGetTheme().connectivityStepPlot;
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    drawSceneSpaceTime();
 }
 
 /*
@@ -334,7 +321,7 @@ function initColorBuffers() {
 function conectivitySpaceTime_initCanvas() {
 	var canvas = document.getElementById(CONNECTIVITY_SPACE_TIME_CANVAS_ID);
     initGL(canvas);
-
+    var theme = ColSchGetTheme().connectivityStepPlot;
     gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
     plotSize = parseInt(canvas.clientWidth / 3);	// Compute the size of one connectivity plot depending on the canvas width
     createConnectivityMatrix();
@@ -375,6 +362,7 @@ function _connectivitySpaceTimeUpdateLegend(){
  * Draw the full matrix, with the outline square.
  */
 function drawFullMatrix(doPick, idx) {
+    var theme = ColSchGetTheme().connectivityStepPlot;
 	mvPushMatrix();
 	
 	// Translate and rotate to get a good view 

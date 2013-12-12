@@ -108,7 +108,9 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
     }
     LEG_generateLegendBuffers();
     
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    var theme = ColSchGetTheme().surfaceViewer;
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -292,7 +294,8 @@ function _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList
         shelfBuffers = initBuffers(shelfObject[0], shelfObject[1], shelfObject[2], false, false, true);
     }
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    var theme = ColSchGetTheme().surfaceViewer;
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -826,6 +829,8 @@ function tick() {
  * Draw from buffers.
  */
 function drawScene() {
+    var theme = ColSchGetTheme().surfaceViewer;
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     // View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
     perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);

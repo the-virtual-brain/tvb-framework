@@ -157,17 +157,18 @@ function initBuffers() {
     var fakeNormal_1 = [0, 0, 0];
 
     var whitePointsColorsIndex =[];
-
     var points = [];
     var normals = [];
+
     for (var i = 0; i < NO_POSITIONS; i++) {
         points = points.concat(GVAR_positionsPoints[i]);
         normals = normals.concat(fakeNormal_1);
         colorsIndexes = colorsIndexes.concat(COLORS[WHITE_COLOR_INDEX]);       
     }
+
      for (var index = 0; index < 24 ; index++){
         	whitePointsColorsIndex = whitePointsColorsIndex.concat(COLORS[WHITE_COLOR_INDEX]);
-        }
+     }
 
     defaultColorIndexesBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, defaultColorIndexesBuffer);
@@ -200,11 +201,12 @@ function initBuffers() {
 function displayPoints() {
     for (var i = 0; i < NO_POSITIONS; i++) {
     	// Next line was ADDED FOR PICK
+        var currentBuffers;
     	if (showMetricDetails) {
-    		var currentBuffers = positionsBuffers_3D[i];
+    		currentBuffers = positionsBuffers_3D[i];
     		gl.uniform1i(shaderProgram.drawNodes, true);
     	} else {
-    		var currentBuffers = positionsBuffers[i];
+    		currentBuffers = positionsBuffers[i];
     	}
         mvPickMatrix = GL_mvMatrix.dup();
         mvPushMatrix();
@@ -801,7 +803,6 @@ function connectivity_startGL(isSingleMode) {
         gl.uniform3f(shaderProgram.colorsArray[i], COLORS[i][0], COLORS[i][1], COLORS[i][2]);
     }
     
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -813,6 +814,11 @@ function connectivity_startGL(isSingleMode) {
     drawScene();
 }
 
+function ConnPlotUpdateColors(){
+    var theme = ColSchGetTheme().connectivityPlot;
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    drawScene();
+}
 /**
  * Initialize the canvas and the event handlers. This should be called when switching from
  * other GL based visualizers to re-initiate the canvas.
@@ -820,8 +826,11 @@ function connectivity_startGL(isSingleMode) {
 function connectivity_initCanvas() {
 	var canvas = document.getElementById(CONNECTIVITY_CANVAS_ID);
     canvas.width = canvas.parentNode.clientWidth - 10;       // resize the canvas to almost fill the parent
+    canvas.height = 550;
     initGL(canvas);
     initShaders();
+    var theme = ColSchGetTheme().connectivityPlot;
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
     // Enable keyboard and mouse interaction
     canvas.onkeydown = customKeyDown;
     canvas.onkeyup = GL_handleKeyUp;

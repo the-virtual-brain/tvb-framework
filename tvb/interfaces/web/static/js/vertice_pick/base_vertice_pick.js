@@ -97,7 +97,9 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
     GL_DEFAULT_Z_POS = 250;
     GL_zTranslation = GL_DEFAULT_Z_POS;
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    var theme = ColSchGetTheme().surfaceViewer;
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);

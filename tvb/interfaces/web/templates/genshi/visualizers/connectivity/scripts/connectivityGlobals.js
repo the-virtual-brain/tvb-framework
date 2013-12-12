@@ -37,7 +37,7 @@ function GFUN_initializeConnectivityFull() {
 
         //Draw any additional elements like color picking and hide all tabs but the default one
         ColSch_initColorSchemeParams(GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'],
-                                     GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'], MATRIX_colorTable);
+                                     GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'], _onColorSchemeChanged);
         drawSimpleColorPicker('nodeColorSelector');
         SEL_createOperationsTable();
 
@@ -45,6 +45,14 @@ function GFUN_initializeConnectivityFull() {
         $('#rightSideDefaultSelectedTabId').click();
 }
 
+function _onColorSchemeChanged(){
+    MATRIX_colorTable();
+    if(SELECTED_TAB == CONNECTIVITY_TAB){
+        ConnPlotUpdateColors();
+    }else if(SELECTED_TAB == CONNECTIVITY_SPACE_TIME_TAB){
+        ConnStepPlotInitColorBuffers();
+    }
+}
 
 function _customMouseWheelEvent(delta) {
     GL_handleMouseWeel(delta);

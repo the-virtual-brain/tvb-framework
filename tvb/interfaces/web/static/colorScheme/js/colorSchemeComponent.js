@@ -130,6 +130,7 @@ function clampValue(value) {
 /**
  * Sets the current color scheme to the given one
  * @param scheme The color scheme to use; currently supported: 'linear', 'rainbow', 'hotcold', 'TVB', 'sparse'
+ *               'light-hotcold', 'light-TVB'
  */
 function ColSch_setColorScheme(scheme) {
     $(".colorSchemeSettings").hide();
@@ -208,13 +209,69 @@ function getGradientColor(pointValue, min, max) {
         result =  getLinearGradientColor(normalizedValue);
     else if (_colorScheme == "rainbow")
         result = getRainbowColor(normalizedValue);
-    else if (_colorScheme == "hotcold")
+    else if (_colorScheme == "hotcold" || _colorScheme == "lightHotcold")
         result = getHotColdColor(normalizedValue);
-    else if (_colorScheme == "TVB")
+    else if (_colorScheme == "TVB" || _colorScheme == "lightTVB")
         result = getTvbColor(normalizedValue);
     else if (_colorScheme == "sparse")
         result = getSparseColor(normalizedValue);
     return result
+}
+
+/**
+ * 3d viewer styling
+ * Css class like idea. In the future we might move these to css
+ * class -> prop value list
+ */
+var ColSchDarkTheme = {
+    connectivityStepPlot : {
+        lineColor: [0.1, 0.1, 0.2],
+        noValueColor: [0.0, 0.0, 0.0],
+        backgroundColor: [0.05, 0.05, 0.05],
+        outlineColor: [0.3, 0.3, 0.3],
+        selectedOutlineColor: [0.2, 0.2, 0.8]
+    },
+    connectivityPlot : {
+        backgroundColor: [0.05, 0.05, 0.05]
+    },
+    surfaceViewer : {
+        backgroundColor: [0.05, 0.05, 0.05]
+            //, boundaryLineColor
+    //, navigatorColor
+    //, faceColor
+    //, ambientLight
+    }
+};
+
+var ColSchLightTheme = {
+    connectivityStepPlot : {
+        lineColor: [0.7, 0.7, 0.8],
+        noValueColor: [0.9, 0.9, 0.9],
+        backgroundColor: [0.9, 0.9, 0.9],
+        outlineColor: [0.5, 0.5, 0.5],
+        selectedOutlineColor: [0.4, 0.4, 0.7]
+    },
+    connectivityPlot : {
+        backgroundColor: [0.9, 0.9, 0.9]
+    },
+    surfaceViewer : {
+        backgroundColor: [0.9, 0.9, 0.9]
+    }
+};
+
+/**
+ * For each color scheme return a 3d theme
+ */
+function ColSchGetTheme(){
+    return {
+        linear : ColSchDarkTheme,
+        TVB : ColSchDarkTheme,
+        rainbow : ColSchDarkTheme,
+        hotcold : ColSchDarkTheme,
+        sparse: ColSchDarkTheme,
+        lightHotcold : ColSchLightTheme,
+        lightTVB : ColSchLightTheme
+    }[_colorScheme||'linear'];
 }
 
 /**
