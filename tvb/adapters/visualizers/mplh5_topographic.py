@@ -103,7 +103,10 @@ class BaseTopography():
 
         topo = griddata(topography_data["sproj"][:, 0], topography_data["sproj"][:, 1],
                         numpy.ravel(numpy.array(topography)), x_arr, y_arr)
-        if self.plot_contours:
+
+        non_empty_topo = topo.any()
+
+        if self.plot_contours and non_empty_topo:
             #draw the contours
             figure.gca().contour(x_arr, y_arr, topo, 10, colors='k', origin="lower", hold='on')
 
@@ -118,7 +121,11 @@ class BaseTopography():
         if not (color_bar_min == 0 and color_bar_max == 0):
             norm = colors.Normalize(vmin=color_bar_min, vmax=color_bar_max)
             map_surf.set_norm(norm)
-        figure.colorbar(map_surf)
+
+        if non_empty_topo:
+            figure.colorbar(map_surf)
+        else:
+            figure.text(0.5, 0.05, 'Topography is all zeroes', horizontalalignment='center')
         figure.gca().set_axis_off()
         return map_surf
 
