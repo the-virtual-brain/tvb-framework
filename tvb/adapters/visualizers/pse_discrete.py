@@ -94,6 +94,31 @@ class DiscretePSEAdapter(ABCDisplayer):
 
 
     @staticmethod
+    def prepare_range_labels(operation_group, range_json):
+        """
+        Prepare Range labels for display in UI.
+        When the current range_json is empty, returns None, [RANGE_MISSING_STRING], [RANGE_MISSING_STRING]
+
+        :param operation_group: model.OperationGroup instance
+        :param range_json: Stored JSON for for a given range
+        :return: String with current range label, Array of ranged numbers, Array of labels for current range
+
+        """
+        contains_numbers, range_name, range_values = operation_group.load_range_numbers(range_json)
+
+        if contains_numbers is None:
+            return None, range_values, range_values
+
+        range_labels = []
+        if not contains_numbers:
+            # when datatypes are in range, get the display name for those and use as labels.
+            for data_gid in range_values:
+                range_labels.append(dao.get_datatype_by_gid(data_gid).display_name)
+
+        return range_name, range_values, range_labels
+
+
+    @staticmethod
     def prepare_parameters(datatype_group_gid, back_page, color_metric=None, size_metric=None):
         """
         We suppose that there are max 2 ranges and from each operation results exactly one dataType.
@@ -112,20 +137,22 @@ class DiscretePSEAdapter(ABCDisplayer):
                             "It might have been remove or the specified id is not the correct one.")
 
         operation_group = dao.get_operationgroup_by_id(datatype_group.fk_operation_group)
-        _, range1_name, range1_labels = operation_group.load_range_numbers(operation_group.range1)
-        has_range2, range2_name, range2_labels = operation_group.load_range_numbers(operation_group.range2)
 
-        pse_context = ContextDiscretePSE(datatype_group_gid, range1_labels, range2_labels,
+        range1_name, range1_values, range1_labels = DiscretePSEAdapter.prepare_range_labels(operation_group, operation_group.range1)
+        range2_name, range2_values, range2_labels = DiscretePSEAdapter.prepare_range_labels(operation_group, operation_group.range2)
+
+        pse_context = ContextDiscretePSE(datatype_group_gid, range1_values, range1_labels, range2_values, range2_labels,
                                          color_metric, size_metric, back_page)
         final_dict = dict()
         operations = dao.get_operations_in_group(operation_group.id)
+
         for operation_ in operations:
             if operation_.status == model.STATUS_STARTED:
                 pse_context.has_started_ops = True
             range_values = eval(operation_.range_values)
             key_1 = range_values[range1_name]
             key_2 = model.RANGE_MISSING_STRING
-            if has_range2 is not None:
+            if range2_name is not None:
                 key_2 = range_values[range2_name]
 
             datatype = None

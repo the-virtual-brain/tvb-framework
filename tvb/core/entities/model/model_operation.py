@@ -279,6 +279,7 @@ class OperationGroup(Base, Exportable):
             except ValueError:
                 # It's a DataType range
                 can_interpolate_range = False
+                range_values[idx] = entry
         return can_interpolate_range, range_name, range_values
 
 
