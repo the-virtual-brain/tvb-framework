@@ -70,8 +70,8 @@ class ExplorationControllerTest(TransactionalTestCase, BaseControllersTest):
         self.assertTrue(result['available_metrics'] == DatatypesFactory.DATATYPE_MEASURE_METRIC.keys())
         self.assertEqual(result['color_metric'], DatatypesFactory.DATATYPE_MEASURE_METRIC.keys()[0])
         self.assertEqual(result['size_metric'], None)
-        self.assertEqual(json.loads(result['labels_x']), DatatypesFactory.RANGE_1[1])
-        self.assertEqual(json.loads(result['labels_y']), DatatypesFactory.RANGE_2[1])
+        self.assertEqual(DatatypesFactory.RANGE_1[1], json.loads(result['labels_x']))
+        self.assertEqual(DatatypesFactory.RANGE_2[1], json.loads(result['labels_y']))
         data = json.loads(result['data'])
         self.assertEqual(len(data), len(DatatypesFactory.RANGE_1[1]))
         for row in data:
