@@ -439,7 +439,7 @@ class UniqueUsername(formencode.FancyValidator):
     Custom validator to check that a given user-name is unique.
     """
 
-    def _to_python(self, value, state):
+    def _convert_to_python(self, value, state):
         """ Fancy validate for Unique user-name """
         if not UserService().is_username_valid(value):
             raise formencode.Invalid('Please choose another user-name, this one is already in use!', value, state)

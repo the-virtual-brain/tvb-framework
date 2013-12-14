@@ -153,7 +153,7 @@ class DiskSpaceValidator(formencode.FancyValidator):
     Custom validator for TVB disk space / user.
     """
 
-    def _to_python(self, value, _):
+    def _convert_to_python(self, value, _):
         """ 
         Validation required method.
         :param value is user-specified value, in MB
@@ -170,7 +170,7 @@ class PortValidator(formencode.FancyValidator):
     Custom validator for OS Port number.
     """
 
-    def _to_python(self, value, _):
+    def _convert_to_python(self, value, _):
         """ 
         Validation required method.
         """
@@ -189,7 +189,7 @@ class ThreadNrValidator(formencode.FancyValidator):
     Custom validator number of threads.
     """
 
-    def _to_python(self, value, _):
+    def _convert_to_python(self, value, _):
         """ 
         Validation required method.
         """
@@ -211,7 +211,7 @@ class SurfaceVerticesNrValidator(formencode.FancyValidator):
     MAX_VALUE = 256 * 256 * 256 + 1
 
 
-    def _to_python(self, value, _):
+    def _convert_to_python(self, value, _):
         """ 
         Validation required method.
         """
@@ -233,7 +233,7 @@ class MatlabValidator(formencode.FancyValidator):
     """
 
 
-    def _to_python(self, value, _):
+    def _convert_to_python(self, value, _):
         """ 
         Validation required method.
         """
