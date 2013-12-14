@@ -537,7 +537,7 @@ function resizeIsoFigures() {
 	var width = pseElem.width();
 	var height = pseElem.height();
 	try {
-		resizePlot(width - 60, height - 80); // Don't resize quite to full since we have selects under plot and margins to plot
+		resizePlot(width - 60, height - 90); // Don't resize quite to full since we have selects under plot and margins to plot
 	}
 	catch(ReferenceError) { // just means we on the error page so no plot to resize
 	}
@@ -974,8 +974,7 @@ function loadBurst(burst_id) {
 	// Call ASYNC since it returns a HTML that contains the burst status
 	// This is updated immediately after this function exits so we need to make
 	// sure AJAX response is loaded by then
-	
-	var newBurstClass = '';
+
 	doAjaxCall({  	
 		type: "POST", 
 		url: '/burst/load_burst/' + burst_id,
@@ -983,7 +982,7 @@ function loadBurst(burst_id) {
 	        	var result = $.parseJSON(r);
 	        	selectedTab = result['selected_tab'];
 	        	var groupGID = result['group_gid'];
-				var selectedBurst = $("#burst_id_" + burst_id)[0]
+				var selectedBurst = $("#burst_id_" + burst_id)[0];
 				// This is for the back-button issue with Chrome. Should be removed after permanent solution.
 				if (selectedBurst != undefined) {
 					selectedBurst.className = selectedBurst.className + ' ' + ACTIVE_BURST_CLASS;

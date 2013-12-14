@@ -1,20 +1,20 @@
 var canvas_socket = {};
-var contexts = new Array();
+var contexts = [];
  // holds the contexts for this page
-var canvii = new Array();
-var last_frames = new Array();
+var canvii = [];
+var last_frames = [];
 var last_id = 0;
 var ztop = 0;
 var base_port = 4567;
 var management_socket = null;
-var canvas_errors = new Array();
-var ax_bb = new Array();
-cursor_info = new Array();
-frame_counter = new Array();
-frame_start = new Array();
+var canvas_errors = [];
+var ax_bb = [];
+cursor_info = [];
+frame_counter = [];
+frame_start = [];
 
-var zdiv = new Array();
-var ldiv = new Array();
+var zdiv = [];
+var ldiv = [];
 
 
 
@@ -58,12 +58,13 @@ function draw_frame(id) {
           if (frame_counter[id] == 0) { 
               frame_start[id] = new Date().getTime();
           }
+         // this 'c' variable appears to be used from the server response.... do not remove it!
           var c = contexts[id];
-          // when in client mode we cannot zoom anyway...
-          for (var i=0; i < ldiv[id].length; i++) 
-              ldiv[id][i].style.display= "none";
+         // when in client mode we cannot zoom anyway...
+          for (var ii=0; ii < ldiv[id].length; ii++)
+              ldiv[id][ii].style.display= "none";
           // hide any existing limit divs...
-          ax_bb = new Array();
+          ax_bb = [];
           eval(last_frames[id]); 
           frame_header();
           // execute the header. This will perform initial setup that is required (such as images) and then run frame_body..
@@ -86,7 +87,7 @@ function draw_frame(id) {
                ldiv[id][i].style.height = ax_bb[i][3] - ax_bb[i][1] + "px";
                frame_counter[id] += 1;
                if (frame_counter[id] > 30) { 
-                    fps = (frame_counter[0] / (new Date().getTime() - frame_start[id]) * 1000);
+                    var fps = (frame_counter[0] / (new Date().getTime() - frame_start[id]) * 1000);
                     if (cursor_info[id] == 1) document.getElementById('cursor_info_' + id).innerHTML = "FPS:" + fps;
                     frame_counter[id] = 0;
                }
@@ -107,7 +108,7 @@ function connect_manager(server_ip, server_port, id) {
     canvii[id] = document.getElementById('canvas_'+ id);
     contexts[id] = canvii[id].getContext('2d');
     zdiv[id] = document.getElementById('zoom_div_'+ id);
-    ldiv[id] = new Array();
+    ldiv[id] = [];
     ldiv[id][0] = document.getElementById('limit_div_0_'+ id);
     ldiv[id][0].addEventListener('mousedown', function (e) {clickCanvas(e, id, 0);}, false);
 
@@ -134,8 +135,8 @@ function connect_manager(server_ip, server_port, id) {
 	                                	displayMessage("Error encountered while updating image.", "errorMessage");
 	                                	closeBlockerOverlay();
 	                                }
-                                } 
-    canvas_socket[id].onopen = function(e) {
+                                };
+    canvas_socket[id].onopen = function() {
                                     try{
                                     	for (var fig_id in canvas_socket) {
                                     		canvas_socket[id].socket_connected = false;
@@ -198,10 +199,10 @@ function resize_canvas(id, width, height) {
 
 
  // this style of event listener is an issue in Firefox 3.7. Will need to fix at some stage...
-var native_w = new Array();
-var native_h = new Array();
+var native_w = [];
+var native_h = [];
 var zdraw = -1;
-var resize = -1;
+var MPLH5_resize = -1;
 var startX = 0;
 var startY = 0;
 var stopX = 0;
@@ -229,7 +230,7 @@ function handle_click(e, id) {
         	'start_x' : (e.pageX - pos[0]),
         	'start_y' : (canvii[id].clientHeight - (e.pageY - pos[1])),
         	'button' : (e.button + 1)
-        }
+        };
         sendMessage(id, 'click', commandArgs)
     } catch (err) {}
 }
@@ -261,7 +262,7 @@ function findPosition(obj) {
 
 function clickCanvas(e,id,axes) {
      if (!e) {
-        var e = window.event;
+        e = window.event;
      }
       // e.button: 0 is left, 1 is middle, 2 is right.
      if ((e.button == 0) && (e.shiftKey == false)) {
@@ -281,7 +282,6 @@ function clickCanvas(e,id,axes) {
      }
      startX = e.pageX;
      startY = e.pageY;
-     pause = true;
      return false;
 }
 
@@ -300,7 +300,7 @@ function clickSize(e, id) {
      cr.style.display = "inline";
      rStartX = e.pageX- pos[0];
      rStartY = e.pageY- pos[1];
-     resize = id;
+     MPLH5_resize = id;
      document.getElementById('status_'+ id).innerHTML = "Click size at " + rStartX + "," + rStartY;
      return false;
 }
@@ -310,13 +310,13 @@ function clickSize(e, id) {
  * used for changing the size of the canvas.
  */
 function slideSize(e) {
-     if (resize > -1) {
+     if (MPLH5_resize > -1) {
           var cr = document.getElementById('resize_div');
-          var pcs = document.getElementById('canvas_' + resize);
+          var pcs = document.getElementById('canvas_' + MPLH5_resize);
           var pos = findPosition(pcs);
           cr.style.width = (e.pageX- pos[0]) + "px";
           cr.style.height = (e.pageY- pos[1]) + "px";
-          document.getElementById('status_'+ resize).innerHTML = "Slide size to " + (e.pageX - rStartX) + "," + (e.pageY - rStartY);
+          document.getElementById('status_'+ MPLH5_resize).innerHTML = "Slide size to " + (e.pageX - rStartX) + "," + (e.pageY - rStartY);
      } 
      return false;
 }
@@ -326,8 +326,8 @@ function do_resize(id, w, h) {
         var msgArgs = {
         	'width' : w,
         	'height' : h
-        }
-        canvii[id].notReadyForExport = true               // flag this canvas that resizing request was submitted
+        };
+        canvii[id].notReadyForExport = true;               // flag this canvas that resizing request was submitted
         sendMessage(id, 'resize', msgArgs)
       } catch (err) {
           displayMessage("Error when resizing!", "errorMessage");
@@ -339,12 +339,12 @@ function do_resize(id, w, h) {
  * Sets the size of the 'resize_div' div to the canvas.
  */
 function outSize() {
-     if (resize > -1) {
+     if (MPLH5_resize > -1) {
           var cr = document.getElementById('resize_div');
-          do_resize(resize, cr.style.width.replace("px",""), cr.style.height.replace("px",""));
+          do_resize(MPLH5_resize, cr.style.width.replace("px",""), cr.style.height.replace("px",""));
           cr.style.display = "none";
      }
-     resize = -1;
+     MPLH5_resize = -1;
      zdraw = -1;
 }
 
@@ -362,9 +362,9 @@ function maximise(id, parent_div_id) {
     pcs = document.getElementById(parent_div_id);
     var w = pcs.clientWidth - 10; 
     var h = pcs.clientHeight - 40;
-    resize = id;
+    MPLH5_resize = id;
     do_resize(id, w, h);
-    resize = -1;
+    MPLH5_resize = -1;
 }
 
 var zoom_canvas_id = 0;
@@ -373,7 +373,7 @@ function zoom_in(id, axes) {
      var atop = 0;
      var aleft = 0;
      if (document.getElementById("anchor_div") != null) {
-          an = document.getElementById("anchor_div");
+          var an = document.getElementById("anchor_div");
           atop = an.offsetTop;
           aleft = an.offsetLeft;
      }
@@ -385,7 +385,7 @@ function zoom_in(id, axes) {
      	'bottom_y0' : (canvii[id].height - (stopY - (pos[1] + atop))),
      	'top_x1' : (stopX - (pos[0] + aleft)),
      	'top_y1' : (canvii[id].height - (startY - (pos[1] + atop)))
-      	}
+      	};
      sendMessage(id, 'zoom', zoom_coords);
      startX = stopX = startY = stopY = 0;
      zdiv[id].style.width = "0px";
@@ -395,7 +395,7 @@ function zoom_in(id, axes) {
 
 function releaseCanvas(e,id) {
      if (!e) {
-        var e = window.event;
+        e = window.event;
      }
      stopX = e.pageX;
      stopY = e.pageY;
@@ -407,12 +407,12 @@ function releaseCanvas(e,id) {
         zdiv[id].style.display = "none";
      }
      zdraw = -1;
-     pause = false;
      return false;
 }
 
-function slideCanvas(e,id,axes) {
-	if (!e) var e = window.event;
+function slideCanvas(e,id) {
+	if (!e)
+        e = window.event;
 	if (zdraw > -1)  {
         zdiv[id].style.width = e.pageX - startX + "px";
         zdiv[id].style.height = e.pageY - startY + "px";
@@ -424,7 +424,7 @@ function slideCanvas(e,id,axes) {
 	        var msgArgs = {
 	        	'current_x' : (e.pageX - pos[0]),
 	        	'current_y' : (canvii[id].clientHeight - (e.pageY - pos[1]))
-	        }
+	        };
 	        sendMessage(id, 'motion_notify', msgArgs, false);
 	        // we need coords based on 0,0 in bottom left corner...
 	    } catch (err) {}
@@ -445,9 +445,9 @@ document.addEventListener("mouseup", outSize, false);
  */
 function __checkMPLH5FinishedResizing(figureId) {
     if (canvii[figureId].notReadyForExport)                                            // mplh5 hasn't resized yet
-        setTimeout(function() {__checkMPLH5FinishedResizing(figureId)}, 100)         // check again in 100 ms
+        setTimeout(function() {__checkMPLH5FinishedResizing(figureId)}, 100);         // check again in 100 ms
     else
-        canvii[figureId].parentElement.parentElement.style.display = ""       // exporting is done, show the container
+        canvii[figureId].parentElement.parentElement.style.display = "";       // exporting is done, show the container
 }
 
 /**
@@ -462,7 +462,7 @@ function initMPLH5CanvasForExportAsImage(figureId) {
             this.parentElement.parentElement.style.display = "none";
             this.scale = C2I_EXPORT_HEIGHT / this.height;
             do_resize(figureId, this.width * this.scale, this.height * this.scale);
-        }
+        };
 
         this.afterImageExport = function() {    // scale back to original size
             do_resize(figureId, this.width / this.scale, this.height / this.scale);

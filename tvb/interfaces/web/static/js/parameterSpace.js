@@ -57,7 +57,7 @@ function _updatePlotPSE(canvasId, xLabels, yLabels, seriesArray, data_info, min_
             max: xLabels.length,
             tickSize: 1,
             shouldRotateLabels: true,
-            tickFormatter: function(val, axis) {
+            tickFormatter: function(val) {
                 if (val < 0 || val >= xLabels.length) {
                     return "";
                 }
@@ -68,7 +68,7 @@ function _updatePlotPSE(canvasId, xLabels, yLabels, seriesArray, data_info, min_
             min: -1,
             max: yLabels.length,
             tickSize: 1,
-            tickFormatter: function(val, axis) {
+            tickFormatter: function(val) {
                 if (val < 0 || val >= yLabels.length || yLabels[val] == "_") {
                     return "";
                 }
@@ -263,7 +263,9 @@ var currentFigure = null;
 function resizePlot(width, height) {
 
 	if (currentFigure != null) {
+        MPLH5_resize = currentFigure;
 	    do_resize(currentFigure, width, height);
+        MPLH5_resize = -1;
 	}
 }
 
@@ -288,12 +290,10 @@ function updateMetric(selectComponent) {
 
 	var newMetric = $(selectComponent).find(':selected').val();
 	showMetric(newMetric);
-	if (width != null && height != null) {
-        var pseElem = $('#section-pse');
-        var width = pseElem.width() - 60;
-        var height = pseElem.height() - 80;
-		waitOnConnection(currentFigure, 'resizePlot(currentFigure, width, height)', 200, 50);
-	}
+    var pseElem = $('#section-pse');
+    var width = pseElem.width() - 60;
+    var height = pseElem.height() - 90;
+    waitOnConnection(currentFigure, 'resizePlot('+ width +', '+ height +')', 200, 50);
 }
 
 /*
