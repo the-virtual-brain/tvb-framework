@@ -66,15 +66,15 @@ function resetToNewBurst() {
 	
 	$.ajax({ type: "POST", 
 			 url: '/burst/reset_burst/',
-	         success: function(r) {
+	         success: function() {
 	        		loadSimulatorInterface();
                     returnToSessionPortletConfiguration();
 	        		setNewBurstActive();
         			fill_burst_name('', false, false);
         			displayMessage("Completely new configuration loaded!");
 	         },
-	         error: function(r) {
-	            displayMessage("We encounted an error while generating the new simulation. Please try reload and then check the logs!", "errorMessage");
+	         error: function() {
+	            displayMessage("We encountered an error while generating the new simulation. Please try reload and then check the logs!", "errorMessage");
 	            sessionStoredBurst = clone(EMPTY_BURST);
 	         }
     });
@@ -93,8 +93,8 @@ function copyBurst(burstID) {
 	        		fill_burst_name(r, false, true);
 	        		displayMessage("A copy of previous simulation was prepared for you!")
 	         },
-	         error: function(r) {
-	            displayMessage("We encounted an error while generating a copy of the simulation. Please try reload and then check the logs!", "errorMessage");
+	         error: function() {
+	            displayMessage("We encountered an error while generating a copy of the simulation. Please try reload and then check the logs!", "errorMessage");
 	            sessionStoredBurst = clone(EMPTY_BURST);
 	         }
     });
@@ -111,10 +111,11 @@ function loadBurstHistory() {
 		cache: false,
 		async: false,
         success: function(r) {
-        			$('.view-history').empty();
-        			$('.view-history').append(r);
+                    var historyElem = $('.view-history');
+        			historyElem.empty();
+        			historyElem.append(r);
         },
-        error: function(r) {
+        error: function() {
             		displayMessage("Simulator data could not be loaded properly..", "errorMessage");
         }
     });
@@ -127,7 +128,7 @@ function loadBurstHistory() {
 function updateBurstHistoryStatus() {
 	
 	var burst_ids = [];
-	$("#burst-history li").each(function (listItem) {
+	$("#burst-history").find("li").each(function () {
 		if (this.className.indexOf('burst-started') >= 0) {
 			if (this.id.indexOf('burst_id_') >= 0) {
 				var id = this.id.replace('burst_id_', '');
@@ -145,7 +146,6 @@ function updateBurstHistoryStatus() {
 	        		var changedStatusOnCurrentBurst = false;
 	        		var result = $.parseJSON(r);
 	        		for (var i = 0; i < result.length; i++) {
-	        			var id = "burst_id_" + result[i][0];
 	        			
 	        			if (result[i][1] != 'running') {
 	        				finalStatusReceived = true;
@@ -156,7 +156,7 @@ function updateBurstHistoryStatus() {
 	        		}
 	        		scheduleNewUpdate(finalStatusReceived, changedStatusOnCurrentBurst);
 	        	},
-	        error: function(r) {
+	        error: function() {
 	            displayMessage("Error during simulation status update...", "errorMessage");
 	            scheduleNewUpdate(false);
 	        }
@@ -207,7 +207,7 @@ function cancelOrRemoveBurst(burst_id) {
 					}
 	        	}
 	        } ,
-	        error: function(r) {
+	        error: function() {
 	            displayMessage("Could not cancel/remove simulation.", "errorMessage");
 	        }
 		});
@@ -224,15 +224,15 @@ function renameBurstEntry(burst_id, new_name_id) {
 	$.ajax({type: "POST",
 			async: false, 
 			url: '/burst/rename_burst/' + burst_id + '/' + newValue,
-	        success: function(r) {
-	        				displayMessage("Simulation succesfully renamed!");
+	        success: function() {
+	        				displayMessage("Simulation successfully renamed!");
 	        				$("#burst_id_" + burst_id + " a")[0].innerHTML = newValue;
 	        				if (sessionStoredBurst.id == burst_id + "") {
 	        					sessionStoredBurst.name = newValue;
 	        					fill_burst_name(newValue, true, false);
 	        				}
 	        } ,
-	        error: function(r) {
+	        error: function() {
 	        				displayMessage("Error when renaming simulation. Try entering only letters, numbers, or _ in the new name.", "errorMessage");
 	        				}
 			});
@@ -248,7 +248,7 @@ function changeBurstHistory(burst_id) {
 		displayMessage("Simulation already loaded...", "warningMessage");
 		return
 	}
-	$("#burst-history li").each(function (listItem) {
+	$("#burst-history").find("li").each(function () {
 		$(this).removeClass(ACTIVE_BURST_CLASS);
 		$(this).removeClass(GROUP_BURST_CLASS);
 	});
@@ -282,9 +282,10 @@ function _toggleLaunchButtons(beActiveLaunch, beActiveRest) {
 }
 
 function _fillSimulatorParametersArea(htmlContent, isConfigure) {
-	
-	$("#div-simulator-parameters").empty();
-    $("#div-simulator-parameters").append(htmlContent);
+
+    var simParamElem = $("#div-simulator-parameters");
+	simParamElem.empty();
+    simParamElem.append(htmlContent);
 
 	if (isConfigure) {
 		document.getElementById("configure-simulator-button").innerHTML = "Save Configuration";
@@ -320,7 +321,7 @@ function loadSimulatorInterface() {
             success: function(r) { 
             	_fillSimulatorParametersArea(r, false);
             } ,
-            error: function(r) {
+            error: function() {
                 displayMessage("Simulator data could not be loaded properly..", "errorMessage");
             }
     });
@@ -333,7 +334,7 @@ function tryExpandRangers() {
 	        	var result = $.parseJSON(r); 
 	        	updateRangeValues(result);
 	        } ,
-	        error: function(r) {
+	        error: function() {
 	            displayMessage("Could not load previous rangers!.", "warningMessage");
 	        }
 	        });
@@ -346,7 +347,7 @@ function setSimulatorChangeListener(parentDiv) {
 	
 	$('#' + parentDiv + ' select').each(function() { if (!this.disabled) { this.onchange(); } });
 	$('#' + parentDiv + ' input[type="radio"]').each(function() { if (!this.disabled && this.checked) { this.onchange(); } });
-	$("#" + parentDiv + " :input").each(function (listItem) {
+	$("#" + parentDiv + " :input").each(function () {
 		if (this.type != 'checkbox') {
 			$(this).change(function() { 
 				if (this.type != 'checkbox') { 
@@ -370,8 +371,8 @@ function configureSimulator(configureHref) {
                 success: function(r) {
                 	_fillSimulatorParametersArea(r, true);
                 },
-                error: function(r) {
-                    displayMessage("Error occured during parameter save.", "errorMessage");
+                error: function() {
+                    displayMessage("Error occurred during parameter save.", "errorMessage");
                 }
             });	
             
@@ -381,10 +382,10 @@ function configureSimulator(configureHref) {
 		$.ajax({type: "POST", 
 				data: {'simulator_parameters' : JSON.stringify(submitableData)},
 				url: '/burst/save_simulator_configuration?exclude_ranges=True',
-                success: function(r) { 
+                success: function() {
                 	loadSimulatorInterface()
                 } ,
-                error: function(r) {
+                error: function() {
                     displayMessage("Error during saving configuration.", "errorMessage");
                 }
             });
@@ -395,7 +396,7 @@ function configureSimulator(configureHref) {
  * Shortcut into selecting/unselecting all simulation parameters.
  */
 function toggleSimulatorParametersChecks(beChecked) {
-	$(".param-config-checkbox").each(function (checkboxInput) {
+	$(".param-config-checkbox").each(function () {
 											if (beChecked) {
 												$(this).attr("checked", 'true');
 											} else {
@@ -415,7 +416,7 @@ function configureModel(actionUrl) {
 			data: {'simulator_parameters' : JSON.stringify(submitableData),
                    'burstName': $("#input-burst-name-id").val()},
 			url: '/burst/save_simulator_configuration?exclude_ranges=False',
-            success: function(r) { 
+            success: function() {
             	// After submitting current parameters, go to a different page.
             	var myForm = document.createElement("form");
 				myForm.method="POST" ;
@@ -424,8 +425,8 @@ function configureModel(actionUrl) {
 				myForm.submit();
 				document.body.removeChild(myForm);      
             } ,
-            error: function(r) {
-                displayMessage("Sorry, the model visual-configuer is unavailable! Please contact your administrator!", "errorMessage");
+            error: function() {
+                displayMessage("Sorry, the model visual-configurator is unavailable! Please contact your administrator!", "errorMessage");
             }
         });
 }
@@ -443,8 +444,9 @@ function configureNoiseParameters() {
 }
 
 function toggleConfigSurfaceModelParamsButton() {
-    $("select[name='surface']").unbind('change.configureSurfaceModelParameters');
-    $("select[name='surface']").bind('change.configureSurfaceModelParameters', function () {
+    var selectorSurfaceElem = $("select[name='surface']");
+    selectorSurfaceElem.unbind('change.configureSurfaceModelParameters');
+    selectorSurfaceElem.bind('change.configureSurfaceModelParameters', function () {
         var selectedValue = this.value;
         if (selectedValue == undefined || selectedValue == 'None' ||
             selectedValue == null || selectedValue.length == 0) {
@@ -453,8 +455,8 @@ function toggleConfigSurfaceModelParamsButton() {
             $("#configSurfaceModelParam").show();
         }
     });
-    $("select[name='surface']").trigger("change");
-    if ($("select[name='surface']").length < 1) {
+    selectorSurfaceElem.trigger("change");
+    if (selectorSurfaceElem.length < 1) {
     	$("#configSurfaceModelParam").hide();
     }
 }
@@ -483,7 +485,7 @@ function loadGroup(groupGID) {
 	// Hide both divs
 	$('#burst-pse-flot').hide();
 	$('#burst-pse-iso').hide();
-	$("#section-portlets-ul li").each(function (listItem) {
+	$("#section-portlets-ul").find("li").each(function () {
 			$(this).removeClass('active');
 		});
 	$.ajax({  	
@@ -502,19 +504,20 @@ function loadGroup(groupGID) {
 				}
 
 				switch_top_level_visibility("#section-pse");
-				var isoWidth = $('#section-pse').width();
-	            var isoHeight = $('#section-pse').height();
+                var pseElem = $('#section-pse');
+				var isoWidth = pseElem.width();
+	            var isoHeight = pseElem.height();
 	            PSE_mainDraw('burst-pse-flot', 'burst', groupGID);
                 Isocline_MainDraw(groupGID, 'burst-pse-iso', isoWidth, isoHeight)
 			},
-		error: function(r) {
+		error: function() {
 		    displayMessage("Error while loading burst.", "errorMessage");
 		}});
 }
 
 
 function changePSETab(clickedHref, toShow) {
-	$("#section-portlets-ul li").each(function (listItem) {
+	$("#section-portlets-ul").find("li").each(function () {
 			$(this).removeClass('active');
 		});
 	$(clickedHref).parent().addClass('active');
@@ -530,10 +533,11 @@ function changePSETab(clickedHref, toShow) {
 }
 
 function resizeIsoFigures() {
-	var width = $('#burst-pse-flot').width();
-	var height = $('#burst-pse-flot').height();
+    var pseElem = $('#burst-pse-flot');
+	var width = pseElem.width();
+	var height = pseElem.height();
 	try {
-		resizeFigures(width - 60, height - 80); // Don't resize quite to full since we have selects under plot and margins to plot
+		resizePlot(width - 60, height - 80); // Don't resize quite to full since we have selects under plot and margins to plot
 	}
 	catch(ReferenceError) { // just means we on the error page so no plot to resize
 	}
@@ -603,23 +607,23 @@ function selectPortlets(isSave) {
 		// If we want to save the configuration, show the corresponding div, and make a call
 		// to server to get the previews(static images) for these portlets.
 		for (var i = 0; i < selectedPortlets[0].length; i++) {
-			var portletName = document.getElementById('portlet-name_entry-' + i).value;
-			selectedPortlets[selectedTab][i][1] = portletName;
+            selectedPortlets[selectedTab][i][1] = document.getElementById('portlet-name_entry-' + i).value;
 		}
 		$.ajax({	type: "POST", 
 					data: {"tab_portlets_list": JSON.stringify(selectedPortlets)},
 					url: '/burst/portlet_tab_display',
-		            success: function(r) {    
-		            	$("#portlets-display").replaceWith(r); 
+		            success: function(r) {
+                        var portletDisplayElem = $("#portlets-display");
+		            	portletDisplayElem.replaceWith(r);
 		            	// When saving configuration we need to show only the static previews even if we started
 		            	// from the static previews page or the visualization page.
-		            	$("#portlets-configure").hide();
-						$("#portlets-display").show();
+		            	portletDisplayElem.hide();
+						portletDisplayElem.show();
 						portletConfigurationActive = false;
 						markBurstChanged();
 						updatePortletsToolbar(3);
 		            } ,
-		            error: function(r) {
+		            error: function() {
 		                displayMessage("Selection was not saved properly.", "errorMessage");
 		            }
 	        });	
@@ -637,7 +641,7 @@ function setPortletsStaticPreviews() {
 	         success: function(r) {    
 	        	$("#portlets-display").replaceWith(r);
 	         } ,
-	         error: function(r) {
+	         error: function() {
 	            displayMessage("Selection was not saved properly.", "errorMessage");
 	         }
 	});
@@ -678,7 +682,7 @@ function savePortletParams() {
                 	// When saving parameters for a portlet, a relaunch might be needed (in case analyzer param changed)
                 	// or might not be needed (in case of visualizer change)
                 	if (r == "relaunchView" && sessionStoredBurst.id != '') {
-                		currentPortletDiv = $(".portlet-"+indexInTab)[0];
+                		var currentPortletDiv = $(".portlet-" + indexInTab)[0];
 						var width = currentPortletDiv.clientWidth;
 						var height = currentPortletDiv.clientHeight;
 			       		$.ajax({  	type: "GET", 
@@ -687,7 +691,7 @@ function savePortletParams() {
 					                	currentPortletDiv.replaceWith(r); 
 					                	$("#portlets-display").show();
 					                } ,
-					                error: function(x, e) {
+					                error: function() {
 						                displayMessage("Error when retrieving visualizers configuration!", "errorMessage");
 						            }
 						       });
@@ -700,14 +704,14 @@ function savePortletParams() {
 					            success: function(r) { 
 					            	$("#portlets-display").replaceWith(r); 
 					            } ,
-					            error: function(r) {
+					            error: function() {
 					                displayMessage("Selection was not saved properly.", "errorMessage");
 					            }
 				        });	
                 		displayMessage("Viewers configuration saved succesfully!", "infoMessage")  
                 	}
                 } ,
-                error: function(r) {
+                error: function() {
                     displayMessage("Error during saving configuration.", "errorMessage");
                 }
             }); 
@@ -717,12 +721,11 @@ function savePortletParams() {
 }
 
 /*
- * Receive as input the portlet id and the index of the portlet in the currently
- * selected tab. 
+ * Receive as input the index of a portlet in the currently selected tab.
  * Update the indexInTab variable.
  * Then get the configurable interface for the portlet.
  */
-function showPortletParametersPage(portlet_id, tabIdx) {
+function showPortletParametersPage(tabIdx) {
 	
 	// The tabIdx received is just a relative number (the n-th portlet in this tab)
 	// but the configuration stored is in the form [ [id, name], [-1, None], [-1, None], [id, name]]
@@ -740,13 +743,14 @@ function showPortletParametersPage(portlet_id, tabIdx) {
 	$.ajax({  	type: "GET", 
 				url: '/burst/get_portlet_configurable_interface/' + indexInTab,
                 success: function(r) {
-                	$("#portlet-param-config").empty();
-                	$("#portlet-param-config").append(r);
+                    var portletElem = $("#portlet-param-config");
+                	portletElem.empty();
+                	portletElem.append(r);
                 	$("#portlets-display").hide();
-					$("#portlet-param-config").show();    
+					portletElem.show();
 					updatePortletsToolbar(2);
                 } ,
-                error: function(r) {
+                error: function() {
                     displayMessage("View configuration was not property loaded...", "errorMessage");
                 }
             });	
@@ -766,7 +770,7 @@ function returnToSessionPortletConfiguration() {
 	            success: function(r) {
 	                	selectedPortlets = $.parseJSON(r);                  
 	            } ,
-	            error: function(r) {
+	            error: function() {
 	                    displayMessage("Error during retrieving viewer configuration.", "errorMessage");
 	            }
 	     });	
@@ -806,7 +810,7 @@ function checkIfPortletDone(portlet_element_id, timedSelectedTab, timedTabIndex)
 			                	} 
 		                	}
 		                } ,
-		                error: function(x, e) {
+		                error: function() {
 			                displayMessage("Error during retrieving viewer configuration.", "errorMessage");
 			            }
 			   });
@@ -814,7 +818,7 @@ function checkIfPortletDone(portlet_element_id, timedSelectedTab, timedTabIndex)
 	}
 
 function _setPortletRefreshTimeouts() {
-	var runningPortlets = $("input[id^='running-portlet-']").each(function () {
+	$("input[id^='running-portlet-']").each(function () {
 			var parent_div_id = 'portlet-view-'+$(this).val();
 			var tabIndex = $(this)[0].id.replace('running-portlet-', '');
 			var timeout = setTimeout("checkIfPortletDone('" + parent_div_id + "', " + selectedTab + ", " + tabIndex + ")", 3000);
@@ -835,21 +839,20 @@ function changeBurstTile(selectedHref) {
 	
 	_clearAllTimeouts();
 	$("#div-burst-tree").hide();
-	$("#section-portlets-ul li").each(function (listItem) {
+	$("#section-portlets-ul").find("li").each(function () {
 			$(this).removeClass('active');
 		});
-	prev_class = selectedHref.parentElement.className;
+	var prev_class = selectedHref.parentElement.className;
 	selectedHref.parentElement.className = prev_class + ' active';
 	// Refresh buttons
 	returnToSessionPortletConfiguration();
 	// First update with the value stored in the input fields
 	if (selectedTab >=0) {
 		for (var i = 0; i < selectedPortlets[0].length; i++) {
-			var value = document.getElementById('portlet-name_entry-' + i).value;
-			selectedPortlets[selectedTab][i][1] = value;
+            selectedPortlets[selectedTab][i][1] = document.getElementById('portlet-name_entry-' + i).value;
 		}
 	}
-	selectedTab = selectedHref.id.split('_')[1];;
+	selectedTab = selectedHref.id.split('_')[1];
 	// Also update selected tab on cherryPy session.
 	$.ajax({  	type: "POST",
 				async: false, 
@@ -865,7 +868,7 @@ function changeBurstTile(selectedHref) {
 			// If we are in display phase, depending on the condition that this is a new burst or a loaded one, take the corresponding action.
 			setPortletsStaticPreviews();				
 		} else {
-			var sectionPortlets = $("#section-portlets")[0]
+			var sectionPortlets = $("#section-portlets")[0];
 			var width = sectionPortlets.clientWidth;
 			var height = sectionPortlets.clientHeight;
 			$.ajax({  	
@@ -875,7 +878,7 @@ function changeBurstTile(selectedHref) {
 					$("#portlets-display").replaceWith(r);
 					_setPortletRefreshTimeouts();
 	            } ,
-	            error: function(r) {
+	            error: function() {
 	                displayMessage("Visualizers selection was not properly saved.", "errorMessage");
 	            }
        		});
@@ -893,10 +896,10 @@ function displayBurstTree(selectedHref, selectedProjectID, baseURL) {
 	returnToSessionPortletConfiguration();
 	
 	updatePortletsToolbar(0);
-	$("#section-portlets-ul li").each(function (listItem) {
+	$("#section-portlets-ul").find("li").each(function () {
 			$(this).removeClass('active');
 		});
-	prev_class = selectedHref.parentElement.className;
+	var prev_class = selectedHref.parentElement.className;
 	selectedHref.parentElement.className = prev_class + ' active';
 	// Also update selected tab on cherryPy session.
 	$.ajax({  	type: "POST",
@@ -906,7 +909,7 @@ function displayBurstTree(selectedHref, selectedProjectID, baseURL) {
 	            error: function(r) {}
         	});
 	var filterValue = {'type' : 'from_burst', 'value' : sessionStoredBurst.id};
-	if (filterValue == '') {
+	if (filterValue.value == '') {
 		filterValue = {'type' : 'from_burst', 'value' : "0"};
 	}
     updateTree(selectedProjectID, baseURL, JSON.stringify(filterValue));
@@ -936,7 +939,7 @@ function initBurstConfiguration(sessionPortlets, selectedTab) {
 			        			sessionStoredBurst = clone(EMPTY_BURST);
 			        		}
 	         },
-	         error: function(r) {
+	         error: function() {
 	            displayMessage("Simulator data could not be loaded properly..", "errorMessage");
 	         }
     	});
@@ -980,7 +983,7 @@ function loadBurst(burst_id) {
 	        	var result = $.parseJSON(r);
 	        	selectedTab = result['selected_tab'];
 	        	var groupGID = result['group_gid'];
-				selectedBurst = $("#burst_id_"+burst_id)[0]
+				var selectedBurst = $("#burst_id_" + burst_id)[0]
 				// This is for the back-button issue with Chrome. Should be removed after permanent solution.
 				if (selectedBurst != undefined) {
 					selectedBurst.className = selectedBurst.className + ' ' + ACTIVE_BURST_CLASS;
@@ -1000,10 +1003,11 @@ function loadBurst(burst_id) {
 			    	$("#tab-burst-tree").click();
 			    } else {
 			    	switch_top_level_visibility();
-			    	$("#section-portlets").show();
+                    var sectionPortletsElem = $("#section-portlets");
+			    	sectionPortletsElem.show();
 			    	var portletsDisplay = $("#portlets-display")[0];
 			    	var fullWidth = portletsDisplay.clientWidth;
-					var fullHeight = $("#section-portlets")[0].clientHeight - 95;
+					var fullHeight = sectionPortletsElem[0].clientHeight - 95;
 			    	doAjaxCall({  	
 						type: "POST", 
 						url: '/burst/load_configured_visualizers/' + fullWidth + '/' + fullHeight,
@@ -1015,7 +1019,7 @@ function loadBurst(burst_id) {
 							        success: function(rr) {    
 							        	selectedPortlets = $.parseJSON(rr);
 							        } ,
-							        error: function(rr) {
+							        error: function() {
 							            displayMessage("Viewers not loaded completely...", "errorMessage");
 							        }
 								});
@@ -1023,13 +1027,13 @@ function loadBurst(burst_id) {
 							_setPortletRefreshTimeouts();
 							displayMessage("Simulation successfully loaded!");
 				        } ,
-			        	error: function(r) {
+			        	error: function() {
 			            	displayMessage("Viewers not loaded properly...", "errorMessage");
 			        	}
 					});
 			    }
         	},
-        error: function(r) {
+        error: function() {
             displayMessage("Simulation was not loaded properly...", "errorMessage");
         }
 	});
@@ -1042,7 +1046,7 @@ function loadBurst(burst_id) {
 function setNewBurstActive() {
 	
 	switch_top_level_visibility("#section-portlets");
-	$("#burst-history li").each(function (listItem) {
+	$("#burst-history").find("li").each(function () {
 		$(this).removeClass(ACTIVE_BURST_CLASS);
 		$(this).removeClass(GROUP_BURST_CLASS);
 	});
@@ -1134,7 +1138,7 @@ function launchNewBurst(launchMode) {
 	                		var result = $.parseJSON(r);
 	                		changeBurstHistory(result[0]);
                 } ,
-                error: function(r) {
+                error: function() {
                     		displayMessage("Error when launching simulation. Please check te logs or contact your administrator.", "errorMessage");
                 }
             });	
