@@ -122,8 +122,8 @@ class ZIPConnectivityImporter(ABCSynchronous):
                 weights_matrix = read_list_data(file_name)
                 continue
             if file_name.lower().find(self.POSITION_TOKEN) >= 0:
-                centres = read_list_data(file_name, skiprows=1, usecols=[1, 2, 3])
-                labels_vector = read_list_data(file_name, dtype=numpy.str, skiprows=1, usecols=[0])
+                centres = read_list_data(file_name, usecols=[1, 2, 3])
+                labels_vector = read_list_data(file_name, dtype=numpy.str, usecols=[0])
                 continue
             if file_name.lower().find(self.TRACT_TOKEN) >= 0:
                 tract_matrix = read_list_data(file_name)

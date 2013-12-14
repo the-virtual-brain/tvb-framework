@@ -268,14 +268,21 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         :returns: dictionary {label: value} about an attribute of type mapped.Array
                  Generic information, like Max/Min/Mean/Var are to be retrieved for this array_attr
         """
-        if TVBSettings.TRAITS_CONFIGURATION.use_storage and self.trait.use_storage:
-            summary = self.__get_summary_info(array_name, included_info)
-        else:
-            summary = super(MappedType, self).__get_summary_info(array_name, included_info)
-        ### Before return, prepare names for UI display.
         result = dict()
-        for key, value in summary.iteritems():
-            result[array_name.capitalize().replace("_", " ") + " - " + key] = value
+
+        try:
+            if TVBSettings.TRAITS_CONFIGURATION.use_storage and self.trait.use_storage:
+                summary = self.__get_summary_info(array_name, included_info)
+            else:
+                summary = super(MappedType, self).__get_summary_info(array_name, included_info)
+            ### Before return, prepare names for UI display.
+
+            for key, value in summary.iteritems():
+                result[array_name.capitalize().replace("_", " ") + " - " + key] = value
+
+        except Exception, exc:
+            self.logger.warning(exc)
+
         return result
 
 
