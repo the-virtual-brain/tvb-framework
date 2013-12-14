@@ -84,7 +84,7 @@ function _updatePlotPSE(canvasId, xLabels, yLabels, seriesArray, data_info, min_
     
     _PSE_plot = $.plot($("#" + canvasId), $.parseJSON(seriesArray), $.extend(true, {}, _PSE_plotOptions));
     changeColors();
-    $(".tickLabel").each(function(i) { $(this).css("color", "#000000"); });
+    $(".tickLabel").each(function() { $(this).css("color", "#000000"); });
 
     //if you want to catch the right mouse click you have to change the flot sources
     // because it allows you to catch only "plotclick" and "plothover"
@@ -165,7 +165,7 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson,
 	$('#maxShapeLabel')[0].innerHTML = '<mark>Maximum shape</mark> ' + Math.round(max_size * 1000) / 1000;
 
     // Prepare functions for Export Canvas as Image
-    var canvas = $(".base")[0];
+    var canvas = $("#main_div_pse").find(".flot-base")[0];
     canvas.drawForImageExport = function () {
                 /* this canvas is drawn by FLOT library so resizing it directly has no influence;
                  * therefore, its parent needs resizing before redrawing;
@@ -200,7 +200,7 @@ function PSE_mainDraw(parametersCanvasId, backPage, groupGID) {
 	
 	if (groupGID == undefined) {
 		// We didn't get parameter, so try to get group id from page
-		groupGID = document.getElementById("datatype-group-gid").value
+		groupGID = document.getElementById("datatype-group-gid").value;
 	}
     if (backPage == undefined || backPage == '') {
         backPage = get_URL_param('back_page');
@@ -223,7 +223,7 @@ function PSE_mainDraw(parametersCanvasId, backPage, groupGID) {
             success: function(r) { 
             		$('#' + parametersCanvasId).html(r);
             	},
-            error: function(r) {
+            error: function() {
                 displayMessage("Could not refresh with the new metrics.", "errorMessage");
             }});
 }
@@ -255,29 +255,15 @@ var serverIp = null;
 var serverPort = null;
 var figuresDict = null;
 var currentFigure = null;
-var width = null;
-var height = null;
+
 
 /*
- * If for some reason we change the plot size for one of the images,
- * store it so we can resize all other plots on the onchange event.
+ * Do the actual resize on currentFigure global var, and a given width and height.
  */
-function resizeFigures(newWidth, newHeight) {
-
-	width = newWidth;
-	height = newHeight;
-	resizePlot(currentFigure, width, height);
-}
-
-/*
- * Do the actual resize, given a figure id, width and height.
- */
-function resizePlot(id, width, height) {
+function resizePlot(width, height) {
 
 	if (currentFigure != null) {
-		resize = id;
 	    do_resize(currentFigure, width, height);
-	    resize = -1;
 	}
 }
 
@@ -296,13 +282,16 @@ function initISOData(metric, figDict, servIp, servPort) {
 }
 
 /*
- * On plot change upldate metric and do any required changes liek resize on new selected plot.
+ * On plot change update metric and do any required changes like resize on new selected plot.
  */
 function updateMetric(selectComponent) {
 
 	var newMetric = $(selectComponent).find(':selected').val();
 	showMetric(newMetric);
 	if (width != null && height != null) {
+        var pseElem = $('#section-pse');
+        var width = pseElem.width() - 60;
+        var height = pseElem.height() - 80;
 		waitOnConnection(currentFigure, 'resizePlot(currentFigure, width, height)', 200, 50);
 	}
 }
@@ -351,7 +340,7 @@ function Isocline_MainDraw(groupGID, divId, width, height) {
             success: function(r) {
                     $('#' + divId).html(r);
                 },
-            error: function(r) {
+            error: function() {
                 displayMessage("Could not refresh with the new metrics.", "errorMessage");
 	}});
 }

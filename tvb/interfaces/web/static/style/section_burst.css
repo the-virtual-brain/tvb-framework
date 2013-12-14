@@ -652,3 +652,8 @@ ul#portlets-toolbar li a.hideable.action {
 .pse-incompatible h3 {
     margin-bottom: 10px;
 }
+
+.pse-graph-title {
+    color: #646a6f;
+    text-transform: uppercase;
+}

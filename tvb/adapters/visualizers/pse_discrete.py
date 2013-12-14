@@ -109,9 +109,12 @@ class DiscretePSEAdapter(ABCDisplayer):
         if contains_numbers is None:
             return None, range_values, range_values
 
-        range_labels = []
-        if not contains_numbers:
+
+        if contains_numbers:
+            range_labels = range_values
+        else:
             # when datatypes are in range, get the display name for those and use as labels.
+            range_labels = []
             for data_gid in range_values:
                 range_labels.append(dao.get_datatype_by_gid(data_gid).display_name)
 
@@ -141,8 +144,8 @@ class DiscretePSEAdapter(ABCDisplayer):
         range1_name, range1_values, range1_labels = DiscretePSEAdapter.prepare_range_labels(operation_group, operation_group.range1)
         range2_name, range2_values, range2_labels = DiscretePSEAdapter.prepare_range_labels(operation_group, operation_group.range2)
 
-        pse_context = ContextDiscretePSE(datatype_group_gid, range1_values, range1_labels, range2_values, range2_labels,
-                                         color_metric, size_metric, back_page)
+        pse_context = ContextDiscretePSE(datatype_group_gid, color_metric, size_metric, back_page)
+        pse_context.setRanges(range1_name, range1_values, range1_labels, range2_name, range2_values, range2_labels)
         final_dict = dict()
         operations = dao.get_operations_in_group(operation_group.id)
 

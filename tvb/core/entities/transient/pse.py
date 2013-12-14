@@ -55,9 +55,10 @@ class ContextDiscretePSE(EnhancedDictionary):
     LINE_SEPARATOR = "<br/>"
     
     
-    def __init__(self, datatype_group_gid, values_x, labels_x, values_y, labels_y,
-                 color_metric, size_metric, back_page):
+    def __init__(self, datatype_group_gid, color_metric, size_metric, back_page):
+
         super(ContextDiscretePSE, self).__init__()
+
         self.datatype_group_gid = datatype_group_gid
         self.min_color = sys.float_info.max
         self.max_color = sys.float_info.min
@@ -65,16 +66,25 @@ class ContextDiscretePSE(EnhancedDictionary):
         self.max_shape_size_weight = sys.float_info.min
         self.has_started_ops = False
         self.status = 'started'
-        self.values_x = values_x
-        self.labels_x = labels_x
-        self.values_y = values_y
-        self.labels_y = labels_y
+        self.title_x, self.title_y = "", ""
+        self.values_x, self.labels_x, self.values_y, self.labels_y = [], [], [], []
         self.series_array, self.data, self.available_metrics = [], [], []
         self.datatypes_dict = {}
         self.color_metric = color_metric
         self.size_metric = size_metric
         self.pse_back_page = back_page
-    
+
+
+    def setRanges(self, title_x, values_x, labels_x, title_y, values_y, labels_y):
+
+        self.title_x = title_x
+        self.values_x = values_x
+        self.labels_x = labels_x
+
+        self.title_y = title_y
+        self.values_y = values_y
+        self.labels_y = labels_y
+
         
     def prepare_individual_jsons(self):
         """

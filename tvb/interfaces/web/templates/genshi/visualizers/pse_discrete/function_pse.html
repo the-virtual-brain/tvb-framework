@@ -57,6 +57,9 @@
 		<li>
 		    <label id="maxShapeLabel"></label>
 		</li>
+        <li>
+            <label class="pse-graph-title"><mark>Axe Y - axe X</mark> $title_y  -  $title_x</label>
+        </li>
 	</ul>
    	
 	<input type="hidden" id="datatype-group-gid" value="$dataTypeGroupGID"/>
@@ -68,7 +71,7 @@
     	$(document).ready(function() {
     		PSEDiscreteInitialize('${labels_x}', '${labels_y}', '${series_array}', '${data}', '${pse_back_page}',
                                 '${min_color}', '${max_color}', '${min_shape_size_weight}', '${max_shape_size_weight}');
-            window.onresize = function(event) { redrawPlot('main_div_pse'); };
+            window.onresize = function() { redrawPlot('main_div_pse'); };
 		});
     </script>
 
