@@ -96,7 +96,10 @@ class PhasePlaneInteractive(object):
         self.log.info(msg % model_name)
 
         self.svx = self.model.state_variables[0]  # x-axis: 1st state variable
-        self.svy = self.model.state_variables[1]  # y-axis: 2nd state variable
+        if self.model.nvar > 1:
+            self.svy = self.model.state_variables[1]  # y-axis: 2nd state variable
+        else:
+            self.svy = self.model.state_variables[0]
         self.mode = 0
 
         self._set_state_vector()
