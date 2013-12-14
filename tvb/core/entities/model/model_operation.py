@@ -272,15 +272,15 @@ class OperationGroup(Base, Exportable):
         loaded_json = json.loads(range_value)
         range_name = loaded_json[0]
         range_values = loaded_json[1]
-        can_interpolate_range = True  # Assume this is a numeric range that we can interpolate
+        are_all_numbers = True  # Assume this is a numeric range that we can interpolate
         for idx, entry in enumerate(range_values):
             try:
                 range_values[idx] = float(entry)
             except ValueError:
                 # It's a DataType range
-                can_interpolate_range = False
+                are_all_numbers = False
                 range_values[idx] = entry
-        return can_interpolate_range, range_name, range_values
+        return are_all_numbers, range_name, range_values
 
 
     @property

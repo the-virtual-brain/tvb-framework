@@ -192,6 +192,7 @@ class DataTypeGroup(DataType):
     id = Column('id', Integer, ForeignKey('DATA_TYPES.id', ondelete="CASCADE"), primary_key=True)
     count_results = Column(Integer)
     no_of_ranges = Column(Integer, default=0)               # Number of ranged parameters
+    # Deprecated field only_numeric_ranges, it will get removed soon:
     only_numeric_ranges = Column(Boolean, default=False)    # True when no DataType was ranged
     fk_operation_group = Column(Integer, ForeignKey('OPERATION_GROUPS.id', ondelete="CASCADE"))
 

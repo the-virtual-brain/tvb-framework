@@ -77,9 +77,8 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
                  'label': 'Datatype Group',
                  'type': model.DataTypeGroup,
                  'required': True,
-                 'conditions': FilterChain(fields=[FilterChain.datatype + ".no_of_ranges",
-                                                   FilterChain.datatype + ".only_numeric_ranges"],
-                                           operations=["==", "=="], values=[2, True])}]
+                 'conditions': FilterChain(fields=[FilterChain.datatype + ".no_of_ranges"],
+                                           operations=["=="], values=[2])}]
 
 
     def get_required_memory_size(self, **kwargs):
@@ -119,8 +118,8 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
             figsize = (15, 7)
 
         operation_group = dao.get_operationgroup_by_id(datatype_group.fk_operation_group)
-        _, range1_name, self.range1 = operation_group.load_range_numbers(operation_group.range1)
-        _, range2_name, self.range2 = operation_group.load_range_numbers(operation_group.range2)
+        self.all_numbers_range1, range1_name, self.range1 = operation_group.load_range_numbers(operation_group.range1)
+        self.all_numbers_range2, range2_name, self.range2 = operation_group.load_range_numbers(operation_group.range2)
 
         for operation in dao.get_operations_in_group(operation_group.id):
             if operation.status == model.STATUS_STARTED:
@@ -163,8 +162,8 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         """
         operations = dao.get_operations_in_group(operation_group.id)
         # Data from which to interpolate larger 2-D space
-        apriori_x = numpy.array(self.range1)
-        apriori_y = numpy.array(self.range2)
+        apriori_x = self._prepare_axes(self.range1, self.all_numbers_range1)
+        apriori_y = self._prepare_axes(self.range2, self.all_numbers_range2)
         apriori_data = numpy.zeros((apriori_x.size, apriori_y.size))
 
         # An 2D array of GIDs which is used later to launch overlay for a DataType
@@ -207,10 +206,10 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         kx = ky = 1
         s = interpolate.RectBivariateSpline(apriori_x, apriori_y, apriori_data, kx=kx, ky=ky)
         # Get data of higher resolution that we'll plot later on
-        posteriori_x = numpy.arange(self.range1[0], self.range1[-1],
-                                    (self.range1[-1] - self.range1[0]) / RESOLUTION[0])
-        posteriori_y = numpy.arange(self.range2[0], self.range2[-1],
-                                    (self.range2[-1] - self.range2[0]) / RESOLUTION[1])
+        posteriori_x = numpy.arange(apriori_x[0], apriori_x[-1],
+                                    float(apriori_x[-1] - apriori_x[0]) / RESOLUTION[0])
+        posteriori_y = numpy.arange(apriori_y[0], apriori_y[-1],
+                                    float(apriori_y[-1] - apriori_y[0]) / RESOLUTION[1])
         posteriori_data = s(posteriori_x, posteriori_y)
         x_granularity = RESOLUTION[0] / len(self.range1)
         y_granularity = RESOLUTION[1] / len(self.range2)
@@ -234,8 +233,8 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
         self.interp_models[figure.number] = s
         # Do actual plot.        
         axes = figure.gca()
-        img = axes.imshow(posteriori_data, extent=(min(self.range1), max(self.range1),
-                                                   min(self.range2), max(self.range2)),
+        img = axes.imshow(posteriori_data, extent=(min(apriori_x), max(apriori_x),
+                                                   min(apriori_y), max(apriori_y)),
                           aspect='auto', interpolation='bilinear')
         axes.set_title("Interpolated values for metric %s" % (metric,))
         figure.colorbar(img)
@@ -249,6 +248,16 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
 
         axes.format_coord = format_coord
         return datatypes_gids
+
+
+    def _prepare_axes(self, original_range_values, is_numbers):
+
+        result = numpy.array(original_range_values)
+
+        if not is_numbers:
+            result = numpy.arange(len(original_range_values))
+
+        return result
 
 
     def _create_plot(self, metric, figsize, operation_group, range1_name, range2_name, figure_nrs):
