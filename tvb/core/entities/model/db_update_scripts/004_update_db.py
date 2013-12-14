@@ -67,7 +67,7 @@ def upgrade(migrate_engine):
         for group in previous_groups:
 
             operation_group = dao.get_operationgroup_by_id(group.fk_operation_group)
-            group.only_numeric_ranges = operation_group.has_only_numeric_ranges
+            #group.only_numeric_ranges = operation_group.has_only_numeric_ranges
 
             if operation_group.range3 is not None:
                 group.no_of_ranges = 3
@@ -100,7 +100,7 @@ def upgrade(migrate_engine):
 
     try:
         session = SA_SESSIONMAKER()
-        for sim_state in session.query(SimulationState).filter(SimulationState.fk_datatype_group != None).all():
+        for sim_state in session.query(SimulationState).filter(SimulationState.fk_datatype_group is not None).all():
             session.delete(sim_state)
         session.commit()
         session.close()

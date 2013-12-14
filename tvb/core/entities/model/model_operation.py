@@ -283,21 +283,6 @@ class OperationGroup(Base, Exportable):
         return are_all_numbers, range_name, range_values
 
 
-    @property
-    def has_only_numeric_ranges(self):
-        """
-        :returns: True when all range fields are either None or could be parsed into a numeric array.
-        """
-        is_numeric = [self.load_range_numbers(self.range1)[0],
-                      self.load_range_numbers(self.range2)[0],
-                      self.load_range_numbers(self.range3)[0]]
-
-        for num in is_numeric:
-            if num is False:
-                return False
-        return True
-
-
 
 #Possible values for Operation.status field
 STATUS_STARTED = "3-STARTED"

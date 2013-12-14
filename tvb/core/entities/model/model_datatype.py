@@ -192,8 +192,6 @@ class DataTypeGroup(DataType):
     id = Column('id', Integer, ForeignKey('DATA_TYPES.id', ondelete="CASCADE"), primary_key=True)
     count_results = Column(Integer)
     no_of_ranges = Column(Integer, default=0)               # Number of ranged parameters
-    # Deprecated field only_numeric_ranges, it will get removed soon:
-    only_numeric_ranges = Column(Boolean, default=False)    # True when no DataType was ranged
     fk_operation_group = Column(Integer, ForeignKey('OPERATION_GROUPS.id', ondelete="CASCADE"))
 
     parent_operation_group = relationship(OperationGroup, backref=backref("DATA_TYPES_GROUPS", cascade="delete"))
@@ -204,7 +202,6 @@ class DataTypeGroup(DataType):
         super(DataTypeGroup, self).__init__(**kwargs)
 
         self.fk_operation_group = operation_group.id
-        self.only_numeric_ranges = operation_group.has_only_numeric_ranges
 
         if operation_group.range3 is not None:
             self.no_of_ranges = 3
