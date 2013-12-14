@@ -238,6 +238,9 @@ function GFUNC_addNodeToNodesWithPositiveWeight(selectedNodeIndex) {
     }
 }
 
+/**
+ * @return {boolean}
+ */
 function GFUNC_isIndexInNodesWithPositiveWeight(nodeIndex) {
     var elemIdx = $.inArray(nodeIndex, GVAR_connectivityNodesWithPositiveWeight);
     return elemIdx != -1;
@@ -263,6 +266,9 @@ function GFUNC_addNodeToInterestArea(selectedNodeIndex) {
     }
 }
 
+/**
+ * @return {boolean}
+ */
 function GFUNC_isNodeAddedToInterestArea(nodeIndex) {
     var elemIdx = $.inArray(nodeIndex, GVAR_interestAreaNodeIndexes);
     return elemIdx != -1;
@@ -303,7 +309,7 @@ function GFUNC_doSelectionSave() {
                 	}
                     
                 } ,
-                error: function(r) {
+                error: function() {
                     displayMessage("Selection was not saved properly.", "errorMessage");
                 }
             });		
@@ -318,8 +324,8 @@ function GFUNC_refreshWithNewSelection(selectComp) {
 	for (var i = 0; i < NO_POSITIONS; i++) {
         GFUNC_removeNodeFromInterestArea(i);
 	}
-	for (var i = 0; i < selectionNodes.length; i++) {
-		var idx = GVAR_pointsLabels.indexOf(selectionNodes[i]);
+	for (var ii = 0; ii < selectionNodes.length; ii++) {
+		var idx = GVAR_pointsLabels.indexOf(selectionNodes[ii]);
 		if (idx >= 0) {
 			GFUNC_addNodeToInterestArea(idx);				
 		}
@@ -385,11 +391,11 @@ var GVAR_interestAreaVariables = {
 };
 
 function hideRightSideTabs(selectedHref) {
-	$(".matrix-switcher li").each(function (listItem){
+	$(".matrix-switcher li").each(function (){
 		$(this).removeClass('active');
 	});
 	selectedHref.parentElement.className = 'active';
-	$(".matrix-viewer").each(function (divElem) {
+	$(".matrix-viewer").each(function () {
 		$(this).hide();
 	});
 }
@@ -441,16 +447,16 @@ function GFUNC_refreshOnContextChange() {
 	 GFUNC_updateLeftSideVisualization();
 	 var selection_button = $("#save-selection-button");
 	 selection_button.unbind('click');
-	 selection_button.bind('click', function(event) {GFUNC_doSelectionSave()});
+	 selection_button.bind('click', function() {GFUNC_doSelectionSave()});
 	 selection_button.removeClass('action-idle');
 }
 
 function hideLeftSideTabs(selectedHref) {
-	$(".view-switcher li").each(function (listItem) {
+	$(".view-switcher li").each(function () {
 		$(this).removeClass('active');
 	});
 	selectedHref.parentElement.className = 'active';
-	$(".monitor-container").each(function (divMonitor) {
+	$(".monitor-container").each(function () {
 		$(this).hide();
         $(this).find('canvas').each(function () {
             if (this.drawForImageExport)            // remove redrawing method such that only current view is exported

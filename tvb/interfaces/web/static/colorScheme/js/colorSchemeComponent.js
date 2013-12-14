@@ -151,7 +151,12 @@ function ColSch_setColorScheme(scheme) {
 function ColSch_initColorSchemeParams(minValue, maxValue, refreshFunction) {
     _refreshCallback = refreshFunction;
     // initialise the linear params
-    $("#rangerForLinearColSch").slider({
+    var elemSliderSelector = $("#rangerForLinearColSch");
+    if (elemSliderSelector.length < 1){
+        displayMessage("Color scheme component not found for initialization...", "warningMessage");
+        return;
+    }
+    elemSliderSelector.slider({
         range: true, min: minValue, max: maxValue, step: 0.001,
         values: [minValue, maxValue],
         slide: function(event, ui) {                            // update the UI
