@@ -50,7 +50,7 @@ class ZIPConnectivityImporter(ABCSynchronous):
     _ui_description = "Import a Connectivity from ZIP"
     
     WEIGHT_TOKEN = "weight"
-    POSITION_TOKEN = "position"
+    CENTRES_TOKEN = "centres"
     TRACT_TOKEN = "tract"
     ORIENTATION_TOKEN = "orientation"
     AREA_TOKEN = "area"
@@ -121,7 +121,7 @@ class ZIPConnectivityImporter(ABCSynchronous):
             if file_name.lower().find(self.WEIGHT_TOKEN) >= 0:
                 weights_matrix = read_list_data(file_name)
                 continue
-            if file_name.lower().find(self.POSITION_TOKEN) >= 0:
+            if file_name.lower().find(self.CENTRES_TOKEN) >= 0:
                 centres = read_list_data(file_name, usecols=[1, 2, 3])
                 labels_vector = read_list_data(file_name, dtype=numpy.str, usecols=[0])
                 continue
