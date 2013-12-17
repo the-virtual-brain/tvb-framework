@@ -50,9 +50,19 @@ class GIFTISurfaceImporter(ABCSynchronous):
         """
             Take as input a .GII file.
         """
-        return [{'name': 'data_file', 'type': 'upload', 
+        return [{'name': 'file_type', 'type': 'select',
+                 'label': 'Specify file type : ', 'required': True,
+                 'options': [{'name': 'Specified in the file metadata', 'value': 'ReadFromMeta'},
+                             {'name': 'Cortex', 'value': 'Cortex'},
+                             {'name': 'Head', 'value': 'Head'}],
+                 'default':'ReadFromMeta'},
+                {'name': 'data_file', 'type': 'upload',
                  'required_type': '',
-                 'label': 'Please select file to import (.gii)', 'required': True}]
+                 'label': 'Please select file to import (.gii)', 'required': True},
+                {'name': 'data_file_part2', 'type': 'upload',
+                 'required_type': '',
+                 'label': 'Please select part 2 of the file to import (.gii)', 'required': False},
+                ]
         
         
     def get_output(self):
@@ -73,14 +83,15 @@ class GIFTISurfaceImporter(ABCSynchronous):
         return 0
 
 
-    def launch(self, data_file):
+    def launch(self, file_type, data_file, data_file_part2):
         """
             Execute import operations: 
         """
         parser = GIFTIParser(self.storage_path, self.operation_id)
         try:
-            surface = parser.parse(data_file)
-
+            if file_type == 'ReadFromMeta':
+                file_type = None
+            surface = parser.parse(data_file, data_file_part2, file_type)
             return [surface]             
         except ParseException, excep:
             logger = get_logger(__name__)
