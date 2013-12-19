@@ -36,17 +36,17 @@
 import os
 import csv
 import numpy
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.basic.traits.util import read_list_data
 from tvb.basic.logger.builder import get_logger
 from tvb.core.utils import store_list_data
 from tvb.datatypes.connectivity import Connectivity
-from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.files_helper import FilesHelper
 import demo_data.connectivity
 
 
-class CSVConnectivityImporter(ABCSynchronous):
+class CSVConnectivityImporter(ABCUploader):
     """
     Handler for uploading a Connectivity archive, with files holding 
     text export of connectivity data from Numpy arrays.
@@ -60,15 +60,14 @@ class CSVConnectivityImporter(ABCSynchronous):
 
 
     def __init__(self):
-        ABCSynchronous.__init__(self)
+        ABCUploader.__init__(self)
         self.logger = get_logger(self.__class__.__module__)
         folder_default_data = os.path.dirname(demo_data.connectivity.__file__)
         file_order = os.path.join(folder_default_data, self.FILE_NODES_ORDER)
         self.expected_nodes_order = read_list_data(file_order, dtype=numpy.int32, usecols=[0])
 
     
-    
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """
         Take as input a ZIP archive.
         """
@@ -81,22 +80,6 @@ class CSVConnectivityImporter(ABCSynchronous):
     def get_output(self):
         return [Connectivity]
     
-    
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-
-
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
-
-
     def _process_csv_file(self, csv_file, result_file):
         """
         Read a CSV file, arrange rows/columns in the correct order,

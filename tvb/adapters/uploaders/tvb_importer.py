@@ -35,7 +35,7 @@
 import os
 import zipfile
 import shutil
-from tvb.core.adapters.abcadapter import ABCSynchronous
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.services.import_service import ImportService
 from tvb.core.entities.storage import dao
@@ -44,7 +44,7 @@ from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.files_update_manager import FilesUpdateManager
 
 
-class TVBImporter(ABCSynchronous):
+class TVBImporter(ABCUploader):
     """
     This importer is responsible for loading of data types exported from other systems
     in TVB format (simple H5 file or ZIP file containing multiple H5 files)
@@ -54,7 +54,7 @@ class TVBImporter(ABCSynchronous):
     _ui_description = "Upload H5 file with TVB generic entity"
     
     
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """
             Take as input a ZIP archive or H5 file.
         """
@@ -65,28 +65,12 @@ class TVBImporter(ABCSynchronous):
     def get_output(self):
         return []
 
-
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        #We can not estimate how much memory is needed.
-        return -1
-
-    
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
-
-
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
         """
         Overwrite method in order to return the correct number of stored datatypes.
         """
         self.nr_of_datatypes = 0
-        msg, _ = ABCSynchronous._prelaunch(self, operation, uid=None, **kwargs)
+        msg, _ = ABCUploader._prelaunch(self, operation, uid=None, **kwargs)
         return msg, self.nr_of_datatypes
     
 

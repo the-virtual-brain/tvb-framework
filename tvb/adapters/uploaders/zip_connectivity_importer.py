@@ -31,8 +31,8 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 
-from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.basic.traits.util import read_list_data
 from tvb.datatypes.connectivity import Connectivity
@@ -40,7 +40,7 @@ from tvb.core.adapters.exceptions import LaunchException
 import numpy
 
 
-class ZIPConnectivityImporter(ABCSynchronous):
+class ZIPConnectivityImporter(ABCUploader):
     """
     Handler for uploading a Connectivity archive, with files holding 
     text export of connectivity data from Numpy arrays.
@@ -57,11 +57,8 @@ class ZIPConnectivityImporter(ABCSynchronous):
     CORTICAL_INFO = "cortical"
     HEMISPHERE_INFO = "hemisphere"
             
-    def __init__(self):
-        ABCSynchronous.__init__(self)
-    
-    
-    def get_input_tree(self):
+
+    def get_upload_input_tree(self):
         """
         Take as input a ZIP archive.
         """
@@ -75,20 +72,6 @@ class ZIPConnectivityImporter(ABCSynchronous):
     def get_output(self):
         return [Connectivity]
     
-    
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-    
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
-
     def launch(self, uploaded, rotate_x=0, rotate_y=0, rotate_z=0):
         """
         Execute import operations: unpack ZIP and build Connectivity object as result.

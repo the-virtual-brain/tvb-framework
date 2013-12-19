@@ -35,13 +35,14 @@ Created on Jan 22, 2013
 """
 
 import numpy
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.datatypes.lookup_tables import LookUpTable, PsiTable, NerfTable
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.logger.builder import get_logger
 
 
-class LookupTableImporter(ABCSynchronous):
+class LookupTableImporter(ABCUploader):
 
     _ui_name = "Lookup Table"
     _ui_subsection = "lookup_table_importer"
@@ -49,12 +50,10 @@ class LookupTableImporter(ABCSynchronous):
     
     PSI_TABLE = 'Psi Table'
     NERF_TABLE = 'Nerf Table'
-    
-    def __init__(self):
-        ABCSynchronous.__init__(self)
-        self.logger = get_logger(self.__class__.__module__)
+    logger = get_logger(__name__)
 
-    def get_input_tree(self):
+
+    def get_upload_input_tree(self):
         """
         Define input parameters for this importer.
         """
@@ -71,19 +70,6 @@ class LookupTableImporter(ABCSynchronous):
     def get_output(self):
         return [LookUpTable]
 
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-    
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
-    
     def launch(self, psi_table_file, table_type):
         """
         Created required sensors from the uploaded file.
@@ -98,27 +84,20 @@ class LookupTableImporter(ABCSynchronous):
         
         if table_type == self.PSI_TABLE:
             table_inst = PsiTable()
-            table_inst.storage_path = self.storage_path
-            table_inst.xmin = numpy.array(table_data['min_max'][0] if table_data is not None else [])
-            table_inst.xmax = numpy.array(table_data['min_max'][1] if table_data is not None else [])
-            table_inst.data = numpy.array(table_data['f'] if table_data is not None else [])
-            table_inst.number_of_values = table_data['f'].shape[0] if table_data is not None else 0
-            table_inst.df = numpy.array(table_data['df'] if table_data is not None else [])
-            table_inst.dx = numpy.array(float(table_inst.xmax - table_inst.xmin) / table_inst.number_of_values)
-            table_inst.invdx = numpy.array(1 / table_inst.dx)
         elif table_type == self.NERF_TABLE:
             table_inst = NerfTable()
-            table_inst.storage_path = self.storage_path
-            table_inst.xmin = numpy.array(table_data['min_max'][0] if table_data is not None else [])
-            table_inst.xmax = numpy.array(table_data['min_max'][1] if table_data is not None else [])
-            table_inst.data = numpy.array(table_data['f'] if table_data is not None else [])
-            table_inst.number_of_values = table_data['f'].shape[0] if table_data is not None else 0
-            table_inst.df = numpy.array(table_data['df'] if table_data is not None else [])
-            table_inst.dx = numpy.array(float(table_inst.xmax - table_inst.xmin) / table_inst.number_of_values)
-            table_inst.invdx = numpy.array(1 / table_inst.dx)
         else:
             raise LaunchException("Could not determine table type from selected option %s" % table_type)
-        
+
+        table_inst.storage_path = self.storage_path
+        table_inst.xmin = numpy.array(table_data['min_max'][0] if table_data is not None else [])
+        table_inst.xmax = numpy.array(table_data['min_max'][1] if table_data is not None else [])
+        table_inst.data = numpy.array(table_data['f'] if table_data is not None else [])
+        table_inst.number_of_values = table_data['f'].shape[0] if table_data is not None else 0
+        table_inst.df = numpy.array(table_data['df'] if table_data is not None else [])
+        table_inst.dx = numpy.array(float(table_inst.xmax - table_inst.xmin) / table_inst.number_of_values)
+        table_inst.invdx = numpy.array(1 / table_inst.dx)
+
         return [table_inst]
     
     

@@ -38,6 +38,7 @@ import cStringIO
 from zipfile import ZipFile, ZIP_DEFLATED
 from cfflib import load
 from tempfile import gettempdir
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.storage import dao, transactional
 from tvb.core.adapters.abcadapter import ABCSynchronous
@@ -51,7 +52,7 @@ LOGGER = get_logger(__name__)
 
 
 
-class CFF_Importer(ABCSynchronous):
+class CFF_Importer(ABCUploader):
     """
     Upload Connectivity Matrix from a CFF archive.
     """
@@ -60,11 +61,7 @@ class CFF_Importer(ABCSynchronous):
     _ui_description = "Import from CFF archive one or multiple datatypes."
 
 
-    def __init__(self):
-        ABCSynchronous.__init__(self)
-
-
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """
         Define as input parameter, a CFF archive.
         """
@@ -82,23 +79,8 @@ class CFF_Importer(ABCSynchronous):
         Overwrite method in order to return the correct number of stored dataTypes.
         """
         self.nr_of_datatypes = 0
-        msg, _ = ABCSynchronous._prelaunch(self, operation, uid=None, **kwargs)
+        msg, _ = ABCUploader._prelaunch(self, operation, uid=None, **kwargs)
         return msg, self.nr_of_datatypes
-
-
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-
-
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter. (in kB)
-        """
-        return 0
 
 
     @transactional

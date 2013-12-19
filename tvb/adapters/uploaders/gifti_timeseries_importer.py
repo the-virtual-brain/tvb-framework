@@ -30,7 +30,7 @@
 """
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
-from tvb.core.adapters.abcadapter import ABCSynchronous
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.core.adapters.exceptions import LaunchException, ParseException
 from tvb.adapters.uploaders.gifti.gifti_parser import GIFTIParser
 from tvb.basic.logger.builder import get_logger
@@ -38,7 +38,7 @@ from tvb.datatypes.time_series import TimeSeriesSurface
 from tvb.datatypes.surfaces import CorticalSurface
 
 
-class GIFTITimeSeriesImporter(ABCSynchronous):
+class GIFTITimeSeriesImporter(ABCUploader):
     """
         This importer is responsible for import of a TimeSeries from GIFTI format (XML file)
         and store them in TVB.
@@ -47,7 +47,7 @@ class GIFTITimeSeriesImporter(ABCSynchronous):
     _ui_subsection = "gifti_timeseries_importer"
     _ui_description = "Import TimeSeries from GIFTI"
     
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """
             Take as input a .GII file.
         """
@@ -61,20 +61,6 @@ class GIFTITimeSeriesImporter(ABCSynchronous):
         
     def get_output(self):
         return [TimeSeriesSurface]
-    
-
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-    
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
 
     def launch(self, data_file, surface=None):
         """

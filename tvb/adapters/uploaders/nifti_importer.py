@@ -30,7 +30,7 @@
 """
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
-from tvb.core.adapters.abcadapter import ABCSynchronous
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.adapters.uploaders.nifti.nifti_parser import NIFTIParser
 from tvb.basic.logger.builder import get_logger
@@ -40,7 +40,7 @@ from tvb.datatypes.time_series import TimeSeriesVolume
 from tvb.datatypes.volumes import Volume
 
 
-class NIFTIImporter(ABCSynchronous):
+class NIFTIImporter(ABCUploader):
     """
         This importer is responsible for loading of data from NIFTI format (nii or nii.gz files)
         and store them in TVB as TimeSeries.
@@ -49,7 +49,7 @@ class NIFTIImporter(ABCSynchronous):
     _ui_subsection = "nifti_importer"
     _ui_description = "Import TimeSeries Volume from NIFTI"
     
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """
             Take as input a GZ archive or NII file.
         """
@@ -61,20 +61,6 @@ class NIFTIImporter(ABCSynchronous):
     def get_output(self):
         return [Volume, TimeSeriesVolume]
     
-
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-    
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
-
     @transactional
     def launch(self, data_file):
         """

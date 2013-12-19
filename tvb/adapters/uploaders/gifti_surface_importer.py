@@ -32,8 +32,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
-
-from tvb.core.adapters.abcadapter import ABCSynchronous
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.core.adapters.exceptions import LaunchException, ParseException
 from tvb.adapters.uploaders.gifti.gifti_parser import GIFTIParser
 from tvb.adapters.uploaders.gifti.gifti_parser import OPTION_READ_METADATA, OPTION_SURFACE_CORTEX, OPTION_SURFACE_HEAD
@@ -42,7 +41,7 @@ from tvb.datatypes.surfaces import CorticalSurface, SkinAir
 
 
 
-class GIFTISurfaceImporter(ABCSynchronous):
+class GIFTISurfaceImporter(ABCUploader):
     """
     This importer is responsible for import of surface from GIFTI format (XML file)
     and store them in TVB as Surface.
@@ -51,7 +50,7 @@ class GIFTISurfaceImporter(ABCSynchronous):
     _ui_subsection = "gifti_surface_importer"
     _ui_description = "Import a surface from GIFTI"
     
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """
         Take as input a .GII file.
         """
@@ -68,25 +67,10 @@ class GIFTISurfaceImporter(ABCSynchronous):
                 {'name': 'data_file_part2', 'type': 'upload', 'required': False,
                  'label': 'Please select part 2 of the file to import (.gii)'}
                 ]
-        
-        
+
+
     def get_output(self):
         return [CorticalSurface, SkinAir]
-    
-
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-    
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter. (in kB)
-        """
-        return 0
-
 
     def launch(self, file_type, data_file, data_file_part2):
         """

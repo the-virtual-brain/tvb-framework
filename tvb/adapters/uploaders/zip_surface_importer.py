@@ -34,7 +34,7 @@
 """
 
 import numpy
-from tvb.core.adapters.abcadapter import ABCSynchronous
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.surfaces import Surface, CorticalSurface, SkinAir, BrainSkull, SkullSkin, EEGCap, FaceSurface
 from tvb.datatypes.surfaces_data import CORTICAL, OUTER_SKIN, OUTER_SKULL, INNER_SKULL, EEG_CAP, FACE
@@ -43,7 +43,7 @@ from tvb.basic.logger.builder import get_logger
 
 
 
-class ZIPSurfaceImporter(ABCSynchronous):
+class ZIPSurfaceImporter(ABCUploader):
     """
     Handler for uploading a Surface Data archive, with files holding 
     vertices, normals and triangles to represent a surface data.
@@ -57,12 +57,10 @@ class ZIPSurfaceImporter(ABCSynchronous):
     NORMALS_TOKEN = "normals"
     TRIANGLES_TOKEN = "triangles"
         
-    def __init__(self):
-        ABCSynchronous.__init__(self)
-        self.logger = get_logger(self.__class__.__module__)
+    logger = get_logger(__name__)
 
 
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """ Take as input a ZIP archive. """
         return [{'name': 'uploaded', 'type': 'upload', 'required_type': 'application/zip',
                  'label': 'Surface file (zip)', 'required': True},
@@ -78,20 +76,6 @@ class ZIPSurfaceImporter(ABCSynchronous):
         
     def get_output(self):
         return [Surface]
-
-
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        As it is an upload algorithm and we do not have information about data, we can not approximate this.
-        """
-        return -1    
-
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
 
     def launch(self, uploaded, surface_type, zero_based_triangles=False):
         """

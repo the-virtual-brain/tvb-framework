@@ -33,14 +33,14 @@
 """
 
 import numpy
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.datatypes.sensors import Sensors, SensorsEEG, SensorsMEG, SensorsInternal
-from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.traits.util import read_list_data
 from tvb.basic.logger.builder import get_logger
 
 
-class Sensors_Importer(ABCSynchronous):
+class Sensors_Importer(ABCUploader):
     """
     Upload Sensors from a TXT file.
     """ 
@@ -51,12 +51,9 @@ class Sensors_Importer(ABCSynchronous):
     EEG_SENSORS = "EEG Sensors"
     MEG_SENSORS = "MEG sensors"
     INTERNAL_SENSORS = "Internal Sensors"
-         
-    def __init__(self):
-        ABCSynchronous.__init__(self)
-        self.logger = get_logger(self.__class__.__module__)
+    logger = get_logger(__name__)
 
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """
         Define input parameters for this importer.
         """
@@ -75,19 +72,6 @@ class Sensors_Importer(ABCSynchronous):
     def get_output(self):
         return [Sensors]
 
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-    
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
-    
     def launch(self, sensors_file, sensors_type):
         """
         Creates required sensors from the uploaded file.

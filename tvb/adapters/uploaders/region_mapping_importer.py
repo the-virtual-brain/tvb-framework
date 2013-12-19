@@ -37,10 +37,10 @@ import numpy
 import shutil
 import zipfile
 import tempfile
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.traits.util import read_list_data
 from tvb.basic.config.settings import TVBSettings as cfg
-from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.surfaces import RegionMapping, CorticalSurface
@@ -48,19 +48,16 @@ from tvb.datatypes.connectivity import Connectivity
 
 
 
-class RegionMapping_Importer(ABCSynchronous):
+class RegionMapping_Importer(ABCUploader):
     """
     Upload RegionMapping from a TXT, ZIP or BZ2 file.
     """ 
     _ui_name = "RegionMapping"
     _ui_subsection = "region_mapping_importer"
     _ui_description = "Import a Region Mapping (Surface - Connectivity) from TXT/ZIP/BZ2"
-         
-    def __init__(self):
-        ABCSynchronous.__init__(self)
-        self.logger = get_logger(self.__class__.__module__)
+    logger = get_logger(__name__)
 
-    def get_input_tree(self):
+    def get_upload_input_tree(self):
         """
         Define input parameters for this importer.
         """
@@ -80,19 +77,6 @@ class RegionMapping_Importer(ABCSynchronous):
     def get_output(self):
         return [RegionMapping]
 
-    def get_required_memory_size(self, **kwargs):
-        """
-        Return the required memory to run this algorithm.
-        """
-        # Don't know how much memory is needed.
-        return -1
-    
-    def get_required_disk_size(self, **kwargs):
-        """
-        Returns the required disk size to be able to run the adapter.
-        """
-        return 0
-    
     def launch(self, mapping_file, surface, connectivity):
         """
         Creates region mapping from uploaded data.

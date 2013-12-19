@@ -90,23 +90,20 @@ def _create_c_data(file_prefix, src, metadata_dict, fileformat='Other'):
     """
     Creates a CData object from the given parameters
     """
+    if not src:
+        return None
+
     if fileformat == 'NumPy':
-        if src:
-            numpy_data = numpy.loadtxt(src)
-            if not os.path.exists(NUMPY_TEMP_FOLDER):
-                os.makedirs(NUMPY_TEMP_FOLDER)
-            temp_file, uq_name = get_unique_file_name(NUMPY_TEMP_FOLDER, file_prefix + ".npy")
-            numpy.save(temp_file, numpy_data)
-            data = CData(uq_name, temp_file, fileformat='Other')
-            data.update_metadata(metadata_dict)
-        else:
-            data = None
+        numpy_data = numpy.loadtxt(src)
+        if not os.path.exists(NUMPY_TEMP_FOLDER):
+            os.makedirs(NUMPY_TEMP_FOLDER)
+        temp_file, uq_name = get_unique_file_name(NUMPY_TEMP_FOLDER, file_prefix + ".npy")
+        numpy.save(temp_file, numpy_data)
+        data = CData(uq_name, temp_file, fileformat='Other')
     else:
-        if src:
-            data = CData(file_prefix, src, fileformat=fileformat)
-            data.update_metadata(metadata_dict)
-        else:
-            data = None
+        data = CData(file_prefix, src, fileformat=fileformat)
+
+    data.update_metadata(metadata_dict)
     return data
 
 
