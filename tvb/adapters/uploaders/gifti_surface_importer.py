@@ -27,20 +27,25 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
+.. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
+
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException, ParseException
 from tvb.adapters.uploaders.gifti.gifti_parser import GIFTIParser
+from tvb.adapters.uploaders.gifti.gifti_parser import OPTION_READ_METADATA, OPTION_SURFACE_CORTEX, OPTION_SURFACE_HEAD
 from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.surfaces import CorticalSurface, SkinAir
 
 
+
 class GIFTISurfaceImporter(ABCSynchronous):
     """
-        This importer is responsible for import of surface from GIFTI format (XML file)
-        and store them in TVB as Surface.
+    This importer is responsible for import of surface from GIFTI format (XML file)
+    and store them in TVB as Surface.
     """
     _ui_name = "Surface GIFTI"
     _ui_subsection = "gifti_surface_importer"
@@ -48,20 +53,20 @@ class GIFTISurfaceImporter(ABCSynchronous):
     
     def get_input_tree(self):
         """
-            Take as input a .GII file.
+        Take as input a .GII file.
         """
         return [{'name': 'file_type', 'type': 'select',
                  'label': 'Specify file type : ', 'required': True,
-                 'options': [{'name': 'Specified in the file metadata', 'value': 'ReadFromMeta'},
-                             {'name': 'Cortex', 'value': 'Cortex'},
-                             {'name': 'Head', 'value': 'Head'}],
-                 'default':'ReadFromMeta'},
-                {'name': 'data_file', 'type': 'upload',
-                 'required_type': '',
-                 'label': 'Please select file to import (.gii)', 'required': True},
-                {'name': 'data_file_part2', 'type': 'upload',
-                 'required_type': '',
-                 'label': 'Please select part 2 of the file to import (.gii)', 'required': False},
+                 'options': [{'name': 'Specified in the file metadata', 'value': OPTION_READ_METADATA},
+                             {'name': 'Cortex', 'value': OPTION_SURFACE_CORTEX},
+                             {'name': 'Head', 'value': OPTION_SURFACE_HEAD}],
+                 'default': OPTION_READ_METADATA},
+
+                {'name': 'data_file', 'type': 'upload', 'required': True,
+                 'label': 'Please select file to import (.gii)'},
+
+                {'name': 'data_file_part2', 'type': 'upload', 'required': False,
+                 'label': 'Please select part 2 of the file to import (.gii)'}
                 ]
         
         
@@ -85,12 +90,10 @@ class GIFTISurfaceImporter(ABCSynchronous):
 
     def launch(self, file_type, data_file, data_file_part2):
         """
-            Execute import operations: 
+        Execute import operations:
         """
         parser = GIFTIParser(self.storage_path, self.operation_id)
         try:
-            if file_type == 'ReadFromMeta':
-                file_type = None
             surface = parser.parse(data_file, data_file_part2, file_type)
             return [surface]             
         except ParseException, excep:

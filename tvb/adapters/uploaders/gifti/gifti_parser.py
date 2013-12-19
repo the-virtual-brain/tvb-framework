@@ -27,25 +27,33 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
+.. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
+
 import os
 import numpy as np
-from nibabel.nifti1 import intent_codes, data_type_codes
 import nibabel.gifti.giftiio as giftiio
-from tvb.core.adapters.exceptions import ParseException
+from nibabel.nifti1 import intent_codes, data_type_codes
 from tvb.basic.logger.builder import get_logger
+from tvb.core.adapters.exceptions import ParseException
 from tvb.datatypes.surfaces import CorticalSurface, SkinAir
 from tvb.datatypes.time_series import TimeSeriesSurface
 
 
+OPTION_READ_METADATA = "ReadFromMetaData"
+OPTION_SURFACE_HEAD = "Head"
+OPTION_SURFACE_CORTEX = "Cortex"
+
 
 class GIFTIParser():
     """
-        This class reads content of a GIFTI file and builds / returns a Surface instance 
-        filled with details.
+    This class reads content of a GIFTI file and builds / returns a Surface instance
+    filled with details.
     """
+
     UNIQUE_ID_ATTR = "UniqueID"
     SUBJECT_ATTR = "SubjectID"
     ASP_ATTR = "AnatomicalStructurePrimary"
@@ -53,11 +61,13 @@ class GIFTIParser():
     DESCRIPTION_ATTR = "Description"
     NAME_ATTR = "Name"
     TIME_STEP_ATTR = "TimeStep"
-    
+
+
     def __init__(self, storage_path, operation_id):
         self.logger = get_logger(__name__)
         self.storage_path = storage_path
         self.operation_id = operation_id
+
 
     @staticmethod
     def _get_meta_dict(data_array):
@@ -65,6 +75,7 @@ class GIFTIParser():
         if data_array_meta is None or data_array_meta.data is None:
             return {}
         return dict((meta_pair.name, meta_pair.value) for meta_pair in data_array_meta.data)
+
 
     @staticmethod
     def _is_surface_gifti(data_arrays):
@@ -74,11 +85,13 @@ class GIFTIParser():
                 and intent_codes.code["NIFTI_INTENT_TRIANGLE"] == data_arrays[1].intent
                 and data_type_codes.code["NIFTI_TYPE_INT32"] == data_arrays[1].datatype)
 
+
     @staticmethod
     def _is_timeseries_gifti(data_arrays):
         return (len(data_arrays) > 1
                 and intent_codes.code["NIFTI_INTENT_TIME_SERIES"] == data_arrays[0].intent
                 and data_type_codes.code["NIFTI_TYPE_FLOAT32"] == data_arrays[0].datatype)
+
 
     def _parse_surface(self, data_arrays, data_arrays_part2, surface_type):
         meta_dict = self._get_meta_dict(data_arrays[0])
@@ -89,14 +102,14 @@ class GIFTIParser():
 
         # Now try to determine what type of surface we have
         # If a surface type is not explicitly given we use the type specified in the metadata
-        if surface_type is None:
+        if surface_type == OPTION_READ_METADATA:
             surface_type = anatomical_structure_primary
         if surface_type is None:
             raise ParseException("Please specify the type of the surface")
 
-        if surface_type == "Head":
+        if surface_type == OPTION_SURFACE_HEAD:
             surface = SkinAir()
-        elif surface_type.startswith("Cortex"):
+        elif surface_type.startswith(OPTION_SURFACE_CORTEX):
             surface = CorticalSurface()
         else:
             raise ParseException("Could not determine type of the surface")
@@ -128,6 +141,7 @@ class GIFTIParser():
         surface.triangles = triangles
         return surface
 
+
     def _parse_timeseries(self, data_arrays):
         # Create TVB time series to be filled
         time_series = TimeSeriesSurface()
@@ -157,11 +171,12 @@ class GIFTIParser():
 
         return time_series
 
-    def parse(self, data_file, data_file_part2=None, surface_type=None):
+
+    def parse(self, data_file, data_file_part2=None, surface_type=OPTION_READ_METADATA):
         """
-            Parse NIFTI file(s) and returns A Surface or a TimeSeries for it.
-            :param surface_type: one of "Cortex" "Head" None
-            :param data_file_part2: a file containing the second part of the surface
+        Parse NIFTI file(s) and returns A Surface or a TimeSeries for it.
+        :param surface_type: one of "Cortex" "Head" "ReadFromMetaData"
+        :param data_file_part2: a file containing the second part of the surface
         """
         self.logger.debug("Start to parse GIFTI file: %s" % data_file)
         if data_file is None:
