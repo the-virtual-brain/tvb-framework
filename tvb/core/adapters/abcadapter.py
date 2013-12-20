@@ -39,6 +39,7 @@ import os
 import json
 import psutil
 import numpy
+from functools import wraps
 from datetime import datetime
 from copy import copy
 from abc import ABCMeta, abstractmethod
@@ -78,16 +79,12 @@ def nan_not_allowed():
 
     e.g. If inside a method annotated with this method we have something like numpy.log(-1),
          then LaunchException is thrown.
-
     """
 
-
     def wrap(func):
-        """Wrap current function with a lock mechanism"""
 
-
+        @wraps(func)
         def new_function(*args, **kw):
-            """ New function will actually write the Lock."""
             old_fp_error_handling = numpy.seterr(divide='raise', invalid='raise')
             try:
                 return func(*args, **kw)
@@ -96,10 +93,7 @@ def nan_not_allowed():
             finally:
                 numpy.seterr(**old_fp_error_handling)
 
-
         return new_function
-
-
     return wrap
 
 
@@ -110,25 +104,17 @@ def nan_allowed():
     It should be used on Adapter methods where computation of NaN/ Inf/etc. is allowed.
     """
 
-
     def wrap(func):
-        """Wrap current function with a lock mechanism"""
 
-
+        @wraps(func)
         def new_function(*args, **kw):
-            """ New function will actually write the Lock."""
             old_fp_error_handling = numpy.seterr(all='ignore')
             try:
                 return func(*args, **kw)
-            except Exception:
-                pass
             finally:
                 numpy.seterr(**old_fp_error_handling)
 
-
         return new_function
-
-
     return wrap
 
 
@@ -271,7 +257,7 @@ class ABCAdapter(object):
             if available_disk_space < 0:
                 raise NoMemoryAvailableException("You have exceeded you HDD space quota"
                                                  " by %d. Stopping execution." % (available_disk_space,))
-            if (available_disk_space - required_disk_space) < 0:
+            if available_disk_space - required_disk_space < 0:
                 raise NoMemoryAvailableException("You only have %s kiloBytes of HDD available but the operation you "
                                                  "launched might require %d. "
                                                  "Stopping execution..." % (available_disk_space, required_disk_space))
@@ -434,7 +420,7 @@ class ABCAdapter(object):
             return adapter_instance
         except Exception, excep:
             get_logger("ABCAdapter").exception(excep)
-            raise IntrospectionException(excep.message)
+            raise IntrospectionException(str(excep))
 
 
     ####### METHODS for PROCESSING PARAMETERS start here #############################
@@ -514,15 +500,24 @@ class ABCAdapter(object):
         """
         if algorithm_inputs is None:
             return
+
         for entry in algorithm_inputs:
             ## First handle this level of the tree, adding defaults where required
-            if (entry[self.KEY_NAME] not in kwargs and self.KEY_REQUIRED in entry and (entry[self.KEY_REQUIRED] is True)
-                    and self.KEY_DEFAULT in entry and entry[self.KEY_TYPE] != xml_reader.TYPE_DICT):
+            if (entry[self.KEY_NAME] not in kwargs
+                and self.KEY_REQUIRED in entry
+                and entry[self.KEY_REQUIRED] is True
+                and self.KEY_DEFAULT in entry
+                and entry[self.KEY_TYPE] != xml_reader.TYPE_DICT):
+
                 kwargs[entry[self.KEY_NAME]] = entry[self.KEY_DEFAULT]
+
         for entry in algorithm_inputs:
             ## Now that first level was handled, go recursively on selected options only          
-            if ((self.KEY_REQUIRED in entry) and entry[self.KEY_REQUIRED] and (ABCAdapter.KEY_OPTIONS in entry)
-                    and (entry[ABCAdapter.KEY_OPTIONS] is not None)):
+            if (self.KEY_REQUIRED in entry
+                and entry[self.KEY_REQUIRED] is True
+                and ABCAdapter.KEY_OPTIONS in entry
+                and entry[ABCAdapter.KEY_OPTIONS] is not None):
+
                 for option in entry[ABCAdapter.KEY_OPTIONS]:
                     #Only go recursive on option that was submitted
                     if option[self.KEY_VALUE] == kwargs[entry[self.KEY_NAME]]:
@@ -968,10 +963,10 @@ class ABCAdapter(object):
             new_p = copy(param)
             if param[ABCAdapter.KEY_NAME] in data:
                 new_p[ABCAdapter.KEY_DEFAULT] = data[param[ABCAdapter.KEY_NAME]]
-            if (ABCAdapter.KEY_ATTRIBUTES in param) and (param[ABCAdapter.KEY_ATTRIBUTES] is not None):
+            if param.get(ABCAdapter.KEY_ATTRIBUTES) is not None:
                 new_p[ABCAdapter.KEY_ATTRIBUTES] = ABCAdapter.fill_defaults(param[ABCAdapter.KEY_ATTRIBUTES], data,
                                                                             fill_unselected_branches)
-            if (ABCAdapter.KEY_OPTIONS in param) and (param[ABCAdapter.KEY_OPTIONS] is not None):
+            if param.get(ABCAdapter.KEY_OPTIONS) is not None:
                 new_options = param[ABCAdapter.KEY_OPTIONS]
                 if param[ABCAdapter.KEY_NAME] in data or fill_unselected_branches:
                     selected_values = []
@@ -999,15 +994,15 @@ class ABCAdapter(object):
                 new_param[ABCAdapter.KEY_NAME] = prefix + param[self.KEY_NAME]
             result.append(new_param)
 
-            if (self.KEY_OPTIONS in param) and (param[self.KEY_OPTIONS] is not None):
+            if param.get(self.KEY_OPTIONS) is not None:
                 for option in param[self.KEY_OPTIONS]:
                     ### SELECT or SELECT_MULTIPLE attributes
-                    if (self.KEY_ATTRIBUTES in option) and (option[self.KEY_ATTRIBUTES] is not None):
+                    if option.get(self.KEY_ATTRIBUTES) is not None:
                         new_prefix = ABCAdapter.form_prefix(param[ABCAdapter.KEY_NAME], prefix, option[self.KEY_VALUE])
                         extra_list = self._flaten(option[self.KEY_ATTRIBUTES], new_prefix)
                         result.extend(extra_list)
 
-            if (self.KEY_ATTRIBUTES in param) and (param[self.KEY_ATTRIBUTES] is not None):
+            if param.get(self.KEY_ATTRIBUTES) is not None:
                 ### DATATYPE attributes
                 new_prefix = ABCAdapter.form_prefix(param[ABCAdapter.KEY_NAME], prefix, None)
                 extra_list = self._flaten(param[self.KEY_ATTRIBUTES], new_prefix)
@@ -1030,8 +1025,8 @@ class ABCAdapter(object):
                 new_name = prefix + param[ABCAdapter.KEY_NAME]
                 prepared_param[ABCAdapter.KEY_NAME] = new_name
 
-            if (((ABCAdapter.KEY_TYPE not in param) or param[ABCAdapter.KEY_TYPE] in ABCAdapter.STATIC_ACCEPTED_TYPES)
-                    and (ABCAdapter.KEY_OPTIONS in param) and (param[ABCAdapter.KEY_OPTIONS] is not None)):
+            if ((ABCAdapter.KEY_TYPE not in param or param[ABCAdapter.KEY_TYPE] in ABCAdapter.STATIC_ACCEPTED_TYPES)
+                    and param.get(ABCAdapter.KEY_OPTIONS) is not None):
                 add_prefix_option = ((ABCAdapter.KEY_TYPE in param) and
                                      (param[ABCAdapter.KEY_TYPE] == xml_reader.TYPE_MULTIPLE
                                       or param[ABCAdapter.KEY_TYPE] == xml_reader.TYPE_SELECT))
@@ -1039,9 +1034,9 @@ class ABCAdapter(object):
                 prepared_param[ABCAdapter.KEY_OPTIONS] = ABCAdapter.prepare_param_names(param[ABCAdapter.KEY_OPTIONS],
                                                                                         new_prefix, add_prefix_option)
 
-            if (ABCAdapter.KEY_ATTRIBUTES in param) and (param[ABCAdapter.KEY_ATTRIBUTES] is not None):
+            if param.get(ABCAdapter.KEY_ATTRIBUTES) is not None:
                 new_prefix = prefix
-                is_dict = (ABCAdapter.KEY_TYPE in param) and (param[ABCAdapter.KEY_TYPE] == 'dict')
+                is_dict = param.get(ABCAdapter.KEY_TYPE) == 'dict'
                 if add_option_prefix:
                     new_prefix = prefix + ABCAdapter.KEYWORD_OPTION
                     new_prefix = new_prefix + param[ABCAdapter.KEY_VALUE]

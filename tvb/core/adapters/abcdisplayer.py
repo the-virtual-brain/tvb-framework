@@ -199,7 +199,6 @@ class ABCMPLH5Displayer(ABCDisplayer):
         Abstract method, in the implementation, you should place calls like:
         figure.plot, figure.gca().set_ylabel()..... .
         """
-        pass
 
     
     def generate_preview(self, **kwargs):
@@ -214,18 +213,15 @@ class ABCMPLH5Displayer(ABCDisplayer):
         if not hasattr(self, 'is_preview'):
             self.is_preview = False
         self.log.debug("Preparing for a new MPL figure....")
-        
-        show_full_toolbar = True
-        if self.SHOW_FULL_TOOLBAR in kwargs:
-            show_full_toolbar = kwargs[self.SHOW_FULL_TOOLBAR]
-            del kwargs[self.SHOW_FULL_TOOLBAR]
+
+        show_full_toolbar = kwargs.pop(self.SHOW_FULL_TOOLBAR, True)
+
         if self.PARAM_FIGURE_SIZE in kwargs:
-            figsize = kwargs[self.PARAM_FIGURE_SIZE]
-            figsize = ((figsize[0]) / 100, (figsize[1]) / 120)
-            del kwargs[self.PARAM_FIGURE_SIZE]
+            figsize = kwargs.pop(self.PARAM_FIGURE_SIZE)
+            figsize = (figsize[0] / 100, figsize[1] / 120)
         else:
             figsize = (15, 7)
-            
+
         self.kwargs = kwargs
         self.figure = self._create_new_figure(figsize)
         self.plot(self.figure, **kwargs)
