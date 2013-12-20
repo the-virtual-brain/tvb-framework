@@ -453,23 +453,22 @@ class ABCAdapter(object):
                     if eq_datatype is not None:
                         inputs_datatypes.append(eq_datatype)
                         is_datatype = True
-                else:
-                    if type(field_dict[self.KEY_TYPE]) in (str, unicode):
-                        point_separator = field_dict[self.KEY_TYPE].rfind('.')
-                        if point_separator > 0:
-                            module = field_dict[self.KEY_TYPE][:point_separator]
-                            classname = field_dict[self.KEY_TYPE][(point_separator + 1):]
-                            try:
-                                module = __import__(module, [], locals(), globals())
-                                class_entity = eval("module." + classname)
-                                if issubclass(class_entity, MappedType):
-                                    data_gid = parameters.get(str(field_dict[self.KEY_NAME]))
-                                    data_type = ABCAdapter.load_entity_by_gid(data_gid)
-                                    if data_type:
-                                        inputs_datatypes.append(data_type)
-                                        is_datatype = True
-                            except ImportError, _:
-                                pass
+                elif type(field_dict[self.KEY_TYPE]) in (str, unicode):
+                    point_separator = field_dict[self.KEY_TYPE].rfind('.')
+                    if point_separator > 0:
+                        module = field_dict[self.KEY_TYPE][:point_separator]
+                        classname = field_dict[self.KEY_TYPE][(point_separator + 1):]
+                        try:
+                            module = __import__(module, [], locals(), globals())
+                            class_entity = eval("module." + classname)
+                            if issubclass(class_entity, MappedType):
+                                data_gid = parameters.get(str(field_dict[self.KEY_NAME]))
+                                data_type = ABCAdapter.load_entity_by_gid(data_gid)
+                                if data_type:
+                                    inputs_datatypes.append(data_type)
+                                    is_datatype = True
+                        except ImportError, _:
+                            pass
 
                 if is_datatype:
                     changed_parameters[field_dict[self.KEY_LABEL]] = inputs_datatypes[-1].display_name
@@ -533,87 +532,89 @@ class ABCAdapter(object):
         kwa = {}
         simple_select_list, to_skip_dict_subargs = [], []
         for row in self.flaten_input_interface():
+            row_attr = row[xml_reader.ATT_NAME]
+            row_type = row[xml_reader.ATT_TYPE]
             ## If required attribute was submitted empty no point to continue, so just raise exception
-            if (validation_required and row.get(xml_reader.ATT_REQUIRED, False)
-                    and row[xml_reader.ATT_NAME] in kwargs and kwargs[row[xml_reader.ATT_NAME]] == ""):
+            if (validation_required
+                and row.get(xml_reader.ATT_REQUIRED, False)
+                and row_attr in kwargs
+                and kwargs[row_attr] == ""):
+
                 raise InvalidParameterException("Parameter %s is required for %s but no value was submitted!"
-                                                "Please relaunch with valid parameters." % (row[xml_reader.ATT_NAME],
-                                                                                            self.__class__.__name__))
-            if row[xml_reader.ATT_TYPE] == xml_reader.TYPE_DICT:
-                kwa[row[xml_reader.ATT_NAME]], taken_keys = self.__get_dictionary(row, **kwargs)
+                                "Please relaunch with valid parameters." % (row_attr,  self.__class__.__name__))
+
+            if row_type == xml_reader.TYPE_DICT:
+                kwa[row_attr], taken_keys = self.__get_dictionary(row, **kwargs)
                 for key in taken_keys:
                     if key in kwa:
                         del kwa[key]
                     to_skip_dict_subargs.append(key)
                 continue
             ## Dictionary subargs that were previously processed should be ignored
-            if row[xml_reader.ATT_NAME] in to_skip_dict_subargs:
+            if row_attr in to_skip_dict_subargs:
                 continue
 
-            if row[xml_reader.ATT_NAME] not in kwargs.keys():
+            if row_attr not in kwargs:
                 ## DataType sub-attributes are not submitted with GID in their name...
-                kwa_name = self.__find_field_submitted_name(kwargs, row[xml_reader.ATT_NAME], True)
+                kwa_name = self.__find_field_submitted_name(kwargs, row_attr, True)
                 if kwa_name is None:
                     ## Do not populate attributes not submitted
                     continue
-                kwargs[row[xml_reader.ATT_NAME]] = kwargs[kwa_name]
+                kwargs[row_attr] = kwargs[kwa_name]
                 ## del kwargs[kwa_name] (don't remove the original param, as it is useful for retrieving op. input DTs)
 
             elif self.__is_parent_not_submitted(row, kwargs):
                 ## Also do not populate sub-attributes from options not selected
-                del kwargs[row[xml_reader.ATT_NAME]]
+                del kwargs[row_attr]
                 continue
 
-            if row[xml_reader.ATT_TYPE] == xml_reader.TYPE_ARRAY:
-                kwa[row[xml_reader.ATT_NAME]] = self.__convert_to_array(kwargs[row[xml_reader.ATT_NAME]], row)
+            if row_type == xml_reader.TYPE_ARRAY:
+                kwa[row_attr] = self.__convert_to_array(kwargs[row_attr], row)
                 if xml_reader.ATT_MINVALUE in row and xml_reader.ATT_MAXVALUE:
-                    self.__validate_range_for_array_input(kwa[row[xml_reader.ATT_NAME]], row)
-            elif row[xml_reader.ATT_TYPE] == xml_reader.TYPE_LIST:
-                if not isinstance(kwargs[row[xml_reader.ATT_NAME]], list):
-                    kwa[row[xml_reader.ATT_NAME]] = json.loads(kwargs[row[xml_reader.ATT_NAME]])
-            elif row[xml_reader.ATT_TYPE] == xml_reader.TYPE_BOOL:
-                if not kwargs[row[xml_reader.ATT_NAME]]:
-                    kwa[row[xml_reader.ATT_NAME]] = False
+                    self.__validate_range_for_array_input(kwa[row_attr], row)
+            elif row_type == xml_reader.TYPE_LIST:
+                if not isinstance(kwargs[row_attr], list):
+                    kwa[row_attr] = json.loads(kwargs[row_attr])
+            elif row_type == xml_reader.TYPE_BOOL:
+                kwa[row_attr] = bool(kwargs[row_attr])
+
+            elif row_type == xml_reader.TYPE_INT:
+                if kwargs[row_attr] is None or kwargs[row_attr] in ['', 'None']:
+                    kwa[row_attr] = None
                 else:
-                    kwa[row[xml_reader.ATT_NAME]] = True
-            elif row[xml_reader.ATT_TYPE] == xml_reader.TYPE_INT:
-                if (kwargs[row[xml_reader.ATT_NAME]] is None or kwargs[row[xml_reader.ATT_NAME]] == ''
-                        or kwargs[row[xml_reader.ATT_NAME]] == 'None'):
-                    kwa[row[xml_reader.ATT_NAME]] = None
-                else:
-                    val = int(kwargs[row[xml_reader.ATT_NAME]])
-                    kwa[row[xml_reader.ATT_NAME]] = val
+                    val = int(kwargs[row_attr])
+                    kwa[row_attr] = val
                     if xml_reader.ATT_MINVALUE in row and xml_reader.ATT_MAXVALUE:
-                        self.__validate_range_for_value_input(kwa[row[xml_reader.ATT_NAME]], row)
-            elif row[xml_reader.ATT_TYPE] == xml_reader.TYPE_FLOAT:
-                if kwargs[row[xml_reader.ATT_NAME]] == '' or kwargs[row[xml_reader.ATT_NAME]] == 'None':
-                    kwa[row[xml_reader.ATT_NAME]] = None
+                        self.__validate_range_for_value_input(kwa[row_attr], row)
+            elif row_type == xml_reader.TYPE_FLOAT:
+                if kwargs[row_attr] in ['', 'None']:
+                    kwa[row_attr] = None
                 else:
-                    val = float(kwargs[row[xml_reader.ATT_NAME]])
-                    kwa[row[xml_reader.ATT_NAME]] = val
+                    val = float(kwargs[row_attr])
+                    kwa[row_attr] = val
                     if xml_reader.ATT_MINVALUE in row and xml_reader.ATT_MAXVALUE:
-                        self.__validate_range_for_value_input(kwa[row[xml_reader.ATT_NAME]], row)
-            elif row[xml_reader.ATT_TYPE] == xml_reader.TYPE_STR:
-                kwa[row[xml_reader.ATT_NAME]] = kwargs[row[xml_reader.ATT_NAME]]
-            elif row[xml_reader.ATT_TYPE] in [xml_reader.TYPE_SELECT, xml_reader.TYPE_MULTIPLE]:
-                val = kwargs[row[xml_reader.ATT_NAME]]
-                if row[xml_reader.ATT_TYPE] == xml_reader.TYPE_MULTIPLE and not isinstance(val, list):
+                        self.__validate_range_for_value_input(kwa[row_attr], row)
+            elif row_type == xml_reader.TYPE_STR:
+                kwa[row_attr] = kwargs[row_attr]
+            elif row_type in [xml_reader.TYPE_SELECT, xml_reader.TYPE_MULTIPLE]:
+                val = kwargs[row_attr]
+                if row_type == xml_reader.TYPE_MULTIPLE and not isinstance(val, list):
                     val = [val]
-                kwa[row[xml_reader.ATT_NAME]] = val
-                if row[xml_reader.ATT_TYPE] == xml_reader.TYPE_SELECT:
-                    simple_select_list.append(row[xml_reader.ATT_NAME])
-            elif row[xml_reader.ATT_TYPE] == xml_reader.TYPE_UPLOAD:
-                val = kwargs[row[xml_reader.ATT_NAME]]
-                kwa[row[xml_reader.ATT_NAME]] = val
+                kwa[row_attr] = val
+                if row_type == xml_reader.TYPE_SELECT:
+                    simple_select_list.append(row_attr)
+            elif row_type == xml_reader.TYPE_UPLOAD:
+                val = kwargs[row_attr]
+                kwa[row_attr] = val
             else:
                 ## DataType parameter to be processed:
-                simple_select_list.append(row[xml_reader.ATT_NAME])
-                datatype_gid = kwargs[row[xml_reader.ATT_NAME]]
+                simple_select_list.append(row_attr)
+                datatype_gid = kwargs[row_attr]
                 ## Load filtered and trimmed attribute (e.g. field is applied if specified):
-                kwa[row[xml_reader.ATT_NAME]] = self.__load_entity(row, datatype_gid, kwargs)
+                kwa[row_attr] = self.__load_entity(row, datatype_gid, kwargs)
                 if xml_reader.ATT_FIELD in row:
                     #Add entity_GID to the parameters to recognize original input
-                    kwa[row[xml_reader.ATT_NAME] + '_gid'] = datatype_gid
+                    kwa[row_attr + '_gid'] = datatype_gid
 
         return self.collapse_arrays(kwa, simple_select_list)
 
@@ -634,6 +635,7 @@ class ABCAdapter(object):
                                                 row[xml_reader.ATT_MINVALUE], row[xml_reader.ATT_MAXVALUE],
                                                 min_val, max_val))
         except Exception:
+            # fixme: this looks weird
             pass
 
 
