@@ -57,9 +57,10 @@ class LookupTableImporter(ABCUploader):
         """
         Define input parameters for this importer.
         """
-        return [{'name': 'psi_table_file', 'type': 'upload', 'required_type': 'txt',
+        return [{'name': 'psi_table_file', 'type': 'upload', 'required_type': '.npz',
                  'label': 'Please upload Psi table file in NPZ format.', 'required': True,
                  'description': 'Expected a NPZ file containing Psi table data.'},
+
                 {'name': 'table_type', 'type': 'select', 
                  'label': 'Table type: ', 'required': True,
                  'options': [{'name': self.PSI_TABLE, 'value': self.PSI_TABLE},

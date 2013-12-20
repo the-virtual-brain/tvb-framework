@@ -58,7 +58,7 @@ class ProjectionMatrixRegionEEGImporter(ABCUploader):
         """
         Define input parameters for this importer.
         """
-        return [{'name': 'projection_file', 'type': 'upload', 'required_type': 'mat',
+        return [{'name': 'projection_file', 'type': 'upload', 'required_type': '.mat',
                  'label': 'Projection matrix file (.mat format)', 'required': True,
                  'description': 'Expected a mat file containing projection matrix values.'},
                 

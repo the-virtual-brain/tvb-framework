@@ -57,7 +57,7 @@ class Sensors_Importer(ABCUploader):
         """
         Define input parameters for this importer.
         """
-        return [{'name': 'sensors_file', 'type': 'upload', 'required_type': 'txt',
+        return [{'name': 'sensors_file', 'type': 'upload', 'required_type': 'text/plain, .bz2',
                  'label': 'Please upload sensors file (txt or bz2 format)', 'required': True,
                  'description': 'Expected a text/bz2 file containing sensor measurements.'},
                 

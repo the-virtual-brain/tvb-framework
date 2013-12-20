@@ -65,7 +65,7 @@ class CFF_Importer(ABCUploader):
         """
         Define as input parameter, a CFF archive.
         """
-        return [{'name': 'cff', 'type': 'upload', 'required_type': 'cff',
+        return [{'name': 'cff', 'type': 'upload', 'required_type': '.cff',
                  'label': 'CFF archive', 'required': True,
                  'description': 'Connectome File Format archive expected, with GraphML, Timeseries or GIFTI inside.'}]
 

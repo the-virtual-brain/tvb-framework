@@ -61,10 +61,10 @@ class GIFTISurfaceImporter(ABCUploader):
                              {'name': 'Head', 'value': OPTION_SURFACE_HEAD}],
                  'default': OPTION_READ_METADATA},
 
-                {'name': 'data_file', 'type': 'upload', 'required_type': 'gii', 'required': True,
+                {'name': 'data_file', 'type': 'upload', 'required_type': '.gii', 'required': True,
                  'label': 'Please select file to import (.gii)'},
 
-                {'name': 'data_file_part2', 'type': 'upload', 'required_type': 'gii', 'required': False,
+                {'name': 'data_file_part2', 'type': 'upload', 'required_type': '.gii', 'required': False,
                  'label': 'Please select part 2 of the file to import (.gii)'}
                 ]
 

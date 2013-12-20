@@ -71,10 +71,10 @@ class CSVConnectivityImporter(ABCUploader):
         """
         Take as input a ZIP archive.
         """
-        return [{'name': 'weights', 'type': 'upload', 'required_type': 'csv',
+        return [{'name': 'weights', 'type': 'upload', 'required_type': '.csv',
                  'label': 'Weights file (csv)', 'required': True},
 
-                {'name': 'tracts', 'type': 'upload', 'required_type': 'csv',
+                {'name': 'tracts', 'type': 'upload', 'required_type': '.csv',
                  'label': 'Tracts file (csv)', 'required': True},
 
                 {'name': 'input_data', 'label': 'Reference Connectivity Matrix (for node labels, 3d positions etc.)',
@@ -83,7 +83,8 @@ class CSVConnectivityImporter(ABCUploader):
         
     def get_output(self):
         return [Connectivity]
-    
+
+
     def _process_csv_file(self, csv_file, result_file):
         """
         Read a CSV file, arrange rows/columns in the correct order,

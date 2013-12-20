@@ -41,11 +41,12 @@ class ABCUploader(ABCSynchronous):
     """
     Base class of the uploaders
     """
+
     def get_input_tree(self):
         """
         :return: the result of get_upload_input_tree concatenated with "subject" input field.
         """
-        subject_node = [{'name': 'subject', 'type': 'str', 'required': True,
+        subject_node = [{'name': DataTypeMetaData.KEY_SUBJECT, 'type': 'str', 'required': True,
                          'label': 'Subject', 'default': DataTypeMetaData.DEFAULT_SUBJECT}]
 
         return subject_node + self.get_upload_input_tree()
@@ -60,9 +61,17 @@ class ABCUploader(ABCSynchronous):
 
 
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
-        subject = kwargs.pop('subject')
+        """
+        Before going with the usual prelaunch, get from input parameters the 'subject'.
+        """
+        if DataTypeMetaData.KEY_SUBJECT in kwargs:
+            subject = kwargs.pop(DataTypeMetaData.KEY_SUBJECT)
+        else:
+            subject = DataTypeMetaData.DEFAULT_SUBJECT
+
         self.meta_data.update({DataTypeMetaData.KEY_SUBJECT: subject})
-        return ABCSynchronous._prelaunch(self, operation, uid=None, **kwargs)
+
+        return ABCSynchronous._prelaunch(self, operation, uid, available_disk_space, **kwargs)
 
 
     def get_required_memory_size(self, **kwargs):
