@@ -30,12 +30,14 @@
 """
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
+
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 import os
 import shutil
+from functools import wraps
 from types import FunctionType
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
@@ -60,14 +62,15 @@ def init_test_env():
     reset_database()
     initialize(["tvb.config", "tvb.tests.framework"], load_xml_events=False)
     cfg.MATLAB_EXECUTABLE = default_mlab_exe
-    
-    
+
+
 def transactional_test(func, callback=None):
     """
     A decorator to be used in tests which makes sure all database changes are reverted
     at the end of the test.
     """
     if func.__name__.startswith('test_'):
+        @wraps(func)
         def dec(*args, **kwargs):
             session_maker = SessionMaker()
             cfg.ALLOW_NESTED_TRANSACTIONS = True

@@ -121,7 +121,7 @@ class ProjectService:
             except Exception, excep:
                 self.logger.error("An error has occurred!")
                 self.logger.exception(excep)
-                raise ProjectServiceException(excep.message)
+                raise ProjectServiceException(str(excep))
             if current_proj.name != new_name:
                 self.structure_helper.rename_project_structure(current_proj.name, new_name)
             current_proj.name = new_name
@@ -162,7 +162,7 @@ class ProjectService:
         except Exception, excep:
             self.logger.error("Given Project ID was not found in DB!")
             self.logger.exception(excep)
-            raise ProjectServiceException(excep.message)
+            raise ProjectServiceException(str(excep))
 
 
     @staticmethod
@@ -335,19 +335,19 @@ class ProjectService:
         except RemoveDataTypeError, excep:
             self.logger.error("Invalid DataType to remove!")
             self.logger.exception(excep)
-            raise ProjectServiceException(excep.message)
+            raise ProjectServiceException(str(excep))
         except RemoveDataTypeException, excep:
             self.logger.error("Could not execute operation Node Remove!")
             self.logger.exception(excep)
-            raise ProjectServiceException(excep.message)
+            raise ProjectServiceException(str(excep))
         except FileStructureException, excep:
             self.logger.error("Could not delete because of rights!")
             self.logger.exception(excep)
-            raise ProjectServiceException(excep.message)
+            raise ProjectServiceException(str(excep))
         except Exception, excep:
             self.logger.error("Given ID does not exist in DB!")
             self.logger.exception(excep)
-            raise ProjectServiceException(excep.message)
+            raise ProjectServiceException(str(excep))
 
 
     #----------------- Methods for populating Data-Structure Page ---------------
@@ -815,7 +815,7 @@ class ProjectService:
                 self._edit_data(datatype, new_data)
         except Exception, excep:
             self.logger.exception(excep)
-            raise StructureException(excep.message)
+            raise StructureException(str(excep))
 
 
     def _edit_data(self, datatype, new_data, from_group=False):
@@ -927,7 +927,7 @@ class ProjectService:
             op_inputs = ProjectService.get_datatype_and_datatypegroup_inputs_for_operation(gid[0], selected_filter)
             for datatype in op_inputs:
                 op_group_inputs[datatype.id] = datatype
-        return [v for _, v in op_group_inputs.iteritems()]
+        return op_group_inputs.values()
 
 
     @staticmethod
