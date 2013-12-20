@@ -27,14 +27,15 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
+
 import unittest
 import os
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.exceptions import OperationException
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -82,7 +83,6 @@ class SensorsImporterTest(TransactionalTestCase):
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.sensors_importer', 'Sensors_Importer')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: ""}
 
         args = {'sensors_file': import_file_path, 'sensors_type': sensors_type}
 

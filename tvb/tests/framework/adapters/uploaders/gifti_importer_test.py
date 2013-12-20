@@ -79,9 +79,8 @@ class GIFTISurfaceImporterTest(TransactionalTestCase):
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.gifti_surface_importer', 'GIFTISurfaceImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: ""}
 
-        args = {'data_file': import_file_path}
+        args = {'data_file': import_file_path, DataTypeMetaData.KEY_SUBJECT: ""}
 
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
@@ -116,10 +115,10 @@ class GIFTISurfaceImporterTest(TransactionalTestCase):
 
     def test_import_timeseries_gifti_data(self):
         """
-            This method tests import of a time series from GIFTI file.
-            !!! Important: We changed this test to execute only GIFTI parse
-                because storing surface it takes too long (~ 9min) since
-                normals needs to be calculated.
+        This method tests import of a time series from GIFTI file.
+        !!! Important: We changed this test to execute only GIFTI parse
+            because storing surface it takes too long (~ 9min) since
+            normals needs to be calculated.
         """
         operation_id = self.datatypeFactory.get_operation().id
         storage_path = FilesHelper().get_operation_folder(self.test_project.name, operation_id)

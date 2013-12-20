@@ -27,10 +27,11 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-"""
-.. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
+.. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
+"""
+
 import os
 import unittest
 import demo_data.tables as dataset
@@ -38,7 +39,6 @@ from tvb.datatypes.lookup_tables import NerfTable, PsiTable
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.flow_service import FlowService
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.tests.framework.core.test_factory import TestFactory
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
@@ -63,7 +63,6 @@ class LookupTableImporterTest(TransactionalTestCase):
         dt_count_before = TestFactory.get_entity_count(self.test_project, PsiTable())
         group = dao.find_group('tvb.adapters.uploaders.lookup_table_importer', 'LookupTableImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'psi.npz')
         args = {'psi_table_file': zip_path, 'table_type': 'Psi Table'}
         ### Launch Operation
@@ -79,7 +78,6 @@ class LookupTableImporterTest(TransactionalTestCase):
         dt_count_before = TestFactory.get_entity_count(self.test_project, NerfTable())
         group = dao.find_group('tvb.adapters.uploaders.lookup_table_importer', 'LookupTableImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'nerf_int.npz')
         args = {'psi_table_file': zip_path, 'table_type': 'Nerf Table'}
         ### Launch Operation

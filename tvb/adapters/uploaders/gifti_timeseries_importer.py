@@ -51,7 +51,7 @@ class GIFTITimeSeriesImporter(ABCUploader):
         """
             Take as input a .GII file.
         """
-        return [{'name': 'data_file', 'type': 'upload', 'required_type': '',
+        return [{'name': 'data_file', 'type': 'upload', 'required_type': 'gii',
                  'label': 'Please select file to import (.gii)', 'required': True},
                 {'name': 'surface', 'label': 'Brain Surface', 
                  'type': CorticalSurface, 'required': True,

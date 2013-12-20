@@ -94,12 +94,14 @@ class TestFactory():
     
     
     @staticmethod
-    def create_project(admin, name="TestProject", description='description', users=[]):
+    def create_project(admin, name="TestProject", description='description', users=None):
         """
         Create persisted Project entity, with no linked DataTypes.
         
         :returns: Project entity after persistence.
         """
+        if users is None:
+            users = []
         data = dict(name=name, description=description, users=users)
         return ProjectService().store_project(admin, True, None, **data)
     
@@ -245,8 +247,7 @@ class TestFactory():
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.cff_importer', 'CFF_Importer')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
-        args = {'cff': cff_path}
+        args = {'cff': cff_path, DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         
         ### Launch Operation
         FlowService().fire_operation(importer, test_user, test_project.id, **args)
@@ -257,7 +258,6 @@ class TestFactory():
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.zip_surface_importer', 'ZIPSurfaceImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         args = {'uploaded': zip_path, 'surface_type': surface_type,
                 'zero_based_triangles': zero_based}
         
@@ -270,7 +270,6 @@ class TestFactory():
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.sensors_importer', 'Sensors_Importer')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         args = {'sensors_file': zip_path, 'sensors_type': sensors_type}
         ### Launch Operation
         FlowService().fire_operation(importer, user, project.id, **args)

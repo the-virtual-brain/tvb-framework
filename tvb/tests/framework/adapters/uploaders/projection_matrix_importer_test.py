@@ -78,11 +78,11 @@ class ProjectionMatrixTest(TransactionalTestCase):
         group = dao.find_group('tvb.adapters.uploaders.projection_matrix_importer', 
                                'ProjectionMatrixRegionEEGImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 
                                 'region_conn_74_eeg_1020_62.mat')
         args = {'projection_file': zip_path, 'dataset_name': 'ProjectionMatrix',
-                'connectivity': self.connectivity.gid, 'sensors': self.sensors.gid}
+                'connectivity': self.connectivity.gid, 'sensors': self.sensors.gid,
+                DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
         dt_count_after = TestFactory.get_entity_count(self.test_project, ProjectionRegionEEG())
         self.assertTrue(dt_count_after == dt_count_before + 1)
@@ -96,12 +96,13 @@ class ProjectionMatrixTest(TransactionalTestCase):
         group = dao.find_group('tvb.adapters.uploaders.projection_matrix_importer', 
                                'ProjectionMatrixSurfaceEEGImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
+
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 
                                 'region_conn_74_eeg_1020_62.mat')
         args = {'projection_file': zip_path, 'dataset_name': 'ProjectionMatrix',
                 'connectivity': self.connectivity.gid, 'sensors': self.sensors.gid,
-                'surface': self.surface.gid}
+                'surface': self.surface.gid,
+                DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
         dt_count_after = TestFactory.get_entity_count(self.test_project, ProjectionRegionEEG())
         self.assertTrue(dt_count_after == dt_count_before + 1)

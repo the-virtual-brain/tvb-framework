@@ -62,12 +62,11 @@ class ConnectivityZipTest(TransactionalTestCase):
         """
         group = dao.find_group('tvb.adapters.uploaders.zip_connectivity_importer', 'ZIPConnectivityImporter')
         importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: subject}
 
         data_dir = path.abspath(path.dirname(demo_data.__file__))
         zip_path = path.join(data_dir, 'connectivity', 'connectivity_96.zip')
         ### Launch Operation
-        FlowService().fire_operation(importer, test_user, test_project.id, uploaded=zip_path)
+        FlowService().fire_operation(importer, test_user, test_project.id, uploaded=zip_path, subject=subject)
 
 
     def test_happy_flow_import(self):

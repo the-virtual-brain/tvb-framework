@@ -27,17 +27,18 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+
 import unittest
-from os import path
 import demo_data
+from os import path
 from tvb.basic.filters.chain import FilterChain
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.exceptions import OperationException
 from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity
@@ -69,24 +70,25 @@ class CSVConnectivityImporterTest(TransactionalTestCase):
 
 
     def _import_csv_test_connectivity(self, reference_connectivity_gid, subject):
-        group = dao.find_group('tvb.adapters.uploaders.csv_connectivity_importer', 'CSVConnectivityImporter')
 
-        importer = ABCAdapter.build_adapter(group)
-        importer.meta_data = {DataTypeMetaData.KEY_SUBJECT: subject}
-
+        ### First prepare input data:
         data_dir = path.abspath(path.dirname(demo_data.__file__))
 
         torronto_dir = path.join(data_dir, 'dti_pipeline', 'Output_Toronto')
         weights = path.join(torronto_dir, 'output_ConnectionCapacityMatrix.csv')
-        tracts   = path.join(torronto_dir, 'output_ConnectionDistanceMatrix.csv')
+        tracts = path.join(torronto_dir, 'output_ConnectionDistanceMatrix.csv')
         weights_tmp = weights + '.tmp'
         tracts_tmp = tracts + '.tmp'
         self.helper.copy_file(weights, weights_tmp)
         self.helper.copy_file(tracts, tracts_tmp)
-        ### Launch Operation
+
+        ### Find importer and Launch Operation
+        group = dao.find_group('tvb.adapters.uploaders.csv_connectivity_importer', 'CSVConnectivityImporter')
+        importer = ABCAdapter.build_adapter(group)
         FlowService().fire_operation(importer, self.test_user, self.test_project.id,
-                                     weights=weights_tmp, tracts=tracts_tmp,
+                                     weights=weights_tmp, tracts=tracts_tmp, subject=subject,
                                      input_data=reference_connectivity_gid)
+
 
     def test_happy_flow_import(self):
         """
@@ -111,24 +113,26 @@ class CSVConnectivityImporterTest(TransactionalTestCase):
         imported_connectivity = TestFactory.get_entity(self.test_project, Connectivity(), filters)
 
         # check relationship between the imported connectivity and the reference
-        self.assertTrue( (reference_connectivity.centres == imported_connectivity.centres).all())
-        self.assertTrue( (reference_connectivity.orientations == imported_connectivity.orientations).all())
+        self.assertTrue((reference_connectivity.centres == imported_connectivity.centres).all())
+        self.assertTrue((reference_connectivity.orientations == imported_connectivity.orientations).all())
 
-        self.assertEqual( reference_connectivity.number_of_regions, imported_connectivity.number_of_regions)
-        self.assertTrue( (reference_connectivity.region_labels == imported_connectivity.region_labels).all())
+        self.assertEqual(reference_connectivity.number_of_regions, imported_connectivity.number_of_regions)
+        self.assertTrue((reference_connectivity.region_labels == imported_connectivity.region_labels).all())
 
-        self.assertFalse( (reference_connectivity.weights == imported_connectivity.weights).all())
-        self.assertFalse( (reference_connectivity.tract_lengths == imported_connectivity.tract_lengths).all())
+        self.assertFalse((reference_connectivity.weights == imported_connectivity.weights).all())
+        self.assertFalse((reference_connectivity.tract_lengths == imported_connectivity.tract_lengths).all())
 
 
 
     def test_bad_reference(self):
-         TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
-         field = FilterChain.datatype + '.subject'
-         filters = FilterChain('', [field], [TEST_SUBJECT_A], ['!='])
-         bad_reference_connectivity = TestFactory.get_entity(self.test_project, Connectivity(), filters)
+        TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
+        field = FilterChain.datatype + '.subject'
+        filters = FilterChain('', [field], [TEST_SUBJECT_A], ['!='])
+        bad_reference_connectivity = TestFactory.get_entity(self.test_project, Connectivity(), filters)
 
-         self.assertRaises(OperationException, self._import_csv_test_connectivity, bad_reference_connectivity.gid, TEST_SUBJECT_A)
+        self.assertRaises(OperationException, self._import_csv_test_connectivity,
+                          bad_reference_connectivity.gid, TEST_SUBJECT_A)
+
 
 
 def suite():
@@ -138,6 +142,7 @@ def suite():
     test_suite = unittest.TestSuite()
     test_suite.addTest(unittest.makeSuite(CSVConnectivityImporterTest))
     return test_suite
+
 
 
 if __name__ == "__main__":

@@ -71,8 +71,12 @@ class CSVConnectivityImporter(ABCUploader):
         """
         Take as input a ZIP archive.
         """
-        return [{'name': 'weights', 'type': 'upload', 'label': 'Weights file (csv)', 'required': True},
-                {'name': 'tracts', 'type': 'upload', 'label': 'Tracts file (csv)', 'required': True},
+        return [{'name': 'weights', 'type': 'upload', 'required_type': 'csv',
+                 'label': 'Weights file (csv)', 'required': True},
+
+                {'name': 'tracts', 'type': 'upload', 'required_type': 'csv',
+                 'label': 'Tracts file (csv)', 'required': True},
+
                 {'name': 'input_data', 'label': 'Reference Connectivity Matrix (for node labels, 3d positions etc.)',
                  'type': Connectivity, 'required': True}]
         

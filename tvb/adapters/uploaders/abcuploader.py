@@ -31,6 +31,7 @@
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+
 from abc import abstractmethod
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
@@ -41,20 +42,28 @@ class ABCUploader(ABCSynchronous):
     Base class of the uploaders
     """
     def get_input_tree(self):
-        subject_node = [{'name': 'subject', 'type': 'str', 'required_type': '',
-                         'label': 'Subject', 'default': DataTypeMetaData.DEFAULT_SUBJECT, 'required': True}]
+        """
+        :return: the result of get_upload_input_tree concatenated with "subject" input field.
+        """
+        subject_node = [{'name': 'subject', 'type': 'str', 'required': True,
+                         'label': 'Subject', 'default': DataTypeMetaData.DEFAULT_SUBJECT}]
+
         return subject_node + self.get_upload_input_tree()
+
 
     @abstractmethod
     def get_upload_input_tree(self):
         """
+        Build the list of dictionaries describing the input required for this uploader.
         :return: The input tree specific for this uploader
         """
+
 
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
         subject = kwargs.pop('subject')
         self.meta_data.update({DataTypeMetaData.KEY_SUBJECT: subject})
         return ABCSynchronous._prelaunch(self, operation, uid=None, **kwargs)
+
 
     def get_required_memory_size(self, **kwargs):
         """
@@ -62,6 +71,7 @@ class ABCUploader(ABCSynchronous):
         As it is an upload algorithm and we do not have information about data, we can not approximate this.
         """
         return -1
+
 
     def get_required_disk_size(self, **kwargs):
         """
