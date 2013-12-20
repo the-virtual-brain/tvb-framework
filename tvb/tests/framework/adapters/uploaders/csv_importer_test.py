@@ -86,7 +86,7 @@ class CSVConnectivityImporterTest(TransactionalTestCase):
         group = dao.find_group('tvb.adapters.uploaders.csv_connectivity_importer', 'CSVConnectivityImporter')
         importer = ABCAdapter.build_adapter(group)
         FlowService().fire_operation(importer, self.test_user, self.test_project.id,
-                                     weights=weights_tmp, tracts=tracts_tmp, subject=subject,
+                                     weights=weights_tmp, tracts=tracts_tmp, Data_Subject=subject,
                                      input_data=reference_connectivity_gid)
 
 

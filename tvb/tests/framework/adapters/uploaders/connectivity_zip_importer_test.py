@@ -66,7 +66,7 @@ class ConnectivityZipTest(TransactionalTestCase):
         data_dir = path.abspath(path.dirname(demo_data.__file__))
         zip_path = path.join(data_dir, 'connectivity', 'connectivity_96.zip')
         ### Launch Operation
-        FlowService().fire_operation(importer, test_user, test_project.id, uploaded=zip_path, subject=subject)
+        FlowService().fire_operation(importer, test_user, test_project.id, uploaded=zip_path, Data_Subject=subject)
 
 
     def test_happy_flow_import(self):

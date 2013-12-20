@@ -83,7 +83,7 @@ class NIFTIImporterTest(TransactionalTestCase):
         ### Retrieve Adapter instance 
         group = dao.find_group('tvb.adapters.uploaders.nifti_importer', 'NIFTIImporter')
         importer = ABCAdapter.build_adapter(group)
-        args = {'data_file': import_file_path, DataTypeMetaData.KEY_SUBJECT: ""}
+        args = {'data_file': import_file_path, DataTypeMetaData.KEY_SUBJECT: "bla bla"}
 
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
