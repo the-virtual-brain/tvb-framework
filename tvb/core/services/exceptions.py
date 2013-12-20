@@ -43,19 +43,11 @@ class ServicesBaseException(TVBException):
     """
 
 
-    def __init__(self, message, parent_exception=None):
-        TVBException.__init__(self, message, parent_exception)
-
-
 
 class StructureException(ServicesBaseException):
     """
     Exception to be thrown in case of a problem related to Structure Storage.
     """
-
-
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
 
 
 
@@ -66,10 +58,6 @@ class OperationException(ServicesBaseException):
     """
 
 
-    def __init__(self, message, parent_exception=None):
-        ServicesBaseException.__init__(self, message, parent_exception)
-
-
 
 class UsernameException(ServicesBaseException):
     """
@@ -78,20 +66,12 @@ class UsernameException(ServicesBaseException):
     """
 
 
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
-
-
 
 class WorkflowException(ServicesBaseException):
     """
     Exception to be thrown in case of a problem related to creating
     or managing a workflow.
     """
-
-
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
 
 
 
@@ -103,20 +83,12 @@ class WorkflowInterStepsException(WorkflowException):
     """
 
 
-    def __init__(self, message):
-        WorkflowException.__init__(self, message)
-
-
 
 class ProjectServiceException(ServicesBaseException):
     """
     Exception to be thrown in case of a problem in the projectservice
     module.
     """
-
-
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
 
 
 
@@ -126,19 +98,11 @@ class ProjectImportException(ServicesBaseException):
     """
 
 
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
-
-
 
 class BurstServiceException(ServicesBaseException):
     """
     Exception to be thrown in case of a problem at project import.
     """
-
-
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
 
 
 
@@ -148,19 +112,11 @@ class InvalidPortletConfiguration(ServicesBaseException):
     """
 
 
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
-
-
 
 class InvalidSettingsException(ServicesBaseException):
     """
     Exception to be thrown in case of a problem at project import.
     """
-
-
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
 
 
 
@@ -171,10 +127,6 @@ class RemoveDataTypeException(ServicesBaseException):
     """
 
 
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)
-
-
 
 class RemoveDataTypeError(ServicesBaseException):
     """
@@ -183,6 +135,3 @@ class RemoveDataTypeError(ServicesBaseException):
     wrapper corresponding to a time series (inheritance relationship).
     """
 
-
-    def __init__(self, message):
-        ServicesBaseException.__init__(self, message)

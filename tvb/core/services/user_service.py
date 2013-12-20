@@ -125,7 +125,7 @@ class UserService:
         except Exception, excep:
             self.logger.error("Could not create user!")
             self.logger.exception(excep)
-            raise UsernameException(excep.message)
+            raise UsernameException(str(excep))
 
 
     def reset_password(self, **data):
@@ -228,7 +228,7 @@ class UserService:
         except Exception, excep:
             self.logger.error("Invalid userName or project identifier")
             self.logger.exception(excep)
-            raise UsernameException(excep.message)
+            raise UsernameException(str(excep))
 
 
     @staticmethod

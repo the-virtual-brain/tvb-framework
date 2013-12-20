@@ -41,16 +41,12 @@ class LaunchException(TVBException):
     Exception class for problem with launching an operation.
     """
 
-    def __init__(self, message, parent_exception=None):
-        TVBException.__init__(self, message, parent_exception)
-
 
 
 class InvalidParameterException(LaunchException):
     """
     Exception class for parameter validation issue.
     """
-    pass
 
 
 
@@ -59,18 +55,12 @@ class IntrospectionException(TVBException):
     Exception class for problems when introspection failed.
     """
 
-    def __init__(self, message):
-        TVBException.__init__(self, message)
-
 
 
 class XmlParserException(IntrospectionException):
     """
     Exception class for problems when parsing xml files.
     """
-
-    def __init__(self, message):
-        IntrospectionException.__init__(self, message)
 
 
 
@@ -79,15 +69,9 @@ class ParseException(TVBException):
     Exception class for problem with parsing files an operation.
     """
 
-    def __init__(self, message):
-        TVBException.__init__(self, message)
-
 
 
 class NoMemoryAvailableException(TVBException):
     """
     Exception class raised when an adapter requires more memory that is available on machine.
     """
-
-    def __init__(self, message):
-        TVBException.__init__(self, message)
