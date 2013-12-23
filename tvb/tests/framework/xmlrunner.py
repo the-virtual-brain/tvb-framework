@@ -168,12 +168,12 @@ class _XMLTestResult(unittest.TestResult):
         for info in self._tests:
             info.print_report(stream)
         stream.write('  <system-out><![CDATA[%s]]></system-out>\n' % out)
-        # Write only maximum 1000 characters in the putput XML, otherwise w emight end up with a Java Memory in Hudson.
+        # Write only maximum 10000 characters in the putput XML, otherwise w emight end up with a Java Memory in Hudson.
         # The rest of the log can be found in ~/TVB_TESTS/logs
-        if len(err) < 1000:
+        if len(err) < 10000:
             stream.write('  <system-err><![CDATA[%s]]></system-err>\n' % err)
         else:
-            stream.write('  <system-err><![CDATA[%s]]></system-err>\n' % err[:1000])
+            stream.write('  <system-err><![CDATA[TRUNCATED %s ...]]></system-err>\n' % err[:10000])
         stream.write('</testsuite>\n')
 
 
