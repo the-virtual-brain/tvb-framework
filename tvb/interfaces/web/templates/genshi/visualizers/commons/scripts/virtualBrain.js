@@ -742,15 +742,15 @@ function initRegionBoundaries(boundariesURL) {
 function drawBuffers(drawMode, buffersSets, useBlending) {
     if (useBlending) {
         gl.uniform1i(shaderProgram.useBlending, true);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
         // Add gray color for semi-transparent object.
-        gl.uniform3f(shaderProgram.ambientColorUniform, 0.2, 0.2, 0.2);
+        gl.uniform3f(shaderProgram.ambientColorUniform, 0.2, 0.2, 0.2);//unused in shader!
         var lightingDirection = Vector.create([-0.25, -0.25, -1]);
         var adjustedLD = lightingDirection.toUnitVector().x(-1);
         var flatLD = adjustedLD.flatten();
         gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
-        gl.uniform3f(shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8);
+        gl.uniform3f(shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8); //unused in shader!
     }
     for (var i = 0; i < buffersSets.length; i++) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][0]);

@@ -232,7 +232,8 @@ width: 200px;
 
 .brainLegendContent {
     height: 100%;
-    color: #ffffff;
+    color: #909090;
+    text-shadow: 0 0 10px #000;
     text-align: center;
 }
 

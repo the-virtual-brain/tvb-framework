@@ -252,15 +252,16 @@ var ColSchLightTheme = {
     connectivityStepPlot : {
         lineColor: [0.7, 0.7, 0.8],
         noValueColor: [0.9, 0.9, 0.9],
-        backgroundColor: [0.9, 0.9, 0.9],
+//        backgroundColor: [0.9, 0.9, 0.9],
+        backgroundColor: [1.0, 1.0, 1.0],
         outlineColor: [0.5, 0.5, 0.5],
         selectedOutlineColor: [0.4, 0.4, 0.7]
     },
     connectivityPlot : {
-        backgroundColor: [0.9, 0.9, 0.9]
+        backgroundColor: [1.0, 1.0, 1.0]
     },
     surfaceViewer : {
-        backgroundColor: [0.9, 0.9, 0.9]
+        backgroundColor: [1.0, 1.0, 1.0]
     }
 };
 

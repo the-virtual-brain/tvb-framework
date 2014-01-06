@@ -277,7 +277,7 @@ function addLightForCorticalSurface() {
     var flatLD = adjustedLD.flatten();
     gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
     gl.uniform3f(shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8);
-    gl.uniform1f(shaderProgram.alphaUniform, alphaValue);
+    gl.uniform1f(shaderProgram.alphaUniform, 0.1);
 }
 
 function drawScene() {
@@ -326,7 +326,7 @@ function drawScene() {
 	    // Translate to get a good view.
 	        mvTranslate([0.0, 0.0, GL_zTranslation]);
 	        mvPushMatrix();
-	        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+	        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	        gl.enable(gl.BLEND);
 	        gl.disable(gl.DEPTH_TEST);
 	        addLightForCorticalSurface();

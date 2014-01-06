@@ -50,8 +50,8 @@
 
             if (uUseVertexLineColor || !uDrawLines) {
                 if (uUseBlending) {
-                    vLightWeighting = vec3(0.2, 0.2, 0.2) + vec3(0.1, 0.1, 0.1) * directionalLightWeighting;
-                    vColor = vec4(0.5, 0.5, 0.5, 1.0);
+                    vLightWeighting = vec3(0.4, 0.4, 0.4) + vec3(0.4, 0.4, 0.4) * directionalLightWeighting;
+                    vColor = vec4(0.95, 0.95, 0.95, 0.29);
                 } else {
                     vec3 lightDirection = normalize(uPointLightingLocation - aVertexPosition.xyz);
                     vec3 normal = normalize(transformedNormal.xyz);
