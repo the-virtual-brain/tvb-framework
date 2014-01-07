@@ -400,8 +400,9 @@ width: 100%;
 
 .ss-figures .image-container img {
 display: inline-block;
-margin-left: -50%;
-margin-top: -50%;
+/*margin-left: -50%;*/
+/*margin-top: -50%;*/
+    width:100%;
 }
 
 /* Image-related buttons */
