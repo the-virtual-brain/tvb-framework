@@ -368,7 +368,7 @@ function _initSliders(){
                 loadFromTimeStep($("#slider").slider("option", "value"));
             } });
     } else {
-        $("#fieldSetForSliderSpeed").hide();
+        $("#divForSliderSpeed").hide();
     }
     document.getElementById("Infobox").innerHTML = "";
 }
@@ -520,10 +520,8 @@ function switchFaceObject() {
 function wireFrame() {
     if (drawingMode == gl.POINTS) {
         drawingMode = gl.TRIANGLES;
-        $("#ctrl-action-points").html("Points");
     } else {
         drawingMode = gl.POINTS;
-        $("#ctrl-action-points").html("Smooth");
     }
 }
 
@@ -535,10 +533,10 @@ function pauseMovie() {
     AG_isStopped = !AG_isStopped;
     var pauseButton = $("#ctrl-action-pause");
     if (AG_isStopped) {
-        pauseButton.html("Play");
+        pauseButton.html("Play activity");
         pauseButton.attr("class", "action action-controller-launch");
     } else {
-        pauseButton.html("Pause");
+        pauseButton.html("Pause activity");
         pauseButton.attr("class", "action action-controller-pause");
     }
 }
@@ -850,17 +848,14 @@ function drawScene() {
             if (lastTime !== 0) {
                 framestime.shift();
                 framestime.push(elapsed);
-
                 if (GL_zoomSpeed != 0){
                     GL_zTranslation -= GL_zoomSpeed * elapsed;
                     GL_zoomSpeed = 0;
                 }
-
                 document.getElementById("TimeStep").innerHTML = elapsed;
             }
 
             lastTime = timeNow;
-
             if (timeData.length > 0) {
                 document.getElementById("TimeNow").innerHTML = timeData[currentTimeValue].toFixed(2);
             }

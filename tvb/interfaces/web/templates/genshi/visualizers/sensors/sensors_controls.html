@@ -1,24 +1,21 @@
-<!-- Pursuant to TVB-703, this code should be changed to the standard <fieldset> structure! -->
+<fieldset xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+    <dl>
+        <xi:include href='../../flow/color_scheme.html' py:if="value_of('urlVertices')"/>
 
-<div xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
-    <fieldset>
-        <xi:include href='../commons/state_mode_selector.html'/>
+        <dt>Toggle</dt>
+        <dd>
+            <input id="displayFaceChkId" type="checkbox" onchange="switchFaceObject();" tabindex="1"
+               title="Face approximative will move along with brain navigator." />
+            <label for="displayFaceChkId" >face approximative shade</label>
+        </dd>
 
-    </fieldset>
-
-    <ul class="toolbar-inline">
-		<li py:if="value_of('urlVertices')">
-            <button id="ctrl-action-points" class="action action-view" title="Display only cloud of points, without triagles."
-                    onclick="wireFrame();" tabindex="1">Points</button>
-        </li>
-    </ul>
-
-
-    <fieldset>
-        <input id="displayFaceChkId" title="Face approximative will move along with brain navigator."
-                   type="checkbox" onchange="switchFaceObject();" tabindex="1" />
-        <label for="displayFaceChkId" >Display face approximative shade</label>
-    </fieldset>
-
-    <xi:include href='../../flow/color_scheme.html' py:if="value_of('urlVertices')"/>
-</div>
+		<py:if test="value_of('urlVertices')">
+            <dt></dt>
+            <dd>
+                <input id="ctrl-action-points" type="checkbox" onchange="wireFrame();" tabindex="1"
+                    title="Display only a cloud of points, without triangles" />
+                <label for="ctrl-action-points" >points display</label>
+            </dd>
+        </py:if>
+    </dl>
+</fieldset>

@@ -133,11 +133,11 @@ function clampValue(value) {
  *               'light-hotcold', 'light-TVB'
  */
 function ColSch_setColorScheme(scheme) {
-    $(".colorSchemeSettings").hide();
-    $("#" + scheme + "ColSchFieldSet").show();
+    $('fieldset[id^="colorSchemeFieldSet_"]').hide();
     _colorScheme = scheme;
     if (_refreshCallback) {
-        _refreshCallback()
+        $("#colorSchemeFieldSet_" + scheme).show();
+        _refreshCallback();
     }
 }
 
@@ -160,8 +160,8 @@ function ColSch_initColorSchemeParams(minValue, maxValue, refreshFunction) {
         range: true, min: minValue, max: maxValue, step: 0.001,
         values: [minValue, maxValue],
         slide: function(event, ui) {                            // update the UI
-                event.target.parentElement.previousElementSibling.innerHTML = ui.values[0].toFixed(3);
-                event.target.parentElement.nextElementSibling.innerHTML     = ui.values[1].toFixed(3)
+                $("#sliderMinValue").html(ui.values[0].toFixed(3));
+                $("#sliderMaxValue").html(ui.values[1].toFixed(3));
         },
         change: function(event, ui) {
             _linearGradientStart = (ui.values[0] - minValue) / (maxValue - minValue);    // keep the interest interval

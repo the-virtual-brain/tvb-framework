@@ -177,14 +177,6 @@ class ConnectivityViewer(ABCDisplayer):
             url_triangles = []
             url_normals = []
 
-        # compute the alpha value of the surface based on the number of vertices
-        # for 16384 vertices a good alpha value is 0.05
-        # todo: find a better way to compute the alpha
-        alpha_value = 0.05
-        landmark = 16384
-        if surface_data and surface_data.number_of_vertices < landmark:
-            alpha_value = 0.05 * landmark / surface_data.number_of_vertices
-
         submit_url = self.get_submit_method_url("submit_connectivity")
         global_pages = dict(controlPage="connectivity/top_right_controls")
 
@@ -202,7 +194,7 @@ class ConnectivityViewer(ABCDisplayer):
                              weightsMin=json.dumps(minimum), weightsMax=json.dumps(maximum),
                              pointsLabels=input_data.region_labels, conductionSpeed=input_data.speed or 1,
                              urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
-                             urlNormals=json.dumps(url_normals), alpha_value=alpha_value,
+                             urlNormals=json.dumps(url_normals),
                              connectivity_nose_correction=json.dumps(input_data.nose_correction),
                              connectivity_entity=input_data, surface_entity=surface_data,
                              algo_group=self.get_algo_group(),

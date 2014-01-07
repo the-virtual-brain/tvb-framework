@@ -106,7 +106,7 @@ var colorsArrayBuffer;
 var colorsIndexes =[];
 var conductionSpeed = 1;
 
-var alphaValue = 0;
+var _alphaValue = 0.1;
 
 var CONN_pickedIndex = -1;
 var near = 0.1;
@@ -277,7 +277,7 @@ function addLightForCorticalSurface() {
     var flatLD = adjustedLD.flatten();
     gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
     gl.uniform3f(shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8);
-    gl.uniform1f(shaderProgram.alphaUniform, alphaValue);
+    gl.uniform1f(shaderProgram.alphaUniform, _alphaValue);
 }
 
 function drawScene() {
@@ -456,9 +456,9 @@ function getLinesIndexes() {
         for (var j = 0; j < GVAR_connectivityMatrix[i].length; j++) {
             if (GVAR_connectivityMatrix[i][j] == 1) {
             	try {
-            		var bin = CONN_lineWidthsBins[i][j];
-	            	lines[bin].push(i);
-	            	lines[bin].push(j);
+            		var bins = CONN_lineWidthsBins[i][j];
+	            	lines[bins].push(i);
+	            	lines[bins].push(j);
             	} catch(err) {
             		console.log(err);
             	}
@@ -578,9 +578,9 @@ function checkAll() {
              GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 1;
         }
         var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
-		for (var j = 0; j < comingOutEdgesIndexes.length; j++) {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[j]] > 0 )
-             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[j]] = 1;
+		for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
+			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[jj]] > 0 )
+             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 1;
         }
 	}
     drawScene();
@@ -611,9 +611,9 @@ function checkAllSelected() {
 	             GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 1;
 	        }
 	        var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
-			for (var j = 0; j < comingOutEdgesIndexes.length; j++) {
-				if (GFUNC_isNodeAddedToInterestArea(j) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[j]] > 0 )
-	             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[j]] = 1;
+			for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
+				if (GFUNC_isNodeAddedToInterestArea(j) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[jj]] > 0 )
+	             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 1;
 	        }
 	  }
 	}
@@ -632,9 +632,9 @@ function clearAllSelected() {
 	             GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 0;
 	        }
 	        var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
-			for (var j = 0; j < comingOutEdgesIndexes.length; j++) {
-				if (GFUNC_isNodeAddedToInterestArea(j) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[j]] > 0 )
-	             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[j]] = 0;
+			for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
+				if (GFUNC_isNodeAddedToInterestArea(jj) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[jj]] > 0 )
+	             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 0;
 	        }
 	  }
 	}
@@ -685,10 +685,10 @@ function applyConnectivityNoseCorrection() {
  * @param listOfIndexes the list of indexes for the points that should be verified. Each 2 elements from this list represent a point
  * (the indexes i and j from the connectivityMatrix in which is kept the information about the checked/unchecked points)
  * 
- * dir = 0 -> ingoing
- * dir = 1 -> outgoing
+ * @param dir = 0 -> ingoing
+ *        dir = 1 -> outgoing
  * 
- * idx -> point in question
+ * @param idx -> point in question
  */
 function isAnyPointChecked(idx, listOfIndexes, dir) {	
     for (var i = 0; i < listOfIndexes.length; i++) {
@@ -747,10 +747,10 @@ function getAsynchronousBuffers(urlList, resultBuffers, isIndex) {
 
 
 function selectHemisphere(index) {
-	$(".quadrant-display").each(function (listItem) {
+	$(".quadrant-display").each(function () {
 		$(this).removeClass('active');
 	});
-	$(".quadrant-"+ index).each(function (listItem) {
+	$(".quadrant-"+ index).each(function () {
 		$(this).addClass('active');
 	});
 	
@@ -777,8 +777,8 @@ function drawHemispheres(drawingMode) {
         gl.bindBuffer(gl.ARRAY_BUFFER, normalsBuffers[i]);
         gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, TRI, gl.FLOAT, false, 0, 0);
         //todo-io: hack for colors buffer
-        //todo-io: there should be passed an buffer of colors indexes not the verticesBuffers;
-        //todo-io: although we pass the color as a uniform we still have to set the aColorIndex attribute
+        //there should be passed an buffer of colors indexes not the verticesBuffers;
+        // although we pass the color as a uniform we still have to set the aColorIndex attribute
         gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffers[i]);
         gl.vertexAttribPointer(shaderProgram.colorAttribute, 3, gl.FLOAT, false, 0, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexesBuffers[i]);
@@ -845,9 +845,8 @@ function connectivity_initCanvas() {
  * only once.
  */
 function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList, urlTrianglesList,
-								urlNormalsList, conn_nose_correction, alpha_value, condSpeed, rays, colors) {
+								urlNormalsList, conn_nose_correction, condSpeed, rays, colors) {
 	GVAR_initPointsAndLabels(filePositions);
-    alphaValue = alpha_value;
     connectivity_nose_correction = $.parseJSON(conn_nose_correction);
     NO_POSITIONS = GVAR_positionsPoints.length;
     GFUNC_initTractsAndWeights(fileWeights, fileTracts);
@@ -875,8 +874,8 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
 	if (urlVertices.length > 0) {
 		var urlNormals = $.parseJSON(urlNormalsList);
     	var urlTriangles = $.parseJSON(urlTrianglesList);
-	    getAsynchronousBuffers(urlVertices, verticesBuffers);
-	    getAsynchronousBuffers(urlNormals, normalsBuffers);
+	    getAsynchronousBuffers(urlVertices, verticesBuffers, false);
+	    getAsynchronousBuffers(urlNormals, normalsBuffers, false);
 	    getAsynchronousBuffers(urlTriangles, indexesBuffers, true);		
 	}
     GFUNC_initConnectivityMatrix(NO_POSITIONS);
@@ -886,16 +885,32 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
 }
 
 /**
+ * Change transparency of cortical surface from user-input.
+ *
+ * @param inputField user given input value for transparency of cortical-surface
+ */
+function changeSurfaceTransparency(inputField) {
+    var newValue = inputField.value;
+
+    if (!isNaN(parseFloat(newValue)) && isFinite(newValue) && parseFloat(newValue) >= 0 && parseFloat(newValue) <= 1) {
+        _alphaValue = parseFloat(newValue);
+    } else {
+        inputField.value = _alphaValue;
+        displayMessage("Transparency value should be a number between 0 and 1.", "warningMessage");
+    }
+}
+
+/**
  * This will take all the required steps to start the connectivity visualizer.
  *
  * @param isSingleMode if is <code>true</code> that means that the connectivity will
  * be drawn alone, without widths and tracts.
  */
 function prepareConnectivity(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                    urlNormalsList, conn_nose_correction, alpha_value, isSingleMode, conductionSpeed, rays, colors) {
+                             urlNormalsList, conn_nose_correction, isSingleMode, conductionSpeed, rays, colors) {
 	connectivity_initCanvas();
 	saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                    	   urlNormalsList, conn_nose_correction, alpha_value, conductionSpeed, rays, colors);
+                    	   urlNormalsList, conn_nose_correction, conductionSpeed, rays, colors);
     if (!isSingleMode) {
         GFUNC_addAllMatrixToInterestArea();
     }

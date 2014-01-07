@@ -57,7 +57,7 @@ class SurfaceViewer(ABCDisplayer):
         return [{'name': 'surface', 'label': 'Brain surface',
                  'type': SurfaceData, 'required': True,
                  'description': '', KWARG_FILTERS_UI: json_ui_filter},
-                {'name': 'region_map', 'label': 'region mapping',
+                {'name': 'region_map', 'label': 'Region mapping',
                  'type': RegionMapping, 'required': False,
                  'description': 'A region map'}]
 

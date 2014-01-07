@@ -1,77 +1,75 @@
-<!-- Pursuant to TVB-703, this code should be changed to the standard <fieldset> structure! -->
+<fieldset xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
 
-<div xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
-    <fieldset id="fieldSetForSliderSpeed">
-        <ul> 
-            <li> 
-                <dl>
-                    <dt>
-                        <label for="ctrl-input-speed">Speed</label>
-                        <span class="slider-value" id="slider-value">0</span>
-                        <span class="slider-value"> timesteps per Frame.</span>
-                    </dt> 
-                    <dd>
-                        <div class="sliderStepDiv" ondblclick="resetSpeedSlider();">
-                            <div id="sliderStep" class="shadow"></div>
-                        </div> 
-                    </dd>
-                </dl> 
-            </li> 
-        </ul> 
-    </fieldset> 
-     
-	<ul class="toolbar-inline">
-		<li>
-            <button id="ctrl-action-points" class="action action-view" title="Display only cloud of points, without triagles."
-                    onclick="wireFrame();" tabindex="1">Points</button>
-        </li>
-		<li py:if="not defined('isSEEG') and not isOneToOneMapping">
-            <button id="ctrl-action-nodes" class="action action-view" title="Display measurement nodes"
-                    onclick="toggleMeasureNodes();" tabindex="1">Nodes</button>
-        </li>
+    <ul class="toolbar-inline">
 		<li>
             <button id="ctrl-action-pause" class="action action-controller-pause" title="Pause/Start Drawing"
-                    onclick="pauseMovie();" tabindex="1">Pause</button>
+                    onclick="pauseMovie();" tabindex="1">Pause activity</button>
         </li>
     </ul>
 
-    <fieldset>
-		<xi:include href='../commons/state_mode_selector.html'/>
-		${drawStateModeSelector(labelsStateVar, 'state-variable-select', 'State variable:', 'changeStateVariable')}
-		${drawStateModeSelector(labelsModes, 'mode-select', 'Mode:', 'changeMode')}
+    <dl>
+        <div id="divForSliderSpeed">
+            <dt>
+                <label for="sliderStep">Speed</label>
+            </dt>
+            <dd>
+                <div class="sliderStepDiv" ondblclick="resetSpeedSlider();">
+                    <div id="sliderStep" class="shadow"></div>
+                </div>
 
-        <py:if test="not extended_view and not isOneToOneMapping">
-            <input id="showBrainLines" type="checkbox" onchange="toggleDrawBoundaries(this);"
-                   tabindex="1" py:if="not defined('isSEEG')"/>
+                <span class="slider-value" id="slider-value">0</span>
+                <span class="slider-value"> timesteps per Frame.</span>
+            </dd>
+        </div>
 
-            <label for="showBrainLines">Show region boundaries</label>
-            <br/>
-        </py:if>
-
-        <py:if test="not defined('isSEEG')">
-            <input id="showBrainLines" type="checkbox" onchange="toggleDrawTriangleLines(this);" tabindex="1"/>
-
-            <label for="showBrainLines">Show surface triangles</label>
-        </py:if>
-
-        <br/>
-
-        <py:if test="not extended_view">
-            <input id="inTimeRefreshChkId" type="checkbox" onchange="NAV_setInTimeRefresh(this);"
-                   tabindex="1" />
-
-            <label for="inTimeRefreshChkId">In time refresh</label>
-        </py:if>
-
-        <br/>
+        <xi:include href='../../flow/color_scheme.html'/>
 
         <py:if test="not defined('isSEEG')">
-            <input id="displayFaceChkId" title="Face approximative will move along with brain navigator."
-                   type="checkbox" onchange="switchFaceObject();" tabindex="1" />
-            <label for="displayFaceChkId" >Display face approximative shade</label>
+
+            <dt>Toggle</dt>
+            <dd><input id="displayFaceChkId" type="checkbox" onchange="switchFaceObject();" tabindex="1"
+                   title="Face approximative will move along with brain navigator." />
+                <label for="displayFaceChkId" >face approximative shade</label>
+            </dd>
+
+            <dt></dt>
+            <dd>
+                <input id="ctrl-action-points" type="checkbox" onchange="wireFrame();" tabindex="1"
+                    title="Display only a cloud of points, without triangles" />
+                <label for="ctrl-action-points">points display</label>
+            </dd>
+
+            <dt></dt>
+            <dd><input id="showBrainLines" type="checkbox" onchange="toggleDrawTriangleLines();" tabindex="1"/>
+                <label for="showBrainLines">surface triangles</label>
+            </dd>
+
+            <py:if test="not isOneToOneMapping">
+                <dt></dt>
+                <dd><input id="showMeasurePoints" type="checkbox" onchange="toggleMeasureNodes();" tabindex="1"/>
+                    <label for="showMeasurePoints">measure points</label>
+                </dd>
+            </py:if>
+
+            <py:if test="not isOneToOneMapping and not extended_view">
+                <dt></dt>
+                <dd>
+                    <input id="showBrainBoundaries" type="checkbox" onchange="toggleDrawBoundaries();" tabindex="1"/>
+                    <label for="showBrainBoundaries">region boundaries</label>
+                </dd>
+            </py:if>
+
+            <py:if test="not extended_view">
+                <dt></dt>
+                <dd><input id="inTimeRefreshChkId" type="checkbox" onchange="NAV_setInTimeRefresh(this);" tabindex="1" />
+                    <label for="inTimeRefreshChkId">In time refresh</label>
+                </dd>
+            </py:if>
         </py:if>
 
-    </fieldset>
+        <xi:include href='../commons/state_mode_selector.html'/>
+        ${drawStateModeSelector(labelsStateVar, 'state-variable-select', 'State variable', 'changeStateVariable')}
+        ${drawStateModeSelector(labelsModes, 'mode-select', 'Mode', 'changeMode')}
+    </dl>
 
-    <xi:include href='../../flow/color_scheme.html'/>
-</div>
+</fieldset>
