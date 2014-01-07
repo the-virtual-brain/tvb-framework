@@ -277,7 +277,7 @@ function addLightForCorticalSurface() {
     var flatLD = adjustedLD.flatten();
     gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
     gl.uniform3f(shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8);
-    gl.uniform1f(shaderProgram.alphaUniform, 0.1);
+    gl.uniform1f(shaderProgram.alphaUniform, alphaValue);
 }
 
 function drawScene() {
@@ -558,9 +558,9 @@ function handleLines(selectedNodeIdx, direction, draw) {
 			}
 		}
 	} else {
-		for (var i=0; i<NO_POSITIONS; i++) {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][selectedNodeIdx] > 0) {
-				GVAR_connectivityMatrix[i][selectedNodeIdx] = draw;
+		for (var ii=0; ii<NO_POSITIONS; ii++) {
+			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][ii][selectedNodeIdx] > 0) {
+				GVAR_connectivityMatrix[ii][selectedNodeIdx] = draw;
 			}
 		}	
 	}
@@ -721,6 +721,7 @@ function hasPositiveWeights(i) {
  *
  * @param urlList the list of files urls
  * @param resultBuffers a list in which will be added the buffers created based on the data from the specified files
+ * @param isIndex Boolean marking when current buffer to draw is with indexes.
  */
 function getAsynchronousBuffers(urlList, resultBuffers, isIndex) {
     if (urlList.length == 0) {

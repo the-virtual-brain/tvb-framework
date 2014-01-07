@@ -347,23 +347,23 @@ function _initSliders(){
     if (timeData.length > 0) {
         MAX_TIME_STEP = timeData.length - 1;
         $("#sliderStep").slider({min:1, max: 50, step: 1,
-            stop: function(ev, ui) {
+            stop: function() {
                 var newStep = $("#sliderStep").slider("option", "value");
                 setTimeStep(newStep);
                 refreshCurrentDataSlice();
                 sliderSel = false;
             },
-            slide: function(event, ui) {
+            slide: function() {
                 sliderSel = true;
             }
             });
         // Initialize slider for timeLine
         $("#slider").slider({ min:0, max: MAX_TIME_STEP,
-            slide: function(event, ui) {
+            slide: function() {
                 sliderSel = true;
                 currentTimeValue = $("#slider").slider("option", "value");
             },
-            stop: function(event, ui) {
+            stop: function() {
                 sliderSel = false;
                 loadFromTimeStep($("#slider").slider("option", "value"));
             } });
@@ -461,9 +461,9 @@ function updateColors(currentTimeValue) {
             colors = null;
         }
     } else {
-        for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-            var rgb = getGradientColor(activitiesData[currentTimeInFrame][i], activityMin, activityMax);
-            gl.uniform4f(shaderProgram.colorsUniform[i], rgb[0], rgb[1], rgb[2], 1);
+        for (var ii = 0; ii < NO_OF_MEASURE_POINTS; ii++) {
+            var rgb = getGradientColor(activitiesData[currentTimeInFrame][ii], activityMin, activityMax);
+            gl.uniform4f(shaderProgram.colorsUniform[ii], rgb[0], rgb[1], rgb[2], 1);
         }
         // default color for a measure point
         gl.uniform4f(shaderProgram.colorsUniform[NO_OF_MEASURE_POINTS], 0.34, 0.95, 0.37, 1.0);
@@ -745,12 +745,10 @@ function drawBuffers(drawMode, buffersSets, useBlending) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
         // Add gray color for semi-transparent object.
-        gl.uniform3f(shaderProgram.ambientColorUniform, 0.2, 0.2, 0.2);//unused in shader!
         var lightingDirection = Vector.create([-0.25, -0.25, -1]);
         var adjustedLD = lightingDirection.toUnitVector().x(-1);
         var flatLD = adjustedLD.flatten();
         gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
-        gl.uniform3f(shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8); //unused in shader!
     }
     for (var i = 0; i < buffersSets.length; i++) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][0]);
@@ -866,8 +864,7 @@ function drawScene() {
             if (timeData.length > 0) {
                 document.getElementById("TimeNow").innerHTML = timeData[currentTimeValue].toFixed(2);
             }
-            var fps = Math.floor(1000 / ((eval(framestime.join("+"))) / framestime.length));
-            document.getElementById("FramesPerSecond").innerHTML = fps;
+            document.getElementById("FramesPerSecond").innerHTML = Math.floor(1000 / ((eval(framestime.join("+"))) / framestime.length));
 
             if(isMovie){
                 document.getElementById("slider-value").innerHTML = TIME_STEP;

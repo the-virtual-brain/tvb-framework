@@ -106,7 +106,7 @@ function __tryExport(canvas, operationId, remainingTrials) {
         var data = canvas.toDataURL("image/jpeg");
 
         if (data)       // don't store empty images
-            $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/png/' + operationId,
+            $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/jpeg/' + operationId,
                         data: {"export_data": data.replace('data:image/jpeg;base64,', '')},
                         success: function() {
                             displayMessage("Figure successfully saved!<br/> See Project section, " +

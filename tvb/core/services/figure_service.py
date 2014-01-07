@@ -55,7 +55,7 @@ class FigureService:
     """
     Service layer for Figure entities.
     """
-    _TYPE_PNG = "png"
+    _TYPE_JPEG = "jpeg"
     _TYPE_SVG = "svg"
 
     _BRANDING_BAR_PNG = os.path.join(os.path.dirname(__file__), "resources", "branding_bar.png")
@@ -79,21 +79,14 @@ class FigureService:
         store_path = utils.get_unique_file_name(store_path, FigureService._DEFAULT_IMAGE_FILE_NAME + img_type)[0]
         file_path = os.path.split(store_path)[1]
 
-        if img_type == FigureService._TYPE_PNG:                         # PNG file from canvas
-            imgData = base64.b64decode(export_data)                     # decode the image
-            fakeImgFile = StringIO(imgData)                             # PIL.Image only opens from file, so fake one
-            origImg = Image.open(fakeImgFile)
-            brandingBar = Image.open(FigureService._BRANDING_BAR_PNG)
+        if img_type == FigureService._TYPE_JPEG:
+            img_data = base64.b64decode(export_data)                        # decode the image
+            final_image = Image.open(StringIO(img_data))                    # place it in a PIL stream
 
-            finalSize = (origImg.size[0],                               # original width
-                         origImg.size[1] + brandingBar.size[1])         # original height + brandingBar height
-            finalImg = Image.new("RGBA", finalSize)
+            branding_bar = Image.open(FigureService._BRANDING_BAR_PNG)      # place the branding bar over
+            final_image.paste(branding_bar, (0, final_image.size[1] - branding_bar.size[1]), branding_bar)
 
-            finalImg.paste(origImg, (0, 0))                             # add the original image
-            finalImg.paste(brandingBar, (0, origImg.size[1]))           # add the branding bar, below the original
-                                                                        # the extra width will be discarded
-
-            finalImg.save(store_path)                                   # store to disk
+            final_image.save(store_path)                                    # store to disk as PNG
 
         elif img_type == FigureService._TYPE_SVG:                                   # SVG file from svg viewer
             dom = xml.dom.minidom.parseString(export_data)
