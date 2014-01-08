@@ -27,14 +27,15 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
+
 from tvb.adapters.uploaders.abcuploader import ABCUploader
-from tvb.core.adapters.exceptions import LaunchException
 from tvb.adapters.uploaders.nifti.nifti_parser import NIFTIParser
 from tvb.basic.logger.builder import get_logger
-from tvb.core.adapters.exceptions import ParseException
+from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.entities.storage import transactional
 from tvb.datatypes.time_series import TimeSeriesVolume
 from tvb.datatypes.volumes import Volume
@@ -42,13 +43,14 @@ from tvb.datatypes.volumes import Volume
 
 class NIFTIImporter(ABCUploader):
     """
-        This importer is responsible for loading of data from NIFTI format (nii or nii.gz files)
-        and store them in TVB as TimeSeries.
+    This importer is responsible for loading of data from NIFTI format (nii or nii.gz files)
+    and store them in TVB as TimeSeries.
     """
     _ui_name = "NIFTI"
     _ui_subsection = "nifti_importer"
     _ui_description = "Import TimeSeries Volume from NIFTI"
-    
+
+
     def get_upload_input_tree(self):
         """
             Take as input a GZ archive or NII file.
@@ -59,11 +61,12 @@ class NIFTIImporter(ABCUploader):
         
     def get_output(self):
         return [Volume, TimeSeriesVolume]
-    
+
+
     @transactional
     def launch(self, data_file):
         """
-            Execute import operations: 
+        Execute import operations:
         """
         parser = NIFTIParser(self.storage_path, self.operation_id)
         try:

@@ -27,17 +27,18 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-from tvb.adapters.uploaders.abcuploader import ABCUploader
 
-from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.basic.traits.util import read_list_data
-from tvb.datatypes.connectivity import Connectivity
-from tvb.core.adapters.exceptions import LaunchException
 import numpy
+from tvb.adapters.uploaders.abcuploader import ABCUploader
+from tvb.basic.traits.util import read_list_data
+from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.adapters.exceptions import LaunchException
+from tvb.datatypes.connectivity import Connectivity
 
 
 class ZIPConnectivityImporter(ABCUploader):
@@ -71,7 +72,8 @@ class ZIPConnectivityImporter(ABCUploader):
         
     def get_output(self):
         return [Connectivity]
-    
+
+
     def launch(self, uploaded, rotate_x=0, rotate_y=0, rotate_z=0):
         """
         Execute import operations: unpack ZIP and build Connectivity object as result.

@@ -29,17 +29,14 @@
 #
 
 """
-Created on Jan 22, 2013
-
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
-from tvb.datatypes.lookup_tables import LookUpTable, PsiTable, NerfTable
-from tvb.core.adapters.abcadapter import ABCSynchronous
-from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.logger.builder import get_logger
+from tvb.core.adapters.exceptions import LaunchException
+from tvb.datatypes.lookup_tables import LookUpTable, PsiTable, NerfTable
 
 
 class LookupTableImporter(ABCUploader):
@@ -65,11 +62,12 @@ class LookupTableImporter(ABCUploader):
                  'label': 'Table type: ', 'required': True,
                  'options': [{'name': self.PSI_TABLE, 'value': self.PSI_TABLE},
                              {'name': self.NERF_TABLE, 'value': self.NERF_TABLE}]
-                 },
-                ]
-                             
+                 }]
+
+
     def get_output(self):
         return [LookUpTable]
+
 
     def launch(self, psi_table_file, table_type):
         """

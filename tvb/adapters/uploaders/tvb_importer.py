@@ -33,8 +33,8 @@
 """
 
 import os
-import zipfile
 import shutil
+import zipfile
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.services.import_service import ImportService
@@ -65,6 +65,7 @@ class TVBImporter(ABCUploader):
     def get_output(self):
         return []
 
+
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
         """
         Overwrite method in order to return the correct number of stored datatypes.
@@ -82,7 +83,6 @@ class TVBImporter(ABCUploader):
 
         :raises LaunchException: when data_file is None, nonexistent, or invalid \
                     (e.g. incomplete meta-data, not in ZIP / HDF5 format etc. )
-
         """
         if data_file is None:
             raise LaunchException("Please select file which contains data to import")

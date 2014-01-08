@@ -34,10 +34,10 @@
 
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
-from tvb.datatypes.sensors import Sensors, SensorsEEG, SensorsMEG, SensorsInternal
-from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.traits.util import read_list_data
 from tvb.basic.logger.builder import get_logger
+from tvb.core.adapters.exceptions import LaunchException
+from tvb.datatypes.sensors import Sensors, SensorsEEG, SensorsMEG, SensorsInternal
 
 
 class Sensors_Importer(ABCUploader):
@@ -53,6 +53,7 @@ class Sensors_Importer(ABCUploader):
     INTERNAL_SENSORS = "Internal Sensors"
     logger = get_logger(__name__)
 
+
     def get_upload_input_tree(self):
         """
         Define input parameters for this importer.
@@ -66,11 +67,12 @@ class Sensors_Importer(ABCUploader):
                  'options': [{'name': self.EEG_SENSORS, 'value': self.EEG_SENSORS},
                              {'name': self.MEG_SENSORS, 'value': self.MEG_SENSORS},
                              {'name': self.INTERNAL_SENSORS, 'value': self.INTERNAL_SENSORS}]
-                 },
-                ]
-                             
+                 }]
+
+
     def get_output(self):
         return [Sensors]
+
 
     def launch(self, sensors_file, sensors_type):
         """

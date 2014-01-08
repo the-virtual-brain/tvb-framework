@@ -27,16 +27,32 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-"""
-Created on Oct 11, 2011
 
+"""
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import numpy
 from cfflib import CNetwork, nx
-from tvb.datatypes.connectivity import Connectivity
 from tvb.adapters.uploaders.helper_handler import get_uids_dict
+from tvb.basic.logger.builder import get_logger
+from tvb.datatypes.connectivity import Connectivity
 import tvb.adapters.uploaders.constants as ct
+
+
+### Connectivity related constants
+KEY_POS_X = 'pos_x'
+KEY_POS_Y = 'pos_y'
+KEY_POS_Z = 'pos_z'
+KEY_POS_LABEL = 'label'
+KEY_AREA = 'area'
+KEY_ORIENTATION_AVG = 'average_orientation'
+KEY_WEIGHT = 'weight'
+KEY_TRACT = 'tract'
+KEY_NOSE = 'nose_correction'
+CFF_CONNECTIVITY_TITLE = "TVB Connectivity Matrix"
+
+LOGGER = get_logger(__name__)
 
 
 def _get_coord_xform(darray):
@@ -66,34 +82,53 @@ def connectivity2networkx(connectivity):
     graph = nx.DiGraph()
     # Add all nodes
     for i in range(connectivity.number_of_regions):
-        node_dict = {ct.KEY_POS_X: connectivity.centres[i][0], 
-                     ct.KEY_POS_Y: connectivity.centres[i][1], 
-                     ct.KEY_POS_Z: connectivity.centres[i][2],
-                     ct.KEY_POS_LABEL: connectivity.region_labels[i]}
+        node_dict = {KEY_POS_X: connectivity.centres[i][0],
+                     KEY_POS_Y: connectivity.centres[i][1],
+                     KEY_POS_Z: connectivity.centres[i][2],
+                     KEY_POS_LABEL: connectivity.region_labels[i]}
         if connectivity.areas is not None:
-            node_dict[ct.KEY_AREA] = connectivity.areas[i]
+            node_dict[KEY_AREA] = connectivity.areas[i]
         if connectivity.orientations is not None:
-            node_dict[ct.KEY_ORIENTATION_AVG] = connectivity.orientations[i]
+            node_dict[KEY_ORIENTATION_AVG] = connectivity.orientations[i]
         graph.add_node(i, node_dict)
     # Add all edges
     for i, weights_row in enumerate(connectivity.weights):
         for j, value in enumerate(weights_row):
             graph.add_edge(i, j, 
-                           {ct.KEY_WEIGHT: value, 
-                            ct.KEY_TRACT: connectivity.tract_lengths[i][j]})
+                           {KEY_WEIGHT: value,
+                            KEY_TRACT: connectivity.tract_lengths[i][j]})
 
     uids_dict = get_uids_dict(connectivity)
 
-    network = CNetwork(ct.CFF_CONNECTIVITY_TITLE + "_" + connectivity.gid)
+    network = CNetwork(CFF_CONNECTIVITY_TITLE + "_" + connectivity.gid)
     network.set_with_nxgraph(graph)
-    network.update_metadata({ct.KEY_NOSE: connectivity.nose_correction,
+    network.update_metadata({KEY_NOSE: connectivity.nose_correction,
                              ct.KEY_UID: uids_dict[ct.KEY_CONNECTIVITY_UID]})
     return network
-    
+
 
 def networkx2connectivity(network_obj, storage_path):
     """
     Populate Connectivity DataType from NetworkX object.
+
+    :param network_obj: NetworkX object to read data from it
+    :param storage_path: File path where to persist Connectivity.
+    :return: Tuple(Connectivity object, uid from metadata)
+    """
+    try:
+        ## Try with default fields
+        return networkx_default_2connectivity(network_obj, storage_path)
+    except Exception, exc:
+
+        ## When exception, try fields as from Connectome Mapper Toolkit
+        LOGGER.debug(exc)
+        return networkx_cmt_2connectivity(network_obj, storage_path)
+
+
+
+def networkx_default_2connectivity(network_obj, storage_path):
+    """
+    Populate Connectivity DataType from NetworkX object, as in the default CFF example
     """
     network_obj.load()
     weights_matrix, tract_matrix, labels_vector = [], [], []
@@ -102,28 +137,28 @@ def networkx2connectivity(network_obj, storage_path):
     graph_data = network_obj.data
     graph_size = len(graph_data.nodes())
     for node in graph_data.nodes():
-        positions.append([graph_data.node[node][ct.KEY_POS_X], 
-                          graph_data.node[node][ct.KEY_POS_Y],
-                          graph_data.node[node][ct.KEY_POS_Z]])
-        labels_vector.append(graph_data.node[node][ct.KEY_POS_LABEL])
-        if ct.KEY_AREA in graph_data.node[node]:
-            areas.append(graph_data.node[node][ct.KEY_AREA])
-        if ct.KEY_ORIENTATION_AVG in graph_data.node[node]:
-            orientation.append(graph_data.node[node][ct.KEY_ORIENTATION_AVG])
+        positions.append([graph_data.node[node][KEY_POS_X],
+                          graph_data.node[node][KEY_POS_Y],
+                          graph_data.node[node][KEY_POS_Z]])
+        labels_vector.append(graph_data.node[node][KEY_POS_LABEL])
+        if KEY_AREA in graph_data.node[node]:
+            areas.append(graph_data.node[node][KEY_AREA])
+        if KEY_ORIENTATION_AVG in graph_data.node[node]:
+            orientation.append(graph_data.node[node][KEY_ORIENTATION_AVG])
         weights_matrix.append([0.0] * graph_size)
         tract_matrix.append([0.0] * graph_size)
     # Read all edges
     for edge in network_obj.data.edges():
         start = edge[0]
         end = edge[1]
-        weights_matrix[start][end] = graph_data.adj[start][end][ct.KEY_WEIGHT]
-        tract_matrix[start][end] = graph_data.adj[start][end][ct.KEY_TRACT]
+        weights_matrix[start][end] = graph_data.adj[start][end][KEY_WEIGHT]
+        tract_matrix[start][end] = graph_data.adj[start][end][KEY_TRACT]
 
     meta = network_obj.get_metadata_as_dict()
     
     result = Connectivity()
     result.storage_path = storage_path
-    result.nose_correction = meta[ct.KEY_NOSE] if ct.KEY_NOSE in meta else None
+    result.nose_correction = meta[KEY_NOSE] if KEY_NOSE in meta else None
     result.weights = weights_matrix
     result.centres = positions
     result.region_labels = labels_vector
@@ -133,5 +168,72 @@ def networkx2connectivity(network_obj, storage_path):
     result.tract_lengths = tract_matrix
     return result, (meta[ct.KEY_UID] if ct.KEY_UID in meta else None)
 
+
+#
+#   Connectome Mapper Toolkit
+#
+
+
+KEY_CMT_COORDINATES = "dn_position"
+KEY_CMT_LABEL = "dn_name"
+
+KEY_CMT_REGION = "dn_region"
+KEY_CMT_REGION_CORTICAL = "cortical"
+
+KEY_CMT_HEMISPHERE = "dn_hemisphere"
+KEY_CMT_HEMISPHERE_RIGHT = "right"
+
+KEY_CMT_WEIGHT = "fa_mean"
+KEY_CMT_TRACT = "fiber_length_mean"
+
+
+
+def networkx_cmt_2connectivity(network_obj, storage_path):
+    """
+    Populate Connectivity DataType from NetworkX object produced with Connectome Mapper Toolkit.
+    """
+    network_obj.load()
+    weights_matrix, tract_matrix, labels_vector = [], [], []
+    positions, cortical, hemisphere = [], [], []
+
+    # Read all nodes
+    graph_data = network_obj.data
+    graph_size = len(graph_data.nodes())
+
+    for node in graph_data.nodes():
+        positions.append(list(graph_data.node[node][KEY_CMT_COORDINATES]))
+        labels_vector.append(str(graph_data.node[node][KEY_CMT_LABEL]))
+
+        weights_matrix.append([0.0] * graph_size)
+        tract_matrix.append([0.0] * graph_size)
+
+        if KEY_CMT_REGION_CORTICAL == graph_data.node[node][KEY_CMT_REGION]:
+            cortical.append(1)
+        else:
+            cortical.append(0)
+
+        if KEY_CMT_HEMISPHERE_RIGHT == graph_data.node[node][KEY_CMT_HEMISPHERE]:
+            hemisphere.append(True)
+        else:
+            hemisphere.append(False)
+
+
+    # Read all edges
+    for edge in network_obj.data.edges():
+        start = edge[0]
+        end = edge[1]
+        weights_matrix[start -1 ][end - 1] = graph_data.adj[start][end][KEY_CMT_WEIGHT]
+        tract_matrix[start - 1][end - 1] = graph_data.adj[start][end][KEY_CMT_TRACT]
+
+    result = Connectivity()
+    result.storage_path = storage_path
+    result.region_labels = labels_vector
+    result.centres = positions
+    result.set_metadata({'description': 'Array Columns: labels, X, Y, Z'}, 'centres')
+    result.hemispheres = hemisphere
+    result.cortical = cortical
+    result.weights = weights_matrix
+    result.tract_lengths = tract_matrix
+    return result, None
 
 

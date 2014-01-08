@@ -27,22 +27,13 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
 ### Connectivity related constants
-KEY_POS_X = 'pos_x'
-KEY_POS_Y = 'pos_y'
-KEY_POS_Z = 'pos_z'
-KEY_POS_LABEL = 'label'
-KEY_AREA = 'area'
-KEY_ORIENTATION_AVG = 'average_orientation'
-KEY_WEIGHT = 'weight'
-KEY_TRACT = 'tract'
-KEY_NOSE = 'nose_correction'
-CFF_CONNECTIVITY_TITLE = "TVB Connectivity Matrix"
 KEY_CONNECTIVITY_UID = 'CONNECTIVITY_UID'
 
 
@@ -83,7 +74,4 @@ SURFACE_CLASS = "surface_class"
 CLASS_SURFACE = "Surface"
 CLASS_CORTEX = "Cortex"
 CLASS_CORTEX_ACTIVITY = "CortexActivity"
-
-
-
 

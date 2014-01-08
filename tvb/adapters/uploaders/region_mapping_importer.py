@@ -55,7 +55,9 @@ class RegionMapping_Importer(ABCUploader):
     _ui_name = "RegionMapping"
     _ui_subsection = "region_mapping_importer"
     _ui_description = "Import a Region Mapping (Surface - Connectivity) from TXT/ZIP/BZ2"
+
     logger = get_logger(__name__)
+
 
     def get_upload_input_tree(self):
         """
@@ -73,9 +75,11 @@ class RegionMapping_Importer(ABCUploader):
                  'type': Connectivity, 'required': True, 'datatype': True,
                  'description': 'The Connectivity used by uploaded region mapping.'}
                 ]
-                             
+
+
     def get_output(self):
         return [RegionMapping]
+
 
     def launch(self, mapping_file, surface, connectivity):
         """

@@ -35,11 +35,11 @@
 
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
+from tvb.basic.logger.builder import get_logger
+from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.surfaces import Surface, CorticalSurface, SkinAir, BrainSkull, SkullSkin, EEGCap, FaceSurface
 from tvb.datatypes.surfaces_data import CORTICAL, OUTER_SKIN, OUTER_SKULL, INNER_SKULL, EEG_CAP, FACE
-from tvb.core.adapters.exceptions import LaunchException
-from tvb.basic.logger.builder import get_logger
 
 
 
@@ -76,6 +76,7 @@ class ZIPSurfaceImporter(ABCUploader):
         
     def get_output(self):
         return [Surface]
+
 
     def launch(self, uploaded, surface_type, zero_based_triangles=False):
         """

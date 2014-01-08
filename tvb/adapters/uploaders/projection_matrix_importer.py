@@ -27,16 +27,17 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
 import numpy
-from tvb.core import utils
-from tvb.core.adapters.exceptions import LaunchException
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.constants import DATA_NAME_PROJECTION
 from tvb.basic.logger.builder import get_logger
+from tvb.core import utils
+from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.surfaces import CorticalSurface
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.sensors import SensorsEEG
