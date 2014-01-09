@@ -218,12 +218,14 @@ def networkx_cmt_2connectivity(network_obj, storage_path):
             hemisphere.append(False)
 
 
-    # Read all edges
+    # Read all edges (and make the matrix square
     for edge in network_obj.data.edges():
         start = edge[0]
         end = edge[1]
-        weights_matrix[start -1 ][end - 1] = graph_data.adj[start][end][KEY_CMT_WEIGHT]
+        weights_matrix[start - 1][end - 1] = graph_data.adj[start][end][KEY_CMT_WEIGHT]
+        weights_matrix[end - 1][start - 1] = weights_matrix[start - 1][end - 1]
         tract_matrix[start - 1][end - 1] = graph_data.adj[start][end][KEY_CMT_TRACT]
+        tract_matrix[end - 1][start - 1] = tract_matrix[start - 1][end - 1]
 
     result = Connectivity()
     result.storage_path = storage_path
