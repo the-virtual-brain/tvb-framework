@@ -311,7 +311,7 @@ function ConnStepPlotInitColorBuffers() {
 		plotColorBuffers.push(generateColors(tractValue, stepValue));
 	} 
     var theme = ColSchGetTheme().connectivityStepPlot;
-    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
     drawSceneSpaceTime();
 }
 
@@ -322,7 +322,7 @@ function conectivitySpaceTime_initCanvas() {
 	var canvas = document.getElementById(CONNECTIVITY_SPACE_TIME_CANVAS_ID);
     initGL(canvas);
     var theme = ColSchGetTheme().connectivityStepPlot;
-    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
     plotSize = parseInt(canvas.clientWidth / 3);	// Compute the size of one connectivity plot depending on the canvas width
     createConnectivityMatrix();
     canvas.onmousedown = customMouseDown_SpaceTime;

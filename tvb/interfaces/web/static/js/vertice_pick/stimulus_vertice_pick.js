@@ -217,7 +217,7 @@ function drawScene() {
         GL_zoomSpeed = 0;
     }
     var theme = ColSchGetTheme().surfaceViewer;
-    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
     // Use function offered by base_vertice_pick.js to draw the brain:
 	BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 	if (BASE_PICK_isMovieMode) {

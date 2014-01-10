@@ -214,7 +214,7 @@ function getGradientColor(pointValue, min, max) {
         result =  getLinearGradientColor(normalizedValue);
     else if (_colorScheme == "rainbow")
         result = getRainbowColor(normalizedValue);
-    else if (_colorScheme == "hotcold" || _colorScheme == "lightHotcold")
+    else if (_colorScheme == "hotcold" || _colorScheme == "lightHotcold" || _colorScheme == "transparentHotCold")
         result = getHotColdColor(normalizedValue);
     else if (_colorScheme == "TVB" || _colorScheme == "lightTVB")
         result = getTvbColor(normalizedValue);
@@ -232,15 +232,15 @@ var ColSchDarkTheme = {
     connectivityStepPlot : {
         lineColor: [0.1, 0.1, 0.2],
         noValueColor: [0.0, 0.0, 0.0],
-        backgroundColor: [0.05, 0.05, 0.05],
+        backgroundColor: [0.05, 0.05, 0.05, 1.0],
         outlineColor: [0.3, 0.3, 0.3],
         selectedOutlineColor: [0.2, 0.2, 0.8]
     },
     connectivityPlot : {
-        backgroundColor: [0.05, 0.05, 0.05]
+        backgroundColor: [0.05, 0.05, 0.05, 1.0]
     },
     surfaceViewer : {
-        backgroundColor: [0.05, 0.05, 0.05]
+        backgroundColor: [0.05, 0.05, 0.05, 1.0]
             //, boundaryLineColor
     //, navigatorColor
     //, faceColor
@@ -252,15 +252,31 @@ var ColSchLightTheme = {
     connectivityStepPlot : {
         lineColor: [0.7, 0.7, 0.8],
         noValueColor: [0.9, 0.9, 0.9],
-        backgroundColor: [1.0, 1.0, 1.0],
+        backgroundColor: [1.0, 1.0, 1.0, 1.0],
         outlineColor: [0.5, 0.5, 0.5],
         selectedOutlineColor: [0.4, 0.4, 0.7]
     },
     connectivityPlot : {
-        backgroundColor: [1.0, 1.0, 1.0]
+        backgroundColor: [1.0, 1.0, 1.0, 1.0]
     },
     surfaceViewer : {
-        backgroundColor: [1.0, 1.0, 1.0]
+        backgroundColor: [1.0, 1.0, 1.0, 1.0]
+    }
+};
+
+var ColSchTransparentTheme = {
+    connectivityStepPlot : {
+        lineColor: [0.7, 0.7, 0.8],
+        noValueColor: [0.9, 0.9, 0.9],
+        backgroundColor: [0.0, 0.0, 0.0, 0.0],
+        outlineColor: [0.5, 0.5, 0.5],
+        selectedOutlineColor: [0.4, 0.4, 0.7]
+    },
+    connectivityPlot : {
+        backgroundColor: [0.0, 0.0, 0.0, 0.0]
+    },
+    surfaceViewer : {
+        backgroundColor: [0.0, 0.0, 0.0, 0.0]
     }
 };
 
@@ -275,7 +291,8 @@ function ColSchGetTheme(){
         hotcold : ColSchDarkTheme,
         sparse: ColSchDarkTheme,
         lightHotcold : ColSchLightTheme,
-        lightTVB : ColSchLightTheme
+        lightTVB : ColSchLightTheme,
+        transparentHotCold : ColSchTransparentTheme
     }[_colorScheme||'linear'];
 }
 

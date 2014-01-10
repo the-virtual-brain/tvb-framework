@@ -326,7 +326,8 @@ function drawScene() {
 	    // Translate to get a good view.
 	        mvTranslate([0.0, 0.0, GL_zTranslation]);
 	        mvPushMatrix();
-	        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
 	        gl.enable(gl.BLEND);
 	        gl.disable(gl.DEPTH_TEST);
 	        addLightForCorticalSurface();
@@ -817,7 +818,7 @@ function connectivity_startGL(isSingleMode) {
 
 function ConnPlotUpdateColors(){
     var theme = ColSchGetTheme().connectivityPlot;
-    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
     drawScene();
 }
 /**
@@ -831,7 +832,7 @@ function connectivity_initCanvas() {
     initGL(canvas);
     initShaders();
     var theme = ColSchGetTheme().connectivityPlot;
-    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
     // Enable keyboard and mouse interaction
     canvas.onkeydown = customKeyDown;
     canvas.onkeyup = GL_handleKeyUp;

@@ -109,7 +109,7 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
     LEG_generateLegendBuffers();
     
     var theme = ColSchGetTheme().surfaceViewer;
-    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
 
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
@@ -295,7 +295,7 @@ function _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList
     }
 
     var theme = ColSchGetTheme().surfaceViewer;
-    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -740,7 +740,9 @@ function initRegionBoundaries(boundariesURL) {
 function drawBuffers(drawMode, buffersSets, useBlending) {
     if (useBlending) {
         gl.uniform1i(shaderProgram.useBlending, true);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // use this blending so that the alpha is computed correctly. Transparent pix blended over opaque -> opaque pix
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
         gl.enable(gl.BLEND);
         // Add gray color for semi-transparent object.
         var lightingDirection = Vector.create([-0.25, -0.25, -1]);
@@ -826,7 +828,8 @@ function tick() {
  */
 function drawScene() {
     var theme = ColSchGetTheme().surfaceViewer;
-    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], 1.0);
+    gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
+
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     // View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
     perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);

@@ -103,11 +103,11 @@ function __tryExport(canvas, operationId, remainingTrials) {
         setTimeout(function() { __tryExport(canvas, operationId, remainingTrials - 1) }, 200);
 
     else {              // canvas is ready for export
-        var data = canvas.toDataURL("image/jpeg");
+        var data = canvas.toDataURL("image/png");
 
         if (data)       // don't store empty images
-            $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/jpeg/' + operationId,
-                        data: {"export_data": data.replace('data:image/jpeg;base64,', '')},
+            $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/png/' + operationId,
+                        data: {"export_data": data.replace('data:image/png;base64,', '')},
                         success: function() {
                             displayMessage("Figure successfully saved!<br/> See Project section, " +
                                            "Image archive sub-section.", "infoMessage")

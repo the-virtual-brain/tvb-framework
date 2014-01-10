@@ -55,7 +55,7 @@ class FigureService:
     """
     Service layer for Figure entities.
     """
-    _TYPE_JPEG = "jpeg"
+    _TYPE_PNG = "png"
     _TYPE_SVG = "svg"
 
     _BRANDING_BAR_PNG = os.path.join(os.path.dirname(__file__), "resources", "branding_bar.png")
@@ -79,7 +79,7 @@ class FigureService:
         store_path = utils.get_unique_file_name(store_path, FigureService._DEFAULT_IMAGE_FILE_NAME + img_type)[0]
         file_path = os.path.split(store_path)[1]
 
-        if img_type == FigureService._TYPE_JPEG:
+        if img_type == FigureService._TYPE_PNG:                             # PNG file from canvas
             img_data = base64.b64decode(export_data)                        # decode the image
             final_image = Image.open(StringIO(img_data))                    # place it in a PIL stream
 
