@@ -736,20 +736,36 @@ function initRegionBoundaries(boundariesURL) {
     }
 }
 
-
-function drawBuffers(drawMode, buffersSets, useBlending) {
+/**
+ *
+ * @param drawMode Triangles / Points
+ * @param buffersSets Actual buffers to be drawn. Array or (vertices, normals, triangles)
+ * @param useBlending When true, the object is drawn with blending (for transparency)
+ * @param cullFace When 1, it will mark current object to be drown twice.
+ *                 It should be set to 1 for objects transparent and convex.
+ */
+function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
     if (useBlending) {
         gl.uniform1i(shaderProgram.useBlending, true);
-        // use this blending so that the alpha is computed correctly. Transparent pix blended over opaque -> opaque pix
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
         gl.enable(gl.BLEND);
-        // Add gray color for semi-transparent object.
+        gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        // Blending function for alpha: transparent pix blended over opaque -> opaque pix
+        if (cullFace) {
+            gl.enable(gl.CULL_FACE);
+            if (cullFace == 1) {
+                gl.cullFace(gl.CW);
+            } else {
+                gl.cullFace(gl.CCW);
+            }
+        }
+        // Add gray color for semi-transparent objects;
         var lightingDirection = Vector.create([-0.25, -0.25, -1]);
         var adjustedLD = lightingDirection.toUnitVector().x(-1);
         var flatLD = adjustedLD.flatten();
         gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
     }
+
     for (var i = 0; i < buffersSets.length; i++) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][0]);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -768,10 +784,15 @@ function drawBuffers(drawMode, buffersSets, useBlending) {
         setMatrixUniforms();
         gl.drawElements(drawMode, buffersSets[i][2].numItems, gl.UNSIGNED_SHORT, 0);
     }
+
     if (useBlending) {
-        gl.depthFunc(gl.LEQUAL);
         gl.disable(gl.BLEND);
+        gl.disable(gl.CULL_FACE);
         gl.uniform1i(shaderProgram.useBlending, false);
+        // Draw the same transparent object the second time
+        if (cullFace == 1) {
+            drawBuffers(drawMode, buffersSets, useBlending, cullFace + 1);
+        }
     }
 }
 
@@ -906,7 +927,7 @@ function drawScene() {
             if (!isPreview) {
                 drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
             }
-        }else{
+        } else {
             // draw surface
             drawBuffers(drawingMode, brainBuffers, false);
 
@@ -920,7 +941,7 @@ function drawScene() {
                 drawBrainLines(brainLinesBuffers, brainBuffers);
             }
             gl.uniform1i(shaderProgram.vertexLineColor, false);
-        
+
             if (!isPreview) {
                 if (displayMeasureNodes) {
                     drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
@@ -940,7 +961,7 @@ function drawScene() {
                 mvTranslate([0, -5, -10]);
             }
             mvRotate(180, [0, 0, 1]);
-            drawBuffers(faceDrawMode, shelfBuffers, true);
+            drawBuffers(faceDrawMode, shelfBuffers, true, 1);
             mvPopMatrix();
         }
     } else {

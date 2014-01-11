@@ -323,20 +323,27 @@ function drawScene() {
 	
 	    // draw the brain cortical surface
 	    if (noOfBuffersToLoad == 0) {
-	    // Translate to get a good view.
 	        mvTranslate([0.0, 0.0, GL_zTranslation]);
 	        mvPushMatrix();
-            gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-	        gl.enable(gl.BLEND);
-	        gl.disable(gl.DEPTH_TEST);
+            // Blending function for alpha: transparent pix blended over opaque -> opaque pix
+            gl.enable(gl.BLEND);
+            gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+            gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+            gl.enable(gl.CULL_FACE);
 	        addLightForCorticalSurface();
 	        multMatrix(GL_currentRotationMatrix);
 	        applyConnectivityNoseCorrection();
 	        mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
+
+            // Draw the transparent object twice, to get a correct rendering
+            gl.cullFace(gl.CW);
 	        drawHemispheres(gl.TRIANGLES);
+            gl.cullFace(gl.CW);
+            drawHemispheres(gl.TRIANGLES);
+
 	        gl.disable(gl.BLEND);
-	        gl.enable(gl.DEPTH_TEST);
+            gl.disable(gl.CULL_FACE);
 	        mvPopMatrix();
 	    }
 	   }
