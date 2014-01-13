@@ -942,13 +942,8 @@ function drawScene() {
             }
             gl.uniform1i(shaderProgram.vertexLineColor, false);
 
-            if (!isPreview) {
-                if (displayMeasureNodes) {
-                    drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
-                }
-                if (!isDoubleView) {
-                    NAV_draw_navigator();
-                }
+            if (!isPreview && displayMeasureNodes) {
+                drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
             }
         }
 
@@ -964,6 +959,11 @@ function drawScene() {
             drawBuffers(faceDrawMode, shelfBuffers, true, 1);
             mvPopMatrix();
         }
+
+        if(!isInternalSensorView && !isPreview && !isDoubleView){
+            NAV_draw_navigator();
+        }
+
     } else {
         gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
         gl.disable(gl.BLEND);
