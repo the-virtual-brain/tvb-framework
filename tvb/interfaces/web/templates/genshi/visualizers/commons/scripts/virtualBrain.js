@@ -741,8 +741,8 @@ function initRegionBoundaries(boundariesURL) {
  * @param drawMode Triangles / Points
  * @param buffersSets Actual buffers to be drawn. Array or (vertices, normals, triangles)
  * @param useBlending When true, the object is drawn with blending (for transparency)
- * @param cullFace When 1, it will mark current object to be drown twice.
- *                 It should be set to 1 for objects transparent and convex.
+ * @param cullFace When gl.FRONT, it will mark current object to be drown twice (another with gl.BACK).
+ *                 It should be set to GL.FRONT for objects transparent and convex.
  */
 function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
     if (useBlending) {
@@ -753,11 +753,7 @@ function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
         // Blending function for alpha: transparent pix blended over opaque -> opaque pix
         if (cullFace) {
             gl.enable(gl.CULL_FACE);
-            if (cullFace == 1) {
-                gl.cullFace(gl.BACK);
-            } else {
-                gl.cullFace(gl.FRONT);
-            }
+            gl.cullFace(cullFace);
         }
         // Add gray color for semi-transparent objects;
         var lightingDirection = Vector.create([-0.25, -0.25, -1]);
@@ -790,8 +786,8 @@ function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
         gl.disable(gl.CULL_FACE);
         gl.uniform1i(shaderProgram.useBlending, false);
         // Draw the same transparent object the second time
-        if (cullFace === 1) {
-            drawBuffers(drawMode, buffersSets, useBlending, cullFace + 1);
+        if (cullFace == gl.FRONT) {
+            drawBuffers(drawMode, buffersSets, useBlending, gl.BACK);
         }
     }
 }
@@ -950,13 +946,14 @@ function drawScene() {
         if (isFaceToDisplay) {
             var faceDrawMode = isInternalSensorView ? drawingMode : gl.TRIANGLES;
             mvPushMatrix();
+            mvTranslate([NAV_navigatorX, NAV_navigatorY, NAV_navigatorZ]);
             if (isDoubleView) {
                 mvTranslate([0, -5, -22]);
             } else {
                 mvTranslate([0, -5, -10]);
             }
             mvRotate(180, [0, 0, 1]);
-            drawBuffers(faceDrawMode, shelfBuffers, true, 1);
+            drawBuffers(faceDrawMode, shelfBuffers, true, gl.FRONT);
             mvPopMatrix();
         }
 

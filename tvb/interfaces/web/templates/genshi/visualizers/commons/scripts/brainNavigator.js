@@ -204,3 +204,129 @@ function NAV_getAreaLabel(point, measurePoints, measurePointsLabels) {
 }
 
 
+
+// ------------------------------------- START CODE FOR PICKING FROM 2D NAVIGATOR SECTIONS ----------------------------
+/**
+ * Find the intersection between a point given by mouseX and mouseY coordinates and a plane
+ * given by an axis represented by type (0=x, 1=y, 2=z)
+ */
+function _findPlaneIntersect(mouseX, mouseY, mvPickMatrix, near, aspect, fov, type) {
+
+  	var centered_x, centered_y, unit_x, unit_y, near_height, near_width, i, j;
+
+	centered_y = gl.viewportHeight - mouseY - gl.viewportHeight/2.0;
+	centered_x = mouseX - gl.viewportWidth/2.0;
+	unit_x = centered_x/(gl.viewportWidth/2.0);
+	unit_y = centered_y/(gl.viewportHeight/2.0);
+	near_height = near * Math.tan( fov * Math.PI / 360.0 );
+	near_width = near_height*aspect;
+	var ray = Vector.create([ unit_x*near_width, unit_y*near_height, -1.0*near, 0 ]);
+	var ray_start_point = Vector.create([ 0.0, 0.0, 0.0, 1.0 ]);
+
+	//mvPickMatrix = translateMatrix(currentPoint, mvPickMatrix);
+	var R = mvPickMatrix.minor(1,1,3,3);
+	var Rt = R.transpose();
+	var tc = mvPickMatrix.col(4);
+	var t = Vector.create([ tc.e(1), tc.e(2), tc.e(3) ]);
+	var tp = Rt.x(t);
+	var mvPickMatrixInv = Matrix.I(4);
+	for (i=0; i < 3; i++) {
+		for (j=0; j < 3; j++) {
+			mvPickMatrixInv.elements[i][j] = Rt.elements[i][j];
+		}
+		mvPickMatrixInv.elements[i][3] = -1.0 * tp.elements[i];
+	}
+	var rayp = mvPickMatrixInv.x(ray);
+	var ray_start_pointp = mvPickMatrixInv.x(ray_start_point);
+	var anchor = Vector.create([ ray_start_pointp.e(1), ray_start_pointp.e(2), ray_start_pointp.e(3) ]);
+	var direction = Vector.create([ rayp.e(1), rayp.e(2), rayp.e(3) ]);
+
+    // Perform intersection test between ray l and world geometry (cube)
+    // Line and Plane objects are taken from sylvester.js library
+	var l = Line.create(anchor, direction.toUnitVector());
+	// Geometry in this case is a front plane of cube at z = 1;
+	anchor = Vector.create([ 0, 0, 0 ]);    // Vertex of the cube
+	var normal = Vector.create([0, 0, 0 ]);  // Normal of front face of cube
+	normal.elements[type] = 1;
+    return _getIntersection(anchor, normal, l);
+}
+
+function _getIntersection(anchor, normal, l) {
+	var p = Plane.create(anchor, normal);   // Plane
+	// Check if line l and plane p intersect
+	if (l.intersects(p)) {
+		var intersectionPt = l.intersectionWith(p);
+		return intersectionPt.elements;
+	}
+	return null;
+}
+
+/**
+ * The handlers for the 3 navigator windows. For each of them the steps are:
+ * 1. Get mouse position
+ * 2. Check if click was done on the IMG element or in the rest of the div(ignore the later)
+ * 3. Apply the basic transformations that were done in generating the navigator IMG
+ * 4. Find intersection with specific plane and move navigator there
+ */
+function _handleAxePick(event, axe) {
+	// Get the mouse position relative to the canvas element.
+    var GL_mouseXRelToCanvasImg = 0;
+    var GL_mouseYRelToCanvasImg = 0;
+    if (event.offsetX || event.offsetX == 0) { // Opera and Chrome
+        GL_mouseXRelToCanvasImg = event.offsetX;
+        GL_mouseYRelToCanvasImg = event.offsetY;
+    } else if (event.layerX || event.layerY == 0) { // Firefox
+       GL_mouseXRelToCanvasImg = event.layerX;
+       GL_mouseYRelToCanvasImg = event.layerY;
+    }
+    if ((event.originalTarget != undefined && event.originalTarget.nodeName == 'IMG') || (
+    	event.srcElement != undefined && event.srcElement.nodeName == 'IMG')) {
+        var glCanvasElem = $('#GLcanvas');
+        GL_mouseXRelToCanvas = (GL_mouseXRelToCanvasImg * glCanvasElem.width()) / 250.0;
+        GL_mouseYRelToCanvas = (GL_mouseYRelToCanvasImg * glCanvasElem.height()) / 172.0;
+
+    	perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
+        loadIdentity();
+        addLight();
+
+        // Translate to get a good view.
+        mvTranslate([0.0, -5.0, -GL_DEFAULT_Z_POS]);
+        mvRotate(180, [0, 0, 1]);
+
+        var sectionViewRotationMatrix, result;
+        if (axe == 'x') {
+            sectionViewRotationMatrix = createRotationMatrix(90, [0, 1, 0]).x(createRotationMatrix(270, [1, 0, 0]));
+            multMatrix(sectionViewRotationMatrix);
+            result = _findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 0);
+            NAV_navigatorY = result[1];
+            NAV_navigatorZ = -result[2];
+        } else if (axe == 'y'){
+            sectionViewRotationMatrix = createRotationMatrix(90, [1, 0, 0]).x(createRotationMatrix(180, [1, 0, 0]));
+            multMatrix(sectionViewRotationMatrix);
+            result = _findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 1);
+            NAV_navigatorX = result[0];
+            NAV_navigatorZ = -result[2];
+        } else {
+            sectionViewRotationMatrix = createRotationMatrix(180, [0, 1, 0]).x(Matrix.I(4));
+            multMatrix(sectionViewRotationMatrix);
+            result = _findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 2);
+            NAV_navigatorX = -result[0];
+            NAV_navigatorY = result[1];
+        }
+		_redrawSectionView = true;
+		NAV_draw_navigator();
+    }
+}
+
+
+function handleXLocale(event) {
+    _handleAxePick(event, 'x');
+}
+
+function handleYLocale(event) {
+    _handleAxePick(event, 'y');
+}
+
+function handleZLocale(event) {
+    _handleAxePick(event, 'z');
+}

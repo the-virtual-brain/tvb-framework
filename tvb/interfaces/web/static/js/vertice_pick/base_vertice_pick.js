@@ -17,9 +17,7 @@
  *
  **/
 
-/**
- * Variables for displaying Time and computing Frames/Sec
- */
+
 var BASE_PICK_doPick = false;
 var near = 0.1;
 var fov = 45;
@@ -27,7 +25,7 @@ var fov = 45;
 var TRIANGLE_pickedIndex = -1;
 var VERTEX_pickedIndex = -1;
 
-// These are for the selection 'pins'
+// Coordinates for the selection 'pins'
 var navigatorX = 0.0, navigatorY = 0.0, navigatorZ = 0.0;
 var navigatorXrot = 0.0, navigatorYrot = 0.0;
 
@@ -45,31 +43,25 @@ var noOfUnloadedBrainPickingBuffers = 3;
 var BASE_PICK_brainPickingBuffers = [];
 var BASE_PICK_brainDisplayBuffers = [];
 var BASE_PICK_navigatorBuffers = [];
-/**
- * These buffers arrays will contain:
- * arr[i][0] Vertices buffer
- * arr[i][1] Normals buffer
- * arr[i][2] Triangles indices buffer
- * arr[i][3] Color buffer (same length as vertices /3 * 4)
- */ 
-//Setting this to true allows to pick form the images as well as the classic
-//color picking scheme. TODO: picking this way is not correct if any zoom is done.
-var BASE_PICK_allowPickFrom2DImages = true;
-//If we are in movie mode stop the custom redraw on all events since it will
-//redraw automatically anyway.
+
+//If we are in movie mode stop the custom redraw on all events since it will redraw automatically anyway.
 var BASE_PICK_isMovieMode = false;
 //A dictionary that hold information needed to draw the surface focal points
-var surfaceFocalPoints= {};
+var surfaceFocalPoints = {};
 
-var TRI = 3;
-
-var gl;
 var drawingMode;
 GL_zoomSpeed = 0;
 
 var BRAIN_CANVAS_ID = "GLcanvas";
 var BASE_PICK_pinBuffers = [];
 var BRAIN_CENTER = null;
+
+//Keep the vertices data for it will be needed later for the actual coordinates
+//of the selected point and for computing the closest vertices when using '2d-type-selection'
+var verticesPoints = [];
+
+var picking_triangles_number = [];
+
 
 function BASE_PICK_customInitGL(canvas) {
 	window.onresize = function() {
@@ -80,13 +72,28 @@ function BASE_PICK_customInitGL(canvas) {
 }
 
 
-function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNormalsPickList,
-							  urlVerticesDisplayList, urlTrianglesDisplayList, urlNormalsDisplayList,
-                              brain_center, callback) {
+function BASE_PICK_initShaders() {
+	basicInitShaders("shader-fs", "shader-vs");
+
+    shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+    gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+
+    shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+    shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
+    shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+    shaderProgram.isPicking = gl.getUniformLocation(shaderProgram, "isPicking");
+    shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+    shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
+    shaderProgram.pointLightingSpecularColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingSpecularColor");
+}
+
+
+function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNormalsPickList, urlVerticesDisplayList,
+                              urlTrianglesDisplayList, urlNormalsDisplayList, brain_center, callback) {
 	BRAIN_CENTER = $.parseJSON(brain_center);
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
+
     BASE_PICK_customInitGL(canvas);
-    
     BASE_PICK_initShaders();
     initPickingBrainBuffers(urlVerticesPickList, urlTrianglesPickList, urlNormalsPickList, callback);
     initDrawingBrainBuffers(urlVerticesDisplayList, urlTrianglesDisplayList, urlNormalsDisplayList, callback);
@@ -99,7 +106,6 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
 
     var theme = ColSchGetTheme().surfaceViewer;
     gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
-
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -112,23 +118,108 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
     canvas.onmousemove = customMouseMove;
     canvas.onmouseout = handleMouseOut;
     
-    isOneToOneMapping = true;
-
-    //Custom handlers for each of the dimensions for different transforms need to be applied
-    if (BASE_PICK_allowPickFrom2DImages) {
-    	var canvasX = document.getElementById('brain-x');
-    	if (canvasX) canvasX.onmousedown = handleXLocale;
-	    var canvasY = document.getElementById('brain-y');
-	    if (canvasY) canvasY.onmousedown = handleYLocale;
-	    var canvasZ = document.getElementById('brain-z');
-	    if (canvasZ) canvasZ.onmousedown = handleZLocale;
-    }
+    //isOneToOneMapping = true;
     
     drawScene();
 }
 
-//Need this to switch between drawing in normal mode and in 'picking' mode without re-initializing colors
-var colorPickingBuffer = [];
+
+/**
+ * Simplest drawScene
+ */
+function drawScene() {
+
+	if (GL_zoomSpeed != 0) {
+        GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
+        GL_zoomSpeed = 0;
+    }
+    BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
+}
+
+/**
+ * Draw from buffers.
+ */
+function BASE_PICK_drawBrain(brainBuffers, noOfUnloadedBuffers) {
+    if (noOfUnloadedBuffers != 0) {
+        displayMessage("The load operation for the surface data is not completed yet!", "infoMessage");
+        return;
+    }
+
+    if (BASE_PICK_doPick ) {
+    	gl.disable(gl.BLEND);
+	    gl.disable(gl.DITHER);
+    	gl.uniform1f(shaderProgram.isPicking, 1);
+    } else {
+        gl.enable(gl.BLEND);
+	    gl.enable(gl.DITHER);
+    	addLight();
+    	gl.uniform1f(shaderProgram.isPicking, 0);
+    }
+
+	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	// View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
+	var aspect = gl.viewportWidth / gl.viewportHeight;
+	perspective(45, aspect , near, 800.0);
+	loadIdentity();
+
+    // Translate to get a good view.
+    mvTranslate([0.0, -5.0, -GL_zTranslation]);
+    multMatrix(GL_currentRotationMatrix);
+    mvRotate(180, [0, 0, 1]);
+
+    drawBuffers(drawingMode, brainBuffers);
+
+	if (BASE_PICK_isMovieMode == false) {
+		mvPushMatrix();
+		mvTranslate([navigatorX, navigatorY, navigatorZ]);
+		mvRotate(navigatorXrot, [1, 0, 0]);
+		mvRotate(navigatorYrot, [0, 1, 0]);
+	    drawBuffers(gl.TRIANGLES, [BASE_PICK_navigatorBuffers]);
+	    mvPopMatrix();
+	}
+
+    for (var key in surfaceFocalPoints) {
+    	var focalPointPosition = surfaceFocalPoints[key]['position'];
+    	mvPushMatrix();
+    	mvTranslate(focalPointPosition);
+    	mvRotate(surfaceFocalPoints[key]['xRotation'], [1, 0, 0]);
+    	mvRotate(surfaceFocalPoints[key]['yRotation'], [0, 1, 0]);
+    	drawBuffers(gl.TRIANGLES, [BASE_PICK_pinBuffers]);
+    	mvPopMatrix();
+    }
+}
+
+
+function drawBuffers(drawMode, buffersSets) {
+    for (var i = 0; i < buffersSets.length; i++) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][0]);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][1]);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+    	gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][3]);
+        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffersSets[i][2]);
+        setMatrixUniforms();
+        gl.drawElements(drawMode, buffersSets[i][2].numItems, gl.UNSIGNED_SHORT, 0);
+    }
+}
+
+/**
+ * Draw the light
+ */
+function addLight() {
+    var lightingDirection = Vector.create([-0.5, 0, -1]);
+    var adjustedLD = lightingDirection.toUnitVector().x(-1);
+    var flatLD = adjustedLD.flatten();
+
+    gl.uniform3f(shaderProgram.ambientColorUniform, 0.6, 0.6, 0.5);
+    gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
+    gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
+    gl.uniform3f(shaderProgram.pointLightingLocationUniform, 0, -10, -400);
+    gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform, 0.8, 0.8, 0.8);
+    gl.uniform1f(shaderProgram.materialShininessUniform, 30.0);
+}
 
 /**
  * @param callback a string which should represents a valid js code.
@@ -141,6 +232,7 @@ function executeCallback(callback) {
         eval(callback);
     }
 }
+
 /**
  * Initialize all required data needed for picking mechanism.
  */
@@ -150,7 +242,6 @@ function initPickingBrainBuffers(urlVerticesPickList, urlTrianglesPickList, urlN
     initPickingBrainBuffersAsynchronous($.parseJSON(urlNormalsPickList), pickingBrainNormals, false, false, callback);
     initPickingBrainBuffersAsynchronous($.parseJSON(urlTrianglesPickList), pickingBrainIndexes, true, false, callback);
 }
-
 
 function initPickingBrainBuffersAsynchronous(urlList, resultBuffers, isIndex, isVertices, callback) {
     if (urlList.length == 0) {
@@ -175,17 +266,18 @@ function initPickingBrainBuffersAsynchronous(urlList, resultBuffers, isIndex, is
     });
 }
 
-
 function __createPickingColorBuffers() {
+    var thisBufferColors;
+    var total_picking_triangles_number = 0;
+
     for (var i = 0; i < pickingBrainVertices.length; i++) {
         var fakeColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
-        var thisBufferColors = new Float32Array(pickingBrainVertices[i].numItems / 3 * 4);
-        for (var j = 0; j < pickingBrainVertices[i].numItems / 3 * 4; j++) {
-            thisBufferColors[j] = 0.5;
+        thisBufferColors = new Float32Array(pickingBrainVertices[i].numItems / 3 * 4);
+        for (var ii = 0; ii < pickingBrainVertices[i].numItems / 3 * 4; ii++) {
+            thisBufferColors[ii] = 0.5;
         }
         gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
-        colorArrays.push(thisBufferColors);
 
         picking_triangles_number.push(pickingBrainIndexes[i].numItems);
         total_picking_triangles_number = total_picking_triangles_number + pickingBrainIndexes[i].numItems/3;
@@ -199,11 +291,14 @@ function __createPickingColorBuffers() {
 
     //Create the color buffer array for the picking part where each triangles has a new color
     var pointsSoFar = 0;
+    //Need this to switch between drawing in normal mode and in 'picking' mode without re-initializing colors
+    var colorPickingBuffer = [];
+
     for (var j = 0; j < picking_triangles_number.length; j++) {
         //For each set of triangles(different file) create a new color buffers
         var newColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, newColorBuffer);
-        var thisBufferColors = new Float32Array(picking_triangles_number[j] * 4);
+        thisBufferColors = new Float32Array(picking_triangles_number[j] * 4);
         //Go trough all the triangles from this set and set the same color for 3 adjacend vertices representing a triangle
         for (var idx = 0; idx < picking_triangles_number[j]; idx++) {
             thisBufferColors[4 * idx] = GL_colorPickerInitColors[(idx + pointsSoFar - (idx + pointsSoFar) % 3) / 3][0];
@@ -218,8 +313,8 @@ function __createPickingColorBuffers() {
         colorPickingBuffer.push(newColorBuffer);
     }
 
-    for (var j = 0; j < picking_triangles_number.length; j++) {
-        BASE_PICK_brainPickingBuffers[j][3] = colorPickingBuffer[j];
+    for (var jj = 0; jj < picking_triangles_number.length; jj++) {
+        BASE_PICK_brainPickingBuffers[jj][3] = colorPickingBuffer[jj];
     }
 }
 
@@ -266,10 +361,12 @@ function __createColorBuffers() {
     }
 }
 
+///////////////////////////////////////~~~~~~~~START MOUSE RELATED CODE~~~~~~~~~~~//////////////////////////////////
+
 /**
  * When mouse is released check to see if the difference between when mouse was pressed
  * and mouse was released is higher than a threshold(now set to 5). If so the user either
- * rotated brain (when higher) or selected vertice (when lower).
+ * rotated brain (when higher) or selected vertex (when lower).
  */
 function customMouseUp(event) {
 	GL_handleMouseUp(event);
@@ -311,28 +408,19 @@ function customMouseMove(event) {
 	}
 }
 
-function handleMouseOut(event) {
+function handleMouseOut() {
 	document.getElementById(BRAIN_CANVAS_ID).blur();
 }
 
-function BASE_PICK_initShaders() {
-	basicInitShaders("shader-fs", "shader-vs");
-
-    shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
-    gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
-
-    shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
-    shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
-    shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
-    shaderProgram.isPicking = gl.getUniformLocation(shaderProgram, "isPicking");
-    shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
-    shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
-    shaderProgram.pointLightingSpecularColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingSpecularColor");
+function BASE_PICK_handleMouseWeel(event) {
+	GL_handleMouseWeel(event);
+	if (BASE_PICK_isMovieMode == false) {
+		drawScene();
+	}
 }
 
-///////////////////////////////////////~~~~~~~~START MOUSE RELATED CODE~~~~~~~~~~~//////////////////////////////////
 /**
- * Function should move brain navigator to a selected vertice using a color picking scheme
+ * This function should draw the brain navigator to a selected vertex using a color picking scheme
  */
 function BASE_PICK_doVerticePick() {
 	//Drawing will be done to back buffer and all 'eye candy' is disabled to get pure color
@@ -434,42 +522,14 @@ function BASE_PICK_doVerticePick() {
 	}
 }
 
+///////////////////////////////////////~~~~~~~~END MOUSE RELATED CODE~~~~~~~~~~~//////////////////////////////////
 
-/**
- * Moves the brain navigator to a certain position.
+/////////////////////////////////////////~~~~~~~~Start Focal Points RELATED CODE~~~~~~~~~~~//////////////////////////////////
+/*
+ * Remove the focal point given by triangle index.
  */
-function BASE_PICK_moveBrainNavigator(shouldRedrawScene) {
-    if (TRIANGLE_pickedIndex != GL_NOTFOUND && TRIANGLE_pickedIndex != GL_BACKGROUND) {
-        // If we managed to find an index find the triangle that corresponds to it from the list of splitted triangles
-        // Then take the first vertice as new navigator coordinate. TODO: this could be replaced with some other metric
-        // like the center of the triangle, or the vertice closest the the other two etc.
-
-        var pickedIndex = TRIANGLE_pickedIndex;
-        for (var j = 0; j < picking_triangles_number.length; j++) {
-            if (pickedIndex < picking_triangles_number[j] / 3) {
-                navigatorX = parseFloat(verticesPoints[j][9 * pickedIndex]);
-                navigatorY = parseFloat(verticesPoints[j][9 * pickedIndex + 1]);
-                navigatorZ = parseFloat(verticesPoints[j][9 * pickedIndex + 2]);
-                break;
-            } else {
-                pickedIndex = pickedIndex - picking_triangles_number[j] / 3;
-            }
-        }
-        VERTEX_pickedIndex = pickedIndex;
-    }
-    navigatorXrot = (360 - Math.atan2(navigatorY - BRAIN_CENTER[1], navigatorZ - BRAIN_CENTER[2]) * 180 / Math.PI) % 360;
-    navigatorYrot = Math.atan2(navigatorX - BRAIN_CENTER[0], Math.sqrt((navigatorZ - BRAIN_CENTER[2]) * (navigatorZ - BRAIN_CENTER[2]) + (navigatorY - BRAIN_CENTER[1]) * (navigatorY - BRAIN_CENTER[1]))) * 180 / Math.PI;
-    
-    if (shouldRedrawScene) {
-        drawScene();
-    }
-}
-
-
 function BASE_PICK_removeFocalPoint(triangleIndex) {
-	/*
-	 * Remove the focal point given by triangle index.
-	 */
+
 	delete surfaceFocalPoints[triangleIndex];
 	BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 }
@@ -480,18 +540,16 @@ function BASE_PICK_clearFocalPoints() {
 	BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 }
 
-
+/*
+ * Store all required information in order to draw this focal point.
+ */
 function BASE_PICK_addFocalPoint(triangleIndex) {
-	/*
-	 * Store all required information in order to draw this focal point.
-	 */
+
 	var x_rot = (360 - Math.atan2(navigatorY - BRAIN_CENTER[1], navigatorZ - BRAIN_CENTER[2]) * 180 / Math.PI) % 360;
     var y_rot = Math.atan2(navigatorX - BRAIN_CENTER[0], Math.sqrt((navigatorZ - BRAIN_CENTER[2]) * (navigatorZ - BRAIN_CENTER[2]) + (navigatorY - BRAIN_CENTER[1]) * (navigatorY - BRAIN_CENTER[1]))) * 180 / Math.PI;
     surfaceFocalPoints[triangleIndex] = {'xRotation' : x_rot, 'yRotation' : y_rot, 'position' : [navigatorX, navigatorY, navigatorZ]};
     BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
 }
-
-/////////////////////////////////////////~~~~~~~~END MOUSE RELATED CODE~~~~~~~~~~~//////////////////////////////////
 
 function createStimulusPinBuffers() {
 	BASE_PICK_pinBuffers[0] = gl.createBuffer();
@@ -563,13 +621,16 @@ function createStimulusPinBuffers() {
     BASE_PICK_pinBuffers[2].numItems = 75;
     
 	var same_color = [];
-    for (var i=0; i<BASE_PICK_pinBuffers[0].numItems* 4; i++) {
+    for (var i = 0; i < BASE_PICK_pinBuffers[0].numItems * 4; i++) {
     	same_color = same_color.concat(1.0, 0.6, 0.0, 1.0);
     }
     BASE_PICK_pinBuffers[3] = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, BASE_PICK_pinBuffers[3]);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(same_color), gl.STATIC_DRAW);
 }
+
+
+/////////////////////////////////////////~~~~~~~~END FP RELATED CODE~~~~~~~~~~~//////////////////////////////////
 
 ////////////////////////////////////~~~~~~~~START BRAIN NAVIGATOR RELATED CODE~~~~~~~~~~~///////////////////////////
 
@@ -644,286 +705,38 @@ function initBrainNavigatorBuffers() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(same_color), gl.STATIC_DRAW);
 }
 
+/**
+ * Moves the brain navigator to a certain position.
+ */
+function BASE_PICK_moveBrainNavigator(shouldRedrawScene) {
+    if (TRIANGLE_pickedIndex != GL_NOTFOUND && TRIANGLE_pickedIndex != GL_BACKGROUND) {
+        // If we managed to find an index find the triangle that corresponds to it from the list of draw triangles
+        // Then take the first vertex as new navigator coordinate. Potentially this could be replaced with some other
+        // metric, like the center of the triangle, or the vertex closest the the other two etc.
+
+        var pickedIndex = TRIANGLE_pickedIndex;
+        for (var j = 0; j < picking_triangles_number.length; j++) {
+            if (pickedIndex < picking_triangles_number[j] / 3) {
+                navigatorX = parseFloat(verticesPoints[j][9 * pickedIndex]);
+                navigatorY = parseFloat(verticesPoints[j][9 * pickedIndex + 1]);
+                navigatorZ = parseFloat(verticesPoints[j][9 * pickedIndex + 2]);
+                break;
+            } else {
+                pickedIndex = pickedIndex - picking_triangles_number[j] / 3;
+            }
+        }
+        VERTEX_pickedIndex = pickedIndex;
+    }
+    navigatorXrot = (360 - Math.atan2(navigatorY - BRAIN_CENTER[1], navigatorZ - BRAIN_CENTER[2]) * 180 / Math.PI) % 360;
+    navigatorYrot = Math.atan2(navigatorX - BRAIN_CENTER[0], Math.sqrt((navigatorZ - BRAIN_CENTER[2]) * (navigatorZ - BRAIN_CENTER[2]) + (navigatorY - BRAIN_CENTER[1]) * (navigatorY - BRAIN_CENTER[1]))) * 180 / Math.PI;
+
+    if (shouldRedrawScene) {
+        drawScene();
+    }
+}
+
 ////////////////////////////////////~~~~~~~~END BRAIN NAVIGATOR RELATED CODE~~~~~~~~~~~/////////////////////////////
 
-/**
- * Draw the light
- */
-function addLight() {
-    var lightingDirection = Vector.create([-0.5, 0, -1]);
-    var adjustedLD = lightingDirection.toUnitVector().x(-1);
-    var flatLD = adjustedLD.flatten();
-
-    gl.uniform3f(shaderProgram.ambientColorUniform, 0.6, 0.6, 0.5);
-    gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
-    gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
-    gl.uniform3f(shaderProgram.pointLightingLocationUniform, 0, -10, -400);
-    gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform, 0.8, 0.8, 0.8);
-    gl.uniform1f(shaderProgram.materialShininessUniform, 30.0);
-}
-
-/**
- * Create webgl buffers from the specified files
- *
- * @param dataList the list of JS data
- * @return a list in which will be added the buffers created based on the data from the specified files
- */
-
-//This was used when selecting vertice from navigator panels, to change the color of the area
-//that is closest to that point. In this version it's not used but the function that does
-//it is still here and will keep until finally deciding on final solution.
-var colorArrays = [];
-//Keep the vertices data for it will be needed later for the actual coordinates
-//of the selected point and for computing the closest vertices when using '2d-type-selection'
-var verticesPoints = [];
-
-var picking_triangles_number = [];
-var total_picking_triangles_number = 0;
-
-
-function drawBuffers(drawMode, buffersSets, isSurface) {
-    for (var i = 0; i < buffersSets.length; i++) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][0]);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, TRI, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][1]);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, TRI, gl.FLOAT, false, 0, 0);
-    	gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][3]);
-        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
-    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffersSets[i][2]);	
-        setMatrixUniforms();
-        gl.drawElements(drawMode, buffersSets[i][2].numItems, gl.UNSIGNED_SHORT, 0);
-    }
-}
-
-/**
- * Draw from buffers.
- */
-function BASE_PICK_drawBrain(brainBuffers, noOfUnloadedBuffers) {
-    if (noOfUnloadedBuffers != 0) {
-        displayMessage("The load operation for the surface data is not completed yet!", "infoMessage");
-        return;
-    }
-	
-    if (BASE_PICK_doPick ) {
-    	gl.disable(gl.BLEND);
-	    gl.disable(gl.DITHER);
-    	gl.uniform1f(shaderProgram.isPicking, 1);
-    } else {
-        gl.enable(gl.BLEND);
-	    gl.enable(gl.DITHER);
-    	addLight();
-    	gl.uniform1f(shaderProgram.isPicking, 0);
-    }
-		
-	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	// View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
-	var aspect = gl.viewportWidth / gl.viewportHeight;
-	perspective(45, aspect , near, 800.0);
-	loadIdentity();
-    
-    // Translate to get a good view.
-    mvTranslate([0.0, -5.0, -GL_zTranslation]);
-    multMatrix(GL_currentRotationMatrix);
-    mvRotate(180, [0, 0, 1]);
-
-    drawBuffers(drawingMode, brainBuffers);
-
-	if (BASE_PICK_isMovieMode == false) {
-		mvPushMatrix();
-		mvTranslate([navigatorX, navigatorY, navigatorZ]);
-		mvRotate(navigatorXrot, [1, 0, 0]);
-		mvRotate(navigatorYrot, [0, 1, 0]);
-	    drawBuffers(gl.TRIANGLES, [BASE_PICK_navigatorBuffers]);
-	    mvPopMatrix();
-	}
-	
-    for (var key in surfaceFocalPoints) {
-    	var focalPointPosition = surfaceFocalPoints[key]['position'];
-    	mvPushMatrix();
-    	mvTranslate(focalPointPosition);
-    	mvRotate(surfaceFocalPoints[key]['xRotation'], [1, 0, 0]);
-    	mvRotate(surfaceFocalPoints[key]['yRotation'], [0, 1, 0]);
-    	drawBuffers(gl.TRIANGLES, [BASE_PICK_pinBuffers]);
-    	mvPopMatrix();
-    }
-}
-
-// ------------------------------------- START CODE FOR PICKING FROM 2D NAVIGATOR PICKS ----------------------------
-/**
- * Find the intersection between a point given by mouseX and mouseY coordinates and a plane
- * given by an axis represented by type (0=x, 1=y, 2=z)
- */
-function findPlaneIntersect(mouseX, mouseY, mvPickMatrix, near, aspect, fov, type) {
-
-  	var centered_x, centered_y, unit_x, unit_y, near_height, near_width, i, j;
-    
-	centered_y = gl.viewportHeight - mouseY - gl.viewportHeight/2.0;
-	centered_x = mouseX - gl.viewportWidth/2.0;
-	unit_x = centered_x/(gl.viewportWidth/2.0);
-	unit_y = centered_y/(gl.viewportHeight/2.0);    
-	near_height = near * Math.tan( fov * Math.PI / 360.0 );
-	near_width = near_height*aspect;
-	var ray = Vector.create([ unit_x*near_width, unit_y*near_height, -1.0*near, 0 ]);
-	var ray_start_point = Vector.create([ 0.0, 0.0, 0.0, 1.0 ]);
-	
-	//mvPickMatrix = translateMatrix(currentPoint, mvPickMatrix);
-	var R = mvPickMatrix.minor(1,1,3,3);
-	var Rt = R.transpose();	
-	var tc = mvPickMatrix.col(4);	
-	var t = Vector.create([ tc.e(1), tc.e(2), tc.e(3) ]);	
-	var tp = Rt.x(t);
-	var mvPickMatrixInv = Matrix.I(4);
-	for (i=0; i < 3; i++) {
-		for (j=0; j < 3; j++) {
-			mvPickMatrixInv.elements[i][j] = Rt.elements[i][j];
-		}	
-		mvPickMatrixInv.elements[i][3] = -1.0 * tp.elements[i];
-	}		
-	var rayp = mvPickMatrixInv.x(ray);
-	var ray_start_pointp = mvPickMatrixInv.x(ray_start_point);
-	var anchor = Vector.create([ ray_start_pointp.e(1), ray_start_pointp.e(2), ray_start_pointp.e(3) ]);
-	var direction = Vector.create([ rayp.e(1), rayp.e(2), rayp.e(3) ]);
-	
-    // Perform intersection test between ray l and world geometry (cube)
-    // Line and Plane objects are taken from sylvester.js library
-	var l = Line.create(anchor, direction.toUnitVector());
-	// Geometry in this case is a front plane of cube at z = 1;
-	anchor = Vector.create([ 0, 0, 0 ]);    // Vertex of the cube
-	var normal = Vector.create([0, 0, 0 ]);  // Normal of front face of cube
-	normal.elements[type] = 1;
-    return getIntersection(anchor, normal, l); 
-}
-
-function getIntersection(anchor, normal, l) {	
-	var p = Plane.create(anchor, normal);   // Plane 
-	// Check if line l and plane p intersect
-	var rval = false;
-	if (l.intersects(p)) {
-		var intersectionPt = l.intersectionWith(p);
-		return intersectionPt.elements;
-	}
-	return null;
-}
-
-/**
- * The handlers for the 3 navigator windows. For each of them the steps are:
- * 1. Get mouse position
- * 2. Check if click was done on the IMG element or in the rest of the div(ignore the later)
- * 3. Apply the basic transformations that were done in generating the navigator IMG
- * 4. Find intersection with specific plane and move navigator there
- */
-function handleXLocale(event) {
-	// Get the mouse position relative to the canvas element.
-    var GL_mouseXRelToCanvasImg = 0;
-    var GL_mouseYRelToCanvasImg = 0;
-    if (event.offsetX || event.offsetX == 0) { // Opera and Chrome
-        GL_mouseXRelToCanvasImg = event.offsetX;
-        GL_mouseYRelToCanvasImg = event.offsetY;
-    } else if (event.layerX || event.layerY == 0) { // Firefox
-       GL_mouseXRelToCanvasImg = event.layerX;
-       GL_mouseYRelToCanvasImg = event.layerY;
-    }
-    if ((event.originalTarget != undefined && event.originalTarget.nodeName == 'IMG') || (
-    	event.srcElement != undefined && event.srcElement.nodeName == 'IMG')) {
-        GL_mouseXRelToCanvas = (GL_mouseXRelToCanvasImg * $('#GLcanvas').width()) / 250.0;
-        GL_mouseYRelToCanvas = (GL_mouseYRelToCanvasImg * $('#GLcanvas').height()) / 172.0;
-
-    	perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
-        loadIdentity();
-        addLight();
-        
-        // Translate to get a good view.
-        mvTranslate([0.0, -5.0, -GL_DEFAULT_Z_POS]);
-    	//multMatrix(GL_currentRotationMatrix);
-        mvRotate(180, [0, 0, 1]);
-        
-    	sectionViewRotationMatrix = createRotationMatrix(90, [0, 1, 0]).x(createRotationMatrix(270, [1, 0, 0]));
-    	multMatrix(sectionViewRotationMatrix);
-    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 0);
-    	NAV_navigatorY = result[1];
-    	NAV_navigatorZ = -result[2];
-		_redrawSectionView = true;
-		NAV_draw_navigator();    	
-    }
-}
-
-function handleYLocale(event) {
-	// Get the mouse position relative to the canvas element.
-    var GL_mouseXRelToCanvasImg = 0;
-    var GL_mouseYRelToCanvasImg = 0;
-    if (event.offsetX || event.offsetX == 0) { // Opera and Chrome
-        GL_mouseXRelToCanvasImg = event.offsetX;
-        GL_mouseYRelToCanvasImg = event.offsetY;
-    } else if (event.layerX || event.layerY == 0) { // Firefox
-        GL_mouseXRelToCanvasImg = event.layerX;
-        GL_mouseYRelToCanvasImg = event.layerY;
-    }
-    if ((event.originalTarget != undefined && event.originalTarget.nodeName == 'IMG') || (
-    	event.srcElement != undefined && event.srcElement.nodeName == 'IMG')) {
-        GL_mouseXRelToCanvas = (GL_mouseXRelToCanvasImg * $('#GLcanvas').width()) / 250.0;
-        GL_mouseYRelToCanvas = (GL_mouseYRelToCanvasImg * $('#GLcanvas').height()) / 172.0;
-
-    	perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
-        loadIdentity();
-        addLight();
-        
-        // Translate to get a good view.
-		mvTranslate([0.0, -5.0, -GL_DEFAULT_Z_POS]);
-    	//multMatrix(GL_currentRotationMatrix);
-    	mvRotate(180, [0, 0, 1]);    	
-    	
-    	sectionViewRotationMatrix = createRotationMatrix(90, [1, 0, 0]).x(createRotationMatrix(180, [1, 0, 0]));
-    	multMatrix(sectionViewRotationMatrix);
-    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 1);
-    	NAV_navigatorX = result[0];
-    	NAV_navigatorZ = -result[2];
-		_redrawSectionView = true;
-		NAV_draw_navigator();     	
-    }
-}
-
-function handleZLocale(event) {
-	// Get the mouse position relative to the canvas element.
-    var GL_mouseXRelToCanvasImg = 0;
-    var GL_mouseYRelToCanvasImg = 0;
-    if (event.offsetX || event.offsetX == 0) { // Opera and Chrome
-        GL_mouseXRelToCanvasImg = event.offsetX;
-        GL_mouseYRelToCanvasImg = event.offsetY;
-    } else if (event.layerX || event.layerY == 0) { // Firefox
-        GL_mouseXRelToCanvasImg = event.layerX;
-        GL_mouseYRelToCanvasImg = event.layerY;
-    }
-    if ((event.originalTarget != undefined && event.originalTarget.nodeName == 'IMG') || (
-    	event.srcElement != undefined && event.srcElement.nodeName == 'IMG')) {
-        GL_mouseXRelToCanvas = (GL_mouseXRelToCanvasImg * $('#GLcanvas').width()) / 250.0;
-        GL_mouseYRelToCanvas = (GL_mouseYRelToCanvasImg * $('#GLcanvas').height()) / 172.0;
-    	
-    	perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
-        loadIdentity();
-        addLight();
-        
-        // Translate to get a good view.
-		mvTranslate([0.0, -5.0, -GL_DEFAULT_Z_POS]);
-    	//multMatrix(GL_currentRotationMatrix);
-    	mvRotate(180, [0, 0, 1]);
-    	
-    	sectionViewRotationMatrix = createRotationMatrix(180, [0, 1, 0]).x(Matrix.I(4));
-    	multMatrix(sectionViewRotationMatrix);
-    	var result = findPlaneIntersect(GL_mouseXRelToCanvas, GL_mouseYRelToCanvas, GL_mvMatrix, near, gl.viewportWidth / gl.viewportHeight, fov, 2);
-    	NAV_navigatorX = -result[0];
-    	NAV_navigatorY = result[1];
-		_redrawSectionView = true;
-		NAV_draw_navigator();     	
-    }
-}
-
-function BASE_PICK_handleMouseWeel(event) {
-	GL_handleMouseWeel(event);
-	if (BASE_PICK_isMovieMode == false) {
-		drawScene();
-	}
-}
 
 /**
  * Init the legend labels, from minValue to maxValue
@@ -937,15 +750,3 @@ function BASE_PICK_initLegendInfo(maxValue, minValue) {
     ColSch_updateLegendLabels(brainLegendDiv, minValue, maxValue, "100%")
 }
 
-
-/**
- * Simplest drawScene
- */
-function drawScene() {
-
-	if (GL_zoomSpeed != 0) {
-        GL_zTranslation -= GL_zoomSpeed * GL_zTranslation;
-        GL_zoomSpeed = 0;
-    }
-    BASE_PICK_drawBrain(BASE_PICK_brainDisplayBuffers, noOfUnloadedBrainDisplayBuffers);
-}
