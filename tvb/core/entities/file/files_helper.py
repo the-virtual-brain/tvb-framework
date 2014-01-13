@@ -349,7 +349,7 @@ class FilesHelper():
                 zip_file.write(file_to_include, os.path.basename(file_to_include))
     
     @staticmethod
-    def zip_folders(zip_full_path, folders, folder_prefix=None):
+    def zip_folders(zip_full_path, folders, folder_prefix=""):
         """
         This method creates a ZIP file with all folders provided as parameters
         :param zip_full_path: full path and name of the result ZIP file
@@ -363,8 +363,7 @@ class FilesHelper():
                     for file_n in files:
                         abs_file_n = os.path.join(root, file_n)
                         zip_file_n = abs_file_n[len(parent_folder) + len(os.sep):]
-                        if folder_prefix is not None:
-                            zip_file_n = folder_prefix + zip_file_n
+                        zip_file_n = folder_prefix + zip_file_n
                         zip_res.write(abs_file_n, zip_file_n)
                         
     
@@ -456,7 +455,7 @@ class FilesHelper():
         Given a folder path, try to remove that folder from disk.
         :param ignore_errors: When False throw FileStructureException if folder_path is invalid.
         """
-        if os.path.exists(folder_path) and os.path.isdir(folder_path):
+        if os.path.isdir(folder_path):
             shutil.rmtree(folder_path, ignore_errors)
             return 
         if not ignore_errors:
@@ -469,9 +468,30 @@ class FilesHelper():
         Given a file's path, return size occupied on disk by that file.
         Size should be a number, representing size in KB.
         """
-        if os.path.exists(file_path) and os.path.isfile(file_path):
+        if os.path.isfile(file_path):
             return int(os.path.getsize(file_path) / 1024)
         return 0
         
         
-        
+class TvbZip(ZipFile):
+    def __init__(self, dest_path, mode="r"):
+        ZipFile.__init__(self, dest_path, mode, ZIP_DEFLATED, True)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _type, _value, _traceback):
+        self.close()
+
+    def write_folder(self, folder, arcprefix=""):
+        """
+        write folder contents in archive
+        """
+        for root, _, files in os.walk(folder):
+            #NOTE: ignore empty directories
+            for file_n in files:
+                abs_file_n = os.path.join(root, file_n)
+                zip_file_n = abs_file_n[len(folder) + len(os.sep):]
+                self.write(abs_file_n, arcprefix + zip_file_n)
+
+    # TODO: move filehelper's zip methods here

@@ -221,6 +221,26 @@ class DatatypeDAO(RootDAO):
 
         return resulted_data
 
+    def get_linked_datatypes_for_project(self, project_id):
+        """
+        Return a list of datatypes linked into this project
+        :param project_id: the id of the project
+        """
+        datatypes = {}
+        try:
+            query = self.session.query(model.DataType).join(model.Links).join(model.Project
+                                        ).filter(model.Project.id == project_id)
+            for dt in query.all():
+                if dt.type == model.DataTypeGroup.__name__:
+                    for subdt in self.get_datatypes_from_datatype_group(dt.id):
+                        datatypes[subdt.gid] = subdt
+                else:
+                    datatypes[dt.gid] = dt
+        except Exception, excep:
+            self.logger.exception(excep)
+
+        return datatypes.values()
+
 
     def get_datatypes_info_for_project(self, project_id, visibility_filter=None, filter_value=None):
         """

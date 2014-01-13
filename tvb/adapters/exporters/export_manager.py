@@ -41,8 +41,10 @@ from tvb.adapters.exporters.tvb_export import TVBExporter
 from tvb.adapters.exporters.cifti_export import CIFTIExporter 
 from tvb.adapters.exporters.exceptions import ExportException, InvalidExportDataException
 from tvb.basic.config.settings import TVBSettings as cfg
+from tvb.config import TVB_IMPORTER_MODULE, TVB_IMPORTER_CLASS
+from tvb.core.entities import model
 from tvb.core.entities.model.model_burst import BURST_INFO_FILE, BURSTS_DICT_KEY, DT_BURST_MAP
-from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.file.files_helper import FilesHelper, TvbZip
 from tvb.core.entities.transient.burst_export_entities import BurstInformation, WorkflowInformation
 from tvb.core.entities.transient.burst_export_entities import WorkflowStepInformation, WorkflowViewStepInformation
 from tvb.core.entities.storage import dao
@@ -186,15 +188,36 @@ class ExportManager:
         bursts_file_name = os.path.join(project_folder, BURST_INFO_FILE)
         burst_info = {BURSTS_DICT_KEY: bursts_dict,
                       DT_BURST_MAP: datatype_burst_mapping}
-        with open(bursts_file_name, 'w') as bursts_file:
-            bursts_file.write(json.dumps(burst_info))
-            
-        # pack project content into a ZIP file
-        result_zip = files_helper.zip_folder(result_path, project_folder)
-        
+
+        # Make a import operation which will contain links to other projects
+
+        alg_group = dao.find_group(TVB_IMPORTER_MODULE, TVB_IMPORTER_CLASS)
+        algo = dao.get_algorithm_by_group(alg_group.id)
+        op = model.Operation(None, project.id, algo.id, '', start_date=datetime.now())
+        op.project = project
+        op.algorithm = algo
+
+        op.id = 'links-to-external-projects'
+        op.mark_complete(model.STATUS_FINISHED)
+        files_helper.write_operation_metadata(op)
+        op_folder = files_helper.get_operation_folder(op.project.name, op.id)
+
+        with TvbZip(result_path, "w") as zip_file:
+            # pack project content into a ZIP file
+            zip_file.write_folder(project_folder)
+            zip_file.writestr(os.path.basename(bursts_file_name), json.dumps(burst_info))
+
+            # add linked datatypes to archive in the import operation
+            for lnk_dt in dao.get_linked_datatypes_for_project(project.id):
+                # get datatype as a mapped type
+                lnk_dt = dao.get_datatype_by_gid(lnk_dt.gid)
+                pth = lnk_dt.get_storage_file_path()
+                zip_pth = os.path.basename(op_folder) + '/' + os.path.basename(pth)
+                zip_file.write(pth, zip_pth)
+
         # remove these files, since we only want them in export archive
-        os.remove(bursts_file_name)
-        return result_zip
+        files_helper.remove_folder(op_folder)
+        return result_path
     
     
     def _build_workflow_step_info(self, workflow):

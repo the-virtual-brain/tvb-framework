@@ -336,6 +336,7 @@ class Operation(Base, Exportable):
         self.start_date = start_date
         self.completion_date = completion_date
         self.status = status
+        self.visible = True
         self.fk_operation_group = op_group_id
         self.range_values = range_values
         self.user_group = user_group
