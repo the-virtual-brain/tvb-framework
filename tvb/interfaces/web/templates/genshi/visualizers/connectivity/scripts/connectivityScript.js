@@ -337,9 +337,9 @@ function drawScene() {
 	        mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
 
             // Draw the transparent object twice, to get a correct rendering
-            gl.cullFace(gl.CW);
+            gl.cullFace(gl.BACK);
 	        drawHemispheres(gl.TRIANGLES);
-            gl.cullFace(gl.CW);
+            gl.cullFace(gl.FRONT);
             drawHemispheres(gl.TRIANGLES);
 
 	        gl.disable(gl.BLEND);

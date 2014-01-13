@@ -754,9 +754,9 @@ function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
         if (cullFace) {
             gl.enable(gl.CULL_FACE);
             if (cullFace == 1) {
-                gl.cullFace(gl.CW);
+                gl.cullFace(gl.BACK);
             } else {
-                gl.cullFace(gl.CCW);
+                gl.cullFace(gl.FRONT);
             }
         }
         // Add gray color for semi-transparent objects;
@@ -790,7 +790,7 @@ function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
         gl.disable(gl.CULL_FACE);
         gl.uniform1i(shaderProgram.useBlending, false);
         // Draw the same transparent object the second time
-        if (cullFace == 1) {
+        if (cullFace === 1) {
             drawBuffers(drawMode, buffersSets, useBlending, cullFace + 1);
         }
     }
