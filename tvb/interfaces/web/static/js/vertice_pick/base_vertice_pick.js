@@ -117,8 +117,9 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
     canvas.onmouseup = customMouseUp;
     canvas.onmousemove = customMouseMove;
     canvas.onmouseout = handleMouseOut;
-    
-    //isOneToOneMapping = true;
+
+    // Needed for when drawing the legend.
+    isOneToOneMapping = true;
     
     drawScene();
 }
