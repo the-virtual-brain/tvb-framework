@@ -3,7 +3,7 @@
 		use object element, and also both chrome and firefox will change .png images
 		sizes if used with object element. -->
 	<py:if test="not figure_file_path.endswith('.svg')">
-		<img src="/flow/readserverstaticfile/${figure_file_path}"/>
+		<img src="/flow/readserverstaticfile/${figure_file_path}" class="tvb-snapshot-image"/>
 	</py:if>
 	
 	<py:if test="figure_file_path.endswith('.svg')">

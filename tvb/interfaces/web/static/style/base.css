@@ -2467,3 +2467,8 @@ right: auto;
 .toolbar-connectivity-selection .dropdown-pane li {
 float: none;
 }
+
+/* An image produced by the tvb export; checkerboard background*/
+.tvb-snapshot-image {
+    background: white url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAJElEQVQYV2Pcv3//fwYk4OjoyIjMZ6SDAmT7QGx0K1EcRBsFAFAcHPlrTpAmAAAAAElFTkSuQmCC") 0 0 repeat;
+}
