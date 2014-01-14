@@ -42,14 +42,13 @@ The results of the computation will be stored by the adapter itself.
 """
 
 ## Make sure selected profile is propagated when launching an operation.
+### Reload modules, only when running, thus avoid problems when sphinx generates documentation
 import sys
 from tvb.basic.profile import TvbProfile as tvb_profile
-
-tvb_profile.set_profile(sys.argv)
+tvb_profile.set_profile(sys.argv, try_reload=(__name__ == '__main__'))
 
 ### Overwrite PostgreSQL number of connections when executed in the context of a node
 from tvb.basic.config.settings import TVBSettings
-
 TVBSettings.MAX_DB_CONNECTIONS = TVBSettings.MAX_DB_ASYNC_CONNECTIONS
 TVBSettings.OPERATION_EXECUTION_PROCESS = True
 

@@ -43,11 +43,12 @@ from cherrypy import Tool
 from sys import platform, argv
 
 ### This will set running profile from arguments.
+### Reload modules, only when running, thus avoid problems when sphinx generates documentation
 from tvb.basic.profile import TvbProfile
-TvbProfile.set_profile(argv, True)
-from tvb.basic.config.settings import TVBSettings
+TvbProfile.set_profile(argv, True, try_reload=(__name__ == '__main__'))
 
 ### For Linux Distribution, correctly set MatplotLib Path, before start.
+from tvb.basic.config.settings import TVBSettings
 if TVBSettings().is_linux():
     os.environ['MATPLOTLIBDATA'] = os.path.join(TVBSettings().get_library_folder(), 'mpl-data')
 
@@ -90,7 +91,7 @@ PARAM_RESET_DB = "reset"
 ### While running distribution/console, default encoding is ASCII
 reload(sys)
 sys.setdefaultencoding('utf-8')
-LOGGER.info("TVB application running using encoding: " + sys.getdefaultencoding())
+LOGGER.info("TVB application will be running using encoding: " + sys.getdefaultencoding())
 
 
 
