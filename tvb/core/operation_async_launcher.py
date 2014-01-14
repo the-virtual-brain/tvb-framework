@@ -52,7 +52,6 @@ from tvb.basic.config.settings import TVBSettings
 TVBSettings.MAX_DB_CONNECTIONS = TVBSettings.MAX_DB_ASYNC_CONNECTIONS
 TVBSettings.OPERATION_EXECUTION_PROCESS = True
 
-import matplotlib
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
@@ -60,10 +59,6 @@ from tvb.core.utils import parse_json_parameters
 from tvb.core.traits import db_events
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.workflow_service import WorkflowService
-
-
-LOGGER = get_logger('tvb.core.operation_async_launcher')
-matplotlib.use('module://tvb.interfaces.web.mplh5.mplh5_backend')
 
 
 
@@ -99,6 +94,12 @@ def do_operation_launch(operation_id):
 
 
 if __name__ == '__main__':
+
+    import matplotlib
+    # Specify backend only when actually running (to avoid sphinx errors)
+    LOGGER = get_logger('tvb.core.operation_async_launcher')
+    matplotlib.use('module://tvb.interfaces.web.mplh5.mplh5_backend')
+
     OPERATION_ID = sys.argv[1]
     # Make sure DB events are linked.
     db_events.attach_db_events()

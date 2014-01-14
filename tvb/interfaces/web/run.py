@@ -52,11 +52,12 @@ from tvb.basic.config.settings import TVBSettings
 if TVBSettings().is_linux():
     os.environ['MATPLOTLIBDATA'] = os.path.join(TVBSettings().get_library_folder(), 'mpl-data')
 
-### Import MPLH5 to have the back-end Thread started.
-from tvb.interfaces.web.mplh5 import mplh5_server
+### Import MPLH5 asap, to have the back-end Thread started before other pylab/matplotlib import
 from tvb.basic.logger.builder import get_logger
-LOGGER = get_logger('tvb.interfaces.web.mplh5.mplh5_server')
-mplh5_server.start_server(LOGGER)
+if __name__ == "__main__":
+    from tvb.interfaces.web.mplh5 import mplh5_server
+    LOGGER = get_logger('tvb.interfaces.web.mplh5.mplh5_server')
+    mplh5_server.start_server(LOGGER)
 
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.decorators import user_environment_execution
