@@ -313,9 +313,11 @@ class SurfaceContextModelParameters(ContextModelParameters):
         """
         Returns:
          - a dictionary of form: {'equation': $equation, 'focal_points': $list_of_focal_points,
-         'no_of_vertices':$surface_no_of_vertices} if the user specified any equation for computing
-         the value of the given parameter.
+           'no_of_vertices':$surface_no_of_vertices} if the user specified any equation for computing
+           the value of the given parameter.
+
          - a string of form: '[$default_model_param_value]' if the user didn't specified an equation for the given param
+
         """
         if modified_param_name in self.applied_equations:
             return self.applied_equations[modified_param_name]

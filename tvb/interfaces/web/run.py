@@ -82,7 +82,7 @@ from tvb.interfaces.web.controllers.spatial.noise_configuration_controller impor
 from tvb.interfaces.web.controllers.api.simulator_controller import SimulatorController
 
 
-LOGGER = get_logger('tvb.interface.web.run')
+LOGGER = get_logger('tvb.interfaces.web.run')
 CONFIG_EXISTS = not SettingsService.is_first_run()
 PARAM_RESET_DB = "reset"
 
