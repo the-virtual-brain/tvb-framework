@@ -49,6 +49,7 @@ from tvb.core.entities import model
 from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.model.model_burst import BURST_INFO_FILE, BURSTS_DICT_KEY, DT_BURST_MAP
 from tvb.core.services.exceptions import ProjectImportException
+from tvb.core.services.flow_service import FlowService
 from tvb.core.services.project_service import ProjectService
 from tvb.core.entities.file.xml_metadata_handlers import XMLReader
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -252,32 +253,95 @@ class ImportService():
             dao.store_entity(view_step_entity)
 
 
-    def import_project_operations(self, project, import_path, dt_burst_mappings=None, burst_ids_mapping=None):
+    def _append_tmp_to_folders_containing_operations(self, import_path):
         """
-        This method scans provided folder and identify all operations that needs to be imported
+        Find folders containing operations and rename them, return the renamed paths
         """
+        pths = []
+        for root, _, files in os.walk(import_path):
+            if FilesHelper.TVB_OPERARATION_FILE in files:
+                # Found an operation folder - append TMP to its name
+                tmp_op_folder = root + 'tmp'
+                os.rename(root, tmp_op_folder)
+                operation_file_path = os.path.join(tmp_op_folder, FilesHelper.TVB_OPERARATION_FILE)
+                pths.append(operation_file_path)
+        return pths
+
+
+    def _load_operations_from_paths(self, project, op_paths):
+        """
+        Load operations from paths containing them.
+        :returns: Operations ordered by start/creation date to be sure data dependency is resolved correct
+        """
+        def by_time(op):
+            return op.start_date or op.create_date or datetime.now()
+
+        operations = []
+
+        for operation_file_path in op_paths:
+            operation = self.__build_operation_from_file(project, operation_file_path)
+            operation.import_file = operation_file_path
+            operations.append(operation)
+
+        operations.sort(key=by_time)
+        return operations
+
+
+    def _load_datatypes_from_operation_folder(self, op_path, operation_entity, datatype_group):
+        """
+        Loads datatypes from operation folder
+        :returns: Datatypes ordered by creation date (to solve any dependencies)
+        """
+        all_datatypes = []
+        for file_name in os.listdir(op_path):
+            if file_name.endswith(FilesHelper.TVB_STORAGE_FILE_EXTENSION):
+                file_update_manager = FilesUpdateManager()
+                file_update_manager.upgrade_file(os.path.join(op_path, file_name))
+                datatype = self.load_datatype_from_file(op_path, file_name, operation_entity.id, datatype_group)
+                all_datatypes.append(datatype)
+        all_datatypes.sort(key=lambda dt: dt.create_date)
+        return all_datatypes
+
+
+    def _store_imported_datatypes_in_db(self, project, all_datatypes, dt_burst_mappings, burst_ids_mapping):
         if burst_ids_mapping is None:
             burst_ids_mapping = {}
         if dt_burst_mappings is None:
             dt_burst_mappings = {}
-        # Identify folders containing operations
-        operations = []
-        for root, _, files in os.walk(import_path):
-            if FilesHelper.TVB_OPERARATION_FILE in files:
-                # Found an operation folder - append TMP to its name
-                tmp_op_folder = os.path.join(os.path.split(root)[0], os.path.split(root)[1] + 'tmp')
-                os.rename(root, tmp_op_folder)
 
-                operation_file_path = os.path.join(tmp_op_folder, FilesHelper.TVB_OPERARATION_FILE)
-                operation = self.__build_operation_from_file(project, operation_file_path)
-                operation.import_file = operation_file_path
-                operations.append(operation)
+        for datatype in all_datatypes:
+            if datatype.gid in dt_burst_mappings:
+                old_burst_id = dt_burst_mappings[datatype.gid]
+                if old_burst_id is not None:
+                    datatype.fk_parent_burst = burst_ids_mapping[old_burst_id]
+
+            datatype_allready_in_tvb = dao.get_datatype_by_gid(datatype.gid)
+
+            if not datatype_allready_in_tvb:
+                self.store_datatype(datatype)
+            else:
+                FlowService.create_link([datatype_allready_in_tvb.id], project.id)
+
+    def _store_imported_images(self, project, operation_entity):
+        """
+        Import all images from operation
+        """
+        images_root = self.files_helper.get_images_folder(project.name, operation_entity.id)
+        if os.path.exists(images_root):
+            for root, _, files in os.walk(images_root):
+                for file_name in files:
+                    if file_name.endswith(FilesHelper.TVB_FILE_EXTENSION):
+                        self.__populate_image(os.path.join(root, file_name), project.id, operation_entity.id)
+
+
+    def import_project_operations(self, project, import_path, dt_burst_mappings=None, burst_ids_mapping=None):
+        """
+        This method scans provided folder and identify all operations that needs to be imported
+        """
+        op_paths = self._append_tmp_to_folders_containing_operations(import_path)
+        operations = self._load_operations_from_paths(project, op_paths)
 
         imported_operations = []
-
-        # Now we sort operations by start date, to be sure data dependency is resolved correct
-        operations = sorted(operations, key=lambda operation: (operation.start_date or
-                                                               operation.create_date or datetime.now()))
 
         # Here we process each operation found
         for operation in operations:
@@ -291,34 +355,10 @@ class ImportService():
                 shutil.rmtree(new_operation_path)
                 shutil.move(old_operation_folder, new_operation_path)
 
-            # Now process data types for each operation
-            all_datatypes = []
-            for file_name in os.listdir(new_operation_path):
-                if file_name.endswith(FilesHelper.TVB_STORAGE_FILE_EXTENSION):
-                    file_update_manager = FilesUpdateManager()
-                    file_update_manager.upgrade_file(os.path.join(new_operation_path, file_name))
-                    datatype = self.load_datatype_from_file(new_operation_path, file_name,
-                                                            operation_entity.id, datatype_group)
-                    all_datatypes.append(datatype)
+            all_datatypes = self._load_datatypes_from_operation_folder(new_operation_path, operation_entity, datatype_group)
+            self._store_imported_datatypes_in_db(project, all_datatypes, dt_burst_mappings, burst_ids_mapping)
+            self._store_imported_images(project, operation_entity)
 
-            # Before inserting into DB sort data types by creation date (to solve any dependencies)
-            all_datatypes = sorted(all_datatypes, key=lambda datatype: datatype.create_date)
-
-            # Now store data types into DB
-            for datatype in all_datatypes:
-                if datatype.gid in dt_burst_mappings:
-                    old_burst_id = dt_burst_mappings[datatype.gid]
-                    if old_burst_id is not None:
-                        datatype.fk_parent_burst = burst_ids_mapping[old_burst_id]
-                self.store_datatype(datatype)
-
-            # Now import all images from current operation
-            images_root = self.files_helper.get_images_folder(project.name, operation_entity.id)
-            if os.path.exists(images_root):
-                for root, _, files in os.walk(images_root):
-                    for file_name in files:
-                        if file_name.endswith(FilesHelper.TVB_FILE_EXTENSION):
-                            self.__populate_image(os.path.join(root, file_name), project.id, operation_entity.id)
             imported_operations.append(operation_entity)
 
         return imported_operations
@@ -359,7 +399,7 @@ class ImportService():
         class_name = meta_structure[DataTypeMetaData.KEY_CLASS_NAME]
         class_module = meta_structure[DataTypeMetaData.KEY_MODULE]
         datatype = __import__(class_module, globals(), locals(), [class_name])
-        datatype = eval("datatype." + class_name)
+        datatype = getattr(datatype, class_name)
         type_instance = manager_of_class(datatype).new_instance()
 
         # Now we fill data into instance
