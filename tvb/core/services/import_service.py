@@ -76,6 +76,35 @@ class ImportService():
         self.created_projects = []
 
 
+    def _download_and_unpack_project_zip(self, uploaded, uq_file_name, temp_folder):
+
+        if isinstance(uploaded, FieldStorage) or isinstance(uploaded, Part):
+            if not uploaded.file:
+                raise ProjectImportException("Please select the archive which contains the project structure.")
+            with open(uq_file_name, 'wb') as file_obj:
+                file_obj.write(uploaded.file.read())
+        else:
+            shutil.copyfile(uploaded, uq_file_name)
+
+        try:
+            self.files_helper.unpack_zip(uq_file_name, temp_folder)
+        except FileStructureException, excep:
+            self.logger.exception(excep)
+            raise ProjectImportException("Bad ZIP archive provided. A TVB exported project is expected!")
+
+
+    @staticmethod
+    def _compute_unpack_path():
+        """
+        :return: the name of the folder where to expand uploaded zip
+        """
+        now = datetime.now()
+        date_str = "%d-%d-%d_%d-%d-%d_%d" % (now.year, now.month, now.day, now.hour,
+                                             now.minute, now.second, now.microsecond)
+        uq_name = "%s-ImportProject" % date_str
+        return os.path.join(cfg.TVB_TEMP_FOLDER, uq_name)
+
+
     @transactional
     def import_project_structure(self, uploaded, user_id):
         """
@@ -93,53 +122,59 @@ class ImportService():
         self.user_id = user_id
         self.created_projects = []
 
-        # Now we compute the name of the file where to store uploaded project
-        now = datetime.now()
-        date_str = "%d-%d-%d_%d-%d-%d_%d" % (now.year, now.month, now.day, now.hour,
-                                             now.minute, now.second, now.microsecond)
-        uq_name = "%s-ImportProject" % date_str
-        uq_file_name = os.path.join(cfg.TVB_TEMP_FOLDER, uq_name + ".zip")
+        # Now compute the name of the folder where to explode uploaded ZIP file
+        temp_folder = self._compute_unpack_path()
+        uq_file_name = temp_folder + ".zip"
 
-        temp_folder = None
         try:
-            if isinstance(uploaded, FieldStorage) or isinstance(uploaded, Part):
-                if uploaded.file:
-                    file_obj = open(uq_file_name, 'wb')
-                    file_obj.write(uploaded.file.read())
-                    file_obj.close()
-                else:
-                    raise ProjectImportException("Please select the archive which contains the project structure.")
-            else:
-                shutil.copyfile(uploaded, uq_file_name)
-
-            # Now compute the name of the folder where to explode uploaded ZIP file
-            temp_folder = os.path.join(cfg.TVB_TEMP_FOLDER, uq_name)
-            try:
-                self.files_helper.unpack_zip(uq_file_name, temp_folder)
-            except FileStructureException, excep:
-                self.logger.exception(excep)
-                raise ProjectImportException("Bad ZIP archive provided. A TVB exported project is expected!")
-
-            try:
-                self._import_project_from_folder(temp_folder)
-            except Exception, excep:
-                self.logger.exception(excep)
-                self.logger.debug("Error encountered during import. Deleting projects created during this operation.")
-
-                # Roll back projects created so far
-                project_service = ProjectService()
-                for project in self.created_projects:
-                    project_service.remove_project(project.id)
-
-                raise ProjectImportException(str(excep))
-
+            self._download_and_unpack_project_zip(uploaded, uq_file_name, temp_folder)
+            self._import_project_from_folder(temp_folder)
+        except Exception, excep:
+            self.logger.exception(excep)
+            self.logger.debug("Error encountered during import. Deleting projects created during this operation.")
+            # Roll back projects created so far
+            project_service = ProjectService()
+            for project in self.created_projects:
+                project_service.remove_project(project.id)
+            raise ProjectImportException(str(excep))
         finally:
             # Now delete uploaded file
             if os.path.exists(uq_file_name):
                 os.remove(uq_file_name)
             # Now delete temporary folder where uploaded ZIP was exploded.
-            if temp_folder is not None and os.path.exists(temp_folder):
+            if os.path.exists(temp_folder):
                 shutil.rmtree(temp_folder)
+
+
+    @staticmethod
+    def _load_burst_info_from_json(project_path):
+        bursts_dict = {}
+        dt_mappings_dict = {}
+        bursts_file = os.path.join(project_path, BURST_INFO_FILE)
+        if os.path.isfile(bursts_file):
+            with open(bursts_file) as f:
+                bursts_info_dict = json.load(f)
+            bursts_dict = bursts_info_dict[BURSTS_DICT_KEY]
+            dt_mappings_dict = bursts_info_dict[DT_BURST_MAP]
+        return bursts_dict, dt_mappings_dict
+
+
+    def _import_bursts(self, project_entity, bursts_dict):
+        """
+        Re-create old bursts, but keep a mapping between the id it has here and the old-id it had
+        in the project where they were exported, so we can re-add the datatypes to them.
+        """
+        burst_ids_mapping = {}
+
+        for old_burst_id in bursts_dict:
+            burst_information = BurstInformation.load_from_dict(bursts_dict[old_burst_id])
+            burst_entity = model.BurstConfiguration(project_entity.id)
+            burst_entity.from_dict(burst_information.data)
+            burst_entity = dao.store_entity(burst_entity)
+            burst_ids_mapping[int(old_burst_id)] = burst_entity.id
+            # We don't need the data in dictionary form anymore, so update it with new BurstInformation object
+            bursts_dict[old_burst_id] = burst_information
+        return burst_ids_mapping
 
 
     def _import_project_from_folder(self, temp_folder):
@@ -154,14 +189,6 @@ class ImportService():
         for project_path in project_roots:
             project_entity = self.__populate_project(project_path)
 
-            bursts_dict = {}
-            dt_mappings_dict = {}
-            bursts_file = os.path.join(project_path, BURST_INFO_FILE)
-            if os.path.isfile(bursts_file):
-                bursts_info_dict = json.loads(open(bursts_file, 'r').read())
-                bursts_dict = bursts_info_dict[BURSTS_DICT_KEY]
-                dt_mappings_dict = bursts_info_dict[DT_BURST_MAP]
-
             # Compute the path where to store files of the imported project
             new_project_path = os.path.join(cfg.TVB_STORAGE, FilesHelper.PROJECTS_FOLDER, project_entity.name)
             if project_path != new_project_path:
@@ -169,21 +196,13 @@ class ImportService():
                 shutil.rmtree(project_path)
 
             self.created_projects.append(project_entity)
-            # Re-create old bursts, but keep a mapping between the id it has here and the old-id it had
-            # in the project where they were exported, so we can re-add the datatypes to them.
-            burst_ids_mapping = {}
+
             # Keep a list with all burst that were imported since we will want to also add the workflow
             # steps after we are finished with importing the operations and datatypes. We need to first
             # stored bursts since we need to know which new id's they have for operations parent_burst.
-            if bursts_dict:
-                for old_burst_id in bursts_dict:
-                    burst_information = BurstInformation.load_from_dict(bursts_dict[old_burst_id])
-                    burst_entity = model.BurstConfiguration(project_entity.id)
-                    burst_entity.from_dict(burst_information.data)
-                    burst_entity = dao.store_entity(burst_entity)
-                    burst_ids_mapping[int(old_burst_id)] = burst_entity.id
-                    # We don't need the data in dictionary form anymore, so update it with new BurstInformation object
-                    bursts_dict[old_burst_id] = burst_information
+            bursts_dict, dt_mappings_dict = self._load_burst_info_from_json(new_project_path)
+            burst_ids_mapping = self._import_bursts(project_entity, bursts_dict)
+
             # Now import project operations
             self.import_project_operations(project_entity, new_project_path, dt_mappings_dict, burst_ids_mapping)
             # Now we can finally import workflow related entities
