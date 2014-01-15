@@ -1,4 +1,4 @@
-<div xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+<div>
     <script type="text/javascript" src="/static_view/time_series_volume/scripts/timeseriesVolume.js"></script>
     <script type="text/javascript" src="/static/js/webGL_Connectivity.js?4411"></script>
     <script type="text/javascript" src="/static/colorScheme/js/colorSchemeComponent.js"></script>
@@ -7,7 +7,7 @@
 
     <script type="text/javascript">
         $().ready(function() {
-            startVisualiser('${dataUrls}', ${minValue}, ${maxValue}, '${volumeOrigin}', '${voxelSize}', '${voxelUnit}')
+            startVisualiser('${dataUrls}', ${minValue}, ${maxValue}, '${volumeOrigin}', '${voxelSize}', '${voxelUnit}');
             $("#volumetric-ts-canvas").mousedown(customMouseDown).mouseup(customMouseUp)
                                       .mousemove(customMouseMove)
         })

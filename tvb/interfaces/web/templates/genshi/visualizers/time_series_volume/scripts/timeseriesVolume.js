@@ -1,20 +1,20 @@
 // TODO: add legend, labels on axes, color scheme support
-var ctx = null                                                      // the context for drawing on current canvas
-var currentQuadrant, quadrants = []
-var minimumValue, maximumValue, data                                // minimum and maximum for current data slice
-var voxelSize, volumeOrigin                                         // volumeOrigin is not used for now, as in 2D it
+var ctx = null;                                                      // the context for drawing on current canvas
+var currentQuadrant, quadrants = [];
+var minimumValue, maximumValue, data;                                // minimum and maximum for current data slice
+var voxelSize, volumeOrigin;                                         // volumeOrigin is not used for now, as in 2D it
                                                                     // is irrelevant; if needed, use it _setQuadrant
-var selectedEntity = [0, 0, 0]                                      // the selected voxel; [i, j, k]
-var quadrantHeight, quadrantWidth
+var selectedEntity = [0, 0, 0];                                      // the selected voxel; [i, j, k]
+var quadrantHeight, quadrantWidth;
 
 var Quadrant = function (params) {                                  // this keeps all necessary data for drawing
-    this.index = params.index || 0                                  // in a quadrant
-    this.axes = params.axes || {x: 0, y: 1}                         // axes represented in current quad; i=0, j=1, k=2
-    this.entityWidth = params.entityWidth || 0                      // width and height of one voxel in current quad
-    this.entityHeight = params.entityHeight || 0
-    this.offsetX = params.offsetX || 0                              // the offset of the drawing relative to the quad
-    this.offsetY = params.offsetY || 0
-}
+    this.index = params.index || 0;                                  // in a quadrant
+    this.axes = params.axes || {x: 0, y: 1};                         // axes represented in current quad; i=0, j=1, k=2
+    this.entityWidth = params.entityWidth || 0;                      // width and height of one voxel in current quad
+    this.entityHeight = params.entityHeight || 0;
+    this.offsetX = params.offsetX || 0;                              // the offset of the drawing relative to the quad
+    this.offsetY = params.offsetY || 0;
+};
 
 /**
  * Make all the necessary initialisations and draws the default view, with the center voxel selected
@@ -26,43 +26,43 @@ var Quadrant = function (params) {                                  // this keep
  * @param voxelUnit The unit used for this rendering ("mm", "cm" etc)
  */
 function startVisualiser(dataUrls, minValue, maxValue, volOrigin, sizeOfVoxel, voxelUnit) {
-    var canvas = document.getElementById("volumetric-ts-canvas")
+    var canvas = document.getElementById("volumetric-ts-canvas");
     if (!canvas.getContext) {
-        displayMessage('You need a browser with canvas capabilities, to see this demo fully!', "errorMessage")
+        displayMessage('You need a browser with canvas capabilities, to see this demo fully!', "errorMessage");
         return
     }
 
-    volumeOrigin = $.parseJSON(volOrigin)[0]
-    voxelSize    = $.parseJSON(sizeOfVoxel)
+    volumeOrigin = $.parseJSON(volOrigin)[0];
+    voxelSize    = $.parseJSON(sizeOfVoxel);
 
-    canvas.width  = $(canvas).parent().width()                      // fill the screen on width
-    canvas.height = canvas.width / 3 + 100                          // three quadrants + some space for labeling
-    quadrantHeight = quadrantWidth = canvas.width / 3               // quadrants are squares
+    canvas.width  = $(canvas).parent().width();                      // fill the screen on width
+    canvas.height = canvas.width / 3 + 100;                          // three quadrants + some space for labeling
+    quadrantHeight = quadrantWidth = canvas.width / 3;               // quadrants are squares
 
-    ctx = canvas.getContext("2d")
+    ctx = canvas.getContext("2d");
 
-    dataUrls = $.parseJSON(dataUrls)
-    data = HLPR_readJSONfromFile(dataUrls[0])
-    data = data[0]                                                  // just the first slice for now
+    dataUrls = $.parseJSON(dataUrls);
+    data = HLPR_readJSONfromFile(dataUrls[0]);
+    data = data[0];                                                  // just the first slice for now
 
-    _rotateData()                                                   // rotate Z axis
-    minimumValue =  9999                                            // compute the minimum on this slice
-    maximumValue = -9999
+    _rotateData();                                                   // rotate Z axis
+    minimumValue =  9999;                                            // compute the minimum on this slice
+    maximumValue = -9999;
     for (var i = 0; i < data.length; ++i)
         for (var j = 0; j < data[0].length; ++j)
             for (var k = 0; k < data[0][0].length; ++k)
                 if (data[i][j][k] > maximumValue)
-                    maximumValue = data[i][j][k]
+                    maximumValue = data[i][j][k];
                 else if (data[i][j][k] < minimumValue)
-                    minimumValue = data[i][j][k]
+                    minimumValue = data[i][j][k];
 
-    _setupQuadrants()
+    _setupQuadrants();
 
-    selectedEntity[0] = Math.floor(data.length / 2)                 // set the center entity as the selected one
-    selectedEntity[1] = Math.floor(data[0].length / 2)
-    selectedEntity[2] = Math.floor(data[0][0].length / 2)
+    selectedEntity[0] = Math.floor(data.length / 2);                 // set the center entity as the selected one
+    selectedEntity[1] = Math.floor(data[0].length / 2);
+    selectedEntity[2] = Math.floor(data[0][0].length / 2);
 
-    drawScene()
+    drawScene();
 }
 
 // ==================================== DRAWING FUNCTIONS START =============================================
@@ -72,60 +72,60 @@ function startVisualiser(dataUrls, minValue, maxValue, volOrigin, sizeOfVoxel, v
  */
 // TODO: since only two dimensions change at every time, redraw just those quadrants
 function drawScene() {
-    _setCtxOnQuadrant(0)
-    ctx.fillStyle = getGradientColorString(minimumValue, minimumValue, maximumValue)
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    _setCtxOnQuadrant(0);
+    ctx.fillStyle = getGradientColorString(minimumValue, minimumValue, maximumValue);
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     for (var j = 0; j < data[0].length; ++j)
         for (var i = 0; i < data.length; ++i)
-            drawVoxel(i, j, data[i][j][selectedEntity[2]])
+            drawVoxel(i, j, data[i][j][selectedEntity[2]]);
 
-    _setCtxOnQuadrant(1)
+    _setCtxOnQuadrant(1);
     for (var k = 0; k < data[0][0].length; ++k)
-        for (var j = 0; j < data[0].length; ++j)
-            drawVoxel(k, j, data[selectedEntity[0]][j][k])
+        for (var jj = 0; jj < data[0].length; ++jj)
+            drawVoxel(k, jj, data[selectedEntity[0]][jj][k]);
 
-    _setCtxOnQuadrant(2)
-    for (var k = 0; k < data[0][0].length; ++k)
-        for (var i = 0; i < data.length; ++i)
-            drawVoxel(k, i, data[i][selectedEntity[1]][k])
-    drawNavigator()
+    _setCtxOnQuadrant(2);
+    for (var kk = 0; kk < data[0][0].length; ++kk)
+        for (var ii = 0; ii < data.length; ++ii)
+            drawVoxel(kk, ii, data[ii][selectedEntity[1]][kk]);
+    drawNavigator();
 }
 
 /**
  * Draws the voxel set at (line, col) in the current quadrant, and colors it according to its value
  */
 function drawVoxel(line, col, value) {
-    ctx.fillStyle = getGradientColorString(value, minimumValue, maximumValue)
+    ctx.fillStyle = getGradientColorString(value, minimumValue, maximumValue);
     // col increases horizontally and line vertically, so col represents the X drawing axis, and line the Y
     ctx.fillRect(col * currentQuadrant.entityWidth, line * currentQuadrant.entityHeight,
-                 currentQuadrant.entityWidth, currentQuadrant.entityHeight)
+                 currentQuadrant.entityWidth, currentQuadrant.entityHeight);
 }
 
 /**
  * Draws the cross-hair on each quadrant, on the <code>selectedEntity</code>
  */
 function drawNavigator() {
-    ctx.save()
-    ctx.beginPath()
+    ctx.save();
+    ctx.beginPath();
 
     for (var quadIdx = 0; quadIdx < 3; ++quadIdx) {
-        _setCtxOnQuadrant(quadIdx)
+        _setCtxOnQuadrant(quadIdx);
         drawCrossHair(selectedEntity[currentQuadrant.axes.x] * currentQuadrant.entityWidth + currentQuadrant.entityWidth / 2,
-                      selectedEntity[currentQuadrant.axes.y] * currentQuadrant.entityHeight + currentQuadrant.entityHeight / 2)
+                      selectedEntity[currentQuadrant.axes.y] * currentQuadrant.entityHeight + currentQuadrant.entityHeight / 2);
     }
-    ctx.strokeStyle = "blue"
-    ctx.stroke()
-    ctx.restore()
+    ctx.strokeStyle = "blue";
+    ctx.stroke();
+    ctx.restore();
 }
 
 /**
  * Draws a 20px X 20px cross hair on the <code>currentQuadrant</code>, at the specified x and y
  */
 function drawCrossHair(x, y) {
-    ctx.moveTo(Math.max(x - 20, 0), y)                              // the horizontal line
-    ctx.lineTo(Math.min(x + 20, quadrantWidth), y)
-    ctx.moveTo(x, Math.max(y - 20, 0))                              // the vertical line
-    ctx.lineTo(x, Math.min(y + 20, quadrantHeight))
+    ctx.moveTo(Math.max(x - 20, 0), y);                              // the horizontal line
+    ctx.lineTo(Math.min(x + 20, quadrantWidth), y);
+    ctx.moveTo(x, Math.max(y - 20, 0));                              // the vertical line
+    ctx.lineTo(x, Math.min(y + 20, quadrantHeight));
 }
 
 // ==================================== DRAWING FUNCTIONS  END  =============================================
@@ -143,8 +143,8 @@ function drawCrossHair(x, y) {
  *       if implemented, also change the picking to take it into account
  */
 function _setCtxOnQuadrant(quadIdx) {
-    currentQuadrant = quadrants[quadIdx]
-    ctx.setTransform(1, 0, 0, 1, 0, 0)                              // reset the transformation
+    currentQuadrant = quadrants[quadIdx];
+    ctx.setTransform(1, 0, 0, 1, 0, 0);                              // reset the transformation
     ctx.translate(quadIdx * quadrantWidth + currentQuadrant.offsetX, currentQuadrant.offsetY)
 }
 
@@ -165,8 +165,8 @@ function _rotateData() {
  */
 function _getDataSize(axis) {
     switch (axis) {
-        case 0:     return data.length
-        case 1:     return data[0].length
+        case 0:     return data.length;
+        case 1:     return data[0].length;
         case 2:     return data[0][0].length
     }
 }
@@ -178,9 +178,9 @@ function _getDataSize(axis) {
  * @returns {{width: number, height: number}} Entity width and height
  */
 function _getEntityDimensions(xAxis, yAxis) {
-    var scaleOnWidth  = quadrantWidth  / (_getDataSize(xAxis) * voxelSize[xAxis])
-    var scaleOnHeight = quadrantHeight / (_getDataSize(yAxis) * voxelSize[yAxis])
-    var scale = Math.min(scaleOnHeight, scaleOnWidth)
+    var scaleOnWidth  = quadrantWidth  / (_getDataSize(xAxis) * voxelSize[xAxis]);
+    var scaleOnHeight = quadrantHeight / (_getDataSize(yAxis) * voxelSize[yAxis]);
+    var scale = Math.min(scaleOnHeight, scaleOnWidth);
     return {width: voxelSize[xAxis] * scale, height: voxelSize[yAxis] * scale}
 }
 
@@ -188,18 +188,18 @@ function _getEntityDimensions(xAxis, yAxis) {
  * Initializes the <code>quadrants</code> with some default axes and sets their properties
  */
 function _setupQuadrants() {
-    quadrants.push(new Quadrant({ index: 0, axes: {x: 1, y: 0} }))
-    quadrants.push(new Quadrant({ index: 1, axes: {x: 1, y: 2} }))
-    quadrants.push(new Quadrant({ index: 2, axes: {x: 0, y: 2} }))
+    quadrants.push(new Quadrant({ index: 0, axes: {x: 1, y: 0} }));
+    quadrants.push(new Quadrant({ index: 1, axes: {x: 1, y: 2} }));
+    quadrants.push(new Quadrant({ index: 2, axes: {x: 0, y: 2} }));
 
     for (var quadIdx = 0; quadIdx < quadrants.length; ++quadIdx) {
-        var entityDimensions = _getEntityDimensions(quadrants[quadIdx].axes.x, quadrants[quadIdx].axes.y)
-        quadrants[quadIdx].entityHeight = entityDimensions.height
-        quadrants[quadIdx].entityWidth  = entityDimensions.width
-        var drawingHeight = _getDataSize(quadrants[quadIdx].axes.y) * quadrants[quadIdx].entityHeight
-        var drawingWidth  = _getDataSize(quadrants[quadIdx].axes.x) * quadrants[quadIdx].entityWidth
-        quadrants[quadIdx].offsetY = (quadrantHeight - drawingHeight) / 2
-        quadrants[quadIdx].offsetX = (quadrantWidth  - drawingWidth)  / 2
+        var entityDimensions = _getEntityDimensions(quadrants[quadIdx].axes.x, quadrants[quadIdx].axes.y);
+        quadrants[quadIdx].entityHeight = entityDimensions.height;
+        quadrants[quadIdx].entityWidth  = entityDimensions.width;
+        var drawingHeight = _getDataSize(quadrants[quadIdx].axes.y) * quadrants[quadIdx].entityHeight;
+        var drawingWidth  = _getDataSize(quadrants[quadIdx].axes.x) * quadrants[quadIdx].entityWidth;
+        quadrants[quadIdx].offsetY = (quadrantHeight - drawingHeight) / 2;
+        quadrants[quadIdx].offsetX = (quadrantWidth  - drawingWidth)  / 2;
     }
 }
 
@@ -208,11 +208,11 @@ function _setupQuadrants() {
 // ==================================== PICKING RELATED CODE START ==========================================
 
 function customMouseDown() {
-    this.mouseDown = true                                           // `this` is the canvas
+    this.mouseDown = true;                                           // `this` is the canvas
 }
 
 function customMouseUp() {
-    this.mouseDown = false
+    this.mouseDown = false;
 }
 
 /**
@@ -220,18 +220,18 @@ function customMouseUp() {
  */
 function customMouseMove(e) {
     if (!this.mouseDown)
-        return
-    var selectedQuad = quadrants[Math.floor(e.offsetX / quadrantWidth)]
+        return;
+    var selectedQuad = quadrants[Math.floor(e.offsetX / quadrantWidth)];
     // check if it's inside the quadrant but outside the drawing
     if (e.offsetY < selectedQuad.offsetY || e.offsetY >= quadrantHeight - selectedQuad.offsetY ||
         e.offsetX < quadrantWidth * selectedQuad.index + selectedQuad.offsetX ||
         e.offsetX >= quadrantWidth * (selectedQuad.index + 1) - selectedQuad.offsetX)
-        return
-    var selectedEntityOnX = Math.floor((e.offsetX % quadrantWidth) / selectedQuad.entityWidth)
-    var selectedEntityOnY = Math.floor((e.offsetY - selectedQuad.offsetY) / selectedQuad.entityHeight)
+        return;
+    var selectedEntityOnX = Math.floor((e.offsetX % quadrantWidth) / selectedQuad.entityWidth);
+    var selectedEntityOnY = Math.floor((e.offsetY - selectedQuad.offsetY) / selectedQuad.entityHeight);
 
-    selectedEntity[selectedQuad.axes.x] = selectedEntityOnX
-    selectedEntity[selectedQuad.axes.y] = selectedEntityOnY
+    selectedEntity[selectedQuad.axes.x] = selectedEntityOnX;
+    selectedEntity[selectedQuad.axes.y] = selectedEntityOnY;
     drawScene()
 }
 
