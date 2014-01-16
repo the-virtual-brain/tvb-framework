@@ -550,16 +550,15 @@ class FlowController(BaseController):
         try:
             self.logger.debug("Starting to read HDF5: " + entity_gid + "/" + dataset_name + "/" + str(kwargs))
             entity = ABCAdapter.load_entity_by_gid(entity_gid)
-            if kwargs is None:
-                kwargs = {}
             datatype_kwargs = json.loads(datatype_kwargs)
             if datatype_kwargs:
                 for key, value in datatype_kwargs.iteritems():
                     kwargs[key] = ABCAdapter.load_entity_by_gid(value)
+            dataset = getattr(entity, dataset_name)
             if not kwargs:
-                numpy_array = copy.deepcopy(getattr(entity, dataset_name))
+                numpy_array = copy.deepcopy(dataset)
             else:
-                numpy_array = getattr(entity, dataset_name)(**kwargs)
+                numpy_array = dataset(**kwargs)
             if flatten is True or flatten == "True":
                 numpy_array = numpy_array.flatten()
             return numpy_array.tolist()

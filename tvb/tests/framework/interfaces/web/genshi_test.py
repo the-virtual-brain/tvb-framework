@@ -43,7 +43,7 @@ from genshi.template.loader import TemplateLoader
 from tvb.basic.config.settings import TVBSettings as cfg
 import tvb.basic.traits as trait
 import tvb.interfaces.web.templates.genshi.flow as root_html
-import tvb.interfaces.web.controllers.base_controller as base
+from tvb.interfaces.web.controllers import common
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.introspector import Introspector
 from tvb.core.entities.storage import dao
@@ -62,7 +62,7 @@ def _template2string(template_specification):
     """
     Here we use the TemplateLoader from Genshi, so we are linked to this library for comparison.
     """
-    template_specification[base.KEY_SHOW_ONLINE_HELP] = False
+    template_specification[common.KEY_SHOW_ONLINE_HELP] = False
     path_to_form = os.path.join(os.path.dirname(root_html.__file__), 'genericAdapterFormFields.html')
     loader = TemplateLoader()
     template = loader.load(path_to_form)
@@ -122,7 +122,7 @@ class GenshiTest(BaseTestCase):
         self.template_specification = {'submitLink': 'www.google.com', 'section_name': 'test_step', 'HTML': str,
                                        'errors': 'No errors', 'displayControl': True,
                                        'treeSessionKey': SelectedAdapterContext.KEY_TREE_DEFAULT,
-                                       base.KEY_PARAMETERS_CONFIG: False}
+                                       common.KEY_PARAMETERS_CONFIG: False}
         cfg.RENDER_HTML = True
 
 
@@ -195,7 +195,7 @@ class GenshiTestSimple(GenshiTest):
         input_tree = ABCAdapter.prepare_param_names(input_tree)
         self.template_specification['inputList'] = input_tree
         self.template_specification['draw_hidden_ranges'] = True
-        self.template_specification[base.KEY_PARAMETERS_CONFIG] = False
+        self.template_specification[common.KEY_PARAMETERS_CONFIG] = False
         resulted_html = _template2string(self.template_specification)
         self.soup = BeautifulSoup(resulted_html)
         #file = open("output.html", 'w')
@@ -340,7 +340,7 @@ class GenshiTestGroup(GenshiTest):
         input_tree = self.xml_group_adapter.get_input_tree()
         input_tree = ABCAdapter.prepare_param_names(input_tree)
         self.template_specification['inputList'] = input_tree
-        self.template_specification[base.KEY_PARAMETERS_CONFIG] = False
+        self.template_specification[common.KEY_PARAMETERS_CONFIG] = False
         resulted_html = _template2string(self.template_specification)
         self.soup = BeautifulSoup(resulted_html)
 
