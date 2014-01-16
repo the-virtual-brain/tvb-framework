@@ -38,15 +38,14 @@ import os
 import cherrypy
 import formencode
 from formencode import validators
-from tvb.core import utils
 from cherrypy.lib.static import serve_file
+
+from tvb.core import utils
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.figure_service import FigureService
-from tvb.interfaces.web.controllers.users_controller import logged
+from tvb.interfaces.web.controllers import common
+from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged, context_selected
 from tvb.interfaces.web.controllers.project.project_controller import ProjectController
-from tvb.interfaces.web.controllers.flow_controller import context_selected
-from tvb.interfaces.web.controllers.base_controller import using_template, ajax_call
-import tvb.interfaces.web.controllers.base_controller as base
 
 
 class FigureController(ProjectController):
@@ -67,8 +66,8 @@ class FigureController(ProjectController):
     def storeresultfigure(self, img_type, operation_id, **data):
         """Create preview for current displayed canvas and 
         store image in current session, for future comparison."""
-        project = base.get_current_project()
-        user = base.get_logged_user()
+        project = common.get_current_project()
+        user = common.get_logged_user()
         self.figure_service.store_result_figure(project, user, img_type, operation_id, data['export_data'])
 
 
@@ -78,8 +77,8 @@ class FigureController(ProjectController):
     @using_template('base_template')
     def displayresultfigures(self, selected_session='all_sessions'):
         """ Collect and display saved previews, grouped by session."""
-        project = base.get_current_project()
-        user = base.get_logged_user()
+        project = common.get_current_project()
+        user = common.get_logged_user()
         data, all_sessions_info = self.figure_service.retrieve_result_figures(project, user, selected_session)
         manage_figure_title = "Figures for " + str(selected_session) + " category"
         if selected_session == 'all_sessions':
@@ -101,8 +100,8 @@ class FigureController(ProjectController):
         This method knows how to handle the following actions:
         remove figure, update figure, remove session and update session.
         """
-        project = base.get_current_project()
-        user = base.get_logged_user()
+        project = common.get_current_project()
+        user = common.get_logged_user()
 
         redirect_url = '/project/figure/displayresultfigures'
         if "selected_session" in data and data["selected_session"] is not None and len(data["selected_session"]):
@@ -124,9 +123,9 @@ class FigureController(ProjectController):
                         if not success:
                             successfully_updated = False
                 if successfully_updated:
-                    base.set_info_message("The session was successfully updated!")
+                    common.set_info_message("The session was successfully updated!")
                 else:
-                    base.set_error_message("The session was not successfully updated! "
+                    common.set_error_message("The session was not successfully updated! "
                                            "There could be some figures that still refer to the old session.")
         elif cherrypy.request.method == 'POST' and remove_session:
             successfully_removed = True
@@ -138,15 +137,15 @@ class FigureController(ProjectController):
                         if not success:
                             successfully_removed = False
                 if successfully_removed:
-                    base.set_info_message("The session was removed successfully!")
+                    common.set_info_message("The session was removed successfully!")
                 else:
-                    base.set_error_message("The session was not entirely removed!")
+                    common.set_error_message("The session was not entirely removed!")
         elif cherrypy.request.method == 'POST' and remove_figure and figure_id is not None:
             success = self.figure_service.remove_result_figure(figure_id)
             if success:
-                base.set_info_message("Figure removed successfully!")
+                common.set_info_message("Figure removed successfully!")
             else:
-                base.set_error_message("Figure could not be removed!")
+                common.set_error_message("Figure could not be removed!")
         elif figure_id is not None:
             self._update_figure(figure_id, **data)
         raise cherrypy.HTTPRedirect(redirect_url)
@@ -159,11 +158,11 @@ class FigureController(ProjectController):
         try:
             data = EditPreview().to_python(data)
             self.figure_service.edit_result_figure(figure_id, **data)
-            base.set_info_message('Figure details updated successfully.')
+            common.set_info_message('Figure details updated successfully.')
             return True
         except formencode.Invalid, excep:
             self.logger.debug(excep)
-            base.set_error_message(excep.message)
+            common.set_error_message(excep.message)
             return False
 
 

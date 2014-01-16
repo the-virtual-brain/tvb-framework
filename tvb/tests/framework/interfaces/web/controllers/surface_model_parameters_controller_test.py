@@ -34,7 +34,7 @@
 
 import unittest
 import cherrypy
-import tvb.interfaces.web.controllers.base_controller as b_c
+import tvb.interfaces.web.controllers.common as common
 from tvb.interfaces.web.controllers.spatial.surface_model_parameters_controller import SurfaceModelParametersController
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
@@ -50,7 +50,7 @@ class SurfaceModelParametersControllerTest(TransactionalTestCase, BaseController
         BaseControllersTest.init(self)
         self.surface_m_p_c = SurfaceModelParametersController()
         BurstController().index()
-        stored_burst = cherrypy.session[b_c.KEY_BURST_CONFIG]
+        stored_burst = cherrypy.session[common.KEY_BURST_CONFIG]
         datatypes_factory = DatatypesFactory()
         _, self.connectivity = datatypes_factory.create_connectivity()
         _, self.surface = datatypes_factory.create_surface()

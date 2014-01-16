@@ -35,7 +35,7 @@
 import unittest
 import cherrypy
 from sqlalchemy.orm.exc import NoResultFound
-import tvb.interfaces.web.controllers.base_controller as b_c
+import tvb.interfaces.web.controllers.common as common
 from tvb.core.entities.storage import dao
 from tvb.interfaces.web.controllers.project.project_controller import ProjectController
 from tvb.tests.framework.core.test_factory import TestFactory
@@ -67,7 +67,7 @@ class ProjectControllerTest(TransactionalTestCase, BaseControllersTest):
         """
         Index with no project selected should redirect to viewall page.
         """
-        del cherrypy.session[b_c.KEY_PROJECT]
+        del cherrypy.session[common.KEY_PROJECT]
         self._expect_redirect('/project/viewall', self.project_c.index)
 
 
@@ -77,9 +77,9 @@ class ProjectControllerTest(TransactionalTestCase, BaseControllersTest):
         """
         result = self.project_c.index()
         self.assertEqual(result['mainContent'], "project_submenu")
-        self.assertEqual(result[b_c.KEY_PROJECT].id, self.test_project.id)
+        self.assertEqual(result[common.KEY_PROJECT].id, self.test_project.id)
         self.assertEqual(result['subsection_name'], 'project')
-        self.assertEqual(result[b_c.KEY_USER].id, self.test_user.id)
+        self.assertEqual(result[common.KEY_USER].id, self.test_user.id)
 
 
     def test_viewall_valid_data(self):
@@ -94,7 +94,7 @@ class ProjectControllerTest(TransactionalTestCase, BaseControllersTest):
         ## Use this old version of SET builder, otherwise it will fain on Python 2.6
         self.assertEqual(set([prj.name for prj in projects_list]), set(['prj1', 'prj2', 'prj3', 'Test']))
         self.assertEqual(result['page_number'], 1)
-        self.assertEqual(result[b_c.KEY_PROJECT].name, 'prj1')
+        self.assertEqual(result[common.KEY_PROJECT].name, 'prj1')
 
 
     def test_viewall_invalid_projectid(self):
@@ -102,8 +102,8 @@ class ProjectControllerTest(TransactionalTestCase, BaseControllersTest):
         Try to pass on an invalid id for the selected project.
         """
         result = self.project_c.viewall(selected_project_id='invalid')
-        self.assertEqual(result[b_c.KEY_MESSAGE_TYPE], b_c.TYPE_ERROR)
-        self.assertEqual(result[b_c.KEY_PROJECT].id, self.test_project.id)
+        self.assertEqual(result[common.KEY_MESSAGE_TYPE], common.TYPE_ERROR)
+        self.assertEqual(result[common.KEY_PROJECT].id, self.test_project.id)
 
 
     def test_viewall_post_create(self):
@@ -265,7 +265,7 @@ class ProjectControllerTest(TransactionalTestCase, BaseControllersTest):
         Check that the dictionary of linkable projects is returned properly.
         """
         dt_factory = DatatypesFactory()
-        cherrypy.session[b_c.KEY_USER] = dt_factory.user
+        cherrypy.session[common.KEY_USER] = dt_factory.user
         datatype = dt_factory.create_datatype_with_storage()
         result = self.project_c.readprojectsforlink(datatype.id)
         self.assertTrue(result is None)     # No projects to link into

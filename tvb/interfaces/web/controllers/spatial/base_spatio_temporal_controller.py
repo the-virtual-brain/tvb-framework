@@ -37,17 +37,17 @@ import cherrypy
 import json
 from copy import deepcopy
 
-import tvb.interfaces.web.controllers.base_controller as base
-import tvb.basic.traits.traited_interface as traited_interface
-from tvb.interfaces.web.controllers.base_controller import using_template, settings
-from tvb.interfaces.web.controllers.users_controller import logged
-from tvb.interfaces.web.controllers.flow_controller import SelectedAdapterContext
-from tvb.basic.traits.parameters_factory import get_traited_instance_for_name
+from tvb.adapters.visualizers.connectivity import ConnectivityViewer
+from tvb.basic.traits import traited_interface
 from tvb.basic.logger.builder import get_logger
+from tvb.basic.traits.parameters_factory import get_traited_instance_for_name
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.operation_service import RANGE_PARAMETER_1, RANGE_PARAMETER_2
-from tvb.adapters.visualizers.connectivity import ConnectivityViewer
+from tvb.interfaces.web.controllers import common
+from tvb.interfaces.web.controllers.decorators import settings, using_template, logged
+from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.flow_controller import SelectedAdapterContext
 from tvb.simulator.models import Model
 from tvb.simulator.integrators import Integrator
 from tvb.config import SIMULATOR_CLASS, SIMULATOR_MODULE
@@ -64,14 +64,14 @@ PARAMS_MODEL_PATTERN = 'model_parameters_option_%s_%s'
 
 
 
-class SpatioTemporalController(base.BaseController):
+class SpatioTemporalController(BaseController):
     """
     Base class which contains methods related to spatio-temporal actions.
     """
 
 
     def __init__(self):
-        base.BaseController.__init__(self)
+        BaseController.__init__(self)
         self.flow_service = FlowService()
         self.logger = get_logger(__name__)
         editable_entities = [dict(link='/spatial/stimulus/region/step_1_submit/1/1', title='Region Stimulus',
@@ -111,14 +111,14 @@ class SpatioTemporalController(base.BaseController):
         Returns the model, integrator, connectivity and surface instances from the burst configuration.
         """
         ### Read from session current burst-configuration
-        burst_configuration = base.get_from_session(base.KEY_BURST_CONFIG)
+        burst_configuration = common.get_from_session(common.KEY_BURST_CONFIG)
         if burst_configuration is None:
             return None, None, None, None
         first_range = burst_configuration.get_simulation_parameter_value(RANGE_PARAMETER_1)
         second_range = burst_configuration.get_simulation_parameter_value(RANGE_PARAMETER_2)
         if ((first_range is not None and str(first_range).startswith(MODEL_PARAMETERS)) or
                 (second_range is not None and str(second_range).startswith(MODEL_PARAMETERS))):
-            base.set_error_message("When configuring model parameters you are not allowed to specify range values.")
+            common.set_error_message("When configuring model parameters you are not allowed to specify range values.")
             raise cherrypy.HTTPRedirect("/burst/")
         group = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)[1]
         simulator_adapter = self.flow_service.build_adapter_instance(group)
@@ -126,7 +126,7 @@ class SpatioTemporalController(base.BaseController):
             params_dict = simulator_adapter.convert_ui_inputs(burst_configuration.get_all_simulator_values()[0], False)
         except Exception, excep:
             self.logger.exception(excep)
-            base.set_error_message("Some of the provided parameters have an invalid value.")
+            common.set_error_message("Some of the provided parameters have an invalid value.")
             raise cherrypy.HTTPRedirect("/burst/")
         ### Prepare Model instance
         model = burst_configuration.get_simulation_parameter_value(PARAM_MODEL)
@@ -167,7 +167,7 @@ class SpatioTemporalController(base.BaseController):
         Generates the HTML for displaying the surface with the given ID.
         """
         surface = ABCAdapter.load_entity_by_gid(surface_gid)
-        base.add2session(PARAM_SURFACE, surface_gid)
+        common.add2session(PARAM_SURFACE, surface_gid)
         url_vertices_pick, url_normals_pick, url_triangles_pick = surface.get_urls_for_pick_rendering()
         url_vertices, url_normals, _, url_triangles, alphas, alphas_indices = surface.get_urls_for_rendering(True, None)
 
@@ -190,7 +190,7 @@ class SpatioTemporalController(base.BaseController):
         Prepares the input tree obtained from a creator.
         """
         return {'inputList': input_list,
-                base.KEY_PARAMETERS_CONFIG: False}
+                common.KEY_PARAMETERS_CONFIG: False}
 
 
     def get_creator_and_interface(self, creator_module, creator_class, datatype_instance, lock_midpoint_for_eq=None):
@@ -200,7 +200,7 @@ class SpatioTemporalController(base.BaseController):
         parameter of type DataType. The name of the attributes are also prefixed to identify groups.
         """
         algo_group = self.flow_service.get_algorithm_by_module_and_class(creator_module, creator_class)[1]
-        group, _ = self.flow_service.prepare_adapter(base.get_current_project().id, algo_group)
+        group, _ = self.flow_service.prepare_adapter(common.get_current_project().id, algo_group)
 
         #I didn't use the interface(from the above line) returned by the method 'prepare_adapter' from flow service
         # because the selects that display dataTypes will also have the 'All' entry.
@@ -210,7 +210,7 @@ class SpatioTemporalController(base.BaseController):
             for idx in lock_midpoint_for_eq:
                 input_list[idx] = self._lock_midpoints(input_list[idx])
         category = self.flow_service.get_visualisers_category()
-        input_list = self.flow_service.prepare_parameters(input_list, base.get_current_project().id, category.id)
+        input_list = self.flow_service.prepare_parameters(input_list, common.get_current_project().id, category.id)
         input_list = ABCAdapter.prepare_param_names(input_list)
 
         return self.flow_service.build_adapter_instance(group), input_list
@@ -255,7 +255,7 @@ class SpatioTemporalController(base.BaseController):
         Returns the dictionary needed for drawing the select which display all
         the created entities of the specified type.
         """
-        project_id = base.get_current_project().id
+        project_id = common.get_current_project().id
         category = self.flow_service.get_visualisers_category()
 
         interface = [{'name': 'existentEntitiesSelect', 'label': label, 'type': entity_type}]
@@ -284,11 +284,11 @@ class SpatioTemporalController(base.BaseController):
         """
         Overwrite base controller to add required parameters for adapter templates.
         """
-        template_dictionary[base.KEY_SECTION] = 'stimulus'
-        template_dictionary[base.KEY_SUB_SECTION] = subsection
-        template_dictionary[base.KEY_SUBMENU_LIST] = self.submenu_list
-        template_dictionary[base.KEY_INCLUDE_RESOURCES] = 'spatial/included_resources'
-        base.BaseController.fill_default_attributes(self, template_dictionary)
+        template_dictionary[common.KEY_SECTION] = 'stimulus'
+        template_dictionary[common.KEY_SUB_SECTION] = subsection
+        template_dictionary[common.KEY_SUBMENU_LIST] = self.submenu_list
+        template_dictionary[common.KEY_INCLUDE_RESOURCES] = 'spatial/included_resources'
+        BaseController.fill_default_attributes(self, template_dictionary)
         return template_dictionary
 
 
@@ -356,7 +356,7 @@ class SpatioTemporalController(base.BaseController):
         except ValueError, excep:
             self.logger.info("All the model parameters that are configurable should be valid arrays or numbers.")
             self.logger.exception(excep)
-            base.set_error_message("All the model parameters that are configurable should be valid arrays or numbers.")
+            common.set_error_message("All the model parameters that are configurable should be valid arrays or numbers.")
             raise cherrypy.HTTPRedirect("/burst/")
         
         

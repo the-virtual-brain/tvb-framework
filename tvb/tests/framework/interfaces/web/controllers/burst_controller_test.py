@@ -40,7 +40,7 @@ import unittest
 import cherrypy
 from time import sleep
 from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
-import tvb.interfaces.web.controllers.base_controller as b_c
+from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.entities import model
@@ -91,7 +91,7 @@ class BurstContollerTest(BaseControllersTest):
         self.assertTrue('burst_list' in result_dict and result_dict['burst_list'] == [])
         self.assertTrue('available_metrics' in result_dict and isinstance(result_dict['available_metrics'], list))
         self.assertTrue('portletList' in result_dict and isinstance(result_dict['portletList'], list))
-        self.assertEqual(result_dict[b_c.KEY_SECTION], "burst")
+        self.assertEqual(result_dict[common.KEY_SECTION], "burst")
         self.assertTrue('burstConfig' in result_dict and isinstance(result_dict['burstConfig'], BurstConfiguration))
         portlets = json.loads(result_dict['selectedPortlets'])
         portlet_id = dao.get_portlet_by_identifier("TimeSeries").id
@@ -111,7 +111,7 @@ class BurstContollerTest(BaseControllersTest):
         """
         self._store_burst(self.test_project.id, 'started', {'test': 'test'}, 'burst1')
         burst = self._store_burst(self.test_project.id, 'started', {'test': 'test'}, 'burst2')
-        cherrypy.session[b_c.KEY_BURST_CONFIG] = burst
+        cherrypy.session[common.KEY_BURST_CONFIG] = burst
         result_dict = self.burst_c.load_burst_history()
         burst_history = result_dict['burst_list']
         self.assertEqual(len(burst_history), 2)
@@ -126,11 +126,11 @@ class BurstContollerTest(BaseControllersTest):
         back 'None'
         """
         burst_entity = BurstConfiguration(self.test_project.id, 'started', {}, 'burst1')
-        cherrypy.session[b_c.KEY_BURST_CONFIG] = burst_entity
+        cherrypy.session[common.KEY_BURST_CONFIG] = burst_entity
         stored_id = self.burst_c.get_selected_burst()
         self.assertEqual(stored_id, 'None')
         burst_entity = dao.store_entity(burst_entity)
-        cherrypy.session[b_c.KEY_BURST_CONFIG] = burst_entity
+        cherrypy.session[common.KEY_BURST_CONFIG] = burst_entity
         stored_id = self.burst_c.get_selected_burst()
         self.assertEqual(str(stored_id), str(burst_entity.id))
 
@@ -143,8 +143,8 @@ class BurstContollerTest(BaseControllersTest):
         """
         self.burst_c.index()
         result = self.burst_c.get_portlet_configurable_interface(0)
-        self.assertTrue(b_c.KEY_PARAMETERS_CONFIG in result)
-        self.assertFalse(result[b_c.KEY_PARAMETERS_CONFIG])
+        self.assertTrue(common.KEY_PARAMETERS_CONFIG in result)
+        self.assertFalse(result[common.KEY_PARAMETERS_CONFIG])
         adapter_config = result['adapters_list']
         # Default TimeSeries portlet should be available, so we expect
         # adapter_config to be a list of AdapterConfiguration with one element
@@ -270,11 +270,11 @@ class BurstContollerTest(BaseControllersTest):
         burst and check that it will raise exception and remove it from session.
         """
         burst = self._store_burst(self.test_project.id, 'started', {'test': 'test'}, 'burst1')
-        cherrypy.session[b_c.KEY_BURST_CONFIG] = burst
+        cherrypy.session[common.KEY_BURST_CONFIG] = burst
         burst_id = burst.id
         BurstService().cancel_or_remove_burst(burst_id)
         self.assertRaises(Exception, self.burst_c.load_burst, burst_id)
-        self.assertTrue(b_c.KEY_BURST_CONFIG not in cherrypy.session)
+        self.assertTrue(common.KEY_BURST_CONFIG not in cherrypy.session)
 
 
     def test_remove_burst_not_session(self):
@@ -283,7 +283,7 @@ class BurstContollerTest(BaseControllersTest):
         session. SHould just remove and return a 'done' string.
         """
         burst = self._store_burst(self.test_project.id, 'finished', {'test': 'test'}, 'burst1')
-        cherrypy.session[b_c.KEY_BURST_CONFIG] = burst
+        cherrypy.session[common.KEY_BURST_CONFIG] = burst
         another_burst = self._store_burst(self.test_project.id, 'finished', {'test': 'test'}, 'burst1')
         result = self.burst_c.cancel_or_remove_burst(another_burst.id)
         self.assertEqual(result, 'done')
@@ -295,7 +295,7 @@ class BurstContollerTest(BaseControllersTest):
         session, we get a 'reset-new' string as result.
         """
         burst = self._store_burst(self.test_project.id, 'finished', {'test': 'test'}, 'burst1')
-        cherrypy.session[b_c.KEY_BURST_CONFIG] = burst
+        cherrypy.session[common.KEY_BURST_CONFIG] = burst
         result = self.burst_c.cancel_or_remove_burst(burst.id)
         self.assertEqual(result, 'reset-new')
 

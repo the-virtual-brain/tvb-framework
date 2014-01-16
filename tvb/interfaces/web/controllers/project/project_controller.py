@@ -43,8 +43,11 @@ import formencode
 from formencode import validators
 from simplejson import JSONEncoder
 from cherrypy.lib.static import serve_file
-from tvb.config import SIMULATOR_CLASS, SIMULATOR_MODULE
+
+from tvb.adapters.exporters.export_manager import ExportManager
 from tvb.basic.config.settings import TVBSettings as cfg
+from tvb.config import SIMULATOR_CLASS, SIMULATOR_MODULE
+from tvb.core.entities.transient import graph_structures
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.transient.filtering import StaticFiltersFactory
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -52,16 +55,14 @@ from tvb.core.services.project_service import ProjectService
 from tvb.core.services.import_service import ImportService
 from tvb.core.services.exceptions import ServicesBaseException, ProjectServiceException
 from tvb.core.services.exceptions import RemoveDataTypeException, RemoveDataTypeError
-from tvb.adapters.exporters.export_manager import ExportManager
+from tvb.interfaces.web.controllers.decorators import settings, using_template, ajax_call, logged
 from tvb.interfaces.web.entities.context_overlay import OverlayTabDefinition
-from tvb.interfaces.web.controllers.base_controller import using_template, ajax_call
-from tvb.interfaces.web.controllers.users_controller import logged
+from tvb.interfaces.web.controllers import common
+from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.flow_controller import FlowController, KEY_CONTENT
-import tvb.interfaces.web.controllers.base_controller as bc
-import tvb.core.entities.transient.graph_structures as graph_structures
 
 
-class ProjectController(bc.BaseController):
+class ProjectController(BaseController):
     """
     Displays pages which deals with Project data management.
     """
@@ -78,13 +79,13 @@ class ProjectController(bc.BaseController):
 
     @cherrypy.expose
     @using_template('base_template')
-    @bc.settings()
+    @settings()
     @logged()
     def index(self):
         """
         Display project main-menu. Choose one project to work with.
         """
-        current_project = bc.get_current_project()
+        current_project = common.get_current_project()
         if current_project is None:
             raise cherrypy.HTTPRedirect("/project/viewall")
         template_specification = dict(mainContent="project_submenu", title="TVB Project Menu")
@@ -93,7 +94,7 @@ class ProjectController(bc.BaseController):
 
     @cherrypy.expose
     @using_template('base_template')
-    @bc.settings()
+    @settings()
     @logged()
     def viewall(self, create=False, page=1, selected_project_id=None, **_):
         """
@@ -102,7 +103,7 @@ class ProjectController(bc.BaseController):
         page = int(page)
         if cherrypy.request.method == 'POST' and create:
             raise cherrypy.HTTPRedirect('/project/editone')
-        current_user_id = bc.get_logged_user().id
+        current_user_id = common.get_logged_user().id
 
         ## Select project if user choose one.
         if selected_project_id is not None:
@@ -112,7 +113,7 @@ class ProjectController(bc.BaseController):
             except ProjectServiceException, excep:
                 self.logger.error(excep)
                 self.logger.warning("Could not select project: " + str(selected_project_id))
-                bc.set_error_message("Could not select project: " + str(selected_project_id))
+                common.set_error_message("Could not select project: " + str(selected_project_id))
 
         #Prepare template response
         prjs, pages_no = self.project_service.retrieve_projects_for_user(current_user_id, page)
@@ -130,10 +131,10 @@ class ProjectController(bc.BaseController):
         try:
             upload_param = "uploadedfile"
             if upload_param in data and data[upload_param]:
-                self.import_service.import_project_structure(data[upload_param], bc.get_logged_user().id)
+                self.import_service.import_project_structure(data[upload_param], common.get_logged_user().id)
         except ServicesBaseException, excep:
             self.logger.warning(excep.message)
-            bc.set_error_message(excep.message)
+            common.set_error_message(excep.message)
         raise cherrypy.HTTPRedirect('/project/viewall')
 
 
@@ -144,17 +145,17 @@ class ProjectController(bc.BaseController):
         except ServicesBaseException, exc:
             self.logger.error("Could not delete project!")
             self.logger.exception(exc)
-            bc.set_error_message(exc.message)
-        prj = bc.get_current_project()
+            common.set_error_message(exc.message)
+        prj = common.get_current_project()
         if prj is not None and prj.id == int(project_id):
-            bc.remove_from_session(bc.KEY_PROJECT)
+            common.remove_from_session(common.KEY_PROJECT)
 
 
     def _persist_project(self, data, project_id, is_create, current_user):
         """Private method to persist"""
         data = EditForm().to_python(data)
         saved_project = self.project_service.store_project(current_user, is_create, project_id, **data)
-        selected_project = bc.get_current_project()
+        selected_project = common.get_current_project()
         if len(self.project_service.retrieve_projects_for_user(current_user.id, 1)) == 1:
             selected_project = saved_project
         if selected_project is None or (saved_project.id == selected_project.id):
@@ -163,7 +164,7 @@ class ProjectController(bc.BaseController):
 
     @cherrypy.expose
     @using_template('base_template')
-    @bc.settings()
+    @settings()
     @logged()
     def editone(self, project_id=None, cancel=False, save=False, delete=False, **data):
         """
@@ -176,7 +177,7 @@ class ProjectController(bc.BaseController):
             self._remove_project(project_id)
             raise cherrypy.HTTPRedirect('/project/viewall')
 
-        current_user = bc.get_logged_user()
+        current_user = common.get_logged_user()
         is_create = False
         if project_id is None or not int(project_id):
             is_create = True
@@ -196,16 +197,16 @@ class ProjectController(bc.BaseController):
                                       editUsersEnabled=(current_user.username == data['administrator']))
         try:
             if cherrypy.request.method == 'POST' and save:
-                bc.remove_from_session(bc.KEY_PROJECT)
-                bc.remove_from_session(bc.KEY_CACHED_SIMULATOR_TREE)
+                common.remove_from_session(common.KEY_PROJECT)
+                common.remove_from_session(common.KEY_CACHED_SIMULATOR_TREE)
                 self._persist_project(data, project_id, is_create, current_user)
                 raise cherrypy.HTTPRedirect('/project/viewall')
         except formencode.Invalid, excep:
             self.logger.debug(str(excep))
-            template_specification[bc.KEY_ERRORS] = excep.unpack_errors()
+            template_specification[common.KEY_ERRORS] = excep.unpack_errors()
         except ProjectServiceException, excep:
             self.logger.debug(str(excep))
-            bc.set_error_message(excep.message)
+            common.set_error_message(excep.message)
             raise cherrypy.HTTPRedirect('/project/viewall')
 
         all_users, members, pages = self.user_service.get_users_for_project(current_user.username, project_id)
@@ -221,7 +222,7 @@ class ProjectController(bc.BaseController):
     @logged()
     def getmemberspage(self, page, project_id=None):
         """Retrieve a new page of Project members."""
-        current_name = bc.get_logged_user().username
+        current_name = common.get_logged_user().username
         all_users, members, _ = self.user_service.get_users_for_project(current_name, project_id, int(page))
         edit_enabled = True
         if project_id is not None:
@@ -254,7 +255,7 @@ class ProjectController(bc.BaseController):
 
     @cherrypy.expose
     @using_template('base_template')
-    @bc.settings()
+    @settings()
     @logged()
     def viewoperations(self, project_id=None, page=1, filtername=None, reset_filters=None):
         """
@@ -303,7 +304,7 @@ class ProjectController(bc.BaseController):
         Returns the content of a confirmation dialog, with a given question. 
         """
         self.update_operations_count()
-        return {'selectedProject': bc.get_current_project()}
+        return {'selectedProject': common.get_current_project()}
 
 
     def __get_operations_filters(self):
@@ -311,14 +312,14 @@ class ProjectController(bc.BaseController):
         Filters for VIEW_ALL_OPERATIONS page.
         Get from session currently selected filters, or build a new set of filters.
         """
-        session_filtes = bc.get_from_session(self.KEY_OPERATION_FILTERS)
+        session_filtes = common.get_from_session(self.KEY_OPERATION_FILTERS)
         if session_filtes:
             return session_filtes
 
         else:
             sim_group = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)[1]
-            new_filters = StaticFiltersFactory.build_operations_filters(sim_group, bc.get_logged_user().id)
-            bc.add2session(self.KEY_OPERATION_FILTERS, new_filters)
+            new_filters = StaticFiltersFactory.build_operations_filters(sim_group, common.get_logged_user().id)
+            common.add2session(self.KEY_OPERATION_FILTERS, new_filters)
             return new_filters
 
 
@@ -345,7 +346,7 @@ class ProjectController(bc.BaseController):
         """
         if exclude_tabs is None:
             exclude_tabs = []
-        selected_project = bc.get_current_project()
+        selected_project = common.get_current_project()
         datatype_details, states, entity = self.project_service.get_datatype_details(entity_gid)
 
         ### Load DataType categories
@@ -429,9 +430,9 @@ class ProjectController(bc.BaseController):
                                                               overlay_title, "project/details_datatype_overlay",
                                                               overlay_class, tabs, overlay_indexes)
         template_specification['baseUrl'] = cfg.BASE_URL
-        #template_specification[bc.KEY_OVERLAY_PAGINATION] = True
-        #template_specification[bc.KEY_OVERLAY_PREVIOUS] = "alert(1);"
-        #template_specification[bc.KEY_OVERLAY_NEXT] = "alert(2);"
+        #template_specification[c.KEY_OVERLAY_PAGINATION] = True
+        #template_specification[c.KEY_OVERLAY_PREVIOUS] = "alert(1);"
+        #template_specification[c.KEY_OVERLAY_NEXT] = "alert(2);"
         return FlowController().fill_default_attributes(template_specification)
 
 
@@ -515,7 +516,7 @@ class ProjectController(bc.BaseController):
         """
         Returns a dictionary which contains the details for the given operation.
         """
-        selected_project = bc.get_current_project()
+        selected_project = common.get_current_project()
         op_details = self.project_service.get_operation_details(entity_gid, is_group)
         operation_id = op_details.operation_id
 
@@ -544,7 +545,7 @@ class ProjectController(bc.BaseController):
 
     @cherrypy.expose
     @using_template('base_template')
-    @bc.settings()
+    @settings()
     @logged()
     def editstructure(self, project_id=None, last_selected_tab="treeTab", first_level=DataTypeMetaData.KEY_STATE,
                       second_level=DataTypeMetaData.KEY_SUBJECT, filter_input="", visibility_filter=None, **_ignored):
@@ -631,7 +632,7 @@ class ProjectController(bc.BaseController):
             raise cherrypy.HTTPRedirect(success_link)
         template_specification[KEY_CONTENT] = "project/structure",
         template_specification["baseUrl"] = cfg.BASE_URL,
-        template_specification[bc.KEY_TITLE] = ""
+        template_specification[common.KEY_TITLE] = ""
         template_specification["project"] = project
         return self.fill_default_attributes(template_specification, 'data')
 
@@ -641,10 +642,10 @@ class ProjectController(bc.BaseController):
     @logged()
     def readprojectsforlink(self, data_id, return_both=False):
         """ For a given user return a dictionary in form {project_ID: project_Name}. """
-        for_link, linked = self.project_service.get_linkable_projects_for_user(bc.get_logged_user().id, data_id)
+        for_link, linked = self.project_service.get_linkable_projects_for_user(common.get_logged_user().id, data_id)
 
         to_link_result, linked_result = None, None
-        current_project = bc.get_current_project()
+        current_project = common.get_current_project()
         if for_link:
             to_link_result = {}
             for project in for_link:
@@ -754,7 +755,7 @@ class ProjectController(bc.BaseController):
         except ServicesBaseException, excep:
             self.logger.error("Could not execute MetaData update!")
             self.logger.exception(excep)
-            bc.set_error_message(excep.message)
+            common.set_error_message(excep.message)
             return excep.message
 
 
@@ -762,7 +763,7 @@ class ProjectController(bc.BaseController):
     @logged()
     def downloaddata(self, data_gid, export_module):
         """ Export the data to a default path of TVB_STORAGE/PROJECTS/project_name """
-        current_prj = bc.get_current_project()
+        current_prj = common.get_current_project()
         # Load data by GID
         entity = ABCAdapter.load_entity_by_gid(data_gid)
         # Do real export
@@ -804,7 +805,7 @@ class ProjectController(bc.BaseController):
         selected_filter = StaticFiltersFactory.build_datatype_filters(single_filter=visibility_filter)
 
         graph_branches = []
-        project = bc.get_current_project()
+        project = common.get_current_project()
 
         is_upload_operation = (item_type == graph_structures.NODE_OPERATION_TYPE) and \
                               (self.project_service.is_upload_operation(item_gid) or item_gid == "firstOperation")
@@ -944,10 +945,10 @@ class ProjectController(bc.BaseController):
         """
         Overwrite base controller to add required parameters for adapter templates.
         """
-        template_dictionary[bc.KEY_SECTION] = 'project'
-        template_dictionary[bc.KEY_SUB_SECTION] = subsection
-        template_dictionary[bc.KEY_INCLUDE_RESOURCES] = 'project/included_resources'
-        bc.BaseController.fill_default_attributes(self, template_dictionary)
+        template_dictionary[common.KEY_SECTION] = 'project'
+        template_dictionary[common.KEY_SUB_SECTION] = subsection
+        template_dictionary[common.KEY_INCLUDE_RESOURCES] = 'project/included_resources'
+        BaseController.fill_default_attributes(self, template_dictionary)
         return template_dictionary
 
 

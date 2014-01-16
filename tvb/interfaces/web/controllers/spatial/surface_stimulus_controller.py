@@ -38,13 +38,12 @@ import json
 import numpy
 import copy
 
-import tvb.interfaces.web.controllers.base_controller as base
 from tvb.datatypes.patterns import StimuliSurface
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.transient.context_stimulus import SurfaceStimulusContext, SURFACE_PARAMETER
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.interfaces.web.controllers.base_controller import using_template, ajax_call
-from tvb.interfaces.web.controllers.users_controller import logged
+from tvb.interfaces.web.controllers import common
+from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import PARAM_SURFACE
 
@@ -76,7 +75,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         """
         Used for generating the interface which allows the user to define a stimulus.
         """
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
         right_side_interface = self._get_stimulus_interface()
         selected_stimulus_gid = context.get_selected_stimulus()
         left_side_interface = self.get_select_existent_entities('Load Surface Stimulus:', StimuliSurface,
@@ -99,7 +98,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         """
         Used for generating the interface which allows the user to define a stimulus.
         """
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
         selected_stimulus_gid = context.get_selected_stimulus()
         left_side_interface = self.get_select_existent_entities('Load Surface Stimulus:', StimuliSurface,
                                                                 selected_stimulus_gid)
@@ -110,7 +109,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         template_specification['loadExistentEntityUrl'] = LOAD_EXISTING_URL
         template_specification['resetToDefaultUrl'] = RELOAD_DEFAULT_PAGE_URL
         template_specification['surfaceGID'] = context.get_session_surface()
-        template_specification[base.KEY_PARAMETERS_CONFIG] = False
+        template_specification[common.KEY_PARAMETERS_CONFIG] = False
         template_specification['definedFocalPoints'] = json.dumps(context.focal_points_list)
         template_specification.update(self.display_surface(context.get_session_surface()))
         return self.fill_default_attributes(template_specification)
@@ -128,7 +127,7 @@ class SurfaceStimulusController(SpatioTemporalController):
             return self.step_2()
         if int(step_idx) == 3:
             if self.create_stimulus():
-                base.set_info_message("Successfully created a new stimulus.")
+                common.set_info_message("Successfully created a new stimulus.")
             if from_step == 2:
                 return self.step_2()
             return self.step_1()
@@ -144,8 +143,8 @@ class SurfaceStimulusController(SpatioTemporalController):
         """
         if int(do_reset) == 1:
             new_context = SurfaceStimulusContext()
-            base.add2session(KEY_SURFACE_CONTEXT, new_context)
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+            common.add2session(KEY_SURFACE_CONTEXT, new_context)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
         if kwargs.get(SURFACE_PARAMETER) != context.get_session_surface():
             context.set_focal_points('[]')
         context.update_eq_kwargs(kwargs)
@@ -160,7 +159,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         Any submit from the second step should be handled here. Update the context and then do 
         the next step as required.
         """
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
         submited_focal_points = kwargs['defined_focal_points']
         context.set_focal_points(submited_focal_points)
         context.equation_kwargs[DataTypeMetaData.KEY_TAG_1] = kwargs[DataTypeMetaData.KEY_TAG_1]
@@ -172,20 +171,20 @@ class SurfaceStimulusController(SpatioTemporalController):
         Creates a stimulus from the given data.
         """
         try:
-            context = base.get_from_session(KEY_SURFACE_CONTEXT)
+            context = common.get_from_session(KEY_SURFACE_CONTEXT)
             surface_stimulus_creator = self.get_creator_and_interface(SURFACE_STIMULUS_CREATOR_MODULE,
                                                                       SURFACE_STIMULUS_CREATOR_CLASS,
                                                                       StimuliSurface())[0]
-            self.flow_service.fire_operation(surface_stimulus_creator, base.get_logged_user(),
-                                             base.get_current_project().id, **context.equation_kwargs)
-            base.set_info_message("The operation for creating the stimulus was successfully launched.")
+            self.flow_service.fire_operation(surface_stimulus_creator, common.get_logged_user(),
+                                             common.get_current_project().id, **context.equation_kwargs)
+            common.set_info_message("The operation for creating the stimulus was successfully launched.")
             context.selected_stimulus = None
 
         except (NameError, ValueError, SyntaxError), _:
-            base.set_error_message("The operation failed due to invalid parameter input.")
+            common.set_error_message("The operation failed due to invalid parameter input.")
             return False
         except Exception, ex:
-            base.set_error_message(ex.message)
+            common.set_error_message(ex.message)
             return False
         return True
 
@@ -197,7 +196,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         """
         Loads the interface for the selected surface stimulus.
         """
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
         selected_surface_stimulus = ABCAdapter.load_entity_by_gid(surface_stimulus_gid)
         temporal_eq = selected_surface_stimulus.temporal
         spatial_eq = selected_surface_stimulus.spatial
@@ -245,7 +244,7 @@ class SurfaceStimulusController(SpatioTemporalController):
             stimulus where we want to stay in the same page.
 
         """
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
         context.reset()
         return self.do_step(1)
 
@@ -260,7 +259,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         data just get from that one.
         """
         try:
-            context = base.get_from_session(KEY_SURFACE_CONTEXT)
+            context = common.get_from_session(KEY_SURFACE_CONTEXT)
             context.set_focal_points(focal_points)
             kwargs = copy.deepcopy(context.equation_kwargs)
             surface_stimulus_creator = self.get_creator_and_interface(SURFACE_STIMULUS_CREATOR_MODULE,
@@ -270,7 +269,7 @@ class SurfaceStimulusController(SpatioTemporalController):
             max_time = float(kwargs.get('max_tmp_x', 100))
             kwargs = surface_stimulus_creator.prepare_ui_inputs(kwargs)
             stimulus = surface_stimulus_creator.launch(**kwargs)
-            surface_gid = base.get_from_session(PARAM_SURFACE)
+            surface_gid = common.get_from_session(PARAM_SURFACE)
             surface = ABCAdapter.load_entity_by_gid(surface_gid)
             stimulus.surface = surface
             stimulus.configure_space()
@@ -284,7 +283,7 @@ class SurfaceStimulusController(SpatioTemporalController):
                 step_data = stimulus(i).tolist()
                 data.append(step_data)
             stimulus.surface = surface.gid
-            base.add2session(KEY_STIMULUS, stimulus)
+            common.add2session(KEY_STIMULUS, stimulus)
             result = {'status': 'ok', 'max': max_value, 'min': min_value,
                       'data': data, "time_min": min_time, "time_max": max_time, "chunk_size": CHUNK_SIZE}
             return result
@@ -299,14 +298,15 @@ class SurfaceStimulusController(SpatioTemporalController):
         """
         Add some entries that are used in both steps then fill the default required attributes.
         """
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
         template_specification["entitiySavedName"] = [
             {'name': DataTypeMetaData.KEY_TAG_1, 'label': 'Display name', 'type': 'str',
              "disabled": "False", "default": context.equation_kwargs.get(DataTypeMetaData.KEY_TAG_1, '')}]
         template_specification['loadExistentEntityUrl'] = LOAD_EXISTING_URL
         template_specification['resetToDefaultUrl'] = RELOAD_DEFAULT_PAGE_URL
-        template_specification['displayedMessage'] = base.get_from_session(base.KEY_MESSAGE)
-        template_specification['messageType'] = base.get_from_session(base.KEY_MESSAGE_TYPE)
+        msg, msg_type = common.get_message_from_session()
+        template_specification['displayedMessage'] = msg
+        template_specification['messageType'] = msg_type
         return super(SurfaceStimulusController, self).fill_default_attributes(template_specification,
                                                                               subsection='surfacestim')
 
@@ -317,8 +317,8 @@ class SurfaceStimulusController(SpatioTemporalController):
         """
         Get the next chunk of the stimulus data.
         """
-        stimulus = base.get_from_session(KEY_STIMULUS)
-        surface_gid = base.get_from_session(PARAM_SURFACE)
+        stimulus = common.get_from_session(KEY_STIMULUS)
+        surface_gid = common.get_from_session(PARAM_SURFACE)
         chunk_idx = int(chunk_idx)
         if stimulus.surface.gid != surface_gid:
             raise Exception("TODO: Surface changed while visualizing stimulus. See how to handle this.")
@@ -398,7 +398,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         """
         Returns a dictionary which contains the interface for a surface stimulus.
         """
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
         input_list = self.get_creator_and_interface(SURFACE_STIMULUS_CREATOR_MODULE,
                                                     SURFACE_STIMULUS_CREATOR_CLASS, StimuliSurface(),
                                                     lock_midpoint_for_eq=[1])[1]
@@ -427,7 +427,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         The fields that have to be added to the existent
         adapter interface should be added in this method.
         """
-        context = base.get_from_session(KEY_SURFACE_CONTEXT)
+        context = common.get_from_session(KEY_SURFACE_CONTEXT)
 
         temporal_iface = []
         min_tmp_x = {'name': 'min_tmp_x', 'label': 'Temporal Start Time(ms)', 'type': 'str', "disabled": "False",

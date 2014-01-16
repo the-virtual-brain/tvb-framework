@@ -38,9 +38,9 @@ import json
 
 from tvb.datatypes.surfaces import LocalConnectivity
 from tvb.core.adapters.abcadapter import ABCAdapter
-import tvb.interfaces.web.controllers.base_controller as base
-from tvb.interfaces.web.controllers.base_controller import using_template, ajax_call
-from tvb.interfaces.web.controllers.users_controller import logged
+from tvb.interfaces.web.controllers import common
+from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
+from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.transient.context_local_connectivity import ContextLocalConnectivity
@@ -77,8 +77,8 @@ class LocalConnectivityController(SpatioTemporalController):
         """
         if int(do_reset) == 1:
             new_context = ContextLocalConnectivity()
-            base.add2session(KEY_LCONN_CONTEXT, new_context)
-        context = base.get_from_session(KEY_LCONN_CONTEXT)
+            common.add2session(KEY_LCONN_CONTEXT, new_context)
+        context = common.get_from_session(KEY_LCONN_CONTEXT)
         right_side_interface = self._get_lconn_interface()
         left_side_interface = self.get_select_existent_entities('Load Local Connectivity', LocalConnectivity,
                                                                 context.selected_entity)
@@ -95,7 +95,8 @@ class LocalConnectivityController(SpatioTemporalController):
         template_specification['equationViewerUrl'] = '/spatial/localconnectivity/get_equation_chart'
         template_specification['equationsPrefixes'] = json.dumps(self.plotted_equations_prefixes)
         template_specification['next_step_url'] = '/spatial/localconnectivity/step_2'
-        template_specification['displayedMessage'] = base.get_from_session(base.KEY_MESSAGE)
+        msg, msg_type = common.get_message_from_session()
+        template_specification['displayedMessage'] = msg
         return self.fill_default_attributes(template_specification)
 
     @cherrypy.expose
@@ -107,7 +108,7 @@ class LocalConnectivityController(SpatioTemporalController):
         :param kwargs: not actually used, but parameters are still submitted from UI since we just\
                use the same js function for this. TODO: do this in a smarter way
         """
-        context = base.get_from_session(KEY_LCONN_CONTEXT)
+        context = common.get_from_session(KEY_LCONN_CONTEXT)
         left_side_interface = self.get_select_existent_entities('Load Local Connectivity:', LocalConnectivity,
                                                                 context.selected_entity)
         template_specification = dict(title="Surface - Local Connectivity")
@@ -116,15 +117,16 @@ class LocalConnectivityController(SpatioTemporalController):
         template_specification['loadExistentEntityUrl'] = LOAD_EXISTING_URL
         template_specification['resetToDefaultUrl'] = RELOAD_DEFAULT_PAGE_URL
         template_specification['next_step_url'] = '/spatial/localconnectivity/step_1'
-        template_specification['displayedMessage'] = base.get_from_session(base.KEY_MESSAGE)
-        context = base.get_from_session(KEY_LCONN_CONTEXT)
+        msg, _ = common.get_message_from_session()
+        template_specification['displayedMessage'] = msg
+        context = common.get_from_session(KEY_LCONN_CONTEXT)
         if context.selected_entity is not None:
             selected_local_conn = ABCAdapter.load_entity_by_gid(context.selected_entity)
             template_specification.update(self.display_surface(selected_local_conn.surface.gid))
             template_specification['no_local_connectivity'] = False
         else:
             template_specification['no_local_connectivity'] = True
-        template_specification[base.KEY_PARAMETERS_CONFIG] = False
+        template_specification[common.KEY_PARAMETERS_CONFIG] = False
         return self.fill_default_attributes(template_specification)
 
 
@@ -134,7 +136,7 @@ class LocalConnectivityController(SpatioTemporalController):
         the selected entity from the context is not populated just get the defaults, else load
         the template from the context.
         """
-        context = base.get_from_session(KEY_LCONN_CONTEXT)
+        context = common.get_from_session(KEY_LCONN_CONTEXT)
         if context.selected_entity is None:
             input_list = self.get_creator_and_interface(LOCAL_CONN_CREATOR_MODULE,
                                                         LOCAL_CONN_CREATOR_CLASS, LocalConnectivity(),
@@ -152,12 +154,12 @@ class LocalConnectivityController(SpatioTemporalController):
         """
         Used for creating and storing a local connectivity.
         """
-        context = base.get_from_session(KEY_LCONN_CONTEXT)
+        context = common.get_from_session(KEY_LCONN_CONTEXT)
         local_connectivity_creator = self.get_creator_and_interface(LOCAL_CONN_CREATOR_MODULE,
                                                                     LOCAL_CONN_CREATOR_CLASS, LocalConnectivity())[0]
-        self.flow_service.fire_operation(local_connectivity_creator, base.get_logged_user(),
-                                         base.get_current_project().id, **kwargs)
-        base.set_info_message("The operation for creating the local connectivity was successfully launched.")
+        self.flow_service.fire_operation(local_connectivity_creator, common.get_logged_user(),
+                                         common.get_current_project().id, **kwargs)
+        common.set_info_message("The operation for creating the local connectivity was successfully launched.")
         context.reset()
         return self.step_1()
 
@@ -169,9 +171,10 @@ class LocalConnectivityController(SpatioTemporalController):
         """
         Loads the interface for an existing local connectivity.
         """
-        context = base.get_from_session(KEY_LCONN_CONTEXT)
+        context = common.get_from_session(KEY_LCONN_CONTEXT)
         context.selected_entity = local_connectivity_gid
-        base.add2session(base.KEY_MESSAGE, "Successfully loaded existent entity gid=%s" % (local_connectivity_gid,))
+        msg = "Successfully loaded existent entity gid=%s" % (local_connectivity_gid,)
+        common.set_message(msg)
         if int(from_step) == 1:
             return self.step_1()
         if int(from_step) == 2:
@@ -189,7 +192,7 @@ class LocalConnectivityController(SpatioTemporalController):
         step 2 in case none was selected. We are keeping it so far to remain compatible with the
         stimulus pages.
         """
-        context = base.get_from_session(KEY_LCONN_CONTEXT)
+        context = common.get_from_session(KEY_LCONN_CONTEXT)
         context.reset()
         return self.step_1()
 
@@ -199,7 +202,7 @@ class LocalConnectivityController(SpatioTemporalController):
         Return the parameters for the local connectivity in case one is stored in context. Load the entity
         and use it to populate the defaults from the interface accordingly.
         """
-        context = base.get_from_session(KEY_LCONN_CONTEXT)
+        context = common.get_from_session(KEY_LCONN_CONTEXT)
         selected_local_conn = ABCAdapter.load_entity_by_gid(context.selected_entity)
         cutoff = selected_local_conn.cutoff
         equation = selected_local_conn.equation
@@ -217,7 +220,7 @@ class LocalConnectivityController(SpatioTemporalController):
             msg = "There is no equation specified for this local connectivity. "
             msg += "The default equation is displayed into the spatial field."
             self.logger.warning(msg)
-            base.set_info_message(msg)
+            common.set_info_message(msg)
 
         default_dict[DataTypeMetaData.KEY_TAG_1] = selected_local_conn.user_tag_1
 
@@ -227,7 +230,7 @@ class LocalConnectivityController(SpatioTemporalController):
         input_list = self._add_extra_fields_to_interface(input_list)
         input_list = ABCAdapter.fill_defaults(input_list, default_dict)
 
-        template_specification = {'inputList': input_list, base.KEY_PARAMETERS_CONFIG: False,
+        template_specification = {'inputList': input_list, common.KEY_PARAMETERS_CONFIG: False,
                                   'equationViewerUrl': '/spatial/localconnectivity/get_equation_chart',
                                   'equationsPrefixes': json.dumps(self.plotted_equations_prefixes)}
         return template_specification
@@ -249,11 +252,11 @@ class LocalConnectivityController(SpatioTemporalController):
         """
         Overwrite base controller to add required parameters for adapter templates.
         """
-        template_dictionary[base.KEY_SECTION] = 'connectivity'
-        template_dictionary[base.KEY_SUB_SECTION] = 'local'
-        template_dictionary[base.KEY_SUBMENU_LIST] = self.connectivity_submenu
-        template_dictionary[base.KEY_INCLUDE_RESOURCES] = 'spatial/included_resources'
-        base.BaseController.fill_default_attributes(self, template_dictionary)
+        template_dictionary[common.KEY_SECTION] = 'connectivity'
+        template_dictionary[common.KEY_SUB_SECTION] = 'local'
+        template_dictionary[common.KEY_SUBMENU_LIST] = self.connectivity_submenu
+        template_dictionary[common.KEY_INCLUDE_RESOURCES] = 'spatial/included_resources'
+        BaseController.fill_default_attributes(self, template_dictionary)
         return template_dictionary
 
 
@@ -327,7 +330,7 @@ class LocalConnectivityController(SpatioTemporalController):
         """
         if len(form_data['equation']) > 0 and form_data['equation'] is not None:
             try:
-                context = base.get_from_session(KEY_LCONN_CONTEXT)
+                context = common.get_from_session(KEY_LCONN_CONTEXT)
                 surface_gid = form_data['surface']
                 if context.selected_surface is None or context.selected_surface.gid != surface_gid:
                     surface = ABCAdapter.load_entity_by_gid(surface_gid)

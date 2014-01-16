@@ -38,11 +38,11 @@ import cherrypy
 from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.flow_service import FlowService
-import tvb.interfaces.web.controllers.base_controller as base
-from tvb.interfaces.web.controllers.users_controller import logged
-from tvb.interfaces.web.controllers.base_controller import using_template, ajax_call
-from tvb.interfaces.web.entities.context_noise_configuration import ContextNoiseParameters
+from tvb.interfaces.web.controllers import common
+from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
+from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
+from tvb.interfaces.web.entities.context_noise_configuration import ContextNoiseParameters
 
 
 ### SESSION KEY for ContextModelParameter entity.
@@ -70,7 +70,7 @@ class NoiseConfigurationController(SpatioTemporalController):
         connectivity_viewer_params = self.get_connectivity_parameters(connectivity)
         context_noise_config = ContextNoiseParameters(connectivity, model, integrator)
         param_names, param_data = self.get_data_for_param_sliders('0', context_noise_config)
-        base.add2session(KEY_CONTEXT_NC, context_noise_config)
+        common.add2session(KEY_CONTEXT_NC, context_noise_config)
 
         template_specification = dict(title="Simulation - Noise configuration")
         template_specification['submit_parameters_url'] = '/spatial/noiseconfiguration/submit_noise_configuration'
@@ -94,7 +94,7 @@ class NoiseConfigurationController(SpatioTemporalController):
         """
         noise_values = json.loads(data['noiseValues'])
         selected_regions = json.loads(data['selectedNodes'])
-        context_noise_config = base.get_from_session(KEY_CONTEXT_NC)
+        context_noise_config = common.get_from_session(KEY_CONTEXT_NC)
         for node_idx in selected_regions:
             for model_param_idx in noise_values.keys():
                 context_noise_config.update_noise_configuration(node_idx, model_param_idx,
@@ -108,7 +108,7 @@ class NoiseConfigurationController(SpatioTemporalController):
         """
         Returns a json with the current noise configuration.
         """
-        context_noise_config = base.get_from_session(KEY_CONTEXT_NC)
+        context_noise_config = common.get_from_session(KEY_CONTEXT_NC)
         return context_noise_config.noise_values
 
 
@@ -120,7 +120,7 @@ class NoiseConfigurationController(SpatioTemporalController):
         Gets currently configured noise parameters for the specified connectivity node
         """
         connectivity_index = int(connectivity_index)
-        context_noise_config = base.get_from_session(KEY_CONTEXT_NC)
+        context_noise_config = common.get_from_session(KEY_CONTEXT_NC)
         node_values = {}
         for idx in xrange(len(context_noise_config.noise_values)):
             node_values[idx] = context_noise_config.noise_values[idx][connectivity_index]
@@ -140,9 +140,9 @@ class NoiseConfigurationController(SpatioTemporalController):
         to_nodes = json.loads(to_nodes)
         if from_node < 0 or not len(to_nodes):
             return
-        context_model_parameters = base.get_from_session(KEY_CONTEXT_NC)
+        context_model_parameters = common.get_from_session(KEY_CONTEXT_NC)
         context_model_parameters.set_noise_connectivity_nodes(from_node, to_nodes)
-        base.add2session(KEY_CONTEXT_NC, context_model_parameters)
+        common.add2session(KEY_CONTEXT_NC, context_model_parameters)
         return context_model_parameters.noise_values
 
     @cherrypy.expose
@@ -152,16 +152,16 @@ class NoiseConfigurationController(SpatioTemporalController):
         """
         Collects the model parameters values from all the models used for the connectivity nodes.
         """
-        context_noise_config = base.get_from_session(KEY_CONTEXT_NC)
-        burst_configuration = base.get_from_session(base.KEY_BURST_CONFIG)
+        context_noise_config = common.get_from_session(KEY_CONTEXT_NC)
+        burst_configuration = common.get_from_session(common.KEY_BURST_CONFIG)
         _, simulator_group = FlowService().get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
         simulator_adapter = ABCAdapter.build_adapter(simulator_group)
         for param_name in simulator_adapter.noise_configurable_parameters():
             burst_configuration.update_simulation_parameter(param_name, str(context_noise_config.noise_values)) 
         ### Clean from session drawing context
-        base.remove_from_session(KEY_CONTEXT_NC)
+        common.remove_from_session(KEY_CONTEXT_NC)
         ### Update in session BURST configuration for burst-page. 
-        base.add2session(base.KEY_BURST_CONFIG, burst_configuration.clone())
+        common.add2session(common.KEY_BURST_CONFIG, burst_configuration.clone())
         raise cherrypy.HTTPRedirect("/burst/")
 
         
@@ -169,9 +169,9 @@ class NoiseConfigurationController(SpatioTemporalController):
         """
         Overwrite base controller to add required parameters for adapter templates.
         """
-        template_dictionary[base.KEY_SECTION] = 'burst'
-        template_dictionary[base.KEY_SUB_SECTION] = 'noiseconfig'
-        template_dictionary[base.KEY_INCLUDE_RESOURCES] = 'spatial/included_resources'
-        base.BaseController.fill_default_attributes(self, template_dictionary)
+        template_dictionary[common.KEY_SECTION] = 'burst'
+        template_dictionary[common.KEY_SUB_SECTION] = 'noiseconfig'
+        template_dictionary[common.KEY_INCLUDE_RESOURCES] = 'spatial/included_resources'
+        BaseController.fill_default_attributes(self, template_dictionary)
         return template_dictionary
 

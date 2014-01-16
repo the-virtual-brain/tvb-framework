@@ -35,7 +35,7 @@
 import json
 import unittest
 import cherrypy
-import tvb.interfaces.web.controllers.base_controller as b_c
+import tvb.interfaces.web.controllers.common as common
 from tvb.interfaces.web.controllers.spatial.noise_configuration_controller import NoiseConfigurationController, KEY_CONTEXT_NC
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
 from tvb.simulator.integrators import EulerStochastic
@@ -65,7 +65,7 @@ class NoiseConfigurationControllerTest(TransactionalTestCase, BaseControllersTes
         _, self.connectivity = DatatypesFactory().create_connectivity()
         BurstController().index()
 
-        stored_burst = cherrypy.session[b_c.KEY_BURST_CONFIG]
+        stored_burst = cherrypy.session[common.KEY_BURST_CONFIG]
 
         new_params = {}
         for key, val in SIMULATOR_PARAMETERS.iteritems():
@@ -119,7 +119,7 @@ class NoiseConfigurationControllerTest(TransactionalTestCase, BaseControllersTes
         Submit noise configuration writes the noise array on the required key in the burst configuration
         """
         self._expect_redirect('/burst/', self.noise_c.submit_noise_configuration)
-        simulator_configuration = cherrypy.session[b_c.KEY_BURST_CONFIG].simulator_configuration
+        simulator_configuration = cherrypy.session[common.KEY_BURST_CONFIG].simulator_configuration
 
         some_key = 'integrator_parameters_option_EulerStochastic_noise_parameters_option_Additive_nsig'
         self.assertEquals(

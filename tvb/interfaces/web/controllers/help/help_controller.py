@@ -35,7 +35,8 @@ Basic Help functionality.
 """
 
 import cherrypy
-from tvb.interfaces.web.controllers.base_controller import using_template, BaseController
+from tvb.interfaces.web.controllers.decorators import using_template
+from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.help.help_config import HelpConfig
 
 

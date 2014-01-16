@@ -33,7 +33,7 @@
 import json
 import unittest
 import cherrypy
-import tvb.interfaces.web.controllers.base_controller as b_c
+import tvb.interfaces.web.controllers.common as common
 from tvb.interfaces.web.controllers.spatial.region_model_parameters_controller import RegionsModelParametersController
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
@@ -53,7 +53,7 @@ class RegionsModelParametersControllerTest(TransactionalTestCase, BaseController
         BaseControllersTest.init(self)
         self.region_m_p_c = RegionsModelParametersController()
         BurstController().index()
-        stored_burst = cherrypy.session[b_c.KEY_BURST_CONFIG]
+        stored_burst = cherrypy.session[common.KEY_BURST_CONFIG]
         _, self.connectivity = DatatypesFactory().create_connectivity()
         new_params = {}
         for key, val in SIMULATOR_PARAMETERS.iteritems():

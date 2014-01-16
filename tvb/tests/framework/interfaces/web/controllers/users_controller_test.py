@@ -36,8 +36,8 @@ import os
 import unittest
 import cherrypy
 from hashlib import md5
-import tvb.core.utils as utils
-import tvb.interfaces.web.controllers.base_controller as b_c
+from tvb.core import utils
+from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.users_controller import UserController
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.entities import model
@@ -103,7 +103,7 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         cherrypy.request.method = "GET"
         template_dict = self.user_c.profile()
         self._check_default_attributes(template_dict)
-        self.assertEqual(template_dict[b_c.KEY_USER].id, self.test_user.id)
+        self.assertEqual(template_dict[common.KEY_USER].id, self.test_user.id)
         
     
     def test_profile_edit(self):
@@ -122,7 +122,7 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         Test that a logout removes the user from session.
         """
         self._expect_redirect('/user', self.user_c.logout)
-        self.assertTrue(b_c.KEY_USER not in cherrypy.session, "User should be removed after logout.")
+        self.assertTrue(common.KEY_USER not in cherrypy.session, "User should be removed after logout.")
         
     
     def test_switch_online_help(self):
@@ -169,7 +169,7 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
                     comment="This is some dummy comment",
                     role="CLINICIAN")
         template_dict = self.user_c.register(**data)
-        self.assertTrue(template_dict[b_c.KEY_ERRORS] != {}, "Errors should contain some data.")
+        self.assertTrue(template_dict[common.KEY_ERRORS] != {}, "Errors should contain some data.")
         
         
     def test_create_new_cancel(self):
@@ -200,7 +200,7 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         Since we need to be admin to access this, we should get redirect to /tvb.
         """
         self._expect_redirect('/tvb', self.user_c.usermanagement)
-        self.assertEqual(cherrypy.session[b_c.KEY_MESSAGE_TYPE], b_c.TYPE_ERROR)
+        self.assertEqual(cherrypy.session[common.KEY_MESSAGE_TYPE], common.TYPE_ERROR)
         
     
     def test_usermanagement_cancel(self):
@@ -209,7 +209,7 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         """
         self.test_user.role = "ADMINISTRATOR"
         self.test_user = dao.store_entity(self.test_user)
-        cherrypy.session[b_c.KEY_USER] = self.test_user
+        cherrypy.session[common.KEY_USER] = self.test_user
         self._expect_redirect('/user/profile', self.user_c.usermanagement, cancel=True)
         
         
@@ -219,7 +219,7 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         """
         self.test_user.role = "ADMINISTRATOR"
         self.test_user = dao.store_entity(self.test_user)
-        cherrypy.session[b_c.KEY_USER] = self.test_user
+        cherrypy.session[common.KEY_USER] = self.test_user
         TestFactory.create_user(username="to_be_deleted")
         TestFactory.create_user(username="to_validate", validated=False)
         user_before_delete = dao.get_user_by_name("to_be_deleted")
@@ -252,7 +252,7 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         cherrypy.request.method = "POST"
         data = {'username': self.test_user.username, "email": self.test_user.email}
         self._expect_redirect("/user", self.user_c.recoverpassword, **data)
-        self.assertTrue(cherrypy.session[b_c.KEY_MESSAGE_TYPE] == b_c.TYPE_INFO,
+        self.assertTrue(cherrypy.session[common.KEY_MESSAGE_TYPE] == common.TYPE_INFO,
                         "Info message informing successfull reset should be present")
         
         
@@ -262,14 +262,14 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         """
         self.test_user.role = "ADMINISTRATOR"
         self.test_user = dao.store_entity(self.test_user)
-        cherrypy.session[b_c.KEY_USER] = self.test_user
+        cherrypy.session[common.KEY_USER] = self.test_user
         TestFactory.create_user(username="to_validate", validated=False)
         user_before_validation = dao.get_user_by_name("to_validate")
         self.assertFalse(user_before_validation.validated)
         self._expect_redirect('/tvb', self.user_c.validate, user_before_validation.username)
         user_after_validation = dao.get_user_by_id(user_before_validation.id)
         self.assertTrue(user_after_validation.validated, "User should be validated.")
-        self.assertTrue(cherrypy.session[b_c.KEY_MESSAGE_TYPE] == b_c.TYPE_INFO)
+        self.assertTrue(cherrypy.session[common.KEY_MESSAGE_TYPE] == common.TYPE_INFO)
         
         
     def test_validate_invalid(self):
@@ -279,20 +279,20 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         unexisting = dao.get_user_by_name("should-not-exist")
         self.assertTrue(unexisting is None, "This user should not exist")
         self._expect_redirect('/tvb', self.user_c.validate, "should-not-exist")
-        self.assertTrue(cherrypy.session[b_c.KEY_MESSAGE_TYPE] == b_c.TYPE_ERROR)   
+        self.assertTrue(cherrypy.session[common.KEY_MESSAGE_TYPE] == common.TYPE_ERROR)
     
     
     def _check_default_attributes(self, template_dict, data={}, errors={}):
         """
         Check that all the defaults are present in the template dictionary.
         """
-        self.assertEqual(template_dict[b_c.KEY_LINK_ANALYZE], '/flow/step/2')
-        self.assertEqual(template_dict[b_c.KEY_BACK_PAGE], False)
-        self.assertEqual(template_dict[b_c.KEY_LINK_CONNECTIVITY_TAB], '/flow/step_connectivity')
-        self.assertEqual(template_dict[b_c.KEY_CURRENT_TAB], 'nav-user')
-        self.assertEqual(template_dict[b_c.KEY_FORM_DATA], data)
-        self.assertEqual(template_dict[b_c.KEY_ERRORS], errors)
-        self.assertEqual(template_dict[b_c.KEY_INCLUDE_TOOLTIP], True)
+        self.assertEqual(template_dict[common.KEY_LINK_ANALYZE], '/flow/step/2')
+        self.assertEqual(template_dict[common.KEY_BACK_PAGE], False)
+        self.assertEqual(template_dict[common.KEY_LINK_CONNECTIVITY_TAB], '/flow/step_connectivity')
+        self.assertEqual(template_dict[common.KEY_CURRENT_TAB], 'nav-user')
+        self.assertEqual(template_dict[common.KEY_FORM_DATA], data)
+        self.assertEqual(template_dict[common.KEY_ERRORS], errors)
+        self.assertEqual(template_dict[common.KEY_INCLUDE_TOOLTIP], True)
         
         
 def suite():

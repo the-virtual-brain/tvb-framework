@@ -51,7 +51,7 @@ import cherrypy
 from tvb.datatypes import connectivity, equations, surfaces, patterns
 from tvb.simulator import noise, integrators, models, coupling, monitors, simulator
 # framework
-from tvb.interfaces.web.controllers import base_controller as base
+from tvb.interfaces.web.controllers.base_controller import BaseController
 
 
 def threadsafe(f):
@@ -172,7 +172,7 @@ def build_and_run(spec):
 
 
 
-class SimulatorController(base.BaseController):
+class SimulatorController(BaseController):
 
     # keep track of simulations
     nsim = 0

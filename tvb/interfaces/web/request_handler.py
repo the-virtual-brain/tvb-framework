@@ -38,6 +38,8 @@ import tvb.interfaces.web.controllers.base_controller as bc
 from tvb.basic.logger.builder import get_logger
 
 # Constants for upload
+from tvb.interfaces.web.controllers.common import get_from_session
+
 CONTENT_LENGTH_KEY = 'content-length'
 
 # Module logger
@@ -75,7 +77,7 @@ class RequestHandler(object):
         This method is executed at the end of a request and checks if there is any
         file which should be deleted on disk.
         """
-        files_list = bc.get_from_session(bc.FILES_TO_DELETE_ATTR)
+        files_list = get_from_session(bc.FILES_TO_DELETE_ATTR)
         if files_list is not None and len(files_list) > 0:
             for (i, file_to_delete) in enumerate(files_list):
                 if os.path.exists(file_to_delete):

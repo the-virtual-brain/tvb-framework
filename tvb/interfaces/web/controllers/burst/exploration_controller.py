@@ -41,7 +41,8 @@ from tvb.core.services.project_service import ProjectService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.transient.filtering import FilterChain
-from tvb.interfaces.web.controllers.base_controller import BaseController, ajax_call, using_template
+from tvb.interfaces.web.controllers.decorators import using_template, ajax_call
+from tvb.interfaces.web.controllers.base_controller import BaseController
 
 
 PSE_FLOT = "FLOT"

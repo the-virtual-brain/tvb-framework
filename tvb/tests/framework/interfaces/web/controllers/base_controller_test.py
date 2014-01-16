@@ -32,9 +32,9 @@ import os
 import cherrypy
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.config.utils import EnhancedDictionary
+from tvb.interfaces.web.controllers.common import KEY_PROJECT, KEY_USER
 from tvb.tests.framework.core.base_testcase import BaseTestCase
 from tvb.tests.framework.core.test_factory import TestFactory
-import tvb.interfaces.web.controllers.base_controller as b_c
 
 
 
@@ -75,8 +75,8 @@ class BaseControllersTest(BaseTestCase):
         self.test_user = TestFactory.create_user(username="CtrlTstUsr")
         self.test_project = TestFactory.create_project(self.test_user, "Test")
         cherrypy.session = BaseControllersTest.CherrypySession()
-        cherrypy.session[b_c.KEY_USER] = self.test_user
-        cherrypy.session[b_c.KEY_PROJECT] = self.test_project
+        cherrypy.session[KEY_USER] = self.test_user
+        cherrypy.session[KEY_PROJECT] = self.test_project
 
 
     def cleanup(self):

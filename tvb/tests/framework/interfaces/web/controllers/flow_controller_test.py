@@ -41,7 +41,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.flow_service import FlowService
-import tvb.interfaces.web.controllers.base_controller as b_c
+from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.flow_controller import FlowController
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
 from tvb.tests.framework.adapters.testadapter1 import TestAdapter1
@@ -74,7 +74,7 @@ class FlowContollerTest(BaseControllersTest):
         """
         Remove the project from CherryPy session and check that you are redirected to projects page.
         """
-        del cherrypy.session[b_c.KEY_PROJECT]
+        del cherrypy.session[common.KEY_PROJECT]
         self._expect_redirect('/project/viewall', self.flow_c.step)
     
 
@@ -93,7 +93,7 @@ class FlowContollerTest(BaseControllersTest):
         categories = dao.get_algorithm_categories()
         for categ in categories:
             result_dict = self.flow_c.step(categ.id)
-            self.assertTrue(b_c.KEY_SUBMENU_LIST in result_dict, 
+            self.assertTrue(common.KEY_SUBMENU_LIST in result_dict,
                             "Expect to have a submenu with available algorithms for category.")
             self.assertEqual(result_dict["section_name"], categ.displayname.lower())
 
@@ -118,7 +118,7 @@ class FlowContollerTest(BaseControllersTest):
             algo_groups = dao.get_groups_by_categories([categ.id])
             for algo in algo_groups:
                 result_dict = self.flow_c.default(categ.id, algo.id)
-                self.assertEqual(result_dict[b_c.KEY_SUBMIT_LINK], '/flow/%i/%i' % (categ.id, algo.id))
+                self.assertEqual(result_dict[common.KEY_SUBMIT_LINK], '/flow/%i/%i' % (categ.id, algo.id))
                 self.assertTrue('mainContent' in result_dict)
                 self.assertTrue(result_dict['isAdapter'])
                 
