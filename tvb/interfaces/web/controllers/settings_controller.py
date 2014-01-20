@@ -44,7 +44,7 @@ from tvb.core.utils import check_matlab_version
 from tvb.core.services.settings_service import SettingsService
 from tvb.core.services.exceptions import InvalidSettingsException
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, admin
+from tvb.interfaces.web.controllers.decorators import check_admin, using_template, jsonify, handle_error
 from tvb.interfaces.web.controllers.users_controller import UserController
 
 
@@ -60,8 +60,9 @@ class SettingsController(UserController):
 
 
     @cherrypy.expose
+    @handle_error(redirect=True)
     @using_template('user/base_user')
-    @admin()
+    @check_admin
     def settings(self, save_settings=False, **data):
         """Main settings page submit and get"""
         template_specification = dict(mainContent="../settings/system_settings", title="System Settings")
@@ -109,7 +110,8 @@ class SettingsController(UserController):
 
 
     @cherrypy.expose
-    @ajax_call()
+    @handle_error(redirect=False)
+    @jsonify
     def check_db_url(self, **data):
         """
         Action on DB-URL validate button.
@@ -132,7 +134,8 @@ class SettingsController(UserController):
 
 
     @cherrypy.expose
-    @ajax_call()
+    @handle_error(redirect=False)
+    @jsonify
     def validate_matlab_path(self, **data):
         """
         Check if the set path from the ui actually corresponds to a matlab executable.

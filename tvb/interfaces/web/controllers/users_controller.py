@@ -47,8 +47,8 @@ from tvb.core.services.user_service import UserService, KEY_PASSWORD, KEY_EMAIL,
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.exceptions import UsernameException
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import settings, using_template, ajax_call, logged, admin
 from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.decorators import handle_error, using_template, settings, check_user, expose_json, check_admin, jsonify
 
 
 KEY_SERVER_VERSION = "versionInfo"
@@ -66,8 +66,9 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
+    @handle_error(redirect=True)
     @using_template('user/base_user')
-    @settings()
+    @settings
     def index(self, **data):
         """
         Login page (with or without messages).
@@ -99,9 +100,10 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
+    @handle_error(redirect=True)
     @using_template('user/base_user')
-    @settings()
-    @logged()
+    @check_user
+    @settings
     def profile(self, logout=False, save=False, **data):
         """
         Display current user's profile page.
@@ -143,8 +145,8 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @handle_error(redirect=True)
+    @check_user
     def logout(self):
         """
         Logging out user and clean session
@@ -160,8 +162,8 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @handle_error(redirect=True)
+    @check_user
     def switchOnlineHelp(self):
         """
         Switch flag that displays online helps
@@ -175,6 +177,7 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
+    @handle_error(redirect=True)
     @using_template('user/base_user')
     def register(self, cancel=False, **data):
         """
@@ -209,6 +212,7 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
+    @handle_error(redirect=True)
     @using_template('user/base_user')
     def create_new(self, cancel=False, **data):
         """
@@ -242,8 +246,9 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
+    @handle_error(redirect=True)
     @using_template('user/base_user')
-    @admin()
+    @check_admin
     def usermanagement(self, cancel=False, page=1, do_persist=False, **data):
         """
         Display a table used for user management.
@@ -278,6 +283,7 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
+    @handle_error(redirect=True)
     @using_template('user/base_user')
     def recoverpassword(self, cancel=False, **data):
         """
@@ -311,8 +317,7 @@ class UserController(BaseController):
             return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def upgrade_file_storage(self):
         """
         Upgrade the file storage to the latest version if needed.
@@ -323,8 +328,9 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call()
-    @admin()
+    @handle_error(redirect=False)
+    @jsonify
+    @check_admin
     def validate(self, name):
         """
         A link to this page will be sent to the administrator to validate 

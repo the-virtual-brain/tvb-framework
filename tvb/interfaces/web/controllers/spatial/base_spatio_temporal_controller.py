@@ -33,9 +33,10 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
-import cherrypy
 import json
 from copy import deepcopy
+
+import cherrypy
 
 from tvb.adapters.visualizers.connectivity import ConnectivityViewer
 from tvb.basic.traits import traited_interface
@@ -45,8 +46,8 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.operation_service import RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import settings, using_template, logged
 from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.decorators import settings, expose_page
 from tvb.interfaces.web.controllers.flow_controller import SelectedAdapterContext
 from tvb.simulator.models import Model
 from tvb.simulator.integrators import Integrator
@@ -81,10 +82,8 @@ class SpatioTemporalController(BaseController):
         self.submenu_list = editable_entities
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
-    @settings()
+    @expose_page
+    @settings
     def index(self, **data):
         """
         Displays the main page for the spatio temporal section.

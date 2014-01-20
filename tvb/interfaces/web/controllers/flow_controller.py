@@ -51,9 +51,9 @@ from tvb.core.services.exceptions import OperationException
 from tvb.core.services.operation_service import OperationService, RANGE_PARAMETER_1
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.burst_service import BurstService
+from tvb.interfaces.web.controllers.decorators import expose_page, settings, context_selected, expose_fragment, handle_error, check_user, expose_json
 from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import settings, using_template, ajax_call, logged, context_selected
 from tvb.interfaces.web.controllers.base_controller import BaseController
 
 
@@ -76,11 +76,9 @@ class FlowController(BaseController):
         self.files_helper = FilesHelper()
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
-    @settings()
-    @context_selected()
+    @expose_page
+    @settings
+    @context_selected
     def step(self, step_key=None):
         """
         Choose exact action/adapter for current step.
@@ -109,11 +107,9 @@ class FlowController(BaseController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
-    @context_selected()
+    @expose_page
+    @settings
+    @context_selected
     def step_connectivity(self):
         """
         Display menu for Connectivity Footer tab.
@@ -141,11 +137,9 @@ class FlowController(BaseController):
         return back_page_link
 
 
-    @cherrypy.expose
-    @settings()
-    @logged()
-    @context_selected()
-    @using_template('base_template')
+    @expose_page
+    @settings
+    @context_selected
     def prepare_group_launch(self, group_gid, step_key, adapter_key, **data):
         """
         Receives as input a group gid and an algorithm given by category and id, along
@@ -166,11 +160,9 @@ class FlowController(BaseController):
         raise cherrypy.HTTPRedirect(redirect_url)
     
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
-    @context_selected()
+    @expose_page
+    @settings
+    @context_selected
     def default(self, step_key, adapter_key, cancel=False, back_page=None, not_reset=False, **data):
         """
         Render a specific adapter.
@@ -226,9 +218,7 @@ class FlowController(BaseController):
         return template_specification
 
 
-    @cherrypy.expose
-    @using_template("flow/reduce_dimension_select")
-    @logged()
+    @expose_fragment("flow/reduce_dimension_select")
     def gettemplatefordimensionselect(self, entity_gid=None, select_name="", reset_session='False',
                                       parameters_prefix="dimensions", required_dimension=1,
                                       expected_shape="", operations=""):
@@ -361,9 +351,7 @@ class FlowController(BaseController):
         return {"sum": "Sum", "average": "Average"}
 
 
-    @cherrypy.expose
-    @using_template("flow/type2component/datatype2select_simple")
-    @logged()
+    @expose_fragment("flow/type2component/datatype2select_simple")
     def getfiltereddatatypes(self, name, parent_div, tree_session_key, filters):
         """
         Given the name from the input tree, the dataType required and a number of
@@ -519,8 +507,8 @@ class FlowController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def readserverstaticfile(self, coded_path):
         """
         Retrieve file from Local storage, having a File System Path.
@@ -533,9 +521,7 @@ class FlowController(BaseController):
             self.logger.exception(excep)
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def read_datatype_attribute(self, entity_gid, dataset_name, flatten=False, datatype_kwargs='null', **kwargs):
         """
         Retrieve from a given DataType a property or a method result.
@@ -567,9 +553,7 @@ class FlowController(BaseController):
             self.logger.exception(excep)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def invokeadaptermethod(self, adapter_id, method_name, **data):
         """
         Public web method, to be used when invoking specific 
@@ -602,9 +586,7 @@ class FlowController(BaseController):
         raise cherrypy.HTTPRedirect(redirect_url)
 
 
-    @cherrypy.expose
-    @using_template("flow/genericAdapterFormFields")
-    @logged()
+    @expose_fragment("flow/genericAdapterFormFields")
     def get_simple_adapter_interface(self, algo_group_id, parent_div='', is_uploader=False):
         """
         AJAX exposed method. Will return only the interface for a adapter, to
@@ -617,9 +599,7 @@ class FlowController(BaseController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template("flow/full_adapter_interface")
-    @logged()
+    @expose_fragment("flow/full_adapter_interface")
     def getadapterinterface(self, project_id, algo_group_id, back_page=None):
         """
         AJAX exposed method. Will return only a piece of a page, 
@@ -654,10 +634,8 @@ class FlowController(BaseController):
         return template_specification
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
-    @context_selected()
+    @expose_json
+    @context_selected
     def reloadoperation(self, operation_id, **_):
         """Redirect to Operation Input selection page, 
         with input data already selected."""
@@ -669,10 +647,8 @@ class FlowController(BaseController):
         raise cherrypy.HTTPRedirect("/flow/" + str(category_id) + "/" + str(algo_id) + "?not_reset=True")
 
     
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
-    @context_selected()
+    @expose_json
+    @context_selected
     def reload_burst_operation(self, operation_id, is_group, **_):
         """
         Find out from which burst was this operation launched. Set that burst as the selected one and 
@@ -690,8 +666,7 @@ class FlowController(BaseController):
         raise cherrypy.HTTPRedirect("/burst/")
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def stop_operation(self, operation_id, is_group, remove_after_stop=False):
         """
         Stop the operation given by operation_id. If is_group is true stop all the
@@ -714,8 +689,7 @@ class FlowController(BaseController):
         return result
     
     
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def stop_burst_operation(self, operation_id, is_group, remove_after_stop=False):
         """
         For a given operation id that is part of a burst just stop the given burst.
@@ -771,8 +745,7 @@ class FlowController(BaseController):
 
     NEW_SELECTION_NAME = 'New selection'
 
-    @cherrypy.expose
-    @using_template('visualizers/connectivity/connectivity_selections_display')
+    @expose_fragment('visualizers/connectivity/connectivity_selections_display')
     def get_available_selections(self, **data):
         """
         Get all the saved selections for the current project and return
@@ -799,8 +772,7 @@ class FlowController(BaseController):
         return self.fill_default_attributes(result)
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def store_connectivity_selection(self, ui_name, **data):
         """
         Save the passed connectivity selection. Since cherryPy/Ajax seems to

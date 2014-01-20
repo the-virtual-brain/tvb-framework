@@ -36,8 +36,8 @@
 import json
 import cherrypy
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
 from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json
 from tvb.interfaces.web.entities.context_model_parameters import ContextModelParameters
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController, PARAMS_MODEL_PATTERN
 
@@ -55,9 +55,7 @@ class RegionsModelParametersController(SpatioTemporalController):
         SpatioTemporalController.__init__(self)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def edit_model_parameters(self):
         """
         Main method, to initialize Model-Parameter visual-set.
@@ -81,9 +79,7 @@ class RegionsModelParametersController(SpatioTemporalController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template('spatial/model_param_region_param_sliders')
-    @logged()
+    @expose_fragment('spatial/model_param_region_param_sliders')
     def load_model_for_connectivity_node(self, connectivity_node_index):
         """
         Loads the model of the given connectivity node into the phase plane.
@@ -100,9 +96,7 @@ class RegionsModelParametersController(SpatioTemporalController):
         return template_specification
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def update_model_parameter_for_nodes(self, param_name, new_param_value, connectivity_node_indexes):
         """
         Updates the specified model parameter for the first node from the 'connectivity_node_indexes'
@@ -122,9 +116,7 @@ class RegionsModelParametersController(SpatioTemporalController):
         common.add2session(KEY_CONTEXT_MPR, context_model_parameters)
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def copy_model(self, from_node, to_nodes):
         """
         Replace the model of the nodes 'to_nodes' with the model of the node 'from_node'.
@@ -141,9 +133,7 @@ class RegionsModelParametersController(SpatioTemporalController):
         common.add2session(KEY_CONTEXT_MPR, context_model_parameters)
 
 
-    @cherrypy.expose
-    @using_template('spatial/model_param_region_param_sliders')
-    @logged()
+    @expose_fragment('spatial/model_param_region_param_sliders')
     def reset_model_parameters_for_nodes(self, connectivity_node_indexes):
         """
         Resets the model parameters, of the specified connectivity nodes, to their default values.
@@ -164,9 +154,7 @@ class RegionsModelParametersController(SpatioTemporalController):
         return template_specification
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def submit_model_parameters(self):
         """
         Collects the model parameters values from all the models used for the connectivity nodes.

@@ -33,8 +33,9 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
-import cherrypy
 import json
+
+import cherrypy
 
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
@@ -42,8 +43,9 @@ from tvb.core.entities.transient.context_stimulus import RegionStimulusContext, 
 from tvb.datatypes.equations import Equation
 from tvb.datatypes.patterns import StimuliRegion
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
+from tvb.interfaces.web.controllers.decorators import handle_error, expose_page, expose_fragment
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
+
 
 REGION_STIMULUS_CREATOR_MODULE = "tvb.adapters.creators.stimulus_creator"
 REGION_STIMULUS_CREATOR_CLASS = "RegionStimulusCreator"
@@ -126,9 +128,7 @@ class RegionStimulusController(SpatioTemporalController):
             return self.step_1()
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def step_1_submit(self, next_step, do_reset=0, **kwargs):
         """
         Any submit from the first step should be handled here. Update the context then
@@ -144,9 +144,7 @@ class RegionStimulusController(SpatioTemporalController):
         return self.do_step(next_step)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def step_2_submit(self, next_step, **kwargs):
         """
         Any submit from the second step should be handled here. Update the context and then do 
@@ -217,7 +215,7 @@ class RegionStimulusController(SpatioTemporalController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
+    @handle_error(redirect=False)
     def update_scaling(self, **kwargs):
         """
         Update the scaling according to the UI.
@@ -232,9 +230,7 @@ class RegionStimulusController(SpatioTemporalController):
             return 'false'
 
 
-    @cherrypy.expose
-    @using_template('spatial/equation_displayer')
-    @logged()
+    @expose_fragment('spatial/equation_displayer')
     def get_equation_chart(self, **form_data):
         """
         Returns the html which contains the plot with the temporal equation.
@@ -261,9 +257,7 @@ class RegionStimulusController(SpatioTemporalController):
             return {'allSeries': None, 'errorMsg': ex.message}
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def load_region_stimulus(self, region_stimulus_gid, from_step=None):
         """
         Loads the interface for the selected region stimulus.
@@ -298,9 +292,7 @@ class RegionStimulusController(SpatioTemporalController):
         return self.do_step(from_step)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def reset_region_stimulus(self, from_step):
         """
         Just reload default data as if stimulus is None. 

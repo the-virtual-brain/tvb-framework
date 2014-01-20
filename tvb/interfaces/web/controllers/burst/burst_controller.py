@@ -47,7 +47,7 @@ from tvb.core.services.burst_service import BurstService, KEY_PARAMETER_CHECKED
 from tvb.core.services.workflow_service import WorkflowService
 from tvb.core.services.operation_service import RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import settings, using_template, ajax_call, logged, context_selected
+from tvb.interfaces.web.controllers.decorators import context_selected, check_user, settings, handle_error, expose_page, expose_fragment, expose_json
 from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.flow_controller import KEY_CONTROLLS, SelectedAdapterContext
 
@@ -75,7 +75,7 @@ class BurstController(BaseController):
 
 
     @property
-    @context_selected()
+    @context_selected
     def cached_simulator_input_tree(self):
         """
         Cache Simulator's input tree, for performance issues.
@@ -90,11 +90,9 @@ class BurstController(BaseController):
         return copy.deepcopy(cached_simulator_tree)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
-    @context_selected()
+    @expose_page
+    @settings
+    @context_selected
     def index(self):
         """Get on burst main page"""
         template_specification = dict(mainContent="burst/main_burst", title="Simulation Cockpit",
@@ -138,8 +136,7 @@ class BurstController(BaseController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template('burst/burst_history')
+    @expose_fragment('burst/burst_history')
     def load_burst_history(self):
         """
         Load the available burst that are stored in the database at this time.
@@ -151,7 +148,7 @@ class BurstController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
+    @handle_error(redirect=False)
     def get_selected_burst(self):
         """
         Return the burst that is currently stored in session.
@@ -164,8 +161,7 @@ class BurstController(BaseController):
             return 'None'
 
 
-    @cherrypy.expose
-    @using_template('burst/portlet_configure_parameters')
+    @expose_fragment('burst/portlet_configure_parameters')
     def get_portlet_configurable_interface(self, index_in_tab):
         """
         From the position given by the tab index and the index from that tab, 
@@ -188,8 +184,7 @@ class BurstController(BaseController):
         return self.fill_default_attributes(portlet_interface)
 
 
-    @cherrypy.expose
-    @using_template('burst/portlets_preview')
+    @expose_fragment('burst/portlets_preview')
     def portlet_tab_display(self, **data):
         """
         When saving a new configuration of tabs, check if any of the old 
@@ -233,8 +228,7 @@ class BurstController(BaseController):
         return {'portlet_tab_list': selected_tab_portlets}
 
 
-    @cherrypy.expose
-    @using_template('burst/portlets_preview')
+    @expose_fragment('burst/portlets_preview')
     def get_configured_portlets(self):
         """
         Return the portlets for one given tab. This is used when changing
@@ -254,8 +248,7 @@ class BurstController(BaseController):
         return {'portlet_tab_list': tab_portlet_list}
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def change_selected_tab(self, tab_nr):
         """
         Set :param tab_nr: as the currently selected tab in the stored burst
@@ -264,8 +257,7 @@ class BurstController(BaseController):
         common.get_from_session(common.KEY_BURST_CONFIG).selected_tab = int(tab_nr)
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def get_portlet_session_configuration(self):
         """
         Get the current configuration of portlets stored in session for this burst,
@@ -277,7 +269,7 @@ class BurstController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
+    @handle_error(redirect=False)
     def save_parameters(self, index_in_tab, **data):
         """
         Save parameters
@@ -308,8 +300,7 @@ class BurstController(BaseController):
             return "noRelaunch"
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def rename_burst(self, burst_id, burst_name):
         """
         Rename the burst given by burst_id, setting it's new name to
@@ -319,8 +310,7 @@ class BurstController(BaseController):
         self.burst_service.rename_burst(burst_id, burst_name)
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def launch_burst(self, launch_mode, burst_name, **data):
         """
         Do the actual burst launch, using the configuration saved in current session.
@@ -347,8 +337,7 @@ class BurstController(BaseController):
         return [burst_id, burst_name]
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def load_burst(self, burst_id):
         """
         Given a clicked burst from the history and the selected tab, load all 
@@ -369,8 +358,7 @@ class BurstController(BaseController):
             raise excep
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def get_history_status(self, **data):
         """
         For each burst id received, get the status and return it.
@@ -379,7 +367,8 @@ class BurstController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
+    @handle_error(redirect=False)
+    @check_user
     def cancel_or_remove_burst(self, burst_id):
         """
         Cancel or Remove the burst entity given by burst_id.
@@ -399,8 +388,7 @@ class BurstController(BaseController):
             return 'canceled'
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def get_selected_portlets(self):
         """
         Get the selected portlets for the loaded burst.
@@ -410,7 +398,7 @@ class BurstController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
+    @handle_error(redirect=False)
     def get_visualizers_for_operation_id(self, op_id, width, height):
         """
         Method called from parameters exploration page in case a burst with a range of parameters
@@ -429,8 +417,7 @@ class BurstController(BaseController):
         return self.load_configured_visualizers(width, height)
 
 
-    @cherrypy.expose
-    @using_template("burst/portlets_view")
+    @expose_fragment("burst/portlets_view")
     def load_configured_visualizers(self, width='800', height='600'):
         """
         Load all the visualization steps for this tab. Width and height represent
@@ -447,8 +434,7 @@ class BurstController(BaseController):
                 'max_width': int(width), 'max_height': int(height)}
 
 
-    @cherrypy.expose
-    @using_template("burst/portlet_visualization_template")
+    @expose_fragment("burst/portlet_visualization_template")
     def check_status_for_visualizer(self, selected_tab, index_in_tab, width='800', height='600'):
         """
         This call is used to check on a regular basis if the data for a certain portlet is 
@@ -461,8 +447,7 @@ class BurstController(BaseController):
         return template_dict
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def reset_burst(self):
         """
         Called when click on "New Burst" entry happens from UI.
@@ -474,7 +459,7 @@ class BurstController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
+    @handle_error(redirect=False)
     def copy_burst(self, burst_id):
         """
         When currently selected entry is a valid Burst, create a clone of that Burst.
@@ -487,8 +472,7 @@ class BurstController(BaseController):
         return base_burst.name
 
 
-    @cherrypy.expose
-    @using_template("burst/base_portlets_iframe")
+    @expose_fragment("burst/base_portlets_iframe")
     def launch_visualization(self, index_in_tab, frame_width, frame_height, method_name="generate_preview"):
         """
         Launch the visualization for this tab and index in tab. The width and height represent the maximum of the inner 
@@ -507,8 +491,7 @@ class BurstController(BaseController):
         return result
 
 
-    @cherrypy.expose
-    @using_template("flow/genericAdapterFormFields")
+    @expose_fragment("flow/genericAdapterFormFields")
     def configure_simulator_parameters(self):
         """
         Return the required input tree to generate the simulator interface for
@@ -531,8 +514,7 @@ class BurstController(BaseController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template("flow/genericAdapterFormFields")
+    @expose_fragment("flow/genericAdapterFormFields")
     def get_reduced_simulator_interface(self):
         """
         Get a simulator interface that only contains the inputs that are marked
@@ -557,8 +539,7 @@ class BurstController(BaseController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def get_previous_selected_rangers(self):
         """
         Retrieve Rangers, if any previously selected in Burst.
@@ -571,8 +552,7 @@ class BurstController(BaseController):
         return [first_range, second_range]
 
 
-    @cherrypy.expose
-    @ajax_call()
+    @expose_json
     def save_simulator_configuration(self, exclude_ranges, **data):
         """
         :param exclude_ranges: should be a boolean value. If it is True than the
@@ -603,11 +583,10 @@ class BurstController(BaseController):
                 burst_config.update_simulation_parameter(entry, data[checkbox_for_entry], KEY_PARAMETER_CHECKED)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
-    @context_selected()
+
+    @expose_page
+    @context_selected
+    @settings
     def launch_full_visualizer(self, index_in_tab):
         """
         Launch the full scale visualizer from a small preview from the burst cockpit.

@@ -39,8 +39,8 @@ from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.flow_service import FlowService
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
 from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_json
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.interfaces.web.entities.context_noise_configuration import ContextNoiseParameters
 
@@ -58,9 +58,7 @@ class NoiseConfigurationController(SpatioTemporalController):
         SpatioTemporalController.__init__(self)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def edit_noise_parameters(self):
         """
         Main method, to initialize Model-Parameter visual-set.
@@ -82,10 +80,8 @@ class NoiseConfigurationController(SpatioTemporalController):
         template_specification['displayDefaultSubmitBtn'] = True
         return self.fill_default_attributes(template_specification)
     
-    
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+
+    @expose_json
     def update_noise_configuration(self, **data):
         """
         Updates the specified model parameter for the first node from the 'connectivity_node_indexes'
@@ -101,9 +97,7 @@ class NoiseConfigurationController(SpatioTemporalController):
                                                                 noise_values[model_param_idx])
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def load_initial_values(self):
         """
         Returns a json with the current noise configuration.
@@ -112,9 +106,7 @@ class NoiseConfigurationController(SpatioTemporalController):
         return context_noise_config.noise_values
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def load_noise_values_for_connectivity_node(self, connectivity_index):
         """
         Gets currently configured noise parameters for the specified connectivity node
@@ -127,9 +119,7 @@ class NoiseConfigurationController(SpatioTemporalController):
         return node_values
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def copy_configuration(self, from_node, to_nodes):
         """
         Loads a noise configuration from ``from_node`` and copies that to all
@@ -145,9 +135,8 @@ class NoiseConfigurationController(SpatioTemporalController):
         common.add2session(KEY_CONTEXT_NC, context_model_parameters)
         return context_model_parameters.noise_values
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+
+    @expose_json
     def submit_noise_configuration(self):
         """
         Collects the model parameters values from all the models used for the connectivity nodes.

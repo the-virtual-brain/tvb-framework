@@ -43,7 +43,7 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.transient.context_stimulus import SurfaceStimulusContext, SURFACE_PARAMETER
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_json, expose_fragment
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import PARAM_SURFACE
 
@@ -132,10 +132,7 @@ class SurfaceStimulusController(SpatioTemporalController):
                 return self.step_2()
             return self.step_1()
 
-
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def step_1_submit(self, next_step, do_reset=0, **kwargs):
         """
         Any submit from the first step should be handled here. Update the context then
@@ -151,9 +148,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         return self.do_step(next_step)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def step_2_submit(self, next_step, **kwargs):
         """
         Any submit from the second step should be handled here. Update the context and then do 
@@ -189,9 +184,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         return True
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def load_surface_stimulus(self, surface_stimulus_gid, from_step):
         """
         Loads the interface for the selected surface stimulus.
@@ -230,9 +223,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         return self.do_step(from_step)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def reload_default(self, from_step):
         """
         Just reload default data as if stimulus is None. 
@@ -249,9 +240,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         return self.do_step(1)
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def view_stimulus(self, focal_points):
         """
         Just create the stimulus to view the actual data, don't store to db.
@@ -310,9 +299,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         return super(SurfaceStimulusController, self).fill_default_attributes(template_specification,
                                                                               subsection='surfacestim')
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def get_stimulus_chunk(self, chunk_idx):
         """
         Get the next chunk of the stimulus data.
@@ -329,9 +316,7 @@ class SurfaceStimulusController(SpatioTemporalController):
         return data
 
 
-    @cherrypy.expose
-    @using_template('spatial/equation_displayer')
-    @logged()
+    @expose_fragment('spatial/equation_displayer')
     def get_temporal_equation_chart(self, **form_data):
         """
         Returns the html which contains the chart in which
@@ -361,9 +346,7 @@ class SurfaceStimulusController(SpatioTemporalController):
             return {'allSeries': None, 'errorMsg': ex.message}
 
 
-    @cherrypy.expose
-    @using_template('spatial/equation_displayer')
-    @logged()
+    @expose_fragment('spatial/equation_displayer')
     def get_spatial_equation_chart(self, **form_data):
         """
         Returns the HTML which contains the chart in which

@@ -55,7 +55,7 @@ from tvb.core.services.project_service import ProjectService
 from tvb.core.services.import_service import ImportService
 from tvb.core.services.exceptions import ServicesBaseException, ProjectServiceException
 from tvb.core.services.exceptions import RemoveDataTypeException, RemoveDataTypeError
-from tvb.interfaces.web.controllers.decorators import settings, using_template, ajax_call, logged
+from tvb.interfaces.web.controllers.decorators import settings, check_user, handle_error, expose_page, expose_json, expose_fragment
 from tvb.interfaces.web.entities.context_overlay import OverlayTabDefinition
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
@@ -77,10 +77,8 @@ class ProjectController(BaseController):
         self.import_service = ImportService()
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
+    @expose_page
+    @settings
     def index(self):
         """
         Display project main-menu. Choose one project to work with.
@@ -92,10 +90,8 @@ class ProjectController(BaseController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
+    @expose_page
+    @settings
     def viewall(self, create=False, page=1, selected_project_id=None, **_):
         """
         Display all existent projects. Choose one project to work with.
@@ -122,9 +118,7 @@ class ProjectController(BaseController):
         return self.fill_default_attributes(template_specification, 'list')
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def projectupload(self, **data):
         """Upload Project from TVB ZIP."""
         self.logger.debug("Uploading ..." + str(data))
@@ -162,10 +156,8 @@ class ProjectController(BaseController):
             self._mark_selected(saved_project)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
+    @expose_page
+    @settings
     def editone(self, project_id=None, cancel=False, save=False, delete=False, **data):
         """
         Create or change Project. When project_id is empty we create a 
@@ -217,9 +209,7 @@ class ProjectController(BaseController):
         return self.fill_default_attributes(template_specification, 'properties')
 
 
-    @cherrypy.expose
-    @using_template('project/project_members')
-    @logged()
+    @expose_fragment('project/project_members')
     def getmemberspage(self, page, project_id=None):
         """Retrieve a new page of Project members."""
         current_name = common.get_logged_user().username
@@ -232,9 +222,7 @@ class ProjectController(BaseController):
                     usersCurrentPage=page, editUsersEnabled=edit_enabled)
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def set_visibility(self, entity_type, entity_gid, to_de_relevant):
         """
         Method used for setting the relevancy/visibility on a DataType(Group)/Operation(Group.
@@ -253,10 +241,8 @@ class ProjectController(BaseController):
             self.project_service.set_datatype_visibility(entity_gid, eval(to_de_relevant))
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
+    @expose_page
+    @settings
     def viewoperations(self, project_id=None, page=1, filtername=None, reset_filters=None):
         """
         Display table of operations for a given project selected
@@ -296,9 +282,7 @@ class ProjectController(BaseController):
         return self.fill_default_attributes(template_specification, 'operations')
     
     
-    @cherrypy.expose
-    @using_template("call_out_project")
-    @logged()
+    @expose_fragment("call_out_project")
     def generate_call_out_control(self):
         """
         Returns the content of a confirmation dialog, with a given question. 
@@ -323,12 +307,10 @@ class ProjectController(BaseController):
             return new_filters
 
 
-    @cherrypy.expose
-    @using_template("overlay_confirmation")
-    @logged()
+    @expose_fragment("overlay_confirmation")
     def show_confirmation_overlay(self, **data):
         """
-        Returns the content of a confirmation dialog, with a given question. 
+        Returns the content of a confirmation dialog, with a given question.
         """
         if not data:
             data = {}
@@ -337,9 +319,7 @@ class ProjectController(BaseController):
         return self.fill_default_attributes(data)
     
 
-    @cherrypy.expose
-    @using_template("overlay")
-    @logged()
+    @expose_fragment("overlay")
     def get_datatype_details(self, entity_gid, back_page='burst', exclude_tabs=None):
         """
         Returns the HTML which contains the details for the given dataType.
@@ -423,7 +403,7 @@ class ProjectController(BaseController):
             tabs.append(OverlayTabDefinition("Export", "export", enabled=(exporters and len(exporters) > 0)))
             overlay_indexes.append(4)
         if "Resulted Datatypes" not in exclude_tabs:
-            tabs.append(OverlayTabDefinition("Resulted Datatypes", "result_dts", 
+            tabs.append(OverlayTabDefinition("Resulted Datatypes", "result_dts",
                                              enabled=self.project_service.count_datatypes_generated_from(entity_gid)))
             overlay_indexes.append(5)
         template_specification = self.fill_overlay_attributes(template_specification, "DataType Details",
@@ -454,9 +434,7 @@ class ProjectController(BaseController):
         return algorithms
 
 
-    @cherrypy.expose
-    @using_template('project/linkable_projects')
-    @logged()
+    @expose_fragment('project/linkable_projects')
     def get_linkable_projects(self, datatype_id, is_group, entity_gid):
         """
         Returns the HTML which displays the link-able projects for the given dataType
@@ -481,9 +459,7 @@ class ProjectController(BaseController):
         return template_specification
 
 
-    @cherrypy.expose
-    @using_template("overlay")
-    @logged()
+    @expose_fragment("overlay")
     def get_operation_details(self, entity_gid, is_group=False, back_page='burst'):
         """
         Returns the HTML which contains the details for the given operation.
@@ -543,10 +519,8 @@ class ProjectController(BaseController):
         return template_specification
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @settings()
-    @logged()
+    @expose_page
+    @settings
     def editstructure(self, project_id=None, last_selected_tab="treeTab", first_level=DataTypeMetaData.KEY_STATE,
                       second_level=DataTypeMetaData.KEY_SUBJECT, filter_input="", visibility_filter=None, **_ignored):
         """
@@ -566,9 +540,7 @@ class ProjectController(BaseController):
         return self.fill_default_attributes(template_specification, 'data')
 
 
-    @cherrypy.expose
-    @using_template("overlay")
-    @logged()
+    @expose_fragment("overlay")
     def get_data_uploader_overlay(self, project_id):
         """
         Returns the html which displays a dialog which allows the user
@@ -595,9 +567,8 @@ class ProjectController(BaseController):
 
         return flow_controller.fill_default_attributes(template_specification)
 
-    @cherrypy.expose
-    @using_template("overlay")
-    @logged()
+
+    @expose_fragment("overlay")
     def get_project_uploader_overlay(self):
         """
         Returns the html which displays a dialog which allows the user
@@ -610,9 +581,7 @@ class ProjectController(BaseController):
         return FlowController().fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_json
     def launchloader(self, project_id, algo_group_id, cancel=False, **data):
         """ 
         Start Upload mechanism
@@ -638,8 +607,8 @@ class ProjectController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def readprojectsforlink(self, data_id, return_both=False):
         """ For a given user return a dictionary in form {project_ID: project_Name}. """
         for_link, linked = self.project_service.get_linkable_projects_for_user(common.get_logged_user().id, data_id)
@@ -663,7 +632,8 @@ class ProjectController(BaseController):
 
 
     @cherrypy.expose
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def readjsonstructure(self, project_id, visibility_filter=StaticFiltersFactory.FULL_VIEW,
                           first_level="Data_State", second_level="Data_Subject", filter_value=None):
         """
@@ -684,7 +654,8 @@ class ProjectController(BaseController):
 
 
     @cherrypy.expose
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def createlink(self, link_data, project_id, is_group):
         """
         Delegate the creation of the actual link to the flow service.
@@ -702,7 +673,8 @@ class ProjectController(BaseController):
 
 
     @cherrypy.expose
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def removelink(self, link_data, project_id, is_group):
         """
         Delegate the creation of the actual link to the flow service.
@@ -719,7 +691,8 @@ class ProjectController(BaseController):
 
 
     @cherrypy.expose
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def noderemove(self, project_id, node_gid):
         """
         AJAX exposed method, to execute operation of data removal.
@@ -745,7 +718,8 @@ class ProjectController(BaseController):
 
 
     @cherrypy.expose
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def updatemetadata(self, **data):
         """ Submit MetaData edited for DataType(Group) or Operation(Group). """
         try:
@@ -760,7 +734,8 @@ class ProjectController(BaseController):
 
 
     @cherrypy.expose
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def downloaddata(self, data_gid, export_module):
         """ Export the data to a default path of TVB_STORAGE/PROJECTS/project_name """
         current_prj = common.get_current_project()
@@ -778,7 +753,8 @@ class ProjectController(BaseController):
 
 
     @cherrypy.expose
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def downloadproject(self, project_id):
         """
         Export the data from a whole project.
@@ -797,7 +773,8 @@ class ProjectController(BaseController):
     #methods related to data structure - graph
 
     @cherrypy.expose
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def create_json(self, item_gid, item_type, visibility_filter):
         """
         Method used for creating a JSON representation of a graph.

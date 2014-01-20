@@ -29,50 +29,23 @@
 #
 
 from functools import wraps
+import os
 import json
 import cherrypy
 from genshi.template import TemplateLoader
-import os
-from tvb.basic.config.settings import TVBSettings as cfg, TVBSettings
+from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
 from tvb.core.services.settings_service import SettingsService
 from tvb.interfaces.web.controllers import common
 
+# some of these decorators could be cherrypy tools
 
-def settings():
-    """
-    Decorator to check if a the settings file exists before allowing access
-    to some parts of TVB.
-    """
-    def dec(func):
-
-        @wraps(func)
-        def deco(*a, **b):
-            if not SettingsService.is_first_run():
-                return func(*a, **b)
-            raise cherrypy.HTTPRedirect('/settings/settings')
-
-        return deco
-    return dec
-
-
-def profile(template_path, func, *a, **b):
-    """
-    Wrapping function, used when profiling.
-    We duplicate the code here, in a separate function, to help profiling,
-    but for the runtime process we do not want a separate call, to increase time.
-    """
-    template_dict = func(*a, **b)
-    ### Generate HTML given the path to the template and the data dictionary.
-    loader = TemplateLoader()
-    template = loader.load(template_path)
-    stream = template.generate(**template_dict)
-    return stream.render('xhtml')
+_LOGGER_NAME = "tvb.interface.web.controllers.base_controller"
 
 
 def using_template(template_name):
     """
-    Decorator to check if a user is logged before accessing a controller method.
+    Decorator that renders a template
     """
     template_path = os.path.join(cfg.TEMPLATE_ROOT, template_name + '.html')
 
@@ -80,108 +53,187 @@ def using_template(template_name):
 
         @wraps(func)
         def deco(*a, **b):
-            try:
-                ## Un-comment bellow for profiling each request:
-                #import cherrypy.lib.profiler as profiler
-                #p = profiler.Profiler("/Users/lia.domide/TVB/profiler/")
-                #return p.run(profile, template_path, func, *a, **b)
-
-                template_dict = func(*a, **b)
-                if not cfg.RENDER_HTML:
-                    return template_dict
-                    ### Generate HTML given the path to the template and the data dictionary.
-                loader = TemplateLoader()
-                template = loader.load(template_path)
-                stream = template.generate(**template_dict)
-                return stream.render('xhtml')
-            except Exception, excep:
-                if isinstance(excep, cherrypy.HTTPRedirect):
-                    raise
-                get_logger("tvb.interface.web.controllers.base_controller").exception(excep)
-                common.set_error_message("An unexpected exception appeared. Please contact your system administrator.")
-                raise cherrypy.HTTPRedirect("/tvb?error=True")
+            template_dict = func(*a, **b)
+            if not cfg.RENDER_HTML:
+                return template_dict
+            ### Generate HTML given the path to the template and the data dictionary.
+            loader = TemplateLoader()
+            template = loader.load(template_path)
+            stream = template.generate(**template_dict)
+            return stream.render('xhtml')
 
         return deco
     return dec
 
 
-def ajax_call(json_form=True):
+def jsonify(func):
     """
     Decorator to wrap all JSON calls, and log on server in case of an exception.
     """
-    def dec(func):
 
+    @wraps(func)
+    def deco(*a, **b):
+        result = func(*a, **b)
+        return json.dumps(result)
+
+    return deco
+
+
+def handle_error(redirect):
+    """
+    If `redirect` is true(default) all errors will generate redirects.
+    Generic errors will redirect to the error page. Authentication errors to login pages.
+    If `redirect` is false redirect will be converted to errors http 500
+    All errors are logged
+    Redirect false is used by ajax calls
+    """
+    # this offers some context if not already present in the logs
+    # def _reql():
+    #     return ' when calling \n' + cherrypy.request.request_line
+
+    def dec(func):
         @wraps(func)
         def deco(*a, **b):
             try:
-                result = func(*a, **b)
-                if json_form:
-                    return json.dumps(result)
-                return result
 
-            except Exception, excep:
-                if isinstance(excep, cherrypy.HTTPRedirect):
+                return func(*a, **b)
+
+            except common.NotAllowed as ex:
+                log = get_logger(_LOGGER_NAME)
+                log.error(str(ex))
+
+                if redirect:
+                    common.set_error_message(str(ex))
+                    raise cherrypy.HTTPRedirect(ex.redirect_url)
+                else:
+                    raise cherrypy.HTTPError(ex.status, str(ex))
+
+            except cherrypy.HTTPRedirect as ex:
+                if redirect:
                     raise
-                logger = get_logger("tvb.interface.web.controllers.base_controller")
-                logger.error("Encountered exception when calling asynchronously :" + str(func))
-                logger.exception(excep)
-                raise
+                else:
+                    log = get_logger(_LOGGER_NAME)
+                    log.warn('Redirect converted to error: ' + str(ex))
+                    # should we do this? Are browsers following redirects in ajax?
+                    raise cherrypy.HTTPError(500, str(ex))
+
+            except Exception:
+                log = get_logger(_LOGGER_NAME)
+                log.exception('An unexpected exception appeared')
+
+                if redirect:
+                    common.set_error_message("An unexpected exception appeared. Please contact your system administrator.")
+                    raise cherrypy.HTTPRedirect("/tvb?error=True")
+                else:
+                    raise
 
         return deco
     return dec
 
 
-def logged():
+def check_user(func):
     """
     Decorator to check if a user is logged before accessing a controller method.
     """
-    def dec(func):
 
-        @wraps(func)
-        def deco(*a, **b):
-            if hasattr(cherrypy, common.KEY_SESSION):
-                if common.get_logged_user():
-                    return func(*a, **b)
+    @wraps(func)
+    def deco(*a, **b):
+        if hasattr(cherrypy, common.KEY_SESSION):
+            if common.get_logged_user():
+                return func(*a, **b)
+        raise common.NotAuthenticated('Login Required!', redirect_url='/user')
 
-            common.set_error_message('Login Required!')
-            raise cherrypy.HTTPRedirect('/user')
-
-        return deco
-    return dec
+    return deco
 
 
-def admin():
+def check_admin(func):
     """
     Decorator to check if a user is administrator before accessing a controller method
     """
-    def dec(func):
+    @wraps(func)
+    def deco(*a, **b):
+        if hasattr(cherrypy, common.KEY_SESSION):
+            user = common.get_logged_user()
+            if user is not None and user.is_administrator() or SettingsService.is_first_run():
+                return func(*a, **b)
+        raise common.NotAuthenticated('Only Administrators can access this application area!', redirect_url='/tvb')
 
-        @wraps(func)
-        def deco(*a, **b):
-            if hasattr(cherrypy, common.KEY_SESSION):
-                user = common.get_logged_user()
-                if (user is not None and user.is_administrator()) or SettingsService.is_first_run():
-                    return func(*a, **b)
-            common.set_error_message('Only Administrators can access this application area!')
-            raise cherrypy.HTTPRedirect('/tvb')
-
-        return deco
-    return dec
+    return deco
 
 
-def context_selected():
+def context_selected(func):
     """
     Decorator to check if a project is currently selected.
     """
-    def dec(func):
 
-        @wraps(func)
-        def deco(*a, **b):
-            if hasattr(cherrypy, common.KEY_SESSION):
-                if common.KEY_PROJECT in cherrypy.session:
-                    return func(*a, **b)
-            common.set_error_message('You should first select a Project!')
-            raise cherrypy.HTTPRedirect('/project/viewall')
+    @wraps(func)
+    def deco(*a, **b):
+        if hasattr(cherrypy, common.KEY_SESSION):
+            if common.KEY_PROJECT in cherrypy.session:
+                return func(*a, **b)
+        raise common.NotAllowed('You should first select a Project!', redirect_url='/project/viewall')
 
-        return deco
-    return dec
+    return deco
+
+
+def settings(func):
+    """
+    Decorator to check if a the settings file exists before allowing access
+    to some parts of TVB.
+    """
+
+    @wraps(func)
+    def deco(*a, **b):
+        if not SettingsService.is_first_run():
+            return func(*a, **b)
+        raise common.NotAllowed('You should first set up tvb', redirect_url='/settings/settings')
+
+    return deco
+
+
+def expose_page(func):
+    """
+    Equivalent to
+    @cherrypy.expose
+    @handle_error(redirect=True)
+    @using_template2('base_template')
+    @check_user
+    """
+    func = check_user(func)
+    func = using_template('base_template')(func)
+    func = handle_error(redirect=True)(func)
+    func = cherrypy.expose(func)
+    return func
+
+
+def expose_fragment(template_name):
+    """
+    Equivalent to
+    @cherrypy.expose
+    @handle_error(redirect=False)
+    @using_template2(template)
+    @check_user
+    """
+    def deco(func):
+        func = check_user(func)
+        func = using_template(template_name)(func)
+        func = handle_error(redirect=False)(func)
+        func = cherrypy.expose(func)
+        return func
+
+    return deco
+
+
+def expose_json(func):
+    """
+    Equivalent to
+    @cherrypy.expose
+    @handle_error(redirect=False)
+    @jsonify
+    @check_user
+    """
+    func = check_user(func)
+    func = jsonify(func)
+    func = handle_error(redirect=False)(func)
+    func = cherrypy.expose(func)
+    return func

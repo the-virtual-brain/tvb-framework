@@ -33,17 +33,19 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
-import cherrypy
 import json
+
+import cherrypy
 
 from tvb.datatypes.surfaces import LocalConnectivity
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
 from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.decorators import check_user, handle_error, expose_fragment, expose_page, expose_json
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.transient.context_local_connectivity import ContextLocalConnectivity
+
 
 NO_OF_CUTOFF_POINTS = 20
 
@@ -66,9 +68,7 @@ class LocalConnectivityController(SpatioTemporalController):
         self.plotted_equations_prefixes = ['equation', 'surface']
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def step_1(self, do_reset=0, **kwargs):
         """
         Generate the html for the first step of the local connectivity page. 
@@ -99,9 +99,8 @@ class LocalConnectivityController(SpatioTemporalController):
         template_specification['displayedMessage'] = msg
         return self.fill_default_attributes(template_specification)
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+
+    @expose_page
     def step_2(self, **kwargs):
         """
         Generate the html for the second step of the local connectivity page.
@@ -148,8 +147,8 @@ class LocalConnectivityController(SpatioTemporalController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def create_local_connectivity(self, **kwargs):
         """
         Used for creating and storing a local connectivity.
@@ -165,8 +164,8 @@ class LocalConnectivityController(SpatioTemporalController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def load_local_connectivity(self, local_connectivity_gid, from_step=None):
         """
         Loads the interface for an existing local connectivity.
@@ -182,8 +181,8 @@ class LocalConnectivityController(SpatioTemporalController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def reset_local_connectivity(self, from_step):
         """
         Reset the context and reset to the first step. This method is called when the None entry is
@@ -260,9 +259,7 @@ class LocalConnectivityController(SpatioTemporalController):
         return template_dictionary
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def compute_data_for_gradient_view(self, local_connectivity_gid, selected_triangle):
         """
         When the user loads an existent local connectivity and he picks a vertex from the used surface, this
@@ -320,9 +317,7 @@ class LocalConnectivityController(SpatioTemporalController):
         return series
 
 
-    @cherrypy.expose
-    @using_template('spatial/equation_displayer')
-    @logged()
+    @expose_fragment('spatial/equation_displayer')
     def get_equation_chart(self, **form_data):
         """
         Returns the html which contains the plot with the equations

@@ -176,7 +176,20 @@ def get_current_project():
     return get_from_session(KEY_PROJECT)
 
 
-class NotAuthenticated(TVBException):
+class NotAllowed(TVBException):
+    """
+    Raised when accessing a resource is not allowed
+    """
+    def __init__(self, message, redirect_url):
+        TVBException.__init__(self, message)
+        self.redirect_url = redirect_url
+        self.status = 403
+
+
+class NotAuthenticated(NotAllowed):
     """
     Raised when accessing a protected method with no user logged in
     """
+    def __init__(self, message, redirect_url):
+        NotAllowed.__init__(self, message, redirect_url)
+        self.status = 401

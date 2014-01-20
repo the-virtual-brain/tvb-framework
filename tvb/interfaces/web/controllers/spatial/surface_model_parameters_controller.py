@@ -43,8 +43,8 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.abcadapter import KEY_EQUATION, KEY_FOCAL_POINTS
 from tvb.datatypes import equations
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged
 from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import PARAMS_MODEL_PATTERN
 from tvb.interfaces.web.entities.context_model_parameters import SurfaceContextModelParameters, EquationDisplayer
@@ -70,9 +70,7 @@ class SurfaceModelParametersController(SpatioTemporalController):
         self.plotted_equations_prefixes = ['model_param', 'min_x', 'max_x']
 
 
-    @cherrypy.expose
-    @using_template('base_template')
-    @logged()
+    @expose_page
     def edit_model_parameters(self):
         """
         Main method, to initialize Model-Parameter visual-set.
@@ -94,9 +92,7 @@ class SurfaceModelParametersController(SpatioTemporalController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template('spatial/model_param_surface_left')
-    @logged()
+    @expose_fragment('spatial/model_param_surface_left')
     def apply_equation(self, **kwargs):
         """
         Applies an equations for computing a model parameter.
@@ -114,9 +110,7 @@ class SurfaceModelParametersController(SpatioTemporalController):
         return self.fill_default_attributes(template_specification)
 
 
-    @cherrypy.expose
-    @using_template('spatial/model_param_surface_focal_points')
-    @logged()
+    @expose_fragment('spatial/model_param_surface_focal_points')
     def apply_focal_point(self, model_param, triangle_index):
         """
         Adds the given focal point to the list of focal points specified for
@@ -133,9 +127,7 @@ class SurfaceModelParametersController(SpatioTemporalController):
         return template_specification
 
 
-    @cherrypy.expose
-    @using_template('spatial/model_param_surface_focal_points')
-    @logged()
+    @expose_fragment('spatial/model_param_surface_focal_points')
     def remove_focal_point(self, model_param, vertex_index):
         """
         Removes the given focal point from the list of focal points specified for
@@ -147,9 +139,7 @@ class SurfaceModelParametersController(SpatioTemporalController):
                 'focal_points_json': json.dumps(context_model_parameters.get_focal_points_for_parameter(model_param))}
 
 
-    @cherrypy.expose
-    @using_template('spatial/model_param_surface_focal_points')
-    @logged()
+    @expose_fragment('spatial/model_param_surface_focal_points')
     def get_focal_points(self, model_param):
         """
         Returns the html which displays the list of focal points selected for the
@@ -160,9 +150,7 @@ class SurfaceModelParametersController(SpatioTemporalController):
                 'focal_points_json': json.dumps(context_model_parameters.get_focal_points_for_parameter(model_param))}
 
 
-    @cherrypy.expose
-    @ajax_call()
-    @logged()
+    @expose_json
     def submit_model_parameters(self):
         """
         Collects the model parameters values from all the models used for the surface vertices.
@@ -286,9 +274,7 @@ class SurfaceModelParametersController(SpatioTemporalController):
         return template_dictionary
 
 
-    @cherrypy.expose
-    @using_template('spatial/equation_displayer')
-    @logged()
+    @expose_fragment('spatial/equation_displayer')
     def get_equation_chart(self, **form_data):
         """
         Returns the html which contains the plot with the equation selected by the user for a certain model param.

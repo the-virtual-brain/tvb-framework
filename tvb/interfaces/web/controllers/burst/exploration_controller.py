@@ -41,7 +41,7 @@ from tvb.core.services.project_service import ProjectService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.transient.filtering import FilterChain
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call
+from tvb.interfaces.web.controllers.decorators import handle_error, expose_fragment
 from tvb.interfaces.web.controllers.base_controller import BaseController
 
 
@@ -64,7 +64,7 @@ class ParameterExplorationController(BaseController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
+    @handle_error(redirect=False)
     def get_default_pse_viewer(self, datatype_group_gid):
         """
         For a given DataTypeGroup, check first if the discrete PSE is compatible.
@@ -98,8 +98,7 @@ class ParameterExplorationController(BaseController):
         return False
 
 
-    @cherrypy.expose
-    @using_template('visualizers/pse_discrete/burst_preview')
+    @expose_fragment('visualizers/pse_discrete/burst_preview')
     def draw_discrete_exploration(self, datatype_group_gid, back_page, color_metric=None, size_metric=None):
         """
         Create new data for when the user chooses to refresh from the UI.
@@ -126,8 +125,7 @@ class ParameterExplorationController(BaseController):
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
 
-    @cherrypy.expose
-    @using_template('visualizers/pse_isocline/burst_preview')
+    @expose_fragment('visualizers/pse_isocline/burst_preview')
     def draw_isocline_exploration(self, datatype_group_gid, width=None, height=None):
 
         if width is not None:
@@ -151,8 +149,7 @@ class ParameterExplorationController(BaseController):
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
 
-    @cherrypy.expose
-    @using_template('burst/burst_pse_error')
+    @expose_fragment('burst/burst_pse_error')
     def pse_error(self, adapter_name, message):
         return {'adapter_name': adapter_name, 'message': message}
 

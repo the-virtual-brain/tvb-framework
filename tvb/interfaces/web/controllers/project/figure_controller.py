@@ -44,7 +44,7 @@ from tvb.core import utils
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.figure_service import FigureService
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import using_template, ajax_call, logged, context_selected
+from tvb.interfaces.web.controllers.decorators import context_selected, check_user, handle_error, using_template
 from tvb.interfaces.web.controllers.project.project_controller import ProjectController
 
 
@@ -60,9 +60,9 @@ class FigureController(ProjectController):
 
 
     @cherrypy.expose
-    @ajax_call()
-    @logged()
-    @context_selected()
+    @handle_error(redirect=False)
+    @check_user
+    @context_selected
     def storeresultfigure(self, img_type, operation_id, **data):
         """Create preview for current displayed canvas and 
         store image in current session, for future comparison."""
@@ -72,9 +72,10 @@ class FigureController(ProjectController):
 
 
     @cherrypy.expose
-    @logged()
-    @context_selected()
+    @handle_error(redirect=True)
     @using_template('base_template')
+    @check_user
+    @context_selected
     def displayresultfigures(self, selected_session='all_sessions'):
         """ Collect and display saved previews, grouped by session."""
         project = common.get_current_project()
@@ -92,9 +93,9 @@ class FigureController(ProjectController):
 
 
     @cherrypy.expose
-    @ajax_call()
-    @logged()
-    @context_selected()
+    @handle_error(redirect=False)
+    @check_user
+    @context_selected
     def editresultfigures(self, remove_figure=False, rename_session=False, remove_session=False, **data):
         """
         This method knows how to handle the following actions:
@@ -167,8 +168,8 @@ class FigureController(ProjectController):
 
 
     @cherrypy.expose
-    @ajax_call(False)
-    @logged()
+    @handle_error(redirect=False)
+    @check_user
     def downloadimage(self, figure_id):
         """
         Allow a user to download a figure.
@@ -181,8 +182,9 @@ class FigureController(ProjectController):
 
 
     @cherrypy.expose
+    @handle_error(redirect=False)
     @using_template("overlay")
-    @logged()
+    @check_user
     def displayzoomedimage(self, figure_id):
         """
         Displays the image with the specified id in an overlay dialog.
