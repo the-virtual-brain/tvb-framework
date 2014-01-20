@@ -93,7 +93,7 @@ function STIM_saveWeightForSelectedNodes() {
         weightElement.val("");
         GFUNC_removeAllMatrixFromInterestArea();
         _refreshWeights();
-        $.ajax({
+        doAjaxCall({
         	async: false,
         	traditional: true,
         	type: 'POST',
@@ -110,7 +110,7 @@ function STIM_saveWeightForSelectedNodes() {
 function STIM_resetRegionStimulusWeights() {
     updatedRegionStimulusWeights = originalRegionStimulusWeights.slice(0);
     _refreshWeights();
-    $.ajax({
+    doAjaxCall({
         	async: false,
         	traditional: true,
         	type: 'POST',

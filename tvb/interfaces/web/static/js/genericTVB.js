@@ -33,7 +33,7 @@ function displayMessage(msg, className) {
     } else {
     	className = 'msg-transient msg-level-info';
     }
-    
+
     var messageDivParent = document.getElementById("messageDivParent");	
     if (messageDivParent) {
 	    messageDivParent.className = className;
@@ -51,7 +51,7 @@ function checkForIE() {
 	if (browserName=="Microsoft Internet Explorer") {
 	  	var msg = "Internet Explorer is not supported. Please use Google Chrome, Mozilla Firefox or Apple Safari.";
 	 	displayMessage(msg, 'errorMessage')
-	 }	
+	 }
 }
 
 function get_URL_param(param) {
@@ -100,9 +100,9 @@ function setUpKeyWatch(){
 	$(document.documentElement).keydown(function (event) {
 	  pressedKey = event.keyCode;
 	  return true;
-	});	
+	});
 }
-	
+
 function redirectToHrefChild(redirectPage) {
    if (pressedKey == 13) {
    		var children = redirectPage.children;
@@ -113,9 +113,9 @@ function redirectToHrefChild(redirectPage) {
 					break;
 				}
 			}
-	   } 
+	   }
  }
- 
+
 function fireOnClick(redirectElem) {
 	if (pressedKey == 13) {
 		redirectElem.onclick();
@@ -125,12 +125,14 @@ function fireOnClick(redirectElem) {
 
 // ---------- Function on the top left call-out
 function updateCallOutProject() {
-	$.ajax({ async : false,
-             type: 'GET',
-             url: "/project/generate_call_out_control/",
-             success: function(r) { $("#control_top_left").html(r); },
-             error:   function(r) { if (r) displayMessage(r,'errorMessage'); }
-            });
+    doAjaxCall({
+        async : false,
+        type: 'GET',
+        url: "/project/generate_call_out_control/",
+        success: function(r) {
+             $("#control_top_left").html(r);
+        }
+    });
 }
 
 
@@ -139,12 +141,12 @@ function includeAdapterInterface(divId, projectId, algorithmId, back_page) {
     // Populate in divId, the interface of the adapter, specified by algorihmId.
     // The interface will be automatically populated with dataTypes from projectId     
     var get_url = "/flow/getadapterinterface/"+ projectId+ "/" + algorithmId + '/' +back_page;
-    $.ajax({ async : false,
-             type: 'GET',
-             url: get_url,
-             success: function(r) { $("#"+ divId).html(r); },
-             error:   function(r) { if (r) displayMessage(r,'errorMessage'); }
-            });
+    doAjaxCall({
+        async : false,
+        type: 'GET',
+        url: get_url,
+        success: function(r) { $("#"+ divId).html(r); }
+    });
 }
 
 
@@ -153,14 +155,14 @@ function includeAdapterInterface(divId, projectId, algorithmId, back_page) {
  * in a {name : value} dictionary.
  */
 function getSubmitableData(inputDivId, allowDisabled) {
-	
+
 	var inputs = $("#" + inputDivId + " input");
 	var submitableData = {};
 	for (var ii = 0; ii < inputs.length; ii++) {
 		var thisInput = inputs[ii];
 		if (!allowDisabled && thisInput.disabled) {
 			continue
-		} 
+		}
 		if (thisInput.type != 'button') {
 			if (thisInput.type == 'checkbox') {
 				submitableData[thisInput.name] = thisInput.checked;
@@ -170,7 +172,7 @@ function getSubmitableData(inputDivId, allowDisabled) {
 				}
 			} else {
 				submitableData[thisInput.name] = thisInput.value;
-			}	
+			}
 		}
 	}
 	var selects = $("#" + inputDivId + " select");
@@ -208,14 +210,14 @@ function toggleMaximizeColumn(link, maximizeColumnId) {
 		}
 		link.innerHTML = "Minimize";
 		link.className = link.className.replace('action-zoom-in', 'action-zoom-out');
-		
+
 	} else {
 		minimizeColumn(link, maximizeColumnId);
 	}
 }
 
 function minimizeColumn(link, maximizeColumnId) {
-	
+
 	$("div[id='main']").each(function() {
 		$(this).removeClass('is-maximized');
 	});
@@ -246,16 +248,18 @@ function changeMembersPage(projectId, pageNo, divId, editEnabled) {
         if (projectId) {
             my_url = my_url + "/"+ projectId;
         }
-        $.ajax({async: false, 
-                type: 'GET',
-                url:  my_url,
-                success: function(r) {  $('span[class^="user_on_page_"]').hide(); 
-                                        $("#" + divId).append(r);
-                                        if (editEnabled) {  
-                                            document.getElementById("visitedPages").value = document.getElementById("visitedPages").value + "," + pageNo;
-                                        }
-                                      },
-                error: function(r) { if(r) displayMessage(r, 'errorMessage'); }});
+        doAjaxCall({
+            async: false,
+            type: 'GET',
+            url:  my_url,
+            success: function(r) {
+                $('span[class^="user_on_page_"]').hide();
+                $("#" + divId).append(r);
+                if (editEnabled) {
+                    $("#visitedPages").val(function(idx, val){return val + "," + pageNo});
+                }
+            }
+        });
     }
 }
 
@@ -274,45 +278,36 @@ function show_hide(show_class, hide_class) {
 /**
  * Function on the Settings page.
  */
+function _on_validation_finished(r){
+    r = $.parseJSON(r);
+    if (r['status'] == 'ok') {
+        displayMessage(r['message'], "infoMessage");
+    } else {
+        displayMessage(r['message'], "errorMessage");
+    }
+}
+
 function validateDb(db_url, tvb_storage){
 	var db_url_value = document.getElementById(db_url).value;
 	var storage = document.getElementById(tvb_storage).value;
-	$.ajax({ async : false,
+	doAjaxCall({
+        async : false,
         type: 'POST',
         url: "/settings/check_db_url",
         data: { URL_VALUE: db_url_value , TVB_STORAGE : storage},
-        success: function(r) {  
-        						r = $.parseJSON(r);
-        						if (r['status'] == 'ok') {				
-        							displayMessage(r['message'], "infoMessage");
-        						} else {
-        							displayMessage(r['message'], "errorMessage");
-        						}		
-        					  },
-		error: function() {
-			displayMessage("Some error occurred during method call.",'errorMessage');
-			}
+        success: _on_validation_finished
       });
 }
 
 function validateMatlabPath(matlab_path){
 	var matlab_path_value = document.getElementById(matlab_path).value;
-	$.ajax({ async : false,
+	doAjaxCall({
+        async : false,
         type: 'GET',
         url: "/settings/validate_matlab_path",
         data: { MATLAB_EXECUTABLE: matlab_path_value},
-        success: function(r) {  
-        						r = $.parseJSON(r);
-        						if (r['status'] == 'ok') {				
-        							displayMessage(r['message'], "infoMessage");
-        						} else {
-        							displayMessage(r['message'], "errorMessage");
-        						}		
-        					  },
-		error: function() {
-			displayMessage("Some error occurred during method call.",'errorMessage');
-			}
-      });
+        success: _on_validation_finished
+    });
 }
 
 function changeDBValue(selectComponent) {
@@ -322,9 +317,9 @@ function changeDBValue(selectComponent) {
     var correspondingTextField = document.getElementById('URL_VALUE');
     correspondingTextField.value = correspondingValue;
     if (selectedValue == 'sqlite') {
-    	correspondingTextField.setAttribute('readonly', 'readonly');	
+    	correspondingTextField.setAttribute('readonly', 'readonly');
     } else {
-    	correspondingTextField.removeAttribute('readonly'); 	
+    	correspondingTextField.removeAttribute('readonly');
     }
 }
 
@@ -402,20 +397,20 @@ function displayNodeDetails(entity_gid, entityType, backPage, excludeTabs) {
  * Close overlay and refresh backPage.
  */	
 function closeAndRefreshNodeDetailsOverlay(returnCode, backPage) {
-	
+
 	closeOverlay();
 	if (returnCode == 0) {
-		
+
 		if (backPage == 'operations') {
 			document.getElementById('operationsForm').submit();
-			
+
 		} else if (backPage == 'data') {
 			if ($("#lastVisibleTab").val() == GRAPH_TAB) {
 		    	update_workflow_graph('workflowCanvasDiv', TREE_lastSelectedNode, TREE_lastSelectedNodeType);
 		  	} else {
 		    	updateTree();
 		   }
-		    
+
 		} else if (backPage == 'burst') {
 			$("#tab-burst-tree")[0].onclick();
 		}
@@ -427,23 +422,21 @@ function closeAndRefreshNodeDetailsOverlay(returnCode, backPage) {
  * Used from DataType(Group) overlay to store changes in meta-data.
  */
 function overlaySubmitMetadata(formToSubmitId, backPage) {
-	
+
 	var submitableData = getSubmitableData(formToSubmitId, false);
-	$.ajax({ async : false,
-             type: 'POST',
-             url: "/project/updatemetadata",
-             data: submitableData,
-             success: function(r) {
-			                if (r) {
-			                    displayMessage(r, 'errorMessage');
-			                } else {
-			                    displayMessage("Data successfully stored!");
-			                    closeAndRefreshNodeDetailsOverlay(0, backPage);
-			                }
-             },
-             error:   function(r) {
-                			displayMessage(r, 'errorMessage');
-             }
+	doAjaxCall({
+        async : false,
+        type: 'POST',
+        url: "/project/updatemetadata",
+        data: submitableData,
+        success: function(r) {
+            if (r) {
+                displayMessage(r, 'errorMessage');
+			} else {
+			    displayMessage("Data successfully stored!");
+			    closeAndRefreshNodeDetailsOverlay(0, backPage);
+            }
+        }
      });
 }
 
@@ -452,23 +445,21 @@ function overlaySubmitMetadata(formToSubmitId, backPage) {
  * Used from DataType(Group) overlay to remove current entity.
  */
 function overlayRemoveEntity(projectId, dataGid, backPage) {
-    $.ajax({ async : false,
-             type: 'POST',
-             url: "/project/noderemove/" + projectId + "/" + dataGid,
-             success: function(r) {
-			                if (r) {
-			                    displayMessage(r, 'errorMessage');
-			                } else {
-			                    displayMessage("Node succesfully removed!");
-			                    TREE_lastSelectedNode = undefined;
-    							TREE_lastSelectedNodeType = undefined;
-			                    closeAndRefreshNodeDetailsOverlay(0, backPage);
-			                }
-             },
-             error:   function(r) {
+    doAjaxCall({
+        async : false,
+        type: 'POST',
+        url: "/project/noderemove/" + projectId + "/" + dataGid,
+        success: function(r) {
+            if (r) {
                 displayMessage(r, 'errorMessage');
-             }
-     });
+            } else {
+                displayMessage("Node succesfully removed!");
+                TREE_lastSelectedNode = undefined;
+                TREE_lastSelectedNodeType = undefined;
+                closeAndRefreshNodeDetailsOverlay(0, backPage);
+            }
+        }
+    });
 }
 
 
@@ -506,16 +497,17 @@ function overlayMarkVisibility(entityGID, entityType, toBeVisible, backPage) {
  */
 function _markEntityVisibility(entityGID, entityType, toBeVisible) {
 	var returnCode = 0;
-	$.ajax({ async: false, 
-			 type: 'POST',
-			 url: "/project/set_visibility/" + entityType+"/"+ entityGID+"/"+ toBeVisible,
-			 success: function() {
-			 	displayMessage("Visibility was changed.");
-			 },
-			 error: function() {
-			 	displayMessage("Error when trying to change visibility! Check logs...", "errorMessage");
-			 	returnCode = 1;
-			 }
+	doAjaxCall({
+        async: false,
+        type: 'POST',
+        url: "/project/set_visibility/" + entityType+"/"+ entityGID+"/"+ toBeVisible,
+        success: function() {
+            displayMessage("Visibility was changed.");
+        },
+        error: function() {
+            displayMessage("Error when trying to change visibility! Check logs...", "errorMessage");
+            returnCode = 1;
+        }
 	});
 	return returnCode;
 }
@@ -564,15 +556,20 @@ function _stopOperationsOrBurst(operationId, isGroup, isBurst, removeAfter) {
         urlBase += '/True';
     }
 
-    $.ajax({async: false,
-            type: 'POST',
-            url: urlBase,
-            success: function(r) {  if (r.toLowerCase() == 'true') {
-                                        displayMessage("The operation was successfully removed.", "infoMessage")
-                                    } else {
-                                        displayMessage("Could not remove operation.",'warningMessage');
-                                    }},
-            error: function() { displayMessage("Some error occurred while removing operation.",'errorMessage'); }
+    doAjaxCall({
+        async: false,
+        type: 'POST',
+        url: urlBase,
+        success: function(r) {
+            if (r.toLowerCase() == 'true') {
+                displayMessage("The operation was successfully removed.", "infoMessage")
+            } else {
+                displayMessage("Could not remove operation.",'warningMessage');
+            }
+        },
+        error: function() {
+            displayMessage("Some error occurred while removing operation.",'errorMessage');
+        }
     });
 }
 
@@ -699,7 +696,7 @@ function closeOverlay() {
  */
 function closeOverlayOnEsc(evt) {
     var evt_value = (evt) ? evt : ((event) ? event : null);
-	
+
 	// handle ESC key code
 	if (evt_value.keyCode == 27) {
 		closeOverlay();
@@ -716,7 +713,7 @@ function closeOverlayOnEsc(evt) {
  */
 function selectOverlayTab(tabId) {
 	var css_class = "active";
-	
+
     $("li[id^='overlayTab_']").each(function() {
         $(this).removeClass(css_class);
     });
@@ -740,8 +737,8 @@ function showOverlayProgress() {
 		var bodyElem = $('body');
 		bodyElem.unbind(_keyUpEvent, closeOverlayOnEsc);
 	}
-	
-	return false;	
+
+	return false;
 }
 
 // ---------------------------------------------------------
@@ -761,8 +758,8 @@ function showBlockerOverlay(timeout, overlay_data) {
 	_blockerOverlayCounter++;
 	if (_blockerOverlayCounter == 1) {
 		showOverlay("/showBlockerOverlay", false, overlay_data);
-		
-		// Ensure that overlay will close in 1 min 
+
+		// Ensure that overlay will close in 1 min
 		_blockerOverlayTimeout = setTimeout(forceCloseBlockerOverlay, timeout);
 	}
 }
@@ -800,7 +797,7 @@ function closeBlockerOverlay() {
 			_blockerOverlayTimeout = null;
 		}
 		closeOverlay();
-		
+
 		_blockerOverlayCounter = 0;
 	}
 }
@@ -819,7 +816,7 @@ function showHelpOverlay(section, subsection) {
 	if (subsection != null) {
 		url += "/" + subsection
 	}
-	
+
 	showOverlay(url, true);
 }
 
@@ -828,29 +825,25 @@ function showHelpOverlay(section, subsection) {
  * Function that opens a loading overlay until the file storage update is done.
  */
 function upgradeFileStorage() {
-	doAjaxCall({	
-					overlay_timeout: 60 * 1000 * 60 * 4, //Timeout of 4 hours
-					overlay_data: {'message_data': "Due to upgrade from pytables to h5py we need to update all your stored data. Please be patient and don't close TVB during the process."},
-	                type:'GET',
-	                url:'/user/upgrade_file_storage',
-	                success:function (data) {
-	                	var result = $.parseJSON(data);
-	                	var message = result['message'];
-	                	var status = result['status'];
-	                	if (message.length > 0) {
-	                		if (status == true) {
-	                			displayMessage(message, "infoMessage");
-	                		} else {
-	                			displayMessage(message, "errorMessage");
-	                		}
- 	                	}
-            			closeBlockerOverlay();
-	               },
-	               error:function () {
-            			closeBlockerOverlay();
-            			displayMessage("An unexpected error occurred during update.", 'errorMessage');
-	        		}
-	            });
+	doAjaxCall({
+        overlay_timeout: 60 * 1000 * 60 * 4, //Timeout of 4 hours
+        overlay_data: {'message_data': "Due to upgrade from pytables to h5py we need to update all your stored data. Please be patient and don't close TVB during the process."},
+        type:'GET',
+        url:'/user/upgrade_file_storage',
+        success:function (data) {
+            var result = $.parseJSON(data);
+            var message = result['message'];
+            var status = result['status'];
+            if (message.length > 0) {
+                if (status == true) {
+                    displayMessage(message, "infoMessage");
+                } else {
+                    displayMessage(message, "errorMessage");
+                }
+            }
+            closeBlockerOverlay();
+       }
+    });
 }
 
 
@@ -913,58 +906,59 @@ function displayFiguresForSession(selected_session) {
  * 		or Async. Default = true (asynchronous) 
  * - {function} success Function to be called for success
  * - {function} error Function to be called for error
- * - {bool} showBlockerOverlay if True will show blocker overlay until request is done. Default = true
+ * - {bool} showBlockerOverlay if True will show blocker overlay until request is done. Default = false
  */
 
 function doAjaxCall(params) {
 	params.type = checkArg(params.type, 'POST');
 	params.async = checkArg(params.async, true);
-	params.showBlockerOverlay = checkArg(params.showBlockerOverlay, true);
-	
-	if(showBlockerOverlay) {
+	params.showBlockerOverlay = checkArg(params.showBlockerOverlay, false);
+
+	if(params.showBlockerOverlay) {
 		// should execute async, otherwise overlay is not shown
 		params.async = true;
 		showBlockerOverlay(params.overlay_timeout, params.overlay_data);
 	}
 
-	var successFunc = function(result) {
-		if( typeof params.success != 'undefined') {
-			params.success(result);
-		}
-		if(showBlockerOverlay) {
+    function closeOverlay(){
+        if(params.showBlockerOverlay) {
 			closeBlockerOverlay();
 		}
-	};
+    }
 
-	var errorFunc = function(result) {
-		if(showBlockerOverlay) {
-			closeBlockerOverlay();
+	function onSuccess(data, textStatus, jqXHR) {
+		if( params.success != undefined) {
+		    params.success(data, textStatus, jqXHR);
 		}
-		if( typeof params.error != 'undefined') {
-			params.error(result);
+	}
+
+    function onError(jqXHR, textStatus, error){
+        if (jqXHR.status == 401) {
+            displayMessage('Your session has expired. Please log in.', 'errorMessage');
+        } else if (jqXHR.status == 303 ) {
+            //handle a redirect.
+            displayMessage(error, 'errorMessage');
+        } else if( params.error != undefined) {
+			params.error(jqXHR, textStatus, error);
 		} else {
-			if(result) {
-				displayMessage(result, 'errorMessage');
-			} else {
-				displayMessage("Error encountered on server.", 'errorMessage');
-			}
-		}
-	};
+            displayMessage(error, 'errorMessage');
+        }
+    }
 
 	// Do AJAX call
 	$.ajax({
 		url : params.url,
 		type : params.type,
 		async : params.async,
-		success : successFunc,
-		error : errorFunc,
+		success : [onSuccess, closeOverlay],
+		error : [onError, closeOverlay],
 		data : params.data,
 		cache : params.cache
 	});
 }
 
 function checkArg(arg, def) {
-	return ( typeof arg == 'undefined' ? def : arg);
+	return ( typeof arg === 'undefined' ? def : arg);
 }
 
 // -------------End AJAX Calls----------------------------------

@@ -208,7 +208,7 @@ function update_workflow_graph(containerDivId, nodeGid, nodeType) {
     TREE_lastSelectedNode = nodeGid;
     TREE_lastSelectedNodeType = nodeType;
     var visibilityFilter = _getSelectedVisibilityFilter();
-    $.ajax({    async : false,
+    doAjaxCall({    async : false,
                 type: 'GET',
                 url: '/project/create_json/' + nodeGid + "/" + nodeType + "/" + visibilityFilter,
                 success: function(data) {
@@ -360,7 +360,7 @@ function _draw_graph(containerDivId, json) {
 //-----------------------------------------------------------------------
 
 function createLink(dataId, projectId, isGroup) {
-	$.ajax({ async : false,
+	doAjaxCall({ async : false,
 		     type: 'GET',
 		     url: "/project/createlink/" + dataId +"/" + projectId + "/" + isGroup,
 		     success: function(r) {if(r) displayMessage(r,'warningMessage'); },
@@ -369,7 +369,7 @@ function createLink(dataId, projectId, isGroup) {
 }
 
 function removeLink(dataId, projectId, isGroup) {
-	$.ajax({ async : false,
+	doAjaxCall({ async : false,
 		     type: 'GET',
 		     url: "/project/removelink/" + dataId +"/" + projectId + "/" + isGroup,
 		     success: function(r) {if(r) displayMessage(r,'warningMessage'); },
@@ -378,7 +378,7 @@ function removeLink(dataId, projectId, isGroup) {
 }
 
 function updateLinkableProjects(datatype_id, isGroup, entity_gid) {
-    $.ajax({
+    doAjaxCall({
                 async : false,
                 type: 'GET',
                 url: "/project/get_linkable_projects/" + datatype_id + "/" + isGroup + "/" + entity_gid,

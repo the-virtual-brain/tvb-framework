@@ -193,7 +193,7 @@ function refreshData(parentDivId, divSufix, name, sessionStoredTreeKey, gathered
         return;
     }
     //Make a request to get new data
-    $.ajax({ async: false,
+    doAjaxCall({ async: false,
         type: 'GET',
         url: "/flow/getfiltereddatatypes/" + name + "/ " + parentDivId + '/' + sessionStoredTreeKey + '/' + $.toJSON(gatheredData),
         success: function (r) {

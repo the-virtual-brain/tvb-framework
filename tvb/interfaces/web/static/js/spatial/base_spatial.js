@@ -60,7 +60,7 @@ function BS_startSignalVisualization() {
         return;
     }
     LEG_generateLegendBuffers();
-    $.ajax({
+    doAjaxCall({
         async:false,
         type:'GET',
         url:'/spatial/stimulus/surface/view_stimulus?focal_points=' + JSON.stringify(BS_addedFocalPointsTriangles),
@@ -202,7 +202,7 @@ function BS_plotEquations(containerId, url, formDataId, fieldsPrefixes, axisData
 function _plotEquations(containerId, url, formDataId, axisDataId) {
     var formInputs = $("#" + formDataId).serialize();
     var axisData = $('#' + axisDataId).serialize();
-    $.ajax({
+    doAjaxCall({
         async:false,
         type:'GET',
         url:url + "?" + formInputs + ';' + axisData,

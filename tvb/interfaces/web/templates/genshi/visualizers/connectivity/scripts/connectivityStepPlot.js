@@ -502,7 +502,7 @@ function doZoomOutAnimation() {
 	for (var i = 0; i < plotTranslations.length; i++) {
 		animations.push(computeAnimationTranslations(plotTranslations[i], backupTranslations[i],
 													 plotRotations[i], backupRotations[i],
-													 alphaValue, backupAlphaValue, animationGranularity));	
+													 _alphaValue, backupAlphaValue, animationGranularity));
 	}
 	animationStep(0, animationGranularity, animations, false);
 }

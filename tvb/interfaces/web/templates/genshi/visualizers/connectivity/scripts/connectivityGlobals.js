@@ -287,7 +287,7 @@ function GFUNC_doSelectionSave() {
 		names.push(conSelections_select.options[i].text);
 	}
 	if (selectionName.length > 0) {
-		$.ajax({  	type: "POST", 
+		doAjaxCall({  	type: "POST",
 				url: '/flow/store_connectivity_selection/' + selectionName,
                 data: {"selection": GVAR_interestAreaNodeIndexes+'',
                 	   "labels": GVAR_pointsLabels+'',

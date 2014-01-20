@@ -79,7 +79,7 @@ function SEL_refreshSelectionTable() {
 
 function SEL_populateAvailableSelections() {
     var connectivityGid = $("#connectivityGid").val();
-	$.ajax({type: "POST",
+	doAjaxCall({type: "POST",
 			async: false, 
 			url: '/flow/get_available_selections',
 			data: {'con_selection': GVAR_baseSelection+'',

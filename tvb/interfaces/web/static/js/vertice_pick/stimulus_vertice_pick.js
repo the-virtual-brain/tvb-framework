@@ -131,7 +131,7 @@ function STIM_PICK_loadNextStimulusChunk() {
 	if ((currentChunkIdx + 1) * DATA_CHUNK_SIZE < (maxTime - minTime)) {
 		// We haven't reached the final chunk so just load it normally.
 		asyncLoadStarted = true;
-		$.ajax({
+		doAjaxCall({
 			        type:'GET',
 			        url:'/spatial/stimulus/surface/get_stimulus_chunk/' + (currentChunkIdx + 1),
 			        success:function (data) {

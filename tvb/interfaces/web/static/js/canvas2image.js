@@ -65,7 +65,7 @@ function __storeSVG(svgElement, operationId) {
         var styleAddedData = startingTag + svgStyle + restOfSvg;
 
         // send it to server
-        $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/svg/' + operationId,
+        doAjaxCall({  type: "POST", url: '/project/figure/storeresultfigure/svg/' + operationId,
             data: {"export_data": styleAddedData},
             success: function() {
                 displayMessage("Figure successfully saved!<br/> See Project section, Image archive sub-section.",
@@ -106,7 +106,7 @@ function __tryExport(canvas, operationId, remainingTrials) {
         var data = canvas.toDataURL("image/png");
 
         if (data)       // don't store empty images
-            $.ajax({  type: "POST", url: '/project/figure/storeresultfigure/png/' + operationId,
+            doAjaxCall({  type: "POST", url: '/project/figure/storeresultfigure/png/' + operationId,
                         data: {"export_data": data.replace('data:image/png;base64,', '')},
                         success: function() {
                             displayMessage("Figure successfully saved!<br/> See Project section, " +

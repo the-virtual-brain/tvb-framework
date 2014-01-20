@@ -718,7 +718,7 @@ function initBuffers(urlVertices, urlNormals, urlTriangles, urlAlphas, urlAlphas
 
 function initRegionBoundaries(boundariesURL) {
     if (boundariesURL) {
-        $.ajax({
+        doAjaxCall({
             url: boundariesURL,
             async: true,
             success: function(data) {
@@ -1145,7 +1145,7 @@ function readFileData(fileUrl, async, callIdentifier) {
     // async calls are started before the first one finishes.
     var self = this;
     self.callIdentifier = callIdentifier;
-    $.ajax({
+    doAjaxCall({
         url: fileUrl,
         async: async,
         success: function(data) {

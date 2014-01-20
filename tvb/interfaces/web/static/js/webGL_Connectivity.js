@@ -77,33 +77,27 @@ function HLPR_removeByElement(arrayName, arrayElement) {
  * When staticFiles = True, return without evaluating JSON from response.
  */
 function HLPR_readJSONfromFile(fileName, staticFiles) {
-    var oxmlhttp;
-    try {
-        oxmlhttp = new XMLHttpRequest();
-        oxmlhttp.overrideMimeType("text/plain");
-    } catch(e) {
-        try {
-            oxmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-        } catch(e) {
+    var fileData = null;
+
+    doAjaxCall({
+        async:false,
+        url:fileName,
+        methos:"GET",
+        mimeType:"text/plain",
+        success:function(r){
+            fileData = r;
         }
-    }
+    });
 
-    if (!oxmlhttp) return null;
-
-    try {
-        oxmlhttp.open("GET", fileName, false);
-        oxmlhttp.send(null);
-    } catch(e) {
+    if(!fileData){
         return null;
     }
 
-    var fileData = oxmlhttp.responseText;
-
     if (staticFiles) {
-    	fileData = fileData.replace(/\n/g, " ").replace(/\t/g, " ").replace(/    /g, " ").replace(/   /g, " ").replace(/  /g, " ").replace('[', '').replace(']', '');
-		return $.trim(fileData).split(" ");
+        fileData = fileData.replace(/[\r\n\t\[\]]/g, '');
+        return $.trim(fileData).split(/\s*,\s* /g);
     }else{
-        return jQuery.parseJSON(fileData);
+        return $.parseJSON(fileData);
     }
 }
 

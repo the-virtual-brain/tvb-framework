@@ -250,18 +250,19 @@ function AG_createYAxisDictionary(nr_channels) {
 
     if (AG_translationStep > 0) {
     	ticks = [];
+        var step = AG_computedStep * AG_translationStep;
 	    for (var i=0; i<nr_channels; i++) {
-	    	ticks.push([(i * AG_computedStep * AG_translationStep), chanDisplayLabels[displayedChannels[i]]]);
+	    	ticks.push([i * step, chanDisplayLabels[displayedChannels[i]]]);
 	    }
 	    yaxis_dict = {
-	    	min: - (AG_computedStep * AG_translationStep),
-	    	max: (nr_channels + 1) * AG_computedStep * AG_translationStep,
+	    	min: - step,
+	    	max: (nr_channels + 1) * step,
 	    	ticks: ticks,
 	    	zoomRange: [0.1, 20]
 	    };
-	    increment = ((nr_channels + 1) * AG_computedStep * AG_translationStep - AG_computedStep * AG_translationStep) / numberOfPointsForVerticalLine;
-	    for (var k= -(AG_computedStep * AG_translationStep); k<((nr_channels + 1) * AG_computedStep * AG_translationStep); k = k + increment) {
-	    	followingLine.push([0, k])
+	    increment = nr_channels * step / numberOfPointsForVerticalLine;
+	    for (var k= -step; k < (nr_channels + 1) * step; k += increment) {
+	    	followingLine.push([0, k]);
 	    }
     }
     else {
@@ -273,12 +274,12 @@ function AG_createYAxisDictionary(nr_channels) {
 	    	zoomRange: [0.1, 20]
 	    };
 	    increment = AG_computedStep / numberOfPointsForVerticalLine;
-	    for (var k= - AG_computedStep/2; k<AG_computedStep/2; k = k+increment) {
-	    	followingLine.push([0, k])
+	    for (var k= - AG_computedStep/2; k < AG_computedStep/2; k += increment) {
+	    	followingLine.push([0, k]);
 	    }
     }
-    AG_options['yaxis'] = yaxis_dict;
-    AG_homeViewYValues = [yaxis_dict['min'], yaxis_dict['max']];
+    AG_options.yaxis = yaxis_dict;
+    AG_homeViewYValues = [yaxis_dict.min, yaxis_dict.max];
     AG_defaultYaxis = yaxis_dict;
 }
 
@@ -933,7 +934,7 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
 
         AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileIndex, maxChannelLength, dataSetIndex + 1);
     } else {
-        $.ajax({
+        doAjaxCall({
             url: readDataPageURL(baseDataURLS[dataSetIndex], currentFileIndex * dataPageSize, (currentFileIndex + 1) * dataPageSize, tsStates[dataSetIndex], tsModes[dataSetIndex]),
             success: function(data) {
             	if (AG_isLoadStarted) {
@@ -985,7 +986,7 @@ function readTimeData(fileIndex, asyncRead) {
         isNextTimeDataLoaded = true;
     } else {
         if (asyncRead) {
-            $.ajax({
+            doAjaxCall({
                 url: timeSetUrls[longestChannelIndex][fileIndex],
                 success: function(data) {
                     nextTimeData = $.parseJSON(data);

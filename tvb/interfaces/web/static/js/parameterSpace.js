@@ -217,7 +217,7 @@ function PSE_mainDraw(parametersCanvasId, backPage, groupGID) {
         }
 	}
 	
-	$.ajax({  	
+	doAjaxCall({
 			type: "POST", 
 			url: url,
             success: function(r) { 
@@ -334,7 +334,7 @@ function hoverPlot(id, x, y, val) {
 function Isocline_MainDraw(groupGID, divId, width, height) {
 
 	$('#' + divId).html('');
-	$.ajax({
+	doAjaxCall({
             type: "POST",
             url: '/burst/explore/draw_isocline_exploration/' + groupGID + '/' + width + '/' + height,
             success: function(r) {

@@ -169,7 +169,7 @@ function updateDimensionsSelect(selectName, parameters_prefix, required_dimensio
     var selectedOption = $("select[name='" + selectName + "'] option:selected");
     var gidValue = selectedOption.val();
     if (gidValue != undefined) {
-        $.ajax({    async : false,
+        doAjaxCall({    async : false,
                     type: 'GET',
                     url: '/flow/gettemplatefordimensionselect/' + gidValue + "/" + selectName + "/" +
                             resetSession + "/" + parameters_prefix + "/" + required_dimension + "/" + expected_shape + "/" + operations,

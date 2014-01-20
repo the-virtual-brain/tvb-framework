@@ -32,7 +32,7 @@ function LCON_displayGradientForThePickedVertex() {
         }
         var url = '/spatial/localconnectivity/compute_data_for_gradient_view?local_connectivity_gid=';
         url += selectedLocalConnectivity + "&selected_triangle=" + TRIANGLE_pickedIndex;
-        $.ajax({
+        doAjaxCall({
             async:false,
             type:'POST',
             url:url,

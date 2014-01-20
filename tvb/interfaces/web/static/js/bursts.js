@@ -64,7 +64,7 @@ function clone(object_) {
    */
 function resetToNewBurst() {
 	
-	$.ajax({ type: "POST", 
+	doAjaxCall({ type: "POST",
 			 url: '/burst/reset_burst/',
 	         success: function() {
 	        		loadSimulatorInterface();
@@ -85,7 +85,7 @@ function resetToNewBurst() {
  */
 function copyBurst(burstID) {
 	
-	$.ajax({ type: "POST", 
+	doAjaxCall({ type: "POST",
 			 url: '/burst/copy_burst/' + burstID,
 	         success: function(r) {
 	        		loadSimulatorInterface();
@@ -105,7 +105,7 @@ function copyBurst(burstID) {
  */
 function loadBurstHistory() {
 	
-	$.ajax({  	
+	doAjaxCall({
 		type: "POST", 
 		url: '/burst/load_burst_history',
 		cache: false,
@@ -137,7 +137,7 @@ function updateBurstHistoryStatus() {
 		}
 	});
 	if (burst_ids.length > 0) {
-		$.ajax({  	
+		doAjaxCall({
 			type: "POST", 
 			data: {'burst_ids' : JSON.stringify(burst_ids)},
 			url: '/burst/get_history_status',
@@ -221,7 +221,7 @@ function cancelOrRemoveBurst(burst_id) {
 function renameBurstEntry(burst_id, new_name_id) {
 	
 	var newValue = document.getElementById(new_name_id).value;
-	$.ajax({type: "POST",
+	doAjaxCall({type: "POST",
 			async: false, 
 			url: '/burst/rename_burst/' + burst_id + '/' + newValue,
 	        success: function() {
@@ -328,7 +328,7 @@ function loadSimulatorInterface() {
 }
 
 function tryExpandRangers() {
-	$.ajax({type: "GET", 
+	doAjaxCall({type: "GET",
 			url: '/burst/get_previous_selected_rangers',
 	        success: function(r) { 
 	        	var result = $.parseJSON(r); 
@@ -379,7 +379,7 @@ function configureSimulator(configureHref) {
 	} else {
 		var submitableData = getSubmitableData('div-simulator-parameters', true);
 	
-		$.ajax({type: "POST", 
+		doAjaxCall({type: "POST",
 				data: {'simulator_parameters' : JSON.stringify(submitableData)},
 				url: '/burst/save_simulator_configuration?exclude_ranges=True',
                 success: function() {
@@ -412,7 +412,7 @@ function toggleSimulatorParametersChecks(beChecked) {
 function configureModel(actionUrl) {
 	
 	var submitableData = getSubmitableData("div-simulator-parameters", false);
-	$.ajax({type: "POST",
+	doAjaxCall({type: "POST",
 			data: {'simulator_parameters' : JSON.stringify(submitableData),
                    'burstName': $("#input-burst-name-id").val()},
 			url: '/burst/save_simulator_configuration?exclude_ranges=False',
@@ -488,7 +488,7 @@ function loadGroup(groupGID) {
 	$("#section-portlets-ul").find("li").each(function () {
 			$(this).removeClass('active');
 		});
-	$.ajax({  	
+	doAjaxCall({
 		type: "POST", 
 		async: false,
 		url: '/burst/explore/get_default_pse_viewer/' + groupGID,
@@ -609,7 +609,7 @@ function selectPortlets(isSave) {
 		for (var i = 0; i < selectedPortlets[0].length; i++) {
             selectedPortlets[selectedTab][i][1] = document.getElementById('portlet-name_entry-' + i).value;
 		}
-		$.ajax({	type: "POST", 
+		doAjaxCall({	type: "POST",
 					data: {"tab_portlets_list": JSON.stringify(selectedPortlets)},
 					url: '/burst/portlet_tab_display',
 		            success: function(r) {
@@ -636,7 +636,7 @@ function selectPortlets(isSave) {
  */
 function setPortletsStaticPreviews() {
 	
-	$.ajax({ type: "POST", 
+	doAjaxCall({ type: "POST",
 			 url: '/burst/get_configured_portlets',
 	         success: function(r) {    
 	        	$("#portlets-display").replaceWith(r);
@@ -674,7 +674,7 @@ function updatePortletConfiguration() {
 function savePortletParams() {
 	
 	var submitableData = getSubmitableData('portlet-param-config', false);
-	$.ajax({  	type: "GET", 
+	doAjaxCall({  	type: "GET",
 				data: submitableData,
 				url: '/burst/save_parameters/' + indexInTab,
 				traditional: true,
@@ -685,7 +685,7 @@ function savePortletParams() {
                 		var currentPortletDiv = $(".portlet-" + indexInTab)[0];
 						var width = currentPortletDiv.clientWidth;
 						var height = currentPortletDiv.clientHeight;
-			       		$.ajax({  	type: "GET", 
+			       		doAjaxCall({  	type: "GET",
 									url: '/burst/check_status_for_visualizer/' + selectedTab + '/' + indexInTab + '/' + width + '/' + height,
 					                success: function(r) {
 					                	currentPortletDiv.replaceWith(r); 
@@ -697,7 +697,7 @@ function savePortletParams() {
 						       });
                 	} else {
                 		markBurstChanged();
-						$.ajax({  	
+						doAjaxCall({
 								type: "POST", 
 								data: {"tab_portlets_list": JSON.stringify(selectedPortlets)},
 								url: '/burst/portlet_tab_display',
@@ -740,7 +740,7 @@ function showPortletParametersPage(tabIdx) {
 			}
 		}
 	}
-	$.ajax({  	type: "GET", 
+	doAjaxCall({  	type: "GET",
 				url: '/burst/get_portlet_configurable_interface/' + indexInTab,
                 success: function(r) {
                     var portletElem = $("#portlet-param-config");
@@ -764,7 +764,7 @@ function returnToSessionPortletConfiguration() {
 	
 	cancelPortletConfig();
 	$("#portlets-configure").hide();
-	$.ajax({  	type: "GET",
+	doAjaxCall({  	type: "GET",
                 async: false,
 				url: '/burst/get_portlet_session_configuration',
 	            success: function(r) {
@@ -796,7 +796,7 @@ function checkIfPortletDone(portlet_element_id, timedSelectedTab, timedTabIndex)
 	if (portlet_element.length > 0) {
 		var width = portlet_element[0].clientWidth;
 		var height = portlet_element[0].clientHeight;
-		$.ajax({  	type: "GET", 
+		doAjaxCall({  	type: "GET",
 						url: '/burst/check_status_for_visualizer/' + timedSelectedTab + '/' + timedTabIndex + '/' + width + '/' + height,
 		                success: function(r) {
 		                	var expectedParentElem = $("#" + portlet_element_id);
@@ -854,7 +854,7 @@ function changeBurstTile(selectedHref) {
 	}
 	selectedTab = selectedHref.id.split('_')[1];
 	// Also update selected tab on cherryPy session.
-	$.ajax({  	type: "POST",
+	doAjaxCall({  	type: "POST",
 				async: false, 
 				url: '/burst/change_selected_tab/' + selectedTab,
 	            success: function(r) {} ,
@@ -871,7 +871,7 @@ function changeBurstTile(selectedHref) {
 			var sectionPortlets = $("#section-portlets")[0];
 			var width = sectionPortlets.clientWidth;
 			var height = sectionPortlets.clientHeight;
-			$.ajax({  	
+			doAjaxCall({
 				type: "POST", 
 				url: '/burst/load_configured_visualizers/' + width + '/' + height,
 	            success: function(r) {    
@@ -902,7 +902,7 @@ function displayBurstTree(selectedHref, selectedProjectID, baseURL) {
 	var prev_class = selectedHref.parentElement.className;
 	selectedHref.parentElement.className = prev_class + ' active';
 	// Also update selected tab on cherryPy session.
-	$.ajax({  	type: "POST",
+	doAjaxCall({  	type: "POST",
 				async: false, 
 				url: '/burst/change_selected_tab/-1',
 	            success: function(r) {} ,
@@ -928,7 +928,7 @@ function displayBurstTree(selectedHref, selectedProjectID, baseURL) {
    */
 function initBurstConfiguration(sessionPortlets, selectedTab) {
 	//Get the selected burst from session and store it to be used further ....
-	$.ajax({ type: "POST", 
+	doAjaxCall({ type: "POST",
 			 url: '/burst/get_selected_burst',
 			 cache: false,
 			 async: false,
@@ -1127,7 +1127,7 @@ function launchNewBurst(launchMode) {
     }
     displayMessage("You've submitted parameters for simulation launch! Please wait for preprocessing steps...", 'warningMessage');
     var submitableData = getSubmitableData('div-simulator-parameters', false);
-    $.ajax({  	type: "POST", 
+    doAjaxCall({  	type: "POST",
     			async: true,
 				url: '/burst/launch_burst/' + launchMode + '/' + newBurstName,
 				data: submitableData, 

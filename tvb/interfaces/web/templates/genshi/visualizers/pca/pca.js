@@ -229,7 +229,7 @@ PCAViewer.prototype.loadFractions = function(fromIdx, toIdx) {
 	 */
 	var self = this;
 	var fractionsDataUrl = this.fractionsDataUrl + '?from_comp=' + fromIdx + ';to_comp=' + toIdx;
-	$.ajax({
+	doAjaxCall({
 	        async:false,
 	        type:'GET',
 	        url:fractionsDataUrl,
@@ -250,7 +250,7 @@ PCAViewer.prototype.loadWeights = function(fromIdx, toIdx) {
 	var self = this;
 	var weightsDataUrl = this.weightsDataUrl + '?from_comp=' + fromIdx + ';to_comp=' + toIdx;
 	var nrChans = toIdx - fromIdx;
-	$.ajax({
+	doAjaxCall({
 	        async:false,
 	        type:'GET',
 	        url:weightsDataUrl,

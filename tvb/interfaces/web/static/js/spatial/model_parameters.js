@@ -145,7 +145,7 @@ function MP_copyAndLoadModel() {
  * @param toNodes a list with the nodes indexes for which will be replaced the model
  */
 function _copyModel(fromNode, toNodes) {
-    $.ajax({
+    doAjaxCall({
         async:false,
         type:'POST',
         url:'/spatial/modelparameters/regions/copy_model/' + fromNode + '/' + $.toJSON(toNodes),
@@ -164,7 +164,7 @@ function MP_applyEquationForParameter() {
     var plotAxisInputs = $('#equationPlotAxisParams').serialize();
     var url = '/spatial/modelparameters/surface/apply_equation?param_name=' + paramName + ';' + plotAxisInputs;
     url += '&' + formInputs;
-    $.ajax({
+    doAjaxCall({
         async:false,
         type:'POST',
         url:url,
@@ -186,7 +186,7 @@ function MP_removeFocalPointForSurfaceModelParam(vertexIndex) {
     var paramName = $("select[name='model_param']").val();
     var url = '/spatial/modelparameters/surface/remove_focal_point?model_param=' + paramName;
         url += "&vertex_index=" + vertexIndex;
-    $.ajax({
+    doAjaxCall({
         async:false,
         type:'POST',
         url:url,
@@ -212,7 +212,7 @@ function MP_addFocalPointForSurfaceModelParam() {
     var url = '/spatial/modelparameters/surface/apply_focal_point?model_param=' + paramName;
     url += "&triangle_index=" + TRIANGLE_pickedIndex;
 	
-    $.ajax({
+    doAjaxCall({
         async:false,
         type:'POST',
         url:url,
@@ -249,7 +249,7 @@ function MP_redrawSurfaceFocalPoints(focalPointsJson) {
 function MP_displayFocalPoints() {
     var paramName = $("select[name='model_param']").val();
     var url = '/spatial/modelparameters/surface/get_focal_points?model_param=' + paramName;
-    $.ajax({
+    doAjaxCall({
         async:false,
         type:'POST',
         url:url,
@@ -280,7 +280,7 @@ function NP_updateNoiseParameters(rootDivID) {
 	var submitData = {'selectedNodes': $.toJSON(GVAR_interestAreaNodeIndexes),
 					  'noiseValues': $.toJSON(noiseValues)};
 					  
-	$.ajax({  	type: "POST", 
+	doAjaxCall({  	type: "POST",
     			async: true,
 				url: '/spatial/noiseconfiguration/update_noise_configuration',
 				data: submitData, 
@@ -313,7 +313,7 @@ function _fill_node_selection_with_noise_values(data) {
  * Load the default values for the table-like connectivity node selection display.
  */
 function NP_loadDefaultNoiseValues() {
-	$.ajax({  	type: "POST", 
+	doAjaxCall({  	type: "POST",
     			async: true,
 				url: '/spatial/noiseconfiguration/load_initial_values',
 				traditional: true,
@@ -368,7 +368,7 @@ function _loadNoiseValuesForConnectivityNode(connectivityNodeIndex) {
  * @param toNodes a list with the nodes indexes for which will be replaced the model
  */
 function _copyNoiseConfig(fromNode, toNodes) {
-    $.ajax({
+    doAjaxCall({
         async:false,
         type:'POST',
         url:'/spatial/noiseconfiguration/copy_configuration/' + fromNode + '/' + $.toJSON(toNodes),
