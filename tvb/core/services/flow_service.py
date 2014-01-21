@@ -144,7 +144,7 @@ class FlowService:
     
     @staticmethod
     def load_operation(operation_id):
-        """ Retrieve loaded OPeration from DB"""
+        """ Retrieve previously stored Operation from DB, and load operation.burst attribute"""
         operation = dao.get_operation_by_id(operation_id)
         operation.burst = dao.get_burst_for_operation_id(operation_id)
         return operation

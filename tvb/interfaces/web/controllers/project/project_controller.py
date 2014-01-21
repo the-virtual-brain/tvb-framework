@@ -55,9 +55,10 @@ from tvb.core.services.project_service import ProjectService
 from tvb.core.services.import_service import ImportService
 from tvb.core.services.exceptions import ServicesBaseException, ProjectServiceException
 from tvb.core.services.exceptions import RemoveDataTypeException, RemoveDataTypeError
-from tvb.interfaces.web.controllers.decorators import settings, check_user, handle_error, expose_page, expose_json, expose_fragment
 from tvb.interfaces.web.entities.context_overlay import OverlayTabDefinition
 from tvb.interfaces.web.controllers import common
+from tvb.interfaces.web.controllers.decorators import settings, check_user, handle_error
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_json, expose_fragment
 from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.flow_controller import FlowController, KEY_CONTENT
 

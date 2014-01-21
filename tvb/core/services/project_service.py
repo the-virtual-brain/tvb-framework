@@ -427,7 +427,7 @@ class ProjectService:
         """
         :returns: an entity OperationOverlayDetails filled with all information for current operation details.
         """
-        operation_group = None
+
         if is_group:
             operation_group = self.get_operation_group_by_gid(operation_gid)
             operation = dao.get_operations_in_group(operation_group.id, False, True)
@@ -450,9 +450,6 @@ class ProjectService:
 
         op_details = OperationOverlayDetails(operation, username, len(datatypes_param),
                                              count_result, burst, no_of_op_in_group)
-        if is_group:
-            op_details.gid = operation_group.gid
-            op_details.operation_id = operation_group.id
 
         ## Add all parameter which are set differently by the user on this Operation.
         if all_special_params is not None:
