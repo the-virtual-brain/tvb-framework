@@ -249,7 +249,7 @@ class ABCAdapter(object):
             total_free_memory = psutil.virtual_memory().free + psutil.swap_memory().free
             adapter_required_memory = self.get_required_memory_size(**kwargs)
             if adapter_required_memory > total_free_memory:
-                raise NoMemoryAvailableException("Machine does not have enough memory to launch the operation "
+                raise NoMemoryAvailableException("Machine does not have enough RAM memory to launch the operation "
                                                  "(expected %.2g GB free, found %.2g)." % (
                                                  adapter_required_memory / 2 ** 30, total_free_memory / 2 ** 30))
 
