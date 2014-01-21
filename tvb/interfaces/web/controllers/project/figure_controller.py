@@ -44,7 +44,7 @@ from tvb.core import utils
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.figure_service import FigureService
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import context_selected, check_user, handle_error, using_template
+from tvb.interfaces.web.controllers.decorators import context_selected, check_user, handle_error, using_template, expose_page
 from tvb.interfaces.web.controllers.project.project_controller import ProjectController
 
 
@@ -71,10 +71,7 @@ class FigureController(ProjectController):
         self.figure_service.store_result_figure(project, user, img_type, operation_id, data['export_data'])
 
 
-    @cherrypy.expose
-    @handle_error(redirect=True)
-    @using_template('base_template')
-    @check_user
+    @expose_page
     @context_selected
     def displayresultfigures(self, selected_session='all_sessions'):
         """ Collect and display saved previews, grouped by session."""
@@ -93,7 +90,7 @@ class FigureController(ProjectController):
 
 
     @cherrypy.expose
-    @handle_error(redirect=False)
+    @handle_error(redirect=True)
     @check_user
     @context_selected
     def editresultfigures(self, remove_figure=False, rename_session=False, remove_session=False, **data):

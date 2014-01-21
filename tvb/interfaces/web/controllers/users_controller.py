@@ -328,8 +328,7 @@ class UserController(BaseController):
 
 
     @cherrypy.expose
-    @handle_error(redirect=False)
-    @jsonify
+    @handle_error(redirect=True)
     @check_admin
     def validate(self, name):
         """

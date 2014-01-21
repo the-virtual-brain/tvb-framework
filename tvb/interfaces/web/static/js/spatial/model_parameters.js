@@ -350,6 +350,7 @@ function _loadNoiseValuesForConnectivityNode(connectivityNodeIndex) {
             async:false,
             type:'GET',
             url:'/spatial/noiseconfiguration/load_noise_values_for_connectivity_node/' + connectivityNodeIndex,
+            showBlockerOverlay : true,
             success:function (data) {
             	var parsedData = $.parseJSON(data);
             	for (var key in parsedData) {

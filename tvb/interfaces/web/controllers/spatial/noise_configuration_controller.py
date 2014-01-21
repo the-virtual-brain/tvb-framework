@@ -40,7 +40,7 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.flow_service import FlowService
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
-from tvb.interfaces.web.controllers.decorators import expose_page, expose_json
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_json, handle_error, check_user
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.interfaces.web.entities.context_noise_configuration import ContextNoiseParameters
 
@@ -136,7 +136,9 @@ class NoiseConfigurationController(SpatioTemporalController):
         return context_model_parameters.noise_values
 
 
-    @expose_json
+    @cherrypy.expose
+    @handle_error(redirect=True)
+    @check_user
     def submit_noise_configuration(self):
         """
         Collects the model parameters values from all the models used for the connectivity nodes.

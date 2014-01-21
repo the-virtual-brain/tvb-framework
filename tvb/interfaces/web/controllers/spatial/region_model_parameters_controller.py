@@ -37,7 +37,7 @@ import json
 import cherrypy
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
-from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json, handle_error, check_user
 from tvb.interfaces.web.entities.context_model_parameters import ContextModelParameters
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController, PARAMS_MODEL_PATTERN
 
@@ -154,7 +154,9 @@ class RegionsModelParametersController(SpatioTemporalController):
         return template_specification
 
 
-    @expose_json
+    @cherrypy.expose
+    @handle_error(redirect=True)
+    @check_user
     def submit_model_parameters(self):
         """
         Collects the model parameters values from all the models used for the connectivity nodes.

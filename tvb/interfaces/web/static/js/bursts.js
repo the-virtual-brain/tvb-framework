@@ -190,6 +190,7 @@ function cancelOrRemoveBurst(burst_id) {
 	doAjaxCall({  	
 			type: "POST", 
 			url: '/burst/cancel_or_remove_burst/' + burst_id,
+            showBlockerOverlay : true,
 	        success: function(r) {    
 	        	var liParent = document.getElementById("burst_id_"+ burst_id);
 	        	if (r == 'canceled') {
@@ -318,6 +319,7 @@ function loadSimulatorInterface() {
 	doAjaxCall({  	
 			type: "GET",
 			url: '/burst/get_reduced_simulator_interface',
+            showBlockerOverlay : true,
             success: function(r) { 
             	_fillSimulatorParametersArea(r, false);
             } ,
@@ -368,6 +370,7 @@ function configureSimulator(configureHref) {
 		doAjaxCall({
 				type: "GET", 
 				url: '/burst/configure_simulator_parameters',
+                showBlockerOverlay : true,
                 success: function(r) {
                 	_fillSimulatorParametersArea(r, true);
                 },
@@ -978,7 +981,8 @@ function loadBurst(burst_id) {
 	doAjaxCall({  	
 		type: "POST", 
 		url: '/burst/load_burst/' + burst_id,
-        success: function(r) {  
+        showBlockerOverlay : true,
+        success: function(r) {
 	        	var result = $.parseJSON(r);
 	        	selectedTab = result['selected_tab'];
 	        	var groupGID = result['group_gid'];
@@ -1010,11 +1014,13 @@ function loadBurst(burst_id) {
 			    	doAjaxCall({  	
 						type: "POST", 
 						url: '/burst/load_configured_visualizers/' + fullWidth + '/' + fullHeight,
+                        showBlockerOverlay : true,
 				        success: function(portlets) {    
 				        	doAjaxCall({  	
 									type: "POST", 
 									async: false,
 									url: '/burst/get_selected_portlets',
+                                    showBlockerOverlay : true,
 							        success: function(rr) {    
 							        	selectedPortlets = $.parseJSON(rr);
 							        } ,
