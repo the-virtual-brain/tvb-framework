@@ -46,10 +46,10 @@ VERSION = "1.1"
 TVB_TEAM = "Lia Domide, Ionel Ortelecan, Bogdan Neacsa, Calin Pavel, "
 TVB_TEAM += "Stuart Knock, Marmaduke Woodman, Paula Sansz Leon, "
 
-TVB_INSTALL_REQUIREMENTS = ["apscheduler", "beautifulsoup", "cherrypy", "cfflib", "formencode",
+TVB_INSTALL_REQUIREMENTS = ["apscheduler", "beautifulsoup", "cherrypy", "genshi", "cfflib", "formencode==1.3.0a1",
                             "lxml", "minixsv", "mod_pywebsocket", "networkx", "nibabel", "numpy",
-                            "numexpr", "psutil", "scikit-learn", "scipy", "simplejson",
-                            "sqlalchemy", "sqlalchemy-migrate"]
+                            "numexpr", "psutil", "scikit-learn", "scipy", "simplejson", "PIL>=1.1.7",
+                            "sqlalchemy==0.7", "sqlalchemy-migrate==0.7.2", "matplotlib==1.2.1"]
 
 EXCLUDE_INTROSPECT_FOLDERS = [folder for folder in os.listdir(".")
                               if os.path.isdir(os.path.join(".", folder)) and folder != "tvb"]
