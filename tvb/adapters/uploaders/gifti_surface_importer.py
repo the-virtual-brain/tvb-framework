@@ -32,12 +32,13 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
+
 from tvb.adapters.uploaders.abcuploader import ABCUploader
-from tvb.core.adapters.exceptions import LaunchException, ParseException
-from tvb.adapters.uploaders.gifti.gifti_parser import GIFTIParser
-from tvb.adapters.uploaders.gifti.gifti_parser import OPTION_READ_METADATA, OPTION_SURFACE_CORTEX, OPTION_SURFACE_HEAD
+from tvb.adapters.uploaders.gifti.gifti_parser import GIFTIParser, OPTION_READ_METADATA, OPTION_SURFACE_FACE
+from tvb.adapters.uploaders.gifti.gifti_parser import OPTION_SURFACE_CORTEX, OPTION_SURFACE_SKINAIR
 from tvb.basic.logger.builder import get_logger
-from tvb.datatypes.surfaces import CorticalSurface, SkinAir
+from tvb.core.adapters.exceptions import LaunchException, ParseException
+from tvb.datatypes.surfaces import CorticalSurface, SkinAir, FaceSurface
 
 
 
@@ -58,7 +59,8 @@ class GIFTISurfaceImporter(ABCUploader):
                  'label': 'Specify file type : ', 'required': True,
                  'options': [{'name': 'Specified in the file metadata', 'value': OPTION_READ_METADATA},
                              {'name': 'Cortex', 'value': OPTION_SURFACE_CORTEX},
-                             {'name': 'Head', 'value': OPTION_SURFACE_HEAD}],
+                             {'name': 'Outer Skin', 'value': OPTION_SURFACE_SKINAIR},
+                             {'name': 'Face Shade', 'value': OPTION_SURFACE_FACE}],
                  'default': OPTION_READ_METADATA},
 
                 {'name': 'data_file', 'type': 'upload', 'required_type': '.gii', 'required': True,
@@ -70,7 +72,8 @@ class GIFTISurfaceImporter(ABCUploader):
 
 
     def get_output(self):
-        return [CorticalSurface, SkinAir]
+        return [CorticalSurface, SkinAir, FaceSurface]
+
 
     def launch(self, file_type, data_file, data_file_part2):
         """
