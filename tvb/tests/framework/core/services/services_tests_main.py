@@ -43,6 +43,7 @@ from tvb.tests.framework.core.services import import_service_test
 from tvb.tests.framework.core.services import workflow_service_test
 from tvb.tests.framework.core.services import operation_service_test
 from tvb.tests.framework.core.services import remove_test
+from tvb.tests.framework.core.services import links_test
 
 
 def suite():
@@ -61,6 +62,7 @@ def suite():
     test_suite.addTest(workflow_service_test.suite())
     test_suite.addTest(operation_service_test.suite())
     test_suite.addTest(remove_test.suite())
+    test_suite.addTest(links_test.suite())
     return test_suite
 
 
