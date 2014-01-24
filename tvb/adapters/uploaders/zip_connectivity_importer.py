@@ -134,8 +134,8 @@ class ZIPConnectivityImporter(ABCUploader):
         
         ### Fill positions
         if centres is None:
-            raise Exception("Positions for Connectivity Regions are required! "
-                            "We expect a file *position* inside the uploaded ZIP.")
+            raise Exception("Region centres are required for Connectivity Regions! "
+                            "We expect a file that contains *centres* inside the uploaded ZIP.")
         expected_number_of_nodes = len(centres)
         if expected_number_of_nodes < 2:
             raise Exception("A connectivity with at least 2 nodes is expected")
