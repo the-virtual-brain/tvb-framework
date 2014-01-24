@@ -37,7 +37,6 @@ given action are described here.
 
 import copy
 import json
-
 import cherrypy
 import formencode
 
@@ -51,10 +50,11 @@ from tvb.core.services.exceptions import OperationException
 from tvb.core.services.operation_service import OperationService, RANGE_PARAMETER_1
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.burst_service import BurstService
-from tvb.interfaces.web.controllers.decorators import expose_page, settings, context_selected, expose_fragment, handle_error, check_user, expose_json
-from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
+from tvb.interfaces.web.controllers.decorators import expose_page, settings, context_selected
+from tvb.interfaces.web.controllers.decorators import expose_fragment, handle_error, check_user, expose_json
+from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
 
 
 KEY_CONTENT = ABCDisplayer.KEY_CONTENT

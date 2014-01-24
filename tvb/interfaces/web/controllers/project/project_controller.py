@@ -582,7 +582,7 @@ class ProjectController(BaseController):
         return FlowController().fill_default_attributes(template_specification)
 
 
-    @expose_json
+    @expose_page
     def launchloader(self, project_id, algo_group_id, cancel=False, **data):
         """ 
         Start Upload mechanism
