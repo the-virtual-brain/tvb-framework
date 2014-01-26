@@ -368,7 +368,7 @@ class OperationService:
             try:
                 BACKEND_CLIENT.execute(str(operation.id), operation.user.username, adapter_instance)
             except Exception, excep:
-                self._handle_exception(excep, {}, "Could not connect to the back-end cluster!", operation)
+                self._handle_exception(excep, {}, "Could not start operation!", operation)
 
         return operations
 
