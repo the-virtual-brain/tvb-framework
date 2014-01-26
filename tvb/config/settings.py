@@ -444,7 +444,7 @@ class BaseProfile():
     @staticmethod
     def URL_TVB_VERSION():
         """URL for reading current available version information."""
-        default = "http://www.thevirtualbrain.org/register/version.xml"
+        default = "http://www.thevirtualbrain.org/tvb/zwei/version.xml"
         return FrameworkSettings.get_attribute(FrameworkSettings.KEY_URL_VERSION, default)
 
 

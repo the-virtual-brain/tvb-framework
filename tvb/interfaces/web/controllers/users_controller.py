@@ -35,20 +35,20 @@ but also user related annotation (checked-logged).
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-from hashlib import md5
-from urllib2 import urlopen
 
 import cherrypy
 import formencode
 from formencode import validators
-
+from hashlib import md5
+from urllib2 import urlopen
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.services.user_service import UserService, KEY_PASSWORD, KEY_EMAIL, KEY_USERNAME, KEY_COMMENT
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.exceptions import UsernameException
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
-from tvb.interfaces.web.controllers.decorators import handle_error, using_template, settings, check_user, expose_json, check_admin, jsonify
+from tvb.interfaces.web.controllers.decorators import handle_error, using_template, settings
+from tvb.interfaces.web.controllers.decorators import check_user, expose_json, check_admin
 
 
 KEY_SERVER_VERSION = "versionInfo"
@@ -198,9 +198,8 @@ class UserController(BaseController):
             except Exception, excep1:
                 self.logger.error("Could not create user:" + data["username"])
                 self.logger.exception(excep1)
-                common.set_error_message("We are very sorry, but we could not create your " +
-                                                 "user. Most probably is because it was impossible" +
-                                                 " to sent emails. Please try again later...")
+                common.set_error_message("We are very sorry, but we could not create your user. Most probably is "
+                                         "because it was impossible to sent emails. Please try again later...")
                 redirect = False
 
         if redirect:
@@ -236,9 +235,8 @@ class UserController(BaseController):
                 template_specification[common.KEY_ERRORS] = excep.unpack_errors()
             except Exception, excep:
                 self.logger.exceptrion(excep)
-                common.set_error_message("We are very sorry, but we could not create your " +
-                                                 "user. Most probably is because it was impossible" +
-                                                 " to sent emails. Please try again later...")
+                common.set_error_message("We are very sorry, but we could not create your user. Most probably is "
+                                         "because it was impossible to sent emails. Please try again later...")
         if redirect:
             raise cherrypy.HTTPRedirect('/user/usermanagement')
         else:

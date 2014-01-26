@@ -28,10 +28,16 @@
 #
 #
 
-from functools import wraps
+"""
+Decorators for Cherrypy exposed methods are defined here.
+
+.. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
+"""
+
 import os
 import json
 import cherrypy
+from functools import wraps
 from genshi.template import TemplateLoader
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
@@ -40,7 +46,7 @@ from tvb.interfaces.web.controllers import common
 
 # some of these decorators could be cherrypy tools
 
-_LOGGER_NAME = "tvb.interface.web.controllers.base_controller"
+_LOGGER_NAME = "tvb.interface.web.controllers.decorators"
 
 
 def using_template(template_name):
@@ -56,6 +62,7 @@ def using_template(template_name):
             template_dict = func(*a, **b)
             if not cfg.RENDER_HTML:
                 return template_dict
+
             ### Generate HTML given the path to the template and the data dictionary.
             loader = TemplateLoader()
             template = loader.load(template_path)
@@ -122,7 +129,7 @@ def handle_error(redirect):
                 log.exception('An unexpected exception appeared')
 
                 if redirect:
-                    common.set_error_message("An unexpected exception appeared. Please contact your system administrator.")
+                    common.set_error_message("An unexpected exception appeared. Please check the log files.")
                     raise cherrypy.HTTPRedirect("/tvb?error=True")
                 else:
                     raise

@@ -579,7 +579,7 @@ class ProjectService:
                         dao.remove_link(link)
                         was_link = True
                 if not was_link:
-                # Create a clone of the operation
+                    # Create a clone of the operation
                     new_op = model.Operation(dao.get_system_user().id,
                                              links[0].fk_to_project,
                                              datatype.parent_operation.fk_from_algo,
