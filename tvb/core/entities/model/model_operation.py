@@ -320,7 +320,7 @@ class Operation(Base, Exportable):
     algorithm = relationship(Algorithm, backref=backref('OPERATIONS', order_by=id))
     project = relationship(Project, backref=backref('PROJECTS', order_by=id, cascade="all,delete"))
     operation_group = relationship(OperationGroup, backref=backref('OPERATION_GROUPS', order_by=id))
-    user = relationship(User, backref=backref('USERS', cascade="merge"))
+    user = relationship(User, primaryjoin=(fk_launched_by == User.id), lazy='joined')
 
 
     def __init__(self, fk_launched_by, fk_launched_in, fk_from_algo, parameters, meta='', method_name='',
