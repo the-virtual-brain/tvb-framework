@@ -54,6 +54,7 @@ class OperationDAO(RootDAO):
         """Retrieve OPERATION entity for a given Identifier."""
         try:
             operation = self.session.query(model.Operation).filter_by(id=operation_id).one()
+            operation.user
             operation.project
             operation.operation_group
             operation.algorithm.algo_group
@@ -67,6 +68,7 @@ class OperationDAO(RootDAO):
         """Retrieve OPERATION entity for a given gid."""
         try:
             operation = self.session.query(model.Operation).filter_by(gid=operation_gid).one()
+            operation.user
             operation.project
             operation.operation_group
             operation.algorithm.algo_group.group_category

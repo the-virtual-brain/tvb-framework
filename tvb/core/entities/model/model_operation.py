@@ -38,10 +38,9 @@ Here we define entities for Operations and Algorithms.
 
 import json
 import datetime
-from tvb.basic.logger.builder import get_logger
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, Integer, String, DateTime, Column, ForeignKey
-
+from tvb.basic.logger.builder import get_logger
 from tvb.config import TVB_IMPORTER_CLASS, TVB_IMPORTER_MODULE
 from tvb.core.utils import string2date, generate_guid
 from tvb.core.entities.exportable import Exportable
@@ -317,10 +316,10 @@ class Operation(Base, Exportable):
     range_values = Column(String, default=None)
     result_disk_size = Column(Integer)
 
-    algorithm = relationship(Algorithm, backref=backref('OPERATIONS', order_by=id))
-    project = relationship(Project, backref=backref('PROJECTS', order_by=id, cascade="all,delete"))
-    operation_group = relationship(OperationGroup, backref=backref('OPERATION_GROUPS', order_by=id))
-    user = relationship(User, primaryjoin=(fk_launched_by == User.id), lazy='joined')
+    algorithm = relationship(Algorithm)
+    project = relationship(Project, backref=backref('OPERATIONS', order_by=id, cascade="all,delete"))
+    operation_group = relationship(OperationGroup)
+    user = relationship(User)
 
 
     def __init__(self, fk_launched_by, fk_launched_in, fk_from_algo, parameters, meta='', method_name='',

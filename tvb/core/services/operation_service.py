@@ -154,7 +154,7 @@ class OperationService:
                 raise LaunchException("Invalid empty Operation!!!")
             return self.initiate_prelaunch(operations[0], adapter_instance, temp_files, **kwargs)
         else:
-            return self._send_to_cluster(operations, adapter_instance)
+            return self._send_to_cluster(operations, adapter_instance, current_user.username)
 
 
     def _prepare_metadata(self, initial_metadata, algo_category, operation_group, submit_data):
@@ -362,11 +362,11 @@ class OperationService:
         return result_msg
 
 
-    def _send_to_cluster(self, operations, adapter_instance):
+    def _send_to_cluster(self, operations, adapter_instance, current_username="unknown"):
         """ Initiate operation on cluster"""
         for operation in operations:
             try:
-                BACKEND_CLIENT.execute(str(operation.id), operation.user.username, adapter_instance)
+                BACKEND_CLIENT.execute(str(operation.id), current_username, adapter_instance)
             except Exception, excep:
                 self._handle_exception(excep, {}, "Could not start operation!", operation)
 
@@ -387,7 +387,7 @@ class OperationService:
             PARAMS = parse_json_parameters(operation.parameters)
 
             if send_to_cluster:
-                self._send_to_cluster([operation], adapter_instance)
+                self._send_to_cluster([operation], adapter_instance, operation.user.username)
             else:
                 self.initiate_prelaunch(operation, adapter_instance, {}, **PARAMS)
 
