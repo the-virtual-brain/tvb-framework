@@ -69,54 +69,60 @@ class FigureService:
         self.logger = get_logger(self.__class__.__module__)
         self.file_helper = FilesHelper()
 
+    def _write_png(self, store_path, export_data):
+        img_data = base64.b64decode(export_data)                        # decode the image
+        final_image = Image.open(StringIO(img_data))                    # place it in a PIL stream
+
+        branding_bar = Image.open(FigureService._BRANDING_BAR_PNG)      # place the branding bar over
+        final_image.paste(branding_bar, (0, final_image.size[1] - branding_bar.size[1]), branding_bar)
+
+        final_image.save(store_path)                                    # store to disk as PNG
+
+    def _write_svg(self, store_path, export_data):
+        dom = xml.dom.minidom.parseString(export_data)
+        figureSvg = dom.getElementsByTagName('svg')[0]                          # get the original image
+
+        dom = xml.dom.minidom.parse(FigureService._BRANDING_BAR_SVG)
+        brandingSvg = dom.getElementsByTagName('svg')[0]                        # get the branding bar
+        brandingSvg.setAttribute("y", figureSvg.getAttribute("height"))         # position it below the figure
+
+        finalSvg = dom.createElement('svg')                                     # prepare the final svg
+        width = figureSvg.getAttribute('width').replace('px', '')               # same width as original figure
+        finalSvg.setAttribute("width", width)
+        height = float(figureSvg.getAttribute('height').replace('px', ''))      # increase original height with
+        height += float(brandingSvg.getAttribute('height').replace('px', ''))   # branding bar's height
+        finalSvg.setAttribute("height", str(height))
+
+        finalSvg.appendChild(figureSvg)                                         # add the image
+        finalSvg.appendChild(brandingSvg)                                       # and the branding bar
+
+        # Generate path where to store image
+        with open(store_path, 'w') as dest:
+            finalSvg.writexml(dest)                                                 # store to disk
+
+    def _image_path(self, project_name, img_type):
+        "Generate path where to store image"
+        images_folder = self.file_helper.get_images_folder(project_name)
+        file_name = FigureService._DEFAULT_IMAGE_FILE_NAME + img_type
+        return utils.get_unique_file_name(images_folder, file_name)
 
     def store_result_figure(self, project, user, img_type, operation_id, export_data):
         """
         Store into a file, Result Image and reference in DB.
         """
-        # Generate path where to store image
-        store_path = self.file_helper.get_images_folder(project.name, operation_id)
-        store_path = utils.get_unique_file_name(store_path, FigureService._DEFAULT_IMAGE_FILE_NAME + img_type)[0]
-        file_path = os.path.split(store_path)[1]
+        store_path, file_name = self._image_path(project.name, img_type)
 
-        if img_type == FigureService._TYPE_PNG:                             # PNG file from canvas
-            img_data = base64.b64decode(export_data)                        # decode the image
-            final_image = Image.open(StringIO(img_data))                    # place it in a PIL stream
-
-            branding_bar = Image.open(FigureService._BRANDING_BAR_PNG)      # place the branding bar over
-            final_image.paste(branding_bar, (0, final_image.size[1] - branding_bar.size[1]), branding_bar)
-
-            final_image.save(store_path)                                    # store to disk as PNG
-
-        elif img_type == FigureService._TYPE_SVG:                                   # SVG file from svg viewer
-            dom = xml.dom.minidom.parseString(export_data)
-            figureSvg = dom.getElementsByTagName('svg')[0]                          # get the original image
-
-            dom = xml.dom.minidom.parse(FigureService._BRANDING_BAR_SVG)
-            brandingSvg = dom.getElementsByTagName('svg')[0]                        # get the branding bar
-            brandingSvg.setAttribute("y", figureSvg.getAttribute("height"))         # position it below the figure
-
-            finalSvg = dom.createElement('svg')                                     # prepare the final svg
-            width = figureSvg.getAttribute('width').replace('px', '')               # same width as original figure
-            finalSvg.setAttribute("width", width)
-            height = float(figureSvg.getAttribute('height').replace('px', ''))      # increase original height with
-            height += float(brandingSvg.getAttribute('height').replace('px', ''))   # branding bar's height
-            finalSvg.setAttribute("height", str(height))
-
-            finalSvg.appendChild(figureSvg)                                         # add the image
-            finalSvg.appendChild(brandingSvg)                                       # and the branding bar
-
-            # Generate path where to store image
-            dest = open(store_path, 'w')
-            finalSvg.writexml(dest)                                                 # store to disk
-            dest.close()
+        if img_type == FigureService._TYPE_PNG:            # PNG file from canvas
+            self._write_png(store_path, export_data)
+        elif img_type == FigureService._TYPE_SVG:          # SVG file from svg viewer
+            self._write_svg(store_path, export_data)
 
         operation = dao.get_operation_by_id(operation_id)
-        file_name = 'TVB-%s-%s' % (operation.algorithm.name.replace(' ', '-'), operation_id)    # e.g. TVB-Algo-Name-352
+        image_name = 'TVB-%s-%s' % (operation.algorithm.name.replace(' ', '-'), operation_id)    # e.g. TVB-Algo-Name-352
 
         # Store entity into DB
         entity = model.ResultFigure(operation_id, user.id, project.id, FigureService._DEFAULT_SESSION_NAME,
-                                    file_name, file_path, img_type)
+                                    image_name, file_name, img_type)
         entity = dao.store_entity(entity)
 
         # Load instance from DB to have lazy fields loaded
@@ -137,7 +143,7 @@ class FigureService:
         result, previews_info = dao.get_previews(project.id, user.id, selected_session_name)
         for name in result:
             for figure in result[name]:
-                figures_folder = self.file_helper.get_images_folder(project.name, figure.operation.id)
+                figures_folder = self.file_helper.get_images_folder(project.name)
                 figure_full_path = os.path.join(figures_folder, figure.file_path)
                 # Compute the path 
                 figure.file_path = utils.path2url_part(figure_full_path)
@@ -174,7 +180,7 @@ class FigureService:
         figure = dao.load_figure(figure_id)
 
         # Delete all figure related files from disk.
-        figures_folder = self.file_helper.get_images_folder(figure.project.name, figure.operation.id)
+        figures_folder = self.file_helper.get_images_folder(figure.project.name)
         path2figure = os.path.join(figures_folder, figure.file_path)
         if os.path.exists(path2figure):
             os.remove(path2figure)

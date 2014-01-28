@@ -272,8 +272,7 @@ class ProjectService:
 
                     # Compute the full path to the figure / image on disk
                     for figure in operation_figures:
-                        figures_folder = self.structure_helper.get_images_folder(figure.project.name,
-                                                                                 figure.operation.id)
+                        figures_folder = self.structure_helper.get_images_folder(figure.project.name)
                         figure_full_path = os.path.join(figures_folder, figure.file_path)
                         # Compute the path available from browser
                         figure.figure_path = utils.path2url_part(figure_full_path)

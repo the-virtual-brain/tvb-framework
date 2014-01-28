@@ -269,14 +269,13 @@ class FilesHelper():
     
     
     ######################## IMAGES METHODS Start Here #######################    
-    def get_images_folder(self, project_name, operation_id):
+    def get_images_folder(self, project_name):
         """
         Computes the name/path of the folder where to store images.
         """
-        operation_folder = self.get_operation_folder(project_name, operation_id)
-        images_folder = os.path.join(operation_folder, self.IMAGES_FOLDER)
-        if not os.path.exists(images_folder):
-            self.check_created(images_folder)
+        project_folder = self.get_project_folder(project_name)
+        images_folder = os.path.join(project_folder, self.IMAGES_FOLDER)
+        self.check_created(images_folder)
         return images_folder
         
     def write_image_metadata(self, figure):
@@ -300,7 +299,7 @@ class FilesHelper():
         Computes full path of image meta data XML file. 
         """
         name = figure.file_path.split('.')[0]
-        images_folder = self.get_images_folder(figure.project.name, figure.operation.id)
+        images_folder = self.get_images_folder(figure.project.name)
         return os.path.join(TVBSettings.TVB_STORAGE, images_folder, name + XMLWriter.FILE_EXTENSION)
     
     

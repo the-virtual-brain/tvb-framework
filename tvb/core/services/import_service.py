@@ -205,8 +205,18 @@ class ImportService():
 
             # Now import project operations
             self.import_project_operations(project_entity, new_project_path, dt_mappings_dict, burst_ids_mapping)
+            # Import images
+            self._store_imported_images(project_entity)
             # Now we can finally import workflow related entities
             self.import_workflows(project_entity, bursts_dict, burst_ids_mapping)
+
+            #def migrate_image_from_operation_folders(self):
+            # assume being on import in proj dir
+            # for root, dirs, files in os.walk(project_dir):
+            #
+            #     parentdir = os.basename(root)
+            #     if parentdir == "IMAGES" and
+
 
 
     def import_workflows(self, project, bursts_dict, burst_ids_mapping):
@@ -341,16 +351,16 @@ class ImportService():
             else:
                 FlowService.create_link([datatype_allready_in_tvb.id], project.id)
 
-    def _store_imported_images(self, project, operation_entity):
+    def _store_imported_images(self, project):
         """
-        Import all images from operation
+        Import all images from project
         """
-        images_root = self.files_helper.get_images_folder(project.name, operation_entity.id)
-        if os.path.exists(images_root):
-            for root, _, files in os.walk(images_root):
-                for file_name in files:
-                    if file_name.endswith(FilesHelper.TVB_FILE_EXTENSION):
-                        self.__populate_image(os.path.join(root, file_name), project.id, operation_entity.id)
+        images_root = self.files_helper.get_images_folder(project.name)
+
+        for root, _, files in os.walk(images_root):
+            for file_name in files:
+                if file_name.endswith(FilesHelper.TVB_FILE_EXTENSION):
+                    self._populate_image(os.path.join(root, file_name), project.id)
 
 
     def import_project_operations(self, project, import_path, dt_burst_mappings=None, burst_ids_mapping=None):
@@ -376,14 +386,13 @@ class ImportService():
 
             all_datatypes = self._load_datatypes_from_operation_folder(new_operation_path, operation_entity, datatype_group)
             self._store_imported_datatypes_in_db(project, all_datatypes, dt_burst_mappings, burst_ids_mapping)
-            self._store_imported_images(project, operation_entity)
 
             imported_operations.append(operation_entity)
 
         return imported_operations
 
 
-    def __populate_image(self, file_name, project_id, op_id):
+    def _populate_image(self, file_name, project_id):
         """
         Create and store a image entity.
         """
@@ -391,7 +400,8 @@ class ImportService():
         new_path = os.path.join(os.path.split(file_name)[0],
                                 os.path.split(figure_dict['file_path'])[1])
         if os.path.exists(new_path):
-            figure_dict['fk_op_id'] = op_id
+            op = dao.get_operation_by_gid(figure_dict['fk_from_operation'])
+            figure_dict['fk_op_id'] = op.id
             figure_dict['fk_user_id'] = self.user_id
             figure_dict['fk_project_id'] = project_id
             figure_entity = manager_of_class(model.ResultFigure).new_instance()
@@ -512,5 +522,3 @@ class ImportService():
                 datatype_group = dao.store_entity(datatype_group)
 
         return operation_entity, datatype_group
-    
-        

@@ -172,7 +172,7 @@ class FigureController(ProjectController):
         Allow a user to download a figure.
         """
         figure = self.figure_service.load_figure(figure_id)
-        image_folder = self.files_helper.get_images_folder(figure.project.name, figure.fk_from_operation)
+        image_folder = self.files_helper.get_images_folder(figure.project.name)
         figure_path = os.path.join(image_folder, figure.file_path)
         return serve_file(figure_path, "image/" + figure.file_format, "attachment",
                           "%s.%s" % (figure.name, figure.file_format))
@@ -187,7 +187,7 @@ class FigureController(ProjectController):
         Displays the image with the specified id in an overlay dialog.
         """
         figure = self.figure_service.load_figure(figure_id)
-        figures_folder = self.files_helper.get_images_folder(figure.project.name, figure.fk_from_operation)
+        figures_folder = self.files_helper.get_images_folder(figure.project.name)
         figure_full_path = os.path.join(figures_folder, figure.file_path)
         figure_file_path = utils.path2url_part(figure_full_path)
         description = figure.session_name + " - " + figure.name
