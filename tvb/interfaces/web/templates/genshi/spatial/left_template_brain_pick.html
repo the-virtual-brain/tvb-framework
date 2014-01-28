@@ -83,10 +83,6 @@
         
     <script type="text/javascript">
         $(document).ready(function() {
-            $('#GLcanvas').mousewheel(function(event, delta) {
-                BASE_PICK_handleMouseWeel(delta);
-                return false; // prevent default
-            });
             BASE_PICK_webGLStart('${urlVerticesPick}', '${urlTrianglesPick}', '${urlNormalsPick}', '${urlVertices}',
                     '${urlTriangles}', '${urlNormals}', '${brainCenter}', "${callback if defined('callback') else ''}");
         });

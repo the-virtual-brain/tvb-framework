@@ -118,6 +118,10 @@ function BASE_PICK_webGLStart(urlVerticesPickList, urlTrianglesPickList, urlNorm
     canvas.onmousemove = customMouseMove;
     canvas.onmouseout = handleMouseOut;
 
+    $(canvas).mousewheel(function(event, delta) {
+            BASE_PICK_handleMouseWeel(delta);
+            return false; // prevent default
+    });
     // Needed for when drawing the legend.
     isOneToOneMapping = true;
     
@@ -214,9 +218,12 @@ function addLight() {
     var adjustedLD = lightingDirection.toUnitVector().x(-1);
     var flatLD = adjustedLD.flatten();
 
-    gl.uniform3f(shaderProgram.ambientColorUniform, 0.6, 0.6, 0.5);
+    // For some reason this viewer is overly bright (maybe color scheme related)
+    // set the lights darker than in the equivalent function from virtualbrain.js
+
+    gl.uniform3f(shaderProgram.ambientColorUniform, 0.4, 0.4, 0.4);
     gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
-    gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
+    gl.uniform3f(shaderProgram.directionalColorUniform, 0.4, 0.4, 0.4);
     gl.uniform3f(shaderProgram.pointLightingLocationUniform, 0, -10, -400);
     gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform, 0.8, 0.8, 0.8);
     gl.uniform1f(shaderProgram.materialShininessUniform, 30.0);
@@ -355,7 +362,7 @@ function __createColorBuffers() {
         gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
         var thisBufferColors = new Float32Array(drawingBrainVertices[i].numItems / 3 * 4);
         for (var j = 0; j < drawingBrainVertices[i].numItems / 3 * 4; j++) {
-            thisBufferColors[j] = 0.5;
+            thisBufferColors[j] = 1.0;
         }
         gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
         BASE_PICK_brainDisplayBuffers.push([drawingBrainVertices[i], drawingBrainNormals[i], drawingBrainIndexes[i], fakeColorBuffer]);
