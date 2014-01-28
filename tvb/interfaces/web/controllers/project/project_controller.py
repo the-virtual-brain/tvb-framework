@@ -119,7 +119,10 @@ class ProjectController(BaseController):
         return self.fill_default_attributes(template_specification, 'list')
 
 
-    @expose_json
+    @cherrypy.expose
+    @handle_error(redirect=True)
+    @check_user
+    @settings
     def projectupload(self, **data):
         """Upload Project from TVB ZIP."""
         self.logger.debug("Uploading ..." + str(data))

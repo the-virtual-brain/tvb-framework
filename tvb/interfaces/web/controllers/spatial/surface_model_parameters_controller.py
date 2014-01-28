@@ -44,7 +44,7 @@ from tvb.core.adapters.abcadapter import KEY_EQUATION, KEY_FOCAL_POINTS
 from tvb.datatypes import equations
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
-from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json, handle_error, check_user
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import PARAMS_MODEL_PATTERN
 from tvb.interfaces.web.entities.context_model_parameters import SurfaceContextModelParameters, EquationDisplayer
@@ -150,7 +150,9 @@ class SurfaceModelParametersController(SpatioTemporalController):
                 'focal_points_json': json.dumps(context_model_parameters.get_focal_points_for_parameter(model_param))}
 
 
-    @expose_json
+    @cherrypy.expose
+    @handle_error(redirect=True)
+    @check_user
     def submit_model_parameters(self):
         """
         Collects the model parameters values from all the models used for the surface vertices.
