@@ -355,8 +355,7 @@ width: 100%;
 
 .ss-operations td.result .image-container img {
 display: inline-block;
-margin-left: -50%;
-margin-top: -50%;
+height:20px;
 }
 
 .ss-operations .result .inline-menu .extension {
