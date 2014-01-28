@@ -28,20 +28,23 @@ function displayMessage(msg, className) {
     messagesDiv.append(msg);
     if (className == 'errorMessage'){
     	className = 'msg-sticky msg-level-fatal';
+        console.error(msg);
     } else if (className =='warningMessage') {
     	className = 'msg-transient transient-medium msg-level-warn';
+        console.warn(msg);
     } else {
     	className = 'msg-transient msg-level-info';
+        console.info(msg);
     }
 
     var messageDivParent = document.getElementById("messageDivParent");	
     if (messageDivParent) {
 	    messageDivParent.className = className;
-	    $(messageDivParent.parentNode).html($(messageDivParent.parentNode).html())
+	    $(messageDivParent.parentNode).html($(messageDivParent.parentNode).html());
     } else {
-    	messageDivParent = $("#generic-message");
-    	messageDivParent.removeClass('no-message');
-    	messageDivParent.className = className;
+        messageDivParent = $("#generic-message");
+        messageDivParent.removeClass('no-message');
+        messageDivParent.className = className;
     }
 }
 

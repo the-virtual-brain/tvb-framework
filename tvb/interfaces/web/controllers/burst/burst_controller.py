@@ -350,12 +350,12 @@ class BurstController(BaseController):
             burst.selected_tab = old_burst.selected_tab
             common.add2session(common.KEY_BURST_CONFIG, burst)
             return {'status': burst.status, 'group_gid': group_gid, 'selected_tab': burst.selected_tab}
-        except Exception, excep:
+        except Exception:
             ### Most probably Burst was removed. Delete it from session, so that client 
             ### has a good chance to get a good response on refresh
-            self.logger.error(excep)
+            self.logger.error()
             common.remove_from_session(common.KEY_BURST_CONFIG)
-            raise excep
+            raise
 
 
     @expose_json
@@ -641,10 +641,10 @@ class BurstController(BaseController):
         try:
             form = BurstNameForm()
             form.to_python({'burst_name': burst_name})
-        except formencode.Invalid, excep:
-            self.logger.error(excep)
+        except formencode.Invalid:
+            self.logger.error()
             self.logger.exception("Invalid Burst name " + str(burst_name))
-            raise excep
+            raise
 
 
 

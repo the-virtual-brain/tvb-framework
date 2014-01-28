@@ -94,10 +94,7 @@ class User(Base):
 
     def is_administrator(self):
         """Return a boolean, saying if current user has role Administrator"""
-        if self.role == ROLE_ADMINISTRATOR:
-            return True
-        else:
-            return False
+        return self.role == ROLE_ADMINISTRATOR
 
 
     def is_online_help_active(self):
