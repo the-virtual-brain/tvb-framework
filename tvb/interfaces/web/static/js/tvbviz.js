@@ -641,12 +641,12 @@ tv.plot = {
                 .attr("width", f.pad.x / 2).attr("height", f.pad.y / 2)
                 .call(d3.behavior.drag().on("drag",function () {
                     var p1 = d3.mouse(svg.node())
-                        , p2 = resizer_start
+                        , p2 = resize_start
                         , scl = {x: p1[0] / p2[0], y: p1[1] / p2[1] };
                     rgp.attr("transform", "scale(" + scl.x + ", " + scl.y + ")");
                     svg.attr("width", scl.x * f.w()).attr("height", scl.y * f.h())
                 }).on("dragstart", function () {
-                        resizer_start = d3.mouse(rgp.node())
+                        resize_start = d3.mouse(rgp.node())
                     }))
         };
 
