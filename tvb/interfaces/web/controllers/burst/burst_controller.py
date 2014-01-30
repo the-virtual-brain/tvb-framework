@@ -353,7 +353,7 @@ class BurstController(BaseController):
         except Exception:
             ### Most probably Burst was removed. Delete it from session, so that client 
             ### has a good chance to get a good response on refresh
-            self.logger.error()
+            self.logger.exception("Error loading burst")
             common.remove_from_session(common.KEY_BURST_CONFIG)
             raise
 

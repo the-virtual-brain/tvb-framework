@@ -38,7 +38,7 @@ import bin
 from copy import copy
 from sys import platform
 from subprocess import Popen, PIPE
-from tvb.basic.profile import TvbProfile as tvb_profile
+from tvb.basic.profile import TvbProfile
 from tvb.basic.config.utils import ClassProperty, EnhancedDictionary
 from functools import wraps
 
@@ -129,6 +129,10 @@ class BaseProfile():
     DATA_VERSION = 2
     DATA_VERSION_ATTRIBUTE = "Data_version"
 
+    # This is the version of the tvb project.
+    # It should be updated every time the project structure changes
+    # Should this be sync-ed with data version changes?
+    PROJECT_VERSION = 1
 
     @ClassProperty
     @staticmethod
@@ -872,16 +876,16 @@ class ConsoleProfile(DeploymentProfile):
 
 
 
-if tvb_profile.CURRENT_SELECTED_PROFILE == tvb_profile.TEST_POSTGRES_PROFILE:
+if TvbProfile.CURRENT_SELECTED_PROFILE == TvbProfile.TEST_POSTGRES_PROFILE:
     FrameworkSettings = TestPostgresProfile
 
-elif tvb_profile.CURRENT_SELECTED_PROFILE == tvb_profile.TEST_SQLITE_PROFILE:
+elif TvbProfile.CURRENT_SELECTED_PROFILE == TvbProfile.TEST_SQLITE_PROFILE:
     FrameworkSettings = TestSQLiteProfile
 
-elif tvb_profile.CURRENT_SELECTED_PROFILE == tvb_profile.CONSOLE_PROFILE:
+elif TvbProfile.CURRENT_SELECTED_PROFILE == TvbProfile.CONSOLE_PROFILE:
     FrameworkSettings = ConsoleProfile
 
-elif BaseProfile.is_development() or tvb_profile.CURRENT_SELECTED_PROFILE == tvb_profile.DEVELOPMENT_PROFILE:
+elif BaseProfile.is_development() or TvbProfile.CURRENT_SELECTED_PROFILE == TvbProfile.DEVELOPMENT_PROFILE:
     FrameworkSettings = DevelopmentProfile
 
 else:
