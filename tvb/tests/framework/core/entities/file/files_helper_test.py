@@ -33,7 +33,10 @@
 """
 
 import os
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.traits.types_mapped import MappedType
 from tvb.core.entities.file.xml_metadata_handlers import XMLReader
@@ -131,7 +134,8 @@ class FilesHelperTest(TransactionalTestCase):
         del expected_dict['last_updated']
         found_dict = loaded_project.to_dict()[1]
         del found_dict['last_updated']
-        self.assertEqual(expected_dict, found_dict)
+        self.assertDictContainsSubset(expected_dict, found_dict)
+        self.assertDictContainsSubset(found_dict, expected_dict)
     
     
     def test_write_operation_metadata(self):

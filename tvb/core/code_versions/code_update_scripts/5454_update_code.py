@@ -35,6 +35,7 @@ In this version the location where ResultFigures are stored has changed.
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from tvb.basic.config.settings import TVBSettings
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.project_versions.project_update_manager import ProjectUpdateManager
@@ -67,5 +68,8 @@ def update():
             project_path = FilesHelper().get_project_folder(project)
             update_manager = ProjectUpdateManager(project_path)
             update_manager.run_all_updates()
+
+            project.version = TVBSettings.PROJECT_VERSION
+            dao.store_entity(project)
 
 

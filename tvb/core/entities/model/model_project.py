@@ -151,8 +151,9 @@ class Project(Base, Exportable):
     last_updated = Column(DateTime)
     fk_admin = Column(Integer, ForeignKey('USERS.id'))
     gid = Column(String, unique=True)
+    version = Column(Integer)
 
-    administrator = relationship(User, backref=backref('PROJECTS', order_by=id))
+    administrator = relationship(User)
 
     ### Transient Attributes
     operations_finished = 0
@@ -194,6 +195,7 @@ class Project(Base, Exportable):
         self.last_updated = datetime.datetime.now()
         self.gid = dictionary['gid']
         self.fk_admin = user_id
+        self.version = int(dictionary['version'])
         return self
 
 
