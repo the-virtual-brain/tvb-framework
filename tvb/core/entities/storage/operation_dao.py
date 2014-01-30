@@ -558,7 +558,7 @@ class OperationDAO(RootDAO):
             return None
 
 
-    def get_previews(self, project_id, user_id, selected_session_name='all_sessions'):
+    def get_previews(self, project_id, user_id=None, selected_session_name='all_sessions'):
         """
         This method returns a tuple of 2 elements. The first element represents a dictionary
         of form {'$session_name': [list_of_figures]}. This dictionary contains data only for the selected self.session.
@@ -581,10 +581,13 @@ class OperationDAO(RootDAO):
             result = {}
             for session_name in session_names:
                 figures_list = self.session.query(model.ResultFigure
-                                                    ).filter_by(fk_for_user=user_id
-                                                    ).filter_by(fk_in_project=project_id
-                                                    ).filter_by(session_name=session_name
-                                                    ).order_by(model.ResultFigure.name).all()
+                                                  ).filter_by(fk_in_project=project_id
+                                                              ).filter_by(session_name=session_name)
+                if user_id is not None:
+                    figures_list = figures_list.filter_by(fk_for_user=user_id)
+
+                figures_list = figures_list.order_by(model.ResultFigure.name).all()
+
                 # Force loading of project and operation - needed to compute image path
                 for figure in figures_list:
                     figure.project
@@ -604,9 +607,12 @@ class OperationDAO(RootDAO):
             result = {}
             session_items = self.session.query(model.ResultFigure.session_name,
                                                func.count(model.ResultFigure.session_name)
-                                               ).filter_by(fk_for_user=user_id).filter_by(fk_in_project=project_id
-                                               ).group_by(model.ResultFigure.session_name
-                                               ).order_by(model.ResultFigure.session_name).all()
+                                               ).filter_by(fk_in_project=project_id)
+            if user_id is not None:
+                session_items = session_items.filter_by(fk_for_user=user_id)
+
+            session_items = session_items.group_by(model.ResultFigure.session_name
+                                                   ).order_by(model.ResultFigure.session_name).all()
 
             for item in session_items:
                 result[item[0]] = item[1]

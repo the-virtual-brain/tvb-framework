@@ -29,45 +29,43 @@
 #
 
 """
-Migrations for project structure
+Change Project structure for TVB version 1.1.1.
+In this version the location where ResultFigures are stored has changed.
+
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
-from tvb.basic.config.settings import TVBSettings
-from tvb.basic.logger.builder import get_logger
+
+from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.core.services.project_migration import migrate_0_to_1
-logger = get_logger(__name__)
-
-# list all migration functions here
-_PROJECT_MIGRATIONS = [
-    migrate_0_to_1.migrate,
-]
-
-def _run_migration(project_path, from_version, to_version):
-    if not 0 < to_version <= len(_PROJECT_MIGRATIONS):
-        raise ValueError(
-            "Missing migration scripts from version "
-            "%s to version %s" % (len(_PROJECT_MIGRATIONS), to_version))
-    if from_version > to_version:
-        raise ValueError("Cannot downgrade")
-
-    for i in xrange(from_version, to_version):
-        logger.info("migrating project zip from project version %s to %s" % (i, i + 1))
-        _PROJECT_MIGRATIONS[i](project_path)
+from tvb.core.project_versions.project_update_manager import ProjectUpdateManager
 
 
-def migrate_project_unsafe(project_path):
+PAGE_SIZE = 20
+
+
+def update():
     """
-    Upgrades a tvb project structure.
-    If it fails project_path will be in an undefined state
-    The caller has todo a defensive copy
+    Move images previously stored in TVB operation folders, in a single folder/project.
     """
-    files_helper = FilesHelper()
-    # This assumes that old project metadata file can be parsed by current version.
-    project_meta = files_helper.read_project_metadata(project_path)
-    from_version = project_meta.get('version', 0)
-    to_version = TVBSettings.PROJECT_VERSION
-    _run_migration(project_path, from_version, to_version)
-    # update project version in metadata
-    project_meta['version'] = to_version
-    files_helper.write_project_metadata_from_dict(project_path, project_meta)
+    projects_count = dao.get_all_projects(is_count=True)
+
+    for page_start in range(0, projects_count, PAGE_SIZE):
+
+        projects_page = dao.get_all_projects(page_start=page_start,
+                                             page_end=min(page_start + PAGE_SIZE, projects_count))
+
+        for project in projects_page:
+
+            grouped_figures, _ = dao.get_previews(project.id)
+            figures = grouped_figures.values()
+
+            for figure in figures:
+                figure.file_path = figure.operation.id + '-' + figure.file_path
+
+            dao.store_entities(figures)
+
+            project_path = FilesHelper().get_project_folder(project)
+            update_manager = ProjectUpdateManager(project_path)
+            update_manager.run_all_updates()
+
+

@@ -28,19 +28,17 @@
 #
 
 """
-Images have been moved in the project folder.
-An associated db migration will update file paths in the db.
+Images have been moved inside the project folder.
+This script only updated the folder/files structure of a project.
+When executed on a project already stored, an update in DB references might also be needed.
+
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
-import shutil
 import os
+import shutil
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.xml_metadata_handlers import XMLReader, XMLWriter
-
-IMAGES_FOLDER = FilesHelper.IMAGES_FOLDER
-TVB_OPERARATION_FILE = FilesHelper.TVB_OPERARATION_FILE
-TVB_FILE_EXTENSION = FilesHelper.TVB_FILE_EXTENSION
 
 
 def _rewrite_img_meta(pth, op_id):
@@ -51,37 +49,37 @@ def _rewrite_img_meta(pth, op_id):
 
 def _rename_images(op_id, img_path):
     """
-    Prepend operationid to image names to make them unique.
-    This is good enough for migration.
+    Place operationId in the stored image names, to make them unique.
     """
     for f in os.listdir(img_path):
         new_name = op_id + '-' + f
         src_pth = os.path.join(img_path, f)
         dst_pth = os.path.join(img_path, new_name)
 
-        if f.endswith(TVB_FILE_EXTENSION):
+        if f.endswith(FilesHelper.TVB_FILE_EXTENSION):
             _rewrite_img_meta(src_pth, op_id)
         os.rename(src_pth, dst_pth)
 
 
-def _move_images(img_path, new_img_path):
-    for f in os.listdir(img_path):
-        shutil.move(os.path.join(img_path, f), os.path.join(new_img_path, f))
+def _move_folder_content(src_folder, dest_folder):
+    for f in os.listdir(src_folder):
+        shutil.move(os.path.join(src_folder, f), os.path.join(dest_folder, f))
 
 
-def migrate(project_path):
+def update(project_path):
     """
     Images have been moved in the project folder.
     An associated db migration will update file paths in the db.
     """
-    new_img_path = os.path.join(project_path, IMAGES_FOLDER)
-    FilesHelper().check_created(new_img_path)
+    new_img_folder = os.path.join(project_path, FilesHelper.IMAGES_FOLDER)
+    FilesHelper().check_created(new_img_folder)
 
     for root, dirs, files in os.walk(project_path):
-        in_operation_dir_with_images = IMAGES_FOLDER in dirs and TVB_OPERARATION_FILE in files
+        in_operation_dir_with_images = FilesHelper.IMAGES_FOLDER in dirs and FilesHelper.TVB_OPERARATION_FILE in files
+
         if in_operation_dir_with_images:
             op_id = os.path.basename(root)
-            img_path = os.path.join(root, IMAGES_FOLDER)
-            _rename_images(op_id, img_path)
-            _move_images(img_path, new_img_path)
-            os.rmdir(img_path)
+            images_folder = os.path.join(root, FilesHelper.IMAGES_FOLDER)
+            _rename_images(op_id, images_folder)
+            _move_folder_content(images_folder, new_img_folder)
+            os.rmdir(images_folder)

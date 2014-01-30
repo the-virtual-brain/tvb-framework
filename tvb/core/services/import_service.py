@@ -37,12 +37,12 @@
 import os
 import json
 import shutil
-from tvb.config import ADAPTERS
 from cgi import FieldStorage
 from datetime import datetime
 from cherrypy._cpreqbody import Part
 from sqlalchemy.orm.attributes import manager_of_class
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from tvb.config import ADAPTERS
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
@@ -50,8 +50,8 @@ from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.model.model_burst import BURST_INFO_FILE, BURSTS_DICT_KEY, DT_BURST_MAP
 from tvb.core.services.exceptions import ProjectImportException
 from tvb.core.services.flow_service import FlowService
-from tvb.core.services.project_migration import migrate_project_unsafe
 from tvb.core.services.project_service import ProjectService
+from tvb.core.project_versions.project_update_manager import ProjectUpdateManager
 from tvb.core.entities.file.xml_metadata_handlers import XMLReader
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
@@ -187,7 +187,8 @@ class ImportService():
                 project_roots.append(root)
 
         for project_path in project_roots:
-            migrate_project_unsafe(project_path)
+            update_manager = ProjectUpdateManager(project_path)
+            update_manager.run_all_updates()
             project_entity = self.__populate_project(project_path)
 
             # Compute the path where to store files of the imported project
@@ -376,7 +377,8 @@ class ImportService():
                 shutil.rmtree(new_operation_path)
                 shutil.move(old_operation_folder, new_operation_path)
 
-            all_datatypes = self._load_datatypes_from_operation_folder(new_operation_path, operation_entity, datatype_group)
+            all_datatypes = self._load_datatypes_from_operation_folder(new_operation_path,
+                                                                       operation_entity, datatype_group)
             self._store_imported_datatypes_in_db(project, all_datatypes, dt_burst_mappings, burst_ids_mapping)
 
             imported_operations.append(operation_entity)
@@ -389,10 +391,9 @@ class ImportService():
         Create and store a image entity.
         """
         figure_dict = XMLReader(file_name).read_metadata()
-        new_path = os.path.join(os.path.split(file_name)[0],
-                                os.path.split(figure_dict['file_path'])[1])
+        new_path = os.path.join(os.path.split(file_name)[0], os.path.split(figure_dict['file_path'])[1])
         if not os.path.exists(new_path):
-            self.logger.warn("Expected to find image path %s .Skipping" % new_path )
+            self.logger.warn("Expected to find image path %s .Skipping" % new_path)
 
         op = dao.get_operation_by_gid(figure_dict['fk_from_operation'])
         figure_dict['fk_op_id'] = op.id if op is not None else None
