@@ -58,6 +58,19 @@ else:
     ### SqlLite does not support pool-size
     DB_ENGINE = create_engine(cfg.DB_URL, pool_recycle=5)
 
+    def __be_fast_and_dangerous(con, con_record):
+        con.execute('PRAGMA journal_mode = MEMORY')
+        con.execute("PRAGMA synchronous = OFF")
+        con.execute("PRAGMA temp_store = MEMORY")
+        con.execute("PRAGMA cache_size = 500000")
+
+    # uncomment for speed and no crash safety
+    # use only in development
+    # import warnings
+    # from sqlalchemy import event
+    # warnings.warn("DANGEROUS DB CONFIG")
+    # event.listen(DB_ENGINE, 'connect', _be_fast_and_dangerous)
+
 SA_SESSIONMAKER = sessionmaker(bind=DB_ENGINE)
 
 
