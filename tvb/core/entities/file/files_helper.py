@@ -78,6 +78,7 @@ class FilesHelper():
         This method is synchronized, for parallel access from events, to avoid conflicts.
         """
         try:
+            # if this is meant to be used concurrently it might be better to catch OSError 17 then checking exists
             if not os.path.exists(path):
                 self.logger.debug("Creating folder:" + str(path))
                 os.makedirs(path, mode=TVBSettings.ACCESS_MODE_TVB_FILES)
@@ -151,16 +152,26 @@ class FilesHelper():
         complete_path = os.path.join(complete_path, self.TVB_PROJECT_FILE)
         return complete_path
     
-    
+
+    def read_project_metadata(self, project_path):
+        project_cfg_file = os.path.join(project_path, self.TVB_PROJECT_FILE)
+        return XMLReader(project_cfg_file).read_metadata()
+
+
+    def write_project_metadata_from_dict(self, project_path, meta_dictionary):
+        project_cfg_file = os.path.join(project_path, self.TVB_PROJECT_FILE)
+        meta_entity = GenericMetaData(meta_dictionary)
+        XMLWriter(meta_entity).write(project_cfg_file)
+        os.chmod(project_path, TVBSettings.ACCESS_MODE_TVB_FILES)
+
+
     def write_project_metadata(self, project):
         """
         :param project: Project instance, to get metadata from it.
         """
-        proj_path = self.get_project_meta_file_path(project.name)
+        proj_path = self.get_project_folder(project.name)
         _, meta_dictionary = project.to_dict()
-        meta_entity = GenericMetaData(meta_dictionary)
-        XMLWriter(meta_entity).write(proj_path)
-        os.chmod(proj_path, TVBSettings.ACCESS_MODE_TVB_FILES)
+        self.write_project_metadata_from_dict(proj_path, meta_dictionary)
         
      
     ############# OPERATION related METHODS Start Here #########################
@@ -391,17 +402,18 @@ class FilesHelper():
                 new_file_name = os.path.join(folder_path, filename)
                 src = zip_arch.open(filename, 'rU')
                 if new_file_name.endswith('/'):
-                    os.makedirs(new_file_name)
+                    if not os.path.exists(new_file_name):
+                        os.makedirs(new_file_name)
                 else:
                     FilesHelper.copy_file(src, new_file_name)
                 result.append(new_file_name)
             return result
         except BadZipfile, excep:
-            self.logger.error(excep)
-            raise FileStructureException("Invalid ZIP file...")
+            self.logger.exception("Could not process zip file")
+            raise FileStructureException("Invalid ZIP file..." + str(excep))
         except Exception, excep:
-            self.logger.error(excep)
-            raise FileStructureException("Could not unpack the given ZIP file...")
+            self.logger.exception("Could not process zip file")
+            raise FileStructureException("Could not unpack the given ZIP file..." + str(excep))
             
 
     @staticmethod

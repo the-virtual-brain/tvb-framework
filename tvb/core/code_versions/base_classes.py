@@ -43,12 +43,6 @@ class InvalidUpgradeScriptException(TVBException):
     Raised in case an update script is present but does not comply to TVB conventions.
     """
 
-
-    def __init__(self, message):
-        TVBException.__init__(self, message)
-
-
-
 class UpdateManager(object):
     """
     An update manager pattern.

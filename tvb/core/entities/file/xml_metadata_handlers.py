@@ -171,6 +171,6 @@ class XMLWriter(object):
         doc.appendChild(root_node)
 
         # Now dump the XML content into a file.
-        file_obj = open(final_path, 'wb')
-        doc.writexml(file_obj, addindent="\t", newl="\n")
-        file_obj.close()
+        with open(final_path, 'wb') as file_obj:
+            doc.writexml(file_obj, addindent="\t", newl="\n")
+
