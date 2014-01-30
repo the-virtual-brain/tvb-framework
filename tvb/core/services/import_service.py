@@ -42,7 +42,7 @@ from cgi import FieldStorage
 from datetime import datetime
 from cherrypy._cpreqbody import Part
 from sqlalchemy.orm.attributes import manager_of_class
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
@@ -50,6 +50,7 @@ from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.model.model_burst import BURST_INFO_FILE, BURSTS_DICT_KEY, DT_BURST_MAP
 from tvb.core.services.exceptions import ProjectImportException
 from tvb.core.services.flow_service import FlowService
+from tvb.core.services.project_migration import migrate_project_unsafe
 from tvb.core.services.project_service import ProjectService
 from tvb.core.entities.file.xml_metadata_handlers import XMLReader
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -130,8 +131,7 @@ class ImportService():
             self._download_and_unpack_project_zip(uploaded, uq_file_name, temp_folder)
             self._import_project_from_folder(temp_folder)
         except Exception, excep:
-            self.logger.exception(excep)
-            self.logger.debug("Error encountered during import. Deleting projects created during this operation.")
+            self.logger.exception("Error encountered during import. Deleting projects created during this operation.")
             # Roll back projects created so far
             project_service = ProjectService()
             for project in self.created_projects:
@@ -187,13 +187,13 @@ class ImportService():
                 project_roots.append(root)
 
         for project_path in project_roots:
+            migrate_project_unsafe(project_path)
             project_entity = self.__populate_project(project_path)
 
             # Compute the path where to store files of the imported project
             new_project_path = os.path.join(cfg.TVB_STORAGE, FilesHelper.PROJECTS_FOLDER, project_entity.name)
             if project_path != new_project_path:
-                shutil.copytree(project_path, new_project_path)
-                shutil.rmtree(project_path)
+                shutil.move(project_path, new_project_path)
 
             self.created_projects.append(project_entity)
 
@@ -209,14 +209,6 @@ class ImportService():
             self._store_imported_images(project_entity)
             # Now we can finally import workflow related entities
             self.import_workflows(project_entity, bursts_dict, burst_ids_mapping)
-
-            #def migrate_image_from_operation_folders(self):
-            # assume being on import in proj dir
-            # for root, dirs, files in os.walk(project_dir):
-            #
-            #     parentdir = os.basename(root)
-            #     if parentdir == "IMAGES" and
-
 
 
     def import_workflows(self, project, bursts_dict, burst_ids_mapping):
@@ -356,7 +348,7 @@ class ImportService():
         Import all images from project
         """
         images_root = self.files_helper.get_images_folder(project.name)
-
+        # for file_name in os.listdir(images_root):
         for root, _, files in os.walk(images_root):
             for file_name in files:
                 if file_name.endswith(FilesHelper.TVB_FILE_EXTENSION):
@@ -399,19 +391,21 @@ class ImportService():
         figure_dict = XMLReader(file_name).read_metadata()
         new_path = os.path.join(os.path.split(file_name)[0],
                                 os.path.split(figure_dict['file_path'])[1])
-        if os.path.exists(new_path):
-            op = dao.get_operation_by_gid(figure_dict['fk_from_operation'])
-            figure_dict['fk_op_id'] = op.id
-            figure_dict['fk_user_id'] = self.user_id
-            figure_dict['fk_project_id'] = project_id
-            figure_entity = manager_of_class(model.ResultFigure).new_instance()
-            figure_entity = figure_entity.from_dict(figure_dict)
-            stored_entity = dao.store_entity(figure_entity)
+        if not os.path.exists(new_path):
+            self.logger.warn("Expected to find image path %s .Skipping" % new_path )
 
-            # Update image meta-data with the new details after import 
-            figure = dao.load_figure(stored_entity.id)
-            self.logger.debug("Store imported figure")
-            self.files_helper.write_image_metadata(figure)
+        op = dao.get_operation_by_gid(figure_dict['fk_from_operation'])
+        figure_dict['fk_op_id'] = op.id if op is not None else None
+        figure_dict['fk_user_id'] = self.user_id
+        figure_dict['fk_project_id'] = project_id
+        figure_entity = manager_of_class(model.ResultFigure).new_instance()
+        figure_entity = figure_entity.from_dict(figure_dict)
+        stored_entity = dao.store_entity(figure_entity)
+
+        # Update image meta-data with the new details after import
+        figure = dao.load_figure(stored_entity.id)
+        self.logger.debug("Store imported figure")
+        self.files_helper.write_image_metadata(figure)
 
 
     def load_datatype_from_file(self, storage_folder, file_name, op_id, datatype_group=None):
@@ -474,10 +468,8 @@ class ImportService():
         Create and store a Project entity.
         """
         self.logger.debug("Creating project from path: %s" % project_path)
-        project_cfg_file = os.path.join(project_path, FilesHelper.TVB_PROJECT_FILE)
+        project_dict = self.files_helper.read_project_metadata(project_path)
 
-        reader = XMLReader(project_cfg_file)
-        project_dict = reader.read_metadata()
         project_entity = manager_of_class(model.Project).new_instance()
         project_entity = project_entity.from_dict(project_dict, self.user_id)
 
@@ -495,10 +487,8 @@ class ImportService():
         """
         Create Operation entity from metadata file.
         """
-        reader = XMLReader(operation_file)
-        operation_dict = reader.read_metadata()
+        operation_dict = XMLReader(operation_file).read_metadata()
         operation_entity = manager_of_class(model.Operation).new_instance()
-
         return operation_entity.from_dict(operation_dict, dao, self.user_id, project.gid)
 
 
@@ -514,7 +504,7 @@ class ImportService():
         if operation_group_id is not None:
             try:
                 datatype_group = dao.get_datatypegroup_by_op_group_id(operation_group_id)
-            except Exception:
+            except SQLAlchemyError:
                 # If no dataType group present for current op. group, create it.
                 operation_group = dao.get_operationgroup_by_id(operation_group_id)
                 datatype_group = model.DataTypeGroup(operation_group, operation_id=operation_entity.id)

@@ -41,11 +41,11 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy import Boolean, Integer, String, DateTime, Column, ForeignKey, Float
-from tvb.core.utils import generate_guid
+from tvb.core import utils
 from tvb.core.entities.exportable import Exportable
 from tvb.core.entities.model.model_base import Base
-import tvb.core.utils as utils
 from tvb.basic.logger.builder import get_logger
+from tvb.basic.config.settings import TVBSettings
 
 LOG = get_logger(__name__)
 
@@ -160,12 +160,12 @@ class Project(Base, Exportable):
     operations_error = 0
     members = []
 
-
     def __init__(self, name, fk_admin, description=''):
         self.name = name
         self.fk_admin = fk_admin
         self.description = description
-        self.gid = generate_guid()
+        self.gid = utils.generate_guid()
+        self.version = TVBSettings.PROJECT_VERSION
 
 
     def refresh_update_date(self):

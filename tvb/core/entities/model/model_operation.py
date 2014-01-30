@@ -547,7 +547,7 @@ class ResultFigure(Base, Exportable):
         """
         _, base_dict = super(ResultFigure, self).to_dict(excludes=['id', 'fk_from_operation', 'fk_for_user',
                                                                    'fk_in_project', 'operation', 'project'])
-        base_dict['fk_from_operation'] = self.operation.gid
+        base_dict['fk_from_operation'] = self.operation.gid if self.operation is not None else None
         base_dict['fk_in_project'] = self.project.gid
         return self.__class__.__name__, base_dict
 
