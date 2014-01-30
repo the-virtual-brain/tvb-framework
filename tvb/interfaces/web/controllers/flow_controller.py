@@ -513,8 +513,6 @@ class FlowController(BaseController):
         """
         Retrieve file from Local storage, having a File System Path.
         """
-        # from cherrypy.lib.static import serve_file
-        # serve_file(url2path(coded_path))
         try:
             with open(url2path(coded_path), "rb") as f:
                 return f.read()

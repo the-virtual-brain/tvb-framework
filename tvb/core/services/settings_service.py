@@ -200,6 +200,7 @@ class SettingsService():
         first_run = self.is_first_run()
         if first_run:
             data[cfg.KEY_LAST_CHECKED_FILE_VERSION] = cfg.DATA_VERSION
+            data[cfg.KEY_LAST_CHECKED_CODE_VERSION] = cfg.SVN_VERSION
             file_data = data
             if self.KEY_ADMIN_PWD in data:
                 data[self.KEY_ADMIN_PWD] = md5(data[self.KEY_ADMIN_PWD]).hexdigest()
