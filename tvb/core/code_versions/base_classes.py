@@ -42,6 +42,9 @@ class InvalidUpgradeScriptException(TVBException):
     """
     Raised in case an update script is present but does not comply to TVB conventions.
     """
+    pass
+
+
 
 class UpdateManager(object):
     """
@@ -89,7 +92,7 @@ class UpdateManager(object):
         script_module.update(**kwargs)
 
 
-    def update_all(self):
+    def run_all_updates(self):
         """
         Upgrade the code to current version. 
         """

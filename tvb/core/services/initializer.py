@@ -93,7 +93,7 @@ def initialize(introspected_modules, load_xml_events=True):
                                   email=cfg.ADMINISTRATOR_EMAIL, role=model.ROLE_ADMINISTRATOR)
         
     ## In case actions related to latest code-changes are needed, make sure they are executed.
-    CodeUpdateManager().update_all()
+    CodeUpdateManager().run_all_updates()
    
    
             

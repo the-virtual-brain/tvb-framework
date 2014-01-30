@@ -59,7 +59,7 @@ class CodeUpdateManager(UpdateManager):
         cfg.add_entries_to_config_file({cfg.KEY_LAST_CHECKED_CODE_VERSION: script_name.split('_')[0]})
 
 
-    def update_all(self):
+    def run_all_updates(self):
         """
         Upgrade the code to current version. 
         Go through all update scripts with lower SVN version than the current running version.
@@ -69,7 +69,7 @@ class CodeUpdateManager(UpdateManager):
             ## We've just started with a clean TVB. No need to upgrade anything.
             return
 
-        super(CodeUpdateManager, self).update_all()
+        super(CodeUpdateManager, self).run_all_updates()
 
         if self.checked_version < self.current_version:
             cfg.add_entries_to_config_file({cfg.KEY_LAST_CHECKED_CODE_VERSION: cfg.SVN_VERSION})
