@@ -634,7 +634,8 @@ class FlowController(BaseController):
         return template_specification
 
 
-    @expose_json
+    @cherrypy.expose
+    @handle_error(redirect=True)
     @context_selected
     def reloadoperation(self, operation_id, **_):
         """Redirect to Operation Input selection page, 
@@ -647,7 +648,8 @@ class FlowController(BaseController):
         raise cherrypy.HTTPRedirect("/flow/" + str(category_id) + "/" + str(algo_id) + "?not_reset=True")
 
     
-    @expose_json
+    @cherrypy.expose
+    @handle_error(redirect=True)
     @context_selected
     def reload_burst_operation(self, operation_id, is_group, **_):
         """
