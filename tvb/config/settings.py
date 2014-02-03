@@ -723,7 +723,7 @@ class DevelopmentProfile(BaseProfile):
     """
 
     LOGGER_CONFIG_FILE_NAME = "dev_logger_config.conf"
-    TRADE_CRASH_SAFETY_FOR_SPEED = True
+    TRADE_CRASH_SAFETY_FOR_SPEED = False
 
 
 class TestSQLiteProfile(BaseProfile):
