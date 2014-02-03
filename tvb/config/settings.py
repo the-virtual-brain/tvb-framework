@@ -166,9 +166,10 @@ class BaseProfile():
             return BaseProfile.parse_svn_version(_proc.communicate()[0])
         except Exception:
             pass
-        # migrations depend on this. Maybe we should just fail here
-        # return BaseProfile.parse_svn_version('1')
-        raise ValueError('cannot determine svn version')
+        # Migrations depend on this value.
+        # Future tvb versions will fail in this case.
+        # raise ValueError('cannot determine svn version')
+        return BaseProfile.parse_svn_version('1')
 
     @ClassProperty
     @staticmethod

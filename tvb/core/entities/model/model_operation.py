@@ -536,7 +536,7 @@ class ResultFigure(Base, Exportable):
 
 
     def __repr__(self):
-        return "<ResultFigure(%d, %d, %d, %s, %s, %s, %s)>" % (self.fk_from_operation, self.fk_for_user,
+        return "<ResultFigure(%s, %s, %s, %s, %s, %s, %s)>" % (self.fk_from_operation, self.fk_for_user,
                                                                self.fk_in_project, self.session_name, self.name,
                                                                self.file_path, self.file_format)
 

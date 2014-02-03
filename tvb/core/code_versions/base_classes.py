@@ -92,12 +92,12 @@ class UpdateManager(object):
         script_module.update(**kwargs)
 
 
-    def run_all_updates(self):
+    def run_all_updates(self, **kwargs):
         """
         Upgrade the code to current version. 
         """
         if self.checked_version < self.current_version:
             for script_name in self.get_update_scripts():
-                self.run_update_script(script_name)
+                self.run_update_script(script_name, **kwargs)
                 
         

@@ -62,7 +62,7 @@ class ProjectUpdateManager(UpdateManager):
         Upgrade the project to the latest structure
         Go through all update scripts, from project version up to the current_version in the code
         """
-        super(ProjectUpdateManager, self).run_all_updates()
+        super(ProjectUpdateManager, self).run_all_updates(project_path=self.project_path)
 
         # update project version in metadata
         self.project_meta['version'] = self.current_version

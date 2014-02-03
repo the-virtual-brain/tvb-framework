@@ -44,6 +44,16 @@ from tvb.core.project_versions.project_update_manager import ProjectUpdateManage
 PAGE_SIZE = 20
 
 
+def _figures_in_project(project_id):
+    grouped_figures, _ = dao.get_previews(project_id)
+    figures = []
+
+    for fv in grouped_figures.itervalues():
+        figures.extend(fv)
+
+    return figures
+
+
 def update():
     """
     Move images previously stored in TVB operation folders, in a single folder/project.
@@ -56,12 +66,10 @@ def update():
                                              page_end=min(page_start + PAGE_SIZE, projects_count))
 
         for project in projects_page:
-
-            grouped_figures, _ = dao.get_previews(project.id)
-            figures = grouped_figures.values()
+            figures =  _figures_in_project(project.id)
 
             for figure in figures:
-                figure.file_path = figure.operation.id + '-' + figure.file_path
+                figure.file_path = "%s-%s" % (figure.operation.id, figure.file_path)
 
             dao.store_entities(figures)
 
