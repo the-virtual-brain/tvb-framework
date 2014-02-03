@@ -166,8 +166,9 @@ class BaseProfile():
             return BaseProfile.parse_svn_version(_proc.communicate()[0])
         except Exception:
             pass
-        return BaseProfile.parse_svn_version('1')
-
+        # migrations depend on this. Maybe we should just fail here
+        # return BaseProfile.parse_svn_version('1')
+        raise ValueError('cannot determine svn version')
 
     @ClassProperty
     @staticmethod
@@ -181,7 +182,7 @@ class BaseProfile():
     @settings_loaded()
     def CODE_CHECKED_TO_VERSION():
         """The version up until we done the upgrade properly for the file data storage."""
-        version_string = FrameworkSettings.get_attribute(FrameworkSettings.KEY_LAST_CHECKED_CODE_VERSION, '-1', str)
+        version_string = FrameworkSettings.get_attribute(FrameworkSettings.KEY_LAST_CHECKED_CODE_VERSION, '-1')
         return BaseProfile.parse_svn_version(version_string)
 
 
@@ -542,13 +543,12 @@ class BaseProfile():
 
     @staticmethod
     def parse_svn_version(version_string):
-        try:
+        if ':' in version_string:
+            version_string = version_string.split(':')[1]
+            number = ''.join([ch for ch in version_string if ch.isdigit()])
+            return int(number)
+        else:
             return int(version_string)
-        except ValueError:
-            if ':' in version_string:
-                version_string = version_string.split(':')[1]
-                number = ''.join([ch for ch in version_string if ch.isdigit()])
-                return int(number)
 
 
     @staticmethod
@@ -723,7 +723,7 @@ class DevelopmentProfile(BaseProfile):
     """
 
     LOGGER_CONFIG_FILE_NAME = "dev_logger_config.conf"
-
+    TRADE_CRASH_SAFETY_FOR_SPEED = True
 
 
 class TestSQLiteProfile(BaseProfile):
@@ -734,7 +734,7 @@ class TestSQLiteProfile(BaseProfile):
     TVB_CONFIG_FILE = os.path.expanduser(os.path.join("~", '.test.tvb.configuration'))
 
     RENDER_HTML = False
-
+    TRADE_CRASH_SAFETY_FOR_SPEED = True
 
     @ClassProperty
     @staticmethod
