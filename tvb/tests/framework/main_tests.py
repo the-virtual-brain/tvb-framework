@@ -40,7 +40,6 @@ from coverage import coverage
 from tvb.basic.profile import TvbProfile
 #set the current environment to the test setup
 TvbProfile.set_profile(argv)
-from tvb.basic.config.settings import TVBSettings
 
 KEY_CONSOLE = 'console'
 KEY_COVERAGE = 'coverage'
@@ -80,18 +79,14 @@ if __name__ == "__main__":
 
 import unittest
 import datetime
-
-# Make sure folder for Logging exists.   
-if not os.path.exists(TVBSettings.TVB_LOG_FOLDER):
-    os.makedirs(TVBSettings.TVB_LOG_FOLDER)
-
 import matplotlib
 matplotlib.use('module://tvb.interfaces.web.mplh5.mplh5_backend')
-from tvb.tests.framework.xmlrunner import XMLTestRunner
+from tvb.tests.framework.xml_runner import XMLTestRunner
 from tvb.tests.framework.core import core_tests_main
 from tvb.tests.framework.adapters import adapters_tests_main
 from tvb.tests.framework.analyzers import bct_test
 from tvb.tests.framework.interfaces.web import web_tests_main
+from tvb.basic.config.settings import TVBSettings
 
 
 
@@ -118,6 +113,8 @@ if __name__ == "__main__":
         TEST_RUNNER.run(TEST_SUITE)
 
     if KEY_XML in argv:
+        ## Cleanup previous results
+        os.removedirs(TVBSettings.TVB_LOG_FOLDER)
         XML_STREAM = file(os.path.join(TVBSettings.TVB_LOG_FOLDER, "TEST-RESULTS.xml"), "w")
         OUT_STREAM = file(os.path.join(TVBSettings.TVB_LOG_FOLDER, "TEST.out"), "w")
         TEST_RUNNER = XMLTestRunner(XML_STREAM, OUT_STREAM)
