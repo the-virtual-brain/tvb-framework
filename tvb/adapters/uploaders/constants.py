@@ -52,6 +52,12 @@ SURFACE_TYPE = 'SURFACE_TYPE'
 KEY_SURFACE_UID = 'SURFACE_UID'
 
 
+### These constants are surface type names as shown in the ui select boxes
+OPTION_SURFACE_FACE = "Face"
+OPTION_SURFACE_SKINAIR = "SkinAir"
+OPTION_SURFACE_CORTEX = "Cortex"
+
+
 ### TimeSeries related constants.
 LABEL_X = "label_x"
 LABEL_Y = "label_y"

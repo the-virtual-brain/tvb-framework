@@ -37,23 +37,23 @@
 import os
 import shutil
 import numpy
-import scipy.sparse as sparse
+from scipy import sparse
 from zipfile import ZipFile, ZIP_DEFLATED
 from tempfile import gettempdir
 from cfflib import CData
+from tvb.core.adapters.exceptions import ParseException
+from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
 from tvb.core.utils import get_unique_file_name, read_matlab_data
-from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.adapters.uploaders.gifti.util import GiftiDataType, GiftiIntentCode
 from tvb.adapters.uploaders.gifti.gifti import GiftiNVPairs, GiftiMetaData, saveImage, GiftiDataArray, GiftiImage
 from tvb.adapters.uploaders.helper_handler import get_uids_dict, get_gifty_file_name
+from tvb.adapters.uploaders import constants
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.traits.util import read_list_data
-from tvb.datatypes.connectivity import Connectivity
-import tvb.datatypes.surfaces as surfaces
-import tvb.datatypes.projections as projections
-import tvb.adapters.uploaders.constants as constants
 from tvb.basic.logger.builder import get_logger
+from tvb.datatypes.connectivity import Connectivity
+from tvb.datatypes import surfaces, projections
 
 
 LOG = get_logger("handle_surface")
@@ -312,8 +312,21 @@ def cdata2eeg_mapping(eeg_mapping_data, meta, storage_path, expected_shape=0):
     projection_matrix.sensors = None
     ### TODO if we decide to use this method, we will need to find a manner to fill the sensors.
     return projection_matrix
- 
- 
+
+
+def create_surface_of_type(surface_type):
+    """
+    :param surface_type: One of the constants describing the type of the surface in the ui
+    :return: A tvb Surface
+    """
+    if surface_type == constants.OPTION_SURFACE_SKINAIR:
+        return surfaces.SkinAir()
+    elif surface_type.startswith(constants.OPTION_SURFACE_CORTEX):
+        return surfaces.CorticalSurface()
+    elif surface_type == constants.OPTION_SURFACE_FACE:
+        return surfaces.FaceSurface()
+    else:
+        raise ParseException("Could not determine type of the surface")
     
 
     

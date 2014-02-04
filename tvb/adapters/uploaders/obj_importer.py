@@ -30,59 +30,65 @@
 
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
-.. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.constants import OPTION_SURFACE_CORTEX, OPTION_SURFACE_SKINAIR, OPTION_SURFACE_FACE
-from tvb.adapters.uploaders.gifti.gifti_parser import GIFTIParser, OPTION_READ_METADATA
+from tvb.adapters.uploaders.handler_surface import create_surface_of_type
+from tvb.adapters.uploaders.obj.surface import ObjSurface
 from tvb.basic.logger.builder import get_logger
-from tvb.core.adapters.exceptions import LaunchException, ParseException
+from tvb.core.adapters.exceptions import ParseException, LaunchException
+from tvb.core.entities.storage import transactional
 from tvb.datatypes.surfaces import CorticalSurface, SkinAir, FaceSurface
 
 
+class ObjSurfaceImporter(ABCUploader):
+    """
+    This imports geometry data stored in wavefront obj format
+    """
+    _ui_name = "Obj surface"
+    _ui_subsection = "obj_importer"
+    _ui_description = "Import geometry data stored in wavefront obj format"
 
-class GIFTISurfaceImporter(ABCUploader):
-    """
-    This importer is responsible for import of surface from GIFTI format (XML file)
-    and store them in TVB as Surface.
-    """
-    _ui_name = "Surface GIFTI"
-    _ui_subsection = "gifti_surface_importer"
-    _ui_description = "Import a surface from GIFTI"
-    
+
     def get_upload_input_tree(self):
         """
-        Take as input a .GII file.
+            Take as input a GZ archive or NII file.
         """
-        return [{'name': 'file_type', 'type': 'select',
+        return [{'name': 'surface_type', 'type': 'select',
                  'label': 'Specify file type : ', 'required': True,
-                 'options': [{'name': 'Specified in the file metadata', 'value': OPTION_READ_METADATA},
-                             {'name': 'Cortex', 'value': OPTION_SURFACE_CORTEX},
+                 'options': [{'name': 'Cortex', 'value': OPTION_SURFACE_CORTEX},
                              {'name': 'Outer Skin', 'value': OPTION_SURFACE_SKINAIR},
                              {'name': 'Face Shade', 'value': OPTION_SURFACE_FACE}],
-                 'default': OPTION_READ_METADATA},
+                 'default': OPTION_SURFACE_FACE},
 
-                {'name': 'data_file', 'type': 'upload', 'required_type': '.gii', 'required': True,
-                 'label': 'Please select file to import (.gii)'},
-
-                {'name': 'data_file_part2', 'type': 'upload', 'required_type': '.gii', 'required': False,
-                 'label': 'Please select part 2 of the file to import (.gii)'}
-                ]
-
-
+                {'name': 'data_file', 'type': 'upload', 'required_type': '.obj',
+                 'label': 'Please select file to import', 'required': True}]
+        
+        
     def get_output(self):
         return [CorticalSurface, SkinAir, FaceSurface]
 
 
-    def launch(self, file_type, data_file, data_file_part2):
+    @transactional
+    def launch(self, surface_type, data_file):
         """
         Execute import operations:
         """
-        parser = GIFTIParser(self.storage_path, self.operation_id)
         try:
-            surface = parser.parse(data_file, data_file_part2, file_type)
-            return [surface]             
+            surface = create_surface_of_type(surface_type)
+            surface.storage_path = self.storage_path
+            surface.set_operation_id(self.operation_id)
+            surface.zero_based_triangles = True
+
+            with open(data_file) as f:
+                obj = ObjSurface(f)
+
+            surface.vertices = obj.vertices
+            surface.triangles = obj.triangles
+            if obj.have_normals:
+                surface.vertex_normals = obj.normals
+            return [surface]
         except ParseException, excep:
             logger = get_logger(__name__)
             logger.exception(excep)
