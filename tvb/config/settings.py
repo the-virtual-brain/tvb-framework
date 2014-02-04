@@ -780,6 +780,19 @@ class TestSQLiteProfile(BaseProfile):
         return 1
 
 
+    @ClassProperty
+    @staticmethod
+    def TVB_LOG_FOLDER():
+        """
+        Represents a folder, where all log files are stored.
+        For tests we will place them in the workspace, to have them visible from Hudson.
+        """
+        tmp_path = os.path.join(FrameworkSettings.BIN_FOLDER, "TEST_OUTPUT")
+        if not os.path.exists(tmp_path):
+            os.makedirs(tmp_path)
+        return tmp_path
+
+
 
 class TestPostgresProfile(TestSQLiteProfile):
     """

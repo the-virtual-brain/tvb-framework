@@ -37,11 +37,10 @@ Entry point for all tests.
 import os
 from sys import argv
 from coverage import coverage
-
-from tvb.basic.profile import TvbProfile as tvb_profile
+from tvb.basic.profile import TvbProfile
 #set the current environment to the test setup
-tvb_profile.set_profile(argv)
-from tvb.basic.config.settings import TVBSettings as cfg
+TvbProfile.set_profile(argv)
+from tvb.basic.config.settings import TVBSettings
 
 KEY_CONSOLE = 'console'
 KEY_COVERAGE = 'coverage'
@@ -83,8 +82,8 @@ import unittest
 import datetime
 
 # Make sure folder for Logging exists.   
-if not os.path.exists(cfg.TVB_STORAGE):
-    os.makedirs(cfg.TVB_STORAGE)
+if not os.path.exists(TVBSettings.TVB_LOG_FOLDER):
+    os.makedirs(TVBSettings.TVB_LOG_FOLDER)
 
 import matplotlib
 matplotlib.use('module://tvb.interfaces.web.mplh5.mplh5_backend')
@@ -117,13 +116,15 @@ if __name__ == "__main__":
         TEST_RUNNER = unittest.TextTestRunner()
         TEST_SUITE = suite()
         TEST_RUNNER.run(TEST_SUITE)
+
     if KEY_XML in argv:
-        FILE_NAME = "TEST-RESULTS.xml"
-        STREAM = file(FILE_NAME, "w")
-        TEST_RUNNER = XMLTestRunner(STREAM)
+        XML_STREAM = file(os.path.join(TVBSettings.TVB_LOG_FOLDER, "TEST-RESULTS.xml"), "w")
+        OUT_STREAM = file(os.path.join(TVBSettings.TVB_LOG_FOLDER, "TEST.out"), "w")
+        TEST_RUNNER = XMLTestRunner(XML_STREAM, OUT_STREAM)
         TEST_SUITE = suite()
         TEST_RUNNER.run(TEST_SUITE)
-        STREAM.close()
+        XML_STREAM.close()
+        OUT_STREAM.close()
 
     print 'It run tests for %d sec.' % (datetime.datetime.now() - START_TIME).seconds
 
