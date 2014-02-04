@@ -394,7 +394,7 @@ class BurstServiceTest(BaseTestCase):
         it would be from a Parameter Space Exploration. Check that the workflows are also
         deleted with the burst.
         """
-        burst_config = self._prepare_and_launch_async_burst(length=1, is_range=True, nr_ops=4, wait_to_finish=100)
+        burst_config = self._prepare_and_launch_async_burst(length=1, is_range=True, nr_ops=4, wait_to_finish=180)
 
         launched_workflows = dao.get_workflows_for_burst(burst_config.id)
         self.assertEqual(len(launched_workflows), 4, "4 workflows should have been launched due to group parameter.")
@@ -609,7 +609,7 @@ class BurstServiceTest(BaseTestCase):
     def test_launch_group_burst_happy_flow(self):
         """
         Happy flow of launching a burst with a range parameter. Expect to get both and operation
-        group and a datatype group for the results of the simulations and for the metric steps.
+        group and a DataType group for the results of the simulations and for the metric steps.
         """
         burst_config = self._prepare_and_launch_async_burst(length=1, is_range=True, nr_ops=4, wait_to_finish=140)
         if burst_config.status != BurstConfiguration.BURST_FINISHED:
@@ -690,7 +690,7 @@ class BurstServiceTest(BaseTestCase):
                     self.assertTrue(portlet is None, "Before loading the tab configuration all portlets should be none")
 
 
-    def _wait_for_burst(self, burst_config, timeout=40):
+    def _wait_for_burst(self, burst_config, timeout=60):
         """
         Method that just waits until a burst configuration is finished or a maximum
         timeout is reached.
@@ -718,9 +718,9 @@ class BurstServiceTest(BaseTestCase):
 
     def _prepare_and_launch_async_burst(self, length=100, is_range=False, nr_ops=0, wait_to_finish=0):
         """
-        Launch an asyncronous burst with a simulation having all the default parameters, only the length recieved as
+        Launch an asynchronous burst with a simulation having all the default parameters, only the length received as
         a parameters. This is launched with actual simulator and not with a dummy test adapter as replacement.
-        :param length: the lenght of the simulation in miliseconds. This is also used in case we need
+        :param length: the length of the simulation in milliseconds. This is also used in case we need
             a group burst, in which case we will have `nr_ops` simulations with lengths starting from 
             `length` to `length + nr_ops` milliseconds
         :param is_range: a boolean which switches between a group burst and a non group burst.
@@ -757,7 +757,7 @@ class BurstServiceTest(BaseTestCase):
     def _prepare_and_launch_sync_burst(self):
         """
         Private method to launch a dummy burst. Return the burst loaded after the launch finished
-        as well as the workflow steps that innitialy formed the burst.
+        as well as the workflow steps that initially formed the burst.
         NOTE: the burst launched by this method is a `dummy` one, meaning we do not use an actual
         simulation, but instead test adapters.
         """
@@ -767,8 +767,8 @@ class BurstServiceTest(BaseTestCase):
         test_portlet = dao.get_portlet_by_identifier(self.PORTLET_ID)
 
         stored_dt = datatypes_factory.DatatypesFactory()._store_datatype(Datatype1())
-        first_step_algorithm = self.flow_service.get_algorithm_by_module_and_class("tvb.tests.framework.adapters.testadapter1",
-                                                                                   "TestAdapterDatatypeInput")[0]
+        first_step_algorithm = self.flow_service.get_algorithm_by_module_and_class(
+            "tvb.tests.framework.adapters.testadapter1", "TestAdapterDatatypeInput")[0]
         metadata = {DataTypeMetaData.KEY_BURST: burst_config.id}
         kwargs = {"test_dt_input": stored_dt.gid, 'test_non_dt_input': '0'}
         operations, group = self.operation_service.prepare_operations(self.test_user.id, self.test_project.id,
