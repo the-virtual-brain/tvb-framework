@@ -77,6 +77,7 @@ if __name__ == "__main__":
         COVERAGE.start()
         ## This needs to be executed before any TVB import.
 
+import shutil
 import unittest
 import datetime
 import matplotlib
@@ -114,7 +115,7 @@ if __name__ == "__main__":
 
     if KEY_XML in argv:
         ## Cleanup previous results
-        os.removedirs(TVBSettings.TVB_LOG_FOLDER)
+        shutil.rmtree(TVBSettings.TVB_LOG_FOLDER)
         XML_STREAM = file(os.path.join(TVBSettings.TVB_LOG_FOLDER, "TEST-RESULTS.xml"), "w")
         OUT_STREAM = file(os.path.join(TVBSettings.TVB_LOG_FOLDER, "TEST.out"), "w")
         TEST_RUNNER = XMLTestRunner(XML_STREAM, OUT_STREAM)
