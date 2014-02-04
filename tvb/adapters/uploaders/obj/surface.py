@@ -42,7 +42,6 @@ class ObjSurface(object):
     Represents a surface compatible with tvb.
     self.triangles , self.vertices , self.normals are numpy arrays shaped (n, 3)
     self.triangles contains indices.
-    If self.have_normals is False self.normals is None
     """
     def __init__(self, obj_file):
         """
@@ -96,3 +95,7 @@ class ObjSurface(object):
             self.normals = None
 
         self.triangles = np.array(self.triangles).reshape( (len(self.triangles)/3 , 3))
+
+        # checks
+        if not self.vertices or not self.triangles:
+            raise ParseException("No geometry data in file.")

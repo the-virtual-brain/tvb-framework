@@ -86,7 +86,7 @@ class ObjSurfaceImporter(ABCUploader):
 
             surface.vertices = obj.vertices
             surface.triangles = obj.triangles
-            if obj.have_normals:
+            if obj.normals:
                 surface.vertex_normals = obj.normals
             return [surface]
         except ParseException, excep:
