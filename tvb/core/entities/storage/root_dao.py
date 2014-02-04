@@ -103,7 +103,8 @@ class RootDAO(object):
             self.session.commit()
             result = True
         except NoResultFound:
-            self.logger.info("Entity from class %s with id %s no longer exists." % (entity_class, entity_id))
+            self.logger.info("Entity from class %s with id %s has been already removed." % (entity_class, entity_id))
+            return True
         except Exception, excep:
             self.logger.exception(excep)
         return result

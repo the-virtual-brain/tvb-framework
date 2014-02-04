@@ -105,7 +105,7 @@ class DataType(Base):
     # Native burst-results are referenced from a workflowSet as well
     # But we also have results generated afterwards from TreeBurst tab.
     fk_parent_burst = Column(Integer, ForeignKey('BURST_CONFIGURATIONS.id'))
-    _parent_burst = relationship(BurstConfiguration, backref=backref("DATA_TYPES", order_by=id))
+    _parent_burst = relationship(BurstConfiguration)
 
     #it should be a reference to a DataTypeGroup, but we can not create that FK
     #because this two tables (DATA_TYPES, DATA_TYPES_GROUPS) will reference each

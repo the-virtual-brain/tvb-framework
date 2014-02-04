@@ -60,7 +60,7 @@ class OperationDAO(RootDAO):
             operation.operation_group
             operation.algorithm.algo_group
         except SQLAlchemyError:
-            self.logger.exception("When fetching id %s" % operation_id)
+            self.logger.error("Operation not found for ID %s, we will return None." % operation_id)
             operation = None
         return operation
 
