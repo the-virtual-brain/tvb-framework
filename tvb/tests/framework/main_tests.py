@@ -81,6 +81,8 @@ import shutil
 import unittest
 import datetime
 import matplotlib
+## Cleanup previous results before any reference towards the logger
+shutil.rmtree(TVBSettings.TVB_LOG_FOLDER)
 matplotlib.use('module://tvb.interfaces.web.mplh5.mplh5_backend')
 from tvb.tests.framework.xml_runner import XMLTestRunner
 from tvb.tests.framework.core import core_tests_main
@@ -114,8 +116,6 @@ if __name__ == "__main__":
         TEST_RUNNER.run(TEST_SUITE)
 
     if KEY_XML in argv:
-        ## Cleanup previous results
-        shutil.rmtree(TVBSettings.TVB_LOG_FOLDER)
         XML_STREAM = file(os.path.join(TVBSettings.TVB_LOG_FOLDER, "TEST-RESULTS.xml"), "w")
         OUT_STREAM = file(os.path.join(TVBSettings.TVB_LOG_FOLDER, "TEST.out"), "w")
         TEST_RUNNER = XMLTestRunner(XML_STREAM, OUT_STREAM)
