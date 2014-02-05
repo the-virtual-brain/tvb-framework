@@ -1,13 +1,13 @@
 <div id="main" class="columnized colscheme-2-2nd-narrow" xmlns:xi="http://www.w3.org/2001/XInclude">
-	
 	<div>
-		
 		<script type="text/javascript" src="/static/js/vertice_pick/base_vertice_pick.js?5125"></script>
     	<script type="text/javascript" src="/static/js/vertice_pick/local_connectivity_vertice_pick.js?5125"></script>
     	<script type="text/javascript" src="/static/js/spatial/local_connectivity.js?4266"></script>
-    
+        <script type="text/javascript" src="/static/js/canvas2image.js?5001"></script>
+
 	    <xi:include href="local_connectivity_step2_left.html"/>
 	    <xi:include href="local_connectivity_step2_right.html"/>
+
 	    <form id="base_spatio_temporal_form" method="POST">
 		    <!-- === Box: Form controls -->
 		    <aside class="header-component toolbar can-extend auto-extends">
@@ -15,6 +15,11 @@
 			  <div class="extension">
 			   <div class="dropdown-pane">
 		        <ul>
+                    <li>
+                        <button class="action action-download" type="button" id="ctrl-action-export">
+                            Save Figure
+                        </button>
+                    </li>
 	                <li>
 	                	<button id="lconn_step_1" class="action action-analyze" onclick="LCONN_submitLocalConnectivityData('${next_step_url}', 'base_spatio_temporal_form');return false;">
 	                		Edit Local Connectivity Equation
@@ -34,6 +39,16 @@
 		       </div>
 		      </div>
 		    </aside>
-		 </form>
+		</form>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#ctrl-action-export").click(function(){
+                    C2I_exportFigures({suggestedName:"local-connectivity"});
+                    return false;
+                });
+            });
+        </script>
+
 	</div>
 </div>

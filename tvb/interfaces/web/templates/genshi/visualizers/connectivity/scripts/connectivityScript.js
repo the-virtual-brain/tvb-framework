@@ -846,6 +846,7 @@ function connectivity_initCanvas() {
     canvas.onmousedown = customMouseDown;
     document.onmouseup = GL_handleMouseUp;
     document.onmousemove = customMouseMove;
+    canvas.redrawFunctionRef = drawScene;
 }
 
 /**

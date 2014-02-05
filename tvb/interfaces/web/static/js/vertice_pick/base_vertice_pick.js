@@ -68,6 +68,7 @@ function BASE_PICK_customInitGL(canvas) {
         updateGLCanvasSize(BRAIN_CANVAS_ID);
 	};
 	initGL(canvas);
+    canvas.redrawFunctionRef = drawScene;
     drawingMode = gl.TRIANGLES;
 }
 

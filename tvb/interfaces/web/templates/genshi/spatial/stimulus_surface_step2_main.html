@@ -1,4 +1,5 @@
 <div id="main" class="columnized colscheme-2-2nd-narrow" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <script type="text/javascript" src="/static/js/canvas2image.js?5001"></script>
 
     <xi:include href="stimulus_surface_step2_left.html"/>
     <xi:include href="stimulus_surface_step2_right.html"/>
@@ -10,6 +11,11 @@
             <div class="extension">
                 <div class="dropdown-pane">
                     <ul>
+                        <li>
+                            <button class="action action-download" type="button" id="ctrl-action-export">
+                                Save Figure
+                            </button>
+                        </li>
                         <li>
                             <button class="action action-analyze" onclick="STIM_submitSurfaceStimulusData('${next_step_url}', 1, true);return false;">
                                 Edit Stimulus Equations
@@ -29,5 +35,14 @@
                 </div>
             </div>
         </aside>
-     </form>
+    </form>
+
+	<script type="text/javascript">
+        $(document).ready(function () {
+            $("#ctrl-action-export").click(function(){
+                C2I_exportFigures({suggestedName:"surface-stimulus"});
+                return false;
+            });
+        });
+    </script>
 </div>
