@@ -27,7 +27,9 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
+.. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
@@ -39,7 +41,7 @@ import os
 import shutil
 from functools import wraps
 from types import FunctionType
-from tvb.basic.config.settings import TVBSettings as cfg
+from tvb.basic.config.settings import TVBSettings
 from tvb.basic.logger.builder import get_logger
 from tvb.core.utils import get_matlab_executable
 from tvb.core.entities.storage import dao
@@ -55,97 +57,38 @@ MATLAB_EXECUTABLE = get_matlab_executable()
 
 def init_test_env():
     """
-        This method prepares all necessary data for tests execution
+    This method prepares all necessary data for tests execution
     """
-    default_mlab_exe = cfg.MATLAB_EXECUTABLE
-    cfg.MATLAB_EXECUTABLE = get_matlab_executable()
+    default_mlab_exe = TVBSettings.MATLAB_EXECUTABLE
+    TVBSettings.MATLAB_EXECUTABLE = get_matlab_executable()
     reset_database()
     initialize(["tvb.config", "tvb.tests.framework"], load_xml_events=False)
-    cfg.MATLAB_EXECUTABLE = default_mlab_exe
+    TVBSettings.MATLAB_EXECUTABLE = default_mlab_exe
 
 
-def transactional_test(func, callback=None):
-    """
-    A decorator to be used in tests which makes sure all database changes are reverted
-    at the end of the test.
-    """
-    if func.__name__.startswith('test_'):
-        @wraps(func)
-        def dec(*args, **kwargs):
-            session_maker = SessionMaker()
-            cfg.ALLOW_NESTED_TRANSACTIONS = True
-            default_dir = cfg.CURRENT_DIR
-            default_mlab_exe = cfg.MATLAB_EXECUTABLE
-            cfg.MATLAB_EXECUTABLE = get_matlab_executable()
-            session_maker.start_transaction()
-            try:
-                try:
-                    if hasattr(args[0], 'setUpTVB'):
-                        args[0].setUpTVB()
-                    result = func(*args, **kwargs)
-                finally:
-                    if hasattr(args[0], 'tearDownTVB'):
-                        args[0].tearDownTVB()
-                        args[0].delete_project_folders()
-            finally:
-                session_maker.rollback_transaction()
-                session_maker.close_transaction()
-                cfg.ALLOW_NESTED_TRANSACTIONS = False
-                cfg.MATLAB_EXECUTABLE = default_mlab_exe
-                cfg.CURRENT_DIR = default_dir
-            if callback is not None:
-                callback(*args, **kwargs)
-            return result
-        return dec
-    else:
-        return func
-
-
-class TransactionalTestMeta(type):
-    """
-    New MetaClass.
-    """
-    def __new__(mcs, classname, bases, class_dict):
-        """
-        Called when a new class gets instantiated.
-        """
-        new_class_dict = {}
-        for attr_name, attribute in class_dict.items():
-            if (type(attribute) == FunctionType and not (attribute.__name__.startswith('__') 
-                                                         and attribute.__name__.endswith('__'))):
-                if attr_name.startswith('test_'):
-                    attribute = transactional_test(attribute)
-                if attr_name in ('setUp', 'tearDown'):
-                    new_class_dict[attr_name + 'TVB'] = attribute
-                else:
-                    new_class_dict[attr_name] = attribute
-            else:
-                new_class_dict[attr_name] = attribute
-        return type.__new__(mcs, classname, bases, new_class_dict)
-
-
-# Following code is executed once / tests execution to reduce time.
+# Following code is executed once / tests execution to reduce time spent in tests.
 if "TEST_INITIALIZATION_DONE" not in globals():
     init_test_env()
     TEST_INITIALIZATION_DONE = True
-    
-    
+
+
+
 class BaseTestCase(unittest.TestCase):
     """
-        This class should implement basic functionality which 
-        is common to all TVB tests.
+    This class should implement basic functionality which is common to all TVB tests.
     """
-    EXCLUDE_TABLES = ["ALGORITHMS", "ALGORITHM_GROUPS", "ALGORITHM_CATEGORIES", "PORTLETS", 
+    EXCLUDE_TABLES = ["ALGORITHMS", "ALGORITHM_GROUPS", "ALGORITHM_CATEGORIES", "PORTLETS",
                       "MAPPED_INTERNAL__CLASS", "MAPPED_MAPPED_TEST_CLASS"]
 
 
     def assertEqual(self, expected, actual, message=""):
         super(BaseTestCase, self).assertEqual(expected, actual,
                                               message + " Expected %s but got %s." % (expected, actual))
-    
+
+
     def clean_database(self, delete_folders=True):
         """
-            Deletes data from all tables
+        Deletes data from all tables
         """
         self.cancel_all_operations()
         LOGGER.warning("Your Database content will be deleted.")
@@ -172,13 +115,13 @@ class BaseTestCase(unittest.TestCase):
         except Exception, excep:
             LOGGER.warning(excep)
             raise
-        
+
         # Now if the database is clean we can delete also project folders on disk
         if delete_folders:
             self.delete_project_folders()
-        dao.store_entity(model.User(cfg.SYSTEM_USER_NAME, 
-                                    None, None, True, None))
-        
+        dao.store_entity(model.User(TVBSettings.SYSTEM_USER_NAME, None, None, True, None))
+
+
     def cancel_all_operations(self):
         """
         To make sure that no running operations are left which could make some other
@@ -196,17 +139,19 @@ class BaseTestCase(unittest.TestCase):
         This method deletes folders for all projects from TVB folder.
         This is done without any check on database. You might get projects in DB but no folder for them on disk.
         """
-        if os.path.exists(cfg.TVB_STORAGE):
-            for current_file in os.listdir(cfg.TVB_STORAGE):
-                full_path = os.path.join(cfg.TVB_STORAGE, current_file)
+        if os.path.exists(TVBSettings.TVB_STORAGE):
+            for current_file in os.listdir(TVBSettings.TVB_STORAGE):
+                full_path = os.path.join(TVBSettings.TVB_STORAGE, current_file)
                 if current_file != "db_repo" and os.path.isdir(full_path):
                     shutil.rmtree(full_path, ignore_errors=True)
-    
-                
+
+
     def get_all_entities(self, entity_type):
         """
-        Retrieve all entities of a given type."""
+        Retrieve all entities of a given type.
+        """
         result = []
+        session = None
         try:
             session = SessionMaker()
             session.open_session()
@@ -214,17 +159,91 @@ class BaseTestCase(unittest.TestCase):
         except Exception, excep:
             LOGGER.warning(excep)
         finally:
-            session.close_session()
+            if session:
+                session.close_session()
         return result
-    
-    
+
+
     def get_all_datatypes(self):
-        """Return all DataType entities in DB or []."""
+        """
+        Return all DataType entities in DB or [].
+        """
         return self.get_all_entities(model.DataType)
-    
-        
+
+
     def reset_database(self):
         init_test_env()
+
+
+
+
+def transactional_test(func, callback=None):
+    """
+    A decorator to be used in tests which makes sure all database changes are reverted at the end of the test.
+    """
+    if func.__name__.startswith('test_'):
+
+        @wraps(func)
+        def dec(*args, **kwargs):
+            session_maker = SessionMaker()
+            TVBSettings.ALLOW_NESTED_TRANSACTIONS = True
+            default_dir = TVBSettings.CURRENT_DIR
+            default_mlab_exe = TVBSettings.MATLAB_EXECUTABLE
+            TVBSettings.MATLAB_EXECUTABLE = get_matlab_executable()
+            session_maker.start_transaction()
+            try:
+                try:
+                    if hasattr(args[0], 'setUpTVB'):
+                        LOGGER.debug(args[0].__class__.__name__ + "->" + func.__name__
+                                     + "- Transactional SETUP starting...")
+                        args[0].setUpTVB()
+                    result = func(*args, **kwargs)
+                finally:
+                    if hasattr(args[0], 'tearDownTVB'):
+                        LOGGER.debug(args[0].__class__.__name__ + "->" + func.__name__
+                                     + "- Transactional TEARDOWN starting...")
+                        args[0].tearDownTVB()
+                        args[0].delete_project_folders()
+            finally:
+                session_maker.rollback_transaction()
+                session_maker.close_transaction()
+                TVBSettings.ALLOW_NESTED_TRANSACTIONS = False
+                TVBSettings.MATLAB_EXECUTABLE = default_mlab_exe
+                TVBSettings.CURRENT_DIR = default_dir
+
+            if callback is not None:
+                callback(*args, **kwargs)
+            return result
+
+        return dec
+    else:
+        return func
+
+
+
+class TransactionalTestMeta(type):
+    """
+    New MetaClass.
+    """
+
+    def __new__(mcs, classname, bases, class_dict):
+        """
+        Called when a new class gets instantiated.
+        """
+        new_class_dict = {}
+        for attr_name, attribute in class_dict.items():
+            if (type(attribute) == FunctionType and not (attribute.__name__.startswith('__')
+                                                         and attribute.__name__.endswith('__'))):
+                if attr_name.startswith('test_'):
+                    attribute = transactional_test(attribute)
+                if attr_name in ('setUp', 'tearDown'):
+                    new_class_dict[attr_name + 'TVB'] = attribute
+                else:
+                    new_class_dict[attr_name] = attribute
+            else:
+                new_class_dict[attr_name] = attribute
+        return type.__new__(mcs, classname, bases, new_class_dict)
+
 
 
 class TransactionalTestCase(BaseTestCase):

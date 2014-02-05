@@ -81,6 +81,7 @@ import shutil
 import unittest
 import datetime
 import matplotlib
+from tvb.basic.config.settings import TVBSettings
 ## Cleanup previous results before any reference towards the logger
 shutil.rmtree(TVBSettings.TVB_LOG_FOLDER)
 matplotlib.use('module://tvb.interfaces.web.mplh5.mplh5_backend')
@@ -89,7 +90,6 @@ from tvb.tests.framework.core import core_tests_main
 from tvb.tests.framework.adapters import adapters_tests_main
 from tvb.tests.framework.analyzers import bct_test
 from tvb.tests.framework.interfaces.web import web_tests_main
-from tvb.basic.config.settings import TVBSettings
 
 
 
