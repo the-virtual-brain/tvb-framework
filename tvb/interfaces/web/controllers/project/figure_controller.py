@@ -63,12 +63,15 @@ class FigureController(ProjectController):
     @handle_error(redirect=False)
     @check_user
     @context_selected
-    def storeresultfigure(self, img_type, operation_id=None, **data):
+    def storeresultfigure(self, img_type, **kwargs):
         """Create preview for current displayed canvas and 
         store image in current session, for future comparison."""
         project = common.get_current_project()
         user = common.get_logged_user()
-        self.figure_service.store_result_figure(project, user, img_type, operation_id, data['export_data'])
+        operation_id = kwargs.get("operationId")
+        suggested_name = kwargs.get("suggestedName")
+        self.figure_service.store_result_figure(project, user, img_type, kwargs['export_data'],
+                                                image_name=suggested_name, operation_id=operation_id)
 
 
     @expose_page

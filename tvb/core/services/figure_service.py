@@ -106,7 +106,20 @@ class FigureService:
         file_name = FigureService._DEFAULT_IMAGE_FILE_NAME + img_type
         return utils.get_unique_file_name(images_folder, file_name)
 
-    def store_result_figure(self, project, user, img_type, operation_id, export_data):
+    @staticmethod
+    def _generate_image_name(project, user, operation, image_name):
+        if not image_name:
+            if operation is not None:
+                # create a name based on the operation that created the image
+                # e.g. TVB-Algo-Name-352
+                image_name = '%s-%s' % (operation.algorithm.name.replace(' ', '-'), operation.id)
+            else:
+                # default to a generic name
+                image_name = "figure"
+        figure_count = dao.get_figure_count(project.id, user.id) + 1
+        return 'TVB-%s-%s' % (image_name, figure_count)
+
+    def store_result_figure(self, project, user, img_type, export_data, image_name=None, operation_id=None):
         """
         Store into a file, Result Image and reference in DB.
         """
@@ -117,12 +130,12 @@ class FigureService:
         elif img_type == FigureService._TYPE_SVG:          # SVG file from svg viewer
             self._write_svg(store_path, export_data)
 
-        if operation_id is not None:
-            operation = dao.get_operation_by_id(operation_id)
-            image_name = 'TVB-%s-%s' % (operation.algorithm.name.replace(' ', '-'), operation_id)    # e.g. TVB-Algo-Name-352
+        if operation_id is None:
+            operation = None
         else:
-            figure_count = dao.get_figure_count(project.id, user.id)
-            image_name = 'TVB-figure-' + str(figure_count + 1)
+            operation = dao.get_operation_by_id(operation_id)
+
+        image_name = self._generate_image_name(project, user, operation, image_name)
 
         # Store entity into DB
         entity = model.ResultFigure(operation_id, user.id, project.id, FigureService._DEFAULT_SESSION_NAME,
@@ -134,7 +147,7 @@ class FigureService:
         # Write image meta data to disk  
         self.file_helper.write_image_metadata(figure)
 
-        if operation_id is not None:
+        if operation:
             # Force writing operation meta data on disk.
             # This is important later for operation import
             self.file_helper.write_operation_metadata(operation)
