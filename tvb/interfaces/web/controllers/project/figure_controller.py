@@ -63,7 +63,7 @@ class FigureController(ProjectController):
     @handle_error(redirect=False)
     @check_user
     @context_selected
-    def storeresultfigure(self, img_type, operation_id, **data):
+    def storeresultfigure(self, img_type, operation_id=None, **data):
         """Create preview for current displayed canvas and 
         store image in current session, for future comparison."""
         project = common.get_current_project()

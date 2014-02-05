@@ -586,7 +586,7 @@ class OperationDAO(RootDAO):
                 if user_id is not None:
                     figures_list = figures_list.filter_by(fk_for_user=user_id)
 
-                figures_list = figures_list.order_by(model.ResultFigure.name).all()
+                figures_list = figures_list.all()
 
                 # Force loading of project and operation - needed to compute image path
                 for figure in figures_list:
@@ -622,3 +622,17 @@ class OperationDAO(RootDAO):
             self.logger.exception(excep)
             return {}
 
+
+    def get_figure_count(self, project_id, user_id):
+        """
+        Used to generate sequential image names.
+        """
+        try:
+            session_items = self.session.query(model.ResultFigure).filter_by(fk_in_project=project_id)
+            if user_id is not None:
+                session_items = session_items.filter_by(fk_for_user=user_id)
+
+            return session_items.count()
+        except SQLAlchemyError, excep:
+            self.logger.exception(excep)
+            return {}

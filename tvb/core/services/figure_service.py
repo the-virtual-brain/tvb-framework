@@ -117,8 +117,12 @@ class FigureService:
         elif img_type == FigureService._TYPE_SVG:          # SVG file from svg viewer
             self._write_svg(store_path, export_data)
 
-        operation = dao.get_operation_by_id(operation_id)
-        image_name = 'TVB-%s-%s' % (operation.algorithm.name.replace(' ', '-'), operation_id)    # e.g. TVB-Algo-Name-352
+        if operation_id is not None:
+            operation = dao.get_operation_by_id(operation_id)
+            image_name = 'TVB-%s-%s' % (operation.algorithm.name.replace(' ', '-'), operation_id)    # e.g. TVB-Algo-Name-352
+        else:
+            figure_count = dao.get_figure_count(project.id, user.id)
+            image_name = 'TVB-figure-' + str(figure_count + 1)
 
         # Store entity into DB
         entity = model.ResultFigure(operation_id, user.id, project.id, FigureService._DEFAULT_SESSION_NAME,
@@ -130,9 +134,10 @@ class FigureService:
         # Write image meta data to disk  
         self.file_helper.write_image_metadata(figure)
 
-        # Force writing operation meta data on disk. 
-        # This is important later for operation import
-        self.file_helper.write_operation_metadata(operation)
+        if operation_id is not None:
+            # Force writing operation meta data on disk.
+            # This is important later for operation import
+            self.file_helper.write_operation_metadata(operation)
 
 
     def retrieve_result_figures(self, project, user, selected_session_name='all_sessions'):
