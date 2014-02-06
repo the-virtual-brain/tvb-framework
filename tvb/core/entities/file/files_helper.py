@@ -395,10 +395,13 @@ class FilesHelper():
      
     def unpack_zip(self, uploaded_zip, folder_path):
         """ Simple method to unpack ZIP archive in a given folder. """
+        EXLUDED_FOLDER = "__MACOSX" + os.path.sep
         try:
             zip_arch = zipfile.ZipFile(uploaded_zip)
             result = []
             for filename in zip_arch.namelist():
+                if filename.startswith(EXLUDED_FOLDER) or filename.find(os.path.sep + EXLUDED_FOLDER) >= 0:
+                    continue
                 new_file_name = os.path.join(folder_path, filename)
                 src = zip_arch.open(filename, 'rU')
                 if new_file_name.endswith('/'):
