@@ -179,7 +179,7 @@ function ColSch_initColorSchemeParams(minValue, maxValue, refreshFunction) {
     var colorNoUIElem = $("#ColSch_colorNo");                    // cache the jQuery selector
     colorNoUIElem.html(_sparseColorNo);
     $("#sliderForSparseColSch").slider({
-        min: 2, max: SPARSE_COLORS.length - 1, step: 1, values: [_sparseColorNo],
+        min: 2, max: SPARSE_COLORS.length, step: 1, values: [_sparseColorNo],
         slide: function (event, ui) { colorNoUIElem.html(ui.value) },
         change: function (event, ui) {
             _sparseColorNo = ui.value;
@@ -389,7 +389,8 @@ TVB_BRANDING_COLORS = [
  * Resulting color scheme is segmented among these colors
  */
 function getTvbColor(normalizedValue) {
-    var selectedInterval = Math.floor(normalizedValue * (TVB_BRANDING_COLORS.length - 1));
+    normalizedValue = __convert_to_open(normalizedValue);
+    var selectedInterval = Math.floor(normalizedValue * TVB_BRANDING_COLORS.length);
     return normalizeColorArray(TVB_BRANDING_COLORS[selectedInterval])
 }
 
@@ -424,10 +425,24 @@ SPARSE_COLORS = [
 ];
 
 /**
+ * Used by discrete color schemes. This makes the color interval open at the right end.
+ * The effect is that the maximal value will map to the one below it. Otherwise we have
+ * the corner case that a color is used by a single value leading to special handling.
+ * @returns: a number within [0,1[
+ */
+function __convert_to_open(normalizedValue){
+    var epsilon = 0.00001; // This assumes that the sparse color scheme has less than 10**6 colors.
+    if (normalizedValue == 1.0) {
+        normalizedValue = 1.0 - epsilon;
+    }
+    return normalizedValue;
+}
+/**
  * Returns an [r, g, b] color the first <code>_sparseColorNo</code> colors in SPARSE COLORS
  * Resulting color scheme is segmented among these colors
  */
 function getSparseColor(normalizedValue) {
+    normalizedValue = __convert_to_open(normalizedValue);
     var selectedInterval = Math.floor(normalizedValue * _sparseColorNo);
     var color = SPARSE_COLORS[selectedInterval];
     var r = color >> (4 * 4);                // discard green and blue, i.e. four hex positions
@@ -446,29 +461,26 @@ function getSparseColor(normalizedValue) {
  * @param height The height of the drawn canvas
  */
 function ColSch_updateLegendColors(containerDiv, height) {
+    // Get canvas, or create it if it does not  exist
     var canvas = $(containerDiv).children("canvas");
-    if (!canvas.length) {                                   // create if it doesn't exist
-        canvas = document.createElement("canvas");
-        canvas.setAttribute("width", "20px");
-        containerDiv.appendChild(canvas)
+    if (!canvas.length) {
+        canvas = $('<canvas width="20">');
+        $(containerDiv).append(canvas);
     }
-    else
-        canvas = canvas[0];                                  // exists, so take the first one
-    canvas.setAttribute("height", height + "px");            // update canvas' height
+    canvas.attr("height", height);
+    canvas = canvas[0];
 
-	if (canvas.getContext) {                                // Make sure we don't execute when canvas isn't supported
-        var ctx = canvas.getContext('2d');
-        var legendGranularity = 127;
-        var step = height / legendGranularity;
-        var lingrad = ctx.createLinearGradient(0, height, 0, 0);         // y axis is inverted, so start from top
-        for (var i = 0; i <= height; i += step)
-            lingrad.addColorStop(i / height, getGradientColorString(i, 0, height))
+    var ctx = canvas.getContext('2d');
+    var legendGranularity = 127;
+    var step = height / legendGranularity;
+    // y axis is inverted, so start from top
+    var lingrad = ctx.createLinearGradient(0, height, 0, 0);
 
-        ctx.fillStyle = lingrad;                            // Fill a rect using the gradient
-        ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-	}
-    else
-        displayMessage('You need a browser with canvas capabilities, to see this demo fully!', "errorMessage");
+    for (var i = 0; i <= height ; i += step){
+        lingrad.addColorStop(i / height, getGradientColorString(i, 0, height));
+    }
+    ctx.fillStyle = lingrad;                            // Fill a rect using the gradient
+    ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 }
 
 function ColSch_updateLegendLabels(container, minValue, maxValue, height) {
