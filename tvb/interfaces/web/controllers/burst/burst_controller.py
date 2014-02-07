@@ -284,6 +284,7 @@ class BurstController(BaseController):
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
         tab_nr = burst_config.selected_tab
         old_portlet_config = burst_config.tabs[int(tab_nr)].portlets[int(index_in_tab)]
+        data = json.loads(data['simulator_parameters'])
 
         # Replace all void entries with 'None'
         for entry in data:
@@ -318,6 +319,7 @@ class BurstController(BaseController):
         :param burst_name: user-given burst name. It can be empty (case in which we will fill with simulation_x)
         :param data: kwargs for simulation input parameters.
         """
+        data = json.loads(data['simulator_parameters'])
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
 
         ## Validate new burst-name

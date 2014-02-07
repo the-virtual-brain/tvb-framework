@@ -678,7 +678,7 @@ function savePortletParams() {
 	
 	var submitableData = getSubmitableData('portlet-param-config', false);
 	doAjaxCall({  	type: "GET",
-				data: submitableData,
+				data: JSON.stringify(submitableData),
 				url: '/burst/save_parameters/' + indexInTab,
 				traditional: true,
                 success: function(r) {    
@@ -1136,7 +1136,7 @@ function launchNewBurst(launchMode) {
     doAjaxCall({  	type: "POST",
     			async: true,
 				url: '/burst/launch_burst/' + launchMode + '/' + newBurstName,
-				data: submitableData, 
+				data: { 'simulator_parameters' : JSON.stringify(submitableData) },
 				traditional: true,
                 success: function(r) {
 	                		loadBurstHistory();
