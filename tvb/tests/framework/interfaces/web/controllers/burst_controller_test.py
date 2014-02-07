@@ -214,7 +214,7 @@ class BurstContollerTest(BaseControllersTest):
         should not be required.
         """
         self.burst_c.index()
-        self.assertEqual('noRelaunch', self.burst_c.save_parameters(0, {"portlet_parameters": ""}))
+        self.assertEqual('noRelaunch', self.burst_c.save_parameters(0, portlet_parameters=""))
 
 
     def test_rename_burst(self):
