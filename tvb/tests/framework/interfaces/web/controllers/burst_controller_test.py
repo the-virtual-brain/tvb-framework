@@ -214,7 +214,7 @@ class BurstContollerTest(BaseControllersTest):
         should not be required.
         """
         self.burst_c.index()
-        self.assertEqual('noRelaunch', self.burst_c.save_parameters(0))
+        self.assertEqual('noRelaunch', self.burst_c.save_parameters(0, {"portlet_parameters": ""}))
 
 
     def test_rename_burst(self):
@@ -237,6 +237,7 @@ class BurstContollerTest(BaseControllersTest):
         launch_params = copy.deepcopy(SIMULATOR_PARAMETERS)
         launch_params['connectivity'] = dao.get_datatype_by_id(connectivity.id).gid
         launch_params['simulation_length'] = '100'
+        launch_params = {"simulator_parameters": json.dumps(launch_params)}
         burst_id, _ = json.loads(self.burst_c.launch_burst("new", "test_burst", **launch_params))
         waited = 1
         timeout = 100

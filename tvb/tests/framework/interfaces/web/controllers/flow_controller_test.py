@@ -180,6 +180,7 @@ class FlowContollerTest(BaseControllersTest):
         else:
             launch_params['simulation_length'] = '[10000,10001,10002]'
             launch_params[model.RANGE_PARAMETER_1] = 'simulation_length'
+        launch_params = {"simulator_parameters": json.dumps(launch_params)}
         burst_id, _ = json.loads(self.burst_c.launch_burst("new", "test_burst", **launch_params))
         return dao.get_burst_by_id(burst_id)
         

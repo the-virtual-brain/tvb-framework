@@ -47,7 +47,8 @@ from tvb.core.services.burst_service import BurstService, KEY_PARAMETER_CHECKED
 from tvb.core.services.workflow_service import WorkflowService
 from tvb.core.services.operation_service import RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.interfaces.web.controllers import common
-from tvb.interfaces.web.controllers.decorators import context_selected, check_user, settings, handle_error, expose_page, expose_fragment, expose_json
+from tvb.interfaces.web.controllers.decorators import context_selected, check_user, settings, handle_error
+from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json
 from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.flow_controller import KEY_CONTROLLS, SelectedAdapterContext
 
@@ -276,7 +277,8 @@ class BurstController(BaseController):
         
         :param tab_nr: the index of the selected tab
         :param index_in_tab: the index of the configured portlet in the selected tab
-        :param data: the {name:value} dictionary configuration of the current portlet
+        :param data: the {"portlet_parameters": json_string}
+        Where json_string is a Jsonified dictionary: {name:value}, representing the configuration of the current portlet
         
         Having these inputs, update the configuration of the portletin the 
         corresponding tab position form the burst configuration .
@@ -284,7 +286,7 @@ class BurstController(BaseController):
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
         tab_nr = burst_config.selected_tab
         old_portlet_config = burst_config.tabs[int(tab_nr)].portlets[int(index_in_tab)]
-        data = json.loads(data['simulator_parameters'])
+        data = json.loads(data['portlet_parameters'])
 
         # Replace all void entries with 'None'
         for entry in data:
@@ -615,7 +617,7 @@ class BurstController(BaseController):
         result[common.KEY_DISPLAY_MENU] = True
         result[common.KEY_BACK_PAGE] = "/burst"
         result[common.KEY_SUBMIT_LINK] = self.get_url_adapter(algorithm.algo_group.group_category.id,
-                                                            algorithm.algo_group.id, 'burst')
+                                                              algorithm.algo_group.id, 'burst')
         if KEY_CONTROLLS not in result:
             result[KEY_CONTROLLS] = ''
         return self.fill_default_attributes(result)

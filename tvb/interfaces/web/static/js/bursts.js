@@ -678,7 +678,7 @@ function savePortletParams() {
 	
 	var submitableData = getSubmitableData('portlet-param-config', false);
 	doAjaxCall({  	type: "GET",
-				data: JSON.stringify(submitableData),
+				data: {"portlet_parameters": JSON.stringify(submitableData)},
 				url: '/burst/save_parameters/' + indexInTab,
 				traditional: true,
                 success: function(r) {    
