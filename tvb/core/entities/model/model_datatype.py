@@ -68,11 +68,11 @@ FILTER_CATEGORIES = {'model.DataType.subject': {'display': 'Subject', 'type': 's
                      'model.DataType.user_tag_5': {'display': 'Tag 5', 'type': 'string',
                                                    'operations': ['!=', '==', 'like']},
                      'model.Operation.start_date': {'display': 'Start date', 'type': 'date',
-                                                    'operations': ['==', '!=', '<', '>']},
+                                                    'operations': ['!=', '<', '>']},
                      'model.BurstConfiguration.name': {'display': 'Burst Name', 'type': 'string',
                                                        'operations': ['==', '!=', 'like']},
                      'model.Operation.completion_date': {'display': 'Completion date', 'type': 'date',
-                                                         'operations': ['==', '!=', '<', '>']}}
+                                                         'operations': ['!=', '<', '>']}}
 
 
 
