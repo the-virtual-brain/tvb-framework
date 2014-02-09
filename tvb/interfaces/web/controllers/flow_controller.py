@@ -372,10 +372,10 @@ class FlowController(BaseController):
             #Check for filter input of type 'date' as these need to be converted
             if filter_ in availablefilter and availablefilter[filter_][FILTER_TYPE] == 'date':
                 try:
-                    filter_ = string2date(filter_, False)
-                    filters[FILTER_VALUES][i] = filter_
-                except ValueError, excep:
-                    raise excep
+                    temp_date = string2date(filters[FILTER_VALUES][i], False)
+                    filters[FILTER_VALUES][i] = temp_date
+                except ValueError:
+                    raise
         #In order for the filter object not to "stack up" on multiple calls to
         #this method, create a deepCopy to work with
         if ABCAdapter.KEY_CONDITION in current_node:
