@@ -108,7 +108,7 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
         return 0
 
 
-    def launch(self, time_series, algorithms=None):
+    def launch(self, time_series, algorithms=None, start_point=None, segment=None):
         """ 
         Launch algorithm and build results.
 
@@ -120,6 +120,7 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
         """
         if algorithms is None:
             algorithms = self.available_algorithms.keys()
+
         shape = time_series.read_data_shape()
         log_debug_array(LOG, time_series, "time_series")
 
@@ -135,6 +136,11 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
 
             ##-------------------- Fill Algorithm for Analysis -------------------##
             algorithm = self.available_algorithms[algorithm_name](time_series=unstored_ts)
+            if segment is not None:
+                algorithm.segment = segment
+            if start_point is not None:
+                algorithm.start_point = start_point
+
             ## Validate that current algorithm's filter is valid.
             if (algorithm.accept_filter is not None and
                     not algorithm.accept_filter.get_python_filter_equivalent(time_series)):
