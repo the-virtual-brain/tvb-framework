@@ -903,11 +903,11 @@ function displayFiguresForSession(selected_session) {
 
 /**
  * Execute an AJAX call using jQuery with some parameters from given dictionary.
- * 
+ *
  * - {String} url URL to call
  * - {String} type request TYPE (POST, GET). Default = POST
- * - {bool} async Specify if the call should be done Sync 
- * 		or Async. Default = true (asynchronous) 
+ * - {bool} async Specify if the call should be done Sync
+ * 		or Async. Default = true (asynchronous)
  * - {function} success Function to be called for success
  * - {function} error Function to be called for error
  * - {bool} showBlockerOverlay if True will show blocker overlay until request is done. Default = false
@@ -961,8 +961,28 @@ function doAjaxCall(params) {
 	});
 }
 
+// -------------End AJAX Calls----------------------------------
+
 function checkArg(arg, def) {
 	return ( typeof arg === 'undefined' ? def : arg);
 }
 
-// -------------End AJAX Calls----------------------------------
+/**
+ * Converts a number to a string keeping the first significant numbers.
+ * If the number is < 1 this is Number.toPrecision else it is Number.toFixed
+ * @param number
+ * @param precision defaults to 2
+ * toSignificantDigits(0.0233) == "0.023"
+ * toSignificantDigits(0.0233) == "23"
+ * toSignificantDigits(23.3) == "23.30"
+ */
+function toSignificantDigits(number, precision){
+    if(precision == null || precision < 0){
+        precision = 2;
+    }
+    if(number == 0 || number > 1){
+        return number.toFixed(precision);
+    }else{
+        return number.toPrecision(precision);
+    }
+}

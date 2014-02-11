@@ -26,13 +26,52 @@ var BRAIN_CANVAS_ID = "GLcanvas";
  * Variables for displaying Time and computing Frames/Sec
  */
 var lastTime = 0;
-var currentTimeValue = 0;
-var TICK_STEP = 50;
-var TIME_STEP = 1;
-var AG_isStopped = false;
-var sliderSel = false;
 var framestime = [50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,
                   50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50];
+
+/**
+ * Time like entities:
+ * The movie time
+ *      Measured in 'time steps'
+ *      An index in the activitiesData array
+ * The display time
+ *      Measured in 'ticks'
+ *      Updated every TICK_STEP ms.
+ *      We do not keep the value of this time.
+ * The displayed movie time
+ *      The int value of it is in currentTimeValue.
+ *      Measured in 'time steps'.
+ *      Synchronizes the movie time to the display time.
+ */
+
+/**
+ * Granularity of the display time in ms.
+ */
+var TICK_STEP = 50;
+/**
+ * How many movie time steps for a display tick.
+ * If this is < 1 a movie frame will last 1/timeStepsPerTick ticks
+ */
+var timeStepsPerTick = 1;
+/**
+ * The integer part of timeStepsPerTick
+ */
+var TIME_STEP = 1;
+/**
+ * The current time in the activity movie.
+ * An index of the current movie frame.
+ * When timeStepsPerTick > it increments by TIME_STEP every tick.
+ * When timeStepsPerTick < 1 it increments by 1 every 1/timeStepsPerTick tick.
+ */
+var currentTimeValue = 0;
+/**
+ * For how many display ticks have we drawn the same time step.
+ */
+var elapsedTicksPerTimeStep = 0;
+
+var AG_isStopped = false;
+var sliderSel = false;
+
 var near = 0.1;
 var fov = 45;
 var isPreview = false;
@@ -80,7 +119,6 @@ var displayMeasureNodes = false;
 var activityMin = 0, activityMax = 0;
 var isOneToOneMapping = false;
 var isDoubleView = false;
-var isMovie = true;
 var drawingMode;
 var VS_showLegend = true;
 var isInternalSensorView = false;
@@ -131,7 +169,7 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
     isDoubleView = false;
     isOneToOneMapping = false;
     shouldIncrementTime = false;
-    isMovie = false;
+    AG_isStopped = true;
     VS_showLegend = showLegend;
     displayMeasureNodes = argDisplayMeasureNodes;
     isFaceToDisplay = argIsFaceToDisplay;
@@ -343,34 +381,48 @@ function _initTimeData(urlTimeList){
     }
 }
 
+function _updateSpeedSliderValue(stepsPerTick){
+    var s;
+    if (stepsPerTick >= 1){
+        s = stepsPerTick.toFixed(0);
+    }else{
+        s = "1/" + (1/stepsPerTick).toFixed(0);
+    }
+    $("#slider-value").html(s);
+}
+
 function _initSliders(){
     if (timeData.length > 0) {
         MAX_TIME_STEP = timeData.length - 1;
-        $("#sliderStep").slider({min:1, max: 50, step: 1,
+        $("#sliderStep").slider({min:0, max: 10, step: 1, value:5,
             stop: function() {
-                var newStep = $("#sliderStep").slider("option", "value");
-                setTimeStep(newStep);
                 refreshCurrentDataSlice();
                 sliderSel = false;
             },
-            slide: function() {
+            slide: function(event, target) {
+                // convert the linear 0..10 range to the exponential 1/32..1..32 range
+                var newStep = Math.pow(2, target.value - 5);
+                setTimeStep(newStep);
+                _updateSpeedSliderValue(timeStepsPerTick);
                 sliderSel = true;
             }
-            });
+        });
         // Initialize slider for timeLine
         $("#slider").slider({ min:0, max: MAX_TIME_STEP,
-            slide: function() {
+            slide: function(event, target) {
                 sliderSel = true;
-                currentTimeValue = $("#slider").slider("option", "value");
+                currentTimeValue = target.value;
             },
-            stop: function() {
+            stop: function(event, target) {
                 sliderSel = false;
-                loadFromTimeStep($("#slider").slider("option", "value"));
-            } });
+                loadFromTimeStep(target.value);
+            }
+        });
     } else {
         $("#divForSliderSpeed").hide();
     }
-    document.getElementById("Infobox").innerHTML = "";
+    _updateSpeedSliderValue(timeStepsPerTick);
+    $("#Infobox").html("");
 }
 
 ////////////////////////////////////////// GL Initializations //////////////////////////////////////////
@@ -441,10 +493,7 @@ function customMouseDown(event) {
  * Update colors for all Positions on the brain.
  */
     
-function updateColors(currentTimeValue) {
-    var currentTimeInFrame = Math.floor((currentTimeValue - totalPassedActivitiesData) / TIME_STEP);
-    var currentActivity = activitiesData[currentTimeInFrame];
-
+function updateColors(currentActivity) {
     if (isOneToOneMapping) {
         for (var i = 0; i < brainBuffers.length; i++) {
             // Reset color buffers at each step.
@@ -462,21 +511,13 @@ function updateColors(currentTimeValue) {
         }
     } else {
         for (var ii = 0; ii < NO_OF_MEASURE_POINTS; ii++) {
-            var rgb = getGradientColor(activitiesData[currentTimeInFrame][ii], activityMin, activityMax);
+            var rgb = getGradientColor(currentActivity[ii], activityMin, activityMax);
             gl.uniform4f(shaderProgram.colorsUniform[ii], rgb[0], rgb[1], rgb[2], 1);
         }
         // default color for a measure point
         gl.uniform4f(shaderProgram.colorsUniform[NO_OF_MEASURE_POINTS], 0.34, 0.95, 0.37, 1.0);
         // color used for a picked measure point
         gl.uniform4f(shaderProgram.colorsUniform[NO_OF_MEASURE_POINTS + 1], 0.99, 0.99, 0.0, 1.0);
-    }
-    if(isMovie){
-        if (shouldLoadNextActivitiesFile()) {
-            loadNextActivitiesFile();
-        }
-        if (shouldChangeCurrentActivitiesFile()) {
-            changeCurrentActivitiesFile();
-        }
     }
 }
 
@@ -541,10 +582,16 @@ function pauseMovie() {
     }
 }
 
-function setTimeStep(newStep) {
-    TIME_STEP = newStep;
-    if (TIME_STEP == 0) {
+/**
+ * Sets a new movie speed.
+ * To stop the movie set AG_isStopped to true rather than passing 0 here.
+ */
+function setTimeStep(newTimeStepsPerTick) {
+    timeStepsPerTick = newTimeStepsPerTick;
+    if (timeStepsPerTick < 1){ // subunit speed
         TIME_STEP = 1;
+    }else{
+        TIME_STEP = Math.floor(timeStepsPerTick);
     }
 }
 
@@ -834,10 +881,10 @@ function drawBrainLines(linesBuffers, brainObjBuffers) {
  * Actual scene drawing step.
  */
 function tick() {
-    if (!sliderSel) drawScene();
-    if (isDoubleView && !AG_isStopped && !sliderSel) {
-        drawGraph(true, TIME_STEP);
+    if (sliderSel) {
+        return;
     }
+    drawScene();
 }
 
 /**
@@ -877,13 +924,14 @@ function drawScene() {
 
             lastTime = timeNow;
             if (timeData.length > 0) {
-                document.getElementById("TimeNow").innerHTML = timeData[currentTimeValue].toFixed(2);
+                document.getElementById("TimeNow").innerHTML = toSignificantDigits(timeData[currentTimeValue], 2);
             }
-            document.getElementById("FramesPerSecond").innerHTML = Math.floor(1000 / ((eval(framestime.join("+"))) / framestime.length));
-
-            if(isMovie){
-                document.getElementById("slider-value").innerHTML = TIME_STEP;
+            var meanFrameTime = 0;
+            for(var i=0; i < framestime.length; i++){
+                meanFrameTime += framestime[i];
             }
+            meanFrameTime = meanFrameTime / framestime.length;
+            document.getElementById("FramesPerSecond").innerHTML = Math.floor(1000/meanFrameTime).toFixed();
             if (! sliderSel) {
                 $("#slider").slider("option", "value", currentTimeValue);
             }
@@ -900,22 +948,46 @@ function drawScene() {
             mvPopMatrix();
         }
 
+        var currentTimeInFrame = Math.floor((currentTimeValue - totalPassedActivitiesData) / TIME_STEP);
+        var currentActivity = activitiesData[currentTimeInFrame];
+
+        updateColors(currentActivity);
+
         // If we are in the middle of waiting for the next data file just
         // stop and wait since we might have an index that is 'out' of this data slice
         if (! AG_isStopped ) {
-            updateColors(currentTimeValue);
-            if (shouldIncrementTime && !isPreview) {
-                currentTimeValue = currentTimeValue + TIME_STEP;
-           }
-            if (currentTimeValue > MAX_TIME_STEP && !isPreview) {
-                // Next time value is no longer in activity data.
-                initActivityData();
+            // Synchronizes display time with movie time
+            var shouldStep = false;
+            if(timeStepsPerTick >= 1){
+                shouldStep = true;
+            }else if(elapsedTicksPerTimeStep >= (1 / timeStepsPerTick)){
+                shouldStep = true;
+                elapsedTicksPerTimeStep = 0;
+            }else{
+                elapsedTicksPerTimeStep += 1;
+            }
+
+            if(shouldStep){
+                if (shouldIncrementTime && !isPreview) {
+                    currentTimeValue = currentTimeValue + TIME_STEP;
+                }
+                if (currentTimeValue > MAX_TIME_STEP && !isPreview) {
+                    // Next time value is no longer in activity data.
+                    initActivityData();
+                    if (isDoubleView) {
+                        loadEEGChartFromTimeStep(0);
+                    }
+                }
+                if (shouldLoadNextActivitiesFile()) {
+                    loadNextActivitiesFile();
+                }
+                if (shouldChangeCurrentActivitiesFile()) {
+                    changeCurrentActivitiesFile();
+                }
                 if (isDoubleView) {
-                    loadEEGChartFromTimeStep(0);
+                    drawGraph(true, TIME_STEP);
                 }
             }
-        } else {
-            updateColors(currentTimeValue);
         }
 
         if(isInternalSensorView){
