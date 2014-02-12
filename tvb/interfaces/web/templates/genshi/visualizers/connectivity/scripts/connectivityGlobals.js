@@ -70,11 +70,13 @@ function _customMouseWheelEvent(delta) {
 // between the nodes i and j an edge is drawn in the corresponding 3D visualier 
 var GVAR_connectivityMatrix = [];
 
-function GFUNC_storeMinMax(minWeights, maxWeights, minTracts, maxTracts) {
-	GVAR_interestAreaVariables[1]['min_val'] = parseFloat(minWeights);
-    GVAR_interestAreaVariables[2]['min_val'] = parseFloat(minTracts);
-    GVAR_interestAreaVariables[1]['max_val'] = parseFloat(maxWeights);
-    GVAR_interestAreaVariables[2]['max_val'] = parseFloat(maxTracts);
+function GFUNC_storeMinMax(minWeights, minNonZeroWeights, maxWeights, minTracts, minNonZeroTracts, maxTracts) {
+    GVAR_interestAreaVariables[1].min_non_zero = parseFloat(minNonZeroWeights);
+    GVAR_interestAreaVariables[2].min_non_zero = parseFloat(minNonZeroTracts);
+	GVAR_interestAreaVariables[1].min_val = parseFloat(minWeights);
+    GVAR_interestAreaVariables[2].min_val = parseFloat(minTracts);
+    GVAR_interestAreaVariables[1].max_val = parseFloat(maxWeights);
+    GVAR_interestAreaVariables[2].max_val = parseFloat(maxTracts);
 }
 
 /**
@@ -94,23 +96,30 @@ function GFUNC_initConnectivityMatrix(lengthOfConnectivityMatrix) {//todo-io: ch
 
 
 function GFUNC_recomputeMinMaxW() {
-	GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'] = -1000000;
-	GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'] = 1000000;
-	for (var i=0; i<GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'].length;i++) {
-		for (var j=0; j<GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i].length; j++) {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j] < GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val']) {
-				GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'] = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j];
+    var matrix = GVAR_interestAreaVariables[GVAR_selectedAreaType];
+	matrix.max_val = -Infinity;
+	matrix.min_val = Infinity;
+    matrix.min_non_zero = Infinity;
+
+	for (var i=0; i<matrix.values.length;i++) {
+		for (var j=0; j<matrix.values[i].length; j++) {
+            var value = matrix.values[i][j];
+			if (value < matrix.min_val) {
+				matrix.min_val = value;
 			}
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j] > GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val']) {
-				GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'] = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j];
+			if (value > matrix.max_val) {
+				matrix.max_val = value;
 			}
+            if(value != 0 && value < matrix.min_non_zero){
+                matrix.min_non_zero = value;
+            }
 		}
 	}
 }
 
 function GFUNC_initTractsAndWeights(fileWeights, fileTracts) {
-	GVAR_interestAreaVariables[1]['values'] = HLPR_readJSONfromFile(fileWeights);
-	GVAR_interestAreaVariables[2]['values'] = HLPR_readJSONfromFile(fileTracts);
+	GVAR_interestAreaVariables[1].values = HLPR_readJSONfromFile(fileWeights);
+	GVAR_interestAreaVariables[2].values = HLPR_readJSONfromFile(fileTracts);
 }
 
 

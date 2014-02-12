@@ -27,8 +27,8 @@ var alphaValueSpaceTime = 1.0;				// original alpha value for default plot
 var backupAlphaValue = alphaValueSpaceTime;	// backup used in animations
 var minSelectedDelayValue = -1;
 var maxSelectedDelayValue = -1;
-var animationTimeout = 3;
-var animationGranularity = 50;
+var animationTimeout = 33; // 30Hz
+var animationGranularity = 20;
 
 
 function customMouseDown_SpaceTime(event) {
@@ -211,13 +211,16 @@ function generateColors(tractValue, intervalLength) {
 	for (var i = 0; i < nrElems; i++) {
 		for (var j = 0; j < nrElems; j++) {
             linearIndex += 1;
-            // For each element generate 4 identical colors coresponding to the 4 vertices used for the element
+            // For each element generate 4 identical colors corresponding to the 4 vertices used for the element
             var delayValue = matrixTractsValues[i][nrElems - j - 1] / conductionSpeed;
+            var weight = matrixWeightsValues[i][nrElems - j - 1];
+
+            var isWithinInterval = (delayValue >= (tractValue - intervalLength / 2) &&
+                                    delayValue <= (tractValue + intervalLength / 2));
             var color;
 
-            if (delayValue >= (tractValue - intervalLength / 2) &&
-                delayValue <= (tractValue + intervalLength / 2)) {
-                color = getGradientColor(matrixWeightsValues[i][nrElems - j - 1], minWeightsValue, maxWeightsValue);
+            if (isWithinInterval && weight != 0) {
+                color = getGradientColor(weight, minWeightsValue, maxWeightsValue);
             }else{
                 color = theme.noValueColor;
             }
@@ -233,8 +236,8 @@ function generateColors(tractValue, intervalLength) {
 }
 
 
-/*
- * Update the header with informations about matrices.
+/**
+ * Update the header with information about matrices.
  */ 
 function updateSpaceTimeHeader() {
 
@@ -349,13 +352,13 @@ function conectivitySpaceTime_initCanvas() {
 }
 
 function _connectivitySpaceTimeUpdateLegend(){
-    $('#leg_min_tract').html("Min tract length : " + GVAR_interestAreaVariables[2].min_val.toFixed(2) + ' mm');
-    $('#leg_max_tract').html("Max tract length : " + GVAR_interestAreaVariables[2].max_val.toFixed(2) + ' mm');
-    $('#leg_min_weights').html("Min weight : " + GVAR_interestAreaVariables[1].min_val.toFixed(2));
-    $('#leg_max_weights').html("Max weight : " + GVAR_interestAreaVariables[1].max_val.toFixed(2));
-    $('#leg_conduction_speed').html("Conduction speed : " + conductionSpeed.toFixed(2));
-    $('#leg_min_delay').html('Min delay : ' + (GVAR_interestAreaVariables[2].min_val / conductionSpeed).toFixed(2) + ' ms');
-    $('#leg_max_delay').html('Max delay : ' + (GVAR_interestAreaVariables[2].max_val / conductionSpeed).toFixed(2) + ' ms');
+    $('#leg_min_tract').html(GVAR_interestAreaVariables[2].min_non_zero.toFixed(2) + ' mm');
+    $('#leg_max_tract').html(GVAR_interestAreaVariables[2].max_val.toFixed(2) + ' mm');
+    $('#leg_min_weights').html(GVAR_interestAreaVariables[1].min_non_zero.toFixed(2));
+    $('#leg_max_weights').html(GVAR_interestAreaVariables[1].max_val.toFixed(2));
+    $('#leg_conduction_speed').html(conductionSpeed.toFixed(2));
+    $('#leg_min_delay').html((GVAR_interestAreaVariables[2].min_non_zero / conductionSpeed).toFixed(2) + ' ms');
+    $('#leg_max_delay').html((GVAR_interestAreaVariables[2].max_val / conductionSpeed).toFixed(2) + ' ms');
 }
 
 /*
@@ -481,16 +484,17 @@ function doZoomInAnimation() {
 	backupAlphaValue = alphaValueSpaceTime;
 	var animations = [];
 	for (var i = 0; i < plotTranslations.length; i++) {
+        var targetTranslation, endRotation;
 		if (i == clickedMatrix) {
-			animations.push(computeAnimationTranslations(plotTranslations[i], targetForwardPosition,
-														 plotRotations[i], targetForwardRotation, 
-														 alphaValueSpaceTime, 1, animationGranularity));
+            targetTranslation = targetForwardPosition;
+            endRotation = targetForwardRotation;
 		} else {
-			var targetTranslation = [plotTranslations[i][0], plotTranslations[i][1], -200];
-			animations.push(computeAnimationTranslations(plotTranslations[i], targetTranslation,
-														 plotRotations[i], plotRotations[i], 
-														 alphaValueSpaceTime, 1, animationGranularity));
-		}
+			targetTranslation = [plotTranslations[i][0], plotTranslations[i][1], -200];
+            endRotation = plotRotations[i];
+        }
+        animations.push(computeAnimationTranslations(plotTranslations[i], targetTranslation,
+                                                     plotRotations[i], endRotation,
+                                                     alphaValueSpaceTime, 1, animationGranularity));
 	}
 	animationStep(0, animationGranularity, animations, true);
 }

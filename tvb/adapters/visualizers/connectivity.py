@@ -156,6 +156,21 @@ class ConnectivityViewer(ABCDisplayer):
             result.append(projection.generate_new_projection(result_connectivity.gid, self.storage_path))
         return result
 
+    @staticmethod
+    def _compute_matrix_extrema(m):
+        """Returns the min max and the minmal nonzero value from ``m``"""
+        minv = float('inf')
+        min_nonzero = float('inf')
+        maxv = - float('inf')
+
+        for data in m:
+            for d in data:
+                minv = min(minv, d)
+                maxv = max(maxv, d)
+                if d != 0:
+                    min_nonzero = min(min_nonzero, d)
+
+        return minv, maxv, min_nonzero
 
     def compute_connectivity_global_params(self, input_data, surface_data=None):
         """
@@ -180,18 +195,16 @@ class ConnectivityViewer(ABCDisplayer):
         submit_url = self.get_submit_method_url("submit_connectivity")
         global_pages = dict(controlPage="connectivity/top_right_controls")
 
-        minimum = min([min(data) for data in input_data.weights])
-        maximum = max([max(data) for data in input_data.weights])
-
-        minimum_t = min([min(data) for data in input_data.tract_lengths])
-        maximum_t = max([max(data) for data in input_data.tract_lengths])
+        minimum, maximum, minimum_non_zero = self._compute_matrix_extrema(input_data.weights)
+        minimum_t, maximum_t, minimum_non_zero_t = self._compute_matrix_extrema(input_data.tract_lengths)
 
         global_params = dict(urlWeights=path_weights, urlPositions=path_pos, urlTracts=path_tracts,
                              originalConnectivity=input_data.gid, title="Connectivity Control",
                              submitURL=submit_url,
                              positions=input_data.centres, weights=input_data.weights,
-                             tractsMin=json.dumps(minimum_t), tractsMax=json.dumps(maximum_t),
-                             weightsMin=json.dumps(minimum), weightsMax=json.dumps(maximum),
+                             tractsMin=minimum_t, tractsMax=maximum_t,
+                             weightsMin=minimum, weightsMax=maximum,
+                             tractsNonZeroMin=minimum_non_zero_t, weightsNonZeroMin=minimum_non_zero,
                              pointsLabels=input_data.region_labels, conductionSpeed=input_data.speed or 1,
                              urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
                              urlNormals=json.dumps(url_normals),
