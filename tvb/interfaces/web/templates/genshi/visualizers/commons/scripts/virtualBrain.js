@@ -47,7 +47,7 @@ var framestime = [50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,
 /**
  * Granularity of the display time in ms.
  */
-var TICK_STEP = 50;
+var TICK_STEP = 33; // 30Hz
 /**
  * How many movie time steps for a display tick.
  * If this is < 1 a movie frame will last 1/timeStepsPerTick ticks
@@ -430,6 +430,7 @@ function _initSliders(){
 function customInitGL(canvas) {
     window.onresize = function() {
         updateGLCanvasSize(BRAIN_CANVAS_ID);
+        LEG_updateLegendVerticesBuffers();
     };
     initGL(canvas);
     canvas.redrawFunctionRef = drawScene;            // interface-like function used in HiRes image exporting

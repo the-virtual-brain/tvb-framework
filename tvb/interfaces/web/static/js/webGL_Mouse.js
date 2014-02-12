@@ -115,11 +115,11 @@ function GL_handleMouseWeel(delta) {
 
 // ------ RESHAPE FUNCTIONS START -----------------------------------------------
 
+/**
+ * Get the actual size of the canvas after all styles are applied and resizing is done, and
+ * update the gl context with these new values.
+ */
 function updateGLCanvasSize(canvasId) {
-    /*
-     * Get the actual size of the canvas after all styles are applied and resizing is done, and
-     * update the gl context with these new values.
-     */
     var canvas = $("#" + canvasId);
     var width = canvas.parent().width();
     var height = canvas.parent().height();
@@ -132,7 +132,6 @@ function updateGLCanvasSize(canvasId) {
     gl.viewportHeight = height;
     canvas.attr("width", width);
     canvas.attr("height", height);
-    LEG_updateLegendVerticesBuffers();
 }
 // ------ RESHAPE FUNCTIONS END -------------------------------------------------
 

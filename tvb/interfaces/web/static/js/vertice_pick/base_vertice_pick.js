@@ -66,6 +66,7 @@ var picking_triangles_number = [];
 function BASE_PICK_customInitGL(canvas) {
 	window.onresize = function() {
         updateGLCanvasSize(BRAIN_CANVAS_ID);
+        LEG_updateLegendVerticesBuffers();
 	};
 	initGL(canvas);
     canvas.redrawFunctionRef = drawScene;
