@@ -508,6 +508,7 @@ function startConnectivity() {
     GFUNC_bind_gl_resize_handler();
     // Sync size to parent. While the other tabs had been active the window may have resized.
     updateGLCanvasSize(CONNECTIVITY_CANVAS_ID);
+    drawScene();
 }
 
 function start2DConnectivity(idx) {
@@ -545,5 +546,6 @@ function startSpaceTimeConnectivity() {
     GFUNC_bind_gl_resize_handler();
     // Sync size to parent. While the other tabs had been active the window might have resized.
     updateGLCanvasSize(CONNECTIVITY_SPACE_TIME_CANVAS_ID);
+    drawSceneSpaceTime();
 }
 
