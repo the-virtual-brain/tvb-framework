@@ -352,13 +352,13 @@ function conectivitySpaceTime_initCanvas() {
 }
 
 function _connectivitySpaceTimeUpdateLegend(){
-    $('#leg_min_tract').html(GVAR_interestAreaVariables[2].min_non_zero.toFixed(2) + ' mm');
-    $('#leg_max_tract').html(GVAR_interestAreaVariables[2].max_val.toFixed(2) + ' mm');
+    $('#leg_min_tract').html(GVAR_interestAreaVariables[2].min_non_zero.toFixed(2));
+    $('#leg_max_tract').html(GVAR_interestAreaVariables[2].max_val.toFixed(2));
     $('#leg_min_weights').html(GVAR_interestAreaVariables[1].min_non_zero.toFixed(2));
     $('#leg_max_weights').html(GVAR_interestAreaVariables[1].max_val.toFixed(2));
     $('#leg_conduction_speed').html(conductionSpeed.toFixed(2));
-    $('#leg_min_delay').html((GVAR_interestAreaVariables[2].min_non_zero / conductionSpeed).toFixed(2) + ' ms');
-    $('#leg_max_delay').html((GVAR_interestAreaVariables[2].max_val / conductionSpeed).toFixed(2) + ' ms');
+    $('#leg_min_delay').html((GVAR_interestAreaVariables[2].min_non_zero / conductionSpeed).toFixed(2));
+    $('#leg_max_delay').html((GVAR_interestAreaVariables[2].max_val / conductionSpeed).toFixed(2));
 }
 
 /*
