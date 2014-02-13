@@ -43,7 +43,7 @@ function SEL_loadSelectionFromText() {
 			selectionOk = false;
 		}
 	}
-	if (selectionOk == false) {
+	if (! selectionOk ) {
 		displayMessage(errorTxt, "errorMessage");
 		return false;
 	} else {
@@ -128,28 +128,23 @@ SEL_OUTER_OPERATION = 4;
  */
 
 function divideSelectionBy(input, quantity) {
-	output = input / quantity;
-	return output;
+	return input / quantity;
 }
 
 function multiplySelectionWith(input, quantity) {
-	output = input * quantity;
-	return output;
+	return input * quantity;
 }
 
 function addToSelection(input, quantity) {
-	output = input + quantity
-	return output;
+	return input + quantity;
 }
 
 function decreaseSelection(input, quantity) {
-	output = input - quantity;
-	return output;
+	return input - quantity;
 }
 
 function setSelection(input, quantity) {
-	output = quantity;
-	return output;
+	return quantity;
 }
 
 OP_DICTIONARY ={ 1 : { 'name': 'Set(n)', 'operation': setSelection },
@@ -161,19 +156,20 @@ OP_DICTIONARY ={ 1 : { 'name': 'Set(n)', 'operation': setSelection },
 EDGES_TYPES = { 1 : 'In --> In',
 				2 : 'In --> Out',
 				3 : 'Out --> In',
-				4 : 'Out --> Out' }
+				4 : 'Out --> Out' };
 				
 
 function SEL_createOperationsTable() {
 	var operationsSelect = document.getElementById("con-op-operation");
+    var index, option;
 	for (index in OP_DICTIONARY) {
-		var option = new Option(OP_DICTIONARY[index]['name'], index);
+		option = new Option(OP_DICTIONARY[index]['name'], index);
 		operationsSelect.options[operationsSelect.options.length] = option;
 	}
 	
 	var edgesTypeSelect = document.getElementById("con-op-edges-type");
 	for (index in EDGES_TYPES) {
-		var option = new Option(EDGES_TYPES[index], index);
+		option = new Option(EDGES_TYPES[index], index);
 		edgesTypeSelect.options[edgesTypeSelect.options.length] = option;
 	}
 }
@@ -187,7 +183,7 @@ function doGroupOperation() {
 	//Selected operation
 	var operationsSelect = document.getElementById('con-op-operation');
 	var selectedOp = parseInt(operationsSelect.options[operationsSelect.selectedIndex].value);
-	selectedOp = OP_DICTIONARY[selectedOp]['operation']
+	selectedOp = OP_DICTIONARY[selectedOp]['operation'];
 	//Selected edges type
 	var edgesSelect = document.getElementById('con-op-edges-type');
 	var selectedEdgeType = parseInt(edgesSelect.options[edgesSelect.selectedIndex].value);
@@ -204,6 +200,7 @@ function doGroupOperation() {
 		for (var i=0; i<GVAR_interestAreaVariables[1]['values'].length;i++) {
 			for (var j=0; j<GVAR_interestAreaVariables[1]['values'][i].length; j++) {
 				switch(selectedEdgeType) {
+                    // todo: review this bit. In all cases we do the same thing.
 				case 1: {
 				  if (GFUNC_isNodeAddedToInterestArea(i) && GFUNC_isNodeAddedToInterestArea(j)) {
 						GVAR_interestAreaVariables[1]['values'][i][j] = selectedOp(GVAR_interestAreaVariables[1]['values'][i][j], quantity)
@@ -226,11 +223,11 @@ function doGroupOperation() {
 		GFUNC_recomputeMinMaxW();
 		MATRIX_colorTable();
 		var objToday = new Date(),
-        weekday = new Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
+        weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        domEnder = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th' ],
+        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         dayOfWeek = weekday[objToday.getDay()],
-        domEnder = new Array( 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th' ),
         dayOfMonth = today + (objToday.getDate() < 10) ? '0' + objToday.getDate() + domEnder[objToday.getDate()] : objToday.getDate() + domEnder[parseFloat(("" + objToday.getDate()).substr(("" + objToday.getDate()).length - 1))],
-        months = new Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
         curMonth = months[objToday.getMonth()],
         curYear = objToday.getFullYear(),
         curHour = objToday.getHours() > 12 ? objToday.getHours() - 12 : (objToday.getHours() < 10 ? "0" + objToday.getHours() : objToday.getHours()),
