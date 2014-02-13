@@ -157,7 +157,7 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
     canvas.onkeyup = GL_handleKeyUp;
     canvas.onmousedown = customMouseDown;
     document.onmouseup = NAV_customMouseUp;
-    document.onmousemove = customMouseMove;
+    document.onmousemove = GL_handleMouseMove;
     setInterval(drawScene, TICK_STEP);
 }
 
@@ -494,7 +494,10 @@ function customMouseDown(event) {
  * Update colors for all Positions on the brain.
  */
     
-function updateColors(currentActivity) {
+function updateColors(currentTimeInFrame) {
+
+    var currentActivity = activitiesData[currentTimeInFrame];
+
     if (isOneToOneMapping) {
         for (var i = 0; i < brainBuffers.length; i++) {
             // Reset color buffers at each step.
@@ -882,16 +885,94 @@ function drawBrainLines(linesBuffers, brainObjBuffers) {
  * Actual scene drawing step.
  */
 function tick() {
+
     if (sliderSel) {
         return;
     }
+
+    //// Update activity buffers to be drawn at next step
+    // If we are in the middle of waiting for the next data file just
+    // stop and wait since we might have an index that is 'out' of this data slice
+    if (! AG_isStopped ) {
+        // Synchronizes display time with movie time
+        var shouldStep = false;
+        if (timeStepsPerTick >= 1) {
+            shouldStep = true;
+        } else if (elapsedTicksPerTimeStep >= (1 / timeStepsPerTick)) {
+            shouldStep = true;
+            elapsedTicksPerTimeStep = 0;
+        } else {
+            elapsedTicksPerTimeStep += 1;
+        }
+
+        if (shouldStep && shouldIncrementTime) {
+            currentTimeValue = currentTimeValue + TIME_STEP;
+        }
+
+        if (currentTimeValue > MAX_TIME_STEP) {
+            // Next time value is no longer in activity data.
+            initActivityData();
+            if (isDoubleView) {
+                loadEEGChartFromTimeStep(0);
+                drawGraph(false, 0);
+            }
+            shouldStep = false;
+        }
+
+        if (shouldStep) {
+            if (shouldLoadNextActivitiesFile()) {
+                loadNextActivitiesFile();
+            }
+            if (shouldChangeCurrentActivitiesFile()) {
+                changeCurrentActivitiesFile();
+            }
+            if (isDoubleView) {
+                drawGraph(true, TIME_STEP);
+            }
+        }
+    }
+
+    var currentTimeInFrame = Math.floor((currentTimeValue - totalPassedActivitiesData) / TIME_STEP);
+    updateColors(currentTimeInFrame);
+
     drawScene();
+
+    /// Update FPS and Movie timeline
+    if (!isPreview) {
+        var timeNow = new Date().getTime();
+        var elapsed = timeNow - lastTime;
+
+        if (lastTime !== 0) {
+            framestime.shift();
+            framestime.push(elapsed);
+            if (GL_zoomSpeed != 0){
+                GL_zTranslation -= GL_zoomSpeed * elapsed;
+                GL_zoomSpeed = 0;
+            }
+            document.getElementById("TimeStep").innerHTML = elapsed;
+        }
+
+        lastTime = timeNow;
+        if (timeData.length > 0) {
+            document.getElementById("TimeNow").innerHTML = toSignificantDigits(timeData[currentTimeValue], 2);
+        }
+        var meanFrameTime = 0;
+        for(var i=0; i < framestime.length; i++){
+            meanFrameTime += framestime[i];
+        }
+        meanFrameTime = meanFrameTime / framestime.length;
+        document.getElementById("FramesPerSecond").innerHTML = Math.floor(1000/meanFrameTime).toFixed();
+        if (! sliderSel) {
+            $("#slider").slider("option", "value", currentTimeValue);
+        }
+    }
 }
 
 /**
  * Draw from buffers.
  */
 function drawScene() {
+
     var theme = ColSchGetTheme().surfaceViewer;
     gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
 
@@ -909,35 +990,6 @@ function drawScene() {
     if (!doPick) {
         gl.uniform1f(shaderProgram.isPicking, 0);
         gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
-        if (!isPreview) {
-            var timeNow = new Date().getTime();
-            var elapsed = timeNow - lastTime;
-
-            if (lastTime !== 0) {
-                framestime.shift();
-                framestime.push(elapsed);
-                if (GL_zoomSpeed != 0){
-                    GL_zTranslation -= GL_zoomSpeed * elapsed;
-                    GL_zoomSpeed = 0;
-                }
-                document.getElementById("TimeStep").innerHTML = elapsed;
-            }
-
-            lastTime = timeNow;
-            if (timeData.length > 0) {
-                document.getElementById("TimeNow").innerHTML = toSignificantDigits(timeData[currentTimeValue], 2);
-            }
-            var meanFrameTime = 0;
-            for(var i=0; i < framestime.length; i++){
-                meanFrameTime += framestime[i];
-            }
-            meanFrameTime = meanFrameTime / framestime.length;
-            document.getElementById("FramesPerSecond").innerHTML = Math.floor(1000/meanFrameTime).toFixed();
-            if (! sliderSel) {
-                $("#slider").slider("option", "value", currentTimeValue);
-            }
-        }
-
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         addLight();
@@ -947,48 +999,6 @@ function drawScene() {
             loadIdentity();
             drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
             mvPopMatrix();
-        }
-
-        var currentTimeInFrame = Math.floor((currentTimeValue - totalPassedActivitiesData) / TIME_STEP);
-        var currentActivity = activitiesData[currentTimeInFrame];
-
-        updateColors(currentActivity);
-
-        // If we are in the middle of waiting for the next data file just
-        // stop and wait since we might have an index that is 'out' of this data slice
-        if (! AG_isStopped ) {
-            // Synchronizes display time with movie time
-            var shouldStep = false;
-            if(timeStepsPerTick >= 1){
-                shouldStep = true;
-            }else if(elapsedTicksPerTimeStep >= (1 / timeStepsPerTick)){
-                shouldStep = true;
-                elapsedTicksPerTimeStep = 0;
-            }else{
-                elapsedTicksPerTimeStep += 1;
-            }
-
-            if(shouldStep){
-                if (shouldIncrementTime && !isPreview) {
-                    currentTimeValue = currentTimeValue + TIME_STEP;
-                }
-                if (currentTimeValue > MAX_TIME_STEP && !isPreview) {
-                    // Next time value is no longer in activity data.
-                    initActivityData();
-                    if (isDoubleView) {
-                        loadEEGChartFromTimeStep(0);
-                    }
-                }
-                if (shouldLoadNextActivitiesFile()) {
-                    loadNextActivitiesFile();
-                }
-                if (shouldChangeCurrentActivitiesFile()) {
-                    changeCurrentActivitiesFile();
-                }
-                if (isDoubleView) {
-                    drawGraph(true, TIME_STEP);
-                }
-            }
         }
 
         if(isInternalSensorView){
@@ -1069,7 +1079,6 @@ function drawScene() {
     }
 
     mvPopMatrix();
-
 }
 
 ////////////////////////////////////////~~~~~~~~~ END WEB GL RELATED RENDERING ~~~~~~~/////////////////////////////////
@@ -1184,7 +1193,7 @@ function loadNextActivitiesFile() {
  * that means it's time to switch to the next activity data slice.
  */
 function shouldChangeCurrentActivitiesFile() {
-    return ((currentTimeValue + TIME_STEP - totalPassedActivitiesData) >= currentActivitiesFileLength)
+    return ((currentTimeValue + TIME_STEP - totalPassedActivitiesData) > currentActivitiesFileLength)
 }
 
 /**
