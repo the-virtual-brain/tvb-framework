@@ -451,8 +451,7 @@ function toggleConfigSurfaceModelParamsButton() {
     selectorSurfaceElem.unbind('change.configureSurfaceModelParameters');
     selectorSurfaceElem.bind('change.configureSurfaceModelParameters', function () {
         var selectedValue = this.value;
-        if (selectedValue == undefined || selectedValue == 'None' ||
-            selectedValue == null || selectedValue.length == 0) {
+        if (selectedValue == null || selectedValue == 'None' || selectedValue.length == 0) {
             $("#configSurfaceModelParam").hide();
         } else {
             $("#configSurfaceModelParam").show();
@@ -612,7 +611,7 @@ function selectPortlets(isSave) {
 		for (var i = 0; i < selectedPortlets[0].length; i++) {
             selectedPortlets[selectedTab][i][1] = document.getElementById('portlet-name_entry-' + i).value;
 		}
-		doAjaxCall({	type: "POST",
+		doAjaxCall({type: "POST",
 					data: {"tab_portlets_list": JSON.stringify(selectedPortlets)},
 					url: '/burst/portlet_tab_display',
 		            success: function(r) {
@@ -622,6 +621,7 @@ function selectPortlets(isSave) {
 		            	// from the static previews page or the visualization page.
 		            	portletDisplayElem.hide();
 						portletDisplayElem.show();
+                        $("#portlets-configure").hide();
 						portletConfigurationActive = false;
 						markBurstChanged();
 						updatePortletsToolbar(3);
@@ -839,10 +839,9 @@ function _clearAllTimeouts() {
  * Change tab for current burst.
  */
 function changeBurstTile(selectedHref) {
-	
 	_clearAllTimeouts();
 	$("#div-burst-tree").hide();
-	$("#section-portlets-ul").find("li").each(function () {
+	$("#section-portlets-ul, #section-portlets-ul").find("li").each(function () {
 			$(this).removeClass('active');
 		});
 	var prev_class = selectedHref.parentElement.className;
@@ -857,11 +856,9 @@ function changeBurstTile(selectedHref) {
 	}
 	selectedTab = selectedHref.id.split('_')[1];
 	// Also update selected tab on cherryPy session.
-	doAjaxCall({  	type: "POST",
+	doAjaxCall({type: "POST",
 				async: false, 
-				url: '/burst/change_selected_tab/' + selectedTab,
-	            success: function(r) {} ,
-	            error: function(r) {}
+				url: '/burst/change_selected_tab/' + selectedTab
         	});
 	// Next update the checked check-boxes for this newly selected tab
 	updatePortletConfiguration();
@@ -923,7 +920,7 @@ function displayBurstTree(selectedHref, selectedProjectID, baseURL) {
 }
 
 /*************************************************************************************************************************
- * 			GENRIC FUNCTIONS
+ * 			GENERIC FUNCTIONS
  *************************************************************************************************************************/
 
   /*
