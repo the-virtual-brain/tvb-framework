@@ -170,14 +170,14 @@ function updateBurstHistoryStatus() {
  */
 function scheduleNewUpdate(withFullUpdate, refreshCurrent) {
 	
-	if (document.getElementById('burst-history') != null && document.getElementById('burst-history') != undefined) {
+	if ($('#burst-history').length != 0) {
     	if (withFullUpdate) {
     		loadBurstHistory();
     		if (refreshCurrent) {
     			loadBurst(sessionStoredBurst.id);
     		}
     	} else {
-    		setTimeout("updateBurstHistoryStatus()", 5000);
+    		setTimeout(updateBurstHistoryStatus, 5000);
     	}
     }
 }
@@ -227,7 +227,7 @@ function renameBurstEntry(burst_id, new_name_id) {
 			url: '/burst/rename_burst/' + burst_id + '/' + newValue,
 	        success: function() {
 	        				displayMessage("Simulation successfully renamed!");
-	        				$("#burst_id_" + burst_id + " a")[0].innerHTML = newValue;
+	        				$("#burst_id_" + burst_id + " a").html(newValue);
 	        				if (sessionStoredBurst.id == burst_id + "") {
 	        					sessionStoredBurst.name = newValue;
 	        					fill_burst_name(newValue, true, false);
@@ -346,10 +346,14 @@ function tryExpandRangers() {
  * Set on change on all simulator inputs, to set a new burst as active whenever something changes.
  */
 function setSimulatorChangeListener(parentDiv) {
-	
-	$('#' + parentDiv + ' select').each(function() { if (!this.disabled) { this.onchange(); } });
-	$('#' + parentDiv + ' input[type="radio"]').each(function() { if (!this.disabled && this.checked) { this.onchange(); } });
-	$("#" + parentDiv + " :input").each(function () {
+	var parentDiv = $('#' + parentDiv);
+    parentDiv.find('select').each(function() {
+        if (!this.disabled) { this.onchange(); }
+    });
+	parentDiv.find('input[type="radio"]').each(function() {
+        if (!this.disabled && this.checked) { this.onchange(); }
+    });
+	parentDiv.find(":input").each(function () {
 		if (this.type != 'checkbox') {
 			$(this).change(function() { 
 				if (this.type != 'checkbox') { 
@@ -473,13 +477,17 @@ function switch_top_level_visibility(currentVisibleSelection) {
 	if (currentVisibleSelection) {
 		$("" + currentVisibleSelection).show();
 	}
-	if (document.getElementById('button-maximize-flot')) {
-		minimizeColumn(document.getElementById('button-maximize-flot'), 'section-pse');
+    var maximize_flot = $('#button-maximize-flot')[0];
+    var maximize_iso = $('#button-maximize-iso')[0];
+    var maximize_portlets = $('#button-maximize-portlets')[0];
+
+	if (maximize_flot) {
+		minimizeColumn(maximize_flot, 'section-pse');
 	}
-	if (document.getElementById('button-maximize-iso')) {
-		minimizeColumn(document.getElementById('button-maximize-iso'), 'section-pse');
+	if (maximize_iso) {
+		minimizeColumn(maximize_iso, 'section-pse');
 	}
-	minimizeColumn(document.getElementById('button-maximize-portlets'), 'section-portlets');
+	minimizeColumn(maximize_portlets, 'section-portlets');
 }
 
 
@@ -562,20 +570,21 @@ function toogleMaximizeBurst(hrefElement) {
 
 
 function updatePortletsToolbar(state) {
-	
-	if (state==0) {
+	var secondClass;
+	if (state == 0) {
 		// Empty toolbar, when Tree TAB is selected
-		$("#portlets-toolbar")[0].className ='toolbar-inline empty-portlets-toolbar';
-	}else if (state==1) {
+		secondClass ='empty-portlets-toolbar';
+	}else if (state == 1) {
 		// Save and Cancel buttons when selecting currently visible portlets
-		$("#portlets-toolbar")[0].className = 'toolbar-inline select-portlets-toolbar';
-	} else if (state==2) {
+		secondClass = 'select-portlets-toolbar';
+	} else if (state == 2) {
 		// Save and Cancel when filling portlet parameters to work with
-		$("#portlets-toolbar")[0].className = 'toolbar-inline parameters-portlets-toolbar';
+		secondClass = 'parameters-portlets-toolbar';
 	} else {
 		// Standard (Configure button only) in rest
-		$("#portlets-toolbar")[0].className = 'toolbar-inline standard-portlets-toolbar';
+		secondClass = 'standard-portlets-toolbar';
 	}
+    $("#portlets-toolbar")[0].className = 'toolbar-inline ' + secondClass;
 }
 
 /*
@@ -844,14 +853,13 @@ function changeBurstTile(selectedHref) {
 	$("#section-portlets-ul, #section-portlets-ul").find("li").each(function () {
 			$(this).removeClass('active');
 		});
-	var prev_class = selectedHref.parentElement.className;
-	selectedHref.parentElement.className = prev_class + ' active';
+    $(selectedHref).parent().addClass('active');
 	// Refresh buttons
 	returnToSessionPortletConfiguration();
 	// First update with the value stored in the input fields
 	if (selectedTab >=0) {
 		for (var i = 0; i < selectedPortlets[0].length; i++) {
-            selectedPortlets[selectedTab][i][1] = document.getElementById('portlet-name_entry-' + i).value;
+            selectedPortlets[selectedTab][i][1] = $('#portlet-name_entry-' + i).val();
 		}
 	}
 	selectedTab = selectedHref.id.split('_')[1];
@@ -899,14 +907,11 @@ function displayBurstTree(selectedHref, selectedProjectID, baseURL) {
 	$("#section-portlets-ul").find("li").each(function () {
 			$(this).removeClass('active');
 		});
-	var prev_class = selectedHref.parentElement.className;
-	selectedHref.parentElement.className = prev_class + ' active';
+	$(selectedHref).parent().addClass('active');
 	// Also update selected tab on cherryPy session.
-	doAjaxCall({  	type: "POST",
+	doAjaxCall({type: "POST",
 				async: false, 
-				url: '/burst/change_selected_tab/-1',
-	            success: function(r) {} ,
-	            error: function(r) {}
+				url: '/burst/change_selected_tab/-1'
         	});
 	var filterValue = {'type' : 'from_burst', 'value' : sessionStoredBurst.id};
 	if (filterValue.value == '') {
