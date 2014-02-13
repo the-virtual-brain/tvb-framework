@@ -56,11 +56,11 @@ class FigureServiceTest(TransactionalTestCase):
         self.figure_service = FigureService()
         self.user = TestFactory.create_user()
         self.project = TestFactory.create_project(admin=self.user)
-        self.operation = TestFactory.create_operation(test_user=self.user, test_project=self.project)
         self.files_helper = FilesHelper()
 
     def tearDown(self):
         self.delete_project_folders()
+
 
     def assertCanReadImage(self, image_path):
         try:
@@ -69,8 +69,7 @@ class FigureServiceTest(TransactionalTestCase):
             self.fail("Could not open %s as a image" % image_path)
 
     def store_test_png(self):
-        self.figure_service.store_result_figure(self.project, self.user, "png",
-                                                IMG_DATA, image_name="test-figure")
+        self.figure_service.store_result_figure(self.project, self.user, "png", IMG_DATA, image_name="test-figure")
 
     def retrieve_images(self):
         figures_by_session, _ = self.figure_service.retrieve_result_figures(self.project, self.user)
@@ -80,14 +79,17 @@ class FigureServiceTest(TransactionalTestCase):
             figures.extend(fg)
         return figures
 
+
     def test_store_image(self):
         self.store_test_png()
 
     def test_store_image_from_operation(self):
-        self.figure_service.store_result_figure(self.project, self.user, "png",
-                                                IMG_DATA, operation_id=self.operation.id)
         # test that image can be retrieved from operation
-        figures = dao.get_figures_for_operation(self.operation.id)
+        test_operation = TestFactory.create_operation(test_user=self.user, test_project=self.project)
+
+        self.figure_service.store_result_figure(self.project, self.user, "png",
+                                                IMG_DATA, operation_id=test_operation.id)
+        figures = dao.get_figures_for_operation(test_operation.id)
         self.assertEqual(1, len(figures))
         image_path = self.files_helper.get_images_folder(self.project.name)
         image_path = os.path.join(image_path, figures[0].file_path)
