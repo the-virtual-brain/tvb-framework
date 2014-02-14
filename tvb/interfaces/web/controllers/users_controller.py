@@ -36,6 +36,7 @@ but also user related annotation (checked-logged).
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+import json
 import cherrypy
 import formencode
 from formencode import validators
@@ -373,12 +374,13 @@ class UserController(BaseController):
         if self.version_info is None:
             try:
                 content = urlopen(cfg.URL_TVB_VERSION, timeout=7).read()
-                self.version_info = self.flow_service.parse_version_xml(str(content))
-                pos = cfg.URL_TVB_VERSION.rfind('/')
+                self.version_info = json.loads(content)[0]
+                pos = cfg.URL_TVB_VERSION.find('/tvb')
                 self.version_info['url'] = cfg.URL_TVB_VERSION[:pos]
+                self.logger.debug("Read version: " + json.dumps(self.version_info))
             except Exception, excep:
-                self.logger.warning("Could not read current version.xml!")
-                self.logger.warning(content)
+                self.logger.warning("Could not read current version from remote server!")
+                self.logger.debug(content)
                 self.logger.exception(excep)
                 self.version_info = {}
         template_dictionary[KEY_SERVER_VERSION] = self.version_info

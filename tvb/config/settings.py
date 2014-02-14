@@ -450,7 +450,9 @@ class BaseProfile():
     @staticmethod
     def URL_TVB_VERSION():
         """URL for reading current available version information."""
-        default = "http://www.thevirtualbrain.org/tvb/zwei/version.xml"
+        default = "http://www.thevirtualbrain.org/tvb/zwei/action/serialize?" \
+                  "kind=tvb-release&type=JSON&counter=1&orderBy=releaseDate&asc=false&" \
+                  "field=version&field=description&field=releaseDate"
         return FrameworkSettings.get_attribute(FrameworkSettings.KEY_URL_VERSION, default)
 
 

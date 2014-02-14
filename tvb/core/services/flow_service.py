@@ -376,11 +376,6 @@ class FlowService:
             self.logger.exception(excep)
             raise OperationException(str(excep))      
 
-     
-    def parse_version_xml(self, xml_content):
-        """Parse XML content, to retrieve Version number, 
-        release date and release notes.""" 
-        return self.file_helper.parse_xml_content(xml_content)
     
     ##########################################################################
     ######## Methods below are for connectivity selections ###################
