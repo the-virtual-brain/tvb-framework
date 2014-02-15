@@ -291,9 +291,8 @@ class SurfaceContextModelParameters(ContextModelParameters):
 
     def get_equation_for_parameter(self, parameter_name):
         """
-        Returns the applied equation for the given model param.
-
-        Returns None if there is no equation applied to this param.
+        :returns: the applied equation for the given model param
+            OR None if there is no equation applied to this param.
         """
         if parameter_name in self.applied_equations and KEY_EQUATION in self.applied_equations[parameter_name]:
             return self.applied_equations[parameter_name][KEY_EQUATION]
@@ -302,7 +301,7 @@ class SurfaceContextModelParameters(ContextModelParameters):
 
     def get_focal_points_for_parameter(self, parameter_name):
         """
-        Returns the list of focal points for the equation applied in the given model param.
+        :returns: the list of focal points for the equation applied in the given model param.
         """
         if parameter_name in self.applied_equations and KEY_FOCAL_POINTS in self.applied_equations[parameter_name]:
             return self.applied_equations[parameter_name][KEY_FOCAL_POINTS_TRIANGLES]
@@ -311,13 +310,10 @@ class SurfaceContextModelParameters(ContextModelParameters):
 
     def get_data_for_model_param(self, original_param_name, modified_param_name):
         """
-        Returns:
-         - a dictionary of form: {'equation': $equation, 'focal_points': $list_of_focal_points,
-           'no_of_vertices':$surface_no_of_vertices} if the user specified any equation for computing
-           the value of the given parameter.
-
-         - a string of form: '[$default_model_param_value]' if the user didn't specified an equation for the given param
-
+        :returns: a dictionary of form {"equation": $equation, "focal_points": $list_of_focal_points,
+           "no_of_vertices": $surface_no_of_vertices} if the user specified any equation for computing
+           the value of the given parameter, OR a string of form: "[$default_model_param_value]"
+           if the user didn't specified an equation for the given param
         """
         if modified_param_name in self.applied_equations:
             return self.applied_equations[modified_param_name]
@@ -331,8 +327,7 @@ class SurfaceContextModelParameters(ContextModelParameters):
 
     def get_configure_info(self):
         """
-        Returns a dictionary which contains information about the
-        applied equations on the model parameters.
+        :returns: a dictionary which contains information about the applied equations on the model parameters.
         """
         result = {}
         for param in self.applied_equations:

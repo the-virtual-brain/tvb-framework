@@ -277,11 +277,11 @@ class BurstController(BaseController):
         
         :param tab_nr: the index of the selected tab
         :param index_in_tab: the index of the configured portlet in the selected tab
-        :param data: the {"portlet_parameters": json_string}
-        Where json_string is a Jsonified dictionary: {name:value}, representing the configuration of the current portlet
+        :param data: the {"portlet_parameters": json_string} Where json_string is a Jsonified dictionary
+            {"name": value}, representing the configuration of the current portlet
         
-        Having these inputs, update the configuration of the portletin the 
-        corresponding tab position form the burst configuration .
+        Having these inputs, current method updated the configuration of the portlet in the
+        corresponding tab position form the burst configuration in session.
         """
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
         tab_nr = burst_config.selected_tab
