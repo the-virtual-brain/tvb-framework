@@ -156,20 +156,24 @@ class BaseProfile():
     @staticmethod
     def SVN_VERSION():
         """Current SVN version in the package running now."""
+        svn_variable = 'SVN_REVISION'
+        if svn_variable in os.environ:
+            return os.environ[svn_variable]
+
         try:
             with open(os.path.join(FrameworkSettings.BIN_FOLDER, 'tvb.version'), 'r') as version_file:
                 return BaseProfile.parse_svn_version(version_file.read())
         except Exception:
             pass
+
         try:
             _proc = Popen(["svnversion", "."], stdout=PIPE)
             return BaseProfile.parse_svn_version(_proc.communicate()[0])
         except Exception:
             pass
-        # Migrations depend on this value.
-        # Future tvb versions will fail in this case.
-        # raise ValueError('cannot determine svn version')
-        return BaseProfile.parse_svn_version('1')
+
+        raise ValueError('cannot determine svn version')
+
 
     @ClassProperty
     @staticmethod
