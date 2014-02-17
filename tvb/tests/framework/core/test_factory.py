@@ -275,7 +275,12 @@ class TestFactory():
         FlowService().fire_operation(importer, user, project.id, **args)
     
     
-    
+    @staticmethod
+    def import_zip_connectivity(user, project, subject, zip_path):
+        group = dao.find_group('tvb.adapters.uploaders.zip_connectivity_importer', 'ZIPConnectivityImporter')
+        importer = ABCAdapter.build_adapter(group)
+        FlowService().fire_operation(importer, user, project.id, uploaded=zip_path, Data_Subject=subject)
+
 
 class ExtremeTestFactory():
     """

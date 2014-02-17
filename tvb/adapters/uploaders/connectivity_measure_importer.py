@@ -31,64 +31,66 @@
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
-
 from tvb.adapters.uploaders.abcuploader import ABCUploader
-from tvb.adapters.uploaders.constants import OPTION_SURFACE_CORTEX, OPTION_SURFACE_SKINAIR, OPTION_SURFACE_FACE
-from tvb.adapters.uploaders.handler_surface import create_surface_of_type
-from tvb.adapters.uploaders.obj.surface import ObjSurface
 from tvb.basic.logger.builder import get_logger
+from tvb.core import utils
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.entities.storage import transactional
-from tvb.datatypes.surfaces import CorticalSurface, SkinAir, FaceSurface
+from tvb.datatypes.connectivity import Connectivity
+from tvb.datatypes.graph import ConnectivityMeasure
 
 
-class ObjSurfaceImporter(ABCUploader):
+class ConnectivityMeasureImporter(ABCUploader):
     """
-    This imports geometry data stored in wavefront obj format
+    This imports a searies of conectivity measures from a .mat file
     """
-    _ui_name = "Obj surface"
-    _ui_subsection = "obj_importer"
-    _ui_description = "Import geometry data stored in wavefront obj format"
+    _ui_name = "Connectivity measure"
+    _ui_subsection = "connectivity_measure"
+    _ui_description = "Import a searies of connectivity measures from a .mat file"
 
 
     def get_upload_input_tree(self):
         """
-        Take as input an obj file
+        Take as input a mat file
         """
-        return [{'name': 'surface_type', 'type': 'select',
-                 'label': 'Specify file type : ', 'required': True,
-                 'options': [{'name': 'Cortex', 'value': OPTION_SURFACE_CORTEX},
-                             {'name': 'Outer Skin', 'value': OPTION_SURFACE_SKINAIR},
-                             {'name': 'Face Shade', 'value': OPTION_SURFACE_FACE}],
-                 'default': OPTION_SURFACE_FACE},
+        return [{'name': 'data_file', 'type': 'upload', 'required_type': '.mat',
+                 'label': 'Connectivity measure file (.mat format)', 'required': True},
 
-                {'name': 'data_file', 'type': 'upload', 'required_type': '.obj',
-                 'label': 'Please select file to import', 'required': True}]
+                {'name': 'dataset_name', 'type': 'str', 'required': True,
+                 'label': 'Matlab dataset name', 'default': 'M',
+                 'description': 'Name of the MATLAB dataset where data is stored'},
+
+                {'name': 'connectivity', 'label': 'Large Scale Connectivity',
+                 'type': Connectivity, 'required': True, 'datatype': True,
+                 'description': 'The Connectivity for which these measurements were made'},
+                ]
         
         
     def get_output(self):
-        return [CorticalSurface, SkinAir, FaceSurface]
+        return [ConnectivityMeasure]
 
 
     @transactional
-    def launch(self, surface_type, data_file):
+    def launch(self, data_file, dataset_name, connectivity):
         """
         Execute import operations:
         """
         try:
-            surface = create_surface_of_type(surface_type)
-            surface.storage_path = self.storage_path
-            surface.set_operation_id(self.operation_id)
-            surface.zero_based_triangles = True
+            data = utils.read_matlab_data(data_file, dataset_name)
+            measurement_count, node_count = data.shape
 
-            with open(data_file) as f:
-                obj = ObjSurface(f)
+            if node_count != connectivity.number_of_regions:
+                raise LaunchException('The measurements are for %s nodes but the selected connectivity'
+                                      ' contains %s nodes' % (node_count, connectivity.number_of_regions))
 
-            surface.vertices = obj.vertices
-            surface.triangles = obj.triangles
-            if obj.normals:
-                surface.vertex_normals = obj.normals
-            return [surface]
+            measures = []
+            for i in xrange(measurement_count):
+                measure = ConnectivityMeasure(storage_path=self.storage_path,
+                                              connectivity=connectivity, array_data=data)
+                measure.user_tag_2 = "nr.-%d" % (i + 1)
+                measure.user_tag_3 = "conn_%d" % node_count
+                measures.append(measure)
+            return measures
         except ParseException, excep:
             logger = get_logger(__name__)
             logger.exception(excep)
