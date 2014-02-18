@@ -271,6 +271,8 @@ function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, 
                        noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
                        boundaryURL, null, false, false, false, minMeasure, maxMeasure, measure);
     _VS_init_cubicalMeasurePoints();
+    // TODO minMEasure and maxMeasure could directly come as floats ??
+    ColSch_initColorSchemeParams(parseFloat(minMeasure), parseFloat(maxMeasure));
 }
 
 function VS_StartEEGSensorViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
