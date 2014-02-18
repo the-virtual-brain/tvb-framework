@@ -33,9 +33,11 @@
 """
 
 import json
+import numpy
 from tvb.basic.filters.chain import UIFilter, FilterChain
 from tvb.basic.traits.core import KWARG_FILTERS_UI
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
+from tvb.datatypes.graph import ConnectivityMeasure
 from tvb.datatypes.surfaces import RegionMapping
 from tvb.datatypes.surfaces_data import SurfaceData
 
@@ -49,23 +51,43 @@ class SurfaceViewer(ABCDisplayer):
     _ui_subsection = "surface"
 
     def get_input_tree(self):
-        ui_filter = UIFilter(linked_elem_name="region_map",
-                             linked_elem_field=FilterChain.datatype + "._surface")
+        # todo: filter connectivity measures: same length as regions and 1-dimensional
 
-        json_ui_filter = json.dumps([ui_filter.to_dict()])
+        filters_ui = [UIFilter(linked_elem_name="region_map",
+                               linked_elem_field=FilterChain.datatype + "._surface"),
+                      # UIFilter(linked_elem_name="connectivity_measure",
+                      #          linked_elem_field=FilterChain.datatype + "._surface")
+        ]
+
+        json_ui_filter = json.dumps([ui_filter.to_dict() for ui_filter in filters_ui])
 
         return [{'name': 'surface', 'label': 'Brain surface',
                  'type': SurfaceData, 'required': True,
                  'description': '', KWARG_FILTERS_UI: json_ui_filter},
                 {'name': 'region_map', 'label': 'Region mapping',
                  'type': RegionMapping, 'required': False,
-                 'description': 'A region map'}]
+                 'description': 'A region map'},
+                {'name': 'connectivity_measure', 'label': 'Connectivity measure',
+                 'type': ConnectivityMeasure, 'required': False,
+                 'description': 'A connectivity measure'}]
 
 
-    def compute_parameters(self, surface, region_map):
-        rendering_urls = [json.dumps(url) for url in surface.get_urls_for_rendering(True, region_map)]
+    def _compute_surface_params(self, surface, region_map):
+        rendering_urls = []
+        # we want the url's in json
+        # But these string are going to be verbatim strings in js source code
+        # This means that js will interpret escapes like \" so the json parser gets "
+        # Double escape is needed \\"
+        for url in surface.get_urls_for_rendering(True, region_map):
+            escaped_url = json.dumps(url).replace('\\', '\\\\')
+            rendering_urls.append(escaped_url)
+
         url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices = rendering_urls
+        return dict(urlVertices=url_vertices, urlTriangles=url_triangles, urlLines=url_lines,
+                    urlNormals=url_normals, urlAlphas=alphas, urlAlphasIndices=alphas_indices)
 
+
+    def _compute_measure_points_param(self, surface, region_map):
         if region_map is None:
             measure_points_no = 0
             url_measure_points = ''
@@ -76,17 +98,42 @@ class SurfaceViewer(ABCDisplayer):
             url_measure_points = self.paths2url(region_map.connectivity, 'centres')
             url_measure_points_labels = self.paths2url(region_map.connectivity, 'region_labels')
             boundary_url = surface.get_url_for_region_boundaries(region_map)
-
-        return dict(title="Surface Viewer", urlVertices=url_vertices,
-                    urlTriangles=url_triangles, urlLines=url_lines,
-                    urlNormals=url_normals, urlAlphas=alphas, urlAlphasIndices=alphas_indices,
-                    noOfMeasurePoints=measure_points_no, urlMeasurePoints=url_measure_points,
-                    urlMeasurePointsLabels=url_measure_points_labels, boundaryURL=boundary_url,
-                    extended_view=False, isOneToOneMapping=False, hasRegionMap=region_map is not None)
+        return dict(noOfMeasurePoints=measure_points_no, urlMeasurePoints=url_measure_points,
+                    urlMeasurePointsLabels=url_measure_points_labels, boundaryURL=boundary_url)
 
 
-    def launch(self, surface, region_map=None):
-        params = self.compute_parameters(surface, region_map)
+    def _compute_measure_param(self, connectivity_measure, measure_points_no):
+        # This activity data is written to html. It is small : len(regions)
+        # If we want to do it async maybe move this to surface and update get_urls_for_rendering
+        if connectivity_measure is None:
+            # If there is no measure to show then we what to show the region mapping
+            # Create a sequential measure to visualize the region sequence
+            min_measure = 0
+            max_measure = measure_points_no
+            client_measure = json.dumps(range(max_measure))
+        else:
+            if connectivity_measure.nr_dimensions != 1:
+                raise ValueError("connectivity measure must be 1 dimensional")
+            if connectivity_measure.length_1d != measure_points_no:
+                raise ValueError("connectivity measure has %d values but the connectivity has %d "
+                                 "regions" % (connectivity_measure.length_1d, measure_points_no))
+            min_measure = numpy.min(connectivity_measure.array_data)
+            max_measure = numpy.max(connectivity_measure.array_data)
+            # We assume here that the index 0 in the measure corresponds to
+            # the region 0 of the region map.
+            client_measure = json.dumps(connectivity_measure.array_data.tolist())
+
+
+        return dict(minMeasure=min_measure, maxMeasure=max_measure, measure=client_measure)
+
+
+    def launch(self, surface, region_map=None, connectivity_measure=None):
+        params = dict(title="Surface Viewer", extended_view=False,
+                      isOneToOneMapping=False, hasRegionMap=region_map is not None)
+
+        params.update(self._compute_surface_params(surface, region_map))
+        params.update(self._compute_measure_points_param(surface, region_map))
+        params.update(self._compute_measure_param(connectivity_measure, params['noOfMeasurePoints']))
         return self.build_display_result("surface/surface_view", params,
                                          pages={"controlPage": "surface/surface_viewer_controls"})
 

@@ -163,7 +163,8 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
 
 function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                               boundaryURL, shelfObject, showLegend, argDisplayMeasureNodes, argIsFaceToDisplay){
+                               boundaryURL, shelfObject, showLegend, argDisplayMeasureNodes, argIsFaceToDisplay,
+                               minMeasure, maxMeasure, measure){
     // initialize global configuration
     isPreview = false;
     isDoubleView = false;
@@ -183,17 +184,19 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
         measurePoints = [[0, 0, 0]];
         measurePointsLabels = [''];
         NO_OF_MEASURE_POINTS = 1;
+        // mock one activity frame
+        activityMin = 0;
+        activityMax = 1;
+        activitiesData = [[0]];
     }else{
         _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePointsLabels);
-    }
-
-    // mock activity data
-    activitiesData = [[]];
-    activityMin = 0;
-    activityMax = NO_OF_MEASURE_POINTS;    
-
-    for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-        activitiesData[0].push(i);
+        // If a region mapping is present then the server has sent a 1d connectivity measure.
+        // The activity data will contain just one frame containing the values of the connectivity measure.
+        // The measure can be a range(NO_OF_MEASURE_POINTS) when the purpose of the static
+        // viewer is to show a region map.
+        activityMin = parseFloat(minMeasure);
+        activityMax = parseFloat(maxMeasure);
+        activitiesData = [$.parseJSON(measure)];
     }
 
     GL_zTranslation = GL_DEFAULT_Z_POS;
@@ -262,20 +265,20 @@ function _VS_init_cubicalMeasurePoints(){
 
 function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                               boundaryURL){
+                               boundaryURL, minMeasure, maxMeasure, measure){
 
     _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                        noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                       boundaryURL, null, false, false, false);
+                       boundaryURL, null, false, false, false, minMeasure, maxMeasure, measure);
     _VS_init_cubicalMeasurePoints();
 }
 
 function VS_StartEEGSensorViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlMeasurePointsLabels,
-                               shelfObject){
+                               shelfObject, minMeasure, maxMeasure, measure){
     _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, '', '', urlMeasurePointsLabels,
-                               '', shelfObject, false, true, true);
+                               '', shelfObject, false, true, true, minMeasure, maxMeasure, measure);
     _VS_init_cubicalMeasurePoints();
 }
 

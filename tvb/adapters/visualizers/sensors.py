@@ -56,12 +56,17 @@ class InternalSensorViewer(ABCDisplayer):
         SensorsInternal have full 3D positions to diaplay
         """
         measure_points_info = BrainEEG.get_sensor_measure_points(sensors)
+        measure_points_nr = measure_points_info[2]
 
         params = {
             'shelfObject': BrainViewer.get_default_face(),
             'urlMeasurePoints': measure_points_info[0],
             'urlMeasurePointsLabels': measure_points_info[1],
-            'noOfMeasurePoints': measure_points_info[2]}
+            'noOfMeasurePoints': measure_points_info[2],
+            'minMeasure': 0,
+            'maxMeasure': measure_points_nr,
+            'measure' : json.dumps(range(measure_points_nr))  # values displayed on sensor
+        }
 
         return self.build_display_result('sensors/sensors_internal', params,
                                          pages={'controlPage': 'sensors/sensors_controls'})
@@ -100,7 +105,7 @@ class EegSensorViewer(ABCDisplayer):
 
     def launch(self, sensors, eeg_cap=None):
         measure_points_info = BrainEEG.compute_sensor_surfacemapped_measure_points(sensors, eeg_cap)
-
+        measure_points_nr = measure_points_info[2]
         params = {
             'shelfObject': BrainViewer.get_default_face(),
             'urlVertices': '', 'urlTriangles': '',
@@ -108,7 +113,11 @@ class EegSensorViewer(ABCDisplayer):
             'boundaryURL': '', 'urlAlphas': '', 'urlAlphasIndices': '',
             'urlMeasurePoints': measure_points_info[0],
             'urlMeasurePointsLabels': measure_points_info[1],
-            'noOfMeasurePoints': measure_points_info[2]}
+            'noOfMeasurePoints': measure_points_nr,
+            'minMeasure': 0,
+            'maxMeasure': measure_points_nr,
+            'measure' : json.dumps(range(measure_points_nr))
+        }
 
         if eeg_cap is not None:
             params.update(self._compute_surface_params(eeg_cap))

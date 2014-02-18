@@ -62,9 +62,11 @@ function _VSI_init_sphericalMeasurePoints(){
     }
 }
 
-function VSI_StartInternalSensorViewer(urlMeasurePoints,  noOfMeasurePoints, urlMeasurePointsLabels, shelfObject){
+function VSI_StartInternalSensorViewer(urlMeasurePoints,  noOfMeasurePoints, urlMeasurePointsLabels,
+                                       shelfObject, minMeasure, maxMeasure, measure){
     _VS_static_entrypoint('', '[]', '', '', urlMeasurePoints, noOfMeasurePoints, '', '',
-                         urlMeasurePointsLabels, '', shelfObject, false, false, true);
+                         urlMeasurePointsLabels, '', shelfObject, false, false, true,
+                         minMeasure, maxMeasure, measure);
     isInternalSensorView = true;
     displayMeasureNodes = true;
 
