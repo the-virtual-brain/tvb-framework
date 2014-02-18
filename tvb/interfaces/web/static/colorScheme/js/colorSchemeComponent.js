@@ -131,6 +131,7 @@ function clampValue(value) {
  * Sets the current color scheme to the given one
  * @param scheme The color scheme to use; currently supported: 'linear', 'rainbow', 'hotcold', 'TVB', 'sparse'
  *               'light-hotcold', 'light-TVB'
+ * @param notify_server When TRUE, trigger an ajax call to store on the server changed setting.
  */
 function ColSch_setColorScheme(scheme, notify_server) {
     $('fieldset[id^="colorSchemeFieldSet_"]').hide();
@@ -142,6 +143,8 @@ function ColSch_setColorScheme(scheme, notify_server) {
                 console.warn(error);
             }
         });
+    } else {
+        $("#setColorSchemeSelId").val(scheme);
     }
     _colorScheme = scheme;
     if (_refreshCallback) {
@@ -150,20 +153,16 @@ function ColSch_setColorScheme(scheme, notify_server) {
     }
 }
 
-function ColSch_loadInitialColorScheme(){
-    function setScheme(sch){
-        _colorScheme = sch
-        $("#setColorSchemeSelId").val(_colorScheme);
-        if (_refreshCallback) { _refreshCallback(); }
-    }
+function _loadInitialColorScheme(){
+
     doAjaxCall({
         url:'/user/get_viewer_color_scheme',
         success:function(data){
-            setScheme(JSON.parse(data));
+            ColSch_setColorScheme(JSON.parse(data), false);
         },
         error: function(jqXHR, textStatus, error){
             console.warn(error);
-            setScheme(null);
+            ColSch_setColorScheme(null, false);
         }
     });
 }
@@ -213,7 +212,8 @@ function ColSch_initColorSchemeParams(minValue, maxValue, refreshFunction) {
             if (_refreshCallback) { _refreshCallback() }
         }
     });
-    ColSch_loadInitialColorScheme();
+    if (!_colorScheme)                      // on very first call, set the default color scheme
+        _loadInitialColorScheme();
 }
 
 /**
