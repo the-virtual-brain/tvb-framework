@@ -9,7 +9,7 @@
         <label for="setColorSchemeSelId">Color Scheme</label>
     </dt>
     <dd>
-        <select id="setColorSchemeSelId" onchange="ColSch_setColorScheme(this.options[this.selectedIndex].value);" tabindex="1">
+        <select id="setColorSchemeSelId" onchange="ColSch_setColorScheme(this.options[this.selectedIndex].value, true);" tabindex="1">
             <option value="linear" selected="selected">Linear gradient</option>
             <option value="rainbow">Rainbow</option>
             <option value="hotcold">Hot-Cold</option>
@@ -19,7 +19,11 @@
             <option value="lightTVB">Light TVB</option>
             <option value="transparentHotCold">Transparent Hot-Cold</option>
         </select>
-
+        <script type="text/javascript">
+            $(document).ready(function(){
+                ColSch_loadInitialColorScheme();
+            });
+        </script>
         <fieldset id="colorSchemeFieldSet_linear" style="display:none;">
             <dl>
                 <dt>

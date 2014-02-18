@@ -117,6 +117,13 @@ class User(Base):
         self.preferences[UserPreferences.ONLINE_HELP_ACTIVE] = new_state
 
 
+    def set_viewers_color_scheme(self, color_scheme):
+        self.preferences[UserPreferences.VIEWERS_COLOR_SCHEME] = color_scheme
+
+
+    def get_viewers_color_scheme(self):
+        return self.preferences[UserPreferences.VIEWERS_COLOR_SCHEME]
+
 
 class UserPreferences(Base):
     """
@@ -125,7 +132,7 @@ class UserPreferences(Base):
     __tablename__ = 'USER_PREFERENCES'
 
     ONLINE_HELP_ACTIVE = "online_help_active"
-
+    VIEWERS_COLOR_SCHEME = "viewers_color_scheme"
     fk_user = Column(Integer, ForeignKey('USERS.id'), primary_key=True)
     key = Column(String, primary_key=True)
     value = Column(String)

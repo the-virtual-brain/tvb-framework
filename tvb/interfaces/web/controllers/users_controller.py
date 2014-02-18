@@ -176,6 +176,17 @@ class UserController(BaseController):
         self.user_service.edit_user(user)
         raise cherrypy.HTTPRedirect("/user/profile")
 
+    @expose_json
+    def get_viewer_color_scheme(self):
+        user = common.get_logged_user()
+        return user.get_viewers_color_scheme()
+
+    @expose_json
+    def set_viewer_color_scheme(self, color_scheme_name):
+        user = common.get_logged_user()
+        user.set_viewers_color_scheme(color_scheme_name)
+        self.user_service.edit_user(user)
+
 
     @cherrypy.expose
     @handle_error(redirect=True)
