@@ -35,7 +35,6 @@ module docstring
 
 import unittest
 import os
-from tvb.adapters.uploaders.constants import OPTION_SURFACE_FACE
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
@@ -43,19 +42,19 @@ from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.datatypes.surfaces import FaceSurface
+from tvb.datatypes.surfaces import CorticalSurface
+from tvb.datatypes.surfaces_data import CORTICAL
 
-import demo_data.obj
+import demo_data.surfaceData
 
 
 
-class ObjSurfaceImporterTest(TransactionalTestCase):
+class ZIPSurfaceImporterTest(TransactionalTestCase):
     """
-    Unit-tests for Obj Surface importer.
+    Unit-tests for Zip Surface importer.
     """
 
-    torrus = os.path.join(os.path.dirname(demo_data.obj.__file__), 'test_torus.obj')
-    ball = os.path.join(os.path.dirname(demo_data.obj.__file__), 'Test_Ball.obj')
+    surf80k = os.path.join(os.path.dirname(demo_data.surfaceData.__file__), 'surface_80k', 'surface_80k.zip')
 
 
     def setUp(self):
@@ -70,18 +69,18 @@ class ObjSurfaceImporterTest(TransactionalTestCase):
 
     def _importSurface(self, import_file_path=None):
         ### Retrieve Adapter instance
-        group = dao.find_group('tvb.adapters.uploaders.obj_importer', 'ObjSurfaceImporter')
+        group = dao.find_group('tvb.adapters.uploaders.zip_surface_importer', 'ZIPSurfaceImporter')
         importer = ABCAdapter.build_adapter(group)
-
-        args = {'data_file': import_file_path,
-                "surface_type" : OPTION_SURFACE_FACE,
-                DataTypeMetaData.KEY_SUBJECT: "John"
+        args = {
+            'uploaded': import_file_path, 'surface_type': CORTICAL,
+            'zero_based_triangles': True,
+            DataTypeMetaData.KEY_SUBJECT: "John"
         }
 
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
 
-        surface = FaceSurface()
+        surface = CorticalSurface()
         data_types = FlowService().get_available_datatypes(self.test_project.id,
                                                            surface.module + "." + surface.type)
         self.assertEqual(1, len(data_types), "Project should contain only one data type.")
@@ -91,21 +90,10 @@ class ObjSurfaceImporterTest(TransactionalTestCase):
         return surface
 
 
-    def test_import_quads_no_normals(self):
-        """
-        Test that import works with a file which contains quads and no normals
-        """
-        surface = self._importSurface(self.ball)
-        self.assertEqual(4902, len(surface.vertices))
-        self.assertEqual(9800, len(surface.triangles))
-
-    def test_import_simple_with_normals(self):
-        """
-        Test that import works with a simple file contaning normals
-        """
-        surface = self._importSurface(self.torrus)
-        self.assertEqual(441, len(surface.vertices))
-        self.assertEqual(800, len(surface.triangles))
+    def test_import_surf80k(self):
+        surface = self._importSurface(self.surf80k)
+        self.assertEqual(81924, len(surface.vertices))
+        self.assertEqual(163840, len(surface.triangles))
 
 
 def suite():
@@ -113,7 +101,7 @@ def suite():
     Gather all the tests in a test suite.
     """
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(ObjSurfaceImporterTest))
+    test_suite.addTest(unittest.makeSuite(ZIPSurfaceImporterTest))
     return test_suite
 
 
