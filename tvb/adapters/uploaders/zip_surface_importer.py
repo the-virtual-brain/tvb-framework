@@ -105,16 +105,18 @@ class ZIPSurfaceImporter(ABCUploader):
         vertices = []
         normals = []
         triangles = []
+
         for file_name in files:
-            if file_name.lower().find(self.VERTICES_TOKEN) >= 0:
-                vertices.append(file_name)            
-                continue
-            if file_name.lower().find(self.NORMALS_TOKEN) >= 0:
-                normals.append(file_name)            
-                continue
-            if file_name.lower().find(self.TRIANGLES_TOKEN) >= 0:
+            if self.VERTICES_TOKEN in file_name.lower():
+                vertices.append(file_name)
+            elif self.NORMALS_TOKEN in file_name.lower():
+                normals.append(file_name)
+            elif self.TRIANGLES_TOKEN in file_name.lower():
                 triangles.append(file_name)
-                
+
+        all_vertices, all_normals, all_triangles = self._process_files(vertices, normals, triangles)
+        FilesHelper.remove_files(files, True)
+
         # Now detect and instantiate correct surface type
         self.logger.debug("Create surface instance")
         if surface_type == CORTICAL:
@@ -134,12 +136,10 @@ class ZIPSurfaceImporter(ABCUploader):
             raise LaunchException(exception_str)
             
         surface.storage_path = self.storage_path
-
-        all_vertices, all_normals, all_triangles = self._process_files(vertices, normals, triangles)
-        FilesHelper.remove_files(files, True)
         surface.zero_based_triangles = zero_based_triangles
         surface.vertices = all_vertices
-        surface.vertex_normals = all_normals
+        if len(all_normals) != 0:
+            surface.vertex_normals = all_normals
         if zero_based_triangles:
             surface.triangles = all_triangles
         else:
@@ -172,29 +172,32 @@ class ZIPSurfaceImporter(ABCUploader):
         """
         Read vertices, normals and triangles from files.
         """
-        if len(list_of_vertices) != len(list_of_normals) != len(list_of_triangles):
-            raise Exception("The number of vertices files should be equal to the normals/triangles files.")
+        if len(list_of_vertices) != len(list_of_triangles):
+            raise Exception("The number of vertices files should be equal to the number of triangles files.")
+        if len(list_of_normals) != 0 and len(list_of_normals) != len(list_of_triangles):
+            raise Exception("The number of normals files should either be 0 or equal to the numer of triangles files")
         vertices = []
         normals = []
         triangles = []
         vertices_files_lengths = []
     
-        for idx, vertice in enumerate(list_of_vertices):
-            current_vertices = numpy.loadtxt(vertice, dtype=numpy.float32)
-            current_normals = numpy.loadtxt(list_of_normals[idx], dtype=numpy.float32)
+        for vertex_file in list_of_vertices:
+            current_vertices = numpy.loadtxt(vertex_file, dtype=numpy.float32)
             vertices_files_lengths.append(len(current_vertices))
             vertices.extend(current_vertices)
+
+        for normals_file in list_of_normals:
+            current_normals = numpy.loadtxt(normals_file, dtype=numpy.float32)
             normals.extend(current_normals)
     
         increment_value = 0
         for i, triangle in enumerate(list_of_triangles):
             current_triangles = numpy.loadtxt(triangle, dtype=numpy.int32)
-            if not i:
-                triangles.extend(current_triangles)
-                continue
-            increment_value = increment_value + vertices_files_lengths[i - 1]
-            for j in xrange(len(current_triangles)):
-                current_triangles[j] += increment_value
+            if i != 0:
+                increment_value += vertices_files_lengths[i - 1]
+                # is this loop te same with  current_triangles += increment_value ?
+                for j in xrange(len(current_triangles)):
+                    current_triangles[j] += increment_value
             triangles.extend(current_triangles)
     
         return (numpy.array(vertices, dtype=numpy.float64), 
