@@ -86,7 +86,7 @@ class ConnectivityMeasureImporter(ABCUploader):
             measures = []
             for i in xrange(measurement_count):
                 measure = ConnectivityMeasure(storage_path=self.storage_path,
-                                              connectivity=connectivity, array_data=data)
+                                              connectivity=connectivity, array_data=data[i,:])
                 measure.user_tag_2 = "nr.-%d" % (i + 1)
                 measure.user_tag_3 = "conn_%d" % node_count
                 measures.append(measure)

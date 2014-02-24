@@ -101,30 +101,25 @@ class ZIPConnectivityImporter(ABCUploader):
         areas = None
         cortical_vector = None
         hemisphere_vector = None
-        
+
         for file_name in files:
-            if file_name.lower().find(self.WEIGHT_TOKEN) >= 0:
+            file_name_low = file_name.lower()
+            if self.WEIGHT_TOKEN in file_name_low:
                 weights_matrix = read_list_data(file_name)
-                continue
-            if file_name.lower().find(self.CENTRES_TOKEN) >= 0:
+            elif self.CENTRES_TOKEN in file_name_low:
                 centres = read_list_data(file_name, usecols=[1, 2, 3])
                 labels_vector = read_list_data(file_name, dtype=numpy.str, usecols=[0])
-                continue
-            if file_name.lower().find(self.TRACT_TOKEN) >= 0:
+            elif self.TRACT_TOKEN in file_name_low:
                 tract_matrix = read_list_data(file_name)
-                continue
-            if file_name.lower().find(self.ORIENTATION_TOKEN) >= 0:
+            elif self.ORIENTATION_TOKEN in file_name_low:
                 orientation = read_list_data(file_name)
-                continue
-            if file_name.lower().find(self.AREA_TOKEN) >= 0:
+            elif self.AREA_TOKEN in file_name_low:
                 areas = read_list_data(file_name)
-                continue
-            if file_name.lower().find(self.CORTICAL_INFO) >= 0:
+            elif self.CORTICAL_INFO in file_name_low:
                 cortical_vector = read_list_data(file_name, dtype=numpy.bool)
-                continue
-            if file_name.lower().find(self.HEMISPHERE_INFO) >= 0:
+            elif self.HEMISPHERE_INFO in file_name_low:
                 hemisphere_vector = read_list_data(file_name, dtype=numpy.bool)
-                continue
+
         ### Clean remaining text-files.
         FilesHelper.remove_files(files, True)
         
