@@ -1899,7 +1899,7 @@ width: 100%;
 background: #706e68 url("./img/tab_off_mid.png") 0 0 repeat-x;
 bottom: -1px;
 float: left;
-margin-left: 21px;
+margin-left: 10px;
 position: relative;
 }
 
@@ -1916,7 +1916,7 @@ background: transparent url("./img/tab_off_left.png") 0 0 no-repeat;
 content: "";
 display: block;
 height: 30px;
-left: -20px;
+left: -15px;
 position: absolute;
 top: 0;
 width: 21px;
