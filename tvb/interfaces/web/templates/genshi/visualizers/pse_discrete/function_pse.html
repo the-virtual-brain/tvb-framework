@@ -69,8 +69,8 @@
 	
 	<script type="text/javascript">
     	$(document).ready(function() {
-    		PSEDiscreteInitialize('${labels_x}', '${labels_y}', '${series_array}', '${data}', '${pse_back_page}',
-                                '${min_color}', '${max_color}', '${min_shape_size_weight}', '${max_shape_size_weight}');
+    		PSEDiscreteInitialize('$labels_x', '$labels_y', '$series_array', '$data', '$pse_back_page',
+                    '$has_started_ops', '$min_color', '$max_color', '$min_shape_size_weight', '$max_shape_size_weight');
             window.onresize = function() { redrawPlot('main_div_pse'); };
 		});
     </script>

@@ -148,7 +148,7 @@ function applyHoverEvent(canvasId) {
 }
 
 
-function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson, backPage,
+function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson, backPage, hasStartedOperations,
                                min_color, max_color, min_size, max_size) {
 
     //ColSch_initColorSchemeParams(min_color, max_color, changeColors);
@@ -187,7 +187,7 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson,
                 redrawPlot('main_div_pse');
     };
 	
-	if (status == "started") {
+	if (hasStartedOperations) {
 		setTimeout("PSE_mainDraw('main_div_pse','" + backPage + "')", 3000);
 	}
 }
