@@ -1899,7 +1899,7 @@ width: 100%;
 background: #706e68 url("./img/tab_off_mid.png") 0 0 repeat-x;
 bottom: -1px;
 float: left;
-margin-left: 10px;
+margin-left: 21px;
 position: relative;
 }
 
@@ -1916,7 +1916,7 @@ background: transparent url("./img/tab_off_left.png") 0 0 no-repeat;
 content: "";
 display: block;
 height: 30px;
-left: -15px;
+left: -20px;
 position: absolute;
 top: 0;
 width: 21px;
@@ -2472,4 +2472,17 @@ float: none;
 .tvb-snapshot-image {
     background: white url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAJElEQVQYV2Pcv3//fwYk4OjoyIjMZ6SDAmT7QGx0K1EcRBsFAFAcHPlrTpAmAAAAAElFTkSuQmCC") 0 0 repeat;
     width:100%;
+}
+
+
+#overlay .tabswitcher li {
+  margin-left: 10px;
+}
+
+#overlay .tabswitcher li:first-child {
+  margin-left: 15px;
+}
+
+#overlay .tabswitcher li:before {
+  left: -14px;
 }
