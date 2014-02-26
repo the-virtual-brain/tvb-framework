@@ -17,9 +17,12 @@
         $(document).ready(function() {
             includeAdapterInterface("div_adapter_interface", $selectedProject.id, $currentAlgoId,
                                     '${"" if ("back_page=" not in submitLink) else submitLink.split("back_page=")[-1]}');
-            document.getElementById("ctrl-action-export").onclick = function() {
-                                                                            C2I_exportFigures({operation:'$currentOperationId'});
-                                                                            return false;}
+            var saveFigureBtn = document.getElementById("ctrl-action-export");
+
+            saveFigureBtn.onclick = function() {
+                C2I_exportFigures({operation:'$currentOperationId'});
+                return false;
+            };
         });
     </script>
   </div>

@@ -151,6 +151,16 @@ function __storeCanvas(canvas, kwargs) {
 
     if (!canvas.drawForImageExport)     // canvases which didn't set this method should not be saved
         return;
+
+    // If the canvas wishes to save more images it can define multipleImageExport
+    // multipleImageExport receives a function that saves the current scene
+    if (canvas.multipleImageExport){
+        canvas.multipleImageExport(function(){
+            __tryExport(canvas, kwargs, 15);
+        });
+        return;
+    }
+
     canvas.drawForImageExport();        // interface-like function that redraws the canvas at bigger dimension
 
     __tryExport(canvas, kwargs, 15);

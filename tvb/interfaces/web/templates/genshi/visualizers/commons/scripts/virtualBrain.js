@@ -442,6 +442,26 @@ function customInitGL(canvas) {
     drawingMode = gl.TRIANGLES;
     gl.newCanvasWidth = canvas.clientWidth;
     gl.newCanvasHeight = canvas.clientHeight;
+
+    // This callback handles image exporting from this canvas.
+    canvas.multipleImageExport = function(saveFigure){
+        // using drawForImageExport because it handles resizing canvas for export
+        // It is set on canvas in initGL and defers to drawscene.
+        originalRotation = GL_currentRotationMatrix ;
+        originalNear = near;
+
+        //original
+        canvas.drawForImageExport();
+        saveFigure();
+
+        // back
+        GL_currentRotationMatrix = createRotationMatrix(180, [0, 1, 0]).x(originalRotation);
+        canvas.drawForImageExport();
+        saveFigure();
+
+        GL_currentRotationMatrix  = originalRotation;
+        near = originalNear;
+    };
 }
 
 function initShaders() {
@@ -874,6 +894,7 @@ function drawBrainLines(linesBuffers, brainObjBuffers) {
     gl.uniform1i(shaderProgram.drawLines, true);
     gl.uniform3f(shaderProgram.linesColor, 0.3, 0.1, 0.3);
     gl.lineWidth(1.0);
+    // todo: chunk linesBuffers
     for (var i=0; i < linesBuffers.length; i++) {
         gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][0]);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -982,7 +1003,7 @@ function drawScene() {
     gl.clearColor(theme.backgroundColor[0], theme.backgroundColor[1], theme.backgroundColor[2], theme.backgroundColor[3]);
 
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-    // View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
+    // View angle is 45, we want to see object from near up to 800 distance from camera
     perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
 
     loadIdentity();
