@@ -103,14 +103,12 @@ class SurfaceViewer(ABCDisplayer):
 
 
     def _compute_measure_param(self, connectivity_measure, measure_points_no):
-        # This activity data is written to html. It is small : len(regions)
-        # If we want to do it async maybe move this to surface and update get_urls_for_rendering
         if connectivity_measure is None:
             # If there is no measure to show then we what to show the region mapping
-            # Create a sequential measure to visualize the region sequence
+            # The client will generate a range signal for this use case.
             min_measure = 0
             max_measure = measure_points_no
-            client_measure = json.dumps(range(max_measure))
+            client_measure_url = ''
         else:
             if connectivity_measure.nr_dimensions != 1:
                 raise ValueError("connectivity measure must be 1 dimensional")
@@ -121,10 +119,10 @@ class SurfaceViewer(ABCDisplayer):
             max_measure = numpy.max(connectivity_measure.array_data)
             # We assume here that the index 0 in the measure corresponds to
             # the region 0 of the region map.
-            client_measure = json.dumps(connectivity_measure.array_data.tolist())
+            client_measure_url = self.paths2url(connectivity_measure, "array_data")
 
 
-        return dict(minMeasure=min_measure, maxMeasure=max_measure, measure=client_measure)
+        return dict(minMeasure=min_measure, maxMeasure=max_measure, clientMeasureUrl=client_measure_url)
 
 
     def launch(self, surface, region_map=None, connectivity_measure=None):

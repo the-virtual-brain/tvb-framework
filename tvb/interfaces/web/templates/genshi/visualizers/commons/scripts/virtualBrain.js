@@ -164,7 +164,7 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
 function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
                                boundaryURL, shelfObject, showLegend, argDisplayMeasureNodes, argIsFaceToDisplay,
-                               minMeasure, maxMeasure, measure){
+                               minMeasure, maxMeasure, urlMeasure){
     // initialize global configuration
     isPreview = false;
     isDoubleView = false;
@@ -177,7 +177,8 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
     // make checkbox consistent with this flag
     $("#displayFaceChkId").attr('checked', isFaceToDisplay);
 
-    // initialize global data    
+    // initialize global data
+
     if (noOfMeasurePoints == 0){
         // we are viewing a surface with no region mapping
         // we mock 1 measure point
@@ -190,13 +191,21 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
         activitiesData = [[0]];
     }else{
         _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePointsLabels);
-        // If a region mapping is present then the server has sent a 1d connectivity measure.
-        // The activity data will contain just one frame containing the values of the connectivity measure.
-        // The measure can be a range(NO_OF_MEASURE_POINTS) when the purpose of the static
-        // viewer is to show a region map.
         activityMin = parseFloat(minMeasure);
         activityMax = parseFloat(maxMeasure);
-        activitiesData = [$.parseJSON(measure)];
+        var measure;
+        if (urlMeasure == ''){
+            // Empty url => The static viewer has to show a region map.
+            // The measure will be a range(NO_OF_MEASURE_POINTS)
+            measure = [];
+            for(var i = 0; i < NO_OF_MEASURE_POINTS; i++){
+                measure.push(i);
+            }
+        }else{
+            measure = HLPR_readJSONfromFile(urlMeasure);
+        }
+        // The activity data will contain just one frame containing the values of the connectivity measure.
+        activitiesData = [measure];
     }
 
     GL_zTranslation = GL_DEFAULT_Z_POS;
@@ -265,11 +274,11 @@ function _VS_init_cubicalMeasurePoints(){
 
 function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                               boundaryURL, minMeasure, maxMeasure, measure){
+                               boundaryURL, minMeasure, maxMeasure, urlMeasure){
 
     _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                        noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                       boundaryURL, null, false, false, false, minMeasure, maxMeasure, measure);
+                       boundaryURL, null, false, false, false, minMeasure, maxMeasure, urlMeasure);
     _VS_init_cubicalMeasurePoints();
     // TODO minMEasure and maxMeasure could directly come as floats ??
     ColSch_initColorSchemeParams(parseFloat(minMeasure), parseFloat(maxMeasure));
