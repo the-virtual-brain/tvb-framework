@@ -127,6 +127,10 @@ class ZIPSurfaceImporter(ABCUploader):
             surface.triangles = zip_surface.triangles
         else:
             surface.triangles = zip_surface.triangles - 1
+
+        if zip_surface.bi_hemispheric:
+            self.logger.info("Hemispheres detected")
+
         surface.hemisphere_mask = zip_surface.hemisphere_mask
         surface.triangle_normals = None
 

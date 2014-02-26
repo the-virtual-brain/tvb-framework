@@ -31,6 +31,7 @@
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+import os
 import re
 import numpy
 from tvb.core.entities.file.files_helper import TvbZip
@@ -38,19 +39,19 @@ from tvb.core.entities.file.files_helper import TvbZip
 
 class ZipSurfaceParser(object):
     """
-    Parser for a surface zip file
+    Parser for a surface zip.
+    Hemispheres are detected if the file name prefixes are the same
+    and the suffixes start with: left, right or l, r or lh, rh.
+    For example : verticesl.txt and verticesr.txt their uncommon suffixes are l, r
     """
     VERTICES_TOKEN = "vertices"
     NORMALS_TOKEN = "normals"
     TRIANGLES_TOKEN = "triangles"
 
-    FILE_RE = re.compile('vertices|normals|triangles')
-    "Files not containing this will be ignored"
+    LEFT_SUFFIX_RE = re.compile('^(left|lh|l).*')
+    "If a vertex file has a suffix matching this it is considered left hemispheric"
 
-    LEFT_RE = re.compile('left|([-_. ]lh)')
-    "If a file contains this belong to the left hemisphere"
-
-    RIGHT_RE = re.compile('right|([-_. ]rh)')
+    RIGHT_SUFFIX_RE = re.compile('^(right|rh|r).*')
 
     def __init__(self, path):
         self.bi_hemispheric = False
@@ -63,7 +64,7 @@ class ZipSurfaceParser(object):
 
 
     def _read(self):
-        vertices, normals, triangles = self._group_by_type(self._zipf.namelist())
+        vertices, normals, triangles = self._group_by_type(sorted(self._zipf.namelist()))
         if len(vertices) == 0:
             raise Exception("Cannot find vertices file.")
         if len(vertices) != len(triangles):
@@ -117,14 +118,15 @@ class ZipSurfaceParser(object):
 
 
     def _group_by_hemisph(self, names):
+        """ groups by hemisphere """
         lefts, rights, rest = [], [], []
+        prefix_pos = len(os.path.commonprefix(names))
 
         for name in names:
-            if not self.FILE_RE.search(name):
-                continue
-            if self.LEFT_RE.search(name):
+            suffix = name[prefix_pos:]
+            if self.LEFT_SUFFIX_RE.match(suffix):
                 lefts.append(name)
-            elif self.RIGHT_RE.search(name):
+            elif self.RIGHT_SUFFIX_RE.match(suffix):
                 rights.append(name)
             else:
                 rest.append(name)
@@ -138,12 +140,8 @@ class ZipSurfaceParser(object):
     def _read_files(self, vertices_files, normals_files, triangles_files):
         """
         Read vertices, normals and triangles from files.
-        All files of a type are sorted by file name, then the files are concatenated.
+        All files of a type are concatenated.
         """
-        vertices_files.sort()
-        normals_files.sort()
-        triangles_files.sort()
-
         # we need to process vertices in parallel with triangles, so that we can offset triangle indices
         for vertices_file, triangles_file in zip(vertices_files, triangles_files):
             vertices_file = self._zipf.open(vertices_file)
