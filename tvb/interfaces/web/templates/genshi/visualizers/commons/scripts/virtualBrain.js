@@ -883,15 +883,16 @@ function drawRegionBoundaries() {
         gl.uniform1i(shaderProgram.drawLines, true);
         gl.uniform3f(shaderProgram.linesColor, 0.7, 0.7, 0.1);
         gl.lineWidth(3.0);
-        for (var i=0; i < boundaryVertexBuffers.length; i++) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, boundaryVertexBuffers[i]);
-            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, boundaryNormalsBuffers[i]);
-            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boundaryEdgesBuffers[i]);
-            setMatrixUniforms();
-            gl.drawElements(gl.LINES, boundaryEdgesBuffers[i].numItems, gl.UNSIGNED_SHORT, 0);
+        // replace the vertex, normal and element buffers from the brain buffer set. Keep the alpha buffers
+        var bufferSets = [];
+        for (var c = 0; c < brainBuffers.length; c++){
+            var chunk = brainBuffers[c].slice();
+            chunk[0] = boundaryVertexBuffers[c];
+            chunk[1] = boundaryNormalsBuffers[c];
+            chunk[2] = boundaryEdgesBuffers[c];
+            bufferSets.push(chunk);
         }
+        drawBuffers(gl.LINES, bufferSets, false, false);
         gl.uniform1i(shaderProgram.drawLines, false);
     } else {
         displayMessage('Boundaries data not yet loaded. Dispaly will refresh automatically when load is finished.', 'infoMessage')      
@@ -899,20 +900,18 @@ function drawRegionBoundaries() {
 }
 
 
-function drawBrainLines(linesBuffers, brainObjBuffers) {
+function drawBrainLines(linesBuffers, brainBuffers) {
     gl.uniform1i(shaderProgram.drawLines, true);
     gl.uniform3f(shaderProgram.linesColor, 0.3, 0.1, 0.3);
     gl.lineWidth(1.0);
-    // todo: chunk linesBuffers
-    for (var i=0; i < linesBuffers.length; i++) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][0]);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, brainObjBuffers[i][1]);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesBuffers[i]);
-        setMatrixUniforms();
-        gl.drawElements(gl.LINES, linesBuffers[i].numItems, gl.UNSIGNED_SHORT, 0);
+    // we want all the brain buffers in this set except the element array buffer (at index 2)
+    var bufferSets = [];
+    for (var c = 0; c < brainBuffers.length; c++){
+        var chunk = brainBuffers[c].slice();
+        chunk[2] = linesBuffers[c];
+        bufferSets.push(chunk);
     }
+    drawBuffers(gl.LINES, bufferSets, false, false);
     gl.uniform1i(shaderProgram.drawLines, false);
 }
 
