@@ -87,6 +87,23 @@ function __storeSVG(svgElement, kwargs) {
     } );
 }
 
+function C2IbuildUrlQueryString(baseUrl, kwargs){
+    var ret = baseUrl;
+    var i=0;
+    for(var k in kwargs){
+        if(kwargs.hasOwnProperty(k)){
+            if(i == 0){
+                ret += '?';
+            }else{
+                ret += '&';
+            }
+            ret +=  k + '=' + kwargs[k];
+            i++;
+        }
+    }
+    return ret;
+}
+
 /**
  * This function sends canvas' snapshot to server, after it has been prepared by <code>__storeCanvas()</code>
  *
@@ -100,6 +117,7 @@ function __storeSVG(svgElement, kwargs) {
  * @private
  */
 function __tryExport(canvas, kwargs, remainingTrials) {
+
     if (remainingTrials <= 0) {         // only try to export a limited number of times
         displayMessage("Could not export canvas data, sorry!", "warningMessage");
         return
@@ -114,11 +132,7 @@ function __tryExport(canvas, kwargs, remainingTrials) {
         var data = canvas.toDataURL("image/png");
 
         if (data){       // don't store empty images
-            var url = '/project/figure/storeresultfigure/png?';
-
-            for(var k in kwargs){
-                url = url + k + '=' + kwargs[k];
-            }
+            var url = C2IbuildUrlQueryString('/project/figure/storeresultfigure/png', kwargs);
 
             doAjaxCall({  type: "POST", url: url,
                         data: {"export_data": data.replace('data:image/png;base64,', '')},
@@ -155,7 +169,8 @@ function __storeCanvas(canvas, kwargs) {
     // If the canvas wishes to save more images it can define multipleImageExport
     // multipleImageExport receives a function that saves the current scene
     if (canvas.multipleImageExport){
-        canvas.multipleImageExport(function(){
+        canvas.multipleImageExport(function(saveimgKwargs){
+            $.extend(kwargs, saveimgKwargs);
             __tryExport(canvas, kwargs, 15);
         });
         return;

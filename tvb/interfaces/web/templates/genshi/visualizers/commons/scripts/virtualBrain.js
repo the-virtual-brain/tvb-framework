@@ -125,6 +125,23 @@ var isInternalSensorView = false;
 
 GL_DEFAULT_Z_POS = 250;
 
+var VS_hemisphere_chunk_mask = [1, 1, 1, 1, 0, 0, 0, 0];
+var bufferSetsMask = [1, 1, 1, 1, 1, 1, 1, 1];
+var VS_hemisphereVisibility = null;
+
+function VS_SetHemisphere(h){
+    VS_hemisphereVisibility = h;
+    for(var i = 0; i < VS_hemisphere_chunk_mask.length; i++){
+        if ( h == null ){
+            bufferSetsMask[i] = 1;
+        }else if (h == 'l'){
+            bufferSetsMask[i] = VS_hemisphere_chunk_mask[i];
+        }else if (h == 'r'){
+            bufferSetsMask[i] = 1 - VS_hemisphere_chunk_mask[i];
+        }
+    }
+}
+
 function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesList, urlNormalsList,
                                 urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity, oneToOneMapping) {
     isPreview = true;
@@ -447,30 +464,49 @@ function customInitGL(canvas) {
         LEG_updateLegendVerticesBuffers();
     };
     initGL(canvas);
-    canvas.redrawFunctionRef = drawScene;            // interface-like function used in HiRes image exporting
     drawingMode = gl.TRIANGLES;
     gl.newCanvasWidth = canvas.clientWidth;
     gl.newCanvasHeight = canvas.clientHeight;
+    canvas.redrawFunctionRef = drawScene;            // interface-like function used in HiRes image exporting
+    canvas.multipleImageExport = VS_multipleImageExport;
+}
 
-    // This callback handles image exporting from this canvas.
-    canvas.multipleImageExport = function(saveFigure){
-        // using drawForImageExport because it handles resizing canvas for export
-        // It is set on canvas in initGL and defers to drawscene.
-        originalRotation = GL_currentRotationMatrix ;
-        originalNear = near;
+/** This callback handles image exporting from this canvas.*/
+function VS_multipleImageExport(saveFigure){
+    var canvas = this;
 
-        //original
+    function saveFrontBack(nameFront, nameBack){
+        var originalRotation = GL_currentRotationMatrix ;
+        // front
         canvas.drawForImageExport();
-        saveFigure();
-
+        saveFigure({suggestedName: nameFront});
         // back
         GL_currentRotationMatrix = createRotationMatrix(180, [0, 1, 0]).x(originalRotation);
         canvas.drawForImageExport();
-        saveFigure();
-
+        saveFigure({suggestedName: nameBack});
         GL_currentRotationMatrix  = originalRotation;
-        near = originalNear;
-    };
+    }
+
+    // using drawForImageExport because it handles resizing canvas for export
+    // It is set on canvas in initGL and defers to drawscene.
+
+    if (VS_hemisphere_chunk_mask != null){    // we have 2 hemispheres
+        if(VS_hemisphereVisibility == null){  // both are visible => take them apart when taking picture
+            var originalHemisphereVisibility =  VS_hemisphereVisibility;
+            VS_SetHemisphere('l');
+            saveFrontBack('TVB-cortex-LH-front', 'TVB-cortex-LH-back');
+            VS_SetHemisphere('r');
+            saveFrontBack('TVB-cortex-RH-front', 'TVB-cortex-RH-back');
+            VS_SetHemisphere(originalHemisphereVisibility);
+        }else if(VS_hemisphereVisibility == 'l'){  // LH is visible => take picture of it only
+            saveFrontBack('TVB-cortex-LH-front', 'TVB-cortex-LH-back');
+        }else if(VS_hemisphereVisibility == 'r'){
+            saveFrontBack('TVB-cortex-RH-front', 'TVB-cortex-RH-back');
+        }
+    }else{
+        // just save front-back view if no hemispheres
+        saveFrontBack('TVB-contex-front', 'TVB-contex-back');
+    }
 }
 
 function initShaders() {
@@ -825,11 +861,12 @@ function initRegionBoundaries(boundariesURL) {
  *
  * @param drawMode Triangles / Points
  * @param buffersSets Actual buffers to be drawn. Array or (vertices, normals, triangles)
- * @param useBlending When true, the object is drawn with blending (for transparency)
- * @param cullFace When gl.FRONT, it will mark current object to be drown twice (another with gl.BACK).
+ * @param [bufferSetsMask] Optional. If this array has a 0 at index i then the buffer at index i is not drawn
+ * @param [useBlending] When true, the object is drawn with blending (for transparency)
+ * @param [cullFace] When gl.FRONT, it will mark current object to be drown twice (another with gl.BACK).
  *                 It should be set to GL.FRONT for objects transparent and convex.
  */
-function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
+function drawBuffers(drawMode, buffersSets, bufferSetsMask, useBlending, cullFace) {
     if (useBlending) {
         gl.uniform1i(shaderProgram.useBlending, true);
         gl.enable(gl.BLEND);
@@ -848,6 +885,9 @@ function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
     }
 
     for (var i = 0; i < buffersSets.length; i++) {
+        if(bufferSetsMask != null && !bufferSetsMask[i]){
+            continue;
+        }
         gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][0]);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
         gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][1]);
@@ -872,7 +912,7 @@ function drawBuffers(drawMode, buffersSets, useBlending, cullFace) {
         gl.uniform1i(shaderProgram.useBlending, false);
         // Draw the same transparent object the second time
         if (cullFace == gl.FRONT) {
-            drawBuffers(drawMode, buffersSets, useBlending, gl.BACK);
+            drawBuffers(drawMode, buffersSets, bufferSetsMask, useBlending, gl.BACK);
         }
     }
 }
@@ -892,7 +932,7 @@ function drawRegionBoundaries() {
             chunk[2] = boundaryEdgesBuffers[c];
             bufferSets.push(chunk);
         }
-        drawBuffers(gl.LINES, bufferSets, false, false);
+        drawBuffers(gl.LINES, bufferSets, bufferSetsMask);
         gl.uniform1i(shaderProgram.drawLines, false);
     } else {
         displayMessage('Boundaries data not yet loaded. Dispaly will refresh automatically when load is finished.', 'infoMessage')      
@@ -900,7 +940,7 @@ function drawRegionBoundaries() {
 }
 
 
-function drawBrainLines(linesBuffers, brainBuffers) {
+function drawBrainLines(linesBuffers, brainBuffers, bufferSetsMask) {
     gl.uniform1i(shaderProgram.drawLines, true);
     gl.uniform3f(shaderProgram.linesColor, 0.3, 0.1, 0.3);
     gl.lineWidth(1.0);
@@ -911,7 +951,7 @@ function drawBrainLines(linesBuffers, brainBuffers) {
         chunk[2] = linesBuffers[c];
         bufferSets.push(chunk);
     }
-    drawBuffers(gl.LINES, bufferSets, false, false);
+    drawBuffers(gl.LINES, bufferSets, bufferSetsMask);
     gl.uniform1i(shaderProgram.drawLines, false);
 }
 
@@ -1031,18 +1071,18 @@ function drawScene() {
         if(VS_showLegend){
             mvPushMatrix();
             loadIdentity();
-            drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+            drawBuffers(gl.TRIANGLES, [LEG_legendBuffers]);
             mvPopMatrix();
         }
 
         if(isInternalSensorView){
             // for internal sensors we render only the sensors
             if (!isPreview) {
-                drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
+                drawBuffers(gl.TRIANGLES, measurePointsBuffers);
             }
         } else {
             // draw surface
-            drawBuffers(drawingMode, brainBuffers, false);
+            drawBuffers(drawingMode, brainBuffers, bufferSetsMask);
 
             if (drawingMode == gl.POINTS) {
                 gl.uniform1i(shaderProgram.vertexLineColor, true);
@@ -1051,12 +1091,12 @@ function drawScene() {
                 drawRegionBoundaries();
             }
             if (drawTriangleLines) {
-                drawBrainLines(brainLinesBuffers, brainBuffers);
+                drawBrainLines(brainLinesBuffers, brainBuffers, bufferSetsMask);
             }
             gl.uniform1i(shaderProgram.vertexLineColor, false);
 
             if (!isPreview && displayMeasureNodes) {
-                drawBuffers(gl.TRIANGLES, measurePointsBuffers, false);
+                drawBuffers(gl.TRIANGLES, measurePointsBuffers);
             }
         }
 
@@ -1070,7 +1110,7 @@ function drawScene() {
                 mvTranslate([0, -5, -10]);
             }
             mvRotate(180, [0, 0, 1]);
-            drawBuffers(faceDrawMode, shelfBuffers, true, gl.FRONT);
+            drawBuffers(faceDrawMode, shelfBuffers, null, true, gl.FRONT);
             mvPopMatrix();
         }
 
