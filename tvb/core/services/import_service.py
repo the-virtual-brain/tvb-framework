@@ -251,28 +251,39 @@ class ImportService():
 
         """
         for wf_step in wf_steps:
-            algorithm = wf_step.get_algorithm()
-            if algorithm is None:
-                # The algorithm is invalid for some reason. Just remove also the view step.
-                position = wf_step.index()
-                for entry in view_steps:
-                    if entry.index() == position:
-                        view_steps.remove(entry)
-                continue
-            wf_step_entity = model.WorkflowStep(algorithm.id)
-            wf_step_entity.from_dict(wf_step.data)
-            wf_step_entity.fk_workflow = workflow.id
-            wf_step_entity.fk_operation = wf_step.get_operagion().id
-            dao.store_entity(wf_step_entity)
+            try:
+                algorithm = wf_step.get_algorithm()
+                if algorithm is None:
+                    # The algorithm is invalid for some reason. Just remove also the view step.
+                    position = wf_step.index()
+                    for entry in view_steps:
+                        if entry.index() == position:
+                            view_steps.remove(entry)
+                    continue
+                wf_step_entity = model.WorkflowStep(algorithm.id)
+                wf_step_entity.from_dict(wf_step.data)
+                wf_step_entity.fk_workflow = workflow.id
+                wf_step_entity.fk_operation = wf_step.get_operagion().id
+                dao.store_entity(wf_step_entity)
+            except Exception:
+                # only log exception and ignore this as it is not very important:
+                self.logger.exception("Could not restore WorkflowStep: %s %s" % (str(wf_step.step_index),
+                                      wf_step.get_algorithm().name))
+
         for view_step in view_steps:
-            algorithm = view_step.get_algorithm()
-            if algorithm is None:
-                continue
-            view_step_entity = model.WorkflowStepView(algorithm.id)
-            view_step_entity.from_dict(view_step.data)
-            view_step_entity.fk_workflow = workflow.id
-            view_step_entity.fk_portlet = view_step.get_portlet().id
-            dao.store_entity(view_step_entity)
+            try:
+                algorithm = view_step.get_algorithm()
+                if algorithm is None:
+                    continue
+                view_step_entity = model.WorkflowStepView(algorithm.id)
+                view_step_entity.from_dict(view_step.data)
+                view_step_entity.fk_workflow = workflow.id
+                view_step_entity.fk_portlet = view_step.get_portlet().id
+                dao.store_entity(view_step_entity)
+            except Exception:
+                # only log exception and ignore this as it is not very important:
+                self.logger.exception("Could not restore WorkflowViewStep " + wf_step.get_algorithm().name +
+                                      " at idx: " + str(wf_step.step_index))
 
 
     def _append_tmp_to_folders_containing_operations(self, import_path):
