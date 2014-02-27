@@ -267,8 +267,7 @@ class ImportService():
                 dao.store_entity(wf_step_entity)
             except Exception:
                 # only log exception and ignore this as it is not very important:
-                self.logger.exception("Could not restore WorkflowStep: %s %s" % (str(wf_step.step_index),
-                                      wf_step.get_algorithm().name))
+                self.logger.exception("Could not restore WorkflowStep: %s" % wf_step.get_algorithm().name)
 
         for view_step in view_steps:
             try:
@@ -282,8 +281,7 @@ class ImportService():
                 dao.store_entity(view_step_entity)
             except Exception:
                 # only log exception and ignore this as it is not very important:
-                self.logger.exception("Could not restore WorkflowViewStep " + wf_step.get_algorithm().name +
-                                      " at idx: " + str(wf_step.step_index))
+                self.logger.exception("Could not restore WorkflowViewStep " + view_step.get_algorithm().name)
 
 
     def _append_tmp_to_folders_containing_operations(self, import_path):
