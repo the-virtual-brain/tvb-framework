@@ -118,7 +118,7 @@ function NAV_draw_navigator() {
         drawSectionView('z', false);
         _redrawSectionView = false;
     }
-	drawBuffers(gl.TRIANGLES, [NAV_navigatorBuffers], true);
+	drawBuffers(gl.TRIANGLES, [NAV_navigatorBuffers], null, true);
 }
 
 ////////////////////////////////////~~~~~~~~START BRAIN SECTION VIEW RELATED CODE~~~~~~~~~~~///////////////////////////
@@ -148,7 +148,7 @@ function drawSectionView(axis, first) {
     mvTranslate([0.0, -5.0, -250.0]);
     mvPushMatrix();
     multMatrix(sectionViewRotationMatrix);
-    drawBuffers(gl.TRIANGLES, brainBuffers, false);
+    drawBuffers(gl.TRIANGLES, brainBuffers);
     mvPopMatrix();
     displaySection(BRAIN_CANVAS_ID, 'brain-' + axis, axis, first);
 

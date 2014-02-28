@@ -40,7 +40,7 @@ function drawScene() {
 
    if (noOfUnloadedBrainDisplayBuffers == 0) {      // wait for the data to be loaded, then draw the legend
         loadIdentity();
-        if (LEG_legendBuffers.length) drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+        if (LEG_legendBuffers.length) drawBuffers(gl.TRIANGLES, [LEG_legendBuffers]);
    }
 }
 

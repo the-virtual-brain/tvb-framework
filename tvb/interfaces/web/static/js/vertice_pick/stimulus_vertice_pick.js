@@ -237,7 +237,7 @@ function drawScene() {
 		// Draw the legend for the stimulus now.
 		loadIdentity();
 	    addLight();
-		drawBuffers(gl.TRIANGLES, [LEG_legendBuffers], false);
+		drawBuffers(gl.TRIANGLES, [LEG_legendBuffers]);
 	} else {
 		// We are not in movie mode. The drawScene was called from some ui event (e.g.
 		// mouse over). Here we can afford to update the 2D slices because performance is
