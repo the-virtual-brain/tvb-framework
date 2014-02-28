@@ -81,10 +81,13 @@ class SurfaceViewer(ABCDisplayer):
         for url in surface.get_urls_for_rendering(True, region_map):
             escaped_url = json.dumps(url).replace('\\', '\\\\')
             rendering_urls.append(escaped_url)
-
         url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices = rendering_urls
+        # todo: this is mock data
+        #surface.bi_hemispheric
+        hemisphere_chunk_mask = json.dumps([0, 0, 0, 0, 1, 1, 1, 1])
         return dict(urlVertices=url_vertices, urlTriangles=url_triangles, urlLines=url_lines,
-                    urlNormals=url_normals, urlAlphas=alphas, urlAlphasIndices=alphas_indices)
+                    urlNormals=url_normals, urlAlphas=alphas, urlAlphasIndices=alphas_indices,
+                    biHemispheric=True, hemisphereChunkMask=hemisphere_chunk_mask)
 
 
     def _compute_measure_points_param(self, surface, region_map):

@@ -72,8 +72,6 @@ var elapsedTicksPerTimeStep = 0;
 var AG_isStopped = false;
 var sliderSel = false;
 
-var near = 0.1;
-var fov = 45;
 var isPreview = false;
 
 var pointPosition = 75.0;
@@ -90,8 +88,11 @@ var measurePointsBuffers = [];
  * arr[i][3] Color buffer (same length as vertices /3 * 4) in case of one-to-one mapping
  * arr[i][3] Alpha buffer Gradient values for the 2 closest measurement points
  * arr[i][4] Alpha Indices Buffer Indices of the 3 closest measurement points, in care of not one-to-one mapping
- */ 
+ */
 
+var boundaryVertexBuffers = [];
+var boundaryNormalsBuffers = [];
+var boundaryEdgesBuffers = [];
 
 var activitiesData = [], timeData = [], measurePoints = [], measurePointsLabels = [];
 
@@ -104,17 +105,10 @@ var nextActivitiesFileData = [];
 var totalPassedActivitiesData = 0;
 var shouldIncrementTime = true;
 var currentAsyncCall = null;
-var drawTriangleLines = false;
-var drawBoundaries = false;
-var boundaryVertexBuffers = [];
-var boundaryNormalsBuffers = [];
-var boundaryEdgesBuffers = [];
 
 var MAX_TIME_STEP = 0;
 var NO_OF_MEASURE_POINTS = 0;
 var NEXT_PAGE_THREASHOLD = 100;
-
-var displayMeasureNodes = false;
 
 var activityMin = 0, activityMax = 0;
 var isOneToOneMapping = false;
@@ -122,12 +116,27 @@ var isDoubleView = false;
 var drawingMode;
 var VS_showLegend = true;
 var isInternalSensorView = false;
+var displayMeasureNodes = false;
 
+var drawTriangleLines = false;
+var drawBoundaries = false;
+var VS_hemisphere_chunk_mask = null;
+var bufferSetsMask = null;
+var VS_hemisphereVisibility = null;
+
+var near = 0.1;
+var fov = 45;
 GL_DEFAULT_Z_POS = 250;
 
-var VS_hemisphere_chunk_mask = [1, 1, 1, 1, 0, 0, 0, 0];
-var bufferSetsMask = [1, 1, 1, 1, 1, 1, 1, 1];
-var VS_hemisphereVisibility = null;
+function VS_init_hemisphere_mask(hemisphere_chunk_mask){
+    VS_hemisphere_chunk_mask = hemisphere_chunk_mask;
+    if (hemisphere_chunk_mask != null){
+        bufferSetsMask = [];
+        for(var i = 0; i < VS_hemisphere_chunk_mask.length; i++){
+            bufferSetsMask[i] = 1;
+        }
+    }
+}
 
 function VS_SetHemisphere(h){
     VS_hemisphereVisibility = h;
@@ -135,9 +144,9 @@ function VS_SetHemisphere(h){
         if ( h == null ){
             bufferSetsMask[i] = 1;
         }else if (h == 'l'){
-            bufferSetsMask[i] = VS_hemisphere_chunk_mask[i];
-        }else if (h == 'r'){
             bufferSetsMask[i] = 1 - VS_hemisphere_chunk_mask[i];
+        }else if (h == 'r'){
+            bufferSetsMask[i] = VS_hemisphere_chunk_mask[i];
         }
     }
 }
@@ -180,7 +189,7 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
 
 function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                               boundaryURL, shelfObject, showLegend, argDisplayMeasureNodes, argIsFaceToDisplay,
+                               boundaryURL, shelfObject, hemisphereChunkMask, showLegend, argDisplayMeasureNodes, argIsFaceToDisplay,
                                minMeasure, maxMeasure, urlMeasure){
     // initialize global configuration
     isPreview = false;
@@ -229,7 +238,7 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
     
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
     _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList, 
-                  urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject);
+                  urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject, hemisphereChunkMask);
 
     _bindEvents(canvas);
 
@@ -242,7 +251,7 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
 function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
                     urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
-                    oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
+                    oneToOneMapping, doubleView, shelfObject, hemisphereChunkMask, urlMeasurePointsLabels, boundaryURL) {
     // initialize global configuration
     isPreview = false;
     isDoubleView = doubleView;
@@ -269,7 +278,7 @@ function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVert
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
 
     _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList,
-                  urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject);
+                  urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject, hemisphereChunkMask);
 
     _bindEvents(canvas);
 
@@ -285,17 +294,17 @@ function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVert
 
 function _VS_init_cubicalMeasurePoints(){
     for (var i = 0; i < NO_OF_MEASURE_POINTS; i++) {
-        measurePointsBuffers[i] = bufferAtPoint(measurePoints[i], i);
+        measurePointsBuffers[i] = bufferAtPoint(measurePoints[i]);
     }
 }
 
 function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                               boundaryURL, minMeasure, maxMeasure, urlMeasure){
+                               boundaryURL, minMeasure, maxMeasure, urlMeasure, hemisphereChunkMask){
 
     _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                        noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
-                       boundaryURL, null, false, false, false, minMeasure, maxMeasure, urlMeasure);
+                       boundaryURL, null, hemisphereChunkMask, false, false, false, minMeasure, maxMeasure, urlMeasure);
     _VS_init_cubicalMeasurePoints();
     // TODO minMEasure and maxMeasure could directly come as floats ??
     ColSch_initColorSchemeParams(parseFloat(minMeasure), parseFloat(maxMeasure));
@@ -303,17 +312,17 @@ function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, 
 
 function VS_StartEEGSensorViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, urlMeasurePointsLabels,
-                               shelfObject, minMeasure, maxMeasure, measure){
+                               shelfObject, minMeasure, maxMeasure, urlMeasure){
     _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
                                noOfMeasurePoints, '', '', urlMeasurePointsLabels,
-                               '', shelfObject, false, true, true, minMeasure, maxMeasure, measure);
+                               '', shelfObject, null, false, true, true, minMeasure, maxMeasure, urlMeasure);
     _VS_init_cubicalMeasurePoints();
 }
 
 function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
                     urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
-                    oneToOneMapping, doubleView, shelfObject, urlMeasurePointsLabels, boundaryURL) {
+                    oneToOneMapping, doubleView, shelfObject, hemisphereChunkMask, urlMeasurePointsLabels, boundaryURL) {
 
     _VS_movie_entrypoint.apply(this, arguments);
     _VS_init_cubicalMeasurePoints();
@@ -339,7 +348,7 @@ function _isValidActivityData(){
  * Scene setup common to all webgl brain viewers
  */
 function _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList, urlAlphasList, 
-                       urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject){
+                       urlAlphasIndicesList, urlLinesList, boundaryURL, shelfObject, hemisphere_chunk_mask){
     customInitGL(canvas);
     GL_initColorPickFrameBuffer();
     initShaders();
@@ -354,6 +363,8 @@ function _initViewerGL(canvas, urlVerticesList, urlNormalsList, urlTrianglesList
         brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
                                    $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), isDoubleView);
     }
+
+    VS_init_hemisphere_mask(hemisphere_chunk_mask);
 
     brainLinesBuffers = HLPR_getDataBuffers(gl, $.parseJSON(urlLinesList), isDoubleView, true);
     initRegionBoundaries(boundaryURL);

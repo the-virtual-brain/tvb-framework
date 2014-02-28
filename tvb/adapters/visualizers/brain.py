@@ -50,8 +50,8 @@ MAX_MEASURE_POINTS_LENGTH = 235
 
 class BrainViewer(ABCDisplayer):
     """
-    Interface between the 3D view of the Brain Cortical Surface and TVB framework. 
-    This viewer will build the required parameter dictionary that will be sent to the HTML / JS for further processing, 
+    Interface between the 3D view of the Brain Cortical Surface and TVB framework.
+    This viewer will build the required parameter dictionary that will be sent to the HTML / JS for further processing,
     having as end result a brain surface plus activity that will be displayed in 3D.
     """
     _ui_name = "Brain Activity Visualizer"
@@ -75,7 +75,7 @@ class BrainViewer(ABCDisplayer):
         Return the required memory to run this algorithm.
         """
         overall_shape = time_series.read_data_shape()
-        #Assume one page doesn't get 'dumped' in time and maybe two consecutive pages will be in the same 
+        #Assume one page doesn't get 'dumped' in time and maybe two consecutive pages will be in the same
         #time in memory.
         used_shape = (overall_shape[0] / (self.PAGE_SIZE * 2.0), overall_shape[1], overall_shape[2], overall_shape[3])
         input_size = numpy.prod(used_shape) * 8.0
@@ -173,6 +173,9 @@ class BrainViewer(ABCDisplayer):
         """
         one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
             alphas, alphas_indices = self._prepare_surface_urls(time_series)
+        # todo: this is mock data
+        #surface.bi_hemispheric
+        hemisphere_chunk_mask = json.dumps([0, 0, 0, 0, 1, 1, 1, 1])
 
         measure_points, measure_points_labels, measure_points_no = self.retrieve_measure_points(time_series)
         if not one_to_one_map and measure_points_no > MAX_MEASURE_POINTS_LENGTH:
@@ -197,8 +200,8 @@ class BrainViewer(ABCDisplayer):
                     alphas_indices=json.dumps(alphas_indices), base_activity_url=base_activity_url,
                     time=json.dumps(time_urls), minActivity=min_val, maxActivity=max_val,
                     minActivityLabels=legend_labels, labelsStateVar=state_variables, labelsModes=range(data_shape[3]),
-                    extended_view=False, shelfObject=face_object, time_series=time_series, pageSize=self.PAGE_SIZE,
-                    boundary_url=boundary_url)
+                    extended_view=False, shelfObject=face_object, biHemispheric=True, hemisphereChunkMask=hemisphere_chunk_mask,
+                    time_series=time_series, pageSize=self.PAGE_SIZE, boundary_url=boundary_url)
 
 
     @staticmethod
@@ -347,6 +350,7 @@ class BrainEEG(BrainViewer):
         self.eeg_cap = eeg_cap
         params = BrainViewer.compute_parameters(self, surface_activity)
         params.update(EegMonitor().compute_parameters(surface_activity))
+        params['biHemispheric'] = False
         params['extended_view'] = True
         params['isOneToOneMapping'] = False
         params['brainViewerTemplate'] = 'view.html'
