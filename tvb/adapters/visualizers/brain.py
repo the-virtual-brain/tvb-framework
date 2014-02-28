@@ -119,7 +119,8 @@ class BrainViewer(ABCDisplayer):
             raise Exception("No not-none Mapping Surface found for display!")
 
         rendering_urls = surface.get_urls_for_rendering(True, region_map)
-        return (one_to_one_map, ) + rendering_urls
+        hemisphere_chunk_mask = surface.get_slices_to_hemisphere_mask()
+        return (one_to_one_map, ) + rendering_urls + (hemisphere_chunk_mask, surface.bi_hemispheric)
 
 
     def _get_url_for_region_boundaries(self, time_series):
@@ -138,7 +139,7 @@ class BrainViewer(ABCDisplayer):
     def compute_preview_parameters(self, time_series):
 
         one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
-            alphas, alphas_indices = self._prepare_surface_urls(time_series)
+            alphas, alphas_indices, _, _ = self._prepare_surface_urls(time_series)
 
         _, _, measure_points_no = self.retrieve_measure_points(time_series)
         min_val, max_val = time_series.get_min_max_values()
@@ -172,10 +173,7 @@ class BrainViewer(ABCDisplayer):
 
         """
         one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
-            alphas, alphas_indices = self._prepare_surface_urls(time_series)
-        # todo: this is mock data
-        #surface.bi_hemispheric
-        hemisphere_chunk_mask = json.dumps([0, 0, 0, 0, 1, 1, 1, 1])
+            alphas, alphas_indices, hemisphere_chunk_mask, biHemispheres = self._prepare_surface_urls(time_series)
 
         measure_points, measure_points_labels, measure_points_no = self.retrieve_measure_points(time_series)
         if not one_to_one_map and measure_points_no > MAX_MEASURE_POINTS_LENGTH:
@@ -200,7 +198,8 @@ class BrainViewer(ABCDisplayer):
                     alphas_indices=json.dumps(alphas_indices), base_activity_url=base_activity_url,
                     time=json.dumps(time_urls), minActivity=min_val, maxActivity=max_val,
                     minActivityLabels=legend_labels, labelsStateVar=state_variables, labelsModes=range(data_shape[3]),
-                    extended_view=False, shelfObject=face_object, biHemispheric=True, hemisphereChunkMask=hemisphere_chunk_mask,
+                    extended_view=False, shelfObject=face_object,
+                    biHemispheric=biHemispheres, hemisphereChunkMask=json.dumps(hemisphere_chunk_mask),
                     time_series=time_series, pageSize=self.PAGE_SIZE, boundary_url=boundary_url)
 
 

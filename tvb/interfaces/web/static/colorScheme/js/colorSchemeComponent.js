@@ -147,8 +147,8 @@ function ColSch_setColorScheme(scheme, notify_server) {
         $("#setColorSchemeSelId").val(scheme);
     }
     _colorScheme = scheme;
+    $("#colorSchemeFieldSet_" + scheme).show();
     if (_refreshCallback) {
-        $("#colorSchemeFieldSet_" + scheme).show();
         _refreshCallback();
     }
 }
@@ -192,7 +192,7 @@ function ColSch_initColorSchemeParams(minValue, maxValue, refreshFunction) {
         change: function(event, ui) {
             _linearGradientStart = (ui.values[0] - minValue) / (maxValue - minValue);    // keep the interest interval
             _linearGradientEnd   = (ui.values[1] - minValue) / (maxValue - minValue) ;   // as normalized dist from min
-            if (_refreshCallback)      _refreshCallback()
+            if (_refreshCallback) { _refreshCallback() }
         }
     });
     $("#sliderMinValue").html(minValue.toFixed(3));

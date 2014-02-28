@@ -177,7 +177,7 @@ class WorkflowDAO(RootDAO):
 
     def get_workflow_step_by_step_index(self, workflow_id, step_index):
         """
-        :returns: orkflowStep entity of None.
+        :returns: WorkflowStep entity or None.
         """
         step = None
         try:

@@ -109,7 +109,7 @@ class BaseProfile():
 
 
     # II. Attributes with value not changeable from settings page:
-    DB_CURRENT_VERSION = 8
+    DB_CURRENT_VERSION = 9
     # Overwrite number of connections to the DB. 
     # Otherwise might reach PostgreSQL limit when launching multiple concurrent operations.
     # MAX_DB_CONNECTION default value will be used for WEB  

@@ -29,19 +29,24 @@
 #
 
 """
-Change of DB structure from TVB version 1.1 to pre 1.1.1
+Change of DB structure to TVB version 1.1.1
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, String, Boolean
 from migrate.changeset.schema import create_column, drop_column
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
 
-
 meta = model.Base.metadata
-COL_VERSION = Column('version', Integer, default=0)
+
+DEFAULT = '{"0": {"hemisphere": "NONE", "vertices": {"end_idx": 45000, "start_idx": 0}, ' \
+          '"triangles": {"end_idx": 80000, "start_idx": 0}}}'
+
+COL_1 = Column('_hemisphere_mask', String, default='hemisphere_mask')
+COL_2 = Column('_split_slices', String, default=DEFAULT)
+COL_3 = Column('_bi_hemispheric', Boolean, default=False)
 
 
 def upgrade(migrate_engine):
@@ -51,8 +56,11 @@ def upgrade(migrate_engine):
     """
     try:
         meta.bind = migrate_engine
-        table = meta.tables['PROJECTS']
-        create_column(COL_VERSION, table)
+        table1 = meta.tables['MAPPED_SURFACE_DATA']
+
+        create_column(COL_1, table1)
+        create_column(COL_2, table1)
+        create_column(COL_3, table1)
 
     except Exception:
         logger = get_logger(__name__)
@@ -66,8 +74,11 @@ def downgrade(migrate_engine):
     """
     try:
         meta.bind = migrate_engine
-        table = meta.tables['PROJECTS']
-        drop_column(COL_VERSION, table)
+        table1 = meta.tables['MAPPED_SURFACE_DATA']
+
+        drop_column(COL_1, table1)
+        drop_column(COL_2, table1)
+        drop_column(COL_3, table1)
 
     except Exception:
         logger = get_logger(__name__)

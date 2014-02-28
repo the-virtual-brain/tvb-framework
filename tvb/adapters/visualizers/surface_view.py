@@ -57,7 +57,7 @@ class SurfaceViewer(ABCDisplayer):
                                linked_elem_field=FilterChain.datatype + "._surface"),
                       # UIFilter(linked_elem_name="connectivity_measure",
                       #          linked_elem_field=FilterChain.datatype + "._surface")
-        ]
+                      ]
 
         json_ui_filter = json.dumps([ui_filter.to_dict() for ui_filter in filters_ui])
 
@@ -74,7 +74,7 @@ class SurfaceViewer(ABCDisplayer):
 
     def _compute_surface_params(self, surface, region_map):
         rendering_urls = []
-        # we want the url's in json
+        # we want the URLs in json
         # But these string are going to be verbatim strings in js source code
         # This means that js will interpret escapes like \" so the json parser gets "
         # Double escape is needed \\"
@@ -82,12 +82,11 @@ class SurfaceViewer(ABCDisplayer):
             escaped_url = json.dumps(url).replace('\\', '\\\\')
             rendering_urls.append(escaped_url)
         url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices = rendering_urls
-        # todo: this is mock data
-        #surface.bi_hemispheric
-        hemisphere_chunk_mask = json.dumps([0, 0, 0, 0, 1, 1, 1, 1])
+
+        hemisphere_chunk_mask = surface.get_slices_to_hemisphere_mask()
         return dict(urlVertices=url_vertices, urlTriangles=url_triangles, urlLines=url_lines,
                     urlNormals=url_normals, urlAlphas=alphas, urlAlphasIndices=alphas_indices,
-                    biHemispheric=True, hemisphereChunkMask=hemisphere_chunk_mask)
+                    biHemispheric=surface.bi_hemispheric, hemisphereChunkMask=json.dumps(hemisphere_chunk_mask))
 
 
     def _compute_measure_points_param(self, surface, region_map):
