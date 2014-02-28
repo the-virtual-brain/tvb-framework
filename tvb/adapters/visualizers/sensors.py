@@ -65,7 +65,7 @@ class InternalSensorViewer(ABCDisplayer):
             'noOfMeasurePoints': measure_points_info[2],
             'minMeasure': 0,
             'maxMeasure': measure_points_nr,
-            'measure' : json.dumps(range(measure_points_nr))  # values displayed on sensor
+            'urlMeasure' : ''
         }
 
         return self.build_display_result('sensors/sensors_internal', params,
@@ -116,7 +116,7 @@ class EegSensorViewer(ABCDisplayer):
             'noOfMeasurePoints': measure_points_nr,
             'minMeasure': 0,
             'maxMeasure': measure_points_nr,
-            'measure' : json.dumps(range(measure_points_nr))
+            'urlMeasure' : ''
         }
 
         if eeg_cap is not None:

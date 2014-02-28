@@ -172,7 +172,7 @@ function _loadInitialColorScheme(){
  *
  * @param minValue The minimum value for the linear slider
  * @param maxValue The maximum value for the linear slider
- * @param refreshFunction A reference to the function which updates the visualiser
+ * @param [refreshFunction] A reference to the function which updates the visualiser
  */
 function ColSch_initColorSchemeParams(minValue, maxValue, refreshFunction) {
     _refreshCallback = refreshFunction;
