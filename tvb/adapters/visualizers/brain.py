@@ -371,8 +371,11 @@ class BrainEEG(BrainViewer):
         url_vertices, url_normals, url_lines, url_triangles = self.eeg_cap.get_urls_for_rendering()
         alphas = []
         alphas_indices = []
+        hemispheres_mask = None
+        bi_hemisphere = False
 
-        return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, alphas, alphas_indices
+        return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
+               alphas, alphas_indices, hemispheres_mask, bi_hemisphere
 
 
 
