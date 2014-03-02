@@ -233,10 +233,11 @@ class ClusterSchedulerClient(object):
         seconds = int(time_estimate) % 60
         # Anything lower than 2 hours just use default walltime
         if hours < 2:
-            walltime = "02:00:00"
+            walltime = "05:00:00"
+        if (hours >= 2 or hours <= 24):
+            walltime = "48:00:00"
         else:
-            walltime = datetime.time(hours, minutes, seconds)
-            walltime = walltime.strftime("%H:%M:%S")
+            walltime = "167:00:00"
 
         call_arg = config.CLUSTER_SCHEDULE_COMMAND % (walltime, operation_identifier, user_name_label)
         LOGGER.info(call_arg)
