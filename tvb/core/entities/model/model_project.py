@@ -122,6 +122,9 @@ class User(Base):
 
 
     def get_viewers_color_scheme(self):
+        if UserPreferences.VIEWERS_COLOR_SCHEME not in self.preferences:
+            self.preferences[UserPreferences.VIEWERS_COLOR_SCHEME] = "linear"
+
         return self.preferences[UserPreferences.VIEWERS_COLOR_SCHEME]
 
 

@@ -39,6 +39,7 @@ import cherrypy
 
 from tvb.datatypes.surfaces import LocalConnectivity
 from tvb.core.adapters.abcadapter import ABCAdapter
+from tvb.datatypes import surfaces_framework
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.decorators import check_user, handle_error, expose_fragment, expose_page, expose_json
@@ -272,13 +273,13 @@ class LocalConnectivityController(SpatioTemporalController):
         triangle_index = int(selected_triangle)
         vertex_index = int(surface.triangles[triangle_index][0])
         picked_data = list(selected_local_conn.matrix[vertex_index].toarray().squeeze())
-        chunk_size = surface.SPLIT_MAX_SIZE
-        buffer_size = surface.SPLIT_BUFFER_SIZE
+        chunk_size = surfaces_framework.SPLIT_MAX_SIZE
+        buffer_size = surfaces_framework.SPLIT_BUFFER_SIZE
         result = []
         if chunk_size >= len(picked_data):
             result.append(picked_data)
         else:
-            for start_idx in range(0, len(picked_data) - buffer_size, chunk_size):
+            for start_idx in xrange(0, len(picked_data) - buffer_size, chunk_size):
                 result.append(picked_data[start_idx:start_idx + chunk_size + buffer_size])
         result = {'min_value': min(picked_data), 'max_value': max(picked_data), 'data': json.dumps(result)}
 
