@@ -69,9 +69,12 @@ class ObjSurface(object):
                         # self.vertices.append(self.vertices[v_idx])
                         # self.tex_coords.append(self.tex_coords[v_idx])
                         self.normals[v_idx] = obj.normals[n_idx]
-
+            # checks
+            if not self.vertices or not self.triangles:
+                raise ParseException("No geometry data in file.")
             self._to_numpy()
         except ValueError as ex:
+            self.logger.exception(" Error in obj")
             raise ParseException(str(ex))
 
     def _triangulate(self, face):
@@ -95,7 +98,3 @@ class ObjSurface(object):
             self.normals = None
 
         self.triangles = np.array(self.triangles).reshape( (len(self.triangles)/3 , 3))
-
-        # checks
-        if not self.vertices or not self.triangles:
-            raise ParseException("No geometry data in file.")
