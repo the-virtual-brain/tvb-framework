@@ -140,7 +140,7 @@ class OperationOverlayDetails(CommonDetails):
     """
 
 
-    def __init__(self, operation, username, count_inputs, count_results, burst, no_of_op_in_group):
+    def __init__(self, operation, username, count_inputs, count_results, burst, no_of_op_in_group, op_pid):
         super(OperationOverlayDetails, self).__init__()
         
         self.operation_id = operation.id
@@ -160,7 +160,16 @@ class OperationOverlayDetails(CommonDetails):
         
         self.input_datatypes = count_inputs
         self.metadata['input_datatypes'] = {"name": "No. of input DataTypes", "disabled": "True"}
-        
+
+        # If the operation was executed in another process or as a cluster then show the pid/job_id
+        if op_pid is not None:
+            if op_pid.pid is not None:
+                self.pid = op_pid.pid
+                self.metadata['pid'] = {"name": "Process pid", "disabled": "True"}
+            elif op_pid.job_id is not None:
+                self.job_id = op_pid.job_id
+                self.metadata['job_id'] = {"name": "Cluster job Id", "disabled": "True"}
+
         ### Now set/update generic fields
         self.gid = operation.gid
         self.author = username

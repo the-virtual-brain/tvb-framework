@@ -447,8 +447,9 @@ class ProjectService:
         burst = dao.get_burst_for_operation_id(operation.id)
         datatypes_param, all_special_params = ProjectService._review_operation_inputs(operation.gid)
 
+        op_pid = dao.get_operation_process_for_operation(operation.id)
         op_details = OperationOverlayDetails(operation, username, len(datatypes_param),
-                                             count_result, burst, no_of_op_in_group)
+                                             count_result, burst, no_of_op_in_group, op_pid)
 
         ## Add all parameter which are set differently by the user on this Operation.
         if all_special_params is not None:
