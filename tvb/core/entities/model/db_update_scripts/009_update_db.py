@@ -61,9 +61,9 @@ def upgrade(migrate_engine):
         meta.bind = migrate_engine
         table1 = meta.tables['MAPPED_SURFACE_DATA']
 
-        #create_column(COL_1, table1)
-        #create_column(COL_2, table1)
-        #create_column(COL_3, table1)
+        create_column(COL_1, table1)
+        create_column(COL_2, table1)
+        create_column(COL_3, table1)
 
         try:
             session = SA_SESSIONMAKER()
