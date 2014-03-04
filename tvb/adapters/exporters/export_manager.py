@@ -243,7 +243,7 @@ class ExportManager:
 
         with TvbZip(result_path, "w") as zip_file:
             # pack project content into a ZIP file
-            zip_file.write_folder(project_folder)
+            zip_file.write_folder(project_folder, exclude=["TEMP"])
             self._export_bursts(project, zip_file)
             self._export_linked_datatypes(project, zip_file)
 

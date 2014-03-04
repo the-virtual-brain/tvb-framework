@@ -490,8 +490,8 @@ class FilesHelper():
         if os.path.isfile(file_path):
             return int(os.path.getsize(file_path) / 1024)
         return 0
-        
-        
+
+
 class TvbZip(ZipFile):
     def __init__(self, dest_path, mode="r"):
         ZipFile.__init__(self, dest_path, mode, ZIP_DEFLATED, True)
@@ -502,15 +502,25 @@ class TvbZip(ZipFile):
     def __exit__(self, _type, _value, _traceback):
         self.close()
 
-    def write_folder(self, folder, arcprefix=""):
+    def write_folder(self, folder, archive_path_prefix="", exclude=None):
         """
         write folder contents in archive
+        :param archive_path_prefix: root folder in archive. Defaults to "" the archive root
+        :param exclude: a list of file or folder names that will be recursively excluded
         """
-        for root, _, files in os.walk(folder):
-            #NOTE: ignore empty directories
+        if exclude is None:
+            exclude = []
+
+        for root, dirs, files in os.walk(folder):
+            for ex in exclude:
+                if ex in dirs:
+                    dirs.remove(ex)
+                if ex in files:
+                    files.remove(ex)
+
             for file_n in files:
                 abs_file_n = os.path.join(root, file_n)
                 zip_file_n = abs_file_n[len(folder) + len(os.sep):]
-                self.write(abs_file_n, arcprefix + zip_file_n)
+                self.write(abs_file_n, archive_path_prefix + zip_file_n)
 
     # TODO: move filehelper's zip methods here
