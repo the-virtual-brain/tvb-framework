@@ -58,6 +58,11 @@
                 <label for="showBrainLines">surface triangles</label>
             </dd>
 
+            <dt></dt>
+            <dd><input id="showSpeculars" type="checkbox" onchange="setSpecularHighLights(this.checked);" checked="checked"/>
+                <label for="showSpeculars">shiny surface</label>
+            </dd>
+
             <py:if test="not isOneToOneMapping">
                 <dt></dt>
                 <dd><input id="showMeasurePoints" type="checkbox" onchange="toggleMeasureNodes();" tabindex="1"/>

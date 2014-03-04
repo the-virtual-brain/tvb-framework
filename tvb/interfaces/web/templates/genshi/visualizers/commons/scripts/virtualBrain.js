@@ -128,6 +128,27 @@ var near = 0.1;
 var fov = 45;
 GL_DEFAULT_Z_POS = 250;
 
+var defaultLightSettings = {
+    ambientColor : [0.6, 0.6, 0.5],
+    directionalColor : [0.7, 0.7, 0.7],
+    lightDirection : Vector.create([0.5, 0, 1]).toUnitVector().flatten(),
+    specularColor: [0.8, 0.8, 0.8],
+    materialShininess : 30.0,
+    pointLocation : [0, -10, -400]
+};
+
+var noSpecularLightSettings = {
+    ambientColor : [0.6, 0.6, 0.5],
+    directionalColor : [0.5, 0.5, 0.5],
+    lightDirection : Vector.create([0.5, 0, 1]).toUnitVector().flatten(),
+    specularColor: [0.0, 0.0, 0.0],
+    materialShininess : 30.0,
+    pointLocation : [0, -10, -400]
+};
+
+var lightSettings = defaultLightSettings;
+
+
 function VS_init_hemisphere_mask(hemisphere_chunk_mask){
     VS_hemisphere_chunk_mask = hemisphere_chunk_mask;
     if (hemisphere_chunk_mask != null){
@@ -610,16 +631,18 @@ function updateColors(currentTimeInFrame) {
  * Draw the light
  */
 function addLight() {
-    var lightingDirection = Vector.create([-0.5, 0, -1]);
-    var adjustedLD = lightingDirection.toUnitVector().x(-1);
-    var flatLD = adjustedLD.flatten();
-
-    gl.uniform3f(shaderProgram.ambientColorUniform, 0.6, 0.6, 0.5);
-    gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
-    gl.uniform3f(shaderProgram.directionalColorUniform, 0.7, 0.7, 0.7);
-    gl.uniform3f(shaderProgram.pointLightingLocationUniform, 0, -10, -400);
-    gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform, 0.8, 0.8, 0.8);
-    gl.uniform1f(shaderProgram.materialShininessUniform, 30.0);
+    gl.uniform3f(shaderProgram.ambientColorUniform,
+                lightSettings.ambientColor[0], lightSettings.ambientColor[1], lightSettings.ambientColor[2]);
+    gl.uniform3f(shaderProgram.lightingDirectionUniform,
+                lightSettings.lightDirection[0], lightSettings.lightDirection[1], lightSettings.lightDirection[2]);
+    gl.uniform3f(shaderProgram.directionalColorUniform,
+                lightSettings.directionalColor[0], lightSettings.directionalColor[1], lightSettings.directionalColor[2]);
+    gl.uniform3f(shaderProgram.pointLightingLocationUniform,
+                lightSettings.pointLocation[0], lightSettings.pointLocation[1], lightSettings.pointLocation[2]);
+    gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform,
+                lightSettings.specularColor[0], lightSettings.specularColor[1], lightSettings.specularColor[2]);
+    gl.uniform1f(shaderProgram.materialShininessUniform,
+                lightSettings.materialShininess);
 }
 
 function toggleMeasureNodes() {
@@ -695,6 +718,14 @@ function toggleDrawTriangleLines() {
 
 function toggleDrawBoundaries() {
     drawBoundaries = !drawBoundaries;
+}
+
+function setSpecularHighLights(enable){
+    if(enable){
+        lightSettings = defaultLightSettings;
+    }else{
+        lightSettings = noSpecularLightSettings;
+    }
 }
 
 /**
