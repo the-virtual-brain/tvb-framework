@@ -190,10 +190,12 @@ class SettingsService():
             os.makedirs(new_storage)
         max_space = data[self.KEY_MAX_DISK_SPACE_USR]
         available_mem_kb = SettingsService.get_disk_free_space(new_storage)
-        kb_value = max_space * (2 ** 10)
+        kb_value = int(max_space) * 2**10
         if not (0 < kb_value < available_mem_kb):
-            raise InvalidSettingsException("Not enough disk space. There is a maximum of " +
-                                           str(available_mem_kb / (2 ** 10)) + "Mb available on the partition.")
+            raise InvalidSettingsException(
+                "Not enough disk space. There is a maximum of %d MB available "
+                "on this disk or partition." % (available_mem_kb >> 10, )
+            )
         data[self.KEY_MAX_DISK_SPACE_USR] = kb_value
 
         #Save data to file, all while checking if any data has changed
@@ -226,6 +228,3 @@ class SettingsService():
             os.chmod(cfg.TVB_CONFIG_FILE, 0644)
         return anything_changed, first_run or db_changed
 
-
- 
-                    
