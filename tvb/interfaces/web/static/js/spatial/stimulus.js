@@ -77,6 +77,14 @@ function _refreshWeights() {
     }
 }
 
+function _STIM_server_update_scaling(){
+    doAjaxCall({
+        async: false,
+        type: 'POST',
+        data: {'scaling' : JSON.stringify(updatedRegionStimulusWeights)},
+        url:'/spatial/stimulus/region/update_scaling'
+    });
+}
 
 /**
  * Saves the given weight for all the selected nodes.
@@ -93,13 +101,7 @@ function STIM_saveWeightForSelectedNodes() {
         weightElement.val("");
         GFUNC_removeAllMatrixFromInterestArea();
         _refreshWeights();
-        doAjaxCall({
-        	async: false,
-        	traditional: true,
-        	type: 'POST',
-        	data: {'scaling' : updatedRegionStimulusWeights},
-        	url:'/spatial/stimulus/region/update_scaling'
-        });
+        _STIM_server_update_scaling();
     }
 }
 
@@ -110,13 +112,7 @@ function STIM_saveWeightForSelectedNodes() {
 function STIM_resetRegionStimulusWeights() {
     updatedRegionStimulusWeights = originalRegionStimulusWeights.slice(0);
     _refreshWeights();
-    doAjaxCall({
-        	async: false,
-        	traditional: true,
-        	type: 'POST',
-        	data: {'scaling' : updatedRegionStimulusWeights},
-        	url:'/spatial/stimulus/region/update_scaling'
-        });
+    _STIM_server_update_scaling();
 }
 
 
@@ -141,14 +137,14 @@ function STIM_toggleNodeSelection(nodeIndex) {
  * @param checkScaling
  */
 function STIM_submitRegionStimulusData(actionUrl, nextStep, checkScaling) {
-	if (checkScaling == true) {
+	if (checkScaling) {
 		var scalingSet = false;
 		for (var i=0; i<updatedRegionStimulusWeights.length; i++) {
 			if (updatedRegionStimulusWeights[i] != 0) {
 				scalingSet = true;
 			}
 		}
-		if (scalingSet == false) {
+		if ( !scalingSet ) {
 			displayMessage("You should set scaling that is not 0 for at least some nodes.", "warningMessage");
         	return;
 		}
@@ -199,12 +195,12 @@ function STIM_deleteAllFocalPoints() {
  * @param includeFocalPoints
  */
 function STIM_submitSurfaceStimulusData(actionUrl, nextStep, includeFocalPoints) {
-    if (includeFocalPoints == true && BS_addedSurfaceFocalPoints.length < 1) {
+    if (includeFocalPoints && BS_addedSurfaceFocalPoints.length < 1) {
         displayMessage("You should define at least one focal point.", "errorMessage");
         return;
     }
     var baseDict = {'next_step' : nextStep};
-	if (includeFocalPoints == true) {
+	if (includeFocalPoints) {
 		baseDict['defined_focal_points'] = JSON.stringify(BS_addedFocalPointsTriangles);
 	}
     _submitPageData(actionUrl, baseDict)

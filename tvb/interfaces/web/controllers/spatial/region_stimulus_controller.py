@@ -222,7 +222,7 @@ class RegionStimulusController(SpatioTemporalController):
         """
         context = common.get_from_session(KEY_REGION_CONTEXT)
         try:
-            scaling = [float(entry) for entry in kwargs['scaling']]
+            scaling = json.loads(kwargs['scaling'])
             context.set_weights(scaling)
             return 'true'
         except Exception, ex:
