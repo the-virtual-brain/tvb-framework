@@ -65,9 +65,18 @@ var TIME_STEP = 1;
  */
 var currentTimeValue = 0;
 /**
+ * The maximum possible value of currentTimeValue
+ */
+var MAX_TIME = 0;
+/**
  * For how many display ticks have we drawn the same time step.
  */
 var elapsedTicksPerTimeStep = 0;
+/**
+ * At the maximum speed the time line finishes in 32 steps
+ * This is approximately 1s wall time (ignoring data fetches).
+ */
+var ACTIVITY_FRAMES_IN_TIME_LINE_AT_MAX_SPEED = 32;
 
 var AG_isStopped = false;
 var sliderSel = false;
@@ -106,7 +115,6 @@ var totalPassedActivitiesData = 0;
 var shouldIncrementTime = true;
 var currentAsyncCall = null;
 
-var MAX_TIME_STEP = 0;
 var NO_OF_MEASURE_POINTS = 0;
 var NEXT_PAGE_THREASHOLD = 100;
 
@@ -442,6 +450,7 @@ function _initTimeData(urlTimeList){
     for (var i = 0; i < timeUrls.length; i++) {
         timeData = timeData.concat(HLPR_readJSONfromFile(timeUrls[i]));
     }
+    MAX_TIME = timeData.length - 1;
 }
 
 function _updateSpeedSliderValue(stepsPerTick){
@@ -455,9 +464,12 @@ function _updateSpeedSliderValue(stepsPerTick){
 }
 
 function _initSliders(){
+    var maxAllowedTimeStep = Math.ceil(MAX_TIME / ACTIVITY_FRAMES_IN_TIME_LINE_AT_MAX_SPEED);
+    // after being converted to the exponential range maxSpeed must not exceed maxAllowedTimeStep
+    var maxSpeedSlider = Math.min(10, 5 + Math.log(maxAllowedTimeStep)/Math.LN2);
+
     if (timeData.length > 0) {
-        MAX_TIME_STEP = timeData.length - 1;
-        $("#sliderStep").slider({min:0, max: 10, step: 1, value:5,
+        $("#sliderStep").slider({min:0, max: maxSpeedSlider, step: 1, value:5,
             stop: function() {
                 refreshCurrentDataSlice();
                 sliderSel = false;
@@ -471,7 +483,7 @@ function _initSliders(){
             }
         });
         // Initialize slider for timeLine
-        $("#slider").slider({ min:0, max: MAX_TIME_STEP,
+        $("#slider").slider({ min:0, max: MAX_TIME,
             slide: function(event, target) {
                 sliderSel = true;
                 currentTimeValue = target.value;
@@ -1025,7 +1037,7 @@ function tick() {
             currentTimeValue = currentTimeValue + TIME_STEP;
         }
 
-        if (currentTimeValue > MAX_TIME_STEP) {
+        if (currentTimeValue > MAX_TIME) {
             // Next time value is no longer in activity data.
             initActivityData();
             if (isDoubleView) {
@@ -1274,7 +1286,7 @@ function refreshCurrentDataSlice() {
  */
 function getUrlForPageFromIndex(index) {
     var fromIdx = index;
-    if (fromIdx > MAX_TIME_STEP) fromIdx = 0;
+    if (fromIdx > MAX_TIME) fromIdx = 0;
     var toIdx = fromIdx + pageSize * TIME_STEP;
     return readDataPageURL(urlBase, fromIdx, toIdx, selectedStateVar, selectedMode, TIME_STEP)
 }
@@ -1331,7 +1343,7 @@ function changeCurrentActivitiesFile() {
     if (activitiesData && activitiesData.length ) {
         shouldIncrementTime = true;
     }
-    if (totalPassedActivitiesData >= MAX_TIME_STEP) {
+    if (totalPassedActivitiesData >= MAX_TIME) {
         totalPassedActivitiesData = 0;
     }
 }
