@@ -35,9 +35,12 @@ Change of DB structure to TVB version 1.1.1
 """
 
 from sqlalchemy import Column, String, Boolean
+from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.sql import text
 from migrate.changeset.schema import create_column, drop_column
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
+from tvb.core.entities.storage import SA_SESSIONMAKER
 
 meta = model.Base.metadata
 
@@ -58,9 +61,25 @@ def upgrade(migrate_engine):
         meta.bind = migrate_engine
         table1 = meta.tables['MAPPED_SURFACE_DATA']
 
-        create_column(COL_1, table1)
-        create_column(COL_2, table1)
-        create_column(COL_3, table1)
+        #create_column(COL_1, table1)
+        #create_column(COL_2, table1)
+        #create_column(COL_3, table1)
+
+        try:
+            session = SA_SESSIONMAKER()
+            session.execute(text("UPDATE \"DATA_TYPES\" SET invalid=1 WHERE exists "
+                                 "(SELECT * FROM \"MAPPED_SURFACE_DATA\" WHERE  _number_of_split_slices > 1 "
+                                 "and \"DATA_TYPES\".id = \"MAPPED_SURFACE_DATA\".id)"))
+            session.commit()
+            session.close()
+        except ProgrammingError:
+            # PostgreSQL
+            session = SA_SESSIONMAKER()
+            session.execute(text("UPDATE \"DATA_TYPES\" SET invalid=TRUE WHERE exists "
+                                 "(SELECT * FROM \"MAPPED_SURFACE_DATA\" WHERE  _number_of_split_slices > 1 "
+                                 "and \"DATA_TYPES\".id = \"MAPPED_SURFACE_DATA\".id)"))
+            session.commit()
+            session.close()
 
     except Exception:
         logger = get_logger(__name__)
