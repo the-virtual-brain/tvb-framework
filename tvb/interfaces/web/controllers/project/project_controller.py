@@ -55,6 +55,7 @@ from tvb.core.services.project_service import ProjectService
 from tvb.core.services.import_service import ImportService
 from tvb.core.services.exceptions import ServicesBaseException, ProjectServiceException
 from tvb.core.services.exceptions import RemoveDataTypeException, RemoveDataTypeError
+from tvb.core.utils import string2bool
 from tvb.interfaces.web.entities.context_overlay import OverlayTabDefinition
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.decorators import settings, check_user, handle_error
@@ -231,6 +232,7 @@ class ProjectController(BaseController):
         """
         Method used for setting the relevancy/visibility on a DataType(Group)/Operation(Group.
         """
+        to_de_relevant = string2bool(to_de_relevant)
         is_operation, is_group = False, False
         if entity_type == graph_structures.NODE_OPERATION_TYPE:
             is_group = False
@@ -240,9 +242,9 @@ class ProjectController(BaseController):
             is_operation = True
 
         if is_operation:
-            self.project_service.set_operation_and_group_visibility(entity_gid, eval(to_de_relevant), is_group)
+            self.project_service.set_operation_and_group_visibility(entity_gid, to_de_relevant, is_group)
         else:
-            self.project_service.set_datatype_visibility(entity_gid, eval(to_de_relevant))
+            self.project_service.set_datatype_visibility(entity_gid, to_de_relevant)
 
 
     @expose_page
@@ -468,7 +470,7 @@ class ProjectController(BaseController):
         """
         Returns the HTML which contains the details for the given operation.
         """
-        if is_group is True or is_group == "1":
+        if string2bool(str(is_group)):
             ### we have an OperationGroup entity.
             template_specification = self._compute_operation_details(entity_gid, True)
             #I expect that all the operations from a group are visible or not
@@ -664,7 +666,7 @@ class ProjectController(BaseController):
         """
         Delegate the creation of the actual link to the flow service.
         """
-        if not eval(is_group):
+        if not string2bool(str(is_group)):
             self.flow_service.create_link([link_data], project_id)
         else:
             all_data = self.project_service.get_datatype_in_group(link_data)
@@ -683,7 +685,7 @@ class ProjectController(BaseController):
         """
         Delegate the creation of the actual link to the flow service.
         """
-        if not eval(is_group):
+        if not string2bool(str(is_group)):
             self.flow_service.remove_link(link_data, project_id)
         else:
             all_data = self.project_service.get_datatype_in_group(link_data)

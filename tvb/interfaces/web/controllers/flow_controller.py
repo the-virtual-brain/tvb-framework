@@ -265,7 +265,7 @@ class FlowController(BaseController):
         session_dict = self.context.get_current_default()
         dimensions = {1: [0], 3: [0]}
         selected_agg_functions = {}
-        if not eval(str(reset_session)) and session_dict is not None:
+        if not string2bool(str(reset_session)) and session_dict is not None:
             starts_with_str = select_name + "_" + parameters_prefix + "_"
             ui_sel_items = dict((k, v) for k, v in session_dict.items() if k.startswith(starts_with_str))
             dimensions, selected_agg_functions, required_dimension, _ = MappedArray().parse_selected_items(ui_sel_items)
@@ -393,7 +393,7 @@ class FlowController(BaseController):
         parameters[ABCAdapter.KEY_NAME] = name
         if ABCAdapter.KEY_REQUIRED in current_node:
             parameters[ABCAdapter.KEY_REQUIRED] = current_node[ABCAdapter.KEY_REQUIRED]
-            if len(values) > 0 and eval(str(parameters[ABCAdapter.KEY_REQUIRED])):
+            if len(values) > 0 and string2bool(str(parameters[ABCAdapter.KEY_REQUIRED])):
                 parameters[ABCAdapter.KEY_DEFAULT] = str(values[-1][ABCAdapter.KEY_VALUE])
         previous_selected = self.context.get_current_default(name)
         if previous_selected is not None and previous_selected in [str(vv['value']) for vv in values]:

@@ -41,7 +41,7 @@ import formencode
 from formencode import validators
 from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS, MEASURE_METRICS_MODULE, MEASURE_METRICS_CLASS
 from tvb.basic.config.settings import TVBSettings as cfg
-from tvb.core.utils import generate_guid
+from tvb.core.utils import generate_guid, string2bool
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.burst_service import BurstService, KEY_PARAMETER_CHECKED
 from tvb.core.services.workflow_service import WorkflowService
@@ -571,8 +571,7 @@ class BurstController(BaseController):
         rebuild either only the selected entries, or all of the simulator tree
         with the given default values.
         """
-        #if the method is called from js then the parameter will be set as string
-        exclude_ranges = eval(str(exclude_ranges))
+        exclude_ranges = string2bool(str(exclude_ranges))
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
         if BURST_NAME in data:
             burst_config.name = data[BURST_NAME]
