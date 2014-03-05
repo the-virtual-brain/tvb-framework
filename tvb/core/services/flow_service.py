@@ -267,7 +267,7 @@ class FlowService:
                 continue
             transformed_param = copy(param)
 
-            if not param.get(ABCAdapter.KEY_TYPE) in ABCAdapter.STATIC_ACCEPTED_TYPES:
+            if (ABCAdapter.KEY_TYPE in param) and not (param[ABCAdapter.KEY_TYPE] in ABCAdapter.STATIC_ACCEPTED_TYPES):
                 if ABCAdapter.KEY_CONDITION in param:
                     filter_condition = param[ABCAdapter.KEY_CONDITION]
                     filter_condition.add_condition(FilterChain.datatype + ".visible", "==", True)
