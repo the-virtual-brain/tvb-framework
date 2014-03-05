@@ -263,11 +263,11 @@ class FlowService:
         """
         result = []
         for param in attributes_list:
-            if (ABCAdapter.KEY_UI_HIDE in param) and param[ABCAdapter.KEY_UI_HIDE]:
+            if param.get(ABCAdapter.KEY_UI_HIDE):
                 continue
             transformed_param = copy(param)
 
-            if (ABCAdapter.KEY_TYPE in param) and not (param[ABCAdapter.KEY_TYPE] in ABCAdapter.STATIC_ACCEPTED_TYPES):
+            if not param.get(ABCAdapter.KEY_TYPE) in ABCAdapter.STATIC_ACCEPTED_TYPES:
                 if ABCAdapter.KEY_CONDITION in param:
                     filter_condition = param[ABCAdapter.KEY_CONDITION]
                     filter_condition.add_condition(FilterChain.datatype + ".visible", "==", True)
@@ -282,10 +282,8 @@ class FlowService:
                 values = self.populate_values(data_list, param[ABCAdapter.KEY_TYPE], 
                                               category_key, complex_dt_attributes)
                 
-                if (transformed_param.get(ABCAdapter.KEY_REQUIRED) and
-                    len(values) > 0 and (ABCAdapter.KEY_DEFAULT not in transformed_param or 
-                                         transformed_param[ABCAdapter.KEY_DEFAULT] is None or 
-                                         transformed_param[ABCAdapter.KEY_DEFAULT] == 'None')):
+                if (transformed_param.get(ABCAdapter.KEY_REQUIRED) and len(values) > 0 and
+                            transformed_param.get(ABCAdapter.KEY_DEFAULT) in [None, 'None']):
                     def_val = str(values[-1][ABCAdapter.KEY_VALUE])
                     transformed_param[ABCAdapter.KEY_DEFAULT] = def_val
                 transformed_param[ABCAdapter.KEY_FILTERABLE] = FilterChain.get_filters_for_type(
@@ -312,11 +310,9 @@ class FlowService:
                 if param.get(ABCAdapter.KEY_OPTIONS) is not None:
                     transformed_param[ABCAdapter.KEY_OPTIONS] = self.prepare_parameters(param[ABCAdapter.KEY_OPTIONS],
                                                                                         project_id, category_key)
-                    if (transformed_param.get(ABCAdapter.KEY_REQUIRED)
-                        and len(param[ABCAdapter.KEY_OPTIONS]) > 0 and
-                            ((ABCAdapter.KEY_DEFAULT not in transformed_param) or
-                                transformed_param[ABCAdapter.KEY_DEFAULT] is None or
-                                transformed_param[ABCAdapter.KEY_DEFAULT] == 'None')):
+                    if (transformed_param.get(ABCAdapter.KEY_REQUIRED) and
+                                len(param[ABCAdapter.KEY_OPTIONS]) > 0 and
+                                (transformed_param.get(ABCAdapter.KEY_DEFAULT) in [None, 'None'])):
                         def_val = str(param[ABCAdapter.KEY_OPTIONS][-1][ABCAdapter.KEY_VALUE])
                         transformed_param[ABCAdapter.KEY_DEFAULT] = def_val
                     

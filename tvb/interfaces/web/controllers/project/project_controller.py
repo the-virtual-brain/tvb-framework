@@ -357,18 +357,17 @@ class ProjectController(BaseController):
             exporters = ExportManager().get_exporters_for_data(entity)
         is_relevant = entity.visible
 
-        template_specification = dict()
-        template_specification["entity_gid"] = entity_gid
-        template_specification["nodeFields"] = datatype_details.get_ui_fields()
-        template_specification["allStates"] = states
-        template_specification["project"] = selected_project
-        template_specification["categories"] = categories
-        template_specification["exporters"] = exporters
-        template_specification["datatype_id"] = datatype_id
-        template_specification["isGroup"] = is_group
-        template_specification["isRelevant"] = is_relevant
-        template_specification["nodeType"] = 'datatype'
-        template_specification["backPageIdentifier"] = back_page
+        template_specification = {"entity_gid": entity_gid,
+                                  "nodeFields": datatype_details.get_ui_fields(),
+                                  "allStates": states,
+                                  "project": selected_project,
+                                  "categories": categories,
+                                  "exporters": exporters,
+                                  "datatype_id": datatype_id,
+                                  "isGroup": is_group,
+                                  "isRelevant": is_relevant,
+                                  "nodeType": 'datatype',
+                                  "backPageIdentifier": back_page}
         template_specification.update(linkable_projects_dict)
 
         overlay_class = "can-browse editor-node node-type-" + str(current_type).lower()
@@ -394,14 +393,12 @@ class ProjectController(BaseController):
 
         enable_link_tab = False
         if (not entity.invalid) and (linkable_projects_dict is not None):
-            if self.PRROJECTS_FOR_LINK_KEY in linkable_projects_dict:
-                projects_for_link = linkable_projects_dict[self.PRROJECTS_FOR_LINK_KEY]
-                if projects_for_link is not None and len(projects_for_link) > 0:
-                    enable_link_tab = True
-            if self.PRROJECTS_LINKED_KEY in linkable_projects_dict:
-                projects_linked = linkable_projects_dict[self.PRROJECTS_LINKED_KEY]
-                if projects_linked is not None and len(projects_linked) > 0:
-                    enable_link_tab = True
+            projects_for_link = linkable_projects_dict.get(self.PRROJECTS_FOR_LINK_KEY)
+            if projects_for_link is not None and len(projects_for_link) > 0:
+                enable_link_tab = True
+            projects_linked = linkable_projects_dict.get(self.PRROJECTS_LINKED_KEY)
+            if projects_linked is not None and len(projects_linked) > 0:
+                enable_link_tab = True
         if "Links" not in exclude_tabs:
             tabs.append(OverlayTabDefinition("Links", "link_to", enabled=enable_link_tab))
             overlay_indexes.append(3)
@@ -457,11 +454,10 @@ class ProjectController(BaseController):
         if projectsforlink is not None:
             projectsforlink = json.loads(projectsforlink)
         else:
-            projectsforlink = dict()
-        template_specification = dict()
-        template_specification[self.PRROJECTS_FOR_LINK_KEY] = projectsforlink
-        template_specification[self.PRROJECTS_LINKED_KEY] = linked_projects
-        template_specification["datatype_id"] = datatype_id
+            projectsforlink = {}
+        template_specification = {self.PRROJECTS_FOR_LINK_KEY: projectsforlink,
+                                  self.PRROJECTS_LINKED_KEY: linked_projects,
+                                  "datatype_id": datatype_id}
         return template_specification
 
 
@@ -514,14 +510,13 @@ class ProjectController(BaseController):
                 if category.id == op_categ_id:
                     display_reload_btn = False
                     break
-        template_specification = dict()
-        template_specification["entity_gid"] = entity_gid
-        template_specification["nodeFields"] = op_details.get_ui_fields()
-        template_specification["operationId"] = operation_id
-        template_specification["displayReloadBtn"] = display_reload_btn
-        template_specification["project"] = selected_project
-        template_specification["isRelevant"] = operation.visible
 
+        template_specification = {"entity_gid": entity_gid,
+                                  "nodeFields": op_details.get_ui_fields(),
+                                  "operationId": operation_id,
+                                  "displayReloadBtn": display_reload_btn,
+                                  "project": selected_project,
+                                  "isRelevant": operation.visible}
         return template_specification
 
 
@@ -556,7 +551,7 @@ class ProjectController(BaseController):
         upload_algorithms = self.flow_service.get_groups_for_categories(upload_categories)
 
         flow_controller = FlowController()
-        algorithms_interface = dict()
+        algorithms_interface = {}
         tabs = []
 
         for algo_group in upload_algorithms:

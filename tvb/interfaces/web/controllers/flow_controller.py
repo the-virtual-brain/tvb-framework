@@ -150,10 +150,9 @@ class FlowController(BaseController):
         prj_service = ProjectService()
         dt_group = prj_service.get_datatypegroup_by_gid(group_gid)
         datatypes = prj_service.get_datatypes_from_datatype_group(dt_group.id)
-        range_param_name = data['range_param_name']
-        del data['range_param_name']
+        range_param_name = data.pop('range_param_name')
         data[RANGE_PARAMETER_1] = range_param_name
-        data[range_param_name] = ','.join([dt.gid for dt in datatypes])
+        data[range_param_name] = ','.join(dt.gid for dt in datatypes)
         OperationService().group_operation_launch(common.get_logged_user().id, common.get_current_project().id,
                                                   int(adapter_key), int(step_key), **data)
         redirect_url = self._compute_back_link('operations', common.get_current_project())
@@ -211,9 +210,8 @@ class FlowController(BaseController):
         template_specification[common.KEY_ADAPTER] = adapter_key
         template_specification[ABCDisplayer.KEY_IS_ADAPTER] = True
         self.fill_default_attributes(template_specification, algo_group)
-        if (back_page is not None and back_page in ['operations', 'data'] and
-            not (common.KEY_SECTION in template_specification
-                 and template_specification[common.KEY_SECTION] == 'connectivity')):
+        if (back_page in ['operations', 'data'] and
+                    template_specification.get(common.KEY_SECTION) != 'connectivity'):
             template_specification[common.KEY_SECTION] = 'project'
         return template_specification
 
@@ -250,16 +248,15 @@ class FlowController(BaseController):
             dimension to be smaller then 512 then the expected_shape and operations should be:
             ``expected_shape=x,512,x`` and ``operations='x,&lt;,x``
         """
-        template_params = dict()
-        template_params["select_name"] = ""
-        template_params["data"] = []
-        template_params["parameters_prefix"] = parameters_prefix
-        template_params["array_shape"] = ""
-        template_params["required_dimension"] = required_dimension
-        template_params["currentDim"] = ""
-        template_params["required_dim_msg"] = ""
-        template_params["expected_shape"] = expected_shape
-        template_params["operations"] = operations
+        template_params = {"select_name": "",
+                           "data": [],
+                           "parameters_prefix": parameters_prefix,
+                           "array_shape": "",
+                           "required_dimension": required_dimension,
+                           "currentDim": "",
+                           "required_dim_msg": "",
+                           "expected_shape": expected_shape,
+                           "operations": operations}
 
         #if reload => populate the selected values
         session_dict = self.context.get_current_default()
@@ -301,7 +298,7 @@ class FlowController(BaseController):
                         if not len(function):
                             aggregation_functions.append({})
                         else:
-                            func_dict = dict()
+                            func_dict = {}
                             for function_key in function:
                                 func_dict[function_key] = default_agg_functions[function_key]
                             aggregation_functions.append(func_dict)
@@ -389,19 +386,20 @@ class FlowController(BaseController):
         datatypes = self.flow_service.get_available_datatypes(common.get_current_project().id, datatype, new_filter)
         values = self.flow_service.populate_values(datatypes, datatype, self.context.get_current_step())
         #Create a dictionary that matches what the template expects
-        parameters = dict()
-        parameters[ABCAdapter.KEY_NAME] = name
+        parameters = {ABCAdapter.KEY_NAME: name,
+                      ABCAdapter.KEY_FILTERABLE: availablefilter,
+                      ABCAdapter.KEY_TYPE: ABCAdapter.TYPE_SELECT,
+                      ABCAdapter.KEY_OPTIONS: values,
+                      ABCAdapter.KEY_DATATYPE: datatype}
+
         if ABCAdapter.KEY_REQUIRED in current_node:
             parameters[ABCAdapter.KEY_REQUIRED] = current_node[ABCAdapter.KEY_REQUIRED]
             if len(values) > 0 and string2bool(str(parameters[ABCAdapter.KEY_REQUIRED])):
                 parameters[ABCAdapter.KEY_DEFAULT] = str(values[-1][ABCAdapter.KEY_VALUE])
         previous_selected = self.context.get_current_default(name)
-        if previous_selected is not None and previous_selected in [str(vv['value']) for vv in values]:
+        if previous_selected in [str(vv['value']) for vv in values]:
             parameters[ABCAdapter.KEY_DEFAULT] = previous_selected
-        parameters[ABCAdapter.KEY_FILTERABLE] = availablefilter
-        parameters[ABCAdapter.KEY_TYPE] = ABCAdapter.TYPE_SELECT
-        parameters[ABCAdapter.KEY_OPTIONS] = values
-        parameters[ABCAdapter.KEY_DATATYPE] = datatype
+
         template_specification = {"inputRow": parameters, "disabled": False,
                                   "parentDivId": parent_div, common.KEY_SESSION_TREE: tree_session_key}
         return self.fill_default_attributes(template_specification)
@@ -415,11 +413,11 @@ class FlowController(BaseController):
             if (ABCAdapter.KEY_DATATYPE in entry and ABCAdapter.KEY_NAME in entry
                     and str(entry[ABCAdapter.KEY_NAME]) == str(name)):
                 return entry
-            if ABCAdapter.KEY_ATTRIBUTES in entry and entry[ABCAdapter.KEY_ATTRIBUTES] is not None:
+            if entry.get(ABCAdapter.KEY_ATTRIBUTES) is not None:
                 in_attr = self._get_node(entry[ABCAdapter.KEY_ATTRIBUTES], name)
                 if in_attr is not None:
                     return in_attr
-            if ABCAdapter.KEY_OPTIONS in entry and entry[ABCAdapter.KEY_OPTIONS] is not None:
+            if entry.get(ABCAdapter.KEY_OPTIONS) is not None:
                 in_options = self._get_node(entry[ABCAdapter.KEY_OPTIONS], name)
                 if in_options is not None:
                     return in_options
@@ -460,8 +458,7 @@ class FlowController(BaseController):
             common.set_error_message(excep1.message)
 
         previous_step = self.context.get_current_substep()
-        should_reset = (previous_step is None or (common.KEY_ADAPTER not in data)
-                        or data[common.KEY_ADAPTER] != previous_step)
+        should_reset = previous_step is None or data.get(common.KEY_ADAPTER) != previous_step
         template_specification = self.get_template_for_adapter(project_id, step_key, algo_group,
                                                                submit_url, should_reset)
         if (errors is not None) and (template_specification is not None):
