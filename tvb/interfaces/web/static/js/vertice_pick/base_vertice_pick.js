@@ -342,7 +342,13 @@ function initDrawingBrainBuffersAsynchronous(urlList, resultBuffers, isIndex, ca
     if (urlList.length == 0) {
         noOfUnloadedBrainDisplayBuffers -= 1;
         if (noOfUnloadedBrainDisplayBuffers == 0) {
-            __createColorBuffers();
+            // Finished downloading buffer data. Initialize BASE_PICK_brainDisplayBuffers
+            for (var i = 0; i < drawingBrainVertices.length; i++) {
+                BASE_PICK_brainDisplayBuffers.push([drawingBrainVertices[i], drawingBrainNormals[i],
+                                                    drawingBrainIndexes[i], null]);
+            }
+            // Now fill the color buffer (at index 3) with the default
+            BASE_PICK_buffer_default_color();
             displayMessage("Finished loading surface data!", "infoMessage");
             executeCallback(callback);
             drawScene();
@@ -358,16 +364,23 @@ function initDrawingBrainBuffersAsynchronous(urlList, resultBuffers, isIndex, ca
     });
 }
 
-function __createColorBuffers() {
+/**
+ * Buffers the default gray surface color to the GPU
+ * And updates BASE_PICK_brainDisplayBuffers[i][3]
+ */
+function BASE_PICK_buffer_default_color(){
     for (var i = 0; i < drawingBrainVertices.length; i++) {
-        var fakeColorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
-        var thisBufferColors = new Float32Array(drawingBrainVertices[i].numItems / 3 * 4);
-        for (var j = 0; j < drawingBrainVertices[i].numItems / 3 * 4; j++) {
-            thisBufferColors[j] = 1.0;
+        var colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        var colors = new Float32Array(drawingBrainVertices[i].numItems / 3 * 4);
+        for (var j = 0; j < drawingBrainVertices[i].numItems / 3 * 4; j+=4) {
+            colors[j] = 0.5;
+            colors[j + 1] = 0.5;
+            colors[j + 2] = 0.5;
+            colors[j + 3] = 1.0;
         }
-        gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
-        BASE_PICK_brainDisplayBuffers.push([drawingBrainVertices[i], drawingBrainNormals[i], drawingBrainIndexes[i], fakeColorBuffer]);
+        gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+        BASE_PICK_brainDisplayBuffers[i][3] = colorBuffer;
     }
 }
 

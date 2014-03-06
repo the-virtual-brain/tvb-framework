@@ -80,12 +80,12 @@ function LCONN_PICK_updateBrainDrawing(data_from_server) {
  */
 function _updateBrainColors(data, minValue, maxValue) {
     for (var i = 0; i < data.length; i++) {
-        var fakeColorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
+        var colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
         var thisBufferColors = new Float32Array(data[i].length * 4);
         getGradientColorArray(data[i], minValue, maxValue, thisBufferColors);
         gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
-        BASE_PICK_brainDisplayBuffers[i][3] = fakeColorBuffer;
+        BASE_PICK_brainDisplayBuffers[i][3] = colorBuffer;
     }
 }
 
@@ -98,16 +98,7 @@ function LCONN_PICK_drawDefaultColorBuffers() {
         displayMessage("The load operation for the surface data is not completed yet!", "infoMessage");
         return;
     }
-	for (var i=0; i<BASE_PICK_brainDisplayBuffers.length; i++) {
-		var fakeColorBuffer = gl.createBuffer();
-	    gl.bindBuffer(gl.ARRAY_BUFFER, fakeColorBuffer);
-	    var thisBufferColors = new Float32Array(BASE_PICK_brainDisplayBuffers[i][0].numItems/ 3 * 4);
-	    for (var j = 0; j < BASE_PICK_brainDisplayBuffers[i][0].numItems / 3 * 4; j++) {
-	    	thisBufferColors[j] = 0.5;
-	    }
-	    gl.bufferData(gl.ARRAY_BUFFER, thisBufferColors, gl.STATIC_DRAW);
-	    BASE_PICK_brainDisplayBuffers[i][3] = fakeColorBuffer;
-	}
+	BASE_PICK_buffer_default_color();
     drawScene();
 }
 
