@@ -227,7 +227,7 @@ function drawScene() {
         }
 		// Draw the legend for the stimulus now.
 		loadIdentity();
-	    addLight();
+	    basicAddLight(defaultLightSettings);
 		drawBuffers(gl.TRIANGLES, [LEG_legendBuffers]);
 	} else {
 		// We are not in movie mode. The drawScene was called from some ui event (e.g.

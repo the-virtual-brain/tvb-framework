@@ -136,24 +136,6 @@ var near = 0.1;
 var fov = 45;
 GL_DEFAULT_Z_POS = 250;
 
-var defaultLightSettings = {
-    ambientColor : [0.6, 0.6, 0.5],
-    directionalColor : [0.7, 0.7, 0.7],
-    lightDirection : Vector.create([0.5, 0, 1]).toUnitVector().flatten(),
-    specularColor: [0.8, 0.8, 0.8],
-    materialShininess : 30.0,
-    pointLocation : [0, -10, -400]
-};
-
-var noSpecularLightSettings = {
-    ambientColor : [0.6, 0.6, 0.5],
-    directionalColor : [0.5, 0.5, 0.5],
-    lightDirection : Vector.create([0.5, 0, 1]).toUnitVector().flatten(),
-    specularColor: [0.0, 0.0, 0.0],
-    materialShininess : 30.0,
-    pointLocation : [0, -10, -400]
-};
-
 var lightSettings = defaultLightSettings;
 
 
@@ -555,6 +537,7 @@ function VS_multipleImageExport(saveFigure){
 
 function initShaders() {
     basicInitShaders("shader-fs", "shader-vs");
+    basicInitSurfaceLighting();
 
     if (isOneToOneMapping) {
         shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
@@ -575,16 +558,9 @@ function initShaders() {
     shaderProgram.linesColor = gl.getUniformLocation(shaderProgram, "uLinesColor");
     shaderProgram.drawLines = gl.getUniformLocation(shaderProgram, "uDrawLines");
     shaderProgram.vertexLineColor = gl.getUniformLocation(shaderProgram, "uUseVertexLineColor");
-    
-    shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
-    shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
-    shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+
     shaderProgram.isPicking = gl.getUniformLocation(shaderProgram, "isPicking");
     shaderProgram.pickingColor = gl.getUniformLocation(shaderProgram, "pickingColor");
-    
-    shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
-    shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
-    shaderProgram.pointLightingSpecularColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingSpecularColor");
 }
 
 ///////////////////////////////////////~~~~~~~~START MOUSE RELATED CODE~~~~~~~~~~~//////////////////////////////////
@@ -637,24 +613,6 @@ function updateColors(currentTimeInFrame) {
         // color used for a picked measure point
         gl.uniform4f(shaderProgram.colorsUniform[NO_OF_MEASURE_POINTS + 1], 0.99, 0.99, 0.0, 1.0);
     }
-}
-
-/**
- * Draw the light
- */
-function addLight() {
-    gl.uniform3f(shaderProgram.ambientColorUniform,
-                lightSettings.ambientColor[0], lightSettings.ambientColor[1], lightSettings.ambientColor[2]);
-    gl.uniform3f(shaderProgram.lightingDirectionUniform,
-                lightSettings.lightDirection[0], lightSettings.lightDirection[1], lightSettings.lightDirection[2]);
-    gl.uniform3f(shaderProgram.directionalColorUniform,
-                lightSettings.directionalColor[0], lightSettings.directionalColor[1], lightSettings.directionalColor[2]);
-    gl.uniform3f(shaderProgram.pointLightingLocationUniform,
-                lightSettings.pointLocation[0], lightSettings.pointLocation[1], lightSettings.pointLocation[2]);
-    gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform,
-                lightSettings.specularColor[0], lightSettings.specularColor[1], lightSettings.specularColor[2]);
-    gl.uniform1f(shaderProgram.materialShininessUniform,
-                lightSettings.materialShininess);
 }
 
 function toggleMeasureNodes() {
@@ -1120,7 +1078,7 @@ function drawScene() {
         gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        addLight();
+        basicAddLight(lightSettings);
 
         if(VS_showLegend){
             mvPushMatrix();

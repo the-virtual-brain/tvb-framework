@@ -76,17 +76,10 @@ function BASE_PICK_customInitGL(canvas) {
 
 function BASE_PICK_initShaders() {
 	basicInitShaders("shader-fs", "shader-vs");
-
+    basicInitSurfaceLighting();
+    shaderProgram.isPicking = gl.getUniformLocation(shaderProgram, "isPicking");
     shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
     gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
-
-    shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
-    shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
-    shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
-    shaderProgram.isPicking = gl.getUniformLocation(shaderProgram, "isPicking");
-    shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
-    shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
-    shaderProgram.pointLightingSpecularColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingSpecularColor");
 }
 
 
@@ -159,7 +152,7 @@ function BASE_PICK_drawBrain(brainBuffers, noOfUnloadedBuffers) {
     } else {
         gl.enable(gl.BLEND);
 	    gl.enable(gl.DITHER);
-    	addLight();
+    	basicAddLight(defaultLightSettings);
     	gl.uniform1f(shaderProgram.isPicking, 0);
     }
 
@@ -213,29 +206,10 @@ function drawBuffers(drawMode, buffersSets) {
 }
 
 /**
- * Draw the light
- */
-function addLight() {
-    var lightingDirection = Vector.create([-0.5, 0, -1]);
-    var adjustedLD = lightingDirection.toUnitVector().x(-1);
-    var flatLD = adjustedLD.flatten();
-
-    // For some reason this viewer is overly bright (maybe color scheme related)
-    // set the lights darker than in the equivalent function from virtualbrain.js
-
-    gl.uniform3f(shaderProgram.ambientColorUniform, 0.4, 0.4, 0.4);
-    gl.uniform3f(shaderProgram.lightingDirectionUniform, flatLD[0], flatLD[1], flatLD[2]);
-    gl.uniform3f(shaderProgram.directionalColorUniform, 0.4, 0.4, 0.4);
-    gl.uniform3f(shaderProgram.pointLightingLocationUniform, 0, -10, -400);
-    gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform, 0.8, 0.8, 0.8);
-    gl.uniform1f(shaderProgram.materialShininessUniform, 30.0);
-}
-
-/**
  * @param callback a string which should represents a valid js code.
  */
 function executeCallback(callback) {
-    if (callback == undefined || callback == null || callback.trim().length == 0) {
+    if (callback == null || callback.trim().length == 0) {
         return;
     }
     if (noOfUnloadedBrainPickingBuffers == 0 && noOfUnloadedBrainDisplayBuffers == 0) {

@@ -60,9 +60,10 @@ function LCONN_PICK_updateBrainDrawing(data_from_server) {
 
     BASE_PICK_initLegendInfo(maxValue, minValue);     // setup the legend
     ColSch_initColorSchemeParams(minValue, maxValue, function() {
-                                                        LEG_updateLegendColors();
-                                                        _updateBrainColors(data, minValue, maxValue);
-                                                        drawScene() });
+        LEG_updateLegendColors();
+        _updateBrainColors(data, minValue, maxValue);
+        drawScene()
+    });
 
     if (BASE_PICK_brainDisplayBuffers.length != data.length) {
         displayMessage("Could not draw the gradient view. Invalid data received from the server.", "errorMessage");

@@ -120,6 +120,60 @@ function getShader(gl, id) {
 }
 // ------ SHADER FUNCTIONS END--------------------------------------------------
 
+// ------ COMMON LIGHTING FUNCTIONS --------------------------------------------
+
+/**
+ * Initializes light uniforms for the standard shader. Used by surface viewers.
+ * Ambient light, a directional light and a point light with specular highlights
+ */
+function basicInitSurfaceLighting(){
+    shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+    shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
+    shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+    shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+    shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
+    shaderProgram.pointLightingSpecularColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingSpecularColor");
+}
+
+var defaultLightSettings = {
+    ambientColor : [0.6, 0.6, 0.5],
+    directionalColor : [0.7, 0.7, 0.7],
+    lightDirection : Vector.create([0.5, 0, 1]).toUnitVector().flatten(),
+    specularColor: [0.8, 0.8, 0.8],
+    materialShininess : 30.0,
+    pointLocation : [0, -10, -400]
+};
+
+// Use these settings if you prefer more accurate activity colors instead of better lighting
+var noSpecularLightSettings = {
+    ambientColor : [0.6, 0.6, 0.5],
+    directionalColor : [0.5, 0.5, 0.5],
+    lightDirection : Vector.create([0.5, 0, 1]).toUnitVector().flatten(),
+    specularColor: [0.0, 0.0, 0.0],
+    materialShininess : 30.0,
+    pointLocation : [0, -10, -400]
+};
+
+/**
+ * Sets the light uniforms
+ * @param s : a light settings object
+ */
+function basicAddLight(s){
+    gl.uniform3f(shaderProgram.ambientColorUniform,
+                s.ambientColor[0], s.ambientColor[1], s.ambientColor[2]);
+    gl.uniform3f(shaderProgram.lightingDirectionUniform,
+                s.lightDirection[0], s.lightDirection[1], s.lightDirection[2]);
+    gl.uniform3f(shaderProgram.directionalColorUniform,
+                s.directionalColor[0], s.directionalColor[1], s.directionalColor[2]);
+    gl.uniform3f(shaderProgram.pointLightingLocationUniform,
+                s.pointLocation[0], s.pointLocation[1], s.pointLocation[2]);
+    gl.uniform3f(shaderProgram.pointLightingSpecularColorUniform,
+                s.specularColor[0], s.specularColor[1], s.specularColor[2]);
+    gl.uniform1f(shaderProgram.materialShininessUniform,
+                s.materialShininess);
+}
+// ------ COMMON LIGHTING FUNCTIONS END ----------------------------------------
+
 // ------ MATRIX FUNCTIONS -----------------------------------------------------
 
 var GL_mvMatrix;
