@@ -256,11 +256,11 @@ class ABCAdapter(object):
             required_disk_space = self.get_required_disk_size(**kwargs)
             if available_disk_space < 0:
                 raise NoMemoryAvailableException("You have exceeded you HDD space quota"
-                                                 " by %d. Stopping execution." % (available_disk_space,))
+                                                 " by %.2f MB Stopping execution." % (- available_disk_space / 2**10,))
             if available_disk_space - required_disk_space < 0:
-                raise NoMemoryAvailableException("You only have %s kiloBytes of HDD available but the operation you "
-                                                 "launched might require %d. "
-                                                 "Stopping execution..." % (available_disk_space, required_disk_space))
+                raise NoMemoryAvailableException("You only have %.2f GB of disk space available but the operation you "
+                                                 "launched might require %.2f "
+                                                 "Stopping execution..." % (available_disk_space / 2**20, required_disk_space / 2**20 ))
             operation.start_now()
             operation.result_disk_size = required_disk_space
             dao.store_entity(operation)

@@ -645,7 +645,6 @@ class BurstController(BaseController):
             form = BurstNameForm()
             form.to_python({'burst_name': burst_name})
         except formencode.Invalid:
-            self.logger.error()
             self.logger.exception("Invalid Burst name " + str(burst_name))
             raise
 
