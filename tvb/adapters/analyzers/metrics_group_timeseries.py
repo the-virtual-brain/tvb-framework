@@ -155,8 +155,11 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
                 LOG.debug("Applying measure: " + str(algorithm_name))
 
             unstored_result = algorithm.evaluate()
-            ##----------------- Prepare a Float object for result ----------------##
-            metrics_results[algorithm_name] = unstored_result
+            ##----------------- Prepare a Float object(s) for result ----------------##
+            if isinstance(unstored_result, dict):
+                metrics_results.update(unstored_result)
+            else:
+                metrics_results[algorithm_name] = unstored_result
 
         result = DatatypeMeasure(analyzed_datatype=time_series, storage_path=self.storage_path,
                                  data_name=self._ui_name, metrics=metrics_results)

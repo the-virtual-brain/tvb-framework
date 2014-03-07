@@ -44,6 +44,7 @@ __xml_folders__ = [os.path.join("adapters", "analyzers", "matlab_interfaces")]
 
 #Import metrics here, so that Traits will find them...
 import tvb.analyzers.metric_kuramoto_index
+import tvb.analyzers.metric_proxy_metastability
 import tvb.analyzers.metric_variance_global
 import tvb.analyzers.metric_variance_of_node_variance
 
