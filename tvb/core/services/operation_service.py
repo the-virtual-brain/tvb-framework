@@ -44,7 +44,7 @@ import tvb.core.utils as utils
 from copy import copy
 from cgi import FieldStorage
 from datetime import datetime
-from tvb.basic.traits.types_basic import MapAsJson
+from tvb.basic.traits.types_basic import MapAsJson, Range
 from tvb.core.utils import parse_json_parameters
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
@@ -489,15 +489,13 @@ class OperationService:
                 raise LaunchException("Could not launch with no data from:" + str(ranger_name))
         if type(range_data) in (list, tuple):
             return range_data
+
         if (xml_reader.ATT_MINVALUE in range_data) and (xml_reader.ATT_MAXVALUE in range_data):
-            min_val = float(range_data[xml_reader.ATT_MINVALUE])
-            max_val = float(range_data[xml_reader.ATT_MAXVALUE])
+            lo_val = float(range_data[xml_reader.ATT_MINVALUE])
+            hi_val = float(range_data[xml_reader.ATT_MAXVALUE])
             step = float(range_data[xml_reader.ATT_STEP])
-            no_of_decimals = max(len(str(step).split('.')[1]), len(str(min_val).split('.')[1]))
-            i = 0
-            while min_val + i * step <= max_val:
-                range_values.append(round(min_val + i * step, no_of_decimals))
-                i += 1
+            range_values = list(Range(lo=lo_val, hi=hi_val, step=step))
+
         else:
             for possible_value in range_data:
                 if range_data[possible_value]:
