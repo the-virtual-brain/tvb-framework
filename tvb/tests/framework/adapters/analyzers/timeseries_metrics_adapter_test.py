@@ -118,8 +118,10 @@ class TimeSeriesMetricsAdapterTest(TransactionalTestCase):
         ts_metric_adapter = TimeseriesMetricsAdapter()
         resulted_metric = ts_metric_adapter.launch(dummy_time_series)
         self.assertTrue(isinstance(resulted_metric, DatatypeMeasure), "Result should be a datatype measure.")
-        self.assertTrue(len(resulted_metric.metrics) == len(ts_metric_adapter.available_algorithms.keys()),
-                        "A result should have been generated for every metric.")
+        self.assertTrue(len(resulted_metric.metrics) >= len(ts_metric_adapter.available_algorithms.keys()),
+                        "At least a result should have been generated for every metric.")
+        for metric_value in resulted_metric.metrics.values():
+            self.assertTrue(isinstance(metric_value, (float, int)))
 
 
 
