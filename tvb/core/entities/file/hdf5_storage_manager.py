@@ -147,22 +147,23 @@ class HDF5StorageManager(object):
         if data_buffer is None:
             chunk_shape = self.__compute_chunk_shape(data_to_store.shape, grow_dimension)
             hdf5File = self._open_h5_file(chunk_shape=chunk_shape)
-            try:
-                dataset = hdf5File[where + dataset_name]
-                self.data_buffers[where + dataset_name] = HDF5StorageManager.H5pyStorageBuffer(dataset,
-                                                                                        buffer_size=self.__buffer_size,
-                                                                                        buffered_data=data_to_store,
-                                                                                        grow_dimension=grow_dimension)
-            except KeyError:
+            datapath = where + dataset_name
+            if datapath in hdf5File:
+                dataset = hdf5File[datapath]
+                self.data_buffers[datapath] = HDF5StorageManager.H5pyStorageBuffer(dataset,
+                                                                                   buffer_size=self.__buffer_size,
+                                                                                   buffered_data=data_to_store,
+                                                                                   grow_dimension=grow_dimension)
+            else:
                 data_shape_list = list(data_to_store.shape)
                 data_shape_list[grow_dimension] = None
                 data_shape = tuple(data_shape_list)
                 dataset = hdf5File.create_dataset(where + dataset_name, data=data_to_store, shape=data_to_store.shape,
                                                   dtype=data_to_store.dtype, maxshape=data_shape)
-                self.data_buffers[where + dataset_name] = HDF5StorageManager.H5pyStorageBuffer(dataset,
-                                                                                        buffer_size=self.__buffer_size,
-                                                                                        buffered_data=None,
-                                                                                        grow_dimension=grow_dimension)
+                self.data_buffers[datapath] = HDF5StorageManager.H5pyStorageBuffer(dataset,
+                                                                                   buffer_size=self.__buffer_size,
+                                                                                   buffered_data=None,
+                                                                                   grow_dimension=grow_dimension)
         else:
             if not data_buffer.buffer_data(data_to_store):
                 data_buffer.flush_buffered_data()
@@ -211,21 +212,23 @@ class HDF5StorageManager(object):
         if where is None:
             where = self.ROOT_NODE_PATH
 
+        datapath = where + dataset_name
         try:
             # Open file to read data
             hdf5File = self._open_h5_file('r')
-            data_array = hdf5File[where + dataset_name]
-            # Now read data
-            if data_slice is None:
-                return data_array[()]
+            if datapath in hdf5File:
+                data_array = hdf5File[datapath]
+                # Now read data
+                if data_slice is None:
+                    return data_array[()]
+                else:
+                    return data_array[data_slice]
             else:
-                return data_array[data_slice]
-        except KeyError:
-            if not ignore_errors:
-                LOG.error("Trying to read data from a missing data set: %s" % dataset_name)
-                raise MissingDataSetException("Could not locate dataset: %s" % dataset_name)
-            else:
-                return numpy.ndarray(0)
+                if not ignore_errors:
+                    LOG.error("Trying to read data from a missing data set: %s" % dataset_name)
+                    raise MissingDataSetException("Could not locate dataset: %s" % dataset_name)
+                else:
+                    return numpy.ndarray(0)
         finally:
             self.close_file()
 
@@ -571,9 +574,15 @@ class HDF5StorageManager(object):
         
         """
         if self.__storage_full_name is not None:
+            print self.__storage_full_name, '__open_h5_file in mode ', mode
             # Check if file is still open from previous writes.
             if self.__hfd5_file is None or not self.__hfd5_file.fid.valid:
                 file_exists = os.path.exists(self.__storage_full_name)
+
+                # bug in some versions of hdf5 prevent creating file with mode='a'
+                if not file_exists:
+                    mode = 'w'
+
                 LOG.debug("Opening file: %s in mode: %s" % (self.__storage_full_name, mode))
                 self.__hfd5_file = hdf5.File(self.__storage_full_name, mode, libver='latest', chunks=chunk_shape)
 
