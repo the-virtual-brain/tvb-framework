@@ -131,10 +131,14 @@ class CFF_Importer(ABCUploader):
             conn_obj.close_all()
             conn_obj._zipfile.close()
             for ele in temp_files:
-                if os.path.isdir(ele):
-                    shutil.rmtree(ele)
-                elif os.path.isfile(ele):
-                    os.remove(ele)
+                try:
+                    if os.path.isdir(ele):
+                        shutil.rmtree(ele)
+                    elif os.path.isfile(ele):
+                        os.remove(ele)
+                except WindowsError:
+                    self.logger.exception("Could not cleanup temporary files after import...")
+
             current_op = dao.get_operation_by_id(self.operation_id)
             current_op.user_group = conn_obj.get_connectome_meta().title
             if len(warning_message) > 0:

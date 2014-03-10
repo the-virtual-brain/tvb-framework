@@ -39,7 +39,6 @@ import sys
 import signal
 import Queue
 import threading
-import datetime
 from subprocess import Popen, PIPE
 from tvb.basic.profile import TvbProfile as tvb_profile
 from tvb.basic.config.settings import TVBSettings as config
@@ -232,6 +231,7 @@ class ClusterSchedulerClient(object):
         minutes = (int(time_estimate) % 3600) / 60
         seconds = int(time_estimate) % 60
         # Anything lower than 2 hours just use default walltime
+        ## TODO: clean this hard-coded values (TVB-1225)
         if hours < 2:
             walltime = "05:00:00"
         if (hours >= 2 or hours <= 24):
