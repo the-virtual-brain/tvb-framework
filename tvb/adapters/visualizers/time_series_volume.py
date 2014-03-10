@@ -39,11 +39,20 @@ from tvb.datatypes.time_series import TimeSeriesVolume
 
 
 class TimeSeriesVolumeVisualiser(ABCDisplayer):
+
+    _ui_name = "Time Series Volume"
+    _ui_subsection = "ts_volume"
+
+
     def get_input_tree(self):
         return [{'name': 'time_series_volume',
                  'label': 'Time Series Volume',
                  'type': TimeSeriesVolume,
                  'required': True}]
+
+    def get_required_memory_size(self, **kwargs):
+        """Return required memory."""
+        return -1
 
 
     def launch(self, time_series_volume):

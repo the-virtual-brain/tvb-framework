@@ -574,12 +574,11 @@ class HDF5StorageManager(object):
         
         """
         if self.__storage_full_name is not None:
-            print self.__storage_full_name, '__open_h5_file in mode ', mode
             # Check if file is still open from previous writes.
             if self.__hfd5_file is None or not self.__hfd5_file.fid.valid:
                 file_exists = os.path.exists(self.__storage_full_name)
 
-                # bug in some versions of hdf5 prevent creating file with mode='a'
+                # bug in some versions of hdf5 on windows prevent creating file with mode='a'
                 if not file_exists:
                     mode = 'w'
 
