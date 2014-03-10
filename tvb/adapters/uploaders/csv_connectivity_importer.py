@@ -32,29 +32,85 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
-
-import os
 import csv
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
-from tvb.basic.traits.util import read_list_data
 from tvb.basic.logger.builder import get_logger
-from tvb.core.utils import store_list_data
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.files_helper import FilesHelper
-import demo_data.connectivity
+
+
+class CSVConnectivityParser(object):
+    """
+    Parser for a connectivity csv file
+    Such a file may begin with a optional header of ordinal integers
+    The body of the file is a square matrix of floats
+    -1 is interpreted as 0
+    If a header is present the matrices columns and rows are permuted
+    so that the header ordinals would be in ascending order
+    """
+    def __init__(self, csv_file):
+        self.rows = list(csv.reader(csv_file))
+        self.connectivity_size = len(self.rows[0])
+        self.line = 0
+        self.permutation = range(self.connectivity_size)
+        """ A permutation represented as a list index -> new_index. Defaults to the identity permutation"""
+        self.result_conn = [[] for _ in xrange(self.connectivity_size)]
+
+        rows_count = len(self.rows)
+        if rows_count == self.connectivity_size + 1:
+            self._parse_header()
+        elif rows_count == self.connectivity_size:
+            pass  # we have no header
+        else:
+            raise LaunchException("Invalid Connectivity size! %d != %d " %
+                                  (rows_count, self.connectivity_size))
+        self._parse_body()
+
+
+    def _parse_header(self):
+        """
+        Reads the ordinals from the header and updates self.permutation
+        """
+        self.line += 1
+        try:
+            ordinals = [int(v) for v in self.rows[0]]
+        except ValueError:
+            raise LaunchException("Invalid ordinal in header %s" % self.rows[0])
+
+        header_i = list(enumerate(ordinals))
+        header_i.sort(key=lambda (i_, ordinal): ordinal)  # sort by the column ordinal
+        inverse_permutation = [i for i, ordinal_ in header_i]
+
+        for i in xrange(len(self.permutation)):
+            self.permutation[inverse_permutation[i]] = i
+
+        self.rows = self.rows[1:]  # consume header
+
+
+    def _parse_body(self):
+        for row_idx, row in enumerate(self.rows):
+            self.line += 1
+            if len(row) != self.connectivity_size:
+                msg = "Invalid Connectivity Row size! %d != %d at row %d" % (len(row), self.connectivity_size, self.line)
+                raise LaunchException(msg)
+
+            new_row = [0] * self.connectivity_size
+
+            for col_idx, col in enumerate(row):
+                new_row[self.permutation[col_idx]] = max(float(col), 0)
+
+            self.result_conn[self.permutation[row_idx]] = new_row
 
 
 class CSVConnectivityImporter(ABCUploader):
     """
-    Handler for uploading a Connectivity archive, with files holding 
-    text export of connectivity data from Numpy arrays.
+    Handler for uploading a Connectivity csv from the dti pipeline
     """
     _ui_name = "Connectivity CSV"
     _ui_subsection = "csv_connectivity_importer"
     _ui_description = "Import a Connectivity from two CSV files as result from the DTI pipeline"
-    FILE_NODES_ORDER = "dti_pipeline_regions.txt"
     WEIGHTS_FILE = "weights.txt"
     TRACT_FILE = "tract_lengths.txt"
 
@@ -62,15 +118,9 @@ class CSVConnectivityImporter(ABCUploader):
     def __init__(self):
         ABCUploader.__init__(self)
         self.logger = get_logger(self.__class__.__module__)
-        folder_default_data = os.path.dirname(demo_data.connectivity.__file__)
-        file_order = os.path.join(folder_default_data, self.FILE_NODES_ORDER)
-        self.expected_nodes_order = read_list_data(file_order, dtype=numpy.int32, usecols=[0])
 
     
     def get_upload_input_tree(self):
-        """
-        Take as input a ZIP archive.
-        """
         return [{'name': 'weights', 'type': 'upload', 'required_type': '.csv',
                  'label': 'Weights file (csv)', 'required': True},
 
@@ -85,53 +135,15 @@ class CSVConnectivityImporter(ABCUploader):
         return [Connectivity]
 
 
-    def _process_csv_file(self, csv_file, result_file):
+    def _read_csv_file(self, csv_file):
         """
         Read a CSV file, arrange rows/columns in the correct order,
-        to obtain Weight/Tract TXT files in TVB compatible format.
+        to obtain Weight/Tract data in TVB compatible format.
         """
-        file_point = open(csv_file)
-        csv_reader = csv.reader(file_point)
-
-        ## Index of the current row (from 1 to the number of nodes + 2; as we have a header line):
-        row_number = 0
-        connectivity_size = len(self.expected_nodes_order)
-        expected_indices = range(connectivity_size)
-        result_conn = [[] for _ in xrange(connectivity_size)]
-
-        for row in csv_reader:
-            row_number += 1
-            if len(row) != connectivity_size:
-                msg = "Invalid Connectivity Row size! %d != %d at row %d" % (len(row), connectivity_size, row_number)
-                raise LaunchException(msg)
-
-            if row_number == 1:
-                for i in xrange(connectivity_size):
-                    found = False
-                    for j in xrange(connectivity_size):
-                        if self.expected_nodes_order[j] == int(row[i]):
-                            expected_indices[i] = j
-                            found = True
-                            break
-                    if not found:
-                        msg = "Incompatible Title Row %d with expected labels %s \n %s "
-                        msg = msg % (i, str(row), str(self.expected_nodes_order))
-                        raise LaunchException(msg)
-                continue
-
-            new_row = [0] * connectivity_size
-            for i in xrange(connectivity_size):
-                new_row[expected_indices[i]] = float(row[i]) if float(row[i]) >= 0 else 0
-
-            result_conn[expected_indices[row_number - 2]] = new_row
-
-        if row_number != connectivity_size + 1:
-            raise LaunchException("Invalid Connectivity size! %d != %d " % (row_number, connectivity_size))
-
-        self.logger.debug("Written Connectivity file of size " + str(len(result_conn)))
-        store_list_data(result_conn, result_file, os.path.dirname(csv_file), True)
-        file_point.close()
-        os.remove(csv_file)
+        with open(csv_file) as f:
+            result_conn = CSVConnectivityParser(f).result_conn
+            self.logger.debug("Read Connectivity file of size %d" % len(result_conn))
+            return numpy.array(result_conn)
 
 
     def launch(self, weights, tracts, input_data):
@@ -145,13 +157,10 @@ class CSVConnectivityImporter(ABCUploader):
 
         :raises LaunchException: when the number of nodes in CSV files doesn't match the one in the connectivity
         """
+        weights_matrix = self._read_csv_file(weights)
+        tract_matrix = self._read_csv_file(tracts)
 
-        self._process_csv_file(weights, self.WEIGHTS_FILE)
-        self._process_csv_file(tracts, self.TRACT_FILE)
-        weights_matrix = read_list_data(os.path.join(os.path.dirname(weights), self.WEIGHTS_FILE))
-        tract_matrix = read_list_data(os.path.join(os.path.dirname(tracts), self.TRACT_FILE))
-        FilesHelper.remove_files([os.path.join(os.path.dirname(weights), self.WEIGHTS_FILE),
-                                  os.path.join(os.path.dirname(tracts), self.TRACT_FILE)])
+        FilesHelper.remove_files([weights, tracts])
 
         if weights_matrix.shape[0] != input_data.orientations.shape[0]:
             raise LaunchException("The csv files define %s nodes but the connectivity you selected as reference "
@@ -168,4 +177,3 @@ class CSVConnectivityImporter(ABCUploader):
         result.cortical = input_data.cortical
         result.hemispheres = input_data.hemispheres
         return result
-

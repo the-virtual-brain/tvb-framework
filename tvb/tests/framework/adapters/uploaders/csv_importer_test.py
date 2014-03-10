@@ -35,6 +35,7 @@
 import unittest
 import demo_data
 from os import path
+from tvb.adapters.uploaders.csv_connectivity_importer import CSVConnectivityParser
 from tvb.basic.filters.chain import FilterChain
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -43,12 +44,24 @@ from tvb.core.services.exceptions import OperationException
 from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity
 from tvb.tests.framework.adapters.uploaders.connectivity_zip_importer_test import ConnectivityZipTest
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase, BaseTestCase
 from tvb.tests.framework.core.test_factory import TestFactory
 
 
 TEST_SUBJECT_A = "TEST_SUBJECT_A"
 TEST_SUBJECT_B = "TEST_SUBJECT_B"
+
+class CSVConnectivityParserTest(BaseTestCase):
+    BASE_PTH = path.join(path.dirname(demo_data.__file__), 'dti_pipeline', 'Output_Toronto')
+
+    def test_parse_happy(self):
+        cap_pth = path.join(self.BASE_PTH, 'output_ConnectionDistanceMatrix.csv')
+
+        with open(cap_pth) as f:
+            result_conn = CSVConnectivityParser(f).result_conn
+            self.assertEqual([0, 61.7082, 50.7576, 76.4214], result_conn[0][:4])
+            for i in xrange(len(result_conn)):
+                self.assertEqual(0, result_conn[i][i])
 
 
 class CSVConnectivityImporterTest(TransactionalTestCase):
@@ -140,6 +153,7 @@ def suite():
     Gather all the tests in a test suite.
     """
     test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(CSVConnectivityParserTest))
     test_suite.addTest(unittest.makeSuite(CSVConnectivityImporterTest))
     return test_suite
 
