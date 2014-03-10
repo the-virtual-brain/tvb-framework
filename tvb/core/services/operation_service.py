@@ -402,7 +402,7 @@ class OperationService:
         self.logger.error(message)
         self.logger.exception(exception)
         if operation is not None:
-            operation.mark_complete(model.STATUS_ERROR, str(exception))
+            operation.mark_complete(model.STATUS_ERROR, unicode(exception))
             dao.store_entity(operation)
             self.workflow_service.update_executed_workflow_state(operation.id)
         self._remove_files(temp_files)
