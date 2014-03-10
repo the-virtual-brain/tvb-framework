@@ -494,7 +494,7 @@ class OperationService:
             lo_val = float(range_data[xml_reader.ATT_MINVALUE])
             hi_val = float(range_data[xml_reader.ATT_MAXVALUE])
             step = float(range_data[xml_reader.ATT_STEP])
-            range_values = list(Range(lo=lo_val, hi=hi_val, step=step))
+            range_values = list(Range(lo=lo_val, hi=hi_val, step=step, mode=Range.MODE_INCLUDE_BOTH))
 
         else:
             for possible_value in range_data:
