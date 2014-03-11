@@ -54,7 +54,7 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.import_service import ImportService
 from tvb.core.services.exceptions import ServicesBaseException, ProjectServiceException
-from tvb.core.services.exceptions import RemoveDataTypeException, RemoveDataTypeError
+from tvb.core.services.exceptions import RemoveDataTypeException
 from tvb.core.utils import string2bool
 from tvb.interfaces.web.entities.context_overlay import OverlayTabDefinition
 from tvb.interfaces.web.controllers import common
@@ -703,17 +703,11 @@ class ProjectController(BaseController):
                 return "Remove can only be applied on a Node with GID!"
             self.logger.debug("Removing data with GID=" + str(node_gid))
             self.project_service.remove_datatype(project_id, node_gid)
-        except RemoveDataTypeError, excep:
-            self.logger.error("Invalid DataType to remove!")
-            self.logger.exception(excep)
-            return excep.message
         except RemoveDataTypeException, excep:
-            self.logger.error("Could not execute operation Node Remove!")
-            self.logger.exception(excep)
+            self.logger.exception("Could not execute operation Node Remove!")
             return excep.message
         except ServicesBaseException, excep:
-            self.logger.error("Could not execute operation Node Remove!")
-            self.logger.exception(excep)
+            self.logger.exception("Could not execute operation Node Remove!")
             return excep.message
         return None
 

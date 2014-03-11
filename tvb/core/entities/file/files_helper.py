@@ -105,23 +105,19 @@ class FilesHelper():
     
     def rename_project_structure(self, project_name, new_name):
         """ Rename Project folder or THROW FileStructureException. """
-        try:     
-            path = self.get_project_folder(project_name)     
-            folder = os.path.split(path)[0]
-            new_full_name = os.path.join(folder, new_name)            
-        except Exception, excep:
-            self.logger.error("Could not rename node!")
-            self.logger.exception(excep)
-            raise FileStructureException("Could not Rename:" + str(new_name))
-        if os.path.exists(new_full_name):
-            raise FileStructureException("File already used " + str(new_name) + " Can not add a duplicate!")
         try:
+            path = self.get_project_folder(project_name)
+            folder = os.path.split(path)[0]
+            new_full_name = os.path.join(folder, new_name)
+
+            if os.path.exists(new_full_name):
+                raise IOError("Path exists %s " % new_full_name)
+
             os.rename(path, new_full_name)
             return path, new_full_name
-        except Exception, excep:
-            self.logger.error("Could not rename node!")
-            self.logger.exception(excep)
-            raise FileStructureException("Could not Rename: " + str(new_name))
+        except Exception:
+            self.logger.exception("Could not rename node!")
+            raise FileStructureException("Could not rename to %s" % new_name)
     
     
     def remove_project_structure(self, project_name):

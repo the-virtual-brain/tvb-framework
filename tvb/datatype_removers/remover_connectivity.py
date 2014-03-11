@@ -56,12 +56,13 @@ class ConnectivityRemover(ABCRemover):
         """
         Called when a Connectivity is to be removed.
         """
-        associated_ts = dao.get_generic_entity(TimeSeriesRegion, self.handled_datatype.gid, '_connectivity')
-        associated_rm = dao.get_generic_entity(RegionMapping, self.handled_datatype.gid, '_connectivity')
-        associated_stim = dao.get_generic_entity(StimuliRegionData, self.handled_datatype.gid, '_connectivity')
-        associated_mes = dao.get_generic_entity(ConnectivityMeasure, self.handled_datatype.gid, '_connectivity')
-        msg = "Connectivity cannot be removed as it is used by at least one "
         if not skip_validation:
+            associated_ts = dao.get_generic_entity(TimeSeriesRegion, self.handled_datatype.gid, '_connectivity')
+            associated_rm = dao.get_generic_entity(RegionMapping, self.handled_datatype.gid, '_connectivity')
+            associated_stim = dao.get_generic_entity(StimuliRegionData, self.handled_datatype.gid, '_connectivity')
+            associated_mes = dao.get_generic_entity(ConnectivityMeasure, self.handled_datatype.gid, '_connectivity')
+            msg = "Connectivity cannot be removed as it is used by at least one "
+
             if len(associated_ts) > 0:
                 raise RemoveDataTypeException(msg + " TimeSeriesRegion.")
             if len(associated_rm) > 0:

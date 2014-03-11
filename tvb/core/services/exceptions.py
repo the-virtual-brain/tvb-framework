@@ -127,11 +127,3 @@ class RemoveDataTypeException(ServicesBaseException):
     """
 
 
-
-class RemoveDataTypeError(ServicesBaseException):
-    """
-    Exception to be thrown in case some one tries to remove an entity that should
-    not be possible to be removed. E.g. If some one tries to remove the array
-    wrapper corresponding to a time series (inheritance relationship).
-    """
-

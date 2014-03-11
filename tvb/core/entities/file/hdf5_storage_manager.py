@@ -495,9 +495,11 @@ class HDF5StorageManager(object):
         much overhead in most situation we'll leave it like this for now since in case
         of concurrent writes(metadata) this provides extra safety.
         """
-        self.__aquire_lock()
-        self.__close_file()
-        self.__release_lock()
+        try:
+            self.__aquire_lock()
+            self.__close_file()
+        finally:
+            self.__release_lock()
 
 
     def _open_h5_file(self, mode='a', chunk_shape=None):
@@ -507,9 +509,11 @@ class HDF5StorageManager(object):
         much overhead in most situation we'll leave it like this for now since in case
         of concurrent writes(metadata) this provides extra safety.
         """
-        self.__aquire_lock()
-        file_obj = self.__open_h5_file(mode, chunk_shape)
-        self.__release_lock()
+        try:
+            self.__aquire_lock()
+            file_obj = self.__open_h5_file(mode, chunk_shape)
+        finally:
+            self.__release_lock()
         return file_obj
 
 
@@ -573,13 +577,15 @@ class HDF5StorageManager(object):
         :returns: returns the file which stores data in HDF5 format opened for read / write according to mode param
         
         """
-        if self.__storage_full_name is not None:
+        if self.__storage_full_name is None:
+            raise FileStructureException("Invalid storage file. Please provide a valid path.")
+        try:
             # Check if file is still open from previous writes.
             if self.__hfd5_file is None or not self.__hfd5_file.fid.valid:
                 file_exists = os.path.exists(self.__storage_full_name)
 
                 # bug in some versions of hdf5 on windows prevent creating file with mode='a'
-                if not file_exists:
+                if not file_exists and mode == 'a':
                     mode = 'w'
 
                 LOG.debug("Opening file: %s in mode: %s" % (self.__storage_full_name, mode))
@@ -590,9 +596,12 @@ class HDF5StorageManager(object):
                     os.chmod(self.__storage_full_name, cfg.ACCESS_MODE_TVB_FILES)
                     self.__hfd5_file['/'].attrs[self.TVB_ATTRIBUTE_PREFIX +
                                                 cfg.DATA_VERSION_ATTRIBUTE] = cfg.DATA_VERSION
-            return self.__hfd5_file
-        else:
-            raise FileStructureException("Invalid storage file. Please provide a valid path.")
+        except (IOError, OSError), err:
+            LOG.exception("Could not open storage file.")
+            raise FileStructureException("Could not open storage file. %s" % err)
+
+        return self.__hfd5_file
+
 
 
     def _check_data(self, data_list):

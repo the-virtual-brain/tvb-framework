@@ -51,19 +51,17 @@ class TimeseriesRemover(ABCRemover):
         """
         Called when a TimeSeries is removed.
         """
-        associated_cv = dao.get_generic_entity(Covariance, self.handled_datatype.gid, '_source')
-        associated_pca = dao.get_generic_entity(PrincipalComponents, self.handled_datatype.gid, '_source')
-        associated_is = dao.get_generic_entity(IndependentComponents, self.handled_datatype.gid, '_source')
-        associated_cc = dao.get_generic_entity(CrossCorrelation, self.handled_datatype.gid, '_source')
-        associated_fr = dao.get_generic_entity(FourierSpectrum, self.handled_datatype.gid, '_source')
-        associated_wv = dao.get_generic_entity(WaveletCoefficients, self.handled_datatype.gid, '_source')
-        associated_cs = dao.get_generic_entity(CoherenceSpectrum, self.handled_datatype.gid, '_source')
-        associated_dm = dao.get_generic_entity(DatatypeMeasure, self.handled_datatype.gid, '_analyzed_datatype')
-        for datatype_measure in associated_dm:
-            datatype_measure._analyed_datatype = None
-            dao.store_entity(datatype_measure)
-        msg = "TimeSeries cannot be removed as it is used by at least one "
         if not skip_validation:
+            associated_cv = dao.get_generic_entity(Covariance, self.handled_datatype.gid, '_source')
+            associated_pca = dao.get_generic_entity(PrincipalComponents, self.handled_datatype.gid, '_source')
+            associated_is = dao.get_generic_entity(IndependentComponents, self.handled_datatype.gid, '_source')
+            associated_cc = dao.get_generic_entity(CrossCorrelation, self.handled_datatype.gid, '_source')
+            associated_fr = dao.get_generic_entity(FourierSpectrum, self.handled_datatype.gid, '_source')
+            associated_wv = dao.get_generic_entity(WaveletCoefficients, self.handled_datatype.gid, '_source')
+            associated_cs = dao.get_generic_entity(CoherenceSpectrum, self.handled_datatype.gid, '_source')
+
+            msg = "TimeSeries cannot be removed as it is used by at least one "
+
             if len(associated_cv) > 0:
                 raise RemoveDataTypeException(msg + " Covariance.")
             if len(associated_pca) > 0:
@@ -78,6 +76,13 @@ class TimeseriesRemover(ABCRemover):
                 raise RemoveDataTypeException(msg + " WaveletCoefficients.")
             if len(associated_cs) > 0:
                 raise RemoveDataTypeException(msg + " CoherenceSpectrum.")
+
+        # todo: reconsider this. Possibly remove measures
+        associated_dm = dao.get_generic_entity(DatatypeMeasure, self.handled_datatype.gid, '_analyzed_datatype')
+        for datatype_measure in associated_dm:
+            datatype_measure._analyed_datatype = None
+            dao.store_entity(datatype_measure)
+
         ABCRemover.remove_datatype(self, skip_validation)
         
 

@@ -37,7 +37,7 @@ from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 
 
-class ABCRemover:
+class ABCRemover(object):
     
     def __init__(self, handled_datatype):
         self.structure_helper = FilesHelper()

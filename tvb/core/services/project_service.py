@@ -39,15 +39,16 @@ import os
 import copy
 import json
 import formencode
-from tvb.core import utils
 from inspect import stack, getmro
+
+from tvb.core import utils
 from tvb.basic.traits.types_mapped import MappedType
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.filters.chain import FilterChain
 from tvb.core.utils import string2date, date2string, timedelta2string
 from tvb.core.removers_factory import get_remover
 from tvb.core.entities import model
-from tvb.core.entities.storage import dao
+from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.transient.context_overlay import CommonDetails, DataTypeOverlayDetails, OperationOverlayDetails
 from tvb.core.entities.transient.filtering import StaticFiltersFactory
 from tvb.core.entities.transient.structure_entities import StructureNode, DataTypeMetaData
@@ -55,7 +56,7 @@ from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.exceptions import FileStructureException
 from tvb.core.services.event_handlers import handle_event
 from tvb.core.services.exceptions import StructureException, ProjectServiceException
-from tvb.core.services.exceptions import RemoveDataTypeException, RemoveDataTypeError
+from tvb.core.services.exceptions import RemoveDataTypeException
 from tvb.core.services.user_service import UserService
 from tvb.core.adapters.abcadapter import ABCAdapter
 
@@ -112,8 +113,6 @@ class ProjectService:
             raise ProjectServiceException("A project can not be renamed while operations are still running!")
         if is_create:
             current_proj = model.Project(new_name, current_user.id, data["description"])
-            #Create the root folder, and remove if that folder already exists.
-            self.structure_helper.remove_project_structure(new_name)
             self.structure_helper.get_project_folder(current_proj)
         else:
             try:
@@ -315,6 +314,7 @@ class ProjectService:
         return dao.get_linkable_projects_for_user(user_id, data_id)
 
 
+    @transactional
     def remove_project(self, project_id):
         """
         Remove Project from DB and File Storage.
@@ -331,21 +331,15 @@ class ProjectService:
             name = project2delete.name
             dao.delete_project(project_id)
             self.logger.debug("Deleted project: id=" + str(project_id) + ' name=' + name)
-        except RemoveDataTypeError, excep:
-            self.logger.error("Invalid DataType to remove!")
-            self.logger.exception(excep)
-            raise ProjectServiceException(str(excep))
+
         except RemoveDataTypeException, excep:
-            self.logger.error("Could not execute operation Node Remove!")
-            self.logger.exception(excep)
+            self.logger.exception("Could not execute operation Node Remove!")
             raise ProjectServiceException(str(excep))
         except FileStructureException, excep:
-            self.logger.error("Could not delete because of rights!")
-            self.logger.exception(excep)
+            self.logger.exception("Could not delete because of rights!")
             raise ProjectServiceException(str(excep))
         except Exception, excep:
-            self.logger.error("Given ID does not exist in DB!")
-            self.logger.exception(excep)
+            self.logger.exception("Given ID does not exist in DB!")
             raise ProjectServiceException(str(excep))
 
 
@@ -607,10 +601,6 @@ class ProjectService:
 
         except RemoveDataTypeException, excep:
             self.logger.error("Could not execute operation Node Remove!")
-            self.logger.exception(excep)
-            raise excep
-        except RemoveDataTypeError, excep:
-            self.logger.error("Invalid DataType to remove!")
             self.logger.exception(excep)
             raise excep
         except FileStructureException, excep:
