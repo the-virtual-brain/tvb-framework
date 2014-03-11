@@ -921,7 +921,7 @@ tv.plot = {
                     f.gp_ax_fcs_y.call(f.ax_fcs_y);
                     f.gp_lines.selectAll("g").attr("transform", function (d, i) {
                         // Have a maximum line thickness of 2, to avoid situations in which blue lines become huge
-                        return "translate(0, " + f.sc_fcs_y(i) + ") scale (1, " + Math.min(yscl, 2) + ")"
+                        return "translate(0, " + f.sc_fcs_y(i) + ") scale (1, " + Math.min(yscl, 1) + ")"
                     })
                 }
 
