@@ -34,6 +34,9 @@ Launches the web server and configure the controllers for UI.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+import time
+STARTUP_TIC = time.time()
+
 import os
 import sys
 import cherrypy
@@ -171,7 +174,7 @@ def start_tvb(arguments):
     run_browser()
 
     ## Launch CherryPy loop forever.
-    LOGGER.info("Finished starting TVB version:" + str(TVBSettings.CURRENT_VERSION))
+    LOGGER.info("Finished starting TVB version %s in %.3f s", TVBSettings.CURRENT_VERSION, time.time() - STARTUP_TIC)
     cherrypy.engine.block()
     cherrypy.log.error_log
 
