@@ -71,7 +71,7 @@ class TimeSeries(ABCDisplayer):
         """Construct data for visualization and launch it."""
 
         ts = time_series.get_data('time')
-        shape = time_series.read_data_shape1()
+        shape = time_series.read_data_shape()
 
         ## Assume that the first dimension is the time since that is the case so far
         if preview and shape[0] > self.MAX_PREVIEW_DATA_LENGTH:

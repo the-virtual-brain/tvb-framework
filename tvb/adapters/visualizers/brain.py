@@ -208,9 +208,8 @@ class BrainViewer(ABCDisplayer):
                     extended_view=False, shelfObject=face_object,
                     biHemispheric=biHemispheres, hemisphereChunkMask=json.dumps(hemisphere_chunk_mask),
                     time_series=time_series, pageSize=self.PAGE_SIZE, boundary_url=boundary_url,
-                    labels=time_series.get_space_labels(),
-                    shape=time_series.read_data_shape1(),
-                    ts_title=time_series.title )
+                    measurePointsLabels=time_series.get_space_labels(),
+                    measurePointsTitle=time_series.title)
 
 
     @staticmethod

@@ -78,7 +78,7 @@ tv.util = {
     },
 
     get_array_shape: function (baseURL, callback) {
-        $.getJSON(baseURL + "/read_data_shape1/False?kwd=0", callback);
+        $.getJSON(baseURL + "/read_data_shape/False?kwd=0", callback);
     },
 
     get_array_slice: function (baseURL, slices, callback, channels, currentMode, currentStateVar) {
