@@ -287,7 +287,7 @@ function _handleAxePick(event, axe) {
 
     	perspective(45, gl.viewportWidth / gl.viewportHeight, near, 800.0);
         loadIdentity();
-        addLight();
+        basicAddLight(lightSettings);
 
         // Translate to get a good view.
         mvTranslate([0.0, -5.0, -GL_DEFAULT_Z_POS]);
