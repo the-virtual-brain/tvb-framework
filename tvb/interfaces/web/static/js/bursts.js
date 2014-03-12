@@ -111,9 +111,10 @@ function loadBurstHistory() {
 		cache: false,
 		async: false,
         success: function(r) {
-                    var historyElem = $('.view-history');
+                    var historyElem = $('#section-view-history');
         			historyElem.empty();
         			historyElem.append(r);
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, "section-view-history"]);
         },
         error: function() {
             		displayMessage("Simulator data could not be loaded properly..", "errorMessage");

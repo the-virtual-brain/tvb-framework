@@ -483,9 +483,8 @@ class OperationService:
             try:
                 range_data = [x.strip() for x in str(kwargs[str(kwargs[ranger_name])]).split(',') if len(x.strip()) > 0]
                 return range_data
-            except Exception, excep:
-                self.logger.warning("Could not launch operation !")
-                self.logger.exception(excep)
+            except Exception:
+                self.logger.exception("Could not launch operation !")
                 raise LaunchException("Could not launch with no data from:" + str(ranger_name))
         if type(range_data) in (list, tuple):
             return range_data

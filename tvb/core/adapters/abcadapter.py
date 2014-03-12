@@ -46,6 +46,7 @@ from abc import ABCMeta, abstractmethod
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.traits.types_mapped import MappedType
+from tvb.basic.traits.exceptions import TVBException
 from tvb.core.utils import date2string, string2array, LESS_COMPLEX_TIME_FORMAT
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -132,7 +133,7 @@ class ABCAdapter(object):
     KEY_ATTRIBUTES = xml_reader.ATT_ATTRIBUTES
     KEY_NAME = xml_reader.ATT_NAME
     KEY_VALUE = xml_reader.ATT_VALUE
-    KEY_LABEL = "label"
+    KEY_LABEL = xml_reader.ATT_LABEL
     KEY_DEFAULT = "default"
     KEY_DATATYPE = 'datatype'
     KEY_DTYPE = 'elementType'
@@ -260,7 +261,8 @@ class ABCAdapter(object):
             if available_disk_space - required_disk_space < 0:
                 raise NoMemoryAvailableException("You only have %.2f GB of disk space available but the operation you "
                                                  "launched might require %.2f "
-                                                 "Stopping execution..." % (available_disk_space / 2**20, required_disk_space / 2**20 ))
+                                                 "Stopping execution..." % (available_disk_space / 2 ** 20,
+                                                                            required_disk_space / 2 ** 20))
             operation.start_now()
             operation.result_disk_size = required_disk_space
             dao.store_entity(operation)
@@ -502,11 +504,9 @@ class ABCAdapter(object):
 
         for entry in algorithm_inputs:
             ## First handle this level of the tree, adding defaults where required
-            if (entry[self.KEY_NAME] not in kwargs
-                and self.KEY_REQUIRED in entry
-                and entry[self.KEY_REQUIRED] is True
-                and self.KEY_DEFAULT in entry
-                and entry[self.KEY_TYPE] != xml_reader.TYPE_DICT):
+            if (entry[self.KEY_NAME] not in kwargs and self.KEY_REQUIRED in entry
+                    and entry[self.KEY_REQUIRED] is True and self.KEY_DEFAULT in entry
+                    and entry[self.KEY_TYPE] != xml_reader.TYPE_DICT):
 
                 kwargs[entry[self.KEY_NAME]] = entry[self.KEY_DEFAULT]
 
@@ -522,7 +522,7 @@ class ABCAdapter(object):
                     if option[self.KEY_VALUE] == kwargs[entry[self.KEY_NAME]]:
                         if ABCAdapter.KEY_ATTRIBUTES in option:
                             option[ABCAdapter.KEY_ATTRIBUTES] = self._append_required_defaults(kwargs,
-                                                                                    option[ABCAdapter.KEY_ATTRIBUTES])
+                                                                                            option[self.KEY_ATTRIBUTES])
 
 
     def convert_ui_inputs(self, kwargs, validation_required=True):
@@ -535,108 +535,115 @@ class ABCAdapter(object):
             row_attr = row[xml_reader.ATT_NAME]
             row_type = row[xml_reader.ATT_TYPE]
             ## If required attribute was submitted empty no point to continue, so just raise exception
-            if (validation_required
-                and row.get(xml_reader.ATT_REQUIRED, False)
-                and row_attr in kwargs
-                and kwargs[row_attr] == ""):
+            if (validation_required and row.get(xml_reader.ATT_REQUIRED, False)
+                    and row_attr in kwargs and kwargs[row_attr] == ""):
 
-                raise InvalidParameterException("Parameter %s is required for %s but no value was submitted!"
-                                "Please relaunch with valid parameters." % (row_attr,  self.__class__.__name__))
+                raise InvalidParameterException("Parameter %s [%s] is required for %s but no value was submitted! "
+                                                "Please relaunch with valid parameters." % (row[self.KEY_LABEL],
+                                                                                            row[self.KEY_NAME],
+                                                                                            self.__class__.__name__))
 
-            if row_type == xml_reader.TYPE_DICT:
-                kwa[row_attr], taken_keys = self.__get_dictionary(row, **kwargs)
-                for key in taken_keys:
-                    if key in kwa:
-                        del kwa[key]
-                    to_skip_dict_subargs.append(key)
-                continue
-            ## Dictionary subargs that were previously processed should be ignored
-            if row_attr in to_skip_dict_subargs:
-                continue
-
-            if row_attr not in kwargs:
-                ## DataType sub-attributes are not submitted with GID in their name...
-                kwa_name = self.__find_field_submitted_name(kwargs, row_attr, True)
-                if kwa_name is None:
-                    ## Do not populate attributes not submitted
+            try:
+                if row_type == xml_reader.TYPE_DICT:
+                    kwa[row_attr], taken_keys = self.__get_dictionary(row, **kwargs)
+                    for key in taken_keys:
+                        if key in kwa:
+                            del kwa[key]
+                        to_skip_dict_subargs.append(key)
                     continue
-                kwargs[row_attr] = kwargs[kwa_name]
-                ## del kwargs[kwa_name] (don't remove the original param, as it is useful for retrieving op. input DTs)
+                ## Dictionary subargs that were previously processed should be ignored
+                if row_attr in to_skip_dict_subargs:
+                    continue
 
-            elif self.__is_parent_not_submitted(row, kwargs):
-                ## Also do not populate sub-attributes from options not selected
-                del kwargs[row_attr]
-                continue
+                if row_attr not in kwargs:
+                    ## DataType sub-attributes are not submitted with GID in their name...
+                    kwa_name = self.__find_field_submitted_name(kwargs, row_attr, True)
+                    if kwa_name is None:
+                        ## Do not populate attributes not submitted
+                        continue
+                    kwargs[row_attr] = kwargs[kwa_name]
+                    ## del kwargs[kwa_name] don't remove the original param, as it is useful for retrieving op.input DTs
 
-            if row_type == xml_reader.TYPE_ARRAY:
-                kwa[row_attr] = self.__convert_to_array(kwargs[row_attr], row)
-                if xml_reader.ATT_MINVALUE in row and xml_reader.ATT_MAXVALUE:
-                    self.__validate_range_for_array_input(kwa[row_attr], row)
-            elif row_type == xml_reader.TYPE_LIST:
-                if not isinstance(kwargs[row_attr], list):
-                    kwa[row_attr] = json.loads(kwargs[row_attr])
-            elif row_type == xml_reader.TYPE_BOOL:
-                kwa[row_attr] = bool(kwargs[row_attr])
+                elif self.__is_parent_not_submitted(row, kwargs):
+                    ## Also do not populate sub-attributes from options not selected
+                    del kwargs[row_attr]
+                    continue
 
-            elif row_type == xml_reader.TYPE_INT:
-                if kwargs[row_attr] is None or kwargs[row_attr] in ['', 'None']:
-                    kwa[row_attr] = None
-                else:
-                    val = int(kwargs[row_attr])
-                    kwa[row_attr] = val
+                if row_type == xml_reader.TYPE_ARRAY:
+                    kwa[row_attr] = self.__convert_to_array(kwargs[row_attr], row)
                     if xml_reader.ATT_MINVALUE in row and xml_reader.ATT_MAXVALUE:
-                        self.__validate_range_for_value_input(kwa[row_attr], row)
-            elif row_type == xml_reader.TYPE_FLOAT:
-                if kwargs[row_attr] in ['', 'None']:
-                    kwa[row_attr] = None
-                else:
-                    val = float(kwargs[row_attr])
+                        self.__validate_range_for_array_input(kwa[row_attr], row)
+                elif row_type == xml_reader.TYPE_LIST:
+                    if not isinstance(kwargs[row_attr], list):
+                        kwa[row_attr] = json.loads(kwargs[row_attr])
+                elif row_type == xml_reader.TYPE_BOOL:
+                    kwa[row_attr] = bool(kwargs[row_attr])
+
+                elif row_type == xml_reader.TYPE_INT:
+                    if kwargs[row_attr] is None or kwargs[row_attr] in ['', 'None']:
+                        kwa[row_attr] = None
+                    else:
+                        val = int(kwargs[row_attr])
+                        kwa[row_attr] = val
+                        if xml_reader.ATT_MINVALUE in row and xml_reader.ATT_MAXVALUE:
+                            self.__validate_range_for_value_input(kwa[row_attr], row)
+                elif row_type == xml_reader.TYPE_FLOAT:
+                    if kwargs[row_attr] in ['', 'None']:
+                        kwa[row_attr] = None
+                    else:
+                        val = float(kwargs[row_attr])
+                        kwa[row_attr] = val
+                        if xml_reader.ATT_MINVALUE in row and xml_reader.ATT_MAXVALUE:
+                            self.__validate_range_for_value_input(kwa[row_attr], row)
+                elif row_type == xml_reader.TYPE_STR:
+                    kwa[row_attr] = kwargs[row_attr]
+                elif row_type in [xml_reader.TYPE_SELECT, xml_reader.TYPE_MULTIPLE]:
+                    val = kwargs[row_attr]
+                    if row_type == xml_reader.TYPE_MULTIPLE and not isinstance(val, list):
+                        val = [val]
                     kwa[row_attr] = val
-                    if xml_reader.ATT_MINVALUE in row and xml_reader.ATT_MAXVALUE:
-                        self.__validate_range_for_value_input(kwa[row_attr], row)
-            elif row_type == xml_reader.TYPE_STR:
-                kwa[row_attr] = kwargs[row_attr]
-            elif row_type in [xml_reader.TYPE_SELECT, xml_reader.TYPE_MULTIPLE]:
-                val = kwargs[row_attr]
-                if row_type == xml_reader.TYPE_MULTIPLE and not isinstance(val, list):
-                    val = [val]
-                kwa[row_attr] = val
-                if row_type == xml_reader.TYPE_SELECT:
+                    if row_type == xml_reader.TYPE_SELECT:
+                        simple_select_list.append(row_attr)
+                elif row_type == xml_reader.TYPE_UPLOAD:
+                    val = kwargs[row_attr]
+                    kwa[row_attr] = val
+                else:
+                    ## DataType parameter to be processed:
                     simple_select_list.append(row_attr)
-            elif row_type == xml_reader.TYPE_UPLOAD:
-                val = kwargs[row_attr]
-                kwa[row_attr] = val
-            else:
-                ## DataType parameter to be processed:
-                simple_select_list.append(row_attr)
-                datatype_gid = kwargs[row_attr]
-                ## Load filtered and trimmed attribute (e.g. field is applied if specified):
-                kwa[row_attr] = self.__load_entity(row, datatype_gid, kwargs)
-                if xml_reader.ATT_FIELD in row:
-                    #Add entity_GID to the parameters to recognize original input
-                    kwa[row_attr + '_gid'] = datatype_gid
+                    datatype_gid = kwargs[row_attr]
+                    ## Load filtered and trimmed attribute (e.g. field is applied if specified):
+                    kwa[row_attr] = self.__load_entity(row, datatype_gid, kwargs)
+                    if xml_reader.ATT_FIELD in row:
+                        #Add entity_GID to the parameters to recognize original input
+                        kwa[row_attr + '_gid'] = datatype_gid
+
+            except TVBException:
+                raise
+            except Exception:
+                raise InvalidParameterException("Invalid or missing value in field %s [%s]" % (row[self.KEY_LABEL],
+                                                                                               row[self.KEY_NAME]))
 
         return self.collapse_arrays(kwa, simple_select_list)
 
 
     def __validate_range_for_value_input(self, value, row):
+
         if value < row[xml_reader.ATT_MINVALUE] or value > row[xml_reader.ATT_MAXVALUE]:
-            raise InvalidParameterException("Field %s should be between %s and %s but provided value was %s." % (
-                row[xml_reader.ATT_NAME], row[xml_reader.ATT_MINVALUE], row[xml_reader.ATT_MAXVALUE], value))
+            raise InvalidParameterException("Field %s [%s] should be between %s and %s but provided value was %s." % (
+                row[self.KEY_LABEL], row[self.KEY_NAME], row[xml_reader.ATT_MINVALUE],
+                row[xml_reader.ATT_MAXVALUE], value))
 
 
     def __validate_range_for_array_input(self, array, row):
-        try:
-            min_val = numpy.min(array)
-            max_val = numpy.max(array)
-            if min_val < row[xml_reader.ATT_MINVALUE] or max_val > row[xml_reader.ATT_MAXVALUE]:
-                raise InvalidParameterException("Field %s should have values between %s and %s but provided array "
-                                                "contains min-max: (%s, %s)." % (row[xml_reader.ATT_NAME],
-                                                row[xml_reader.ATT_MINVALUE], row[xml_reader.ATT_MAXVALUE],
-                                                min_val, max_val))
-        except Exception:
-            # fixme: this looks weird
-            pass
+
+        min_val = numpy.min(array)
+        max_val = numpy.max(array)
+        if min_val < row[xml_reader.ATT_MINVALUE] or max_val > row[xml_reader.ATT_MAXVALUE]:
+            raise InvalidParameterException("Field %s [%s] should have values between %s and %s but provided array"
+                                            " contains min-max: (%s, %s)." % (row[self.KEY_LABEL], row[self.KEY_NAME],
+                                                                              row[xml_reader.ATT_MINVALUE],
+                                                                              row[xml_reader.ATT_MAXVALUE],
+                                                                              min_val, max_val))
 
 
     def __convert_to_array(self, input_data, row):
@@ -667,28 +674,23 @@ class ABCAdapter(object):
                 surface_gid = input_data[KEY_SURFACE_GID]
                 surface = self.load_entity_by_gid(surface_gid)
                 return surface.compute_equation(focal_points, equation)
-            except Exception, excep:
-                self.log.error("The parameter '" + str(row['name']) + "' was ignored. None value was returned.")
-                self.log.exception(excep)
+            except Exception:
+                self.log.exception("The parameter '" + str(row['name']) + "' was ignored. None value was returned.")
                 return None
 
         if xml_reader.ATT_QUATIFIER in row:
-            try:
-                quantifier = row[xml_reader.ATT_QUATIFIER]
-                dtype = None
-                if self.KEY_DTYPE in row:
-                    dtype = row[self.KEY_DTYPE]
-                if quantifier == xml_reader.QUANTIFIER_MANUAL:
-                    return string2array(str(input_data), ",", dtype)
-                elif quantifier == xml_reader.QUANTIFIER_UPLOAD:
-                    input_str = open(input_data, 'r').read()
-                    return string2array(input_str, " ", dtype)
-                elif quantifier == xml_reader.QUANTIFIER_FUNTION:
-                    return input_data
-            except Exception, excep:
-                self.log.warning("Could not launch operation !")
-                self.log.exception(excep)
-                raise Exception("Could not launch with no data from:" + str(row[xml_reader.ATT_NAME]))
+            quantifier = row[xml_reader.ATT_QUATIFIER]
+            dtype = None
+            if self.KEY_DTYPE in row:
+                dtype = row[self.KEY_DTYPE]
+            if quantifier == xml_reader.QUANTIFIER_MANUAL:
+                return string2array(str(input_data), ",", dtype)
+            elif quantifier == xml_reader.QUANTIFIER_UPLOAD:
+                input_str = open(input_data, 'r').read()
+                return string2array(input_str, " ", dtype)
+            elif quantifier == xml_reader.QUANTIFIER_FUNTION:
+                return input_data
+
         return None
 
 
@@ -798,9 +800,13 @@ class ABCAdapter(object):
 
         entity = self.load_entity_by_gid(datatype_gid)
         if entity is None:
-            if self.KEY_REQUIRED in row and row[self.KEY_REQUIRED]:
-                raise InvalidParameterException("Empty value for required parameter %s " % row[self.KEY_LABEL])
+            ## Validate required DT one more time, after actual retrieval from DB:
+            if row.get(xml_reader.ATT_REQUIRED, False):
+                raise InvalidParameterException("Empty DataType value for required parameter %s [%s]" % (
+                    row[self.KEY_LABEL], row[self.KEY_NAME]))
+
             return None
+
         expected_dt_class = row[self.KEY_TYPE]
         if isinstance(expected_dt_class, (str, unicode)):
             classname = expected_dt_class.split('.')[-1]
@@ -808,8 +814,8 @@ class ABCAdapter(object):
             data_class = eval("data_class." + classname)
             expected_dt_class = data_class
         if not isinstance(entity, expected_dt_class):
-            raise InvalidParameterException("Expected param '%s' of type %s, but got type %s." % (row[self.KEY_LABEL],
-                                            expected_dt_class.__name__, entity.__class__.__name__))
+            raise InvalidParameterException("Expected param %s [%s] of type %s but got type %s." % (
+                row[self.KEY_LABEL], row[self.KEY_NAME], expected_dt_class.__name__, entity.__class__.__name__))
 
         result = entity
 
@@ -834,7 +840,8 @@ class ABCAdapter(object):
         if (dt_filter is not None) and (dt_filter is not False) and \
                 (entity is not None) and not dt_filter.get_python_filter_equivalent(entity):
             ## If a filter is declared, check that the submitted DataType is in compliance to it.
-            raise InvalidParameterException("Field %s did not pass filters." % (row[xml_reader.ATT_NAME],))
+            raise InvalidParameterException("Field %s [%s] did not pass filters." % (row[self.KEY_LABEL],
+                                                                                     row[self.KEY_NAME]))
 
     # In case a specific field in entity is to be used, use it
         if xml_reader.ATT_FIELD in row:
