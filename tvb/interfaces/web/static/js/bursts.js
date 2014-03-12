@@ -701,7 +701,7 @@ function savePortletParams() {
 			       		doAjaxCall({  	type: "GET",
 									url: '/burst/check_status_for_visualizer/' + selectedTab + '/' + indexInTab + '/' + width + '/' + height,
 					                success: function(r) {
-					                	currentPortletDiv.replaceWith(r); 
+					                	currentPortletDiv.replaceWith(r);
 					                	$("#portlets-display").show();
 					                } ,
 					                error: function() {
@@ -759,6 +759,7 @@ function showPortletParametersPage(tabIdx) {
                     var portletElem = $("#portlet-param-config");
                 	portletElem.empty();
                 	portletElem.append(r);
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, "portlet-param-config"]);
                 	$("#portlets-display").hide();
 					portletElem.show();
 					updatePortletsToolbar(2);
@@ -820,7 +821,7 @@ function checkIfPortletDone(portlet_element_id, timedSelectedTab, timedTabIndex)
 			                		var new_portlet_id = $(".portlet-" + timedTabIndex)[0].id;
 			                		var timeout = setTimeout("checkIfPortletDone('" + new_portlet_id + "'," + selectedTab + ", " + timedTabIndex + ")", 3000);
 									refreshTimeouts.push(timeout);
-			                	} 
+			                	}
 		                	}
 		                } ,
 		                error: function() {
@@ -886,6 +887,7 @@ function changeBurstTile(selectedHref) {
 	            success: function(r) {    
 					$("#portlets-display").replaceWith(r);
 					_setPortletRefreshTimeouts();
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, "portlets-display"]);
 	            } ,
 	            error: function() {
 	                displayMessage("Visualizers selection was not properly saved.", "errorMessage");
@@ -1033,6 +1035,7 @@ function loadBurst(burst_id) {
 								});
 							$("#portlets-display").replaceWith(portlets); 
 							_setPortletRefreshTimeouts();
+                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "portlets-display"]);
 							displayMessage("Simulation successfully loaded!");
 				        } ,
 			        	error: function() {
