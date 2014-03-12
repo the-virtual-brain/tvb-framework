@@ -37,6 +37,7 @@ from tvb.adapters.visualizers.brain import BrainEEG, BrainViewer
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.sensors import SensorsInternal, SensorsEEG, SensorsMEG
 from tvb.datatypes.surfaces import EEGCap
+from tvb.datatypes.surfaces_data import SurfaceData
 
 
 class InternalSensorViewer(ABCDisplayer):
@@ -49,23 +50,27 @@ class InternalSensorViewer(ABCDisplayer):
 
     def get_input_tree(self):
         return [{'name': 'sensors', 'label': 'Sensors', 'description': 'Internals sensors to view',
-                 'type': SensorsInternal, 'required': True}]
+                 'type': SensorsInternal, 'required': True},
+                {'name': 'shell_surface', 'label': 'Shell Surface',
+                 'type': SurfaceData, 'required': False,
+                 'description': "Wrapping surface over the internal sensors, "
+                                "to be displayed semi-transparently, for visual purposes only."}]
 
-    def launch(self, sensors):
+    def launch(self, sensors, shell_surface=None):
         """
-        SensorsInternal have full 3D positions to diaplay
+        SensorsInternal have full 3D positions to display
         """
         measure_points_info = BrainEEG.get_sensor_measure_points(sensors)
         measure_points_nr = measure_points_info[2]
 
         params = {
-            'shelfObject': BrainViewer.get_default_face(),
+            'shelfObject': BrainViewer.get_shell_surface_urls(shell_surface),
             'urlMeasurePoints': measure_points_info[0],
             'urlMeasurePointsLabels': measure_points_info[1],
             'noOfMeasurePoints': measure_points_info[2],
             'minMeasure': 0,
             'maxMeasure': measure_points_nr,
-            'urlMeasure' : ''
+            'urlMeasure': ''
         }
 
         return self.build_display_result('sensors/sensors_internal', params,
@@ -107,7 +112,7 @@ class EegSensorViewer(ABCDisplayer):
         measure_points_info = BrainEEG.compute_sensor_surfacemapped_measure_points(sensors, eeg_cap)
         measure_points_nr = measure_points_info[2]
         params = {
-            'shelfObject': BrainViewer.get_default_face(),
+            'shelfObject': BrainViewer.get_shell_surface_urls(),
             'urlVertices': '', 'urlTriangles': '',
             'urlLines': '[]', 'urlNormals': '',
             'boundaryURL': '', 'urlAlphas': '', 'urlAlphasIndices': '',
@@ -116,7 +121,7 @@ class EegSensorViewer(ABCDisplayer):
             'noOfMeasurePoints': measure_points_nr,
             'minMeasure': 0,
             'maxMeasure': measure_points_nr,
-            'urlMeasure' : ''
+            'urlMeasure': ''
         }
 
         if eeg_cap is not None:

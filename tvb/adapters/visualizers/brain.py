@@ -41,6 +41,7 @@ from tvb.basic.filters.chain import FilterChain
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.surfaces import RegionMapping, EEGCap, FaceSurface
+from tvb.datatypes.surfaces_data import SurfaceData
 from tvb.datatypes.time_series import TimeSeries, TimeSeriesSurface, TimeSeriesSEEG
 
 
@@ -154,15 +155,21 @@ class BrainViewer(ABCDisplayer):
 
 
     @staticmethod
-    def get_default_face():
-        face_surface = dao.get_generic_entity(FaceSurface, 'FaceSurface', 'type')
-        if not face_surface:
-            raise Exception('No face object found in database.')
-        face_vertices, face_normals, _, face_triangles = face_surface[0].get_urls_for_rendering()
+    def get_shell_surface_urls(shell_surface=None):
+
+        if shell_surface is None:
+            shell_surface = dao.get_generic_entity(FaceSurface, 'FaceSurface', 'type')
+
+            if not shell_surface:
+                raise Exception('No face object found in database.')
+
+            shell_surface = shell_surface[0]
+
+        face_vertices, face_normals, _, face_triangles = shell_surface.get_urls_for_rendering()
         return json.dumps([face_vertices, face_normals, face_triangles])
 
 
-    def compute_parameters(self, time_series):
+    def compute_parameters(self, time_series, shell_surface=None):
         """
         Create the required parameter dictionary for the HTML/JS viewer.
 
@@ -183,7 +190,7 @@ class BrainViewer(ABCDisplayer):
         min_val, max_val = time_series.get_min_max_values()
         legend_labels = self._compute_legend_labels(min_val, max_val)
 
-        face_object = BrainViewer.get_default_face()
+        face_object = BrainViewer.get_shell_surface_urls(shell_surface)
 
         data_shape = time_series.read_data_shape()
         state_variables = time_series.labels_dimensions.get(time_series.labels_ordering[1], [])
@@ -344,13 +351,13 @@ class BrainEEG(BrainViewer):
         return measure_point_info
 
 
-    def launch(self, surface_activity, eeg_cap=None):
+    def launch(self, surface_activity, eeg_cap=None, shell_surface=None):
         """
         Overwrite Brain Visualizer launch and extend functionality,
         by adding a Monitor set of parameters near.
         """
         self.eeg_cap = eeg_cap
-        params = BrainViewer.compute_parameters(self, surface_activity)
+        params = BrainViewer.compute_parameters(self, surface_activity, shell_surface)
         params.update(EegMonitor().compute_parameters(surface_activity))
         params['biHemispheric'] = False
         params['extended_view'] = True
@@ -378,7 +385,7 @@ class BrainEEG(BrainViewer):
         bi_hemisphere = False
 
         return one_to_one_map, url_vertices, url_normals, url_lines, url_triangles, \
-               alphas, alphas_indices, hemispheres_mask, bi_hemisphere
+            alphas, alphas_indices, hemispheres_mask, bi_hemisphere
 
 
 
@@ -393,15 +400,18 @@ class BrainSEEG(BrainEEG):
     def get_input_tree(self):
         return [{'name': 'surface_activity', 'label': 'SEEG activity',
                  'type': TimeSeriesSEEG, 'required': True,
-                 'description': 'Results after SEEG Monitor are expected!'}]
+                 'description': 'Results after SEEG Monitor are expected!'},
+                {'name': 'shell_surface', 'label': 'Surface',
+                 'type': SurfaceData, 'required': False,
+                 'description': "Surface to be displayed semi-transparently, for visual purposes only."}]
 
 
     def retrieve_measure_points(self, surface_activity):
         return BrainEEG.get_sensor_measure_points(surface_activity.sensors)
 
 
-    def launch(self, surface_activity, eeg_cap=None):
-        result_params = BrainEEG.launch(self, surface_activity)
+    def launch(self, surface_activity, shell_surface=None):
+        result_params = BrainEEG.launch(self, surface_activity, shell_surface=shell_surface)
         result_params['brainViewerTemplate'] = "internal_view.html"
         # Mark as None since we only display shelf face and no point to load these as well
         result_params['urlVertices'] = None
