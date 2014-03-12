@@ -36,7 +36,9 @@
 		                        <tr>
 		                        	<py:for each="iterate in range(noOfColumns)">
 		                                <td id='td_${labels_for_ts[channel * noOfColumns + iterate][1]}'>
-		                                    <input type='checkbox' id='channelChk_${labels_for_ts[channel * noOfColumns + iterate][1]}' onchange="updateChannelsList(this, ${channelsArray});"/>
+		                                    <input type='checkbox' id='channelChk_${labels_for_ts[channel * noOfColumns + iterate][1]}'
+                                                   onchange="updateChannelsList(this, ${channelsArray});"
+                                                   autocomplete="off" />
 		                                    ${labels_for_ts[channel * noOfColumns + iterate][0]}
 		                                </td>
 		                            </py:for>
@@ -49,7 +51,9 @@
 		                        	<py:for each="iterate in range(noOfColumns)">
 		                        		<py:if test="(channel * noOfColumns + iterate) &lt; len(labels_for_ts)">
 		    	                            <td id='td_${labels_for_ts[channel * noOfColumns + iterate][1]}'>
-		    	                                <input type='checkbox' id='channelChk_${labels_for_ts[channel * noOfColumns + iterate][1]}' onchange="updateChannelsList(this, ${channelsArray});"/>
+		    	                                <input type='checkbox' id='channelChk_${labels_for_ts[channel * noOfColumns + iterate][1]}'
+                                                       onchange="updateChannelsList(this, ${channelsArray});"
+                                                       autocomplete="off" />
 		    	                                ${labels_for_ts[channel * noOfColumns + iterate][0]}
 		    	                            </td>
 		                                </py:if>

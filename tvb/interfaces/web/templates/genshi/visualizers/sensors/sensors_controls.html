@@ -4,16 +4,18 @@
 
         <dt>Toggle</dt>
         <dd>
-            <input id="displayFaceChkId" type="checkbox" onchange="switchFaceObject();" tabindex="1"
-               title="Face approximative will move along with brain navigator." />
+            <input id="displayFaceChkId" type="checkbox" onchange="switchFaceObject();"
+                   autocomplete="off" tabindex="1"
+                   title="Face approximative will move along with brain navigator." />
             <label for="displayFaceChkId" >face approximative shade</label>
         </dd>
 
 		<py:if test="value_of('urlVertices')">
             <dt></dt>
             <dd>
-                <input id="ctrl-action-points" type="checkbox" onchange="wireFrame();" tabindex="1"
-                    title="Display only a cloud of points, without triangles" />
+                <input id="ctrl-action-points" type="checkbox" onchange="wireFrame();"
+                       autocomplete="off" tabindex="1"
+                       title="Display only a cloud of points, without triangles" />
                 <label for="ctrl-action-points" >points display</label>
             </dd>
         </py:if>

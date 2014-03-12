@@ -4,43 +4,50 @@
         <py:if test="biHemispheric">
             <dt> View hemispheres </dt>
             <dd>
-                <input id="hemisphereRadio_1" type="radio" name="hemisphereRadio" onchange="VS_SetHemisphere(null);" checked="checked" />
+                <input id="hemisphereRadio_1" type="radio" autocomplete="off" name="hemisphereRadio"
+                       onchange="VS_SetHemisphere(null);" checked="checked" />
                 <label for="hemisphereRadio_1">both</label>
                 <br/>
-                <input id="hemisphereRadio_2" type="radio" name="hemisphereRadio" onchange="VS_SetHemisphere('l');" />
+                <input id="hemisphereRadio_2" type="radio" autocomplete="off" name="hemisphereRadio"
+                       onchange="VS_SetHemisphere('l');" />
                 <label for="hemisphereRadio_2">left</label>
                 <br/>
-                <input id="hemisphereRadio_3" type="radio" name="hemisphereRadio" onchange="VS_SetHemisphere('r');" />
+                <input id="hemisphereRadio_3" type="radio" autocomplete="off" name="hemisphereRadio"
+                       onchange="VS_SetHemisphere('r');" />
                 <label for="hemisphereRadio_3">right</label>
             </dd>
         </py:if>
 
         <dt>Toggle</dt>
-        <dd><input id="showBrainLines" type="checkbox" onchange="toggleDrawTriangleLines();" tabindex="1"/>
+        <dd><input id="showBrainLines" type="checkbox" onchange="toggleDrawTriangleLines();"
+                   autocomplete="off" tabindex="1"/>
             <label for="showBrainLines">surface triangles</label>
         </dd>
 
         <dt></dt>
-        <dd><input id="showSpeculars" type="checkbox" onchange="setSpecularHighLights(this.checked);" checked="checked"/>
+        <dd><input id="showSpeculars" type="checkbox" onchange="setSpecularHighLights(this.checked);"
+                   autocomplete="off" checked="checked"/>
             <label for="showSpeculars">shiny surface</label>
         </dd>
 
         <dt></dt>
         <dd>
             <input id="ctrl-action-points" type="checkbox" onchange="wireFrame();" tabindex="1"
-                title="Display only a cloud of points, without triangles" />
+                   autocomplete="off" title="Display only a cloud of points, without triangles" />
             <label for="ctrl-action-points">points display</label>
         </dd>
 
         <py:if test="hasRegionMap">
             <dt></dt>
             <dd>
-                <input id="showBrainBoundaries" type="checkbox" onchange="toggleDrawBoundaries();" tabindex="1"/>
+                <input id="showBrainBoundaries" type="checkbox" onchange="toggleDrawBoundaries();"
+                       autocomplete="off" tabindex="1"/>
                 <label for="showBrainBoundaries">region boundaries</label>
             </dd>
 
             <dt></dt>
-            <dd><input id="showMeasurePoints" type="checkbox" onchange="toggleMeasureNodes();" tabindex="1"/>
+            <dd><input id="showMeasurePoints" type="checkbox" onchange="toggleMeasureNodes();"
+                       autocomplete="off" tabindex="1"/>
                 <label for="showMeasurePoints">measure points</label>
             </dd>
         </py:if>
