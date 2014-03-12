@@ -44,6 +44,10 @@ border: none;
 min-width: 1206px;
 }
 
+#main.columnized #s-brain{
+float:none;
+}
+
 html#s-brain #main .monitor:last-child:after {
 content: "";
 display: table;

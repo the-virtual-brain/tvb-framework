@@ -1,4 +1,4 @@
-<div id="s-brain" class="${'brain' if not extended_view else ''}" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+<div id="s-brain" class="${'brain view-column' if not extended_view else ''}" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
     <xi:include href="../commons/gl_view_header.html" />
     <xi:include href="../commons/fragment_shader.html" />
 	<xi:include href="../commons/vertex_shader.html" />
@@ -15,6 +15,6 @@
             EX_initializeChannels();
         });
     </script>
-
+    <xi:include href="../commons/activity_toolbar.html" />
     <xi:include href="../commons/gl_view_after.html" py:with="show_navigator=not extended_view"/>
 </div>

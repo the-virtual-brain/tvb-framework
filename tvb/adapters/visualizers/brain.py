@@ -200,7 +200,10 @@ class BrainViewer(ABCDisplayer):
                     minActivityLabels=legend_labels, labelsStateVar=state_variables, labelsModes=range(data_shape[3]),
                     extended_view=False, shelfObject=face_object,
                     biHemispheric=biHemispheres, hemisphereChunkMask=json.dumps(hemisphere_chunk_mask),
-                    time_series=time_series, pageSize=self.PAGE_SIZE, boundary_url=boundary_url)
+                    time_series=time_series, pageSize=self.PAGE_SIZE, boundary_url=boundary_url,
+                    labels=time_series.get_space_labels(),
+                    shape=time_series.read_data_shape1(),
+                    ts_title=time_series.title )
 
 
     @staticmethod

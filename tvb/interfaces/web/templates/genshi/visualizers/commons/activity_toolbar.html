@@ -1,0 +1,19 @@
+<ul class="toolbar-inline" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <li>
+        <button id="ctrl-action-pause" class="action action-controller-pause" title="Pause/Start Drawing"
+                onclick="pauseMovie();" tabindex="1">Pause activity</button>
+    </li>
+
+    <li class="channel-selector" py:if="not isOneToOneMapping and not extended_view">
+        <nav class="inline-menu">
+            <button class="action action-menu">Select channels</button>
+
+            <div class="extension">
+                <div class="dropdown-pane">
+                    <xi:include href="../commons/channel_selector.html" />
+                    ${drawCheckboxes(shape[0], 7, ts_title, [(value, idx) for idx, value in enumerate(labels)], 'VS_selectedChannels')}
+                </div>
+            </div>
+        </nav>
+        </li>
+</ul>

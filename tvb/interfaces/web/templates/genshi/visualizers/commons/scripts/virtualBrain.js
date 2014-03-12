@@ -128,10 +128,23 @@ var displayMeasureNodes = false;
 
 var drawTriangleLines = false;
 var drawBoundaries = false;
+/**
+ * Used to determine which buffer chunks belong to a hemisphere.
+ * The chunks are used to limit geometry size for a draw call.
+ */
 var VS_hemisphere_chunk_mask = null;
 var bufferSetsMask = null;
 var VS_hemisphereVisibility = null;
-
+/**
+ * What regions are selected to be shown.
+ * Unselected regions  are greyed out.
+ * This is used only by the brain activity movie for region level activity.
+ * For static viewers it is initialized to a full selection
+ */
+var VS_selectedChannels = [];
+/**
+ * camera settings
+ */
 var near = 0.1;
 var fov = 45;
 GL_DEFAULT_Z_POS = 250;
@@ -244,6 +257,7 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
         // The activity data will contain just one frame containing the values of the connectivity measure.
         activitiesData = [measure];
     }
+    _initChannelSelection();
 
     GL_zTranslation = GL_DEFAULT_Z_POS;
     
@@ -276,6 +290,7 @@ function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVert
 
     // initialize global data
     _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePointsLabels);
+    _initChannelSelection();
     _initTimeData(urlTimeList);
     initActivityData();
 
@@ -338,6 +353,17 @@ function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, 
     _VS_movie_entrypoint.apply(this, arguments);
     _VS_init_cubicalMeasurePoints();
 
+    if (!isDoubleView){
+        // If this is a brain activity viewer then we have to initialize the selection
+        // with VS_selectedChannels
+        // the selection component takes care of further state synchronizing
+        // For the double view the selection is the responsability of the extended view functions
+        for(var i = 0; i < NO_OF_MEASURE_POINTS; i++){
+            if (VS_selectedChannels.indexOf(i) != -1){
+                $("#channelChk_" + i).attr('checked', true);
+            }
+        }
+    }
 }
 
 function _isValidActivityData(){
@@ -482,6 +508,12 @@ function _initSliders(){
     $("#Infobox").html("");
 }
 
+function _initChannelSelection(){
+    for(var i = 0; i < NO_OF_MEASURE_POINTS; i++){
+        VS_selectedChannels.push(i);
+    }
+}
+
 ////////////////////////////////////////// GL Initializations //////////////////////////////////////////
 
 function customInitGL(canvas) {
@@ -583,11 +615,11 @@ function customMouseDown(event) {
 /**
  * Update colors for all Positions on the brain.
  */
-    
+
 function updateColors(currentTimeInFrame) {
 
     var currentActivity = activitiesData[currentTimeInFrame];
-
+    var theme = ColSchGetTheme().surfaceViewer;
     if (isOneToOneMapping) {
         for (var i = 0; i < brainBuffers.length; i++) {
             // Reset color buffers at each step.
@@ -605,8 +637,13 @@ function updateColors(currentTimeInFrame) {
         }
     } else {
         for (var ii = 0; ii < NO_OF_MEASURE_POINTS; ii++) {
-            var rgb = getGradientColor(currentActivity[ii], activityMin, activityMax);
-            gl.uniform4f(shaderProgram.colorsUniform[ii], rgb[0], rgb[1], rgb[2], 1);
+            if(VS_selectedChannels.indexOf(ii) != -1){
+                var rgb = getGradientColor(currentActivity[ii], activityMin, activityMax);
+                gl.uniform4f(shaderProgram.colorsUniform[ii], rgb[0], rgb[1], rgb[2], 1);
+            }else{
+                gl.uniform4f(shaderProgram.colorsUniform[ii],
+                    theme.mutedRegionColor[0], theme.mutedRegionColor[1], theme.mutedRegionColor[2], 1);
+            }
         }
         // default color for a measure point
         gl.uniform4f(shaderProgram.colorsUniform[NO_OF_MEASURE_POINTS], 0.34, 0.95, 0.37, 1.0);

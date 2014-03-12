@@ -265,7 +265,8 @@ var ColSchDarkTheme = {
         backgroundColor: [0.05, 0.05, 0.05, 1.0]
     },
     surfaceViewer : {
-        backgroundColor: [0.05, 0.05, 0.05, 1.0]
+        backgroundColor: [0.05, 0.05, 0.05, 1.0],
+        mutedRegionColor : [0.1, 0.1, 0.1]
             //, boundaryLineColor
     //, navigatorColor
     //, faceColor
@@ -285,7 +286,8 @@ var ColSchLightTheme = {
         backgroundColor: [1.0, 1.0, 1.0, 1.0]
     },
     surfaceViewer : {
-        backgroundColor: [1.0, 1.0, 1.0, 1.0]
+        backgroundColor: [1.0, 1.0, 1.0, 1.0],
+        mutedRegionColor : [0.8, 0.8, 0.8]
     }
 };
 
@@ -301,7 +303,8 @@ var ColSchTransparentTheme = {
         backgroundColor: [0.0, 0.0, 0.0, 0.0]
     },
     surfaceViewer : {
-        backgroundColor: [0.0, 0.0, 0.0, 0.0]
+        backgroundColor: [0.0, 0.0, 0.0, 0.0],
+        mutedRegionColor : [0.8, 0.8, 0.8]
     }
 };
 

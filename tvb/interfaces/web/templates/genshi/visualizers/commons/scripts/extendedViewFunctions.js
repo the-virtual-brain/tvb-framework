@@ -22,23 +22,25 @@
  */
 
 function EX_initializeChannels() {
+    // Point the brain selected channel buffer to the eeg selection buffer
+    // both globals will point to the same array
+    // this is a hack: the channel selection component does not raise change events yet
+    // it changes AG_submitableSelectedChannels after these change events are triggered by drawscene picks
+    // selecting a node in webgl will not work without this
+    VS_selectedChannels = AG_submitableSelectedChannels;
+
+    function on_channel_change(){
+        var index = this.id.split("channelChk_")[1];
+        EX_changeColorBufferForMeasurePoint(index, this.checked);
+    }
     if (isDoubleView) {
         $("#checkAllChannelsBtn").click(function() {
-            $("input[id^='channelChk_']").each(function () {
-                var index = this.id.split("channelChk_")[1];
-                EX_changeColorBufferForMeasurePoint(index, this.checked);
-            });
+            $("input[id^='channelChk_']").each(on_channel_change);
         });
         $("#clearAllChannelsBtn").click(function() {
-            $("input[id^='channelChk_']").each(function () {
-                var index = this.id.split("channelChk_")[1];
-                EX_changeColorBufferForMeasurePoint(index, this.checked);
-            });
+            $("input[id^='channelChk_']").each(on_channel_change);
         });
-        $("input[id^='channelChk_']").change(function() {
-            var index = this.id.split("channelChk_")[1];
-            EX_changeColorBufferForMeasurePoint(index, this.checked);
-        });
+        $("input[id^='channelChk_']").change(on_channel_change);
         $("#refreshChannelsButton").click(function() {
         	initActivityData();
         });
@@ -63,22 +65,17 @@ function EX_changeColorBufferForMeasurePoint(measurePointIndex, isPicked) {
  * Initialization function for Channels, when sensor internals.
  */
 function EX_initializeChannelsForSensorsInternal() {
-    $("#checkAllChannelsBtn").click(function() {
-        $("input[id^='channelChk_']").each(function () {
-            var index = this.id.split("channelChk_")[1];
-            _changeColorBufferForMeasurePointSensorInternal(index, this.checked);
-        });
-    });
-    $("#clearAllChannelsBtn").click(function() {
-        $("input[id^='channelChk_']").each(function () {
-            var index = this.id.split("channelChk_")[1];
-            _changeColorBufferForMeasurePointSensorInternal(index, this.checked);
-        });
-    });
-    $("input[id^='channelChk_']").change(function() {
+    function on_channel_change(){
         var index = this.id.split("channelChk_")[1];
         _changeColorBufferForMeasurePointSensorInternal(index, this.checked);
+    }
+    $("#checkAllChannelsBtn").click(function() {
+        $("input[id^='channelChk_']").each(on_channel_change);
     });
+    $("#clearAllChannelsBtn").click(function() {
+        $("input[id^='channelChk_']").each(on_channel_change);
+    });
+    $("input[id^='channelChk_']").change(on_channel_change);
     $("#refreshChannelsButton").click(function() {
         initActivityData();
     });
