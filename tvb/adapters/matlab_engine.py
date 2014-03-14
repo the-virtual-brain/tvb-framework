@@ -44,14 +44,16 @@ as well.
 # import the FFI
 from ctypes import *
 
-
-
+try:
+    # open the engine library
+    lib = CDLL('libeng.so')
+except OSError:
+    ## TODO What to do in this case? Should work cross-platform.
+    pass
 
 
 class MATLABEngine(object):
     _buffer, _buffer_size = None, 0
-    # open the engine library
-    lib = CDLL('libeng.so')
 
 
     def _set_buffer_size(self, val):
@@ -76,13 +78,13 @@ class MATLABEngine(object):
 
 
     def __init__(self, startcmd="", bufsize=100 * 1024):
-        self._eng = MATLABEngine.lib.engOpen(startcmd)
+        self._eng = lib.engOpen(startcmd)
         self.buffer_size = bufsize
-        MATLABEngine.lib.engOutputBuffer(self._eng, self._buffer, self.buffer_size)
+        lib.engOutputBuffer(self._eng, self._buffer, self.buffer_size)
 
 
     def __del__(self):
-        MATLABEngine.lib.engClose(self._eng)
+        lib.engClose(self._eng)
 
 
     def __call__(self, cmd, out='print'):
@@ -90,7 +92,7 @@ class MATLABEngine(object):
             cmd = str(cmd)
 
         print '>> ', cmd
-        MATLABEngine.lib.engEvalString(self._eng, cmd)
+        lib.engEvalString(self._eng, cmd)
 
         if out == 'print':
             print self.output
