@@ -155,15 +155,15 @@ class BrainViewer(ABCDisplayer):
 
 
     @staticmethod
-    def get_shell_surface_urls(shell_surface=None):
+    def get_shell_surface_urls(shell_surface=None, project_id=0):
 
         if shell_surface is None:
-            shell_surface = dao.get_generic_entity(FaceSurface, 'FaceSurface', 'type')
+            shell_surface = dao.get_values_of_datatype(project_id, FaceSurface)
 
             if not shell_surface:
                 raise Exception('No face object found in database.')
 
-            shell_surface = shell_surface[0]
+            shell_surface = ABCDisplayer.load_entity_by_gid(shell_surface[-1][2])
 
         face_vertices, face_normals, _, face_triangles = shell_surface.get_urls_for_rendering()
         return json.dumps([face_vertices, face_normals, face_triangles])
@@ -190,7 +190,7 @@ class BrainViewer(ABCDisplayer):
         min_val, max_val = time_series.get_min_max_values()
         legend_labels = self._compute_legend_labels(min_val, max_val)
 
-        face_object = BrainViewer.get_shell_surface_urls(shell_surface)
+        face_object = BrainViewer.get_shell_surface_urls(shell_surface, self.current_project_id)
 
         data_shape = time_series.read_data_shape()
         state_variables = time_series.labels_dimensions.get(time_series.labels_ordering[1], [])

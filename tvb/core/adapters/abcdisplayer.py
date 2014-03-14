@@ -74,6 +74,7 @@ class ABCDisplayer(ABCSynchronous):
         Shortcut in case of visualization calls.
         """
         self.operation_id = operation.id
+        self.current_project_id = operation.project.id
         if operation.method_name == self.LAUNCH_METHOD:
             return self.launch(**kwargs), 0
         ## few methods are called from Visualizers directly (e.g. Connectivity Submit).

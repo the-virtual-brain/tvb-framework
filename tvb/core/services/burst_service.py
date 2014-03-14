@@ -379,7 +379,9 @@ class BurstService():
                         self.workflow_service.set_dynamic_step_references(visualizer, workflow_step_list[-1].step_index)
                     else:
                         self.workflow_service.set_dynamic_step_references(visualizer, simulator_index)
-                    workflow_step_list.append(visualizer)
+                    ### Only for a single operation have the step of visualization, otherwise is useless.
+                    if not group_launched:
+                        workflow_step_list.append(visualizer)
 
         if group_launched:
             ###  For a group of operations, make sure the metric for PSE view 
@@ -442,24 +444,27 @@ class BurstService():
         dynamic_params = visualization.dynamic_param
         static_params = visualization.static_param
         parameters_dict = static_params
+        current_project_id = 0
         operation_id = 0
         ## Current operation id needed for export mechanism. So far just use ##
         ## the operation of the workflow_step from which the inputs are taken    ####
         for param in dynamic_params:
             step_index = dynamic_params[param][WorkflowStepConfiguration.STEP_INDEX_KEY]
             datatype_index = dynamic_params[param][WorkflowStepConfiguration.DATATYPE_INDEX_KEY]
-            workflow_step = dao.get_workflow_step_by_step_index(visualization.fk_workflow, step_index)
+            referred_workflow_step = dao.get_workflow_step_by_step_index(visualization.fk_workflow, step_index)
+            referred_operation_id = referred_workflow_step.fk_operation
+            referred_operation = dao.get_operation_by_id(referred_operation_id)
+            current_project_id = referred_operation.project.id
             if type(datatype_index) is IntType:
                 ## Entry is the output of a previous step ##
-                operation_id = workflow_step.fk_operation
-                datatypes = dao.get_results_for_operation(operation_id)
+                datatypes = dao.get_results_for_operation(referred_operation_id)
                 parameters_dict[param] = datatypes[datatype_index].gid
             else:
                 ## Entry is the input of a previous step ###
-                operation = dao.get_operation_by_id(workflow_step.fk_operation)
-                parameters_dict[param] = json.loads(operation.parameters)[datatype_index]
+                parameters_dict[param] = json.loads(referred_operation.parameters)[datatype_index]
         algorithm = dao.get_algorithm_by_id(visualization.fk_algorithm)
         adapter_instance = ABCAdapter.build_adapter(algorithm.algo_group)
+        adapter_instance.current_project_id = current_project_id
         prepared_inputs = adapter_instance.prepare_ui_inputs(parameters_dict)
         if frame_width is not None:
             prepared_inputs[ABCDisplayer.PARAM_FIGURE_SIZE] = (frame_width, frame_height)
