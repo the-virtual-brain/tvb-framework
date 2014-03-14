@@ -66,7 +66,7 @@ def update():
                                              page_end=min(page_start + PAGE_SIZE, projects_count))
 
         for project in projects_page:
-            figures =  _figures_in_project(project.id)
+            figures = _figures_in_project(project.id)
 
             for figure in figures:
                 figure.file_path = "%s-%s" % (figure.operation.id, figure.file_path)
