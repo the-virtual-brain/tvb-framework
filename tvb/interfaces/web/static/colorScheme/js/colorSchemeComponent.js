@@ -153,10 +153,11 @@ function ColSch_setColorScheme(scheme, notify_server) {
     }
 }
 
-function _loadInitialColorScheme(){
+function ColSch_loadInitialColorScheme(async){
 
     doAjaxCall({
         url:'/user/get_viewer_color_scheme',
+        async: async,
         success:function(data){
             ColSch_setColorScheme(JSON.parse(data), false);
         },
@@ -213,7 +214,7 @@ function ColSch_initColorSchemeParams(minValue, maxValue, refreshFunction) {
         }
     });
     if (!_colorScheme)                      // on very first call, set the default color scheme
-        _loadInitialColorScheme();
+        ColSch_loadInitialColorScheme(true);
 }
 
 /**

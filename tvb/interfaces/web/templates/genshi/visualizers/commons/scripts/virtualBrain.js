@@ -194,6 +194,7 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
         brainBuffers = initBuffers($.parseJSON(urlVerticesList), $.parseJSON(urlNormalsList), $.parseJSON(urlTrianglesList), 
                                $.parseJSON(urlAlphasList), $.parseJSON(urlAlphasIndicesList), false);
     }
+    ColSch_loadInitialColorScheme(false);
     LEG_generateLegendBuffers();
     
     var theme = ColSchGetTheme().surfaceViewer;
@@ -216,7 +217,6 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
                                boundaryURL, shelfObject, hemisphereChunkMask, showLegend, argDisplayMeasureNodes, argIsFaceToDisplay,
                                minMeasure, maxMeasure, urlMeasure){
     // initialize global configuration
-    isPreview = false;
     isDoubleView = false;
     isOneToOneMapping = false;
     shouldIncrementTime = false;
@@ -278,7 +278,6 @@ function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVert
                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
                     oneToOneMapping, doubleView, shelfObject, hemisphereChunkMask, urlMeasurePointsLabels, boundaryURL) {
     // initialize global configuration
-    isPreview = false;
     isDoubleView = doubleView;
     if (oneToOneMapping == 'True') {
         isOneToOneMapping = true;
@@ -308,9 +307,7 @@ function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVert
 
     _bindEvents(canvas);
 
-    if (!isPreview) {
-        _initSliders();
-    }
+    _initSliders();
 
     //specify the re-draw function.
     if (_isValidActivityData()){
@@ -550,12 +547,11 @@ function VS_multipleImageExport(saveFigure){
 
     if (VS_hemisphere_chunk_mask != null){    // we have 2 hemispheres
         if(VS_hemisphereVisibility == null){  // both are visible => take them apart when taking picture
-            var originalHemisphereVisibility =  VS_hemisphereVisibility;
             VS_SetHemisphere('l');
             saveFrontBack('TVB-cortex-LH-front', 'TVB-cortex-LH-back');
             VS_SetHemisphere('r');
             saveFrontBack('TVB-cortex-RH-front', 'TVB-cortex-RH-back');
-            VS_SetHemisphere(originalHemisphereVisibility);
+            VS_SetHemisphere(VS_hemisphereVisibility);
         }else if(VS_hemisphereVisibility == 'l'){  // LH is visible => take picture of it only
             saveFrontBack('TVB-cortex-LH-front', 'TVB-cortex-LH-back');
         }else if(VS_hemisphereVisibility == 'r'){
@@ -711,11 +707,9 @@ function setTimeStep(newTimeStepsPerTick) {
 }
 
 function resetSpeedSlider() {
-    if (!isPreview) {
-        setTimeStep(1);
-        $("#sliderStep").slider("option", "value", 1);
-        refreshCurrentDataSlice();
-    }
+    setTimeStep(1);
+    $("#sliderStep").slider("option", "value", 1);
+    refreshCurrentDataSlice();
 }
 
 
@@ -984,7 +978,7 @@ function drawRegionBoundaries() {
         drawBuffers(gl.LINES, bufferSets, bufferSetsMask);
         gl.uniform1i(shaderProgram.drawLines, false);
     } else {
-        displayMessage('Boundaries data not yet loaded. Dispaly will refresh automatically when load is finished.', 'infoMessage')      
+        displayMessage('Boundaries data not yet loaded. Display will refresh automatically when load is finished.', 'infoMessage')
     }
 }
 
@@ -1126,9 +1120,7 @@ function drawScene() {
 
         if(isInternalSensorView){
             // for internal sensors we render only the sensors
-            if (!isPreview) {
-                drawBuffers(gl.TRIANGLES, measurePointsBuffers);
-            }
+            drawBuffers(gl.TRIANGLES, measurePointsBuffers);
         } else {
             // draw surface
             drawBuffers(drawingMode, brainBuffers, bufferSetsMask);
@@ -1144,7 +1136,7 @@ function drawScene() {
             }
             gl.uniform1i(shaderProgram.vertexLineColor, false);
 
-            if (!isPreview && displayMeasureNodes) {
+            if (displayMeasureNodes) {
                 drawBuffers(gl.TRIANGLES, measurePointsBuffers);
             }
         }
