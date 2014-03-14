@@ -29,10 +29,11 @@
 #
 
 """
-module docstring
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+
 from tvb.basic.logger.builder import get_logger
+
 
 class ObjParser(object):
     """
@@ -94,4 +95,5 @@ class ObjParser(object):
                 else:
                     self.logger.warn("Unsupported token type %s" % data_type)
         except ValueError as ex:
-            raise ValueError(str(ex) + " at line %d" % line_nr)
+            raise ValueError("%s at line %d" % (ex, line_nr))
+

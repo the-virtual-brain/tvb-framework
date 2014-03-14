@@ -29,13 +29,14 @@
 #
 
 """
-module docstring
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+
 from tvb.adapters.uploaders.obj.parser import ObjParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException
 import numpy as np
+
 
 class ObjSurface(object):
     """
@@ -43,6 +44,7 @@ class ObjSurface(object):
     self.triangles , self.vertices , self.normals are numpy arrays shaped (n, 3)
     self.triangles contains indices.
     """
+
     def __init__(self, obj_file):
         """
         Create a surface from an obj file
@@ -55,7 +57,7 @@ class ObjSurface(object):
 
             self.triangles = []
             self.vertices = obj.vertices
-            self.normals = [(0.0,0.0,0.0)] * len(self.vertices)
+            self.normals = [(0.0, 0.0, 0.0)] * len(self.vertices)
             self.have_normals = len(obj.normals)
 
             for face in obj.faces:
@@ -77,14 +79,18 @@ class ObjSurface(object):
             self.logger.exception(" Error in obj")
             raise ParseException(str(ex))
 
+
     def _triangulate(self, face):
-        "Triangulate a quad. Higher order truncated."
-        if len(face) > 4 :
+        """
+        Triangulate a quad. Higher order will get truncated.
+        """
+        if len(face) > 4:
             self.logger.warn("truncated face to a quad")
         triangles = face[:3]
         if len(face) == 4:
             triangles += [face[0], face[2], face[3]]
         return triangles
+
 
     def _to_numpy(self):
         self.vertices = np.array(self.vertices)
@@ -97,4 +103,4 @@ class ObjSurface(object):
         else:
             self.normals = None
 
-        self.triangles = np.array(self.triangles).reshape( (len(self.triangles)/3 , 3))
+        self.triangles = np.array(self.triangles).reshape((len(self.triangles) / 3, 3))

@@ -36,7 +36,6 @@ from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.constants import OPTION_SURFACE_CORTEX, OPTION_SURFACE_SKINAIR, OPTION_SURFACE_FACE
 from tvb.adapters.uploaders.handler_surface import create_surface_of_type
 from tvb.adapters.uploaders.obj.surface import ObjSurface
-from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.entities.storage import transactional
 from tvb.datatypes.surfaces import CorticalSurface, SkinAir, FaceSurface
@@ -46,7 +45,7 @@ class ObjSurfaceImporter(ABCUploader):
     """
     This imports geometry data stored in wavefront obj format
     """
-    _ui_name = "Obj surface"
+    _ui_name = "Surface OBJ"
     _ui_subsection = "obj_importer"
     _ui_description = "Import geometry data stored in wavefront obj format"
 
@@ -87,9 +86,11 @@ class ObjSurfaceImporter(ABCUploader):
             surface.vertices = obj.vertices
             surface.triangles = obj.triangles
             if obj.normals:
+                self.log.debug("OBJ came with normals included")
                 surface.vertex_normals = obj.normals
+            else:
+                self.log.warning("OBJ came without normals. We will try to compute them...")
             return [surface]
         except ParseException, excep:
-            logger = get_logger(__name__)
-            logger.exception(excep)
+            self.log.exception(excep)
             raise LaunchException(excep)
