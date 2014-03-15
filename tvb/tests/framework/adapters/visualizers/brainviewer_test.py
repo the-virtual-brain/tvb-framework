@@ -85,6 +85,7 @@ class BrainViewerTest(TransactionalTestCase):
         """
         time_series = self.datatypeFactory.create_timeseries(self.connectivity)
         viewer = BrainViewer()
+        viewer.current_project_id = self.test_project.id
         result = viewer.launch(time_series=time_series)
         expected_keys = ['urlVertices', 'urlNormals', 'urlTriangles', 'urlMeasurePointsLabels', 'title', 
                          'time_series', 'shelfObject', 'pageSize', 'labelsStateVar', 'labelsModes',
@@ -127,6 +128,7 @@ class BrainViewerTest(TransactionalTestCase):
         time_series = self.datatypeFactory.create_timeseries(self.connectivity, 'EEG', sensors)
         time_series.configure()
         viewer = BrainEEG()
+        viewer.current_project_id = self.test_project.id
         result = viewer.launch(time_series)
         expected_keys = ['urlVertices', 'urlNormals', 'urlTriangles', 'urlMeasurePointsLabels', 'title', 
                          'time_series', 'shelfObject', 'pageSize', 'labelsStateVar', 'labelsModes',
