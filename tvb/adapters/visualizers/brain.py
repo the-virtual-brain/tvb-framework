@@ -320,7 +320,7 @@ class BrainEEG(BrainViewer):
 
 
     @staticmethod
-    def compute_sensor_surfacemapped_measure_points(sensors, eeg_cap=None):
+    def compute_sensor_surfacemapped_measure_points(project_id, sensors, eeg_cap=None):
         """
         Compute sensors positions by mapping them to the ``eeg_cap`` surface
         If ``eeg_cap`` is not specified the mapping will use a default.
@@ -331,9 +331,9 @@ class BrainEEG(BrainViewer):
         """
 
         if eeg_cap is None:
-            cap_eeg = dao.get_generic_entity(EEGCap, "EEGCap", "type")
-            if cap_eeg:
-                eeg_cap = cap_eeg[0]
+            eeg_cap = dao.get_values_of_datatype(project_id, EEGCap)
+            if eeg_cap:
+                eeg_cap = ABCDisplayer.load_entity_by_gid(eeg_cap[-1][2])
 
         if eeg_cap:
             datatype_kwargs = json.dumps({'surface_to_map': eeg_cap.gid})
@@ -344,7 +344,8 @@ class BrainEEG(BrainViewer):
 
 
     def retrieve_measure_points(self, surface_activity, eeg_cap=None):
-        measure_point_info = BrainEEG.compute_sensor_surfacemapped_measure_points(surface_activity.sensors, eeg_cap)
+        measure_point_info = BrainEEG.compute_sensor_surfacemapped_measure_points(self.current_project_id,
+                                                                                  surface_activity.sensors, eeg_cap)
         if measure_point_info is None:
             measure_point_info = BrainEEG.get_sensor_measure_points(surface_activity.sensors)
         return measure_point_info

@@ -175,6 +175,17 @@ class BaseTestCase(unittest.TestCase):
         init_test_env()
 
 
+    def assert_compliant_dictionary(self, expected, found_dict):
+        """
+        Compare two dictionaries, especially as keys.
+        When in expected_dictionary the value is not None, validate also to be found in found_dict.
+        """
+        for key, value in expected.iteritems():
+            self.assertTrue(key in found_dict, "%s not found in result" % key)
+            if value is not None:
+                self.assertEqual(value, found_dict[key])
+
+
 
 
 def transactional_test(func, callback=None):

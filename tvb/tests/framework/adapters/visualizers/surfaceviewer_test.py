@@ -84,10 +84,7 @@ class SurfaceViewersTest(TransactionalTestCase):
         viewer = SurfaceViewer()
         result = viewer.launch(self.surface, self.region_mapping)
 
-        for key, value in self.EXPECTED_KEYS.iteritems():
-            self.assertTrue(key in result, "%s not found in launch result" % key)
-            if value is not None:
-                self.assertEqual(value, result[key])
+        self.assert_compliant_dictionary(self.EXPECTED_KEYS, result)
 
 
     def test_launch_region(self):
@@ -97,10 +94,7 @@ class SurfaceViewersTest(TransactionalTestCase):
         viewer = RegionMappingViewer()
         result = viewer.launch(self.region_mapping)
 
-        for key, value in self.EXPECTED_KEYS.iteritems():
-            self.assertTrue(key in result, "%s not found in launch result" % key)
-            if value is not None:
-                self.assertEqual(value, result[key])
+        self.assert_compliant_dictionary(self.EXPECTED_KEYS, result)
 
 
 

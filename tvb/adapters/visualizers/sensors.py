@@ -109,7 +109,11 @@ class EegSensorViewer(ABCDisplayer):
                 'urlNormals': url_normals}
 
     def launch(self, sensors, eeg_cap=None):
-        measure_points_info = BrainEEG.compute_sensor_surfacemapped_measure_points(sensors, eeg_cap)
+        measure_points_info = BrainEEG.compute_sensor_surfacemapped_measure_points(self.current_project_id,
+                                                                                   sensors, eeg_cap)
+        if measure_points_info is None:
+            measure_points_info = BrainEEG.get_sensor_measure_points(sensors)
+
         measure_points_nr = measure_points_info[2]
         params = {
             'shelfObject': BrainViewer.get_shell_surface_urls(project_id=self.current_project_id),
