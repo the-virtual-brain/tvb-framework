@@ -41,6 +41,7 @@ from tvb.tests.framework.adapters.visualizers import crosscorelationviewer_test
 from tvb.tests.framework.adapters.visualizers import eegmonitor_test
 from tvb.tests.framework.adapters.visualizers import ica_test
 from tvb.tests.framework.adapters.visualizers import pse_test
+from tvb.tests.framework.adapters.visualizers import surfaceviewer_test
 from tvb.tests.framework.adapters.visualizers import time_series_test
 
 
@@ -57,8 +58,8 @@ def suite():
     test_suite.addTest(eegmonitor_test.suite())
     test_suite.addTest(ica_test.suite())
     test_suite.addTest(pse_test.suite())
+    test_suite.addTest(surfaceviewer_test.suite())
     test_suite.addTest(time_series_test.suite())
-#    test_suite.addTest(histogram_test.suite())
     return test_suite
 
 

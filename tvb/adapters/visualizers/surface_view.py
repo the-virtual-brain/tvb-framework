@@ -69,7 +69,9 @@ class SurfaceViewer(ABCDisplayer):
                  'description': 'A region map'},
                 {'name': 'connectivity_measure', 'label': 'Connectivity measure',
                  'type': ConnectivityMeasure, 'required': False,
-                 'description': 'A connectivity measure'}]
+                 'description': 'A connectivity measure',
+                 'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                           operations=["=="], values=[1])}]
 
 
     def _compute_surface_params(self, surface, region_map):
@@ -141,3 +143,22 @@ class SurfaceViewer(ABCDisplayer):
     def get_required_memory_size(self):
         return -1
 
+
+
+class RegionMappingViewer(SurfaceViewer):
+    """
+    This is a viewer for RegionMapping DataTypes.
+    It reuses almost everything from SurfaceViewer, but it make required another input param.
+    """
+    _ui_name = "Region Mapping Visualizer"
+    _ui_subsection = "surface"
+
+    def get_input_tree(self):
+        base_tree = SurfaceViewer.get_input_tree(self)
+        base_tree[1]['required'] = True
+        base_tree.pop(0)
+        return base_tree
+
+    def launch(self, region_map, connectivity_measure=None):
+
+        return SurfaceViewer.launch(self, region_map.surface, region_map, connectivity_measure)
