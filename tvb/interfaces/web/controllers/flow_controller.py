@@ -140,7 +140,7 @@ class FlowController(BaseController):
     @expose_page
     @settings
     @context_selected
-    def prepare_group_launch(self, group_gid, step_key, adapter_key, **data):
+    def prepare_group_launch(self, group_gid, step_key, algo_group_key, **data):
         """
         Receives as input a group gid and an algorithm given by category and id, along
         with data that gives the name of the required input parameter for the algorithm.
@@ -154,7 +154,7 @@ class FlowController(BaseController):
         data[RANGE_PARAMETER_1] = range_param_name
         data[range_param_name] = ','.join(dt.gid for dt in datatypes)
         OperationService().group_operation_launch(common.get_logged_user().id, common.get_current_project().id,
-                                                  int(adapter_key), int(step_key), **data)
+                                                  int(algo_group_key), int(step_key), **data)
         redirect_url = self._compute_back_link('operations', common.get_current_project())
         raise cherrypy.HTTPRedirect(redirect_url)
     
@@ -210,8 +210,7 @@ class FlowController(BaseController):
         template_specification[common.KEY_ADAPTER] = adapter_key
         template_specification[ABCDisplayer.KEY_IS_ADAPTER] = True
         self.fill_default_attributes(template_specification, algo_group)
-        if (back_page in ['operations', 'data'] and
-                    template_specification.get(common.KEY_SECTION) != 'connectivity'):
+        if back_page in ['operations', 'data'] and template_specification.get(common.KEY_SECTION) != 'connectivity':
             template_specification[common.KEY_SECTION] = 'project'
         return template_specification
 

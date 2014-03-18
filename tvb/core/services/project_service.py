@@ -217,18 +217,18 @@ class ProjectService:
 
                         ## Filter only viewers for DataTypeGroup
                         view_categ = dao.get_visualisers_categories()[0]
-                        algo = self.retrieve_launchers(datatype.gid, include_categories=[view_categ.id]).values()[0]
+                        launcher = self.retrieve_launchers(datatype.gid, include_categories=[view_categ.id]).values()[0]
 
                         view_groups = []
-                        for algo in algo.values():
-                            url = '/flow/' + str(algo['category']) + '/' + str(algo['id'])
-                            if algo['part_of_group']:
+                        for launcher in launcher.values():
+                            url = '/flow/' + str(launcher['category']) + '/' + str(launcher['id'])
+                            if launcher['part_of_group']:
                                 url = '/flow/prepare_group_launch/' + datatype.gid + '/' + \
-                                      str(algo['category']) + '/' + str(algo['id'])
-                            view_groups.append(dict(name=algo["displayName"],
+                                      str(launcher['category']) + '/' + str(launcher['id'])
+                            view_groups.append(dict(name=launcher["displayName"],
                                                     url=url,
-                                                    param_name=algo['children'][0]['param_name'],
-                                                    part_of_group=algo['part_of_group']))
+                                                    param_name=launcher['children'][0]['param_name'],
+                                                    part_of_group=launcher['part_of_group']))
                         result["view_groups"] = view_groups
 
                     except Exception, excep:
