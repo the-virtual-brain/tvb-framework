@@ -71,7 +71,7 @@ class TimeSeries(ABCDisplayer):
         """Construct data for visualization and launch it."""
 
         ts = time_series.get_data('time')
-        shape = time_series.read_data_shape()
+        shape = list(time_series.read_data_shape())
 
         ## Assume that the first dimension is the time since that is the case so far
         if preview and shape[0] > self.MAX_PREVIEW_DATA_LENGTH:
@@ -89,7 +89,7 @@ class TimeSeries(ABCDisplayer):
         pars = {'baseURL': ABCDisplayer.VISUALIZERS_URL_PREFIX + time_series.gid,
                 'labels': labels, 'labels_json': json.dumps(labels),
                 'ts_title': time_series.title, 'preview': preview, 'figsize': figsize,
-                'shape': repr(list(shape)), 't0': ts[0],
+                'shape': repr(shape), 't0': ts[0],
                 'dt': ts[1] - ts[0] if len(ts) > 1 else 1,
                 'labelsStateVar': state_variables, 'labelsModes': range(shape[3]),
                 }

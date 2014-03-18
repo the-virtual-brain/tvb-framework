@@ -492,6 +492,7 @@ class BurstController(BaseController):
         except Exception, ex:
             result['launch_success'] = False
             result['error_msg'] = str(ex)
+            self.logger.exception("Could not launch Portlet Visualizer...")
         return result
 
 
