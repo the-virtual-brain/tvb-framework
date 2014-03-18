@@ -12,15 +12,17 @@
     <script type="text/javascript" src="/static/js/webGL_Connectivity.js?4411"></script>
     <script src="/static_view/eeg/scripts/animated_graph.js?4876" type="text/javascript"></script>
     <script src="/static_view/eeg/scripts/graph_events.js?4267" type="text/javascript"></script>
+    <script type="text/javascript" src="/static_view/commons/scripts/regionSelector.js"></script>
     <script type="text/javascript">
         function launchViewer(width, height) {
         	document.getElementById('EEGcanvasDiv').style.width = width + 'px';
         	document.getElementById('EEGcanvasDiv').style.height = height + 'px';
         	isSmallPreview = true;
+//            todo: make this a separate entry point; do not animate do not initialize selection
         	drawAnimatedChart('$longestChannelLength','$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
                     $translationStep, '$normalizedSteps', '${number_of_visible_points}',
                     '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
-                    '${graphLabels}');
+                    '${graphLabels}', '$connectivityGid');
         }
     </script>
 	

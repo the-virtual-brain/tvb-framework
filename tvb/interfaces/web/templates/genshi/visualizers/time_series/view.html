@@ -1,6 +1,7 @@
 <div xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
     <script type="text/javascript" src="/static/js/d3.v2.min.js"></script>
     <script type="text/javascript" src="/static/js/tvbviz.js?4500"></script>
+    <script type="text/javascript" src="/static_view/commons/scripts/regionSelector.js"></script>
     <script type="text/javascript" src="/static_view/time_series/scripts/timeseriesSVG.js?4327"></script>
     <script type="text/javascript" src="/static_view/commons/scripts/visualizers_commons.js?4327"></script>
 
@@ -68,7 +69,7 @@
 					<div class="extension">
 		    			<div class="dropdown-pane">
 	    					<xi:include href="../commons/channel_selector.html" />
-						    ${drawCheckboxes(shape[0], 7, ts_title, [(value, idx) for idx, value in enumerate(labels)], 'TS_SVG_selectedChannels', 'refreshChannels')}
+						    ${drawRegionSelector(7, ts_title, "channelSelector", list(enumerate(labels)), [])}
 		    			</div>
 		    		</div>
 				</nav>
@@ -87,7 +88,7 @@
 	        }
         
 	        $(document).ready(function () {
-	            initTimeseriesViewer("$baseURL", "$preview", "$shape", "$t0", "$dt",$labels_json)
+	            initTimeseriesViewer("$baseURL", "$preview", "$shape", "$t0", "$dt",$labels_json, "$connectivityGid")
 	        });
 	
 	    </script>

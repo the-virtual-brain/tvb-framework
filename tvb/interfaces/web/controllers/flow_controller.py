@@ -743,12 +743,7 @@ class FlowController(BaseController):
 
     NEW_SELECTION_NAME = 'New selection'
 
-    @expose_fragment('visualizers/connectivity/connectivity_selections_display')
-    def get_available_selections(self, **data):
-        """
-        Get all the saved selections for the current project and return
-        the ones that are compatible with the received connectivity labels.
-        """
+    def _get_available_selections(self, **data):
         curent_project = common.get_current_project()
         connectivity_gid = data['connectivity_gid']
         selections = self.flow_service.get_selections_for_project(curent_project.id, connectivity_gid)
@@ -756,7 +751,7 @@ class FlowController(BaseController):
         if not len(default_selection) > 0:
             default_selection = data['con_labels']
 
-        nodes, ids, names = [], [], []
+        nodes, ids, names, all_selected_nodes = [], [], [], []
         for selection in selections:
             ids.append(selection.id)
             labels = json.loads(selection.labels)
@@ -765,9 +760,25 @@ class FlowController(BaseController):
                 selected_labels += labels[idx] + ','
             nodes.append(selected_labels[:-1])
             names.append(selection.ui_name)
-        result = dict(selection_nodes=nodes, selection_names=names, selection_ids=ids,
+            all_selected_nodes.append(selection.selected_nodes)
+        return nodes, names, ids, all_selected_nodes, default_selection
+
+    # todo: deprecated. try to replace this, the template and the SEL_ functions with the channel selection component
+    @expose_fragment('visualizers/connectivity/connectivity_selections_display')
+    def get_available_selections_connectivity(self, **data):
+        """
+        Get all the saved selections for the current project and return
+        the ones that are compatible with the received connectivity labels.
+        """
+        nodes, names, ids, _, default_selection = self._get_available_selections(**data)
+        return dict(selection_nodes=nodes, selection_names=names, selection_ids=ids,
                       all_labels=default_selection, new_selection_name=self.NEW_SELECTION_NAME)
-        return self.fill_default_attributes(result)
+
+
+    @expose_fragment('visualizers/commons/channel_selector_opts')
+    def get_available_selections(self, **data):
+        _, names, _, all_selected_nodes, _ = self._get_available_selections(**data)
+        return dict(namedSelections=zip(names, all_selected_nodes))
 
 
     @expose_json

@@ -11,8 +11,7 @@
                         '${minActivity}', '${maxActivity}', '${isOneToOneMapping}',
                         ${'true' if extended_view else 'false'}, ${"'" + shelfObject +"'" if shelfObject else 'null'},
                         ${hemisphereChunkMask}, '${urlMeasurePointsLabels}',
-                        '${boundary_url}');
-            EX_initializeChannels();
+                        '${boundary_url}', '${connectivityGid}');
         });
     </script>
     <xi:include href="../commons/activity_toolbar.html" />

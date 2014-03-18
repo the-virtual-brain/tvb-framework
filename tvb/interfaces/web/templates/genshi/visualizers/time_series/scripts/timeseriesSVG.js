@@ -34,7 +34,7 @@ var tsView;
  * @param dt: time increment
  * @param channelLabels: a list with the labels for all the channels
  */
-function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabels) {
+function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabels, connectivityGid) {
 
     // Store the list with all the labels since we need it on channel selection refresh
     allChannelLabels = channelLabels;
@@ -47,7 +47,6 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     for (var i = 0; i < Math.min(20, allChannelLabels.length); i++) {
         TS_SVG_selectedChannels.push(i);
         selectedLabels.push(allChannelLabels[i]);
-        $("#channelChk_" + i).attr('checked', true);
     }
 
     dataShape = $.parseJSON(dataShape);
@@ -62,6 +61,17 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     // run
     ts(d3.select("#time-series-viewer"));
     tsView = ts;
+
+    var regionSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
+    regionSelector.change(function(value){
+        TS_SVG_selectedChannels = [];
+        for(var i=0; i < value.length; i++){
+            TS_SVG_selectedChannels.push(parseInt(value[i], 10));
+        }
+        refreshChannels();
+    });
+
+    regionSelector.val(TS_SVG_selectedChannels);
 }
 
 /*

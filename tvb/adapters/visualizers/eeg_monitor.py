@@ -142,7 +142,8 @@ class EegMonitor(ABCDisplayer):
                           label_x=self._get_label_x(original_timeseries[0]),
                           extended_view=False,
                           entities=original_timeseries,
-                          page_size=min(self.page_size, max_chunck_length))
+                          page_size=min(self.page_size, max_chunck_length),
+                          connectivityGid='')
         return parameters
 
 

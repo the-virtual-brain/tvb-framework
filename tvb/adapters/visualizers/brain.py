@@ -197,7 +197,7 @@ class BrainViewer(ABCDisplayer):
 
         boundary_url = self._get_url_for_region_boundaries(time_series)
 
-        return dict(title="Cerebral Activity", isOneToOneMapping=one_to_one_map,
+        ret = dict(title="Cerebral Activity", isOneToOneMapping=one_to_one_map,
                     urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
                     urlLines=json.dumps(url_lines), urlNormals=json.dumps(url_normals),
                     urlMeasurePointsLabels=measure_points_labels, measure_points=measure_points,
@@ -209,8 +209,14 @@ class BrainViewer(ABCDisplayer):
                     biHemispheric=biHemispheres, hemisphereChunkMask=json.dumps(hemisphere_chunk_mask),
                     time_series=time_series, pageSize=self.PAGE_SIZE, boundary_url=boundary_url,
                     measurePointsLabels=time_series.get_space_labels(),
-                    measurePointsTitle=time_series.title)
+                    measurePointsTitle=time_series.title )
+        # todo : create a new property on timeseries datatype to store this selection reference
+        if hasattr(time_series, 'connectivity'):
+            ret['connectivityGid'] = time_series.connectivity.gid
+        else:
+            ret['connectivityGid'] = ''
 
+        return ret
 
     @staticmethod
     def _prepare_mappings(mappings_dict):

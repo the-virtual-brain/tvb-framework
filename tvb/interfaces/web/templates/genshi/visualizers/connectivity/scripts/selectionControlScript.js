@@ -81,7 +81,7 @@ function SEL_populateAvailableSelections() {
     var connectivityGid = $("#connectivityGid").val();
 	doAjaxCall({type: "POST",
 			async: false, 
-			url: '/flow/get_available_selections',
+			url: '/flow/get_available_selections_connectivity',
 			data: {'con_selection': GVAR_baseSelection+'',
 				   'con_labels': GVAR_pointsLabels+'',
                    'connectivity_gid': connectivityGid},

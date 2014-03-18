@@ -168,6 +168,8 @@ var tsModes = [0, 0, 0];
 var tsStates = [0, 0, 0];
 var longestChannelIndex = 0;
 var channelLengths = [];
+// region selection component
+var AG_regionSelector = null;
 
 window.onresize = function(event) {
     var canvas = $('#EEGcanvasDiv');
@@ -187,7 +189,7 @@ window.onresize = function(event) {
  */
 function drawAnimatedChart(longestChannelLength, channelsPerSet, baseURLS, pageSize, nrOfPages,	//dataSetPaths, 
 						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found, 
-						   noOfChannels, totalLength, doubleView, channelLabels) {
+						   noOfChannels, totalLength, doubleView, channelLabels, connectivityGid) {
     if (!document.getElementById('ctrl-input-scale')) {
     	isSmallPreview = true;
     }
@@ -232,11 +234,21 @@ function drawAnimatedChart(longestChannelLength, channelsPerSet, baseURLS, pageS
             defaultChannels = DEFAULT_MAX_CHANNELS;
         }
         for (var i = 0; i < defaultChannels; i++) {
-            addChannelToChannelsList(i);
-        }    	
+            AG_submitableSelectedChannels.push(i);
+        }
     }
+    AG_regionSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
+    AG_regionSelector.change(function(selection){
+        AG_submitableSelectedChannels = [];
+
+        for(var i=0; i < selection.length; i++){
+            AG_submitableSelectedChannels.push(parseInt(selection[i], 10));
+        }
+        refreshChannels();
+    });
 
     submitSelectedChannels(false);
+    AG_regionSelector.val(AG_submitableSelectedChannels);
 }
 
 
@@ -283,25 +295,6 @@ function AG_createYAxisDictionary(nr_channels) {
     AG_defaultYaxis = yaxis_dict;
 }
 
-//This two methods are called to add/remove from arrays used to represent data
-function addChannelToChannelsList(channelId) {
-    channelId = parseInt(channelId);
-    $("#channelChk_" + channelId).attr('checked', true);
-    var elemIdx = $.inArray(channelId, AG_submitableSelectedChannels);
-    if (elemIdx == -1) {
-        AG_submitableSelectedChannels.push(channelId);
-        $("#channelChk_" + channelId).trigger('change');
-    }
-}
-
-function removeChannelFromChannelsList(channelId) {
-    $("#channelChk_" + channelId).attr('checked', false);
-    var elemIdx = $.inArray(parseInt(channelId), AG_submitableSelectedChannels);
-    if (elemIdx != -1) {
-        AG_submitableSelectedChannels.splice(elemIdx, 1);
-    }
-}
-
 function refreshChannels() {
 	submitSelectedChannels(false); 
 	drawGraph(false, noOfShiftedPoints);
@@ -327,9 +320,8 @@ function submitSelectedChannels(isEndOfData) {
 	 */
     AG_currentIndex = AG_numberOfVisiblePoints;
     if (AG_submitableSelectedChannels.length == 0) {
-        for (var k = 0; k < displayedChannels.length; k++) {
-            addChannelToChannelsList(displayedChannels[k]);
-        }
+        AG_submitableSelectedChannels = displayedChannels.slice();
+        //AG_regionSelector.val(AG_submitableSelectedChannels);
     }
 
     if (!(isEndOfData && maxDataFileIndex == 0)) {

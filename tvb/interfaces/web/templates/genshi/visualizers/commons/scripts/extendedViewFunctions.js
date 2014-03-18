@@ -21,32 +21,48 @@
  * Functions for BrainVisualizer in Double View (eeg-lines + 3D activity).
  */
 
-function EX_initializeChannels() {
-    // Point the brain selected channel buffer to the eeg selection buffer
-    // both globals will point to the same array
-    // this is a hack: the channel selection component does not raise change events yet
-    // it changes AG_submitableSelectedChannels after these change events are triggered by drawscene picks
-    // selecting a node in webgl will not work without this
-    VS_selectedChannels = AG_submitableSelectedChannels;
+function _EX_commonChannelInit(updateColorBufferForMeasurePoint){
+    AG_regionSelector.change(function(selection){
+           // update brain region filter
+            VS_selectedRegions = AG_submitableSelectedChannels.slice();
 
-    function on_channel_change(){
-        var index = this.id.split("channelChk_")[1];
-        EX_changeColorBufferForMeasurePoint(index, this.checked);
-    }
-    if (isDoubleView) {
-        $("#checkAllChannelsBtn").click(function() {
-            $("input[id^='channelChk_']").each(on_channel_change);
-        });
-        $("#clearAllChannelsBtn").click(function() {
-            $("input[id^='channelChk_']").each(on_channel_change);
-        });
-        $("input[id^='channelChk_']").change(on_channel_change);
-        $("#refreshChannelsButton").click(function() {
-        	initActivityData();
-        });
+            // update the measure point colors
+            for(i=0; i != AG_regionSelector.allValues.length; i++){
+                var val = AG_regionSelector.allValues[i];
+                var selected = selection.indexOf(val) != -1;
+                val = parseInt(val, 10);
+                updateColorBufferForMeasurePoint(val, selected);
+            }
+            initActivityData();
+        }
+    );
+
+    // initialize brain region filter with animated graph selection
+    for(var i=0; i < AG_regionSelector.selectedValues.length; i++){
+        var val = parseInt(AG_regionSelector.selectedValues[i], 10);
+        VS_selectedRegions.push(val);
+        // assuming previous brain selection was void update selected buffers
+        updateColorBufferForMeasurePoint(val, true);
     }
 }
 
+function EX_initializeChannels() {
+    _EX_commonChannelInit(EX_changeColorBufferForMeasurePoint);
+}
+
+/**
+ * Called by virtualbrain.js on pick
+ */
+function EX_onPickedMeasurePoint(measurePointIndex){
+    // assumes that the index is the same with the value of the checkboxes
+    var idx = AG_submitableSelectedChannels.indexOf(measurePointIndex);
+    if(idx != -1){
+        AG_submitableSelectedChannels.splice(idx, 1);
+    }else{
+        AG_submitableSelectedChannels.push(measurePointIndex);
+    }
+    AG_regionSelector.val(AG_submitableSelectedChannels);
+}
 
 /**
  * In the extended view if a certain EEG channel was selected then we
@@ -65,20 +81,7 @@ function EX_changeColorBufferForMeasurePoint(measurePointIndex, isPicked) {
  * Initialization function for Channels, when sensor internals.
  */
 function EX_initializeChannelsForSensorsInternal() {
-    function on_channel_change(){
-        var index = this.id.split("channelChk_")[1];
-        _changeColorBufferForMeasurePointSensorInternal(index, this.checked);
-    }
-    $("#checkAllChannelsBtn").click(function() {
-        $("input[id^='channelChk_']").each(on_channel_change);
-    });
-    $("#clearAllChannelsBtn").click(function() {
-        $("input[id^='channelChk_']").each(on_channel_change);
-    });
-    $("input[id^='channelChk_']").change(on_channel_change);
-    $("#refreshChannelsButton").click(function() {
-        initActivityData();
-    });
+    _EX_commonChannelInit(_changeColorBufferForMeasurePointSensorInternal);
 }
 
 /**

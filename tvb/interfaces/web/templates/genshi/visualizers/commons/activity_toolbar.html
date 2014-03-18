@@ -11,7 +11,7 @@
             <div class="extension">
                 <div class="dropdown-pane">
                     <xi:include href="../commons/channel_selector.html" />
-                    ${drawCheckboxes(noOfMeasurePoints, 7, measurePointsTitle, [(value, idx) for idx, value in enumerate(measurePointsLabels)], 'VS_selectedChannels')}
+                    ${drawRegionSelector(7, measurePointsTitle, "channelSelector", list(enumerate(measurePointsLabels)))}
                 </div>
             </div>
         </nav>

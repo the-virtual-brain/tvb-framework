@@ -91,8 +91,12 @@ class TimeSeries(ABCDisplayer):
                 'ts_title': time_series.title, 'preview': preview, 'figsize': figsize,
                 'shape': repr(shape), 't0': ts[0],
                 'dt': ts[1] - ts[0] if len(ts) > 1 else 1,
-                'labelsStateVar': state_variables, 'labelsModes': range(shape[3]),
+                'labelsStateVar': state_variables, 'labelsModes': range(shape[3])
                 }
+        if hasattr(time_series, 'connectivity'):
+            pars['connectivityGid'] = time_series.connectivity.gid
+        else:
+            pars['connectivityGid'] = ''
 
         return self.build_display_result("time_series/view", pars, pages=dict(controlPage="time_series/control"))
 

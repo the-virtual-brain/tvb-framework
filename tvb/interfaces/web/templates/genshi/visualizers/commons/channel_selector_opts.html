@@ -1,0 +1,6 @@
+<div xmlns:py="http://genshi.edgewall.org/" py:strip="True">
+    <option selected="selected" value="[]">New selection</option>
+    <py:for each="name, val in namedSelections">
+        <option value="$val">$name</option>
+    </py:for>
+</div>

@@ -141,7 +141,7 @@ var VS_hemisphereVisibility = null;
  * This is used only by the brain activity movie for region level activity.
  * For static viewers it is initialized to a full selection
  */
-var VS_selectedChannels = [];
+var VS_selectedRegions = [];
 /**
  * camera settings
  */
@@ -257,7 +257,10 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
         // The activity data will contain just one frame containing the values of the connectivity measure.
         activitiesData = [measure];
     }
-    _initChannelSelection();
+
+    for(var i = 0; i < NO_OF_MEASURE_POINTS; i++){
+        VS_selectedRegions.push(i);
+    }
 
     GL_zTranslation = GL_DEFAULT_Z_POS;
     
@@ -289,7 +292,6 @@ function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVert
 
     // initialize global data
     _initMeasurePoints(noOfMeasurePoints, urlMeasurePoints, urlMeasurePointsLabels);
-    _initChannelSelection();
     _initTimeData(urlTimeList);
     initActivityData();
 
@@ -329,8 +331,7 @@ function VS_StartSurfaceViewer(urlVerticesList, urlLinesList, urlTrianglesList, 
                        noOfMeasurePoints, urlAlphasList, urlAlphasIndicesList, urlMeasurePointsLabels,
                        boundaryURL, null, hemisphereChunkMask, false, false, false, minMeasure, maxMeasure, urlMeasure);
     _VS_init_cubicalMeasurePoints();
-    // TODO minMEasure and maxMeasure could directly come as floats ??
-    ColSch_initColorSchemeParams(parseFloat(minMeasure), parseFloat(maxMeasure));
+    ColSch_initColorSchemeParams(minMeasure, maxMeasure);
 }
 
 function VS_StartEEGSensorViewer(urlVerticesList, urlLinesList, urlTrianglesList, urlNormalsList, urlMeasurePoints,
@@ -345,21 +346,16 @@ function VS_StartEEGSensorViewer(urlVerticesList, urlLinesList, urlTrianglesList
 function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, urlVerticesList, urlLinesList,
                     urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
-                    oneToOneMapping, doubleView, shelfObject, hemisphereChunkMask, urlMeasurePointsLabels, boundaryURL) {
+                    oneToOneMapping, doubleView, shelfObject, hemisphereChunkMask,
+                    urlMeasurePointsLabels, boundaryURL, connectivityGid) {
 
     _VS_movie_entrypoint.apply(this, arguments);
     _VS_init_cubicalMeasurePoints();
 
     if (!isDoubleView){
-        // If this is a brain activity viewer then we have to initialize the selection
-        // with VS_selectedChannels
-        // the selection component takes care of further state synchronizing
+        // If this is a brain activity viewer then we have to initialize the selection component
+        _initChannelSelection(connectivityGid);
         // For the double view the selection is the responsability of the extended view functions
-        for(var i = 0; i < NO_OF_MEASURE_POINTS; i++){
-            if (VS_selectedChannels.indexOf(i) != -1){
-                $("#channelChk_" + i).attr('checked', true);
-            }
-        }
     }
 }
 
@@ -505,9 +501,19 @@ function _initSliders(){
     $("#Infobox").html("");
 }
 
-function _initChannelSelection(){
-    for(var i = 0; i < NO_OF_MEASURE_POINTS; i++){
-        VS_selectedChannels.push(i);
+function _initChannelSelection(connectivityGid){
+    var vs_regionsSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
+
+    vs_regionsSelector.change(function(value){
+        VS_selectedRegions = [];
+        for(var i=0; i < value.length; i++){
+            VS_selectedRegions.push(parseInt(value[i], 10));
+        }
+    });
+    //sync region filter with initial selection
+    VS_selectedRegions = [];
+    for(var i=0; i < vs_regionsSelector.selectedValues.length; i++){
+        VS_selectedRegions.push(parseInt(vs_regionsSelector.selectedValues[i], 10));
     }
 }
 
@@ -633,7 +639,7 @@ function updateColors(currentTimeInFrame) {
         }
     } else {
         for (var ii = 0; ii < NO_OF_MEASURE_POINTS; ii++) {
-            if(VS_selectedChannels.indexOf(ii) != -1){
+            if(VS_selectedRegions.indexOf(ii) != -1){
                 var rgb = getGradientColor(currentActivity[ii], activityMin, activityMax);
                 gl.uniform4f(shaderProgram.colorsUniform[ii], rgb[0], rgb[1], rgb[2], 1);
             }else{
@@ -1184,10 +1190,10 @@ function drawScene() {
             gl.drawElements(gl.TRIANGLES, measurePointsBuffers[i][2].numItems, gl.UNSIGNED_SHORT, 0);
          }    
         var pickedIndex = GL_getPickedIndex();
-        if (pickedIndex != undefined) {
-            var pickedChannel = $("#channelChk_" + pickedIndex);
-            pickedChannel.attr('checked', !pickedChannel.attr('checked'));
-            pickedChannel.trigger('change');
+        if (pickedIndex != undefined && pickedIndex != GL_NOTFOUND) {
+            if (isDoubleView) {
+                EX_onPickedMeasurePoint(pickedIndex);
+            }
         }
         doPick = false;
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
