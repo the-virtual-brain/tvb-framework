@@ -385,16 +385,16 @@ def check_matlab_version(matlab_path):
     matlab_version_txt = """tvb_checking_version = version
     quit()
     """
-    matlab_test_file = 'test_mat_version'
+    matlab_test_file_name = 'test_mat_version'
+    matlab_test_file = matlab_test_file_name + '.m'
     matlab_log_file = 'version_log.txt'
-    file_p = open(matlab_test_file + '.m', 'w')
-    file_p.write(matlab_version_txt)
-    file_p.close()
-    matlab_cmd(matlab_path, matlab_test_file, matlab_log_file)
-    log_file = open(matlab_log_file, 'r')
-    result_data = log_file.read()
+    with open(matlab_test_file, 'w') as file_p:
+        file_p.write(matlab_version_txt)
+    matlab_cmd(matlab_path, matlab_test_file_name, matlab_log_file)
+    with open(matlab_log_file) as log_file:
+        result_data = log_file.read()
     version = result_data.strip().split('tvb_checking_version')[1]
-    log_file.close()
+    os.remove(matlab_test_file)
     os.remove(matlab_log_file)
     return version.replace('\n', '').strip()
 
