@@ -111,13 +111,19 @@ def read_matlab_data(path, matlab_data_name=None):
     """
     try:
         matlab_data = scipy_io.matlab.loadmat(path)
-    except NotImplementedError, exc:
+    except NotImplementedError:
         LOGGER.error("Could not read Matlab content from: " + path)
         LOGGER.error("Matlab files must be saved in a format <= -V7...")
-        raise exc
+        raise
 
-    return matlab_data[matlab_data_name]
-
+    try:
+        return matlab_data[matlab_data_name]
+    except KeyError:
+        def double__(n):
+            n = str(n)
+            return n.startswith('__') and n.endswith('__')
+        available = [s for s in matlab_data if not double__(s)]
+        raise KeyError("Could not find dataset named %s. Available datasets: %s" % (matlab_data_name, available))
 
 
 def store_list_data(data_list, file_name, storage_folder, overwrite=False):
