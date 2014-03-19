@@ -21,8 +21,51 @@ var TS_SVG_selectedChannels = [];
 // Store a list with all the channel labels so one can easily refresh between them on channel refresh
 var allChannelLabels = [];
 
+var MAX_INITIAL_CHANNELS = 20;
+
 var tsView;
 
+/**
+ * Initializes selected channels
+ * initializes global TS_SVG_selectedChannels
+ */
+function _initSelection(connectivityGid){
+    // initialize selection component
+    var regionSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
+    var initialSelection = regionSelector.val()
+
+    // If there is no selection take the first 20 channels or all
+    if (initialSelection.length == 0){
+        for(var i = 0; i < Math.min(MAX_INITIAL_CHANNELS, allChannelLabels.length); i++){
+            TS_SVG_selectedChannels.push(i);
+        }
+        regionSelector.val(TS_SVG_selectedChannels);
+    }else if (initialSelection.length > MAX_INITIAL_CHANNELS){
+    // Take a default of maximum 20 channels at start to be displayed
+        TS_SVG_selectedChannels = initialSelection.slice(0, MAX_INITIAL_CHANNELS);
+        regionSelector.val(TS_SVG_selectedChannels);
+    }else{
+        // to not invoke val to keep the named selection in the dropdown
+        TS_SVG_selectedChannels = initialSelection;
+    }
+    // we bind the event here after the previous val calls
+    // do not want those to trigger the change event as tsView is not initialized yet
+    regionSelector.change(function(value){
+        TS_SVG_selectedChannels = [];
+        for(var i=0; i < value.length; i++){
+            TS_SVG_selectedChannels.push(parseInt(value[i], 10));
+        }
+        refreshChannels();
+    });
+
+    // compute labels for initial selection
+    var selectedLabels = [];
+    for(i = 0; i < TS_SVG_selectedChannels.length; i++){
+        selectedLabels.push(allChannelLabels[TS_SVG_selectedChannels[i]]);
+    }
+
+    return selectedLabels;
+}
 
 /*
  * Do any required initializations in order to start the viewer.
@@ -42,12 +85,7 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     // setup dimensions, div, svg elements and plotter
     var ts = tv.plot.time_series();
 
-    // Take a default of maximum 20 channels at start to be displayed
-    var selectedLabels = [];
-    for (var i = 0; i < Math.min(20, allChannelLabels.length); i++) {
-        TS_SVG_selectedChannels.push(i);
-        selectedLabels.push(allChannelLabels[i]);
-    }
+    var selectedLabels = _initSelection(connectivityGid);
 
     dataShape = $.parseJSON(dataShape);
     dataShape[2] = TS_SVG_selectedChannels.length;
@@ -61,17 +99,6 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     // run
     ts(d3.select("#time-series-viewer"));
     tsView = ts;
-
-    var regionSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
-    regionSelector.change(function(value){
-        TS_SVG_selectedChannels = [];
-        for(var i=0; i < value.length; i++){
-            TS_SVG_selectedChannels.push(parseInt(value[i], 10));
-        }
-        refreshChannels();
-    });
-
-    regionSelector.val(TS_SVG_selectedChannels);
 }
 
 /*

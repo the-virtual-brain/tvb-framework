@@ -93,10 +93,15 @@ class TimeSeries(ABCDisplayer):
                 'dt': ts[1] - ts[0] if len(ts) > 1 else 1,
                 'labelsStateVar': state_variables, 'labelsModes': range(shape[3])
                 }
+        # todo : create a new property on timeseries datatype to store this selection reference
+        # todo : duplicated in brain.py
         if hasattr(time_series, 'connectivity'):
-            pars['connectivityGid'] = time_series.connectivity.gid
+            initial_selection = time_series.connectivity.saved_selection
+            if initial_selection is None:
+                initial_selection = []
+            pars.update(connectivityGid=time_series.connectivity.gid, initialSelection=initial_selection)
         else:
-            pars['connectivityGid'] = ''
+            pars.update(connectivityGid='', initialSelection=[])
 
         return self.build_display_result("time_series/view", pars, pages=dict(controlPage="time_series/control"))
 

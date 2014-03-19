@@ -212,9 +212,12 @@ class BrainViewer(ABCDisplayer):
                     measurePointsTitle=time_series.title )
         # todo : create a new property on timeseries datatype to store this selection reference
         if hasattr(time_series, 'connectivity'):
-            ret['connectivityGid'] = time_series.connectivity.gid
+            initial_selection = time_series.connectivity.saved_selection
+            if initial_selection is None:
+                initial_selection = []
+            ret.update(connectivityGid=time_series.connectivity.gid, initialSelection=initial_selection)
         else:
-            ret['connectivityGid'] = ''
+            ret.update(connectivityGid='', initialSelection=[])
 
         return ret
 
