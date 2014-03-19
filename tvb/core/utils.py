@@ -131,7 +131,7 @@ def store_list_data(data_list, file_name, storage_folder, overwrite=False):
     Write a list into a file using CSV writer.
     CSV writer, better than numpy, write also Strings
     """
-    if data_list is None or not (isinstance(data_list, list) or isinstance(data_list, numpy.ndarray)):
+    if not isinstance(data_list, (list, numpy.ndarray)):
         raise Exception("Invalid given type!! " + str(type(data_list)))
     if overwrite:
         full_path = os.path.join(storage_folder, file_name)
@@ -140,13 +140,13 @@ def store_list_data(data_list, file_name, storage_folder, overwrite=False):
         full_path, file_name = get_unique_file_name(storage_folder, file_name)
 
     # generic writer, capable to write strings also
-    destination = open(full_path, 'wb')
-    csv_writer = csv.writer(destination, delimiter=' ')
-    if isinstance(data_list[0], list) or isinstance(data_list[0], numpy.ndarray):
-        for row in data_list:
-            csv_writer.writerow(row)
-    else:
-        csv_writer.writerow(data_list)
+    with open(full_path, 'wb') as destination:
+        csv_writer = csv.writer(destination, delimiter=' ')
+        if isinstance(data_list[0], (list, numpy.ndarray)):
+            for row in data_list:
+                csv_writer.writerow(row)
+        else:
+            csv_writer.writerow(data_list)
 
     return file_name
 
