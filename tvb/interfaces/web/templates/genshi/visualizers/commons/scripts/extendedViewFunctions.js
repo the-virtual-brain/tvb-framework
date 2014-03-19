@@ -38,8 +38,9 @@ function _EX_commonChannelInit(updateColorBufferForMeasurePoint){
     );
 
     // initialize brain region filter with animated graph selection
-    for(var i=0; i < AG_regionSelector.selectedValues.length; i++){
-        var val = parseInt(AG_regionSelector.selectedValues[i], 10);
+    var selection = AG_regionSelector.val();
+    for(var i=0; i < selection.length; i++){
+        var val = parseInt(selection[i], 10);
         VS_selectedRegions.push(val);
         // assuming previous brain selection was void update selected buffers
         updateColorBufferForMeasurePoint(val, true);

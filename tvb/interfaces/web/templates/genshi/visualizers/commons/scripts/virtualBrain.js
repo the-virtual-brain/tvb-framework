@@ -512,8 +512,9 @@ function _initChannelSelection(connectivityGid){
     });
     //sync region filter with initial selection
     VS_selectedRegions = [];
-    for(var i=0; i < vs_regionsSelector.selectedValues.length; i++){
-        VS_selectedRegions.push(parseInt(vs_regionsSelector.selectedValues[i], 10));
+    var selection = vs_regionsSelector.val();
+    for(var i=0; i < selection.length; i++){
+        VS_selectedRegions.push(parseInt(selection[i], 10));
     }
 }
 

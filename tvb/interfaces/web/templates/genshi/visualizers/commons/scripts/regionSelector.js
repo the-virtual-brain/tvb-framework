@@ -44,18 +44,18 @@ function RegionSelectComponent(dom, settings){
     settings = $.extend({}, self.defaults, settings);
     self.$dom = $dom;
     self.settings = settings;
-    self.selectedValues = [];
-    self.namedSelections = [];
-    self.allValues = [];
-    self.labels = [];
+    self._selectedValues = [];
+    self._namedSelections = [];
+    self._allValues = [];
+    self._labels = [];
     // save dom variables, set up listeners
-    self.boxes = $dom.find(settings.boxesSelector);
-    self.textBox = $dom.find(settings.textboxSelector);
-    self.dropDown = $dom.find('select');
-    self.dropDownOptions = self.dropDown.find('option');
+    self._boxes = $dom.find(settings.boxesSelector);
+    self._textBox = $dom.find(settings.textboxSelector);
+    self._dropDown = $dom.find('select');
+    self._dropDownOptions = self._dropDown.find('option');
 
-    self.boxes.change(function(){self._onchange(this);});
-    self.dropDown.change(function(){
+    self._boxes.change(function(){self._onchange(this);});
+    self._dropDown.change(function(){
         self.val(JSON.parse(this.value));
     });
     $dom.find(settings.checkSelector).click(function(){ self.checkAll();} );
@@ -63,7 +63,7 @@ function RegionSelectComponent(dom, settings){
     $dom.find(settings.saveSelectionButtonSelector).click(function(){ self._onNewSelection(); });
 
     $dom.find(settings.applySelector).click(function(){
-        self.$dom.trigger("selectionApplied", [self.selectedValues.slice()]);
+        self.$dom.trigger("selectionApplied", [self._selectedValues.slice()]);
     });
     this.dom2model();
 }
@@ -88,47 +88,47 @@ RegionSelectComponent.prototype.change = function(fn){
 
 RegionSelectComponent.prototype.dom2model = function(){
     var self = this;
-    self.allValues = [];
-    self.selectedValues = [];
-    self.namedSelections = [];
+    self._allValues = [];
+    self._selectedValues = [];
+    self._namedSelections = [];
 
-    this.boxes.each(function(_, el){
-        self.allValues.push(el.value);
+    this._boxes.each(function(_, el){
+        self._allValues.push(el.value);
         // assumes the parent element is the label
-        self.labels.push($(this).parent().text().trim());
+        self._labels.push($(this).parent().text().trim());
         if(el.checked){
-            self.selectedValues.push(el.value);
+            self._selectedValues.push(el.value);
         }
     });
-    this.dropDownOptions.each(function(i, el){
+    this._dropDownOptions.each(function(i, el){
         if(i != 0){
             var $el = $(el);
-            self.namedSelections.push([$el.text(), $el.val()]);
+            self._namedSelections.push([$el.text(), $el.val()]);
         }
     });
 };
 
 RegionSelectComponent.prototype.selectedValues2dom = function(){
     var self = this;
-    this.boxes.each(function(_, el){
-        var idx = self.selectedValues.indexOf(el.value);
+    this._boxes.each(function(_, el){
+        var idx = self._selectedValues.indexOf(el.value);
         el.checked = idx != -1;
     });
-    self.dropDownOptions = self.dropDown.find('option');
+    self._dropDownOptions = self._dropDown.find('option');
 };
 
 RegionSelectComponent.prototype._onNewSelection = function(){
     var self = this;
-    var name = $.trim(self.textBox.val());
+    var name = $.trim(self._textBox.val());
     if (name != ""){
         // add to model
-        self.namedSelections.push([name, self.selectedValues.slice()]);
+        self._namedSelections.push([name, self._selectedValues.slice()]);
         // add to dom
-//        var jsonval = JSON.stringify(self.selectedValues);
-//        $('<option/>').val(jsonval).text(name).appendTo(self.dropDown);
-//        self.dropDown.val(jsonval);
-        self.textBox.val('');
-        self.$dom.trigger("newSelection", [name, self.selectedValues.slice(), self.labels]);
+//        var jsonval = JSON.stringify(self._selectedValues);
+//        $('<option/>').val(jsonval).text(name).appendTo(self._dropDown);
+//        self._dropDown.val(jsonval);
+        self._textBox.val('');
+        self.$dom.trigger("newSelection", [name, self._selectedValues.slice(), self._labels]);
     }else{
 		displayMessage("Selection name must not be empty.", "errorMessage");
 	}
@@ -136,38 +136,37 @@ RegionSelectComponent.prototype._onNewSelection = function(){
 
 RegionSelectComponent.prototype._onchange = function(el){
     this.dom2model();
-    this.dropDown.val("[]");
-    this.$dom.trigger("selectionChange", [this.selectedValues.slice()]);
+    this._dropDown.val("[]");
+    this.$dom.trigger("selectionChange", [this._selectedValues.slice()]);
 };
 
 RegionSelectComponent.prototype.val = function(arg){
     if(arg == null){
-        return this.selectedValues.slice();
+        return this._selectedValues.slice();
     }else{
-        this.selectedValues = [];
+        this._selectedValues = [];
         for(var i=0; i < arg.length; i++){
             // convert vals to string (as in dom)
             var val = arg[i].toString();
             // filter bad values
-            if(this.allValues.indexOf(val) != -1){
-                this.selectedValues.push(val);
+            if(this._allValues.indexOf(val) != -1){
+                this._selectedValues.push(val);
             }else{
                 console.warn("bad selection" + val);
             }
         }
+        this._dropDown.val("[]");
         this.selectedValues2dom();
-        this.$dom.trigger("selectionChange", [this.selectedValues.slice()]);
+        this.$dom.trigger("selectionChange", [this._selectedValues.slice()]);
     }
 };
 
 RegionSelectComponent.prototype.clearAll = function(){
-    this.dropDown.val("[]");
     this.val([]);
 };
 
 RegionSelectComponent.prototype.checkAll = function(){
-    this.dropDown.val("[]");
-    this.val(this.allValues);
+    this.val(this._allValues);
 };
 
 // exports
@@ -187,12 +186,12 @@ TVBUI.regionSelector = function(dom, settings){
         doAjaxCall({type: "POST",
             async: false,
             url: '/flow/get_available_selections',
-            data: {'con_selection': component.selectedValues + '',
-                   'con_labels': component.labels + '',
+            data: {'con_selection': component._selectedValues + '',
+                   'con_labels': component._labels + '',
                    'connectivity_gid': connectivityGid},
             success: function(r) {
-                component.dropDown.empty().append(r);
-                component.dropDown.val('[' + component.selectedValues.join(', ')     + ']');
+                component._dropDown.empty().append(r);
+                component._dropDown.val('[' + component._selectedValues.join(', ')     + ']');
             } ,
             error: function(r) {
                 displayMessage("Error while retrieving available selections.", "errorMessage");
