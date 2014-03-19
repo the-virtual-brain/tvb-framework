@@ -127,9 +127,8 @@ class OperationService:
                 file_name = os.path.join(temporary_storage, file_name)
                 kw2[i] = file_name
                 temp_files[i] = file_name
-                file_obj = open(file_name, 'wb')
-                file_obj.write(j.file.read())
-                file_obj.close()
+                with open(file_name, 'wb') as file_obj:
+                    file_obj.write(j.file.read())
                 self.logger.debug("Will store file:" + file_name)
             kwargs = kw2
         except Exception, excep:
@@ -415,16 +414,16 @@ class OperationService:
         Remove any files that exist in the file_dictionary. 
         Currently used to delete temporary files created during an operation.
         """
-        for i in file_dictionary:
+        for pth in file_dictionary.itervalues():
+            pth = str(pth)
             try:
-                if os.path.exists(str(file_dictionary[i])) and os.path.isfile(str(file_dictionary[i])):
-                    os.remove(file_dictionary[i])
-                    self.logger.debug("We no longer need file:" + str(file_dictionary[i]) + " => deleted")
+                if os.path.exists(pth) and os.path.isfile(pth):
+                    os.remove(pth)
+                    self.logger.debug("We no longer need file:" + pth + " => deleted")
                 else:
-                    self.logger.warning("Trying to remove not existent file:" + str(file_dictionary[i]))
-            except Exception, excep:
-                self.logger.error("Could not cleanup file!")
-                self.logger.exception(excep)
+                    self.logger.warning("Trying to remove not existent file:" + pth)
+            except OSError:
+                self.logger.exception("Could not cleanup file!")
 
 
     def _range_name(self, range_no):
