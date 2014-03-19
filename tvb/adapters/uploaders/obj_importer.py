@@ -85,7 +85,7 @@ class ObjSurfaceImporter(ABCUploader):
 
             surface.vertices = obj.vertices
             surface.triangles = obj.triangles
-            if obj.normals:
+            if obj.have_normals:
                 self.log.debug("OBJ came with normals included")
                 surface.vertex_normals = obj.normals
             else:
