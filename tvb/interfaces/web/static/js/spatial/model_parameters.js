@@ -86,9 +86,7 @@ function MP_resetParamSliders(parentDivId) {
             type:'GET',
             url:'/spatial/modelparameters/regions/reset_model_parameters_for_nodes/' + $.toJSON(GVAR_interestAreaNodeIndexes),
             success:function (data) {
-                var parentDiv = $("#" + parentDivId);
-                parentDiv.empty();
-                parentDiv.append(data);
+                $("#" + parentDivId).empty().append(data);
             }
         });
     }
@@ -101,9 +99,7 @@ function _loadModelForConnectivityNode(connectivityNodeIndex, paramSlidersDivId)
             type:'GET',
             url:'/spatial/modelparameters/regions/load_model_for_connectivity_node/' + connectivityNodeIndex,
             success:function (data) {
-                var paramSlidersDiv = $("#" + paramSlidersDivId);
-                paramSlidersDiv.empty();
-                paramSlidersDiv.append(data);
+                $("#" + paramSlidersDivId).empty().append(data);
             }
         });
     }
@@ -169,33 +165,33 @@ function MP_applyEquationForParameter() {
         type:'POST',
         url:url,
         success:function (data) {
-            var spatialModelParamsDiv = $("#div_spatial_model_params");
-            spatialModelParamsDiv.empty();
-            spatialModelParamsDiv.append(data);
+            $("#div_spatial_model_params").empty().append(data);
             MP_displayFocalPoints();
         }
     });
 }
 
+function _MP_CallFocalPointsRPC(method, kwargs){
+    var paramName = $("[name='model_param']").val();
+    var url = '/spatial/modelparameters/surface/';
+        url += method + '?model_param=' + paramName;
+    for(var k in kwargs){
+        if(kwargs.hasOwnProperty(k)) { url += '&' + k + '=' + kwargs[k]; }
+    }
+    doAjaxCall({
+        async:false, type:'POST', url:url,
+        success:function (data) {
+            $("#focalPointsDiv").empty().append(data);
+        }
+    });
+}
 
 /**
  * Removes the given vertexIndex from the list of focal points specified for the
  * equation used for computing the selected model parameter.
  */
 function MP_removeFocalPointForSurfaceModelParam(vertexIndex) {
-    var paramName = $("select[name='model_param']").val();
-    var url = '/spatial/modelparameters/surface/remove_focal_point?model_param=' + paramName;
-        url += "&vertex_index=" + vertexIndex;
-    doAjaxCall({
-        async:false,
-        type:'POST',
-        url:url,
-        success:function (data) {
-            var focalPointsDiv = $("#focalPointsDiv");
-            focalPointsDiv.empty();
-            focalPointsDiv.append(data);
-        }
-    });
+    _MP_CallFocalPointsRPC('remove_focal_point', {'vertex_index': vertexIndex});
 }
 
 
@@ -208,20 +204,7 @@ function MP_addFocalPointForSurfaceModelParam() {
         displayMessage(NO_VERTEX_SELECTED_MSG, "errorMessage");
         return;
     }
-    var paramName = $("[name='model_param']").val();
-    var url = '/spatial/modelparameters/surface/apply_focal_point?model_param=' + paramName;
-    url += "&triangle_index=" + TRIANGLE_pickedIndex;
-	
-    doAjaxCall({
-        async:false,
-        type:'POST',
-        url:url,
-        success:function (data) {
-            var focalPointsDiv = $("#focalPointsDiv");
-            focalPointsDiv.empty();
-            focalPointsDiv.append(data);
-        }
-    });
+    _MP_CallFocalPointsRPC('apply_focal_point', {'triangle_index': TRIANGLE_pickedIndex});
 }
 
 
@@ -233,11 +216,11 @@ function MP_redrawSurfaceFocalPoints(focalPointsJson) {
 	BS_addedFocalPointsTriangles = [];
 	var focalPointsTriangles = $.parseJSON(focalPointsJson);
 	for (var i = 0; i < focalPointsTriangles.length; i++) {
-			TRIANGLE_pickedIndex = parseInt(focalPointsTriangles[i]);
-			BASE_PICK_moveBrainNavigator(true);
-			BASE_PICK_addFocalPoint(TRIANGLE_pickedIndex);
-			BS_addedFocalPointsTriangles.push(TRIANGLE_pickedIndex);
-		}
+        TRIANGLE_pickedIndex = parseInt(focalPointsTriangles[i]);
+        BASE_PICK_moveBrainNavigator(true);
+        BASE_PICK_addFocalPoint(TRIANGLE_pickedIndex);
+        BS_addedFocalPointsTriangles.push(TRIANGLE_pickedIndex);
+    }
 }
 
 
@@ -247,18 +230,7 @@ function MP_redrawSurfaceFocalPoints(focalPointsJson) {
  * used for computing selected model param.
  */
 function MP_displayFocalPoints() {
-    var paramName = $("select[name='model_param']").val();
-    var url = '/spatial/modelparameters/surface/get_focal_points?model_param=' + paramName;
-    doAjaxCall({
-        async:false,
-        type:'POST',
-        url:url,
-        success:function (data) {
-            var focalPointsDiv = $("#focalPointsDiv");
-            focalPointsDiv.empty();
-            focalPointsDiv.append(data);
-        }
-    });
+    _MP_CallFocalPointsRPC('get_focal_points', {});
 }
 
 
