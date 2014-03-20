@@ -208,7 +208,7 @@ function MP_addFocalPointForSurfaceModelParam() {
         displayMessage(NO_VERTEX_SELECTED_MSG, "errorMessage");
         return;
     }
-    var paramName = $("select[name='model_param']").val();
+    var paramName = $("[name='model_param']").val();
     var url = '/spatial/modelparameters/surface/apply_focal_point?model_param=' + paramName;
     url += "&triangle_index=" + TRIANGLE_pickedIndex;
 	
