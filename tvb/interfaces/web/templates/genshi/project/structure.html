@@ -10,8 +10,9 @@
                 onchange="updateTree(${project_id}, '${baseUrl}');" autocomplete="off">
             <py:for each="entry in data">
                 <py:for each="key in entry">
-                    <option value="${key}" selected="selected" py:if="key == default_selected">${entry[key]}</option>
-                    <option value="${key}" py:if="key != default_selected">${entry[key]}</option>
+                    <option value="${key}" selected="${'selected' if key == default_selected else None}">
+                        ${entry[key]}
+                    </option>
                 </py:for>
             </py:for>
         </select>
@@ -39,16 +40,10 @@
         <h4><mark>Filter</mark> Results Metadata</h4>
 
         <ul id="visibilityFiltersId">
-            <py:for each="f in filters">
-                <li id="${f.display_name}" class="active" py:if="f.selected">
-                    <a href="#" title="Disable this filter ..."
-                       onclick="changedVisibilityFilter(${project.id}, '${baseUrl}', '${f.display_name}')" >${f.display_name}</a>
-                </li>
-                <li id="${f.display_name}" py:if="not f.selected">
-                    <a href="#" title="Enable this filter ..."
-                       onclick="changedVisibilityFilter(${project.id}, '${baseUrl}', '${f.display_name}')">${f.display_name}</a>
-                </li>
-            </py:for>
+            <li py:for="f in filters" id="${f.display_name}" class="${'active' if f.selected else None}">
+                <a href="#" title="'Disable this filter ...' if f.selected else 'Enable this filter ...'"
+                   onclick="changedVisibilityFilter(${project.id}, '${baseUrl}', '${f.display_name}')">${f.display_name}</a>
+            </li>
 
             <li id="tree-related-li">
                 <input id="filterInput" name="filter_input" type="text" value="$filterInputValue"  placeholder="Search text here"/>
