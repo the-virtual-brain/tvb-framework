@@ -210,14 +210,8 @@ class BrainViewer(ABCDisplayer):
                     time_series=time_series, pageSize=self.PAGE_SIZE, boundary_url=boundary_url,
                     measurePointsLabels=time_series.get_space_labels(),
                     measurePointsTitle=time_series.title )
-        # todo : create a new property on timeseries datatype to store this selection reference
-        if hasattr(time_series, 'connectivity'):
-            initial_selection = time_series.connectivity.saved_selection
-            if initial_selection is None:
-                initial_selection = []
-            ret.update(connectivityGid=time_series.connectivity.gid, initialSelection=initial_selection)
-        else:
-            ret.update(connectivityGid='', initialSelection=[])
+
+        ret.update(self.build_initial_selection_for_timeseries(time_series, ret['measurePointsLabels']))
 
         return ret
 

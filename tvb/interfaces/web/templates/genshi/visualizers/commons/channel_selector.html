@@ -1,17 +1,17 @@
 <!-- This component is used to generate a channels selector. The genshi function expects as inputs:
 	@param noOfColumns: in how many columns should the checkboxes be spread
 	@param title: the title of the selection box
-	@param labelsForCheckBoxes: a dictionary where the keys are the name of the timeseries who need channel selections
-								and the values are two element tuple array of the form [ (channel_idx, channel_name)]
+	@param divId: the id of the top level div
+	@param options: a collection of the form [ (value, name)]
     @param initialSelection: a collection of the initially selected values
-    @param namedSelections: a list of tuples [slectionName, selectionValueArray]
+    @param namedSelections: a collection of tuples [(selectionName, selectionValueList)]
 -->
 <div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
-    <py:def function="drawRegionSelector(noOfColumns, ts_name, divId, labels_for_ts, initialSelection=[], namedSelections=[])">
+    <py:def function="drawRegionSelector(noOfColumns, title, divId, options, initialSelection=[], namedSelections=[])">
         <div id='${divId}'>
             <table class="subtableCheckboxes">
                 <thead>
-                    <tr><td colspan="${noOfColumns}"> ${ts_name} </td></tr>
+                    <tr><td colspan="${noOfColumns}"> ${title} </td></tr>
                     <tr><td colspan="${noOfColumns}">
                         <!--<button class="action action-view">Apply selection</button>-->
                         <button class="action action-all-on">&nbsp;</button>
@@ -27,13 +27,13 @@
                     </tr>
                 </thead>
 
-                <tr py:for="i in xrange(0, len(labels_for_ts), noOfColumns)">
-                    <td py:for="j in xrange(i, min(i + noOfColumns, len(labels_for_ts)))">
+                <tr py:for="i in xrange(0, len(options), noOfColumns)">
+                    <td py:for="j in xrange(i, min(i + noOfColumns, len(options)))">
                         <label>
                             <input type='checkbox' autocomplete="off"
-                                   value="${labels_for_ts[j][0]}"
+                                   value="${options[j][0]}"
                                    checked="${'checked' if j in initialSelection else None}"/>
-                            ${labels_for_ts[j][1]}
+                            ${options[j][1]}
                         </label>
                     </td>
                 </tr>

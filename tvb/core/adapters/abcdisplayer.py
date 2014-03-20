@@ -171,8 +171,21 @@ class ABCDisplayer(ABCSynchronous):
         """ Find AlgoGroup by module and class"""
         return dao.find_group(self.__module__, self.__class__.__name__)
     
-
-
+    @staticmethod
+    def build_initial_selection_for_timeseries(time_series, measurePointsLabels):
+        """
+        creates a template dict with the initial selection to be
+        displayed in a time series viewer
+        """
+        # todo : create a new property on timeseries datatype to store this selection reference
+        if hasattr(time_series, 'connectivity'):
+            initial_selection = time_series.connectivity.saved_selection
+            # this is not a sub-connectivity select all
+            if initial_selection is None:
+                initial_selection = range(len(measurePointsLabels))
+            return dict(connectivityGid=time_series.connectivity.gid, initialSelection=initial_selection)
+        else:
+            return dict(connectivityGid='', initialSelection=[])
 
 class ABCMPLH5Displayer(ABCDisplayer):
     """
