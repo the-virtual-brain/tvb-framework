@@ -46,6 +46,7 @@ from tvb.core.entities.exportable import Exportable
 from tvb.core.entities.model.model_base import Base
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.config.settings import TVBSettings
+from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 
 LOG = get_logger(__name__)
 
@@ -128,6 +129,17 @@ class User(Base):
         return self.preferences[UserPreferences.VIEWERS_COLOR_SCHEME]
 
 
+    def set_project_structure_grouping(self, first, second):
+        k = UserPreferences.PROJECT_STRUCTURE_GROUPING
+        self.preferences[k] = "%s,%s" % (first, second)
+
+
+    def get_project_structure_grouping(self):
+        k = UserPreferences.PROJECT_STRUCTURE_GROUPING
+        if k not in self.preferences:
+            self.preferences[k] = "%s,%s" % (DataTypeMetaData.KEY_STATE, DataTypeMetaData.KEY_SUBJECT)
+        return self.preferences[k].split(',')
+
 class UserPreferences(Base):
     """
     Contains the user preferences data.
@@ -136,6 +148,7 @@ class UserPreferences(Base):
 
     ONLINE_HELP_ACTIVE = "online_help_active"
     VIEWERS_COLOR_SCHEME = "viewers_color_scheme"
+    PROJECT_STRUCTURE_GROUPING = "project_structure_grouping"
     fk_user = Column(Integer, ForeignKey('USERS.id'), primary_key=True)
     key = Column(String, primary_key=True)
     value = Column(String)

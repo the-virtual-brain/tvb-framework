@@ -520,15 +520,31 @@ class ProjectController(BaseController):
         return template_specification
 
 
+    def get_project_structure_grouping(self):
+        user = common.get_logged_user()
+        return user.get_project_structure_grouping()
+
+
+    def set_project_structure_grouping(self, first, second):
+        user = common.get_logged_user()
+        user.set_project_structure_grouping(first, second)
+        self.user_service.edit_user(user)
+
     @expose_page
     @settings
-    def editstructure(self, project_id=None, last_selected_tab="treeTab", first_level=DataTypeMetaData.KEY_STATE,
-                      second_level=DataTypeMetaData.KEY_SUBJECT, filter_input="", visibility_filter=None, **_ignored):
+    def editstructure(self, project_id=None, last_selected_tab="treeTab", first_level=None,
+                      second_level=None, filter_input="", visibility_filter=None, **_ignored):
         """
         Return the page skeleton for displaying the project structure.
         """
-        if (project_id is None) or (not int(project_id)):
+        try:
+            int(project_id)
+        except (ValueError, TypeError):
             raise cherrypy.HTTPRedirect('/project')
+
+        if first_level is None or second_level is None:
+            first_level, second_level = self.get_project_structure_grouping()
+
         selected_project = self.project_service.find_project(project_id)
         self._mark_selected(selected_project)
         data = self.project_service.get_filterable_meta()
@@ -636,7 +652,8 @@ class ProjectController(BaseController):
     @handle_error(redirect=False)
     @check_user
     def readjsonstructure(self, project_id, visibility_filter=StaticFiltersFactory.FULL_VIEW,
-                          first_level="Data_State", second_level="Data_Subject", filter_value=None):
+                          first_level=DataTypeMetaData.KEY_STATE,
+                          second_level=DataTypeMetaData.KEY_SUBJECT, filter_value=None):
         """
         AJAX exposed method. 
         Will return the complete JSON for Project's structure, or filtered tree
@@ -645,6 +662,7 @@ class ProjectController(BaseController):
         selected_filter = StaticFiltersFactory.build_datatype_filters(single_filter=visibility_filter)
 
         project = self.project_service.find_project(project_id)
+        self.set_project_structure_grouping(first_level, second_level)
         json_structure = self.project_service.get_project_structure(project, selected_filter,
                                                                     first_level, second_level, filter_value)
         # This JSON encoding is necessary, otherwise we will get an error

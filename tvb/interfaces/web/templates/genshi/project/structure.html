@@ -7,7 +7,7 @@
     <py:def function="drawLevelSelect(level_index, data, default_selected, project_id, baseUrl)">
         <label for="levelTree_${level_index}" id="label_levelTree_${level_index}">Level ${level_index}:</label>
         <select id="levelTree_${level_index}" name='levelTree_${level_index}' 
-                onchange="updateTree(${project_id}, '${baseUrl}');">
+                onchange="updateTree(${project_id}, '${baseUrl}');" autocomplete="off">
             <py:for each="entry in data">
                 <py:for each="key in entry">
                     <option value="${key}" selected="selected" py:if="key == default_selected">${entry[key]}</option>
