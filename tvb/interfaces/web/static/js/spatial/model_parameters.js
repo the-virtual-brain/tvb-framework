@@ -233,7 +233,19 @@ function MP_displayFocalPoints() {
     _MP_CallFocalPointsRPC('get_focal_points', {});
 }
 
-
+/**
+ * Validates the surface model before submission
+ * Currently only checks if there are focal points
+ */
+function MP_onSubmit(ev){
+    // the client does not track the page state, it is in the server session
+    // this is a heuristic to detect if there are any focal points
+    var noFocalPoints = $("#focalPointsDiv li").length == 0;
+    if (noFocalPoints){
+        displayMessage('You have no focal points', 'errorMessage');
+        ev.preventDefault();
+    }
+}
 // --------------------------------------------------------------------------------------
 // ---------------------------- NOISE SPECIFIC SETTINGS ---------------------------------
 // --------------------------------------------------------------------------------------

@@ -84,11 +84,13 @@ class SurfaceModelParametersController(SpatioTemporalController):
         model_params_data = self.get_surface_model_parameters_data()
         model_params_data = self._add_entra_equation_entries(model_params_data)
         template_specification.update(model_params_data)
-        template_specification['submit_parameters_url'] = '/spatial/modelparameters/surface/submit_model_parameters'
-        template_specification['mainContent'] = 'spatial/model_param_surface_main'
-        template_specification['equationViewerUrl'] = '/spatial/modelparameters/surface/get_equation_chart'
-        template_specification['equationsPrefixes'] = json.dumps(self.plotted_equations_prefixes)
-        template_specification['submitSurfaceParametersBtn'] = True
+        template_specification.update(
+            submit_parameters_url='/spatial/modelparameters/surface/submit_model_parameters',
+            mainContent='spatial/model_param_surface_main',
+            equationViewerUrl='/spatial/modelparameters/surface/get_equation_chart',
+            equationsPrefixes=json.dumps(self.plotted_equations_prefixes),
+            submitSurfaceParametersBtn=True
+        )
         return self.fill_default_attributes(template_specification)
 
 
@@ -153,25 +155,32 @@ class SurfaceModelParametersController(SpatioTemporalController):
     @cherrypy.expose
     @handle_error(redirect=True)
     @check_user
-    def submit_model_parameters(self):
+    def submit_model_parameters(self, submit_action="cancel_action"):
         """
         Collects the model parameters values from all the models used for the surface vertices.
+        @:param submit_action: a post parameter. It distinguishes if this request is a cancel or a submit
         """
-        context_model_parameters = common.get_from_session(KEY_CONTEXT_MPS)
-        burst_configuration = common.get_from_session(common.KEY_BURST_CONFIG)
-        for original_param, modified_param in context_model_parameters.prepared_model_parameter_names.items():
-            full_name = PARAMS_MODEL_PATTERN % (context_model_parameters.model_name, original_param)
-            param_data = context_model_parameters.get_data_for_model_param(original_param, modified_param)
-            if isinstance(param_data, dict):
-                equation = param_data[KEY_EQUATION]
-                param_data[KEY_EQUATION] = equation.to_json(equation)
-                param_data[KEY_FOCAL_POINTS] = json.dumps(param_data[KEY_FOCAL_POINTS])
-                param_data = json.dumps(param_data)
-            burst_configuration.update_simulation_parameter(full_name, param_data)
+        if submit_action == "submit_action":
+            context_model_parameters = common.get_from_session(KEY_CONTEXT_MPS)
+            burst_configuration = common.get_from_session(common.KEY_BURST_CONFIG)
+            for original_param, modified_param in context_model_parameters.prepared_model_parameter_names.items():
+                full_name = PARAMS_MODEL_PATTERN % (context_model_parameters.model_name, original_param)
+                param_data = context_model_parameters.get_data_for_model_param(original_param, modified_param)
+                if isinstance(param_data, dict):
+                    equation = param_data[KEY_EQUATION]
+                    focal_points = param_data[KEY_FOCAL_POINTS]
+                    # if focal points or the equation are missing do not update this model parameter
+                    if not focal_points or not equation:
+                        continue
+                    param_data[KEY_EQUATION] = equation.to_json(equation)
+                    param_data[KEY_FOCAL_POINTS] = json.dumps(focal_points)
+                    param_data = json.dumps(param_data)
+                burst_configuration.update_simulation_parameter(full_name, param_data)
+            ### Update in session BURST configuration for burst-page.
+            common.add2session(common.KEY_BURST_CONFIG, burst_configuration.clone())
+
         ### Clean from session drawing context
         common.remove_from_session(KEY_CONTEXT_MPS)
-        ### Update in session BURST configuration for burst-page.
-        common.add2session(common.KEY_BURST_CONFIG, burst_configuration.clone())
         raise cherrypy.HTTPRedirect("/burst/")
 
 
