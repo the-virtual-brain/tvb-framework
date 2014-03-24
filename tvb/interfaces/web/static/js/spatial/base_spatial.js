@@ -68,14 +68,11 @@ function BS_startSignalVisualization() {
             data = $.parseJSON(data);
             if (data['status'] == 'ok') {
                 STIM_PICK_setVisualizedData(data);
-                var buttonStop = $('.action-stop')[0];
-                buttonStop.className = buttonStop.className.replace('action-idle', '');
-                var buttonRun = $('.action-run')[0];
-                buttonRun.className = buttonRun.className + " action-idle";
+                $('.action-stop').removeClass('action-idle');
+                $('.action-run').addClass('action-idle');
             } else {
                 displayMessage(data['errorMsg'], "errorMessage");
             }
-
         },
         error: function(x) {
             if (x.status == 500) {
@@ -87,10 +84,8 @@ function BS_startSignalVisualization() {
 
 function BS_stopSignalVisualization() {
 	STIM_PICK_stopDataVisualization();
-    var buttonRun = $('.action-run')[0];
-	buttonRun.className = buttonRun.className.replace('action-idle', '');
-    var buttonStop = $('.action-stop')[0];
-	buttonStop.className = buttonStop.className + " action-idle";
+    $('.action-run').removeClass('action-idle');
+    $('.action-stop').addClass('action-idle');
     LEG_legendBuffers = [];
 }
 
@@ -135,7 +130,6 @@ function BS_drawSurfaceFocalPoints() {
  * Move the brain navigator on this focal point.
  */
 function BS_centerNavigatorOnFocalPoint(focalPointTriangle) {
-
 	TRIANGLE_pickedIndex = parseInt(focalPointTriangle);
 	BASE_PICK_moveBrainNavigator(true);
 }
@@ -207,9 +201,7 @@ function _plotEquations(containerId, url, formDataId, axisDataId) {
         type:'GET',
         url:url + "?" + formInputs + ';' + axisData,
         success:function (data) {
-        	var containerElement = $("#" + containerId);
-            containerElement.empty();
-            containerElement.append(data);
+        	$("#" + containerId).empty().append(data);
         }
     });
 }
