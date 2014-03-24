@@ -150,12 +150,20 @@ function _copyModel(fromNode, toNodes) {
     });
 }
 
+function MP_getSelectedParamName(){
+    var maybeSelect = $("[name='model_param']");
+    if ( maybeSelect.prop('tagName') == "SELECT" ){
+        return maybeSelect.val();
+    }else{  // radio group
+        return maybeSelect.filter(':checked').val();
+    }
+}
 
 /**
  * Applies an equation for computing a model parameter.
  */
 function MP_applyEquationForParameter() {
-    var paramName = $("#modelParameterSelect").val();
+    var paramName = MP_getSelectedParamName();
     var formInputs = $("#form_spatial_model_param_equations").serialize();
     var plotAxisInputs = $('#equationPlotAxisParams').serialize();
     var url = '/spatial/modelparameters/surface/apply_equation?param_name=' + paramName + ';' + plotAxisInputs;
@@ -172,7 +180,7 @@ function MP_applyEquationForParameter() {
 }
 
 function _MP_CallFocalPointsRPC(method, kwargs){
-    var paramName = $("[name='model_param']").val();
+    var paramName = MP_getSelectedParamName();
     var url = '/spatial/modelparameters/surface/';
         url += method + '?model_param=' + paramName;
     for(var k in kwargs){
