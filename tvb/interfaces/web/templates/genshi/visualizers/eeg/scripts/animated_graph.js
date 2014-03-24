@@ -171,7 +171,7 @@ var channelLengths = [];
 // region selection component
 var AG_regionSelector = null;
 
-window.onresize = function(event) {
+window.onresize = function() {
     var canvas = $('#EEGcanvasDiv');
     if (!isDoubleView  && !isSmallPreview ) {
 		// Just use parent section width and height. For width remove some space for the labels to avoid scrolls
@@ -187,9 +187,10 @@ window.onresize = function(event) {
 /**
  * This method reads the data from 'dataSet.txt' file. The first line of the file
  */
-function drawAnimatedChart(longestChannelLength, channelsPerSet, baseURLS, pageSize, nrOfPages,	//dataSetPaths, 
+function drawAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
 						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found, 
 						   noOfChannels, totalLength, doubleView, channelLabels, connectivityGid) {
+
     if (!document.getElementById('ctrl-input-scale')) {
     	isSmallPreview = true;
     }
@@ -286,8 +287,8 @@ function AG_createYAxisDictionary(nr_channels) {
 	    	zoomRange: [0.1, 20]
 	    };
 	    increment = AG_computedStep / numberOfPointsForVerticalLine;
-	    for (var k= - AG_computedStep/2; k < AG_computedStep/2; k += increment) {
-	    	followingLine.push([0, k]);
+	    for (var kk= - AG_computedStep/2; kk < AG_computedStep/2; kk += increment) {
+	    	followingLine.push([0, kk]);
 	    }
     }
     AG_options.yaxis = yaxis_dict;
@@ -321,7 +322,6 @@ function submitSelectedChannels(isEndOfData) {
     AG_currentIndex = AG_numberOfVisiblePoints;
     if (AG_submitableSelectedChannels.length == 0) {
         AG_submitableSelectedChannels = displayedChannels.slice();
-        //AG_regionSelector.val(AG_submitableSelectedChannels);
     }
 
     if (!(isEndOfData && maxDataFileIndex == 0)) {
@@ -399,7 +399,7 @@ function submitSelectedChannels(isEndOfData) {
  * to move the vertical line, or in between, where vertical line is not moving, instead arrays are shifted.
  */
 function shouldMoveLine(direction, shiftNo) {
-	var shiftNo = shiftNo || 1;
+	shiftNo = shiftNo || 1;
 	var isEndOfGraph = false;
 	var isStartOfGraph = false;
 	if (direction == 1) {
@@ -548,8 +548,8 @@ function drawGraph(executeShift, shiftNo) {
     		followingLine[i][0] = AG_displayedTimes[currentLinePosition]
     	}
 	    var preparedData = [];
-	    for (var i = 0; i < AG_displayedPoints.length; i++) {
-	    	preparedData.push({data: AG_displayedPoints[i].slice(0), color: AG_reversedChannelColorsDict[i]});
+	    for (var j = 0; j < AG_displayedPoints.length; j++) {
+	    	preparedData.push({data: AG_displayedPoints[j].slice(0), color: AG_reversedChannelColorsDict[j]});
 	    }
 	    preparedData.push({data: followingLine, color: 'rgb(255, 0, 0)'});
 		plot.setData(preparedData);
@@ -566,14 +566,14 @@ function redrawPlot(data) {
 	/*
 	 * Do a redraw of the plot. Be sure to keep the resizable margin elements as the plot method seems to destroy them.
 	 */
-    var target = $('#EEGcanvasDiv')[0]; 
-    var resizerChildren = $('#EEGcanvasDiv').children('.ui-resizable-handle');
+    var target = $('#EEGcanvasDiv');
+    var resizerChildren = target.children('.ui-resizable-handle');
     for (var i=0; i < resizerChildren.length; i++) {
-    	target.removeChild(resizerChildren[i]);
+    	target[0].removeChild(resizerChildren[i]);
     }
-    plot = $.plot($("#EEGcanvasDiv"), data, $.extend(true, {}, AG_options));
-    for (var i=0; i < resizerChildren.length; i++) {
-    	target.appendChild(resizerChildren[i]);
+    plot = $.plot(target, data, $.extend(true, {}, AG_options));
+    for (var j=0; j < resizerChildren.length; j++) {
+    	target[0].appendChild(resizerChildren[j]);
     }
     setLabelColors();
 }
@@ -607,10 +607,10 @@ function processRawDataHook(plot, series, data, datapoints) {
  *
  * @param value the value that should be translated.
  * @param index the number of <code>AG_translationSteps</code> that should be used for translating the given value.
+ * @return {number}
  */
 function AG_addTranslationStep(value, index) {
-    var translatedValue = value - AG_normalizationSteps[displayedChannels[index]] + AG_translationStep * AG_computedStep * index;
-    return translatedValue;
+    return value - AG_normalizationSteps[displayedChannels[index]] + AG_translationStep * AG_computedStep * index;
 }
 
 function getTimeoutBasedOnSpeed() {
@@ -917,10 +917,10 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
     }
     if (nrOfPages[dataSetIndex] - 1 < currentFileIndex && AG_isLoadStarted) {
         var oneChannel = [];
-        for (var i = 0; i < maxChannelLength; i++) {
+        for (var j = 0; j < maxChannelLength; j++) {
             oneChannel.push(0);
         }
-        for (i = 0; i < noOfChannelsPerSet[dataSetIndex]; i++) {
+        for (j = 0; j < noOfChannelsPerSet[dataSetIndex]; j++) {
             nextData.push(oneChannel);
         }
 
@@ -951,9 +951,9 @@ function parseData(dataArray, dataSetIndex) {
     for (var i = 0; i < noOfChannelsPerSet[dataSetIndex]; i++) {
     	result.push([])
     }
-    for (var i = 0; i < dataArray.length; i++) {
+    for (var j = 0; j < dataArray.length; j++) {
     	for (var k = 0; k < noOfChannelsPerSet[dataSetIndex]; k++) {
-    		var arrElem = dataArray[i][k];
+    		var arrElem = dataArray[j][k];
     		if (arrElem == 'NaN') {
     			nanValueFound = true;
     			arrElem = 0;

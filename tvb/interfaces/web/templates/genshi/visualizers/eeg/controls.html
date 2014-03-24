@@ -44,7 +44,7 @@
 
                 <py:if test="number_of_visible_points &lt; page_size and page_size - number_of_visible_points &gt; 49">-->
                 <select id='page-size-select' onchange="value=this.options[this.selectedIndex].value;
-                    drawAnimatedChart('$longestChannelLength','$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}', $translationStep, '$normalizedSteps',
+                    drawAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}', $translationStep, '$normalizedSteps',
                          value, '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'}, '${graphLabels}', '$connectivityGid');
                     $('#display-page-size').html('' + value);">
                     <py:for each="value in range(number_of_visible_points, page_size - 1, (page_size - number_of_visible_points) / 10)">

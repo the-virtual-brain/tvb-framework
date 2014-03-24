@@ -253,8 +253,14 @@ class BrainViewer(ABCDisplayer):
         """
         Compute rounded labels for MIN and MAX values such that decimals will show a difference between them.
         """
-        min_integer, min_decimals = str(min_val).split('.')
-        max_integer, max_decimals = str(max_val).split('.')
+        if len(str(min_val).split('.')) == 2:
+            min_integer, min_decimals = str(min_val).split('.')
+        else:
+            min_integer, min_decimals = [str(int(min_val)), ""]
+        if len(str(max_val).split('.')) == 2:
+            max_integer, max_decimals = str(max_val).split('.')
+        else:
+            max_integer, max_decimals = [str(int(max_val)), ""]
         idx = min_nr_dec
         if len(min_decimals) < min_nr_dec or len(max_decimals) < min_nr_dec:
             processed_min_val = float(min_val)

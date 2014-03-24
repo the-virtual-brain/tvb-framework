@@ -16,7 +16,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            drawAnimatedChart('$longestChannelLength','$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
+            drawAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
                     $translationStep, '$normalizedSteps', '${number_of_visible_points}',
                     '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
                     '${graphLabels}', '$connectivityGid');
@@ -33,7 +33,7 @@
         	wrappingDiv.style.width = width + 'px';
         	wrappingDiv.style.height = height + 'px';
         	isSmallPreview = true;
-        	drawAnimatedChart('$longestChannelLength','$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
+        	drawAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
                     $translationStep, '$normalizedSteps', '${number_of_visible_points}',
                     '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
                     '${graphLabels}', '$connectivityGid');
@@ -84,7 +84,6 @@
 			</li>
 			
 			<!-- Channel selector -->
-			<!-- to be changed to hemispheres tables, like in LSC -->
 			<li py:if="channelsPage != None" class="channel-selector">
 				<nav class="inline-menu">
 					<button class="action action-menu">Select channels</button>

@@ -1315,7 +1315,7 @@ function loadNextActivitiesFile() {
  * that means it's time to switch to the next activity data slice.
  */
 function shouldChangeCurrentActivitiesFile() {
-    return ((currentTimeValue + TIME_STEP - totalPassedActivitiesData) > currentActivitiesFileLength)
+    return ((currentTimeValue + TIME_STEP - totalPassedActivitiesData) >= currentActivitiesFileLength)
 }
 
 /**

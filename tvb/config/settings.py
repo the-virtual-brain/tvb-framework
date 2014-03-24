@@ -116,7 +116,7 @@ class BaseProfile():
     # When launched on cluster, the MAX_DB_ASYNC_CONNECTIONS overwrites MAX_DB_CONNECTIONS value 
     MAX_DB_CONNECTIONS = 20
     MAX_DB_ASYNC_CONNECTIONS = 2
-    BASE_VERSION = "1.1.1"
+    BASE_VERSION = "1.1.2"
     # Nested transactions are not supported by all databases and not really necessary in TVB so far so
     # we don't support them yet. However when running tests we can use them to out advantage to rollback 
     # any database changes between tests.
@@ -393,7 +393,7 @@ class BaseProfile():
     @settings_loaded()
     def MAX_THREADS_NUMBER():
         """Maximum number of threads in the pool of simulations range."""
-        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_MAX_THREAD_NR, 4, int)
+        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_MAX_THREAD_NR, 2, int)
 
 
     # The maximum number of operations that can be launched with a PSE mechanism.
