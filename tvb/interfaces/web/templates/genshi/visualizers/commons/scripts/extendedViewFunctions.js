@@ -27,8 +27,8 @@ function _EX_commonChannelInit(updateColorBufferForMeasurePoint){
             VS_selectedRegions = AG_submitableSelectedChannels.slice();
 
             // update the measure point colors
-            for(i=0; i != AG_regionSelector.allValues.length; i++){
-                var val = AG_regionSelector.allValues[i];
+            for(i=0; i != AG_regionSelector._allValues.length; i++){
+                var val = AG_regionSelector._allValues[i];
                 var selected = selection.indexOf(val) != -1;
                 val = parseInt(val, 10);
                 updateColorBufferForMeasurePoint(val, selected);

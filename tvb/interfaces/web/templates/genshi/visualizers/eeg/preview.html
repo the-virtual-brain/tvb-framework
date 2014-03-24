@@ -15,14 +15,12 @@
     <script type="text/javascript" src="/static_view/commons/scripts/regionSelector.js"></script>
     <script type="text/javascript">
         function launchViewer(width, height) {
-        	document.getElementById('EEGcanvasDiv').style.width = width + 'px';
-        	document.getElementById('EEGcanvasDiv').style.height = height + 'px';
-        	isSmallPreview = true;
-//            todo: make this a separate entry point; do not animate do not initialize selection
-        	drawAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
-                    $translationStep, '$normalizedSteps', '${number_of_visible_points}',
-                    '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
-                    '${graphLabels}', '$connectivityGid');
+        	$('#EEGcanvasDiv').width(width).height(height);
+
+        	AG_startAnimatedChartPreview('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages',
+                    '${timeSetPaths}', $translationStep, '$normalizedSteps', '${number_of_visible_points}',
+                    '${nan_value_found}', $noOfChannels, $total_length,
+                    ${'true' if extended_view else 'false'}, '${graphLabels}');
         }
     </script>
 	

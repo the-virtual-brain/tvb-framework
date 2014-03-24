@@ -16,10 +16,10 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            drawAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
-                    $translationStep, '$normalizedSteps', '${number_of_visible_points}',
-                    '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
-                    '${graphLabels}', '$connectivityGid');
+            AG_startAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages',
+                    '${timeSetPaths}', $translationStep, '$normalizedSteps', '${number_of_visible_points}',
+                    '${nan_value_found}', $noOfChannels, $total_length,
+                    ${'true' if extended_view else 'false'}, '${graphLabels}', '$connectivityGid');
             bindHoverEvent();
             initializeCanvasEvents();
 
@@ -27,17 +27,6 @@
 		        bindZoomEvent();
 		    }
         });
-        // For Portlet preview:
-        function launchViewer(width, height) {
-            var wrappingDiv = document.getElementById('EEGcanvasDiv');
-        	wrappingDiv.style.width = width + 'px';
-        	wrappingDiv.style.height = height + 'px';
-        	isSmallPreview = true;
-        	drawAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages', '${timeSetPaths}',
-                    $translationStep, '$normalizedSteps', '${number_of_visible_points}',
-                    '${nan_value_found}', $noOfChannels, $total_length, ${'true' if extended_view else 'false'},
-                    '${graphLabels}', '$connectivityGid');
-        }
     </script>
 	
 	<section id="eegSectionId" class="view-column eeg-display col-1">

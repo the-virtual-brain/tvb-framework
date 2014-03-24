@@ -160,6 +160,8 @@ var AG_homeViewXValues = { zoomRange: zoom_range, labelWidth: lbl_x_width, label
 //This will be set to true in the launch_viewer method called by burst small previews
 var isSmallPreview = false;
 
+var targetVerticalLinePosition;
+
 // The base url for calling any methods on a given datatype
 var baseDataURLS = [];
 var nrOfPagesSet = [];
@@ -168,6 +170,7 @@ var tsModes = [0, 0, 0];
 var tsStates = [0, 0, 0];
 var longestChannelIndex = 0;
 var channelLengths = [];
+
 // region selection component
 var AG_regionSelector = null;
 
@@ -184,24 +187,40 @@ window.onresize = function() {
     }
     redrawPlot(plot.getData());
 };
+
 /**
- * This method reads the data from 'dataSet.txt' file. The first line of the file
+ * Animated graph entry point
  */
-function drawAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
+function AG_startAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
 						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found, 
 						   noOfChannels, totalLength, doubleView, channelLabels, connectivityGid) {
 
-    if (!document.getElementById('ctrl-input-scale')) {
-    	isSmallPreview = true;
-    }
+    isSmallPreview = false;
+    _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
+                           timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
+                           noOfChannels, totalLength, doubleView, channelLabels);
+    drawSliderForScale();
+    drawSliderForAnimationSpeed();
+    _AG_init_selection(connectivityGid);
+}
+
+function AG_startAnimatedChartPreview(channelsPerSet, baseURLS, pageSize, nrOfPages,
+						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
+						   noOfChannels, totalLength, doubleView, channelLabels, connectivityGid) {
+
+    isSmallPreview = true;
+    AG_isStopped = true;
+    _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
+                       timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
+                       noOfChannels, totalLength, doubleView, channelLabels);
+    refreshChannels();
+}
+
+function _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
+                           timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
+                           noOfChannels, totalLength, doubleView, channelLabels) {
+    // init global variables
     isDoubleView = doubleView;
-    var canvas = $('#EEGcanvasDiv');
-    if (!isDoubleView) {
-		// Just use parent section width and height. For width remove some space for the labels to avoid scrolls
-		// For height we have the toolbar there. Using 100% does not seem to work properly with FLOT. 				    	
-    	canvas.width(canvas.parent().width() - 40);
-    	canvas.height(canvas.parent().height() - 100);
-    }
     // dataSetUrls = $.parseJSON(dataSetPaths);
     baseDataURLS = $.parseJSON(baseURLS);
     nrOfPagesSet = $.parseJSON(nrOfPages);
@@ -223,10 +242,8 @@ function drawAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
         nanValueFound = true;
     }
     AG_computedStep = step;
-    if (isSmallPreview == false) {
-    	drawSliderForScale();
-    	drawSliderForAnimationSpeed();
-    }
+    // end globals init
+
     //If there is any information stored in 'AG_submitableSelectedChannels' then the call to drawAnimatedChart
     //came from a refrsh with a different page size. In this case there is no need to update the channel list.
     if (AG_submitableSelectedChannels.length == 0) {
@@ -238,6 +255,17 @@ function drawAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
             AG_submitableSelectedChannels.push(i);
         }
     }
+
+    if (!isDoubleView) {
+        var canvas = $('#EEGcanvasDiv');
+		// Just use parent section width and height. For width remove some space for the labels to avoid scrolls
+		// For height we have the toolbar there. Using 100% does not seem to work properly with FLOT.
+    	canvas.width(canvas.parent().width() - 40);
+    	canvas.height(canvas.parent().height() - 100);
+    }
+}
+
+function _AG_init_selection(connectivityGid){
     AG_regionSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
     AG_regionSelector.change(function(selection){
         AG_submitableSelectedChannels = [];
@@ -248,7 +276,6 @@ function drawAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
         refreshChannels();
     });
 
-    submitSelectedChannels(false);
     AG_regionSelector.val(AG_submitableSelectedChannels);
 }
 
@@ -336,6 +363,7 @@ function submitSelectedChannels(isEndOfData) {
             var result = parseData(data, i);
             selectedChannels = getDisplayedChannels(result, offset);
             offset = offset + result.length;
+            // todo: duplicated in this file
             if (selectedChannels.length > 0) {
             	channelLengths.push(selectedChannels[0].length);
             } else {
@@ -353,7 +381,7 @@ function submitSelectedChannels(isEndOfData) {
     AG_displayedTimes = [];
     for (var i = 0; i < AG_noOfLines; i++) {
         AG_displayedPoints.push([]);
-       }
+    }
 
     if (!(isEndOfData && maxDataFileIndex == 0)) {
         //read time
@@ -385,7 +413,7 @@ function submitSelectedChannels(isEndOfData) {
     AG_createYAxisDictionary(AG_noOfLines);
     redrawPlot([]);
     resetToDefaultView();
-    if (AG_isStopped == true) {
+    if (AG_isStopped ) {
     	AG_isStopped = false;
         drawGraph(false, noOfShiftedPoints);
         AG_isStopped = true;
