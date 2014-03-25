@@ -49,22 +49,6 @@
             <arg name='sensors_type' value='Internal Sensors' type='str' />  
         </args>
     </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="8">
-        <adapter module="tvb.adapters.uploaders.lookup_table_importer" class="LookupTableImporter"/>
-        <method name="launch" operation-hidden="true"/>
-        <args>
-            <arg name='psi_table_file' value="nerf_int.npz" module='demo_data.tables' type="file" />
-            <arg name='table_type' value='Nerf Table' type='str' />  
-        </args>
-    </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="8">
-        <adapter module="tvb.adapters.uploaders.lookup_table_importer" class="LookupTableImporter"/>
-        <method name="launch" operation-hidden="true"/>
-        <args>
-            <arg name='psi_table_file' value="psi.npz" module='demo_data.tables' type="file" />
-            <arg name='table_type' value='Psi Table' type='str' />  
-        </args>
-    </event>
     <event hookpoint="ProjectService.store_project" type="adapter" delay="12">
         <adapter module="tvb.adapters.uploaders.zip_surface_importer" class="ZIPSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
@@ -101,23 +85,7 @@
         </args>
     </event>
     
-    
-    <event hookpoint="CodeVersionsManager.update.4455" type="adapter" delay="8">
-        <adapter module="tvb.adapters.uploaders.lookup_table_importer" class="LookupTableImporter"/>
-        <method name="launch" operation-hidden="true"/>
-        <args>
-            <arg name='psi_table_file' value="nerf_int.npz" module='demo_data.tables' type="file" />
-            <arg name='table_type' value='Nerf Table' type='str' />  
-        </args>
-    </event>
-    <event hookpoint="CodeVersionsManager.update.4455" type="adapter" delay="8">
-        <adapter module="tvb.adapters.uploaders.lookup_table_importer" class="LookupTableImporter"/>
-        <method name="launch" operation-hidden="true"/>
-        <args>
-            <arg name='psi_table_file' value="psi.npz" module='demo_data.tables' type="file" />
-            <arg name='table_type' value='Psi Table' type='str' />  
-        </args>
-    </event>
+
     <event hookpoint="CodeVersionsManager.update.4455" type="adapter" delay="12">
         <adapter module="tvb.adapters.uploaders.zip_surface_importer" class="ZIPSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
