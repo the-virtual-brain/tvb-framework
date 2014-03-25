@@ -35,10 +35,8 @@
 import os
 import unittest
 import demo_data.tables as dataset
+from tvb.adapters.uploaders.lookup_table_importer import LookupTableImporter
 from tvb.datatypes.lookup_tables import NerfTable, PsiTable
-from tvb.core.entities.storage import dao
-from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.services.flow_service import FlowService
 from tvb.tests.framework.core.test_factory import TestFactory
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
@@ -52,38 +50,39 @@ class LookupTableImporterTest(TransactionalTestCase):
         """
         Reset the database before each test.
         """
-        self.test_user = TestFactory.create_user('CFF_User')
-        self.test_project = TestFactory.create_project(self.test_user, "CFF_Project")
+        self.test_user = TestFactory.create_user('Tables_User')
+        self.test_project = TestFactory.create_project(self.test_user, "Tables_Project")
         
     
     def test_psi_table_import(self):
         """
-        Test that importing a CFF generates at least one DataType in DB.
+        Test that importing a CFF generates one DataType.
         """
-        dt_count_before = TestFactory.get_entity_count(self.test_project, PsiTable())
-        group = dao.find_group('tvb.adapters.uploaders.lookup_table_importer', 'LookupTableImporter')
-        importer = ABCAdapter.build_adapter(group)
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'psi.npz')
-        args = {'psi_table_file': zip_path, 'table_type': 'Psi Table'}
-        ### Launch Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
-        dt_count_after = TestFactory.get_entity_count(self.test_project, PsiTable())
-        self.assertTrue(dt_count_after == dt_count_before + 1)
+
+        importer = LookupTableImporter()
+        result = importer.launch(zip_path, LookupTableImporter.PSI_TABLE)[0]
+
+        self.assertTrue(isinstance(result, PsiTable))
+        self.assertIsNotNone(result.data)
+        self.assertEqual(0.0, result.xmin)
+        self.assertEqual(0.3, result.xmax)
         
         
     def test_nerf_table_import(self):
         """
-        Test that importing a CFF generates at least one DataType in DB.
+        Test that importing a CFF generates a valid DataType.
         """
-        dt_count_before = TestFactory.get_entity_count(self.test_project, NerfTable())
-        group = dao.find_group('tvb.adapters.uploaders.lookup_table_importer', 'LookupTableImporter')
-        importer = ABCAdapter.build_adapter(group)
         zip_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)), 'nerf_int.npz')
-        args = {'psi_table_file': zip_path, 'table_type': 'Nerf Table'}
-        ### Launch Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
-        dt_count_after = TestFactory.get_entity_count(self.test_project, NerfTable())
-        self.assertTrue(dt_count_after == dt_count_before + 1)
+
+        importer = LookupTableImporter()
+        result = importer.launch(zip_path, LookupTableImporter.NERF_TABLE)[0]
+
+        self.assertTrue(isinstance(result, NerfTable))
+        self.assertIsNotNone(result.data)
+        self.assertEqual(20, result.xmax)
+        self.assertEqual(-10, result.xmin)
+
     
         
 def suite():
@@ -101,10 +100,4 @@ if __name__ == "__main__":
     TEST_SUITE = suite()
     TEST_RUNNER.run(TEST_SUITE)
     
-    
-    
-       
-        
-        
-        
     
