@@ -218,7 +218,7 @@ class ConnectivityViewer(ABCDisplayer):
 # -------------------- Connectivity 3D code starting -------------------
 
 
-class Connectivity3DViewer():
+class Connectivity3DViewer(object):
     """
     Behavior for the HTML/JS 3D representation of the connectivity matrix.
     """
@@ -261,7 +261,7 @@ Y_CANVAS_FULL = 300
 
 
 
-class Connectivity2DViewer():
+class Connectivity2DViewer(object):
     """
     Having as inputs a Connectivity matrix(required) and two arrays that 
     represent the colors and shapes of the nodes from the matrix(optional) 

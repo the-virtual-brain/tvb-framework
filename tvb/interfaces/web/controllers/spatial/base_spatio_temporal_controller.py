@@ -88,8 +88,7 @@ class SpatioTemporalController(BaseController):
         """
         Displays the main page for the spatio temporal section.
         """
-        template_specification = dict(title="Spatio temporal", data=data)
-        template_specification['mainContent'] = 'header_menu'
+        template_specification = { 'title': "Spatio temporal", 'data': data,  'mainContent': 'header_menu'}
         return self.fill_default_attributes(template_specification)
 
 
@@ -123,8 +122,8 @@ class SpatioTemporalController(BaseController):
         simulator_adapter = self.flow_service.build_adapter_instance(group)
         try:
             params_dict = simulator_adapter.convert_ui_inputs(burst_configuration.get_all_simulator_values()[0], False)
-        except Exception, excep:
-            self.logger.exception(excep)
+        except Exception:
+            self.logger.exception()
             common.set_error_message("Some of the provided parameters have an invalid value.")
             raise cherrypy.HTTPRedirect("/burst/")
         ### Prepare Model instance
@@ -133,9 +132,8 @@ class SpatioTemporalController(BaseController):
         noise_framework.build_noise(model_parameters)
         try:
             model = get_traited_instance_for_name(model, Model, model_parameters)
-        except Exception, ex:
-            self.logger.exception(ex)
-            self.logger.info("Could not create the model instance with the given parameters. "
+        except Exception:
+            self.logger.exception("Could not create the model instance with the given parameters. "
                              "A new model instance will be created with the default values.")
             model = get_traited_instance_for_name(model, Model, {})
         ### Prepare Integrator instance
@@ -144,9 +142,8 @@ class SpatioTemporalController(BaseController):
         noise_framework.build_noise(integrator_parameters)
         try:
             integrator = get_traited_instance_for_name(integrator, Integrator, integrator_parameters)
-        except Exception, ex:
-            self.logger.exception(ex)
-            self.logger.info("Could not create the integrator instance with the given parameters. "
+        except Exception:
+            self.logger.exception("Could not create the integrator instance with the given parameters. "
                              "A new integrator instance will be created with the default values.")
             integrator = get_traited_instance_for_name(integrator, Integrator, {})
         ### Prepare Connectivity
@@ -170,17 +167,17 @@ class SpatioTemporalController(BaseController):
         url_vertices_pick, url_normals_pick, url_triangles_pick = surface.get_urls_for_pick_rendering()
         url_vertices, url_normals, _, url_triangles, alphas, alphas_indices = surface.get_urls_for_rendering(True, None)
 
-        template_specification = dict()
-        template_specification['urlVerticesPick'] = json.dumps(url_vertices_pick)
-        template_specification['urlTrianglesPick'] = json.dumps(url_triangles_pick)
-        template_specification['urlNormalsPick'] = json.dumps(url_normals_pick)
-        template_specification['urlVertices'] = json.dumps(url_vertices)
-        template_specification['urlTriangles'] = json.dumps(url_triangles)
-        template_specification['urlNormals'] = json.dumps(url_normals)
-        template_specification['alphas'] = json.dumps(alphas)
-        template_specification['alphas_indices'] = json.dumps(alphas_indices)
-        template_specification['brainCenter'] = json.dumps(surface.center())
-        return template_specification
+        return {
+            'urlVerticesPick': json.dumps(url_vertices_pick),
+            'urlTrianglesPick': json.dumps(url_triangles_pick),
+            'urlNormalsPick': json.dumps(url_normals_pick),
+            'urlVertices': json.dumps(url_vertices),
+            'urlTriangles': json.dumps(url_triangles),
+            'urlNormals': json.dumps(url_normals),
+            'alphas': json.dumps(alphas),
+            'alphas_indices': json.dumps(alphas_indices),
+            'brainCenter': json.dumps(surface.center())
+        }
 
 
     @staticmethod
@@ -218,22 +215,13 @@ class SpatioTemporalController(BaseController):
     @staticmethod
     def get_series_json(data, label):
         """ For each data point entry, build the FLOT specific JSON. """
-        series = "{\"data\": " + json.dumps(data) + ","
-        series += "\"label\": \"" + label + "\""
-        series += "}"
-        return series
+        return '{"data": %s, "label": "%s"}' % (json.dumps(data), label)
 
 
     @staticmethod
     def build_final_json(list_of_series):
         """ Given a list with all the data points, build the final FLOT json. """
-        final_json = "["
-        for i, value in enumerate(list_of_series):
-            if i:
-                final_json += ","
-            final_json += value
-        final_json += "]"
-        return final_json
+        return '[' + ','.join(list_of_series) + ']'
 
 
     @staticmethod
@@ -242,7 +230,7 @@ class SpatioTemporalController(BaseController):
         The message returned by this method should be displayed if
         the equation with the given name couldn't be evaluated in all points.
         """
-        if len(list_of_equation_names):
+        if list_of_equation_names:
             return ("Could not evaluate the " + ", ".join(list_of_equation_names) + " equation(s) "
                     "in all the points. Some of the values were changed.")
         else:
