@@ -889,13 +889,13 @@ tv.plot = {
             var total = f.sz_fcs
                 , xdom = f.sc_fcs_x.domain()
                 , ydom = f.sc_fcs_y.domain()
-                , dx = f.sc_fcs_x(xdom[1]) - f.sc_fcs_x(xdom[0])
-                , dy = f.sc_fcs_y(ydom[1]) - f.sc_fcs_y(ydom[0])
+                , dx = xdom[1] - xdom[0]
+                , dy = ydom[1] - ydom[0]
                 , area = dx * dy
                 , area2 = total.x * total.y;
 
             //console.log(area / area2);
-            f.gp_lines.attr("style", "stroke-width: " + Math.abs(area / area2))
+            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", ""+4*Math.sqrt(Math.abs(area / area2)))
         };
 
         f.add_brushes = function () {
@@ -935,7 +935,7 @@ tv.plot = {
                     // to be tested further to see if it was really needed, and if so look into the problem of zooming
                     // described above.
 
-                    // f.render()
+                    f.render()
                 };
 
             f.br_ctx_y_fn = br_ctx_y_fn;
@@ -957,7 +957,7 @@ tv.plot = {
                     // to be tested further to see if it was really needed, and if so look into the problem of zooming
                     // described above.
 
-                    // f.render()
+                    f.render()
                 }
             };
 
