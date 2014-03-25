@@ -52,8 +52,6 @@ var AG_isStopped = false;
 var AG_isSpeedZero = false;
 //the number of points that are shifted/unshift at a moment
 var noOfShiftedPoints = 1;
-// contains the indexes of the channels that should be displayed
-//var selectedChannels = [];
 // List of channels that will be submited on a change of the displayed channels
 var AG_submitableSelectedChannels = [];
 // contains the indexes of the channels that are displayed
@@ -196,9 +194,11 @@ function AG_startAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
 						   noOfChannels, totalLength, doubleView, channelLabels, connectivityGid) {
 
     isSmallPreview = false;
-    _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
-                           timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
+    _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
+                    timeSetPaths, step, normalizations, nan_value_found,
                            noOfChannels, totalLength, doubleView, channelLabels);
+    _AG_initPaginationState(number_of_visible_points);
+    _AG_preStart();
     drawSliderForScale();
     drawSliderForAnimationSpeed();
     _AG_init_selection(connectivityGid);
@@ -206,20 +206,34 @@ function AG_startAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
 
 function AG_startAnimatedChartPreview(channelsPerSet, baseURLS, pageSize, nrOfPages,
 						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
-						   noOfChannels, totalLength, doubleView, channelLabels, connectivityGid) {
+						   noOfChannels, totalLength, doubleView, channelLabels) {
 
     isSmallPreview = true;
     AG_isStopped = true;
-    _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
-                       timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
+    _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
+                    timeSetPaths, step, normalizations, nan_value_found,
                        noOfChannels, totalLength, doubleView, channelLabels);
+    _AG_initPaginationState(number_of_visible_points);
+    _AG_preStart();
     refreshChannels();
 }
 
-function _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
-                           timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
-                           noOfChannels, totalLength, doubleView, channelLabels) {
-    // init global variables
+function AG_rePaginate(number_of_visible_points) {
+    _AG_initPaginationState(number_of_visible_points);
+    $('#display-page-size').html('' + number_of_visible_points);
+    refreshChannels();
+    if (isDoubleView){
+        initActivityData();
+    }
+}
+
+/**
+ * Initialize global state. Part of the AG startup.
+ * @private
+ */
+function _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
+                           timeSetPaths, step, normalizations, nan_value_found,
+                           noOfChannels, totalLength, doubleView, channelLabels){
     isDoubleView = doubleView;
     // dataSetUrls = $.parseJSON(dataSetPaths);
     baseDataURLS = $.parseJSON(baseURLS);
@@ -231,18 +245,12 @@ function _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
     maxChannelLength = parseInt(pageSize);
     AG_normalizationSteps = $.parseJSON(normalizations);
     setMaxDataFileIndex(nrOfPagesSet);
-    AG_numberOfVisiblePoints = parseInt(number_of_visible_points);
-    if (AG_numberOfVisiblePoints > maxChannelLength) {
-    	AG_numberOfVisiblePoints = maxChannelLength;
-    }
-    targetVerticalLinePosition = AG_numberOfVisiblePoints * procentualLinePosition;
     totalNumberOfChannels = noOfChannels;
     totalTimeLength = totalLength;
     if (nan_value_found == "True") {
         nanValueFound = true;
     }
     AG_computedStep = step;
-    // end globals init
 
     //If there is any information stored in 'AG_submitableSelectedChannels' then the call to drawAnimatedChart
     //came from a refrsh with a different page size. In this case there is no need to update the channel list.
@@ -255,7 +263,25 @@ function _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
             AG_submitableSelectedChannels.push(i);
         }
     }
+}
 
+/**
+ * Initialize pagination. Part of AG startup.
+ * @private
+ */
+function _AG_initPaginationState(number_of_visible_points){
+    AG_numberOfVisiblePoints = parseInt(number_of_visible_points);
+    if (AG_numberOfVisiblePoints > maxChannelLength) {
+    	AG_numberOfVisiblePoints = maxChannelLength;
+    }
+    targetVerticalLinePosition = AG_numberOfVisiblePoints * procentualLinePosition;
+}
+
+/**
+ * Misc common startup logic. Part of AG startup
+ * @private
+ */
+function _AG_preStart() {
     if (!isDoubleView) {
         var canvas = $('#EEGcanvasDiv');
 		// Just use parent section width and height. For width remove some space for the labels to avoid scrolls
@@ -265,6 +291,10 @@ function _AG_start_common(channelsPerSet, baseURLS, pageSize, nrOfPages,
     }
 }
 
+/**
+ * Init selection component. Part of AG startup
+ * @private
+ */
 function _AG_init_selection(connectivityGid){
     AG_regionSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
     AG_regionSelector.change(function(selection){
@@ -279,6 +309,18 @@ function _AG_init_selection(connectivityGid){
     AG_regionSelector.val(AG_submitableSelectedChannels);
 }
 
+/**
+ * Read speed from the dom
+ * @param defaultSpeed default speed when there is no speed slider
+ * @private
+ */
+function _AG_get_speed(defaultSpeed){
+    var speed = defaultSpeed;
+    if (!isSmallPreview  && !isDoubleView) {
+    	speed = $("#ctrl-input-speed").slider("value");
+    }
+    return speed;
+}
 
 function AG_createYAxisDictionary(nr_channels) {
 	/*
@@ -361,7 +403,7 @@ function submitSelectedChannels(isEndOfData) {
         	var dataURL = readDataPageURL(baseDataURLS[i], 0, dataPageSize, tsStates[i], tsModes[i]);
             var data = HLPR_readJSONfromFile(dataURL);
             var result = parseData(data, i);
-            selectedChannels = getDisplayedChannels(result, offset);
+            var selectedChannels = getDisplayedChannels(result, offset);
             offset = offset + result.length;
             // todo: duplicated in this file
             if (selectedChannels.length > 0) {
@@ -379,7 +421,7 @@ function submitSelectedChannels(isEndOfData) {
     
     AG_displayedPoints = [];
     AG_displayedTimes = [];
-    for (var i = 0; i < AG_noOfLines; i++) {
+    for (var ii = 0; ii < AG_noOfLines; ii++) {
         AG_displayedPoints.push([]);
     }
 
@@ -501,9 +543,11 @@ function drawGraph(executeShift, shiftNo) {
     if (shouldLoadNextDataFile()) {
         loadNextDataFile();
     }
+
 	var direction = 1;
-	if (isSmallPreview == false && !isDoubleView) {
-		if ($('#ctrl-input-speed').slider("option", "value") < 0) direction = -1;
+
+    if (_AG_get_speed(1) < 0){
+        direction = -1;
 	}
 	
 	var moveLine = shouldMoveLine(direction, noOfShiftedPoints);
@@ -642,10 +686,8 @@ function AG_addTranslationStep(value, index) {
 }
 
 function getTimeoutBasedOnSpeed() {
-	var currentAnimationSpeedValue = 40;
-	if (isSmallPreview == false && !isDoubleView) {
-		currentAnimationSpeedValue = $("#ctrl-input-speed").slider("option", "value");
-	}
+    var currentAnimationSpeedValue = _AG_get_speed(40);
+
     if (currentAnimationSpeedValue == 0) {
         return 300;
     }
@@ -737,6 +779,7 @@ function addFromPreviousPage(indexInPage, currentPage) {
 	var previousTimeData = HLPR_readJSONfromFile(timeSetUrls[0][currentPage - 1]);
 	// Compute which slices we would need from the 'full' two-pages data.
 	// We only need the difference so to center indexInPage at AG_numberOfVisiblePoints / 2
+    var fromIdx, toIdx;
 	fromIdx = previousData[0].length - (AG_numberOfVisiblePoints / 2 - indexInPage);  // This is from where we need to read from previous data
 	AG_currentIndex = toIdx = AG_numberOfVisiblePoints - (AG_numberOfVisiblePoints / 2 - indexInPage); // This is where we need to add from the current page
 	// Just generate displayed point and displayed times now
@@ -747,14 +790,13 @@ function addFromPreviousPage(indexInPage, currentPage) {
 				oneLine.push([previousTimeData[idy], AG_addTranslationStep(previousData[idx][idy], idx)])
 			}
 			// Now that that is from our current slice
-			for (var idy = 0; idy < toIdx; idy ++) {
+			for (idy = 0; idy < toIdx; idy ++) {
 				oneLine.push([AG_time[idy], AG_addTranslationStep(AG_allPoints[idx][idy], idx)])
 			}
 			AG_displayedPoints.push(oneLine);
 		}
 	AG_displayedTimes = previousTimeData.slice(fromIdx).concat(AG_time.slice(0, toIdx));
 	previousData = null;
-	beforeTimeData = null;
 }
 
 
@@ -767,7 +809,7 @@ function addFromNextPage(indexInPage, currentPage) {
 	var followingData = parseData(HLPR_readJSONfromFile(followingPageUrl), 0);
 	followingData = getDisplayedChannels(followingData, 0).slice(0);
 	var followingTimeData = HLPR_readJSONfromFile(timeSetUrls[0][currentPage + 1]);
-	
+	var fromIdx, toIdx;
 	fromIdx = indexInPage - (AG_numberOfVisiblePoints / 2);	// We need to read starting from here from the current page
 	AG_currentIndex = toIdx = fromIdx + AG_numberOfVisiblePoints - AG_allPoints[0].length;	// We need to read up to here from next page
 	for (var idx = 0; idx < AG_allPoints.length; idx++) {
@@ -777,7 +819,7 @@ function addFromNextPage(indexInPage, currentPage) {
 			oneLine.push([AG_time[idy], AG_addTranslationStep(AG_allPoints[idx][idy], idx) ])
 		}
 		// Now that that is from next slice
-		for (var idy = 0; idy < toIdx; idy ++) {
+		for (idy = 0; idy < toIdx; idy ++) {
 			oneLine.push([followingTimeData[idy], AG_addTranslationStep(followingData[idx][idy], idx) ])
 		}
 		AG_displayedPoints.push(oneLine);
@@ -823,29 +865,28 @@ function changeCurrentDataFile() {
     if (!isNextDataLoaded || !isNextTimeDataLoaded) {
         return;
     }
-    var speed = 100;
-    if (isSmallPreview == false && !isDoubleView) {
-    	speed = $("#ctrl-input-speed").slider("option", "value");
-    }
+
     if (cachedFileIndex != getNextDataFileIndex()) {
         AG_isLoadStarted = false;
         isNextDataLoaded = false;
         isNextTimeDataLoaded = false;
         nextData = [];
         nextTimeData = [];
-
         return;
     }
 
+    var speed = _AG_get_speed(100);
+    var longestChannelLength = AG_allPoints[longestChannelIndex].length;
+
     if (speed > 0) {
-        totalPassedData = totalPassedData + AG_allPoints[longestChannelIndex].length;
-        if (AG_allPoints[longestChannelIndex].length < AG_currentIndex) {
-            AG_currentIndex = - (AG_allPoints[longestChannelIndex].length - AG_currentIndex);
+        totalPassedData = totalPassedData + longestChannelLength;
+        if (longestChannelLength < AG_currentIndex) {
+            AG_currentIndex = - (longestChannelLength - AG_currentIndex);
         } else {
             AG_currentIndex = 0;
         }
     } else if (speed < 0) {
-        totalPassedData = totalPassedData - AG_allPoints[longestChannelIndex].length;
+        totalPassedData = totalPassedData - longestChannelLength;
         if (totalPassedData < 0) {
             totalPassedData = 0;
         }
@@ -863,17 +904,15 @@ function changeCurrentDataFile() {
     isNextTimeDataLoaded = false;
 
     if (speed < 0) {
-        AG_currentIndex = AG_allPoints[longestChannelIndex].length + AG_currentIndex;
+        AG_currentIndex = longestChannelLength + AG_currentIndex;
     }
 }
 
 function shouldLoadNextDataFile() {
     if (!AG_isLoadStarted && maxDataFileIndex > 0) {
         var nextFileIndex = getNextDataFileIndex();
-        var speed = 1; // Assume left to right pass of data
-        if (isSmallPreview == false && !isDoubleView) {
-        	speed = $("#ctrl-input-speed").slider("option", "value");
-        }
+        var speed = _AG_get_speed(1); // Assume left to right pass of data
+
         if ((speed > 0) && (currentDataFileIndex != nextFileIndex) && (maxChannelLength - AG_currentIndex < threshold * AG_numberOfVisiblePoints)) {
             return true;
         } 
@@ -902,11 +941,8 @@ function getNextDataFileIndex() {
 	/*
 	 * Return the index of the next data file that should be loaded.
 	 */
-	var speed = 100;
-	if (isSmallPreview == false && !isDoubleView) {
-		speed = $("#ctrl-input-speed").slider("option", "value");
-	}
     var nextIndex;
+	var speed = _AG_get_speed(100);
     if (speed > 0) {
         nextIndex = currentDataFileIndex + 1;
         if (nextIndex >= maxDataFileIndex) {
@@ -929,7 +965,7 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
         var selectedData = [];
         channelLengths = [];
         for (var i = 0; i< nextData.length; i++) {
-        	selectedChannels = getDisplayedChannels(nextData[i], offset);
+        	var selectedChannels = getDisplayedChannels(nextData[i], offset);
             offset = offset + nextData[i].length;
             if (selectedChannels.length > 0) {
             	channelLengths.push(selectedChannels[0].length);
