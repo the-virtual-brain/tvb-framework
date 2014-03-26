@@ -36,6 +36,7 @@ DAO operation related to Users and Projects are defined here.
 """
 
 from sqlalchemy import or_, and_
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.orm.exc import NoResultFound
 from tvb.basic.config.settings import TVBSettings as cfg
@@ -55,7 +56,7 @@ class CaseDAO(RootDAO):
         user = None
         try:
             user = self.session.query(model.User).filter_by(id=user_id).one()
-        except Exception:
+        except SQLAlchemyError:
             pass
         return user
 
@@ -65,7 +66,7 @@ class CaseDAO(RootDAO):
         user = None
         try:
             user = self.session.query(model.User).filter_by(username=name).one()
-        except Exception:
+        except SQLAlchemyError:
             pass
         return user
 
@@ -75,7 +76,7 @@ class CaseDAO(RootDAO):
         user = None
         try:
             user = self.session.query(model.User).filter_by(username=cfg.SYSTEM_USER_NAME).one()
-        except Exception:
+        except SQLAlchemyError:
             pass
         return user
 
@@ -91,7 +92,7 @@ class CaseDAO(RootDAO):
         admins = None
         try:
             admins = self.session.query(model.User).filter_by(role=model.ROLE_ADMINISTRATOR).all()
-        except Exception:
+        except SQLAlchemyError:
             pass
         return admins
 
@@ -117,7 +118,7 @@ class CaseDAO(RootDAO):
         user = None
         try:
             user = self.session.query(model.User).filter_by(username=username, email=email).one()
-        except Exception:
+        except SQLAlchemyError:
             pass
         return user
 
@@ -135,7 +136,7 @@ class CaseDAO(RootDAO):
             datatype = self.session.query(model.DataType).filter_by(id=dt_id).one()
             datatype.parent_operation
             user = datatype.parent_operation.user
-        except Exception, ex:
+        except SQLAlchemyError, ex:
             self.logger.exception(ex)
             user = None
         return user
@@ -223,7 +224,7 @@ class CaseDAO(RootDAO):
                                         ).filter(model.Operation.fk_launched_in == model.Project.id
                                                  ).filter(model.Operation.id == operation_id).one()
             return result
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 

@@ -38,6 +38,7 @@ DAO operations related to generic DataTypes are defined here.
 import numpy
 from sqlalchemy import func as func
 from sqlalchemy import or_, not_, and_, Integer
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 from sqlalchemy.sql.expression import desc, cast
 from sqlalchemy.sql.expression import case as case_
@@ -71,7 +72,7 @@ class DatatypeDAO(RootDAO):
         try:
             result = self.session.query(model.DataTypeGroup).filter_by(gid=datatype_group_gid).one()
             return result
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 
@@ -83,7 +84,7 @@ class DatatypeDAO(RootDAO):
         try:
             result = self.session.query(model.DataTypeGroup).filter_by(fk_operation_group=op_group_id).one()
             return result
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 
@@ -96,7 +97,7 @@ class DatatypeDAO(RootDAO):
             result = self.session.query(model.DataType
                                         ).filter(model.DataType.gid == datatype_gid
                                                  ).filter(model.DataType.id == model.DataTypeGroup.id).count()
-        except Exception:
+        except SQLAlchemyError:
             return False
         return result > 0
 
@@ -111,7 +112,7 @@ class DatatypeDAO(RootDAO):
                                                  ).filter(model.DataType.type != self.EXCEPTION_DATATYPE_SIMULATION
                                                           ).count()
             return result
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 
@@ -123,7 +124,7 @@ class DatatypeDAO(RootDAO):
         try:
             disk_size = self.session.query(func.sum(model.DataType.disk_size)
                                            ).filter(model.DataType.fk_from_operation == operation_id).scalar() or 0
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             disk_size = 0
         return disk_size
@@ -139,7 +140,7 @@ class DatatypeDAO(RootDAO):
             result = self.session.query(model.DataType).filter_by(
                 fk_datatype_group=datatype_group_id).order_by(model.DataType.id).all()
             return result
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 
@@ -155,7 +156,7 @@ class DatatypeDAO(RootDAO):
                                                           model.DataType.gid == datatype_gid)
                                                       ).update({"visible": is_visible})
             self.session.commit()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
 
@@ -166,7 +167,7 @@ class DatatypeDAO(RootDAO):
         """
         try:
             count = self.session.query(model.DataType).count()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             count = 0
         return count
@@ -183,7 +184,7 @@ class DatatypeDAO(RootDAO):
         resulted_data = []
         try:
             resulted_data = self.session.query(model.DataType).offset(max(page_start, 0)).limit(max(page_end, 0)).all()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
         return resulted_data
     
@@ -197,7 +198,7 @@ class DatatypeDAO(RootDAO):
         try:
             count = self.session.query(model.DataType).join(model.Operation
                                         ).filter(model.Operation.parameters.ilike('%' + datatype_gid + '%')).count()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
         return count
 
@@ -216,7 +217,7 @@ class DatatypeDAO(RootDAO):
             if count:
                 return query.count()
             resulted_data = query.offset(max(page_start, 0)).limit(max(page_end, 0)).all()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return resulted_data
@@ -236,7 +237,7 @@ class DatatypeDAO(RootDAO):
                         datatypes[subdt.gid] = subdt
                 else:
                     datatypes[dt.gid] = dt
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return datatypes.values()
@@ -367,7 +368,8 @@ class DatatypeDAO(RootDAO):
         try:
             links = self.session.query(model.Links).join(model.DataType).filter(model.DataType.id == data_id).all()
             return links
-        except Exception:
+        except SQLAlchemyError, excep:
+            self.logger.exception(excep)
             return None
 
 
@@ -384,7 +386,7 @@ class DatatypeDAO(RootDAO):
             for row in result:
                 resulted_data.append(row)
             return resulted_data
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 
@@ -400,7 +402,7 @@ class DatatypeDAO(RootDAO):
             if result is not None and len(result) > 0:
                 resulted_data = result[0][0]
             return resulted_data
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 
@@ -456,7 +458,7 @@ class DatatypeDAO(RootDAO):
         try:
             hdd_size = self.session.query(func.sum(model.DataType.disk_size)
                                           ).filter(model.DataType.fk_datatype_group == dt_group_id).scalar() or 0
-        except Exception, ex:
+        except SQLAlchemyError, ex:
             self.logger.exception(ex)
             hdd_size = 0
         return hdd_size
@@ -469,7 +471,7 @@ class DatatypeDAO(RootDAO):
         try:
             hdd_size = self.session.query(func.sum(model.DataType.disk_size)
                                           ).filter(model.DataType.fk_parent_burst == burst_id).scalar() or 0
-        except Exception, ex:
+        except SQLAlchemyError, ex:
             self.logger.exception(ex)
             hdd_size = 0
         return hdd_size
@@ -499,7 +501,8 @@ class DatatypeDAO(RootDAO):
                         if numpy.all(rez):
                             filtered_selections.append(selection)
                     selections = filtered_selections
-        except Exception:
+        except Exception, excep:
+            self.logger.exception(excep)
             return None
         return selections
 
@@ -512,7 +515,8 @@ class DatatypeDAO(RootDAO):
             selection = self.session.query(model.ConnectivitySelection
                                            ).filter(model.ConnectivitySelection.fk_in_project == project_id
                                                     ).filter(model.ConnectivitySelection.ui_name == ui_name).one()
-        except Exception:
+        except SQLAlchemyError, excep:
+            self.logger.exception(excep)
             return None
         return selection
 
@@ -525,7 +529,8 @@ class DatatypeDAO(RootDAO):
             nr_selections = self.session.query(model.ConnectivitySelection
                                                ).filter(model.ConnectivitySelection.fk_in_project == project_id
                                                         ).filter(model.ConnectivitySelection.ui_name == ui_name).count()
-        except Exception:
+        except SQLAlchemyError, excep:
+            self.logger.exception(excep)
             return 0
         return nr_selections
 

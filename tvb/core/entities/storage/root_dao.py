@@ -34,7 +34,7 @@ Base DAO behavior.
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
@@ -96,18 +96,17 @@ class RootDAO(object):
         Find entity by Id and Type, end then remove it.
         Return True, when entity was removed successfully, of False when exception.
         """
-        result = False
         try:
             entity = self.session.query(entity_class).filter_by(id=entity_id).one()
             self.session.delete(entity)
             self.session.commit()
-            result = True
+            return True
         except NoResultFound:
             self.logger.info("Entity from class %s with id %s has been already removed." % (entity_class, entity_id))
             return True
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
-        return result
+            return False
 
 
     #

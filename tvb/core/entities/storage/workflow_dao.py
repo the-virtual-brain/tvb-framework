@@ -33,6 +33,7 @@ DAO layer for WorkFlow and Burst entities.
 """
 
 from sqlalchemy import func as func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import desc, not_
 from tvb.core.entities import model
@@ -58,8 +59,8 @@ class WorkflowDAO(RootDAO):
             portlets = self.session.query(model.Portlet
                                         ).filter(model.Portlet.last_introspection_check < reference_time).all()
             all_invalid_entities = algo_groups + categories + portlets
-        except Exception, ex:
-            self.logger.error(ex)
+        except SQLAlchemyError, ex:
+            self.logger.exception(ex)
             all_invalid_entities = []
         return all_invalid_entities
 
@@ -76,7 +77,7 @@ class WorkflowDAO(RootDAO):
                 bursts = bursts.offset(max(page_start, 0)).limit(page_end)
 
             bursts = bursts.all()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             bursts = None
         return bursts
@@ -92,7 +93,7 @@ class WorkflowDAO(RootDAO):
             if max_id[0] is None:
                 return 0
             return max_id[0]
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
         return 0
 
@@ -110,7 +111,7 @@ class WorkflowDAO(RootDAO):
                                        ).filter(not_(model.BurstConfiguration.name.like(burst_name + '/_%/_%',
                                                                                         escape='/'))
                                        ).count()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
         return count
 
@@ -119,7 +120,7 @@ class WorkflowDAO(RootDAO):
         """Get the BurstConfiguration entity with the given id"""
         try:
             burst = self.session.query(model.BurstConfiguration).filter_by(id=burst_id).one()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             burst = None
         return burst
@@ -133,7 +134,7 @@ class WorkflowDAO(RootDAO):
                                         ).order_by(model.WorkflowStepView.tab_index,
                                                    model.WorkflowStepView.index_in_tab).all()
             return result
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 
@@ -148,7 +149,7 @@ class WorkflowDAO(RootDAO):
                                         ).filter(model.WorkflowStep.step_index > -1
                                         ).order_by(model.WorkflowStep.step_index).all()
             return result
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
 
@@ -158,7 +159,7 @@ class WorkflowDAO(RootDAO):
         workflows = []
         try:
             workflows = self.session.query(model.Workflow).filter_by(fk_burst=burst_id).all()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return workflows
@@ -169,7 +170,7 @@ class WorkflowDAO(RootDAO):
         workflow = None
         try:
             workflow = self.session.query(model.Workflow).filter_by(id=workflow_id).one()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return workflow
@@ -185,7 +186,7 @@ class WorkflowDAO(RootDAO):
                                                                     step_index=step_index).one()
         except NoResultFound:
             self.logger.debug("No step found for workflow_id=%s and step_index=%s" % (workflow_id, step_index))
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return step
@@ -202,7 +203,7 @@ class WorkflowDAO(RootDAO):
                                        ).filter_by(fk_workflow=workflow_id,
                                                    tab_index=tab_index, index_in_tab=index_in_tab
                                        ).order_by(model.WorkflowStep.step_index).all()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return steps
@@ -215,7 +216,7 @@ class WorkflowDAO(RootDAO):
         wf_steps = []
         try:
             wf_steps = self.session.query(model.WorkflowStepView).filter_by(fk_portlet=portlet_id).all()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return wf_steps
@@ -232,7 +233,7 @@ class WorkflowDAO(RootDAO):
             step = self.session.query(model.WorkflowStep).filter_by(fk_operation=operation_id).one()
         except NoResultFound:
             self.logger.debug("No step found for operation_id=%s" % operation_id)
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
         return step
 
@@ -244,7 +245,7 @@ class WorkflowDAO(RootDAO):
         portlets = []
         try:
             portlets = self.session.query(model.Portlet).order_by(model.Portlet.name).all()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return portlets
@@ -259,7 +260,7 @@ class WorkflowDAO(RootDAO):
             portlet = self.session.query(model.Portlet).filter_by(algorithm_identifier=portlet_identifier).one()
         except NoResultFound:
             self.logger.debug("No portlet found with id=%s." % portlet_identifier)
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return portlet
@@ -272,7 +273,7 @@ class WorkflowDAO(RootDAO):
         portlet = None
         try:
             portlet = self.session.query(model.Portlet).filter_by(id=portlet_id).one()
-        except Exception, excep:
+        except SQLAlchemyError, excep:
             self.logger.exception(excep)
 
         return portlet
@@ -288,8 +289,8 @@ class WorkflowDAO(RootDAO):
                                           ).filter(model.WorkflowStep.fk_operation == operation_id).one()
         except NoResultFound, _:
             self.logger.warning("Operation with id=%s was not generated from any workflow." % operation_id)
-        except Exception, excep:
-            self.logger.error(excep)
+        except SQLAlchemyError, excep:
+            self.logger.exception(excep)
         return workflow
 
 
@@ -305,8 +306,8 @@ class WorkflowDAO(RootDAO):
                                        ).filter(model.WorkflowStep.fk_operation==operation_id).one()
         except NoResultFound, _:
             self.logger.debug("No burst found for operation id = %s"%(operation_id,))
-        except Exception, excep:
-            self.logger.error(excep)
+        except SQLAlchemyError, excep:
+            self.logger.exception(excep)
         return burst
 
 
@@ -327,8 +328,8 @@ class WorkflowDAO(RootDAO):
                                       ).filter(model.DataType.fk_datatype_group == None
                                       ).filter(model.DataType.type != self.EXCEPTION_DATATYPE_GROUP).all()
             result.extend(datatypes)
-        except Exception, exc:
-            self.logger.debug(exc)
+        except SQLAlchemyError, exc:
+            self.logger.exception(exc)
             result = []
         return result
 
