@@ -93,7 +93,7 @@ class TimeSeries(ABCDisplayer):
                 'dt': ts[1] - ts[0] if len(ts) > 1 else 1,
                 'labelsStateVar': state_variables, 'labelsModes': range(shape[3])
                 }
-        pars.update(self.build_initial_selection_for_timeseries(time_series, labels))
+        pars.update(self.build_initial_selection_for_timeseries(time_series))
 
         return self.build_display_result("time_series/view", pars, pages=dict(controlPage="time_series/control"))
 
