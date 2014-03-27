@@ -379,37 +379,33 @@ class FlowService:
     ##########################################################################
     
     @staticmethod
-    def get_selections_for_project(project_id, connectivity_gid):
+    def get_selections_for_project(project_id, datatype_gid):
         """
         Retrieved from DB saved selections for current project. If a certain selection
         doesn't have all the labels between the labels of the given connectivity than
         this selection will not be returned.
         :returns: List of ConnectivitySelection entities.
         """
-        selections = dao.get_selections_for_project(project_id, connectivity_gid)
-        return selections
+        return dao.get_selections_for_project(project_id, datatype_gid)
     
     
     @staticmethod
-    def save_connectivity_selection(ui_name, project_id, selection, labels, used_names):
+    def save_connectivity_selection(ui_name, project_id, selected_nodes, labels, datatype_gid):
         """
         Store in DB a ConnectivitySelection.
         """
-        if ui_name in used_names:
-            select_entity = dao.get_selection_by_name_and_project(ui_name, project_id)
-            select_entity.selected_nodes = selection
-            select_entity.labels = labels
-            dao.store_entity(select_entity)
-            return True
+        # todo: the datatype gid can be either a connectivity or a sensor. they store labels under labels and region_labels
+        #       they share no common ancestor but if the region_labels were renamed to labels by duck-typing we could get
+        #       the labels without requiring the client to send them
+        selections = dao.get_selections_for_project(project_id, datatype_gid)
+        select_entities = [s for s in selections if s.ui_name == ui_name]
+
+        if select_entities:
+            # if the name of the new selection is within the available selections then update the selection
+            select_entity = select_entities[0]
+            select_entity.selected_nodes = selected_nodes
+            # select_entity.labels = labels  # can this change?
         else:
-            same_names = dao.count_selection_with_name(project_id, ui_name)
-            if same_names > 0:
-                return False
-            new_selection = model.ConnectivitySelection(selection, labels, project_id, ui_name)
-            dao.store_entity(new_selection)
-            return True
+            select_entity = model.ConnectivitySelection(selected_nodes, labels, project_id, datatype_gid, ui_name)
 
-
-        
-        
-        
+        dao.store_entity(select_entity)

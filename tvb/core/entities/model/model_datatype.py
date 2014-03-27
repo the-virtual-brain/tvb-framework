@@ -248,18 +248,19 @@ class ConnectivitySelection(Base):
 
     id = Column(Integer, primary_key=True)
     gid = Column(String)
+    "a connectivity of sensor gid, used to filter selections"
     ui_name = Column(String)
     selected_nodes = Column(String)
     labels = Column(String)
     fk_in_project = Column(Integer, ForeignKey('PROJECTS.id', ondelete="CASCADE"))
 
 
-    def __init__(self, selected_nodes, labels, project_id, ui_name='Default'):
+    def __init__(self, selected_nodes, labels, project_id, datatype_gid, ui_name):
         self.ui_name = ui_name
         self.selected_nodes = selected_nodes
         self.labels = labels
         self.fk_in_project = project_id
-        self.gid = generate_guid()
+        self.gid = datatype_gid
 
 
     def __repr__(self):

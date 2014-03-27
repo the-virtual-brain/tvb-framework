@@ -481,56 +481,15 @@ class DatatypeDAO(RootDAO):
     ############ Below are specifics for connectivity selections #############
     ##########################################################################
 
-    def get_selections_for_project(self, project_id, connectivity_gid):
+    def get_selections_for_project(self, project_id, datatype_gid):
         """
-        Get available selections for a given project. If a certain selection doesn't have
-        all the labels between the labels of the given connectivity than this selection will
-        not be returned.
+        Get available selections for a given project and data type.
         """
         try:
-            selections = self.session.query(model.ConnectivitySelection
-                                            ).filter(model.ConnectivitySelection.fk_in_project == project_id).all()
-            if connectivity_gid is not None and len(connectivity_gid) > 0:
-                connectivity = self.get_datatype_by_gid(connectivity_gid)
-                if connectivity is not None:
-                    connectivity_labels = connectivity.region_labels
-                    filtered_selections = []
-                    for selection in selections:
-                        selection_labels = eval(selection.labels)
-                        rez = numpy.in1d(selection_labels, connectivity_labels)
-                        if numpy.all(rez):
-                            filtered_selections.append(selection)
-                    selections = filtered_selections
-        except Exception, excep:
-            self.logger.exception(excep)
-            return None
-        return selections
-
-
-    def get_selection_by_name_and_project(self, ui_name, project_id):
-        """
-        Get the selection given a name and a project id.
-        """
-        try:
-            selection = self.session.query(model.ConnectivitySelection
-                                           ).filter(model.ConnectivitySelection.fk_in_project == project_id
-                                                    ).filter(model.ConnectivitySelection.ui_name == ui_name).one()
+            return self.session.query(model.ConnectivitySelection
+                                     ).filter(model.ConnectivitySelection.fk_in_project == project_id
+                                     ).filter(model.ConnectivitySelection.gid == datatype_gid
+                                     ).all()
         except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None
-        return selection
-
-
-    def count_selection_with_name(self, ui_name, project_id):
-        """
-        Get the selection given a name and a project id.
-        """
-        try:
-            nr_selections = self.session.query(model.ConnectivitySelection
-                                               ).filter(model.ConnectivitySelection.fk_in_project == project_id
-                                                        ).filter(model.ConnectivitySelection.ui_name == ui_name).count()
-        except SQLAlchemyError, excep:
-            self.logger.exception(excep)
-            return 0
-        return nr_selections
-

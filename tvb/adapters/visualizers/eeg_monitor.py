@@ -143,7 +143,8 @@ class EegMonitor(ABCDisplayer):
                           extended_view=False,
                           entities=original_timeseries,
                           page_size=min(self.page_size, max_chunck_length),
-                          connectivityGid='')
+                          connectivityGid=input_data.get_measure_points_selection_gid())
+        # fixme: selection component assumes one time series
         return parameters
 
 
