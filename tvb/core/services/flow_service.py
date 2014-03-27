@@ -374,8 +374,7 @@ class FlowService:
 
     
     ##########################################################################
-    ######## Methods below are for connectivity selections ###################
-    ######## Might be good to move them to proper place ######################
+    ######## Methods below are for MeasurePoint selections ###################
     ##########################################################################
     
     @staticmethod
@@ -390,22 +389,21 @@ class FlowService:
     
     
     @staticmethod
-    def save_connectivity_selection(ui_name, project_id, selected_nodes, labels, datatype_gid):
+    def save_measure_points_selection(ui_name, selected_nodes, datatype_gid, project_id):
         """
         Store in DB a ConnectivitySelection.
         """
-        # todo: the datatype gid can be either a connectivity or a sensor. they store labels under labels and region_labels
-        #       they share no common ancestor but if the region_labels were renamed to labels by duck-typing we could get
-        #       the labels without requiring the client to send them
-        selections = dao.get_selections_for_project(project_id, datatype_gid)
-        select_entities = [s for s in selections if s.ui_name == ui_name]
+        select_entities = dao.get_selections_for_project(project_id, datatype_gid, ui_name)
 
         if select_entities:
-            # if the name of the new selection is within the available selections then update the selection
+            # when the name of the new selection is within the available selections then update that selection:
             select_entity = select_entities[0]
             select_entity.selected_nodes = selected_nodes
-            # select_entity.labels = labels  # can this change?
         else:
-            select_entity = model.ConnectivitySelection(selected_nodes, labels, project_id, datatype_gid, ui_name)
+            select_entity = model.MeasurePointsSelection(ui_name, selected_nodes, datatype_gid, project_id)
 
         dao.store_entity(select_entity)
+
+
+    def get_generic_entity(self, entity_type, filter_value, select_field):
+        return dao.get_generic_entity(entity_type, filter_value, select_field)

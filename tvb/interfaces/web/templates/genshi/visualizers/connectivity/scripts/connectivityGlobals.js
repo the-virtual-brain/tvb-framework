@@ -301,9 +301,8 @@ function GFUNC_doSelectionSave() {
 	if (selectionName.length > 0) {
 		doAjaxCall({
             type: "POST",
-            url: '/flow/store_connectivity_selection/' + selectionName,
+            url: '/flow/store_measure_points_selection/' + selectionName,
             data: {"selection": JSON.stringify(GVAR_interestAreaNodeIndexes),
-                   "labels": JSON.stringify(GVAR_pointsLabels),
                    "datatype_gid": connectivityGid},
             success: function(r) {
                 var response = $.parseJSON(r);

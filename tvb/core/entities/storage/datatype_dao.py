@@ -35,7 +35,6 @@ DAO operations related to generic DataTypes are defined here.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import numpy
 from sqlalchemy import func as func
 from sqlalchemy import or_, not_, and_, Integer
 from sqlalchemy.exc import SQLAlchemyError
@@ -45,7 +44,6 @@ from sqlalchemy.sql.expression import case as case_
 from sqlalchemy.sql.expression import literal_column as literal_
 from sqlalchemy.types import Text
 from sqlalchemy.orm.exc import NoResultFound
-
 from tvb.core.entities import model
 from tvb.core.entities.storage.root_dao import RootDAO
 
@@ -478,18 +476,19 @@ class DatatypeDAO(RootDAO):
 
 
     ##########################################################################
-    ############ Below are specifics for connectivity selections #############
+    ############ Below are specifics for MeasurePoint selections #############
     ##########################################################################
 
-    def get_selections_for_project(self, project_id, datatype_gid):
+    def get_selections_for_project(self, project_id, datatype_gid, filter_ui_name=None):
         """
         Get available selections for a given project and data type.
         """
         try:
-            return self.session.query(model.ConnectivitySelection
-                                     ).filter(model.ConnectivitySelection.fk_in_project == project_id
-                                     ).filter(model.ConnectivitySelection.gid == datatype_gid
-                                     ).all()
+            query = self.session.query(model.MeasurePointsSelection
+                                       ).filter_by(fk_in_project=project_id).filter_by(fk_datatype_gid=datatype_gid)
+            if filter_ui_name is not None:
+                query = query.filter_by(ui_name=filter_ui_name)
+            return query.all()
         except SQLAlchemyError, excep:
             self.logger.exception(excep)
             return None

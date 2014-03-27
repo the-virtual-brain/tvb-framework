@@ -238,33 +238,34 @@ class Links(Base):
 
 
 
-class ConnectivitySelection(Base):
+class MeasurePointsSelection(Base):
     """
     Interest area.
-    A subset of nodes from a Connectivity.
+    A subset of nodes from a Connectivity or Sensors.
     """
 
-    __tablename__ = "REGIONS_SELECTIONS"
+    __tablename__ = "MEASURE_POINTS_SELECTIONS"
 
     id = Column(Integer, primary_key=True)
-    gid = Column(String, ForeignKey('DATA_TYPES.gid', ondelete="CASCADE"))
-    "a connectivity of sensor gid, used to filter selections"
+    #### Unique name /DataType/Project, to be displayed in selector UI:
     ui_name = Column(String)
+    #### JSON with node indices in current selection (0-based):
     selected_nodes = Column(String)
-    labels = Column(String)
+    #### A Connectivity of Sensor GID, Referring to the entity that this selection was produced for:
+    fk_datatype_gid = Column(String, ForeignKey('DATA_TYPES.gid', ondelete="CASCADE"))
+    #### Current Project the selection was defined in:
     fk_in_project = Column(Integer, ForeignKey('PROJECTS.id', ondelete="CASCADE"))
 
 
-    def __init__(self, selected_nodes, labels, project_id, datatype_gid, ui_name):
+    def __init__(self, ui_name, selected_nodes, datatype_gid, project_id):
         self.ui_name = ui_name
         self.selected_nodes = selected_nodes
-        self.labels = labels
         self.fk_in_project = project_id
-        self.gid = datatype_gid
+        self.fk_datatype_gid = datatype_gid
 
 
     def __repr__(self):
-        return '<Selection(%s, %s)>' % (self.ui_name, self.selected_nodes)
+        return '<Selection(%s, %s, for %s)>' % (self.ui_name, self.selected_nodes, self.fk_datatype_gid)
     
     
     

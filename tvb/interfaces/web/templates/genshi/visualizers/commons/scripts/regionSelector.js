@@ -126,7 +126,7 @@ RegionSelectComponent.prototype._onNewSelection = function(){
         self._namedSelections.push([name, self._selectedValues.slice()]);
         self._textBox.val('');
         // do not update the selection box. let a event listener decide
-        self.$dom.trigger("newSelection", [name, self._selectedValues.slice(), self._labels]);
+        self.$dom.trigger("newSelection", [name, self._selectedValues.slice()]);
     }else{
 		displayMessage("Selection name must not be empty.", "errorMessage");
 	}
@@ -205,11 +205,10 @@ TVBUI.regionSelector = function(dom, settings){
 
     getSelections();
 
-    component.$dom.on("newSelection", function(_ev, name, selection, labels){
+    component.$dom.on("newSelection", function(_ev, name, selection){
         doAjaxCall({  	type: "POST",
-            url: '/flow/store_connectivity_selection/' + name,
+            url: '/flow/store_measure_points_selection/' + name,
             data: {'selection': JSON.stringify(selection),
-                   'labels' : JSON.stringify(labels),
                    'datatype_gid': filterGid},
             success: function(r) {
                 var response = $.parseJSON(r);
