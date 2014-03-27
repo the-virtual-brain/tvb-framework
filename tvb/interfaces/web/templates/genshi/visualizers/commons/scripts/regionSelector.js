@@ -56,7 +56,8 @@ function RegionSelectComponent(dom, settings){
 
     self._boxes.change(function(){self._onchange(this);});
     self._dropDown.change(function(){
-        self.val(JSON.parse(this.value));
+        self._set_val(JSON.parse(this.value));
+        self.$dom.trigger("selectionChange", [self._selectedValues.slice()]);
     });
     $dom.find(settings.checkSelector).click(function(){ self.checkAll();} );
     $dom.find(settings.uncheckSelector).click(function(){ self.clearAll();} );
@@ -123,11 +124,8 @@ RegionSelectComponent.prototype._onNewSelection = function(){
     if (name != ""){
         // add to model
         self._namedSelections.push([name, self._selectedValues.slice()]);
-        // add to dom
-//        var jsonval = JSON.stringify(self._selectedValues);
-//        $('<option/>').val(jsonval).text(name).appendTo(self._dropDown);
-//        self._dropDown.val(jsonval);
         self._textBox.val('');
+        // do not update the selection box. let a event listener decide
         self.$dom.trigger("newSelection", [name, self._selectedValues.slice(), self._labels]);
     }else{
 		displayMessage("Selection name must not be empty.", "errorMessage");
@@ -140,23 +138,30 @@ RegionSelectComponent.prototype._onchange = function(el){
     this.$dom.trigger("selectionChange", [this._selectedValues.slice()]);
 };
 
+/**
+ * @private Sets the selection without triggering events
+ */
+RegionSelectComponent.prototype._set_val = function(arg){
+    this._selectedValues = [];
+    for(var i=0; i < arg.length; i++){
+        // convert vals to string (as in dom)
+        var val = arg[i].toString();
+        // filter bad values
+        if(this._allValues.indexOf(val) != -1){
+            this._selectedValues.push(val);
+        }else{
+            console.warn("bad selection" + val);
+        }
+    }
+    this.selectedValues2dom();
+}
+
 RegionSelectComponent.prototype.val = function(arg){
     if(arg == null){
         return this._selectedValues.slice();
     }else{
-        this._selectedValues = [];
-        for(var i=0; i < arg.length; i++){
-            // convert vals to string (as in dom)
-            var val = arg[i].toString();
-            // filter bad values
-            if(this._allValues.indexOf(val) != -1){
-                this._selectedValues.push(val);
-            }else{
-                console.warn("bad selection" + val);
-            }
-        }
+        this._set_val(arg);
         this._dropDown.val("[]");
-        this.selectedValues2dom();
         this.$dom.trigger("selectionChange", [this._selectedValues.slice()]);
     }
 };
