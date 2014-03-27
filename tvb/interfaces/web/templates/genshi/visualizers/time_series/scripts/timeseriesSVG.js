@@ -29,9 +29,9 @@ var tsView;
  * Initializes selected channels
  * initializes global TS_SVG_selectedChannels
  */
-function _initSelection(connectivityGid){
+function _initSelection(filterGid){
     // initialize selection component
-    var regionSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
+    var regionSelector = TVBUI.regionSelector("#channelSelector", {filterGid: filterGid});
     var initialSelection = regionSelector.val()
 
     // If there is no selection take the first 20 channels or all
@@ -77,7 +77,7 @@ function _initSelection(connectivityGid){
  * @param dt: time increment
  * @param channelLabels: a list with the labels for all the channels
  */
-function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabels, connectivityGid) {
+function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabels, filterGid) {
 
     // Store the list with all the labels since we need it on channel selection refresh
     allChannelLabels = channelLabels;
@@ -85,7 +85,7 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     // setup dimensions, div, svg elements and plotter
     var ts = tv.plot.time_series();
 
-    var selectedLabels = _initSelection(connectivityGid);
+    var selectedLabels = _initSelection(filterGid);
 
     dataShape = $.parseJSON(dataShape);
     dataShape[2] = TS_SVG_selectedChannels.length;

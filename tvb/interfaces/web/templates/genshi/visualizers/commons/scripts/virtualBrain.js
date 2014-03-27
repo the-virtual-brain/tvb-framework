@@ -502,7 +502,7 @@ function _initSliders(){
 }
 
 function _initChannelSelection(connectivityGid){
-    var vs_regionsSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
+    var vs_regionsSelector = TVBUI.regionSelector("#channelSelector", {filterGid: connectivityGid});
 
     vs_regionsSelector.change(function(value){
         VS_selectedRegions = [];

@@ -191,7 +191,7 @@ window.onresize = function() {
  */
 function AG_startAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
 						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found, 
-						   noOfChannels, totalLength, doubleView, channelLabels, connectivityGid) {
+						   noOfChannels, totalLength, doubleView, channelLabels, filterGid) {
 
     isSmallPreview = false;
     _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
@@ -201,7 +201,7 @@ function AG_startAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
     _AG_preStart();
     drawSliderForScale();
     drawSliderForAnimationSpeed();
-    _AG_init_selection(connectivityGid);
+    _AG_init_selection(filterGid);
 }
 
 function AG_startAnimatedChartPreview(channelsPerSet, baseURLS, pageSize, nrOfPages,
@@ -295,8 +295,8 @@ function _AG_preStart() {
  * Init selection component. Part of AG startup
  * @private
  */
-function _AG_init_selection(connectivityGid){
-    AG_regionSelector = TVBUI.regionSelector("#channelSelector", {connectivityGid: connectivityGid});
+function _AG_init_selection(filterGid){
+    AG_regionSelector = TVBUI.regionSelector("#channelSelector", {filterGid: filterGid});
     AG_regionSelector.change(function(selection){
         AG_submitableSelectedChannels = [];
 
