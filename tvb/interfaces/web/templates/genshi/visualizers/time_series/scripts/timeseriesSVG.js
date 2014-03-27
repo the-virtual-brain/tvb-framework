@@ -32,19 +32,19 @@ var tsView;
 function _initSelection(filterGid){
     // initialize selection component
     var regionSelector = TVBUI.regionSelector("#channelSelector", {filterGid: filterGid});
-    var initialSelection = regionSelector.val()
+    var initialSelection = regionSelector.val();
 
     // If there is no selection take the first 20 channels or all
-    if (initialSelection.length == 0){
+    if (initialSelection.length == 0) {
         for(var i = 0; i < Math.min(MAX_INITIAL_CHANNELS, allChannelLabels.length); i++){
             TS_SVG_selectedChannels.push(i);
         }
         regionSelector.val(TS_SVG_selectedChannels);
-    }else if (initialSelection.length > MAX_INITIAL_CHANNELS){
-    // Take a default of maximum 20 channels at start to be displayed
+    } else if (initialSelection.length > MAX_INITIAL_CHANNELS) {
+        // Take a default of maximum 20 channels at start to be displayed
         TS_SVG_selectedChannels = initialSelection.slice(0, MAX_INITIAL_CHANNELS);
         regionSelector.val(TS_SVG_selectedChannels);
-    }else{
+    } else {
         // to not invoke val to keep the named selection in the dropdown
         TS_SVG_selectedChannels = initialSelection;
     }
