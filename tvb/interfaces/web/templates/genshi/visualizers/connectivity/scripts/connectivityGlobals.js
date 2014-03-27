@@ -84,7 +84,8 @@ function GFUNC_storeMinMax(minWeights, minNonZeroWeights, maxWeights, minTracts,
  *
  * @param lengthOfConnectivityMatrix the number of rows/columns that has to have the connectivityMatrix.
  */
-function GFUNC_initConnectivityMatrix(lengthOfConnectivityMatrix) {//todo-io: check if we can do this init in other places
+function GFUNC_initConnectivityMatrix(lengthOfConnectivityMatrix) {
+    //todo-io: check if we can do this init in other places
     for (var i = 0; i < lengthOfConnectivityMatrix; i++) {
         var row = [];
         for (var j = 0; j < lengthOfConnectivityMatrix; j++) {
@@ -290,12 +291,6 @@ function GFUNC_isNodeAddedToInterestArea(nodeIndex) {
  */
 function GFUNC_doSelectionSave() {
 	var selectionName = $("#currentSelectionName").val();
-//	var names = [];
-//	var conSelections_select = document.getElementById('availableSelectionsList');
-//	for (var i = 1; i < conSelections_select.options.length; i++) {
-//		names.push(conSelections_select.options[i].text);
-//	}
-
     var connectivityGid = $("#connectivityGid").val();
 
 	if (selectionName.length > 0) {

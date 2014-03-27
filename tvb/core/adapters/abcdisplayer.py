@@ -170,15 +170,18 @@ class ABCDisplayer(ABCSynchronous):
     def get_algo_group(self):
         """ Find AlgoGroup by module and class"""
         return dao.find_group(self.__module__, self.__class__.__name__)
-    
+
+
     @staticmethod
     def build_initial_selection_for_timeseries(time_series):
         """
         creates a template dict with the initial selection to be
         displayed in a time series viewer
         """
-        return {'connectivityGid': time_series.get_measure_points_selection_gid(),
-                'initialSelection' : time_series.get_default_selection()}
+        return {'measurePointsSelectionGID': time_series.get_measure_points_selection_gid(),
+                'initialSelection': time_series.get_default_selection()}
+
+
 
 class ABCMPLH5Displayer(ABCDisplayer):
     """

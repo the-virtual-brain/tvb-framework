@@ -182,7 +182,7 @@ class UserService:
             else:
                 user = dao.get_user_by_name(name)
             if user is None or user.validated:
-                self.logger.warning("UserName not found or already validated:" + name)
+                self.logger.debug("UserName not found or already validated:" + name)
                 return False
             user.validated = True
             user = dao.store_entity(user)

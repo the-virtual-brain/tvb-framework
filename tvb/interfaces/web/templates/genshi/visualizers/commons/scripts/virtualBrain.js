@@ -347,15 +347,15 @@ function VS_StartBrainActivityViewer(baseDatatypeURL, onePageSize, urlTimeList, 
                     urlTrianglesList, urlNormalsList, urlMeasurePoints, noOfMeasurePoints,
                     urlAlphasList, urlAlphasIndicesList, minActivity, maxActivity,
                     oneToOneMapping, doubleView, shelfObject, hemisphereChunkMask,
-                    urlMeasurePointsLabels, boundaryURL, connectivityGid) {
+                    urlMeasurePointsLabels, boundaryURL, measurePointsSelectionGID) {
 
     _VS_movie_entrypoint.apply(this, arguments);
     _VS_init_cubicalMeasurePoints();
 
     if (!isDoubleView){
         // If this is a brain activity viewer then we have to initialize the selection component
-        _initChannelSelection(connectivityGid);
-        // For the double view the selection is the responsability of the extended view functions
+        _initChannelSelection(measurePointsSelectionGID);
+        // For the double view the selection is the responsibility of the extended view functions
     }
 }
 
@@ -501,8 +501,8 @@ function _initSliders(){
     $("#Infobox").html("");
 }
 
-function _initChannelSelection(connectivityGid){
-    var vs_regionsSelector = TVBUI.regionSelector("#channelSelector", {filterGid: connectivityGid});
+function _initChannelSelection(selectionGID){
+    var vs_regionsSelector = TVBUI.regionSelector("#channelSelector", {filterGid: selectionGID});
 
     vs_regionsSelector.change(function(value){
         VS_selectedRegions = [];
