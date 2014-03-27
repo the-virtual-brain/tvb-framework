@@ -23,7 +23,7 @@
 /* Created by @twotribes, Stuttgart */
 /* -------------------------------------------- */
 /* StyleSheet Scope: GENERAL APPLICATION */
-/* Version: Odinson / 2.29.12 */
+/* Version: Odinson / 2.30.0 */
 /* -------------------------------------------- */
 
 /* !-------------------------------------------- */
@@ -2475,6 +2475,7 @@ float: none;
 }
 
 
+/*
 #overlay .tabswitcher li {
   margin-left: 10px;
 }
@@ -2486,3 +2487,4 @@ float: none;
 #overlay .tabswitcher li:before {
   left: -14px;
 }
+*/
