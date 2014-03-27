@@ -743,42 +743,46 @@ class FlowController(BaseController):
 
     NEW_SELECTION_NAME = 'New selection'
 
-    def _get_available_selections(self, **data):
+    def _get_available_selections(self, datatype_gid):
+        """
+        selection retrieval common to selection component and connectivity selection
+        """
         curent_project = common.get_current_project()
-        connectivity_gid = data['connectivity_gid']
-        selections = self.flow_service.get_selections_for_project(curent_project.id, connectivity_gid)
-        default_selection = data['con_selection']
-        if not len(default_selection) > 0:
-            default_selection = data['con_labels']
+        selections = self.flow_service.get_selections_for_project(curent_project.id, datatype_gid)
+        names, sel_values = [], []
 
-        nodes, ids, names, all_selected_nodes = [], [], [], []
         for selection in selections:
-            ids.append(selection.id)
-            labels = json.loads(selection.labels)
-            selected_labels = ''
-            for idx in json.loads(selection.selected_nodes):
-                selected_labels += labels[idx] + ','
-            nodes.append(selected_labels[:-1])
             names.append(selection.ui_name)
-            all_selected_nodes.append(selection.selected_nodes)
-        return nodes, names, ids, all_selected_nodes, default_selection
+            sel_values.append(selection.selected_nodes)
+
+        return selections, names, sel_values
 
     # todo: deprecated. try to replace this, the template and the SEL_ functions with the channel selection component
     @expose_fragment('visualizers/connectivity/connectivity_selections_display')
     def get_available_selections_connectivity(self, **data):
         """
-        Get all the saved selections for the current project and return
-        the ones that are compatible with the received connectivity labels.
+        Get all the saved selections for the current project and datatype
         """
-        nodes, names, ids, _, default_selection = self._get_available_selections(**data)
-        return dict(selection_nodes=nodes, selection_names=names, selection_ids=ids,
-                      all_labels=default_selection, new_selection_name=self.NEW_SELECTION_NAME)
+        # todo: review if the selection_id removal is ok
+        # todo: new selection by default selects none , used to select all
+        selection_entities, sel_names, sel_values = self._get_available_selections(data['datatype_gid'])
+        all_selected_nodes_labels = []
+
+        for selection in selection_entities:
+            labels = json.loads(selection.labels)
+            selected_labels = []
+            for idx in json.loads(selection.selected_nodes):
+                selected_labels.append(labels[idx])
+            all_selected_nodes_labels.append(','.join(selected_labels))
+
+        return dict(namedSelections=zip(sel_names, all_selected_nodes_labels),
+                    noneSelectionVal=','.join(labels))
 
 
     @expose_fragment('visualizers/commons/channel_selector_opts')
     def get_available_selections(self, **data):
-        _, names, _, all_selected_nodes, _ = self._get_available_selections(**data)
-        return dict(namedSelections=zip(names, all_selected_nodes))
+        _, sel_names, sel_values = self._get_available_selections(data['datatype_gid'])
+        return dict(namedSelections=zip(sel_names, sel_values))
 
 
     @expose_json
@@ -788,18 +792,17 @@ class FlowController(BaseController):
         have problems when passing arrays, the data is passed as a string
         that needs to be split.
         """
+        # todo is this check necessary? we do not check other name clashes
         if ui_name and ui_name != self.NEW_SELECTION_NAME:
             sel_project_id = common.get_current_project().id
-            selection = data['selection']
+            # client sends integers as strings
+            selection = json.dumps([int(s) for s in json.loads(data['selection'])])
             labels = data['labels']
-            #We need to split as cherryPy/AJAX doesn't support lists
-            used_names = data['select_names'].split(',')
-            selection = json.dumps([int(idx) for idx in selection.split(',')])
-            labels = json.dumps(labels.split(','))
-            self.flow_service.save_connectivity_selection(ui_name, sel_project_id, selection, labels, used_names)
+            datatype_gid = data['datatype_gid']
+            self.flow_service.save_connectivity_selection(ui_name, sel_project_id, selection, labels, datatype_gid)
             return [True, 'Selection saved successfully.']
         else:
-            error_msg = (self.NEW_SELECTION_NAME + " or empty name are not  valid as selection names.")
+            error_msg = self.NEW_SELECTION_NAME + " or empty name are not  valid as selection names."
             return [False, error_msg]
         
         

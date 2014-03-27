@@ -289,39 +289,42 @@ function GFUNC_isNodeAddedToInterestArea(nodeIndex) {
  * ------------------------------------------------------------------------------------------------
  */
 function GFUNC_doSelectionSave() {
-	var selectionName = document.getElementById("currentSelectionName").value;
-	var names = [];
-	var conSelections_select = document.getElementById('availableSelectionsList');
-	for (var i = 1; i < conSelections_select.options.length; i++) {
-		names.push(conSelections_select.options[i].text);
-	}
+	var selectionName = $("#currentSelectionName").val();
+//	var names = [];
+//	var conSelections_select = document.getElementById('availableSelectionsList');
+//	for (var i = 1; i < conSelections_select.options.length; i++) {
+//		names.push(conSelections_select.options[i].text);
+//	}
+
+    var connectivityGid = $("#connectivityGid").val();
+
 	if (selectionName.length > 0) {
-		doAjaxCall({  	type: "POST",
-				url: '/flow/store_connectivity_selection/' + selectionName,
-                data: {"selection": GVAR_interestAreaNodeIndexes+'',
-                	   "labels": GVAR_pointsLabels+'',
-                	   "select_names": names+''},
-                success: function(r) {
-                	var response = $.parseJSON(r);
-                	if (response[0] == true) {
-                		SEL_populateAvailableSelections();
-	                    displayMessage(response[1], "infoMessage");
-	                    var selectionDropdown = document.getElementById('availableSelectionsList');
-	                    for (var i = 0; i < selectionDropdown.options.length; i++) {
-	                    	if (selectionDropdown.options[i].text == selectionName) {
-	                    		selectionDropdown.selectedIndex = i;
-	                    		break;
-	                    	}
-	                    }
-                	} else {
-                		displayMessage(response[1], "errorMessage");
-                	}
-                    
-                } ,
-                error: function() {
-                    displayMessage("Selection was not saved properly.", "errorMessage");
+		doAjaxCall({
+            type: "POST",
+            url: '/flow/store_connectivity_selection/' + selectionName,
+            data: {"selection": JSON.stringify(GVAR_interestAreaNodeIndexes),
+                   "labels": JSON.stringify(GVAR_pointsLabels),
+                   "datatype_gid": connectivityGid},
+            success: function(r) {
+                var response = $.parseJSON(r);
+                if (response[0]) {
+                    SEL_populateAvailableSelections();
+                    displayMessage(response[1], "infoMessage");
+                    var selectionDropdown = document.getElementById('availableSelectionsList');
+                    for (var i = 0; i < selectionDropdown.options.length; i++) {
+                        if (selectionDropdown.options[i].text == selectionName) {
+                            selectionDropdown.selectedIndex = i;
+                            break;
+                        }
+                    }
+                } else {
+                    displayMessage(response[1], "errorMessage");
                 }
-            });		
+            } ,
+            error: function() {
+                displayMessage("Selection was not saved properly.", "errorMessage");
+            }
+        });
 	} else {
 		displayMessage("Selection name must not be empty.", "errorMessage");
 	}

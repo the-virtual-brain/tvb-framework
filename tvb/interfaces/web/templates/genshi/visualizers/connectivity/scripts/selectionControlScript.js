@@ -79,19 +79,18 @@ function SEL_refreshSelectionTable() {
 
 function SEL_populateAvailableSelections() {
     var connectivityGid = $("#connectivityGid").val();
-	doAjaxCall({type: "POST",
-			async: false, 
-			url: '/flow/get_available_selections_connectivity',
-			data: {'con_selection': GVAR_baseSelection+'',
-				   'con_labels': GVAR_pointsLabels+'',
-                   'connectivity_gid': connectivityGid},
-            success: function(r) {
-                document.getElementById("selections-display-area").innerHTML = r;
-            } ,
-            error: function(r) {
-                displayMessage("Error while retrieving available selections.", "errorMessage");
-            }
-        });
+	doAjaxCall({
+        type: "POST",
+        async: false,
+        url: '/flow/get_available_selections_connectivity',
+        data: {'datatype_gid': connectivityGid},
+        success: function(r) {
+            document.getElementById("selections-display-area").innerHTML = r;
+        } ,
+        error: function(r) {
+            displayMessage("Error while retrieving available selections.", "errorMessage");
+        }
+    });
 }
 
 /**

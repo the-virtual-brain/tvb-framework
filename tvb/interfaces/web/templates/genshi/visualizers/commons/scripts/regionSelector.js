@@ -184,16 +184,15 @@ TVBUI.RegionSelectComponent = RegionSelectComponent;
  * Creates a selection component which saves selections on the server
  */
 TVBUI.regionSelector = function(dom, settings){
-    var connectivityGid = settings.connectivityGid;
+    // todo: sending labels could be omitted if server knew how to obtain them from the gid
+    var filterGid = settings.filterGid;
     var component =  new TVBUI.RegionSelectComponent(dom, settings);
 
     function getSelections() {
         doAjaxCall({type: "POST",
             async: false,
             url: '/flow/get_available_selections',
-            data: {'con_selection': component._selectedValues + '',
-                   'con_labels': component._labels + '',
-                   'connectivity_gid': connectivityGid},
+            data: {'datatype_gid': filterGid},
             success: function(r) {
                 component._dropDown.empty().append(r);
                 component._dropDown.val('[' + component._selectedValues.join(', ')     + ']');
@@ -209,9 +208,9 @@ TVBUI.regionSelector = function(dom, settings){
     component.$dom.on("newSelection", function(_ev, name, selection, labels){
         doAjaxCall({  	type: "POST",
             url: '/flow/store_connectivity_selection/' + name,
-            data: {"selection": selection + '',
-                   "labels": labels + '',
-                   "select_names": ''},
+            data: {'selection': JSON.stringify(selection),
+                   'labels' : JSON.stringify(labels),
+                   'datatype_gid': filterGid},
             success: function(r) {
                 var response = $.parseJSON(r);
                 if (response[0]) {
