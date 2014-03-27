@@ -244,10 +244,10 @@ class ConnectivitySelection(Base):
     A subset of nodes from a Connectivity.
     """
 
-    __tablename__ = "CONNECTIVITY_SELECTIONS"
+    __tablename__ = "REGIONS_SELECTIONS"
 
     id = Column(Integer, primary_key=True)
-    gid = Column(String)
+    gid = Column(String, ForeignKey('DATA_TYPES.gid', ondelete="CASCADE"))
     "a connectivity of sensor gid, used to filter selections"
     ui_name = Column(String)
     selected_nodes = Column(String)
