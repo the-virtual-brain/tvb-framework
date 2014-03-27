@@ -23,7 +23,7 @@
 /* Created by @twotribes, Stuttgart */
 /* -------------------------------------------- */
 /* StyleSheet Scope: GENERAL OVERLAY WINDOWS */
-/* Version: Odinson / 2.8.2 */
+/* Version: Odinson / 2.9.0 */
 /* -------------------------------------------- */
 
 /* !-------------------------------------------- */
@@ -123,7 +123,8 @@ top: 50px;
 width: 100%;
 }
 
-#overlay.overlay-blocker > .tabswitcher {
+#overlay.overlay-blocker > .tabswitcher, 
+#overlay.overlay-blocker > .overlay-sidebar {
 display: none;
 }
 
@@ -135,6 +136,77 @@ top: 81px; /* depends on the tabswitcher's height, defined in base.css ! */
 #overlay.overlay-blocker > .tabswitcher + .overlay-content {
 top: 0;
 }
+
+/* !-------------------------------------------- */
+/* !COMPONENT: Embedded sidebar within overlay content */
+/* !-------------------------------------------- */
+
+#overlay.dialog-sidebar .overlay-content {
+margin-left: 20%;
+width: 80%;
+}
+
+#overlay.dialog-sidebar.overlay-blocker .overlay-content {
+margin-left: 0;
+width: 100%;
+}
+
+#overlay .overlay-sidebar {
+border-right: 1px solid rgba(0, 0, 0, 0.3);
+bottom: 0;
+left: 0;
+overflow: auto;
+position: absolute;
+top: 50px;
+width: 20%;
+}
+
+#overlay > .tabswitcher + .overlay-content + .overlay-sidebar {
+top: 81px; /* depends on the tabswitcher's height, defined in base.css ! */
+}
+
+/* We inherit a bit from the general column layout because we're lazy. */
+#overlay .overlay-sidebar h4 {
+border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+border-top: 1px solid rgba(255, 255, 255, 0.3);
+height: 28px;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+/* Basically stolen from filter lists in section_project.css */
+#overlay .overlay-sidebar li {
+background: rgba(250, 247, 228, 0.1);
+font-weight: bold;
+padding: 5px 30px 5px 10px;
+position: relative;
+margin-bottom: 5px;
+-webkit-transition: background .3s ease;
+-moz-transition: background .3s ease;
+}
+
+#overlay .overlay-sidebar li.active {
+background: rgba(250, 247, 228, 0.6);
+}
+
+#overlay .overlay-sidebar li:hover {
+background: rgba(0, 0, 0, 0.1);
+-webkit-transition: background .3s ease;
+-moz-transition: background .3s ease;
+}
+
+#overlay .overlay-sidebar li.active:hover {
+background: rgba(250, 247, 228, 0.6);
+}
+
+#overlay .overlay-sidebar li a {
+color: #3e4252;
+}
+
+#overlay .overlay-sidebar li.active:hover a {
+color: #646a6f;
+}
+
 
 /* !-------------------------------------------- */
 /* !COMPONENT: Paging tools */
@@ -194,7 +266,7 @@ text-shadow: #000 1px 1px 2px;
 /* !-------------------------------------------- */
 
 body.overlay #overlay.dialog-upload {
-height: 50%;
+height: 70%;
 left: 7%;
 width: 86%;
 }
