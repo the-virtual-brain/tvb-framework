@@ -50,7 +50,7 @@ from tvb.core.services.operation_service import OperationService
 
 
 LOCKS_QUEUE = Queue.Queue(0)
-for i in range(config.MAX_THREADS_NUMBER):
+for i in max(2, range(config.MAX_THREADS_NUMBER)):
     LOCKS_QUEUE.put(1)
 #Global variable to store events as read from XML files.
 EXECUTORS_DICT = {}
@@ -135,9 +135,12 @@ class GenericEventExecutor(object):
         """
         #Try to get a spot to launch own operation.
         LOCKS_QUEUE.get(True)
-        parameters = self._prepare_parameters()
-        method = getattr(self.callable_object, self.call_method)
-        method(**parameters)
+        try:
+            parameters = self._prepare_parameters()
+            method = getattr(self.callable_object, self.call_method)
+            method(**parameters)
+        except Exception:
+            LOGGER.exception("Could not execute operation!")
         LOCKS_QUEUE.put(1)
 
 
@@ -209,11 +212,14 @@ class AdapterEventExecutor(GenericEventExecutor):
         Fire TVB operation which makes sure the Adapter method is called.
         """
         LOCKS_QUEUE.get(True)
-        if self.delay > 0:
-            sleep(self.delay)
-        parameters = self._prepare_parameters()
-        FlowService().fire_operation(self.callable_object, self.current_user, self.current_project.id,
-                                     method_name=self.call_method, visible=self.operation_visible, **parameters)
+        try:
+            if self.delay > 0:
+                sleep(self.delay)
+            parameters = self._prepare_parameters()
+            FlowService().fire_operation(self.callable_object, self.current_user, self.current_project.id,
+                                         method_name=self.call_method, visible=self.operation_visible, **parameters)
+        except Exception:
+            LOGGER.exception("Could not execute operation!")
         LOCKS_QUEUE.put(1)
 
 
@@ -323,11 +329,14 @@ def _parse_arguments(xml_node):
         if current_type == TYPE_STR:
             current_value = str(current_value).lstrip().rstrip()
         elif current_type == TYPE_FILE:
-            current_value = os.path.normpath(current_value)
-            if module:
-                python_module = __import__(str(module), globals(), locals(), ["__init__"])
-                root_folder = os.path.dirname(os.path.abspath(python_module.__file__))
-                current_value = os.path.join(root_folder, current_value)
+            try:
+                current_value = os.path.normpath(current_value)
+                if module:
+                    python_module = __import__(str(module), globals(), locals(), ["__init__"])
+                    root_folder = os.path.dirname(os.path.abspath(python_module.__file__))
+                    current_value = os.path.join(root_folder, current_value)
+            except ImportError:
+                LOGGER.exception("Argument reference towards a demo-data file is invalid!")
         elif current_type == ATT_UID:
             current_value = {ATT_UID: current_value}
         elif current_type == ATT_PRIMITIVE:

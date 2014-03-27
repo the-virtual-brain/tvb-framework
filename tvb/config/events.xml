@@ -25,7 +25,7 @@
             <arg name='cff' value="dataset_74.cff" module='demo_data.cff' type="file" />
         </args>
     </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="4">
+    <event hookpoint="ProjectService.store_project" type="adapter" delay="1">
         <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer" uid="eeg_62"/>
         <method name="launch"/>
         <args>
@@ -33,7 +33,7 @@
             <arg name='sensors_type' value='EEG Sensors' type='str' />  
         </args>
     </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="4">
+    <event hookpoint="ProjectService.store_project" type="adapter" delay="2">
         <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer"/>
         <method name="launch"/>
         <args>
@@ -41,7 +41,7 @@
             <arg name='sensors_type' value='MEG sensors' type='str' />  
         </args>
     </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="4">
+    <event hookpoint="ProjectService.store_project" type="adapter" delay="3">
         <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer"/>
         <method name="launch"/>
         <args>
@@ -49,7 +49,7 @@
             <arg name='sensors_type' value='Internal Sensors' type='str' />  
         </args>
     </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="12">
+    <event hookpoint="ProjectService.store_project" type="adapter" delay="4">
         <adapter module="tvb.adapters.uploaders.zip_surface_importer" class="ZIPSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
@@ -58,7 +58,7 @@
             <arg name='zero_based_triangles' value='1' type='int' />  
         </args>
     </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="12">
+    <event hookpoint="ProjectService.store_project" type="adapter" delay="6">
          <adapter module="tvb.adapters.uploaders.obj_importer" class="ObjSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
@@ -66,7 +66,7 @@
             <arg name='surface_type' value='Face' type='str' />
         </args>
     </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="16">
+    <event hookpoint="ProjectService.store_project" type="adapter" delay="12">
         <adapter module="tvb.adapters.uploaders.projection_matrix_importer" class="ProjectionMatrixRegionEEGImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
@@ -75,7 +75,7 @@
             <arg name='connectivity' value='conn_74' type='uid' />
         </args>
     </event>
-    <event hookpoint="ProjectService.store_project" type="adapter" delay="16">
+    <event hookpoint="ProjectService.store_project" type="adapter" delay="13">
         <adapter module="tvb.adapters.uploaders.projection_matrix_importer" class="ProjectionMatrixSurfaceEEGImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
@@ -86,7 +86,7 @@
     </event>
     
 
-    <event hookpoint="CodeVersionsManager.update.4455" type="adapter" delay="12">
+    <event hookpoint="CodeVersionsManager.update.4455" type="adapter">
         <adapter module="tvb.adapters.uploaders.zip_surface_importer" class="ZIPSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
@@ -95,7 +95,7 @@
             <arg name='zero_based_triangles' value='1' type='int' />  
         </args>
     </event>
-    <event hookpoint="CodeVersionsManager.update.4455" type="adapter" delay="12">
+    <event hookpoint="CodeVersionsManager.update.4455" type="adapter">
         <adapter module="tvb.adapters.uploaders.obj_importer" class="ObjSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
@@ -105,7 +105,7 @@
     </event>
     
     
-    <event hookpoint="CodeVersionsManager.update.4750" type="adapter" delay="4">
+    <event hookpoint="CodeVersionsManager.update.4750" type="adapter">
         <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer"/>
         <method name="launch"/>
         <args>
