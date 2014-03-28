@@ -122,6 +122,8 @@ class EegMonitor(ABCDisplayer):
         # compute how many elements will be visible on the screen
         points_visible = 500
         points_visible = min([max_chunck_length, points_visible])
+        measure_points_selectionGIDs = [t.get_measure_points_selection_gid() for t in original_timeseries]
+
         parameters = dict(title=self._get_sub_title(original_timeseries),
                           labelsForCheckBoxes=labels,
                           tsModes=modes,
@@ -143,8 +145,7 @@ class EegMonitor(ABCDisplayer):
                           extended_view=False,
                           entities=original_timeseries,
                           page_size=min(self.page_size, max_chunck_length),
-                          measurePointsSelectionGID=input_data.get_measure_points_selection_gid())
-        # fixme: selection component assumes only one time series
+                          measurePointsSelectionGIDs=json.dumps(measure_points_selectionGIDs))
         return parameters
 
 

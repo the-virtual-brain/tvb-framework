@@ -19,7 +19,7 @@
             AG_startAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages',
                     '${timeSetPaths}', $translationStep, '$normalizedSteps', '${number_of_visible_points}',
                     '${nan_value_found}', $noOfChannels, $total_length,
-                    ${'true' if extended_view else 'false'}, '${graphLabels}', '$measurePointsSelectionGID');
+                    ${'true' if extended_view else 'false'}, '${graphLabels}', '$measurePointsSelectionGIDs');
             bindHoverEvent();
             initializeCanvasEvents();
 
@@ -83,7 +83,7 @@
 	    					<xi:include href='../commons/state_mode_selector.html'/>
 
                             <py:for each="key_idx, key in enumerate(labelsForCheckBoxes)">
-                                ${drawRegionSelector(7, key, "channelSelector", [(a,b) for b,a in labelsForCheckBoxes[key]])}
+                                ${drawRegionSelector(7, key, "channelSelector" + str(key_idx), [(a,b) for b,a in labelsForCheckBoxes[key]])}
                                 ${drawStateModeSelector(tsStateVars[key], str(key_idx) + '--statevariableselect', 'State variable', 'changeStateVariable')}
                                 ${drawStateModeSelector(tsModes[key], str(key_idx) + '--modeselect', 'Mode', 'changeMode')}
                             </py:for>

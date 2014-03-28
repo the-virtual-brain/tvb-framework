@@ -167,7 +167,6 @@ var dataPageSize = [];
 var tsModes = [0, 0, 0];
 var tsStates = [0, 0, 0];
 var longestChannelIndex = 0;
-var channelLengths = [];
 
 // region selection component
 var AG_regionSelector = null;
@@ -191,7 +190,7 @@ window.onresize = function() {
  */
 function AG_startAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
 						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found, 
-						   noOfChannels, totalLength, doubleView, channelLabels, filterGid) {
+						   noOfChannels, totalLength, doubleView, channelLabels, filterGids) {
 
     isSmallPreview = false;
     _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
@@ -201,7 +200,7 @@ function AG_startAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
     _AG_preStart();
     drawSliderForScale();
     drawSliderForAnimationSpeed();
-    _AG_init_selection(filterGid);
+    _AG_init_selection($.parseJSON(filterGids));
 }
 
 function AG_startAnimatedChartPreview(channelsPerSet, baseURLS, pageSize, nrOfPages,
@@ -251,18 +250,6 @@ function _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
         nanValueFound = true;
     }
     AG_computedStep = step;
-
-    //If there is any information stored in 'AG_submitableSelectedChannels' then the call to drawAnimatedChart
-    //came from a refrsh with a different page size. In this case there is no need to update the channel list.
-    if (AG_submitableSelectedChannels.length == 0) {
-        var defaultChannels = totalNumberOfChannels;
-        if (defaultChannels > DEFAULT_MAX_CHANNELS) {
-            defaultChannels = DEFAULT_MAX_CHANNELS;
-        }
-        for (var i = 0; i < defaultChannels; i++) {
-            AG_submitableSelectedChannels.push(i);
-        }
-    }
 }
 
 /**
@@ -292,20 +279,52 @@ function _AG_preStart() {
 }
 
 /**
- * Init selection component. Part of AG startup
+ * Init selection component(s). Part of AG startup
  * @private
  */
-function _AG_init_selection(filterGid){
-    AG_regionSelector = TVBUI.regionSelector("#channelSelector", {filterGid: filterGid});
-    AG_regionSelector.change(function(selection){
-        AG_submitableSelectedChannels = [];
+function _AG_init_selection(filterGids){
+    // create a selection component for each time series displayed by this eeg view
+    var selectors = [];
 
-        for(var i=0; i < selection.length; i++){
-            AG_submitableSelectedChannels.push(parseInt(selection[i], 10));
+    /** get all selected channels "idices" from all selector components */
+    function getSelectedIndicesOfAllSelectors(){
+        var all_selected = [];
+        for(var selidx = 0; selidx < selectors.length; selidx++){
+            all_selected = all_selected.concat( selectors[selidx].selectedIndices() );
         }
-        refreshChannels();
-    });
+        return all_selected;
+    }
 
+    function getSelectedValuesOfAllSelectors(){
+        var all_selected = [];
+        for(var selidx = 0; selidx < selectors.length; selidx++){
+            all_selected = all_selected.concat( selectors[selidx].val() );
+        }
+        return all_selected;
+    }
+
+    // init selectors
+    for(var i = 0; i < filterGids.length; i++){
+        var selectorId = "#channelSelector" + i;
+        var selector = TVBUI.regionSelector(selectorId, {filterGid: filterGids[i]});
+        selector.change(function(_current_selection){
+            AG_submitableSelectedChannels = getSelectedValuesOfAllSelectors();
+            refreshChannels();
+        });
+        selectors.push(selector);
+    }
+    // the first selector is special. we select by default some channels in it and in case of a dual view
+    // his selection is synchronized with the brain
+    AG_regionSelector = selectors[0];
+
+    // If no values are selected the eeg view breaks! By default select the first channels of the first selector.
+    // If there is any information stored in 'AG_submitableSelectedChannels' then the call to drawAnimatedChart.
+    //came from a refrsh with a different page size. In this case there is no need to update the channel list.
+    if (AG_submitableSelectedChannels.length == 0) {
+        var defaultSelectionLength = Math.min(totalNumberOfChannels, DEFAULT_MAX_CHANNELS);
+        // we take the values form the dom, a range(defaultSelectionLength) is not a valid selection if there are multiple time series
+        AG_submitableSelectedChannels = AG_regionSelector._allValues.slice(0, defaultSelectionLength);
+    }
     AG_regionSelector.val(AG_submitableSelectedChannels);
 }
 
@@ -343,6 +362,7 @@ function AG_createYAxisDictionary(nr_channels) {
 	    	zoomRange: [0.1, 20]
 	    };
 	    increment = nr_channels * step / numberOfPointsForVerticalLine;
+        if(increment == 0) throw "infinite loop";
 	    for (var k= -step; k < (nr_channels + 1) * step; k += increment) {
 	    	followingLine.push([0, k]);
 	    }
@@ -356,6 +376,7 @@ function AG_createYAxisDictionary(nr_channels) {
 	    	zoomRange: [0.1, 20]
 	    };
 	    increment = AG_computedStep / numberOfPointsForVerticalLine;
+        if(increment == 0) throw "infinite loop";
 	    for (var kk= - AG_computedStep/2; kk < AG_computedStep/2; kk += increment) {
 	    	followingLine.push([0, kk]);
 	    }
@@ -395,10 +416,11 @@ function submitSelectedChannels(isEndOfData) {
 
     if (!(isEndOfData && maxDataFileIndex == 0)) {
         AG_allPoints = [];
-        displayedChannels = AG_submitableSelectedChannels.slice(0);
+        displayedChannels = AG_submitableSelectedChannels.slice(0); // todo: dubious as displayedChannels seems to store indices not values
         generateChannelColors(displayedChannels.length);
 		
 		var offset = 0;
+        var channelLengths = [];
         for (var i = 0; i < nrOfPagesSet.length; i++) {
         	var dataURL = readDataPageURL(baseDataURLS[i], 0, dataPageSize, tsStates[i], tsModes[i]);
             var data = HLPR_readJSONfromFile(dataURL);
@@ -416,7 +438,6 @@ function submitSelectedChannels(isEndOfData) {
         // keep data only for the selected channels
         AG_noOfLines = AG_allPoints.length;
         longestChannelIndex = channelLengths.indexOf(Math.max.apply(Math, channelLengths));
-    	channelLengths = [];
     }
     
     AG_displayedPoints = [];
@@ -961,9 +982,10 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
     if (dataSetIndex >= nrOfPages.length) {
         isNextDataLoaded = true;
         // keep data only for the selected channels
-        var offset = 0;
+        var offset = 0;  // fixme: this is used in getDisplayedChannels to offset the channel indices. but indices might not start at 0
+        // fixme: there is a confusion of indices with chanel id's (numeric values)
         var selectedData = [];
-        channelLengths = [];
+        var channelLengths = [];
         for (var i = 0; i< nextData.length; i++) {
         	var selectedChannels = getDisplayedChannels(nextData[i], offset);
             offset = offset + nextData[i].length;
@@ -976,17 +998,19 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
         }
         longestChannelIndex = channelLengths.indexOf(Math.max.apply(Math, channelLengths));
         nextData = selectedData;
-        channelLengths = [];
         return;
     }
     if (nrOfPages[dataSetIndex] - 1 < currentFileIndex && AG_isLoadStarted) {
+        // todo: assumed that this is computing a padding for smaller signals. check if this is really the purpose of this
+        var padding = [];
         var oneChannel = [];
         for (var j = 0; j < maxChannelLength; j++) {
             oneChannel.push(0);
         }
         for (j = 0; j < noOfChannelsPerSet[dataSetIndex]; j++) {
-            nextData.push(oneChannel);
+            padding.push(oneChannel);
         }
+        nextData.push(padding);
 
         AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileIndex, maxChannelLength, dataSetIndex + 1);
     } else {
