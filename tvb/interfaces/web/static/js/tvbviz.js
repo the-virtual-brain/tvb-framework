@@ -523,7 +523,7 @@ tv.plot = {
             f.h(f.h() || 500);
             f.point_limit(f.point_limit() || 500);
 
-            f.magic_fcs_amp_scl = 1;
+            f.magic_fcs_amp_scl = 0.01;
 
             // make sure we got numbers not strings
             f.dt(+f.dt());
@@ -549,6 +549,7 @@ tv.plot = {
 
         f.render = function () {
             f.status_line.text("waiting for data from server...");
+	    console.log(f.baseURL(), f.current_slice())
             tv.util.get_array_slice(f.baseURL(), f.current_slice(), f.render_callback, f.channels(), f.mode(), f.state_var())
         };
 
@@ -661,6 +662,7 @@ tv.plot = {
                 , sh = ev.shiftKey
                 , dr = !!(da > 0);
 
+	    console.log(ev)
             if (sh) {
                 f.magic_fcs_amp_scl *= dr ? 1.2 : 1 / 1.2;
                 // TODO scale transform instead via direct access...
@@ -842,7 +844,7 @@ tv.plot = {
             var f4 = f3.append("path")
                 .attr("d", d3.svg.line()
                     .x(function (d, i) {
-                        return f.sc_ctx_x((ts.data[0] + i) * f.da_x_dt)
+                        return f.sc_ctx_x(i * f.da_x_dt)
                     })
                     .y(function (d) {
                         return d * f.sz_ctx_x.y
