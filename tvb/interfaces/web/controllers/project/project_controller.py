@@ -48,7 +48,6 @@ from tvb.adapters.exporters.export_manager import ExportManager
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.config import SIMULATOR_CLASS, SIMULATOR_MODULE
 from tvb.core.entities.transient import graph_structures
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.transient.filtering import StaticFiltersFactory
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.project_service import ProjectService
@@ -652,17 +651,20 @@ class ProjectController(BaseController):
     @handle_error(redirect=False)
     @check_user
     def readjsonstructure(self, project_id, visibility_filter=StaticFiltersFactory.FULL_VIEW,
-                          first_level=DataTypeMetaData.KEY_STATE,
-                          second_level=DataTypeMetaData.KEY_SUBJECT, filter_value=None):
+                          first_level=None, second_level=None, filter_value=None):
         """
         AJAX exposed method. 
         Will return the complete JSON for Project's structure, or filtered tree
         (filter only Relevant entities or Burst only Data).
         """
+        if first_level is None or second_level is None:
+            first_level, second_level = self.get_project_structure_grouping()
+        else:
+            self.set_project_structure_grouping(first_level, second_level)
+
         selected_filter = StaticFiltersFactory.build_datatype_filters(single_filter=visibility_filter)
 
         project = self.project_service.find_project(project_id)
-        self.set_project_structure_grouping(first_level, second_level)
         json_structure = self.project_service.get_project_structure(project, selected_filter,
                                                                     first_level, second_level, filter_value)
         # This JSON encoding is necessary, otherwise we will get an error

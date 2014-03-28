@@ -51,7 +51,7 @@ function showTree() {
     $("#lastVisibleTab").val(TREE_TAB);
     
     $("#tree-related-li").show();
-    $("#tree4").show();
+    $("#treeStructure").show();
     $("#levelTree_1").show();
     $("#levelTree_2").show();
     $("#label_levelTree_1").show();
@@ -72,9 +72,9 @@ function showTree() {
  * into the graph view was selected an operation node then into the tree view will
  * be selected the project node.
  */
-function select_tree_node() {
+function select_tree_node(treeId) {
     if ($("#lastVisibleTab").val() == TREE_TAB) {
-        var treeElem = $("#tree4");
+        var treeElem = $("#" + treeId);
         treeElem.jstree("deselect_all");
         TVB_skipDisplayOverlay = true;
         if (TREE_lastSelectedNode != undefined && TREE_lastSelectedNodeType != undefined && TREE_lastSelectedNodeType == TVB_NODE_DATATYPE_TYPE) {
@@ -90,7 +90,7 @@ function select_tree_node() {
 /**
  * Used for updating the tree structure.
  */
-function updateTree(projectId, baseUrl, visibilityFilter) {
+function updateTree(treeSelector, projectId, baseUrl, visibilityFilter) {
 	
 	if (!projectId) {
 		projectId = $("#hiddenProjectId").val();
@@ -105,18 +105,21 @@ function updateTree(projectId, baseUrl, visibilityFilter) {
     var secondLevel = $("#levelTree_2").val();
     var filterValue = $("#filterInput").val();
 
-	var my_error_message = "The filters should not have the same value.";
-    if (firstLevel == secondLevel) {
-        displayMessage(my_error_message, 'warningMessage');
-        return;
-    } 
+    var url = "/project/readjsonstructure/" + projectId + "/" + visibilityFilter;
 
-    var url = "/project/readjsonstructure/" + projectId + "/" + visibilityFilter + "/" + firstLevel + "/" + secondLevel;
-    if (filterValue.length > 2) {
-        url += "/" + filterValue;
+    // the dropdowns will not exists if the overlay is launched from burst or operations etc
+    if (firstLevel != null && secondLevel != null){
+        if (firstLevel == secondLevel) {
+            displayMessage("The filters should not have the same value.", 'warningMessage');
+            return;
+        }
+        url += "/" + firstLevel + "/" + secondLevel;
+        if (filterValue.length > 2) {
+            url += "/" + filterValue;
+        }
     }
 
-    $("#tree4").jstree({//contextmenu: { "items" : createDefaultMenu, "select_node" : true },
+    $(treeSelector).jstree({//contextmenu: { "items" : createDefaultMenu, "select_node" : true },
 		                "plugins": ["themes", "json_data", "ui", "crrm"], //, "contextmenu"
 		                "themes": {
 		                    "theme": "default",
@@ -131,8 +134,8 @@ function updateTree(projectId, baseUrl, visibilityFilter) {
 		                        }
 		                    }}
 		            });
-    _postInitializeTree();
-    if (filterValue.length <= 2) {
+    _postInitializeTree(treeSelector);
+    if (filterValue !=null && filterValue.length <= 2) {
         if (filterValue.length > 0) {
             displayMessage("You have to introduce at least tree letters in order to filter the data.", 'infoMessage');
         }
@@ -145,10 +148,8 @@ function updateTree(projectId, baseUrl, visibilityFilter) {
 /**
  * Main function for specifying JSTree attributes.
  */
-function _postInitializeTree() {
-
-	$("#tree4")
-	.bind("select_node.jstree", function (event, data) {
+function _postInitializeTree(treeSelector) {
+	$(treeSelector).bind("select_node.jstree", function (event, data) {
           if ($("#lastVisibleTab").val() == GRAPH_TAB) {
               return;
           }
@@ -166,8 +167,9 @@ function _postInitializeTree() {
 				backPage = 'burst';
 		  }
           displayNodeDetails(TREE_lastSelectedNode, TVB_NODE_DATATYPE_TYPE, backPage);
-    })
-    .bind("loaded.jstree", function () { select_tree_node(); });
+    }).bind("loaded.jstree", function () {
+        select_tree_node();
+    });
 }
 //-----------------------------------------------------------------------
 // 						TREE Section ends here
@@ -182,7 +184,7 @@ function showGraph() {
     $("#lastVisibleTab").val(GRAPH_TAB);
     
     $("#tree-related-li").hide();
-    $("#tree4").hide();
+    $("#treeStructure").hide();
     $("#levelTree_1").hide();
     $("#levelTree_2").hide();
     $("#label_levelTree_1").hide();
@@ -461,7 +463,7 @@ function changedVisibilityFilter(projectId, baseUrl, filterElemId) {
     TREE_lastSelectedNode = undefined;
     TREE_lastSelectedNodeType = undefined;
     update_workflow_graph('workflowCanvasDiv', TREE_lastSelectedNode, TREE_lastSelectedNodeType);
-    updateTree(projectId, baseUrl);
+    updateTree('#treeStructure', projectId, baseUrl);
 }
 
 function _getSelectedVisibilityFilter() {

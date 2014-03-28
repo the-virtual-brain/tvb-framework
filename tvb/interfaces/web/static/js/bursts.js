@@ -920,7 +920,7 @@ function displayBurstTree(selectedHref, selectedProjectID, baseURL) {
 	if (filterValue.value == '') {
 		filterValue = {'type' : 'from_burst', 'value' : "0"};
 	}
-    updateTree(selectedProjectID, baseURL, JSON.stringify(filterValue));
+    updateTree("#treeOverlay", selectedProjectID, baseURL, JSON.stringify(filterValue));
     $("#portlets-display").hide();
     $("#portlets-configure").hide();
     $("#portlet-param-config").hide();

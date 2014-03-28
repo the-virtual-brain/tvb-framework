@@ -75,15 +75,12 @@
 		<!-- Overlay: Data Exporters -->
 		<section id="overlayTabContent_5" class="node-data node-chain-dts ">
 			<div id="div-burst-tree">
-				<input type="hidden" id="levelTree_1" value="Data_State"/>
-				<input type="hidden" id="levelTree_2" value="Data_Subject"/>
-				<input type="hidden" id="filterInput" value=""/>
-				<div id="tree4"></div>
+				<div id="treeOverlay"></div>
 				<script type="text/javascript">
 					$(document).ready(function() { 
-						   var filterValue = {'type' : 'from_datatype', 'value' : '$entity_gid'};
-                           updateTree('${selectedProject.id}', '${baseUrl}', JSON.stringify(filterValue));
-						})
+                        var filterValue = {'type' : 'from_datatype', 'value' : '$entity_gid'};
+                        updateTree('#treeOverlay', '${selectedProject.id}', '${baseUrl}', JSON.stringify(filterValue));
+                    })
 				</script>
 			</div>
 		</section>

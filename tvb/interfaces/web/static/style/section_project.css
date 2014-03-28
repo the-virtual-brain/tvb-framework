@@ -669,7 +669,7 @@ span.name {
     min-height: 500px;
 }
 
-#tree4 {
+#treeStructure,#treeOverlay{
     background-color: rgba(152, 153, 161, 0.1);
 }
 /**

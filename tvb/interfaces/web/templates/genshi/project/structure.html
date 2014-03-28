@@ -7,7 +7,7 @@
     <py:def function="drawLevelSelect(level_index, data, default_selected, project_id, baseUrl)">
         <label for="levelTree_${level_index}" id="label_levelTree_${level_index}">Level ${level_index}:</label>
         <select id="levelTree_${level_index}" name='levelTree_${level_index}' 
-                onchange="updateTree(${project_id}, '${baseUrl}');" autocomplete="off">
+                onchange="updateTree('#treeStructure', ${project_id}, '${baseUrl}');" autocomplete="off">
             <py:for each="entry in data">
                 <py:for each="key in entry">
                     <option value="${key}" selected="${'selected' if key == default_selected else None}">
@@ -48,7 +48,7 @@
             <li id="tree-related-li">
                 <input id="filterInput" name="filter_input" type="text" value="$filterInputValue"  placeholder="Search text here"/>
                 <button type="button" class="action action-small action-confirm"
-                        onclick="updateTree(${project.id}, '${baseUrl}');">Filter</button>
+                        onclick="updateTree('#treeStructure', ${project.id}, '${baseUrl}');">Filter</button>
             </li>
         </ul>
     </section>
@@ -77,7 +77,7 @@
 
         <div class="specialviewer">
             <div id="workflowCanvasDiv" class="hide-element left-cell-structure"></div>
-            <div id="tree4" class="hide-element left-cell-structure"></div>
+            <div id="treeStructure" class="hide-element left-cell-structure"></div>
             <table id="graph-related-table">
                 <tr>
                     <td>Legend:</td>
@@ -95,7 +95,7 @@
 	    <script type="text/javascript" src="/static/js/projectTree.js?4266"></script>
 	    <script type="text/javascript">
 	        displaySelectedTab();
-	        updateTree(${project.id}, '${baseUrl}');
+	        updateTree('#treeStructure', ${project.id}, '${baseUrl}');
 	    </script>
     </section>
 </div>
