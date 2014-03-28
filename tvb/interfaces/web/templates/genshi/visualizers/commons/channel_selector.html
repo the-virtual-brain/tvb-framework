@@ -1,19 +1,19 @@
-<!-- This component is used to generate a channels selector. The genshi function expects as inputs:
-	@param noOfColumns: in how many columns should the checkboxes be spread
-	@param title: the title of the selection box
-	@param divId: the id of the top level div
-	@param options: a collection of the form [ (value, name)]
+<!--! This component is used to generate a channels selector. The genshi function expects as inputs:
+    @param noOfColumns: in how many columns should the checkboxes be spread
+    @param title: the title of the selection box
+    @param divId: the id of the top level div
+    @param options: a collection of the form [ (value, name)]
     @param initialSelection: a collection of the initially selected values
     @param namedSelections: a collection of tuples [(selectionName, selectionValueList)]
 -->
-<div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+<div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="True">
     <py:def function="drawRegionSelector(noOfColumns, title, divId, options, initialSelection=[], namedSelections=[])">
         <div id='${divId}'>
             <table class="subtableCheckboxes">
                 <thead>
                     <tr><td colspan="${noOfColumns}"> ${title} </td></tr>
                     <tr><td colspan="${noOfColumns}">
-                        <!--<button class="action action-view">Apply selection</button>-->
+                        <!--! <button class="action action-view">Apply selection</button>-->
                         <button class="action action-all-on">&nbsp;</button>
                         <button class="action action-all-off">&nbsp;</button>
                         <select>

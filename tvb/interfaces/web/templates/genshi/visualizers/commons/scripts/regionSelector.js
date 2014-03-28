@@ -45,6 +45,7 @@ function RegionSelectComponent(dom, settings){
     self.$dom = $dom;
     self.settings = settings;
     self._selectedValues = [];
+    self._selectedIndices = [];
     self._namedSelections = [];
     self._allValues = [];
     self._labels = [];
@@ -91,14 +92,16 @@ RegionSelectComponent.prototype.dom2model = function(){
     var self = this;
     self._allValues = [];
     self._selectedValues = [];
+    self._selectedIndices = [];
     self._namedSelections = [];
 
-    this._boxes.each(function(_, el){
+    this._boxes.each(function(idx, el){
         self._allValues.push(el.value);
         // assumes the parent element is the label
         self._labels.push($(this).parent().text().trim());
         if(el.checked){
             self._selectedValues.push(el.value);
+            self._selectedIndices.push(idx);
         }
     });
     this._dropDownOptions.each(function(i, el){
@@ -143,12 +146,15 @@ RegionSelectComponent.prototype._onchange = function(el){
  */
 RegionSelectComponent.prototype._set_val = function(arg){
     this._selectedValues = [];
+    this._selectedIndices =[];
     for(var i=0; i < arg.length; i++){
         // convert vals to string (as in dom)
         var val = arg[i].toString();
         // filter bad values
-        if(this._allValues.indexOf(val) != -1){
+        var idx = this._allValues.indexOf(val);
+        if( idx != -1){
             this._selectedValues.push(val);
+            this._selectedIndices.push(idx);
         }else{
             console.warn("bad selection" + val);
         }
@@ -164,6 +170,10 @@ RegionSelectComponent.prototype.val = function(arg){
         this._dropDown.val("[]");
         this.$dom.trigger("selectionChange", [this._selectedValues.slice()]);
     }
+};
+
+RegionSelectComponent.prototype.selectedIndices = function(){
+    return this._selectedIndices.slice();
 };
 
 RegionSelectComponent.prototype.clearAll = function(){
