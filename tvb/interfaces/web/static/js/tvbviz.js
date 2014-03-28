@@ -844,7 +844,7 @@ tv.plot = {
             var f4 = f3.append("path")
                 .attr("d", d3.svg.line()
                     .x(function (d, i) {
-                        return f.sc_ctx_x(i * f.da_x_dt)
+                        return f.sc_ctx_x((i+0.5) * f.da_x_dt)
                     })
                     .y(function (d) {
                         return d * f.sz_ctx_x.y
