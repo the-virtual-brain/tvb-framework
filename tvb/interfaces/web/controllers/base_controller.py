@@ -285,7 +285,7 @@ class BaseController(object):
 
 
     def fill_overlay_attributes(self, template_dictionary, title, description, content_template,
-                                css_class, tabs=None, overlay_indexes=None):
+                                css_class, tabs_horizontal=None, overlay_indexes=None, tabs_vertical=None):
         """
         This method prepares parameters for rendering overlay (overlay.html)
         
@@ -293,7 +293,8 @@ class BaseController(object):
         :param description: overlay description
         :param content_template: path&name of the template file which will fill overlay content (without .html)
         :param css_class: CSS class to be applied on overlay 
-        :param tabs: list of strings containing names of the tabs 
+        :param tabs_horizontal: list of strings containing names of the tabs spread horizontally
+        :param tabs_vertical: list of strings containing names of the tabs spread vertically
         """
         if template_dictionary is None:
             template_dictionary = dict()
@@ -302,11 +303,13 @@ class BaseController(object):
         template_dictionary[common.KEY_OVERLAY_DESCRIPTION] = description
         template_dictionary[common.KEY_OVERLAY_CONTENT_TEMPLATE] = content_template
         template_dictionary[common.KEY_OVERLAY_CLASS] = css_class
-        template_dictionary[common.KEY_OVERLAY_TABS] = tabs if tabs is not None and len(tabs) > 0 else []
+        template_dictionary[common.KEY_OVERLAY_TABS_HORIZONTAL] = tabs_horizontal if tabs_horizontal is not None else []
+        template_dictionary[common.KEY_OVERLAY_TABS_VERTICAL] = tabs_vertical if tabs_vertical is not None else []
         if overlay_indexes is not None:
             template_dictionary[common.KEY_OVERLAY_INDEXES] = overlay_indexes
         else:
-            template_dictionary[common.KEY_OVERLAY_INDEXES] = range(len(tabs)) if tabs is not None else []
+            template_dictionary[common.KEY_OVERLAY_INDEXES] = range(len(tabs_horizontal)) \
+                if tabs_horizontal is not None else []
         template_dictionary[common.KEY_OVERLAY_PAGINATION] = False
 
         return template_dictionary

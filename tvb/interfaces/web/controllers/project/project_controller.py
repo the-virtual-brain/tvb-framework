@@ -576,7 +576,8 @@ class ProjectController(BaseController):
                                              description=algo_group.description))
 
         template_specification = self.fill_overlay_attributes(None, "Upload", "Upload data for this project",
-                                                              "project/upload_data_overlay", "dialog-upload", tabs)
+                                                              "project/upload_data_overlay", "dialog-upload",
+                                                              tabs_vertical=tabs)
         template_specification['uploadAlgorithms'] = upload_algorithms
         template_specification['projectId'] = project_id
         template_specification['algorithmsInterface'] = algorithms_interface
@@ -591,8 +592,7 @@ class ProjectController(BaseController):
         to upload an entire project.
         """
         template_specification = self.fill_overlay_attributes(None, "Upload", "Project structure",
-                                                              "project/upload_project_overlay",
-                                                              "dialog-upload")
+                                                              "project/upload_project_overlay", "dialog-upload")
 
         return FlowController().fill_default_attributes(template_specification)
 

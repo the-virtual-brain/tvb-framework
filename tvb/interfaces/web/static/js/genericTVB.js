@@ -712,12 +712,13 @@ function closeOverlayOnEsc(evt) {
 /**
  * Select a given tab from overlay
  *
+ * @param tabsPrefix prefix in the neighbouring tabs names, to un-select them
  * @param tabId identifier of the tab to be selected
  */
-function selectOverlayTab(tabId) {
+function selectOverlayTab(tabsPrefix, tabId) {
 	var css_class = "active";
 
-    $("li[id^='overlayTab_']").each(function() {
+    $("li[id^='" + tabsPrefix + "']").each(function() {
         $(this).removeClass(css_class);
     });
 
@@ -725,7 +726,7 @@ function selectOverlayTab(tabId) {
         $(this).removeClass(css_class);
     });
 
-    $("#overlayTab_" + tabId).addClass(css_class);
+    $("#"+ tabsPrefix + tabId).addClass(css_class);
     $("#overlayTabContent_" + tabId).addClass(css_class);
 }
 

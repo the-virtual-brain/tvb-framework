@@ -2473,18 +2473,3 @@ float: none;
     background: white url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAJElEQVQYV2Pcv3//fwYk4OjoyIjMZ6SDAmT7QGx0K1EcRBsFAFAcHPlrTpAmAAAAAElFTkSuQmCC") 0 0 repeat;
     width:100%;
 }
-
-
-/*
-#overlay .tabswitcher li {
-  margin-left: 10px;
-}
-
-#overlay .tabswitcher li:first-child {
-  margin-left: 15px;
-}
-
-#overlay .tabswitcher li:before {
-  left: -14px;
-}
-*/
