@@ -215,7 +215,7 @@ class ProjectControllerTest(TransactionalTestCase, BaseControllersTest):
         self.assertEqual(dt_details['entity_gid'], datatype.gid)
         self.assertFalse(dt_details['isGroup'])
         self.assertTrue(dt_details['isRelevant'])
-        self.assertEqual(len(dt_details['overlay_indexes']), len(dt_details['overlay_tabs_vertical']))
+        self.assertEqual(len(dt_details['overlay_indexes']), len(dt_details['overlay_tabs_horizontal']))
 
 
     def test_get_linkable_projects(self):
