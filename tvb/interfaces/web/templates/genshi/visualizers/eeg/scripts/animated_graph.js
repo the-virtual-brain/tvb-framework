@@ -403,6 +403,24 @@ function changeStateVariable(selectComp) {
 	refreshChannels();
 }
 
+function _AG_getSelectedDataAndLongestChannelIndex(data){
+    var offset = 0;
+    var selectedData = [];
+    var channelLengths = [];
+
+    for (var i = 0; i < data.length; i++) {
+        var selectedChannels = getDisplayedChannels(data[i], offset);
+        offset += data[i].length;
+        if (selectedChannels.length > 0) {
+            channelLengths.push(selectedChannels[0].length);
+        } else {
+            channelLengths.push(-1);
+        }
+        selectedData = selectedData.concat(selectedChannels);
+    }
+    var longestChannelIndex = channelLengths.indexOf(Math.max.apply(Math, channelLengths));
+    return {selectedData: selectedData, longestChannelIndex:longestChannelIndex}
+}
 
 function submitSelectedChannels(isEndOfData) {
 	/*
@@ -419,25 +437,18 @@ function submitSelectedChannels(isEndOfData) {
         displayedChannels = AG_submitableSelectedChannels.slice(0);
         generateChannelColors(displayedChannels.length);
 		
-		var offset = 0;
-        var channelLengths = [];
+        var results = [];
         for (var i = 0; i < nrOfPagesSet.length; i++) {
         	var dataURL = readDataPageURL(baseDataURLS[i], 0, dataPageSize, tsStates[i], tsModes[i]);
             var data = HLPR_readJSONfromFile(dataURL);
-            var result = parseData(data, i);
-            var selectedChannels = getDisplayedChannels(result, offset);
-            offset = offset + result.length;
-            // todo: duplicated in this file
-            if (selectedChannels.length > 0) {
-            	channelLengths.push(selectedChannels[0].length);
-            } else {
-            	channelLengths.push(-1);
-            }
-            AG_allPoints = AG_allPoints.concat(selectedChannels);
+            results.push(parseData(data, i));
         }
+        var r = _AG_getSelectedDataAndLongestChannelIndex(results);
+        AG_allPoints = AG_allPoints.concat(r.selectedData);
+        longestChannelIndex = r.longestChannelIndex;
+
         // keep data only for the selected channels
         AG_noOfLines = AG_allPoints.length;
-        longestChannelIndex = channelLengths.indexOf(Math.max.apply(Math, channelLengths));
     }
     
     AG_displayedPoints = [];
@@ -982,21 +993,9 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
     if (dataSetIndex >= nrOfPages.length) {
         isNextDataLoaded = true;
         // keep data only for the selected channels
-        var offset = 0;
-        var selectedData = [];
-        var channelLengths = [];
-        for (var i = 0; i < nextData.length; i++) {
-        	var selectedChannels = getDisplayedChannels(nextData[i], offset);
-            offset = offset + nextData[i].length;
-            if (selectedChannels.length > 0) {
-            	channelLengths.push(selectedChannels[0].length);
-            } else {
-            	channelLengths.push(-1);
-            }
-            selectedData = selectedData.concat(selectedChannels);
-        }
-        longestChannelIndex = channelLengths.indexOf(Math.max.apply(Math, channelLengths));
-        nextData = selectedData; //todo: occasional shape mismatch 3d <- 2d
+        var r = _AG_getSelectedDataAndLongestChannelIndex(nextData);
+        longestChannelIndex = r.longestChannelIndex;
+        nextData = r.selectedData; //todo: occasional shape mismatch 3d <- 2d
         return;
     }
     if (nrOfPages[dataSetIndex] - 1 < currentFileIndex && AG_isLoadStarted) {
