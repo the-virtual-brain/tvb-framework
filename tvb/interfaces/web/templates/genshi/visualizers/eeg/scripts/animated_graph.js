@@ -416,7 +416,7 @@ function submitSelectedChannels(isEndOfData) {
 
     if (!(isEndOfData && maxDataFileIndex == 0)) {
         AG_allPoints = [];
-        displayedChannels = AG_submitableSelectedChannels.slice(0); // todo: dubious as displayedChannels seems to store indices not values
+        displayedChannels = AG_submitableSelectedChannels.slice(0);
         generateChannelColors(displayedChannels.length);
 		
 		var offset = 0;
@@ -982,11 +982,10 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
     if (dataSetIndex >= nrOfPages.length) {
         isNextDataLoaded = true;
         // keep data only for the selected channels
-        var offset = 0;  // fixme: this is used in getDisplayedChannels to offset the channel indices. but indices might not start at 0
-        // fixme: there is a confusion of indices with chanel id's (numeric values)
+        var offset = 0;
         var selectedData = [];
         var channelLengths = [];
-        for (var i = 0; i< nextData.length; i++) {
+        for (var i = 0; i < nextData.length; i++) {
         	var selectedChannels = getDisplayedChannels(nextData[i], offset);
             offset = offset + nextData[i].length;
             if (selectedChannels.length > 0) {
@@ -997,7 +996,7 @@ function AG_readFileDataAsynchronous(nrOfPages, noOfChannelsPerSet, currentFileI
             selectedData = selectedData.concat(selectedChannels);
         }
         longestChannelIndex = channelLengths.indexOf(Math.max.apply(Math, channelLengths));
-        nextData = selectedData;
+        nextData = selectedData; //todo: occasional shape mismatch 3d <- 2d
         return;
     }
     if (nrOfPages[dataSetIndex] - 1 < currentFileIndex && AG_isLoadStarted) {

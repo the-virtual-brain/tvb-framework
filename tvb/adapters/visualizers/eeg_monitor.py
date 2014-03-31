@@ -115,8 +115,13 @@ class EegMonitor(ABCDisplayer):
             max_chunck_length = max([timeseries.read_data_shape()[0] for timeseries in original_timeseries])
         else:
             max_chunck_length = min(self.preview_page_size, original_timeseries[0].read_data_shape()[0])
-        no_of_channels, labels, total_time_length, graph_labels, modes, state_vars = self._pre_process(
-            original_timeseries, multiple_input)
+
+        ( no_of_channels, ts_names, labels, total_time_length,
+          graph_labels, modes, state_vars  ) = self._pre_process(original_timeseries, multiple_input)
+        # ts_names : a string representing the time series
+        # labels, modes, state_vars are maps ts_name -> list(...)
+        # The label values must reach the client in ascending ordered. ts_names preserves the
+        # order created by _pre_process
         if is_preview:
             total_time_length = max_chunck_length
         # compute how many elements will be visible on the screen
@@ -125,6 +130,7 @@ class EegMonitor(ABCDisplayer):
         measure_points_selectionGIDs = [t.get_measure_points_selection_gid() for t in original_timeseries]
 
         parameters = dict(title=self._get_sub_title(original_timeseries),
+                          tsNames=ts_names,
                           labelsForCheckBoxes=labels,
                           tsModes=modes,
                           tsStateVars=state_vars,
@@ -167,20 +173,20 @@ class EegMonitor(ABCDisplayer):
     def _pre_process(self, timeseries_list, multiple_inputs):
         """From input, Compute no of lines and labels."""
         no_of_lines = 0
-        labels = {}
-        modes = {}
-        state_vars = {}
-        graph_labels = []
         max_length = 0
+        labels, modes , state_vars = {}, {}, {}
+        ts_names = []
+        graph_labels = []
         for timeseries in timeseries_list:
-            current_length, no_of_lines = self._count_channels(timeseries, no_of_lines, labels, modes, state_vars,
+            current_length, no_of_lines = self._count_channels(timeseries, no_of_lines, ts_names,
+                                                               labels, modes, state_vars,
                                                                graph_labels, multiple_inputs)
             if current_length > max_length:
                 max_length = current_length
-        return no_of_lines, labels, max_length, graph_labels, modes, state_vars
+        return no_of_lines, ts_names, labels, max_length, graph_labels, modes, state_vars
 
 
-    def _count_channels(self, timeseries, starting_index, labels, modes, state_vars, graph_labels, mult_inp):
+    def _count_channels(self, timeseries, starting_index, ts_names, labels, modes, state_vars, graph_labels, mult_inp):
         """
         For a input array and the labels dictionary, add new entries starting
          with channels from 'starting index'.
@@ -197,9 +203,9 @@ class EegMonitor(ABCDisplayer):
             graph_labels.append(this_label)
             channels.append((this_label, starting_index + j))
         ts_name = timeseries.display_name + " [id:" + str(timeseries.id) + "]"
+        ts_names.append(ts_name)
         labels[ts_name] = channels
         state_vars[ts_name] = timeseries.labels_dimensions.get(timeseries.labels_ordering[1], [])
-
         modes[ts_name] = range(shape[3])
         return shape[0], starting_index + shape[self.selected_dimensions[1]]
 
