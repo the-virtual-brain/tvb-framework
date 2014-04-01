@@ -119,10 +119,14 @@ class GenshiTest(BaseTestCase):
         """
         Define a default template specification.
         """
-        self.template_specification = {'submitLink': 'www.google.com', 'section_name': 'test_step', 'HTML': str,
-                                       'errors': 'No errors', 'displayControl': True,
+        self.template_specification = {'submitLink': 'www.google.com',
+                                       'section_name': 'test_step',
+                                       'HTML': str,
+                                       'errors': 'No errors',
+                                       'displayControl': True,
                                        'treeSessionKey': SelectedAdapterContext.KEY_TREE_DEFAULT,
-                                       common.KEY_PARAMETERS_CONFIG: False}
+                                       common.KEY_PARAMETERS_CONFIG: False,
+                                       common.KEY_CURRENT_JS_VERSION: 1}
         cfg.RENDER_HTML = True
 
 
