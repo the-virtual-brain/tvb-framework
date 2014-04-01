@@ -2473,3 +2473,8 @@ float: none;
     background: white url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAJElEQVQYV2Pcv3//fwYk4OjoyIjMZ6SDAmT7QGx0K1EcRBsFAFAcHPlrTpAmAAAAAElFTkSuQmCC") 0 0 repeat;
     width:100%;
 }
+
+/* Results TAB */
+#treeStructure, #treeOverlay{
+    background-color: rgba(152, 153, 161, 0.1);
+}

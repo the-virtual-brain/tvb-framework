@@ -669,9 +669,6 @@ span.name {
     min-height: 500px;
 }
 
-#treeStructure,#treeOverlay{
-    background-color: rgba(152, 153, 161, 0.1);
-}
 /**
  * 	Project Data Structure Page ends here.
  **/
