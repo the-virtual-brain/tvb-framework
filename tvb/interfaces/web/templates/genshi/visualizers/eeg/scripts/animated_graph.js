@@ -286,15 +286,6 @@ function _AG_init_selection(filterGids){
     // create a selection component for each time series displayed by this eeg view
     var selectors = [];
 
-    /** get all selected channels "idices" from all selector components */
-    function getSelectedIndicesOfAllSelectors(){
-        var all_selected = [];
-        for(var selidx = 0; selidx < selectors.length; selidx++){
-            all_selected = all_selected.concat( selectors[selidx].selectedIndices() );
-        }
-        return all_selected;
-    }
-
     function getSelectedValuesOfAllSelectors(){
         var all_selected = [];
         for(var selidx = 0; selidx < selectors.length; selidx++){
@@ -303,12 +294,20 @@ function _AG_init_selection(filterGids){
         return all_selected;
     }
 
+    function mapInt(seq){
+        var ret = [];
+        for(var i = 0; i < seq.length ; i++){
+            ret.push(parseInt(seq[i], 10));
+        }
+        return ret;
+    }
+
     // init selectors
     for(var i = 0; i < filterGids.length; i++){
         var selectorId = "#channelSelector" + i;
         var selector = TVBUI.regionSelector(selectorId, {filterGid: filterGids[i]});
         selector.change(function(_current_selection){
-            AG_submitableSelectedChannels = getSelectedValuesOfAllSelectors();
+            AG_submitableSelectedChannels = mapInt(getSelectedValuesOfAllSelectors());
             refreshChannels();
         });
         selectors.push(selector);

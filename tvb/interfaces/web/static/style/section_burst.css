@@ -636,7 +636,7 @@ ul#portlets-toolbar li a.hideable.action {
 }
 
 /* Results TAB */
-#tree4 {
+#treeOverlay{
     background-color: rgba(152, 153, 161, 0.1);
 }
 
