@@ -586,7 +586,7 @@ class OperationDAO(RootDAO):
                 if user_id is not None:
                     figures_list = figures_list.filter_by(fk_for_user=user_id)
 
-                figures_list = figures_list.all()
+                figures_list = figures_list.order_by(desc(model.ResultFigure.id)).all()
 
                 # Force loading of project and operation - needed to compute image path
                 for figure in figures_list:

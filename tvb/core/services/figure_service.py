@@ -31,6 +31,7 @@
 """
 Service layer, for storing/retrieving Resulting Figures in TVB.
 
+.. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 .. moduleauthor:: Ciprian Tomoiaga <ciprian.tomoiaga@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
@@ -69,6 +70,7 @@ class FigureService:
         self.logger = get_logger(self.__class__.__module__)
         self.file_helper = FilesHelper()
 
+
     def _write_png(self, store_path, export_data):
         img_data = base64.b64decode(export_data)                        # decode the image
         final_image = Image.open(StringIO(img_data))                    # place it in a PIL stream
@@ -77,6 +79,7 @@ class FigureService:
         final_image.paste(branding_bar, (0, final_image.size[1] - branding_bar.size[1]), branding_bar)
 
         final_image.save(store_path)                                    # store to disk as PNG
+
 
     def _write_svg(self, store_path, export_data):
         dom = xml.dom.minidom.parseString(export_data)
@@ -100,24 +103,27 @@ class FigureService:
         with open(store_path, 'w') as dest:
             finalSvg.writexml(dest)                                                 # store to disk
 
+
     def _image_path(self, project_name, img_type):
         "Generate path where to store image"
         images_folder = self.file_helper.get_images_folder(project_name)
         file_name = FigureService._DEFAULT_IMAGE_FILE_NAME + img_type
         return utils.get_unique_file_name(images_folder, file_name)
 
+
     @staticmethod
     def _generate_image_name(project, user, operation, image_name):
         if not image_name:
             if operation is not None:
                 # create a name based on the operation that created the image
-                # e.g. TVB-Algo-Name-352
-                image_name = '%s-%s' % (operation.algorithm.name.replace(' ', '-'), operation.id)
+                # e.g. TVB-Algo-Name-354
+                image_name = operation.algorithm.name.replace(' ', '-')
             else:
                 # default to a generic name
                 image_name = "figure"
         figure_count = dao.get_figure_count(project.id, user.id) + 1
         return 'TVB-%s-%s' % (image_name, figure_count)
+
 
     def store_result_figure(self, project, user, img_type, export_data, image_name=None, operation_id=None):
         """

@@ -552,21 +552,21 @@ function VS_multipleImageExport(saveFigure){
     // using drawForImageExport because it handles resizing canvas for export
     // It is set on canvas in initGL and defers to drawscene.
 
-    if (VS_hemisphere_chunk_mask != null){    // we have 2 hemispheres
-        if(VS_hemisphereVisibility == null){  // both are visible => take them apart when taking picture
+    if (VS_hemisphere_chunk_mask != null) {    // we have 2 hemispheres
+        if (VS_hemisphereVisibility == null) {  // both are visible => take them apart when taking picture
             VS_SetHemisphere('l');
-            saveFrontBack('TVB-cortex-LH-front', 'TVB-cortex-LH-back');
+            saveFrontBack('brain-LH-front', 'brain-LH-back');
             VS_SetHemisphere('r');
-            saveFrontBack('TVB-cortex-RH-front', 'TVB-cortex-RH-back');
+            saveFrontBack('brain-RH-front', 'brain-RH-back');
             VS_SetHemisphere(VS_hemisphereVisibility);
-        }else if(VS_hemisphereVisibility == 'l'){  // LH is visible => take picture of it only
-            saveFrontBack('TVB-cortex-LH-front', 'TVB-cortex-LH-back');
-        }else if(VS_hemisphereVisibility == 'r'){
-            saveFrontBack('TVB-cortex-RH-front', 'TVB-cortex-RH-back');
+        } else if (VS_hemisphereVisibility == 'l') {  // LH is visible => take picture of it only
+            saveFrontBack('brain-LH-front', 'brain-LH-back');
+        } else if (VS_hemisphereVisibility == 'r') {
+            saveFrontBack('brain-RH-front', 'brain-RH-back');
         }
-    }else{
+    } else {
         // just save front-back view if no hemispheres
-        saveFrontBack('TVB-contex-front', 'TVB-contex-back');
+        saveFrontBack('brain-front', 'brain-back');
     }
 }
 

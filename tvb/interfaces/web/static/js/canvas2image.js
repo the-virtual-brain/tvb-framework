@@ -112,7 +112,7 @@ function C2IbuildUrlQueryString(baseUrl, kwargs){
  * <code>remainingTrials</code> trials
  *
  * @param canvas The **RESIZED** canvas whose snapshot is to be stored
- * @param operationId Current operation id, associated with this storage
+ * @param kwargs To associate with current storage (e.g. suggestedName)
  * @param remainingTrials The number of times to poll for <code>canvas.notReadyForExport</code> flag
  * @private
  */
@@ -158,7 +158,7 @@ function __tryExport(canvas, kwargs, remainingTrials) {
  * This function deals with canvas storage. First it prepares it by calling its resize method
  * (<code>canvas.drawForImageExport</code>), then tries to save it
  * @param canvas The canvas whose image is to be stored
- * @param operationId Current operation id, associated with this storage
+ * @param kwargs To associate with current storage (e.g. suggestedName)
  * @private
  */
 function __storeCanvas(canvas, kwargs) {
