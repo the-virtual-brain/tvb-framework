@@ -493,7 +493,8 @@ class BurstController(BaseController):
             result['launch_success'] = False
             result['error_msg'] = str(ex)
             self.logger.exception("Could not launch Portlet Visualizer...")
-        return result
+
+        return self.fill_default_attributes(result)
 
 
     @expose_fragment("flow/genericAdapterFormFields")

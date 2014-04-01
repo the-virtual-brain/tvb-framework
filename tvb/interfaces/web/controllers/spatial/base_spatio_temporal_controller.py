@@ -88,7 +88,7 @@ class SpatioTemporalController(BaseController):
         """
         Displays the main page for the spatio temporal section.
         """
-        template_specification = { 'title': "Spatio temporal", 'data': data,  'mainContent': 'header_menu'}
+        template_specification = {'title': "Spatio temporal", 'data': data, 'mainContent': 'header_menu'}
         return self.fill_default_attributes(template_specification)
 
 
@@ -123,7 +123,7 @@ class SpatioTemporalController(BaseController):
         try:
             params_dict = simulator_adapter.convert_ui_inputs(burst_configuration.get_all_simulator_values()[0], False)
         except Exception:
-            self.logger.exception()
+            self.logger.exception("Some of the provided parameters have an invalid value.")
             common.set_error_message("Some of the provided parameters have an invalid value.")
             raise cherrypy.HTTPRedirect("/burst/")
         ### Prepare Model instance
@@ -134,7 +134,7 @@ class SpatioTemporalController(BaseController):
             model = get_traited_instance_for_name(model, Model, model_parameters)
         except Exception:
             self.logger.exception("Could not create the model instance with the given parameters. "
-                             "A new model instance will be created with the default values.")
+                                  "A new model instance will be created with the default values.")
             model = get_traited_instance_for_name(model, Model, {})
         ### Prepare Integrator instance
         integrator = burst_configuration.get_simulation_parameter_value(PARAM_INTEGRATOR)
@@ -144,7 +144,7 @@ class SpatioTemporalController(BaseController):
             integrator = get_traited_instance_for_name(integrator, Integrator, integrator_parameters)
         except Exception:
             self.logger.exception("Could not create the integrator instance with the given parameters. "
-                             "A new integrator instance will be created with the default values.")
+                                  "A new integrator instance will be created with the default values.")
             integrator = get_traited_instance_for_name(integrator, Integrator, {})
         ### Prepare Connectivity
         connectivity_gid = burst_configuration.get_simulation_parameter_value(PARAM_CONNECTIVITY)
@@ -340,10 +340,9 @@ class SpatioTemporalController(BaseController):
         """
         try:
             return context_model_parameters.get_data_for_param_sliders(connectivity_node_index)
-        except ValueError, excep:
-            self.logger.info("All the model parameters that are configurable should be valid arrays or numbers.")
-            self.logger.exception(excep)
-            common.set_error_message("All the model parameters that are configurable should be valid arrays or numbers.")
+        except ValueError:
+            self.logger.exception("All the model parameters that are configurable should be valid arrays or numbers.")
+            common.set_error_message("All the model parameters that are configurable should be valid arrays or numbers")
             raise cherrypy.HTTPRedirect("/burst/")
         
         

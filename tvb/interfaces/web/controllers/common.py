@@ -47,6 +47,7 @@ TYPE_WARNING = "WARNING"
 TYPE_INFO = "INFO"
 
 KEY_CURRENT_VERSION = "currentVersion"
+KEY_CURRENT_JS_VERSION = "currentVersionJS"
 KEY_SESSION = "session"
 KEY_SESSION_TREE = "treeSessionKey"
 KEY_USER = "user"

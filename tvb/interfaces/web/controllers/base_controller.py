@@ -281,6 +281,7 @@ class BaseController(object):
             template_dictionary[common.KEY_SUBMENU_LIST] = None
 
         template_dictionary[common.KEY_CURRENT_VERSION] = cfg.BASE_VERSION
+        template_dictionary[common.KEY_CURRENT_JS_VERSION] = cfg.BASE_VERSION.replace(".", "")
         return template_dictionary
 
 
