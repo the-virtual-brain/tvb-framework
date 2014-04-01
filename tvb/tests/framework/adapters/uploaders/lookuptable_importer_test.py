@@ -52,8 +52,18 @@ class LookupTableImporterTest(TransactionalTestCase):
         """
         self.test_user = TestFactory.create_user('Tables_User')
         self.test_project = TestFactory.create_project(self.test_user, "Tables_Project")
-        
-    
+
+
+    def tearDown(self):
+        """
+        Remove files left after tests.
+        """
+        for file_ in os.listdir("."):
+            if os.path.isfile(file_) and (file_.startswith("NerfTable_") or
+                                          file_.startswith("PsiTable_")) and file_.endswith(".h5"):
+                os.remove(file_)
+
+
     def test_psi_table_import(self):
         """
         Test that importing a CFF generates one DataType.
