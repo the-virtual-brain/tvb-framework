@@ -34,25 +34,22 @@ function _VSI_bufferAtPoint(p, idx) {
  * corresponding eeg channels are selected.
  */
 function VSI_createColorBufferForSphere(isPicked, nodeIdx, nrOfVertices) {
-    var pointColor = [];
     var alphas = [];
-    pointColor = [nodeIdx, 0, 0];
-    var colors = [];
+    var alphaIndices = [];
+    var pointAlphaIndex = [nodeIdx, 0, 0];
+
     for (var i = 0; i < nrOfVertices; i++) {
-        colors = colors.concat(pointColor);
-        if (isPicked) {
-            alphas = alphas.concat([1.0, 0.0]);
-        } else {
-            alphas = alphas.concat([0.4, 0.0]);
-        }
+        alphaIndices = alphaIndices.concat(pointAlphaIndex);
+        alphas = alphas.concat([1.0, 0.0]);
     }
+
     var alphaBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, alphaBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(alphas), gl.STATIC_DRAW);
-    var cubeColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, cubeColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-    return [alphaBuffer, cubeColorBuffer];
+    var alphaIndicesBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, alphaIndicesBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(alphaIndices), gl.STATIC_DRAW);
+    return [alphaBuffer, alphaIndicesBuffer];
 }
 
 
