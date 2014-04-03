@@ -74,4 +74,4 @@ class PearsonCorrelationCoefficientVisualizer(ABCMPLH5Displayer):
         if not labels_to_display:
             labels_to_display = None
 
-        plot_tri_matrix(matrix_to_display, figure=figure, node_labels=labels_to_display)
+        plot_tri_matrix(matrix_to_display, figure=figure, node_labels=labels_to_display, color_anchor=0.)
