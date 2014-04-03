@@ -70,6 +70,7 @@ class PearsonCorrelationCoefficientVisualizer(ABCMPLH5Displayer):
         matrix_to_display = corr_coefficients.array_data[:, :, 0, 0]
 
         parent_ts = corr_coefficients.source
+        parent_ts = self.load_entity_by_gid(parent_ts.gid)
         labels_to_display = parent_ts.get_space_labels()
         if not labels_to_display:
             labels_to_display = None
