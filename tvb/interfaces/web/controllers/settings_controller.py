@@ -100,12 +100,17 @@ class SettingsController(UserController):
         else:
             self.logger.warning('For some reason the mplh5 never started.')
         cherrypy.engine.exit()
-        self.logger.debug("Waiting for Cherrypy to terminate.")
-        sleep(2)
+
+        self.logger.info("Waiting for Cherrypy to terminate ... ")
+
+        sleep(5)
+
         python_path = cfg().get_python_path()
         proc_params = [python_path, '-m', 'bin.app', 'start', 'web']
         if should_reset:
             proc_params.append('reset')
+
+        self.logger.info("Starting CherryPy again ... ")
         subprocess.Popen(proc_params, shell=False)
 
 
