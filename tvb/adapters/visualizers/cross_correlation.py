@@ -94,34 +94,34 @@ class CrossCorrelationVisualizer(ABCDisplayer):
 
 
 
-class PearsonCorrelationCoefficientVisualizer(CrossCorrelationVisualizer):
-    """
-    Viewer for Pearson CorrelationCoefficients.
-    Very similar to the CrossCorrelationVisualizer
-    """
-    _ui_name = "Pearson Correlation Coefficients"
-    _ui_subsection = "correlation_pearson"
+# class PearsonCorrelationCoefficientVisualizer(CrossCorrelationVisualizer):
+#     """
+#     Viewer for Pearson CorrelationCoefficients.
+#     Very similar to the CrossCorrelationVisualizer
+#     """
+#     _ui_name = "Pearson Correlation Coefficients"
+#     _ui_subsection = "correlation_pearson"
 
 
-    def get_input_tree(self):
-        """ Inform caller of the data we need as input """
+#     def get_input_tree(self):
+#         """ Inform caller of the data we need as input """
 
-        return [{"name": "cross_correlation", "type": CorrelationCoefficients,
-                 "label": "Correlation Coefficients", "required": True}]
-
-
-    def get_required_memory_size(self, cross_correlation):
-        """Return required memory."""
-
-        input_size = cross_correlation.read_data_shape()
-        return numpy.prod(input_size) * 8.0
+#         return [{"name": "cross_correlation", "type": CorrelationCoefficients,
+#                  "label": "Correlation Coefficients", "required": True}]
 
 
-    def launch(self, cross_correlation):
-        """Construct data for visualization and launch it."""
+#     def get_required_memory_size(self, cross_correlation):
+#         """Return required memory."""
 
-        # Currently only the first mode & state-var are displayed.
-        # TODO: display other mode / state-var
-        matrix = cross_correlation.get_data('array_data')[:, :, 0, 0]
-        return self._mainDisplay(matrix)
+#         input_size = cross_correlation.read_data_shape()
+#         return numpy.prod(input_size) * 8.0
+
+
+#     def launch(self, cross_correlation):
+#         """Construct data for visualization and launch it."""
+
+#         # Currently only the first mode & state-var are displayed.
+#         # TODO: display other mode / state-var
+#         matrix = cross_correlation.get_data('array_data')[:, :, 0, 0]
+#         return self._mainDisplay(matrix)
 
