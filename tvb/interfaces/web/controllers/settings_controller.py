@@ -33,10 +33,11 @@
 """
 
 import os
-import subprocess
 import cherrypy
 import formencode
 import threading
+import subprocess
+import socket
 from time import sleep
 from formencode import validators
 from tvb.basic.config.settings import TVBSettings as cfg
@@ -101,9 +102,21 @@ class SettingsController(UserController):
             self.logger.warning('For some reason the mplh5 never started.')
         cherrypy.engine.exit()
 
-        self.logger.info("Waiting for Cherrypy to terminate ... ")
+        self.logger.info("Waiting for Cherrypy to shut down ... ")
 
-        sleep(5)
+        test_socket = socket.socket()
+        try_no = 0
+        cherrypy_alive = True
+        while cherrypy_alive and try_no < 5:
+            try:
+                test_socket.connect((cfg.LOCALHOST, cfg.WEB_SERVER_PORT))
+                test_socket.close()
+            except socket.error:
+                cherrypy_alive = False
+            except Exception:
+                cherrypy_alive = False
+            sleep(2)
+            try_no += 1
 
         python_path = cfg().get_python_path()
         proc_params = [python_path, '-m', 'bin.app', 'start', 'web']
