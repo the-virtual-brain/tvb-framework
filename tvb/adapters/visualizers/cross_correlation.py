@@ -99,7 +99,7 @@ class PearsonCorrelationCoefficientVisualizer(CrossCorrelationVisualizer):
     Viewer for Pearson CorrelationCoefficients.
     Very similar to the CrossCorrelationVisualizer
     """
-    _ui_name = "Cross Correlation Coefficients"
+    _ui_name = "Pearson Correlation Coefficients"
     _ui_subsection = "correlation_pearson"
 
 
