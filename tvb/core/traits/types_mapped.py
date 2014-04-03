@@ -73,8 +73,8 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
                        Traited fields are optional to appear here. If not here, default traited value will be taken.
         """
         if KWARG_STORAGE_PATH in kwargs:
-            self.storage_path = kwargs[KWARG_STORAGE_PATH]
-            kwargs.pop(KWARG_STORAGE_PATH)
+            self.storage_path = kwargs.pop(KWARG_STORAGE_PATH)
+
         self._current_metadata = dict()
         super(MappedType, self).__init__(**kwargs)
 
@@ -263,7 +263,7 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
             return super(MappedType, self).get_data_shape(data_name)
 
 
-    def get_info_about_array(self, array_name, included_info=None):
+    def get_info_about_array(self, array_name, included_info=None, mask_array_name=None, key_suffix=''):
         """
         :returns: dictionary {label: value} about an attribute of type mapped.Array
                  Generic information, like Max/Min/Mean/Var are to be retrieved for this array_attr
@@ -271,12 +271,13 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         result = dict()
 
         try:
-            if TVBSettings.TRAITS_CONFIGURATION.use_storage and self.trait.use_storage:
-                summary = self.__get_summary_info(array_name, included_info)
+            if TVBSettings.TRAITS_CONFIGURATION.use_storage and self.trait.use_storage and mask_array_name is None:
+                summary = self._get_summary_info(array_name, included_info, mask_array_name, key_suffix)
             else:
-                summary = super(MappedType, self).__get_summary_info(array_name, included_info)
-            ### Before return, prepare names for UI display.
+                summary = mapped.MappedTypeLight._get_summary_info(self, array_name, included_info,
+                                                                   mask_array_name, key_suffix)
 
+            ### Before return, prepare names for UI display.
             for key, value in summary.iteritems():
                 result[array_name.capitalize().replace("_", " ") + " - " + key] = value
 
@@ -286,12 +287,12 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         return result
 
 
-    def __get_summary_info(self, array_name, included_info):
+    def _get_summary_info(self, array_name, included_info, mask_array_name, key_suffix):
         """
         Overwrite get_summary to read from storage.
         """
         if included_info is None:
-            included_info = self.trait[array_name]._stored_metadata
+            included_info = self.trait[array_name].trait.stored_metadata or self.trait[array_name].stored_metadata
         summary = self.__read_storage_array_metadata(array_name, included_info)
         if self.METADATA_ARRAY_SHAPE in included_info:
             summary[self.METADATA_ARRAY_SHAPE] = self.get_data_shape(array_name)
@@ -306,7 +307,7 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         result = dict()
         if included_info is None:
             if array_name in self.trait:
-                included_info = self.trait[array_name]._stored_metadata
+                included_info = self.trait[array_name].trait.stored_metadata or self.trait[array_name].stored_metadata
             else:
                 included_info = []
         for key, value in summary_hdf5.iteritems():
@@ -318,12 +319,12 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     def set_metadata(self, meta_dictionary, data_name='', tvb_specific_metadata=True, where=ROOT_NODE_PATH):
         """
         Set meta-data information for root node or for a given data set.
-            :param meta_dictionary: disctionary containing meta info to be stored on node
-            :param data_name: name of the dataset where to assign metadata.
+            :param meta_dictionary: dictionary containing meta info to be stored on node
+            :param data_name: name of the data-set where to assign metadata.
                                  If None, metadata is assigned to ROOT node.  
             :param tvb_specific_metadata: specify if the provided metadata is
                                  specific to TVB (keys will have a TVB prefix).
-            :param where: represents the path where dataset is stored (e.g. /data/info)
+            :param where: represents the path where data-set is stored (e.g. /data/info)
              
         """
         if meta_dictionary is None:
@@ -403,7 +404,7 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
 
     @staticmethod
     def _get_meta_value(meta_dictionary, meta_key):
-        """Utitility method. Get meta_key from meta_dictionary, if found key, or None."""
+        """Utility method. Get meta_key from meta_dictionary, if found key, or None."""
         if meta_key in meta_dictionary.keys():
             return meta_dictionary[meta_key]
         else:
@@ -415,11 +416,11 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         """
         Remove meta-data information for root node or for a given data set.
             :param meta_key: name of the metadata attribute to be removed
-            :param data_name: name of the dataset from where to delete metadata.
+            :param data_name: name of the data-set from where to delete metadata.
                                   If None, metadata will be removed from ROOT node.
             :param tvb_specific_metadata: specify if the provided metadata is
                                   specific to TVB (keys will have a TVB prefix).
-            :param where: represents the path where dataset is stored (e.g. /data/info)
+            :param where: represents the path where data-set is stored (e.g. /data/info)
         """
         store_manager = self._get_file_storage_mng()
         store_manager.remove_metadata(meta_key, data_name, tvb_specific_metadata, where)
@@ -428,9 +429,9 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     def get_metadata(self, data_name='', where=ROOT_NODE_PATH):
         """
         Retrieve meta-data information for root node or for a given data set.
-            :param data_name: name of the dataset for which to read metadata.
+            :param data_name: name of the data-set for which to read metadata.
                                  If None, read metadata from ROOT node.
-            :param where: represents the path where dataset is stored (e.g. /data/info)
+            :param where: represents the path where data-set is stored (e.g. /data/info)
             :returns: a dictionary containing all metadata associated with the node
         """
         store_manager = self._get_file_storage_mng()
@@ -477,8 +478,8 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     # ---------------------------- END FILE STORAGE --------------------------------
 
 
-    # ---------------------------- ARRAY ATTR METADATAS ----------------------------
-    # -------- see also store_data, store_data_chunck and close_file----------------
+    # ---------------------------- ARRAY ATTR METADATA ----------------------------
+    # -------- see also store_data, store_data_chunk and close_file----------------
 
     def __retrieve_array_metadata(self, data, data_name):
         """
@@ -488,15 +489,19 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         if data_name not in self.trait:
             ### Ignore non traited attributes (e.g. sparse-matrix sub-sections).
             return dict()
-        traited_attr = self.trait[data_name]._stored_metadata
+        traited_attr = self.trait[data_name].trait.stored_metadata or self.trait[data_name].stored_metadata
 
         if isinstance(data, list):
             data = numpy.array(data)
 
         meta_dictionary = {}
-        for key, value in self.ALL_METADATA_ARRAY.iteritems():
-            if key != self.METADATA_ARRAY_SHAPE and hasattr(data, value) and key in traited_attr:
-                meta_dictionary[key] = eval("data." + value + "()")
+        for key, value in self.METADATA_FORMULAS.iteritems():
+            if key != self.METADATA_ARRAY_SHAPE and key in traited_attr:
+                try:
+                    meta_dictionary[key] = eval(value.replace("$ARRAY$", "data").replace("$MASK$", "data"))
+                except Exception:
+                    self.logger.exception("Could not evaluate %s on %s" % (value, data_name))
+
         ## Append size only for chunk computing purposes. It will not be stored in H5 in this form
         ## but we will use H5 native shape support
         meta_dictionary[self._METADATA_ARRAY_SIZE] = data.size
@@ -509,20 +514,39 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         """
         if self.METADATA_ARRAY_VAR in result_meta:
             del result_meta[self.METADATA_ARRAY_VAR]
+        if self.METADATA_ARRAY_VAR_NON_ZERO in result_meta:
+            del result_meta[self.METADATA_ARRAY_VAR_NON_ZERO]
+
         if (self.METADATA_ARRAY_MIN in merge_meta
-            and merge_meta[self.METADATA_ARRAY_MIN] < result_meta[self.METADATA_ARRAY_MIN]):
+                and merge_meta[self.METADATA_ARRAY_MIN] < result_meta[self.METADATA_ARRAY_MIN]):
             result_meta[self.METADATA_ARRAY_MIN] = merge_meta[self.METADATA_ARRAY_MIN]
+        if (self.METADATA_ARRAY_MIN_NON_ZERO in merge_meta
+                and merge_meta[self.METADATA_ARRAY_MIN_NON_ZERO] < result_meta[self.METADATA_ARRAY_MIN_NON_ZERO]):
+            result_meta[self.METADATA_ARRAY_MIN_NON_ZERO] = merge_meta[self.METADATA_ARRAY_MIN_NON_ZERO]
+
         if (self.METADATA_ARRAY_MAX in merge_meta
-            and merge_meta[self.METADATA_ARRAY_MAX] > result_meta[self.METADATA_ARRAY_MAX]):
+                and merge_meta[self.METADATA_ARRAY_MAX] > result_meta[self.METADATA_ARRAY_MAX]):
             result_meta[self.METADATA_ARRAY_MAX] = merge_meta[self.METADATA_ARRAY_MAX]
+        if (self.METADATA_ARRAY_MAX_NON_ZERO in merge_meta
+                and merge_meta[self.METADATA_ARRAY_MAX_NON_ZERO] > result_meta[self.METADATA_ARRAY_MAX_NON_ZERO]):
+            result_meta[self.METADATA_ARRAY_MAX_NON_ZERO] = merge_meta[self.METADATA_ARRAY_MAX_NON_ZERO]
+
         if self.METADATA_ARRAY_MEAN in merge_meta and self._METADATA_ARRAY_SIZE in merge_meta:
             prev_no = merge_meta[self._METADATA_ARRAY_SIZE]
             curr_no = new_data.size
             result_meta[self.METADATA_ARRAY_MEAN] = (merge_meta[self.METADATA_ARRAY_MEAN] * prev_no +
-                                                result_meta[self.METADATA_ARRAY_MEAN] * curr_no) / (prev_no + curr_no)
+                                                     result_meta[self.METADATA_ARRAY_MEAN] * curr_no) / (prev_no +
+                                                                                                         curr_no)
+            result_meta[self._METADATA_ARRAY_SIZE] = prev_no + curr_no
+        if self.METADATA_ARRAY_MEAN_NON_ZERO in merge_meta and self._METADATA_ARRAY_SIZE_NON_ZERO in merge_meta:
+            prev_no = merge_meta[self._METADATA_ARRAY_SIZE_NON_ZERO]
+            curr_no = new_data.nonzero()[0].shape[0]
+            result_meta[self.METADATA_ARRAY_MEAN_NON_ZERO] = (merge_meta[self.METADATA_ARRAY_MEAN_NON_ZERO] * prev_no +
+                                                              result_meta[self.METADATA_ARRAY_MEAN_NON_ZERO] * curr_no
+                                                              ) / (prev_no + curr_no)
             result_meta[self._METADATA_ARRAY_SIZE] = prev_no + curr_no
 
-    # ---------------------------- END ARRAY ATTR METADATAS ------------------------
+    # ---------------------------- END ARRAY ATTR METADATA ------------------------
 
 
 
