@@ -62,11 +62,8 @@ class PearsonCorrelationCoefficientVisualizer(ABCMPLH5Displayer):
         return numpy.prod(input_size) * 8.0
 
 
-    def plot(self, figure, **kwargs):
+    def plot(self, figure, corr_coefficients):
         """Construct data for visualization and launch it."""
-
-        self.log.debug("Cross-Correlation-MPLH5 started...")
-        corr_coefficients = kwargs['corr_coefficients']
 
         # Currently only the first mode & state-var are displayed.
         # TODO: display other modes / sv
