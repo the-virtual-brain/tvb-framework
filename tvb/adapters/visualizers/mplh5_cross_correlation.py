@@ -32,6 +32,7 @@
 .. moduleauthor:: Paula Sanz Leon <Paula@tvb.invalid>
 
 """
+
 import numpy
 from tvb.core.adapters.abcdisplayer import ABCMPLH5Displayer
 from tvb.datatypes.graph import CorrelationCoefficients
@@ -41,46 +42,39 @@ from tvb.simulator.plot.tools import plot_tri_matrix
 class PearsonCorrelationCoefficientVisualizer(ABCMPLH5Displayer):
     """
     Viewer for Pearson CorrelationCoefficients.
-    Very similar to the CrossCorrelationVisualizer
+    Very similar to the CrossCorrelationVisualizer - this one done with Matplotlib
     """
-    _ui_name = "Pearson Correlation Coefficients"
+    _ui_name = "Pearson Correlation Coefficients (MPLH5)"
     _ui_subsection = "correlation_pearson"
 
 
     def get_input_tree(self):
         """ Inform caller of the data we need as input """
 
-        return [{"name": "cross_correlation", "type": CorrelationCoefficients,
+        return [{"name": "corr_coefficients", "type": CorrelationCoefficients,
                  "label": "Correlation Coefficients", "required": True}]
 
 
-    def get_required_memory_size(self, cross_correlation):
+    def get_required_memory_size(self, corr_coefficients):
         """Return required memory."""
 
-        input_size = cross_correlation.read_data_shape()
+        input_size = corr_coefficients.read_data_shape()
         return numpy.prod(input_size) * 8.0
 
 
-    def launch(self, cross_correlation):
+    def plot(self, figure, **kwargs):
         """Construct data for visualization and launch it."""
+
+        self.log.debug("Cross-Correlation-MPLH5 started...")
+        corr_coefficients = kwargs['corr_coefficients']
 
         # Currently only the first mode & state-var are displayed.
         # TODO: display other modes / sv
-        self.matrix       = cross_correlation.get_data('array_data')[:, :, 0, 0]
-        ts_dtype          = cross_correlation.get_date('source')
-        
-        # I'm not sure this is going to work 
-        self.node_labels = None
-        if hasattr(ts_dtype, 'connectivity')
-            self.node_labels = ts_dtype.connectivity.region_labels
+        matrix_to_display = corr_coefficients.array_data[:, :, 0, 0]
 
-        self.plot()
+        parent_ts = corr_coefficients.source
+        labels_to_display = parent_ts.get_space_labels()
+        if not labels_to_display:
+            labels_to_display = None
 
-
-    def plot(self, figure, **kwargs):
-        self.figure = figure
-        self.axes.clear()
-        self.figure = plot_tri_matrix(self.matrix, node_labels=self.node_labels)
-        self.figure.canvas.draw()
-
-#EoF#
+        plot_tri_matrix(matrix_to_display, figure=figure, node_labels=labels_to_display)
