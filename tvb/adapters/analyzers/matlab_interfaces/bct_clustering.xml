@@ -57,7 +57,7 @@
                 <input required="True">
                     <name value="A"/>
                     <label value="Weighted directed connection matrix:"/>
-                    <type value="tvb.datatypes.connectivity.Connectivity" field="normalised_weights()"/>
+                    <type value="tvb.datatypes.connectivity.Connectivity" field="scaled_weights()"/>
                 </input>
             </inputs>
             <outputs>
@@ -76,7 +76,7 @@
                 <input required="True">
                     <name value="A"/>
                     <label value="Weighted undirected connection matrix:"/>
-                    <type value="tvb.datatypes.connectivity.Connectivity" field="normalised_weights()">
+                    <type value="tvb.datatypes.connectivity.Connectivity" field="scaled_weights()">
 	                    <conditions>
 				            <cond_fields value_list="[FilterChain.datatype + '._unidirectional']"/>
 				            <cond_operations value_list="['==']"/>    
@@ -163,7 +163,7 @@
                 <input required="True">
                     <name value="A"/>
                     <label value="Weighted undirected connection matrix:"/>
-                    <type value="tvb.datatypes.connectivity.Connectivity" field="normalised_weights()">
+                    <type value="tvb.datatypes.connectivity.Connectivity" field="scaled_weights()">
 	                    <conditions>
 				            <cond_fields value_list="[FilterChain.datatype + '._unidirectional']"/>
 				            <cond_operations value_list="['==']"/>    
