@@ -145,7 +145,7 @@
                 <input required="True">
                     <name value="A"/>
                     <label value="Weighted directed connection matrix:"/>
-                    <type value="tvb.datatypes.connectivity.Connectivity" field="normalised_weights()"/>
+                    <type value="tvb.datatypes.connectivity.Connectivity" field="scaled_weights()"/>
                 </input>
             </inputs>
             <outputs>
