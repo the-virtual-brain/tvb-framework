@@ -2,43 +2,44 @@
     @param noOfColumns: in how many columns should the checkboxes be spread
     @param title: the title of the selection box
     @param divId: the id of the top level div
-    @param options: a collection of the form [ (value, name)]
+    @param groupedOptions: a collection of option groups. an opntion group is a tuple : group name, [ (value, name)]
     @param initialSelection: a collection of the initially selected values
     @param namedSelections: a collection of tuples [(selectionName, selectionValueList)]
 -->
 <div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="True">
-    <py:def function="drawRegionSelector(noOfColumns, title, divId, options, initialSelection=[], namedSelections=[])">
-        <div id='${divId}'>
-            <table class="subtableCheckboxes">
-                <thead>
-                    <tr><td colspan="${noOfColumns}"> ${title} </td></tr>
-                    <tr><td colspan="${noOfColumns}">
-                        <!--! <button class="action action-view">Apply selection</button>-->
-                        <button class="action action-all-on">&nbsp;</button>
-                        <button class="action action-all-off">&nbsp;</button>
-                        <select>
-                            <xi:include href="channel_selector_opts.html" />
-                        </select>
-                        <input type="text" />
-                        <button class="action action-store">Save</button>
+    <py:def function="drawRegionSelector(title, divId, groupedOptions, initialSelection=[], namedSelections=[])">
+        <div id='${divId}' style="width: 800px; overflow: hidden">
+            <h5 class="subtableCheckboxes" style="text-align: center;">$title</h5>
+            <!-- todo: style inlines are temporary-->
+            <div style="text-align: center;">
+                <!--! <button class="action action-view">Apply selection</button>-->
+                <button class="action action-all-on">&nbsp;</button>
+                <button class="action action-all-off">&nbsp;</button>
+                <select>
+                    <xi:include href="channel_selector_opts.html" />
+                </select>
+                <input type="text" />
+                <button class="action action-store">Save</button>
+            </div>
 
-                        <hr/>
+            <section py:for="groupName, options in groupedOptions"
+                     py:with="noOfColumns = 8/len(groupedOptions)"
+                     class="hemisphere"
+                     style="float: left;margin: 0 0 0 20px">
+                <h5 class="subtableCheckboxes" style="text-align: center;">$groupName</h5>
+                <table class="subtableCheckboxes">
+                    <tr py:for="i in xrange(0, len(options), noOfColumns)">
+                        <td py:for="j in xrange(i, min(i + noOfColumns, len(options)))">
+                            <label>
+                                <input type='checkbox' autocomplete="off"
+                                       value="${options[j][0]}"
+                                       checked="${'checked' if j in initialSelection else None}"/>
+                                ${options[j][1]}
+                            </label>
                         </td>
                     </tr>
-                </thead>
-
-                <tr py:for="i in xrange(0, len(options), noOfColumns)">
-                    <td py:for="j in xrange(i, min(i + noOfColumns, len(options)))">
-                        <label>
-                            <input type='checkbox' autocomplete="off"
-                                   value="${options[j][0]}"
-                                   checked="${'checked' if j in initialSelection else None}"/>
-                            ${options[j][1]}
-                        </label>
-                    </td>
-                </tr>
-
-            </table>
+                </table>
+            </section>
         </div>
     </py:def>
 </div>

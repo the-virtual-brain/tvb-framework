@@ -178,8 +178,18 @@ class ABCDisplayer(ABCSynchronous):
         creates a template dict with the initial selection to be
         displayed in a time series viewer
         """
+        #add sensor id's to labels. this is temporary here
+        #todo: check if the id's are consistent with the label ordering
+        groups = []
+        offset = 0
+        for g_name, g_labels in time_series.get_grouped_space_labels():
+            ids = range(offset, offset + len(g_labels))
+            offset += len(g_labels)
+            groups.append( (g_name, zip(ids, g_labels)) )
+
         return {'measurePointsSelectionGID': time_series.get_measure_points_selection_gid(),
-                'initialSelection': time_series.get_default_selection()}
+                'initialSelection': time_series.get_default_selection(),
+                'groupedLabels': groups}
 
 
 
