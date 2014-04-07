@@ -148,21 +148,11 @@ function redrawCurrentView() {
 
 
 function drawSliderForScale() {
-    $("#ctrl-input-scale").slider({
-        orientation: 'horizontal',
-        value: 4,
-        min: 0,
-        max: 8
-    });
-
-    $("#display-scale").html("" + AG_translationStep + '*' +AG_computedStep.toFixed(2));
-
-    $("#ctrl-input-scale").slider({
-    	/*
-    	 * When scaling, we need to redraw the graph and update the HTML with the new values.
-    	 */
+    $("#ctrl-input-scale").slider({ value: 4, min: 0, max: 8,
         change: function(event, ui) {
-            var scale = $("#ctrl-input-scale").slider("option", "value") / 4;
+            /** When scaling, we need to redraw the graph and update the HTML with the new values.
+             */
+            var scale = ui.value / 4;
             if (scale >= 0 && AG_currentIndex <= AG_numberOfVisiblePoints) {
                 AG_currentIndex = AG_numberOfVisiblePoints;
             } else if (scale < 0 && (AG_allPoints[0].length - AG_currentIndex) < AG_numberOfVisiblePoints) {
@@ -171,16 +161,17 @@ function drawSliderForScale() {
             AG_displayedPoints = [];
     		for (var i = 0; i < AG_noOfLines; i++) {
 		        AG_displayedPoints.push([]);
-		      }
+		    }
             resetToDefaultView();
-            updateScaleFactor();
+            _updateScaleFactor(scale);
         }
     });
+    $("#display-scale").html("" + AG_translationStep + '*' +AG_computedStep.toFixed(2));
 }
 
 
-function updateScaleFactor() {
-    AG_translationStep = $('#ctrl-input-scale').slider("option", "value") / 4;
+function _updateScaleFactor(scale) {
+    AG_translationStep = scale;
     $("#display-scale").html("" + AG_translationStep + '*' +AG_computedStep.toFixed(2));
     redrawCurrentView();
     if (AG_isStopped) {
