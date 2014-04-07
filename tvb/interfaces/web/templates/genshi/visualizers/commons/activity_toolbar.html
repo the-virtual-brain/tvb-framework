@@ -5,15 +5,7 @@
     </li>
 
     <li class="channel-selector" py:if="not isOneToOneMapping and not extended_view">
-        <nav class="inline-menu">
-            <button class="action action-menu">Select channels</button>
-
-            <div class="extension">
-                <div class="dropdown-pane">
-                    <xi:include href="channel_selector_button.html" />
-                    ${drawRegionSelectorButton(measurePointsTitle, groupedLabels, initialSelection)}
-                </div>
-            </div>
-        </nav>
-        </li>
+        <xi:include href="channel_selector_button.html" />
+        ${drawRegionSelectorButton(measurePointsTitle, groupedLabels, initialSelection)}
+    </li>
 </ul>

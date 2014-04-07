@@ -63,16 +63,8 @@
 			</li>
 			
 			<li py:if="preview == False" class="channel-selector">
-				<nav class="inline-menu">
-					<button class="action action-menu">Select channels</button>
-
-					<div class="extension">
-		    			<div class="dropdown-pane">
-                            <xi:include href="../commons/channel_selector_button.html" />
-                            ${drawRegionSelectorButton(ts_title, groupedLabels, initialSelection)}
-		    			</div>
-		    		</div>
-				</nav>
+                <xi:include href="../commons/channel_selector_button.html" />
+                ${drawRegionSelectorButton(ts_title, groupedLabels, initialSelection)}
 			</li>
 			
 		</ul>
