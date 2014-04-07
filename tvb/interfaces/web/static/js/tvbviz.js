@@ -549,7 +549,7 @@ tv.plot = {
 
         f.render = function () {
             f.status_line.text("waiting for data from server...");
-	    console.log(f.baseURL(), f.current_slice())
+	    //console.log(f.baseURL(), f.current_slice())
             tv.util.get_array_slice(f.baseURL(), f.current_slice(), f.render_callback, f.channels(), f.mode(), f.state_var())
         };
 
@@ -662,25 +662,25 @@ tv.plot = {
                 , sh = ev.shiftKey
                 , dr = !!(da > 0);
 
-	    console.log(ev)
+	    //console.log(ev)
             if (sh) {
                 f.magic_fcs_amp_scl *= dr ? 1.2 : 1 / 1.2;
                 // TODO scale transform instead via direct access...
                 f.prepare_data();
-                f.render_focus()
+                f.render_focus();
             } else {
                 if (!(f.br_ctx_y.empty())) {
                     var ext = f.br_ctx_y.extent();
                     var dx = dr ? 1 : -1;
                     f.br_ctx_y.extent([ext[0] + dx, ext[1] + dx]);
-                    f.br_ctx_y_fn()
+                    f.br_ctx_y_fn();
                 }
             }
 
         };
 
         f.signal_tick_labeler = function (tick_value) {
-            return (tick_value % 1 === 0) ? f.labels()[tick_value] : ""
+            return (tick_value % 1 === 0) ? f.labels()[tick_value] : "";
         };
 
         // setup groups, scales and axes for context and focus areas
@@ -896,8 +896,8 @@ tv.plot = {
                 , area = dx * dy
                 , area2 = total.x * total.y;
 
-            //console.log(area / area2);
-            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", ""+4*Math.sqrt(Math.abs(area / area2)))
+                //console.log(area / area2);
+            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "" + 2*Math.sqrt(Math.abs(area / area2)));
         };
 
         f.add_brushes = function () {
@@ -922,10 +922,8 @@ tv.plot = {
                     f.sc_fcs_y.domain(dom);
                     f.gp_ax_fcs_y.call(f.ax_fcs_y);
                     f.gp_lines.selectAll("g").attr("transform", function (d, i) {
-                        // Have a maximum line thickness of 2, to avoid situations in which blue lines become huge
                         return  "translate(0, " + f.sc_fcs_y(i) + ")" +  "scale (1, " + yscl + ")"
-                    }).selectAll("path")
-                        .attr("stroke-width", ""+(3/yscl));
+                    }).selectAll("path").attr("stroke-width", ""+(3/yscl));
                 }
 
                 , br_ctx_end = function () {
