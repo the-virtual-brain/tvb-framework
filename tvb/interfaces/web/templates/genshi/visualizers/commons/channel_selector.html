@@ -8,11 +8,10 @@
 -->
 <div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="True">
     <py:def function="drawRegionSelector(title, divId, groupedOptions, initialSelection=[], namedSelections=[])">
-        <div id='${divId}' style="width: 800px; overflow: hidden">
-            <h5 class="subtableCheckboxes" style="text-align: center;">$title</h5>
-            <!-- todo: style inlines are temporary-->
-            <div style="text-align: center;">
-                <!--! <button class="action action-view">Apply selection</button>-->
+        <div id='${divId}' class="regionSelector">
+            <h5>$title</h5>
+            <div class="selection-toolbar">
+                <!--! <button class="action action-view">Apply selection</button> -->
                 <button class="action action-all-on">&nbsp;</button>
                 <button class="action action-all-off">&nbsp;</button>
                 <select>
@@ -23,11 +22,10 @@
             </div>
 
             <section py:for="groupName, options in groupedOptions"
-                     py:with="noOfColumns = 8/len(groupedOptions)"
-                     class="hemisphere"
-                     style="float: left;margin: 0 0 0 20px">
-                <h5 class="subtableCheckboxes" style="text-align: center;">$groupName</h5>
-                <table class="subtableCheckboxes">
+                     py:with="noOfColumns = 8/len(groupedOptions); sectionWidth=100/len(groupedOptions)"
+                     class="submatrix" style="width:${sectionWidth}%">
+                <h5>$groupName</h5>
+                <table>
                     <tr py:for="i in xrange(0, len(options), noOfColumns)">
                         <td py:for="j in xrange(i, min(i + noOfColumns, len(options)))">
                             <label>
