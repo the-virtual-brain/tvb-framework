@@ -33,10 +33,12 @@ var TVBUI = TVBUI || {};
  * exports the RegionSelectComponent constructor
  * @module
  */
-(function($, displayMessagessss){
+(function($, displayMessage, TVBUI){
 "use strict";
 /**
  * @constructor
+ * @param dom selector or dom node
+ * @param settings selectors for sub-components. see defaults
  */
 function RegionSelectComponent(dom, settings){
     var $dom = $(dom);
@@ -79,15 +81,30 @@ RegionSelectComponent.prototype.defaults = {
     saveSelectionButtonSelector : '.action-store'
 };
 
+/**
+ * Subscribe a function to the selection change event 
+ */
 RegionSelectComponent.prototype.change = function(fn){
     this.$dom.on("selectionChange", function(_event, arg){ fn(arg); });
 };
 
-//RegionSelectComponent.prototype.destroy = function(fn){
-//    // unbind all event handlers
-//    this.$dom.off(".regionselect").off(click)
-//};
+/**
+ * Unbind all event handlers
+ */
+RegionSelectComponent.prototype.destroy = function(){
+    this._boxes.off();
+    this._dropDown.off();
+    this.$dom.find(this.settings.checkSelector).off();
+    this.$dom.find(this.settings.uncheckSelector).off();
+    this.$dom.find(this.settings.saveSelectionButtonSelector).off();
+    this.$dom.find(this.settings.applySelector).off();
+    this.$dom.off("selectionChange");
+};
 
+/**
+ * Updates the model from dom values
+ * @private
+ */
 RegionSelectComponent.prototype.dom2model = function(){
     var self = this;
     self._allValues = [];
@@ -112,15 +129,29 @@ RegionSelectComponent.prototype.dom2model = function(){
     });
 };
 
+RegionSelectComponent.prototype._updateDecoration = function(el){
+    // here we assume dom structure
+    $(el).parent().parent().attr('class', el.checked? "selected" : "");
+};
+
+/**
+ * Updates the dom from the selection model
+ * @private
+ */
 RegionSelectComponent.prototype.selectedValues2dom = function(){
     var self = this;
     this._boxes.each(function(_, el){
         var idx = self._selectedValues.indexOf(el.value);
         el.checked = idx != -1;
+        self._updateDecoration(el);
     });
     self._dropDownOptions = self._dropDown.find('option');
 };
 
+/**
+ * Handler for save selection dom event
+ * @private
+ */
 RegionSelectComponent.prototype._onNewSelection = function(){
     var self = this;
     var name = $.trim(self._textBox.val());
@@ -135,14 +166,20 @@ RegionSelectComponent.prototype._onNewSelection = function(){
 	}
 };
 
+/**
+ * Handler for checkbox change dom event
+ * @private
+ */
 RegionSelectComponent.prototype._onchange = function(el){
     this.dom2model();
     this._dropDown.val("[]");
+    this._updateDecoration(el);
     this.$dom.trigger("selectionChange", [this._selectedValues.slice()]);
 };
 
 /**
- * @private Sets the selection without triggering events
+ * Sets the selection without triggering events
+ * @private
  */
 RegionSelectComponent.prototype._set_val = function(arg){
     this._selectedValues = [];
@@ -162,6 +199,10 @@ RegionSelectComponent.prototype._set_val = function(arg){
     this.selectedValues2dom();
 }
 
+/**
+ * Gets the selected values if no argument is given
+ * Sets the selected values if an array of values is given as argument
+ */
 RegionSelectComponent.prototype.val = function(arg){
     if(arg == null){
         return this._selectedValues.slice();
@@ -172,6 +213,10 @@ RegionSelectComponent.prototype.val = function(arg){
     }
 };
 
+/**
+ * Return the selected indices
+ * @returns {Array}
+ */
 RegionSelectComponent.prototype.selectedIndices = function(){
     return this._selectedIndices.slice();
 };
@@ -187,14 +232,17 @@ RegionSelectComponent.prototype.checkAll = function(){
 // exports
 TVBUI.RegionSelectComponent = RegionSelectComponent;
 
-})($, displayMessage);  //depends
+})($, displayMessage, TVBUI);  //depends
 
-
+/**
+ * @module
+ */
+(function($, displayMessage, doAjaxCall, TVBUI){
+"use strict";
 /**
  * Creates a selection component which saves selections on the server
  */
 TVBUI.regionSelector = function(dom, settings){
-    // todo: sending labels could be omitted if server knew how to obtain them from the gid
     var filterGid = settings.filterGid;
     var component =  new TVBUI.RegionSelectComponent(dom, settings);
 
@@ -236,5 +284,7 @@ TVBUI.regionSelector = function(dom, settings){
     });
     return component;
 };
+
+})($, displayMessage, doAjaxCall, TVBUI); // depends
 
 
