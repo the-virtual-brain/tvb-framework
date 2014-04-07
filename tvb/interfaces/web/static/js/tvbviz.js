@@ -897,7 +897,7 @@ tv.plot = {
                 , area2 = total.x * total.y;
 
                 //console.log(area / area2);
-            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "" + 2*Math.sqrt(Math.abs(area / area2)));
+            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "" + Math.min(2*Math.sqrt(Math.abs(area / area2)), 0.1));
         };
 
         f.add_brushes = function () {
