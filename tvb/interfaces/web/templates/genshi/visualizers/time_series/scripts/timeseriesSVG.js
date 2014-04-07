@@ -99,6 +99,24 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     // run
     ts(d3.select("#time-series-viewer"));
     tsView = ts;
+
+    // This is arbitrarily set to a value. To be consistent with tsview we rescale relative to this value
+    var initial_magic_fcs_amp_scl = tsView.magic_fcs_amp_scl;
+
+    $("#ctrl-input-scale").slider({ value: 50, min: 0, max: 100,
+        slide: function(event, target) {
+            var expo_scale = (target.value - 50) / 50; // [1 .. -1]
+            var scale = Math.pow(10, expo_scale*3); // [1000..-1000]
+            tsView.magic_fcs_amp_scl = initial_magic_fcs_amp_scl * scale;
+            tsView.prepare_data();
+            tsView.render_focus();
+            if(scale >= 1){
+                $("#display-scale").html("1 * " + scale.toFixed(2));
+            }else{
+                $("#display-scale").html("1 / " + (1/scale).toFixed(2));
+            }
+        }
+    });
 }
 
 /*
@@ -124,7 +142,8 @@ function refreshChannels() {
 
     // configure data
     var displayElem = $('#time-series-viewer');
-    new_ts.w(displayElem.width()).h(displayElem.height()).baseURL(tsView.baseURL()).preview(tsView.preview()).mode(tsView.mode()).state_var(tsView.state_var());
+    new_ts.w(displayElem.width()).h(displayElem.height());
+    new_ts.baseURL(tsView.baseURL()).preview(tsView.preview()).mode(tsView.mode()).state_var(tsView.state_var());
     new_ts.shape(shape).t0(tsView.t0()).dt(tsView.dt());
     new_ts.labels(selectedLabels);
     new_ts.channels(TS_SVG_selectedChannels);
