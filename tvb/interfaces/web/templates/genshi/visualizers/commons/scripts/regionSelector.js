@@ -131,7 +131,7 @@ RegionSelectComponent.prototype.dom2model = function(){
 
 RegionSelectComponent.prototype._updateDecoration = function(el){
     // here we assume dom structure
-    $(el).parent().parent().attr('class', el.checked? "selected" : "");
+    $(el).parent().toggleClass("selected", el.checked);
 };
 
 /**

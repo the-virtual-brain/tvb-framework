@@ -1,5 +1,4 @@
 <!--! This component is used to generate a channels selector. The genshi function expects as inputs:
-    @param noOfColumns: in how many columns should the checkboxes be spread
     @param title: the title of the selection box
     @param divId: the id of the top level div
     @param groupedOptions: a collection of option groups. an opntion group is a tuple : group name, [ (value, name)]
@@ -22,21 +21,16 @@
             </div>
 
             <section py:for="groupName, options in groupedOptions"
-                     py:with="noOfColumns = 8/len(groupedOptions); sectionWidth=100/len(groupedOptions)"
+                     py:with="sectionWidth=100/len(groupedOptions)"
                      class="submatrix" style="width:${sectionWidth}%">
                 <h5>$groupName</h5>
-                <table>
-                    <tr py:for="i in xrange(0, len(options), noOfColumns)">
-                        <td py:for="j in xrange(i, min(i + noOfColumns, len(options)))">
-                            <label>
-                                <input type='checkbox' autocomplete="off"
-                                       value="${options[j][0]}"
-                                       checked="${'checked' if j in initialSelection else None}"/>
-                                ${options[j][1]}
-                            </label>
-                        </td>
-                    </tr>
-                </table>
+
+                <label py:for="j in xrange(0, len(options))" title="${options[j][1]}">
+                    <input type='checkbox' autocomplete="off"
+                           value="${options[j][0]}"
+                           checked="${'checked' if j in initialSelection else None}"/>
+                    ${options[j][1]}
+                </label>
             </section>
         </div>
     </py:def>
