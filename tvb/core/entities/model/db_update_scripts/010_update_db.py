@@ -31,6 +31,7 @@
 """
 Change of DB structure from TVB version 1.1.2 to 1.1.3
 
+.. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Andrei Mihai <mihai.andrei@codemart.ro>
 """
 
@@ -38,10 +39,14 @@ from sqlalchemy import Column, Integer
 from migrate.changeset.schema import create_column, drop_column
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
+from tvb.core.entities.storage import dao
 
 
 meta = model.Base.metadata
+
 COL_NR_OF_CONNECTIONS = Column('_number_of_connections', Integer)
+
+LOGGER = get_logger(__name__)
 
 
 def upgrade(migrate_engine):
@@ -53,9 +58,11 @@ def upgrade(migrate_engine):
         meta.bind = migrate_engine
         table = meta.tables['MAPPED_CONNECTIVITY_DATA']
         create_column(COL_NR_OF_CONNECTIONS, table)
+
+        remove_visualizer_references()
+
     except Exception:
-        logger = get_logger(__name__)
-        logger.exception("Cold not create new column required by the update")
+        LOGGER.exception("Cold not create new column required by the update")
         raise
 
 
@@ -68,8 +75,28 @@ def downgrade(migrate_engine):
         table = meta.tables['MAPPED_CONNECTIVITY_DATA']
         drop_column(COL_NR_OF_CONNECTIONS, table)
     except Exception:
-        logger = get_logger(__name__)
-        logger.warning("Cold not remove column as required by the downgrade")
+        LOGGER.warning("Cold not remove column as required by the downgrade")
         raise
 
 
+
+def remove_visualizer_references():
+    """
+    As we removed an algorithm, remove left-overs.
+    """
+
+    LOGGER.info("Starting to remove references towards old viewer ....")
+
+    pearson_group = dao.find_group('tvb.adapters.visualizers.cross_correlation',
+                                   'PearsonCorrelationCoefficientVisualizer')
+    pearson_algorithm = dao.get_algorithm_by_group(pearson_group.id)
+
+    pearson_operations = dao.get_generic_entity(model.Operation, pearson_algorithm.id, "fk_from_algo")
+    for op in pearson_operations:
+        dao.remove_entity(model.Operation, op.id)
+
+    pearson_workflows = dao.get_generic_entity(model.WorkflowStepView, pearson_algorithm.id, "fk_algorithm")
+    for ws in pearson_workflows:
+        dao.remove_entity(model.WorkflowStepView, ws.id)
+
+    LOGGER.info("References removed.")
