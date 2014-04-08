@@ -22,7 +22,7 @@ var TS_SVG_selectedChannels = [];
 var allChannelLabels = [];
 
 var MAX_INITIAL_CHANNELS = 20;
-
+var _initial_magic_fcs_amp_scl;
 var tsView;
 
 /**
@@ -67,6 +67,21 @@ function _initSelection(filterGid){
     return selectedLabels;
 }
 
+function _updateScalingFromSlider(value){
+    if (value == null){
+        value = $("#ctrl-input-scale").slider("value");
+    }
+    var expo_scale = (value - 50) / 50; // [1 .. -1]
+    var scale = Math.pow(10, expo_scale*3); // [1000..-1000]
+    tsView.magic_fcs_amp_scl = _initial_magic_fcs_amp_scl * scale;
+    tsView.prepare_data();
+    tsView.render_focus();
+    if(scale >= 1){
+        $("#display-scale").html("1 * " + scale.toFixed(2));
+    }else{
+        $("#display-scale").html("1 / " + (1/scale).toFixed(2));
+    }
+}
 /*
  * Do any required initializations in order to start the viewer.
  *
@@ -101,20 +116,11 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     tsView = ts;
 
     // This is arbitrarily set to a value. To be consistent with tsview we rescale relative to this value
-    var initial_magic_fcs_amp_scl = tsView.magic_fcs_amp_scl;
+    _initial_magic_fcs_amp_scl = tsView.magic_fcs_amp_scl;
 
     $("#ctrl-input-scale").slider({ value: 50, min: 0, max: 100,
         slide: function(event, target) {
-            var expo_scale = (target.value - 50) / 50; // [1 .. -1]
-            var scale = Math.pow(10, expo_scale*3); // [1000..-1000]
-            tsView.magic_fcs_amp_scl = initial_magic_fcs_amp_scl * scale;
-            tsView.prepare_data();
-            tsView.render_focus();
-            if(scale >= 1){
-                $("#display-scale").html("1 * " + scale.toFixed(2));
-            }else{
-                $("#display-scale").html("1 / " + (1/scale).toFixed(2));
-            }
+            _updateScalingFromSlider(target.value);
         }
     });
 }
@@ -151,6 +157,7 @@ function refreshChannels() {
     displayElem.empty();
     new_ts(d3.select("#time-series-viewer"));
     tsView = new_ts;
+    _updateScalingFromSlider();
 }
 
 function changeMode() {
