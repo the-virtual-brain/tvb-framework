@@ -64,21 +64,21 @@ class ConnectivityViewer(ABCDisplayer):
                 {'name': 'surface_data', 'label': 'Brain Surface', 'type': CorticalSurface,
                  'description': 'The Brain Surface is used to give you an idea of the connectivity position relative '
                                 'to the full brain cortical surface.  This surface will be displayed as a shadow '
-                                '(only used in 3D Edges viewer).'},
+                                '(only used in 3D Edges tab).'},
                 {'name': 'colors', 'label': 'Node Colors', 'type': ConnectivityMeasure,
                  'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
                                            operations=["=="], values=[1]),
                  'description': 'A ConnectivityMeasure DataType that establishes a colormap for the nodes '
-                                'displayed in the 2D Connectivity viewers.'},
+                                'displayed in the 2D Connectivity tabs.'},
                 {'name': 'step', 'label': 'Color Threshold', 'type': 'float',
                  'description': 'All nodes with a value greater than this threshold will be displayed as red discs, '
-                                'otherwise they will be yellow. (This applies to 2D Connectivity Viewers and the '
+                                'otherwise they will be yellow. (This applies to 2D Connectivity tabs and the '
                                 'threshold will depend on the metric used to set the Node Color)'},
                 {'name': 'rays', 'label': 'Shapes Dimensions', 'type': ConnectivityMeasure,
                  'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
                                            operations=["=="], values=[1]),
                  'description': 'A ConnectivityMeasure datatype used to establish the size of the spheres representing '
-                                'each node. (It only applies to 3D Nodes viewer).'}]
+                                'each node. (It only applies to 3D Nodes tab).'}]
 
 
     def get_required_memory_size(self, input_data, surface_data, colors, rays, step):

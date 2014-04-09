@@ -111,11 +111,12 @@ class WebStructure(object):
     SUB_SECTION_VIEW_13 = "view_pca"
     SUB_SECTION_VIEW_14 = "view_pse"
     SUB_SECTION_VIEW_15 = "view_pse_iso"
-    SUB_SECTION_VIEW_16 = "view_timeseries"
-    SUB_SECTION_VIEW_17 = "view_topography"
-    SUB_SECTION_VIEW_18 = "view_wavelet"
-    SUB_SECTION_VIEW_19 = "view_surface"
-    SUB_SECTION_VIEW_20 = "view_sensor"
+    SUB_SECTION_VIEW_16 = "view_sensor"
+    SUB_SECTION_VIEW_17 = "view_surface"
+    SUB_SECTION_VIEW_18 = "view_timeseries"
+    SUB_SECTION_VIEW_19 = "view_ts_volume"
+    SUB_SECTION_VIEW_20 = "view_topography"
+    SUB_SECTION_VIEW_21 = "view_wavelet"
 
 
     ### Texts to appear in HTML page headers as section-title.
@@ -175,28 +176,28 @@ class WebStructure(object):
         SUB_SECTION_CONNECTIVITY: "Large Scale",
         SUB_SECTION_LOCAL_CONNECTIVITY: "Local",
 
-        SUB_SECTION_VIEW_0: "Connectivity Viewer",
-        SUB_SECTION_VIEW_1: "Brain Viewer",
-        SUB_SECTION_VIEW_2: "EEG Viewer",
-        SUB_SECTION_VIEW_3: "SEEG Viewer",
-        SUB_SECTION_VIEW_4: "Covariance Viewer",
-        SUB_SECTION_VIEW_5: "Coherence Viewer",
-        SUB_SECTION_VIEW_6: "Complex Coherence Viewer",
-        SUB_SECTION_VIEW_7: "Cross Correlation Viewer",
-        SUB_SECTION_VIEW_8: "Pearson Correlation Coefficients Viewer",
-        SUB_SECTION_VIEW_9: "EEG Viewer",
-        SUB_SECTION_VIEW_10: "Fourier Viewer",
-        SUB_SECTION_VIEW_11: "Histogram Viewer",
-        SUB_SECTION_VIEW_12: "ICA Viewer",
-        SUB_SECTION_VIEW_13: "PCA Viewer",
-        SUB_SECTION_VIEW_14: "Discrete PSE Viewer",
-        SUB_SECTION_VIEW_15: "Isocline PSE Viewer",
-        SUB_SECTION_VIEW_16: "TimeSeries Viewer",
-        SUB_SECTION_VIEW_17: "Topography Viewer",
-        SUB_SECTION_VIEW_18: "Wavelet Viewer",
-        SUB_SECTION_VIEW_19: "Surface Viewer",
-        SUB_SECTION_VIEW_20: "Sensor Viewer"
-
+        SUB_SECTION_VIEW_0: "Connectivity Visualizer",
+        SUB_SECTION_VIEW_1: "Brain Visualizer",
+        SUB_SECTION_VIEW_2: "Brain EEG Visualizer",
+        SUB_SECTION_VIEW_3: "Brain SEEG Visualizer",
+        SUB_SECTION_VIEW_4: "Covariance Visualizer",
+        SUB_SECTION_VIEW_5: "Coherence Visualizer",
+        SUB_SECTION_VIEW_6: "Complex Coherence Visualizer",
+        SUB_SECTION_VIEW_7: "Cross Correlation Visualizer",
+        SUB_SECTION_VIEW_8: "Pearson Correlation Coefficients Visualizer",
+        SUB_SECTION_VIEW_9: "EEG Visualizer",
+        SUB_SECTION_VIEW_10: "Fourier Visualizer",
+        SUB_SECTION_VIEW_11: "Histogram Visualizer",
+        SUB_SECTION_VIEW_12: "ICA Visualizer",
+        SUB_SECTION_VIEW_13: "PCA Visualizer",
+        SUB_SECTION_VIEW_14: "Discrete PSE Visualizer",
+        SUB_SECTION_VIEW_15: "Isocline PSE Visualizer",
+        SUB_SECTION_VIEW_16: "Sensor Visualizer",
+        SUB_SECTION_VIEW_17: "Surface Visualizer",
+        SUB_SECTION_VIEW_18: "TimeSeries Visualizer",
+        SUB_SECTION_VIEW_19: "TimeSeries Volume Visualizer",
+        SUB_SECTION_VIEW_20: "Topography Visualizer",
+        SUB_SECTION_VIEW_21: "Wavelet Visualizer"
     }
 
 
@@ -220,11 +221,12 @@ class WebStructure(object):
         SUB_SECTION_VIEW_13: "principal-component-visualizer",
         SUB_SECTION_VIEW_14: "discrete-pse-visualizer",
         SUB_SECTION_VIEW_15: "isocline-pse-visualizer",
-        SUB_SECTION_VIEW_16: "time-series-visualizer-svg-d3",
-        SUB_SECTION_VIEW_17: "topographic-visualizer",
-        SUB_SECTION_VIEW_18: "wavelet-spectrogram-visualizer",
-        SUB_SECTION_VIEW_19: "surface-visualizer",
-        SUB_SECTION_VIEW_20: "sensor-visualizer"
+        SUB_SECTION_VIEW_16: "sensor-visualizer",
+        SUB_SECTION_VIEW_17: "surface-visualizer",
+        SUB_SECTION_VIEW_18: "time-series-visualizer-svg-d3",
+        SUB_SECTION_VIEW_19: "time-series-volume-visualizer",
+        SUB_SECTION_VIEW_20: "topographic-visualizer",
+        SUB_SECTION_VIEW_21: "wavelet-spectrogram-visualizer"
     }
 
 

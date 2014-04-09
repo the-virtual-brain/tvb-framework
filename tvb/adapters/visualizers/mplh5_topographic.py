@@ -231,7 +231,7 @@ class TopographicViewer(BaseTopography, ABCMPLH5Displayer):
     Interface between TVB Framework and web display of a topography viewer.
     """
 
-    _ui_name = "Topographic View"
+    _ui_name = "Topographic Visualizer"
     _ui_subsection = "topography"
 
 

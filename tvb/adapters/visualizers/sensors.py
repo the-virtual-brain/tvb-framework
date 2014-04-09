@@ -45,7 +45,7 @@ class InternalSensorViewer(ABCDisplayer):
     Sensor visualizer - for visual inspecting Internal Sensors of TVB.
     """
 
-    _ui_name = "Internal sensor Visualizer"
+    _ui_name = "Internal Sensor Visualizer"
     _ui_subsection = "sensors"
 
     def get_input_tree(self):
@@ -86,7 +86,7 @@ class EegSensorViewer(ABCDisplayer):
     """
     Sensor visualizer - for visual inspecting EEG sensors of TVB.
     """
-    _ui_name = "EEG sensor Visualizer"
+    _ui_name = "EEG Sensor Visualizer"
     _ui_subsection = "sensors"
 
 
@@ -144,7 +144,7 @@ class MEGSensorViewer(EegSensorViewer):
     """
     Sensor visualizer - for visual inspecting MEG sensors of TVB.
     """
-    _ui_name = "MEEG sensor Visualizer"
+    _ui_name = "MEEG Sensor Visualizer"
     _ui_subsection = "sensors"
 
     def get_input_tree(self):

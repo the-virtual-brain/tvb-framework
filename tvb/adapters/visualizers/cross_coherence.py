@@ -42,7 +42,7 @@ from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
 
 class CrossCoherenceVisualizer(ABCDisplayer):
-    _ui_name = "Cross coherence visualizer"
+    _ui_name = "Cross Coherence Visualizer"
     _ui_subsection = "coherence"
 
 

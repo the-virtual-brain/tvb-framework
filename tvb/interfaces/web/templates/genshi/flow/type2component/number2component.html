@@ -45,12 +45,12 @@
         </table>
         <p class="field-adapters">
         	<py:with vars="add_attrs={'disabled': 'disabled'} if disabled else {}">
-		        <input tabindex='1' type="button" class="right-display" value="V" id="${containerDivId}_buttonExpand" py:attrs="add_attrs"
+		        <input tabindex='1' type="button" class="right-display" value="Expand Range" id="${containerDivId}_buttonExpand" py:attrs="add_attrs"
 		        	   title="Expand Range for current parameter. This will launch multiple simulations!"
 		    		   onclick="initRangeComponent('$containerDivId', ${minValue}, ${maxValue}, ${stepValue}, '$submitName');" />
 	        </py:with>
 	        	   
-	        <input tabindex='1' type="button" class="right-display" value="//" id="${containerDivId}_buttonCollapse" disabled='disabled'
+	        <input tabindex='1' type="button" class="right-display" value="Hide Range" id="${containerDivId}_buttonCollapse" disabled='disabled'
 	        	   title="Colapse Ranger"
 	        	   onclick="disableRangeComponent('$containerDivId', '$submitName')" />
         </p>

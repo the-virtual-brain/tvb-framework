@@ -2539,3 +2539,9 @@ border-color: #41921f;
 font-weight: bold;
 }
 
+fieldset input[type="button"]
+{
+    background-color: gray;
+    font-size: 10px;
+    padding: 0 2px;
+}

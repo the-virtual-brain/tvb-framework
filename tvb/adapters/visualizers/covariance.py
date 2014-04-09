@@ -42,7 +42,7 @@ from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
 
 class CovarianceVisualizer(ABCDisplayer):
-    _ui_name = "Covariance visualizer"
+    _ui_name = "Covariance Visualizer"
 
 
     def get_input_tree(self):

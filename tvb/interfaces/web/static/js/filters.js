@@ -42,7 +42,7 @@ function addFilter(div_id, filters) {
     var newDiv = document.createElement("div");
     //Create a label
     var label = document.createElement("label");
-    var text = document.createTextNode("Filter:");
+    var text = document.createTextNode("Filter : ");
     label.appendChild(text);
 
     //This will be the operation select item
@@ -131,7 +131,7 @@ function addFilter(div_id, filters) {
     //Remove button
     var button = document.createElement("input");
     button.type = "button";
-    button.value = "-";
+    button.value = " Drop Filter ";
     button.onclick = function () {
         div.removeChild(newDiv);
     };

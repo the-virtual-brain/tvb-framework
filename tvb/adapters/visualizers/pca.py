@@ -41,7 +41,7 @@ from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
 
 class PCA(ABCDisplayer):
-    _ui_name = "Principal Components Analysis"
+    _ui_name = "Principal Components Analysis Visualizer"
 
 
     def get_input_tree(self):

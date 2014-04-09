@@ -130,7 +130,7 @@ class SurfaceViewer(ABCDisplayer):
 
 
     def launch(self, surface, region_map=None, connectivity_measure=None):
-        params = dict(title="Surface Viewer", extended_view=False,
+        params = dict(title="Surface Visualizer", extended_view=False,
                       isOneToOneMapping=False, hasRegionMap=region_map is not None)
 
         params.update(self._compute_surface_params(surface, region_map))

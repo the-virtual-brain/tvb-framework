@@ -18,7 +18,7 @@ LOG = get_logger(__name__)
 
 
 class ICA(ABCDisplayer):
-    _ui_name = "Independent Components Analysis"
+    _ui_name = "Independent Components Analysis Visualizer"
 
 
     def get_input_tree(self):

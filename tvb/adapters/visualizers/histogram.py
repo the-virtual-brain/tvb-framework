@@ -46,7 +46,7 @@ class HistogramViewer(ABCDisplayer):
     """
     The viewer takes as input a result DataType as computed by BCT analyzers.
     """
-    _ui_name = "Connectivity Measure Viewer"
+    _ui_name = "Connectivity Measure Visualizer"
 
 
     def get_input_tree(self):

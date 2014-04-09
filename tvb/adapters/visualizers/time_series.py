@@ -43,7 +43,7 @@ from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
 
 class TimeSeries(ABCDisplayer):
-    _ui_name = "Time Series Viewer (SVG/d3)"
+    _ui_name = "Time Series Visualizer (SVG/d3)"
     _ui_subsection = "timeseries"
 
     MAX_PREVIEW_DATA_LENGTH = 200

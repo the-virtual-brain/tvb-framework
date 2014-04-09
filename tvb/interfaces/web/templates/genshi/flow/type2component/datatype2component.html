@@ -33,8 +33,8 @@
         </py:if>
         
         <p class="field-adapters" id="${parentDivId}${inputRow.name}data_select" py:if="not inputRow.get('dynamic', False)">
-    		<input type="button" tabindex='1' value="+" onclick="addFilter('$parentDivId' + '$inputRow.name' + 'data_select', ${inputRow.filterable if 'filterable' in inputRow else 'false'})"/> 
-    		<input type="button" tabindex='1' value="Refresh" onclick="refreshData('$parentDivId', '$inputRow.name' + 'data_select', '$inputRow.name', '$treeSessionKey')"/>                               
+    		<input type="button" tabindex='1' value="Add Filter" onclick="addFilter('$parentDivId' + '$inputRow.name' + 'data_select', ${inputRow.filterable if 'filterable' in inputRow else 'false'})"/>
+    		<input type="button" tabindex='1' value="Apply Filters" onclick="refreshData('$parentDivId', '$inputRow.name' + 'data_select', '$inputRow.name', '$treeSessionKey')"/>
     	</p>    
   		               
 	    <py:for each="option in inputRow.options">

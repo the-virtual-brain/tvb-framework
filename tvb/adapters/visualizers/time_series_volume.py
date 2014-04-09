@@ -40,7 +40,7 @@ from tvb.datatypes.time_series import TimeSeriesVolume
 
 class TimeSeriesVolumeVisualiser(ABCDisplayer):
 
-    _ui_name = "Time Series Volume"
+    _ui_name = "Time Series Volume Visualizer"
     _ui_subsection = "ts_volume"
 
 

@@ -44,7 +44,7 @@ class PearsonCorrelationCoefficientVisualizer(ABCMPLH5Displayer):
     Viewer for Pearson CorrelationCoefficients.
     Very similar to the CrossCorrelationVisualizer - this one done with Matplotlib
     """
-    _ui_name = "Pearson Correlation Coefficients (MPLH5)"
+    _ui_name = "Pearson Correlation Coefficients (MPLH5 Visualizer)"
     _ui_subsection = "correlation_pearson"
 
 
