@@ -221,6 +221,15 @@ RegionSelectComponent.prototype.selectedIndices = function(){
     return this._selectedIndices.slice();
 };
 
+RegionSelectComponent.prototype.selectedLabels = function(){
+    var ret = [];
+    for(var i = 0 ; i < this._selectedIndices.length; i++){
+        var selected_idx = this._selectedIndices[i];
+        ret.push(this._labels[selected_idx]);
+    }
+    return ret;
+};
+
 RegionSelectComponent.prototype.clearAll = function(){
     this.val([]);
 };
@@ -229,8 +238,64 @@ RegionSelectComponent.prototype.checkAll = function(){
     this.val(this._allValues);
 };
 
+/**
+ * This is a component associated with a selection component.
+ * It allows selection using a text representation of the labels
+ * @param regionSelectComponent
+ * @param textDom
+ * @param buttonDom
+ * @constructor
+ */
+function QuickSelectComponent(regionSelectComponent, textDom, buttonDom, onerror){
+    var self = this;
+    self._text = $(textDom);
+    self._onerror = onerror;
+    self._regionSelectComponent = regionSelectComponent;
+    self._selected_to_text();
+
+    regionSelectComponent.change(function(values){
+        self._selected_to_text();
+    });
+
+    $(buttonDom).click(function(){
+        var values = self._parse(self._text.val());
+        if(values != null){
+            self._regionSelectComponent.val(values);
+        }
+    });
+};
+
+QuickSelectComponent.prototype._selected_to_text = function(){
+    this._text.val( '[' + this._regionSelectComponent.selectedLabels().join(', ') + ']' );
+};
+
+QuickSelectComponent.prototype._parse = function(text){
+    // we could be more lenient and split on spaces as well, and ignore case
+    var nodes = text.replace('[', '').replace(']', '').split(',');
+    var values = [], badLabels = [];
+
+    for (var i = 0; i < nodes.length; i++){
+        var node = nodes[i].trim();
+        // labels have the same order as _allvalues
+        var label_idx = this._regionSelectComponent._labels.indexOf(node);
+        if (label_idx != -1){
+            values.push(this._regionSelectComponent._allValues[label_idx]);
+        }else{
+            badLabels.push(node);
+        }
+    }
+    if (badLabels.length > 0 ){
+        this._onerror('Invalid node names:' + badLabels.join(','));
+        return null;
+    }else{
+        return values;
+    }
+};
+
+
 // exports
 TVBUI.RegionSelectComponent = RegionSelectComponent;
+TVBUI.QuickSelectComponent = QuickSelectComponent;
 
 })($, displayMessage, TVBUI);  //depends
 
@@ -283,6 +348,11 @@ TVBUI.regionSelector = function(dom, settings){
         });
     });
     return component;
+};
+
+TVBUI.quickSelector = function(regionSelectComponent, textDom, buttonDom){
+    return new TVBUI.QuickSelectComponent(regionSelectComponent,
+        textDom, buttonDom, function(txt) {displayMessage(txt, "errorMessage");});
 };
 
 })($, displayMessage, doAjaxCall, TVBUI); // depends
