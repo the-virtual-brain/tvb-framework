@@ -211,7 +211,7 @@ class BrainViewer(ABCDisplayer):
                     measurePointsLabels=time_series.get_space_labels(),
                     measurePointsTitle=time_series.title )
 
-        ret.update(self.build_initial_selection_for_timeseries(time_series))
+        ret.update(self.build_template_params_for_subselectable_datatype(time_series))
 
         return ret
 

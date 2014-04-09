@@ -212,6 +212,7 @@ class ConnectivityViewer(ABCDisplayer):
                              connectivity_entity=input_data, surface_entity=surface_data,
                              algo_group=self.get_algo_group(),
                              base_selection=input_data.saved_selection_labels)
+        global_params.update(self.build_template_params_for_subselectable_datatype(input_data))
         return global_params, global_pages
 
 #    
