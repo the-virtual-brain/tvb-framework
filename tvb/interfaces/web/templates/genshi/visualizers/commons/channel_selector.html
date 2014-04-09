@@ -11,13 +11,13 @@
             <h5>$title</h5>
             <div class="selection-toolbar">
                 <!--! <button class="action action-view">Apply selection</button> -->
-                <button class="action action-all-on">&nbsp;</button>
-                <button class="action action-all-off">&nbsp;</button>
+                <button class="action action-all-on" title="Add all">&nbsp;</button>
+                <button class="action action-all-off" title="Remove all">&nbsp;</button>
                 <select>
                     <xi:include href="channel_selector_opts.html" />
                 </select>
-                <input type="text" />
-                <button class="action action-store">Save</button>
+                <input type="text" title="Enter new selection name here"/>
+                <button class="action action-store" title="Save your currently selected nodes">Save</button>
             </div>
 
             <section py:for="groupName, options in groupedOptions"
