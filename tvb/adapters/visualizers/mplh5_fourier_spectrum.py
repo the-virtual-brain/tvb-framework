@@ -220,7 +220,11 @@ class FourierSpectrumDisplay(ABCMPLH5Displayer):
         """
         self.axes.clear()
         # Set title and axis labels
-        self.axes.set(title=self.input_data.source.type)
+        title = " ".join(("source:", self.input_data.source.type.upper()))
+        if self.input_data.windowing_function is not None and self.input_data.windowing_function.lower() != "none":
+            title = " ".join((title, " window function:", self.input_data.windowing_function.upper()))
+
+        self.axes.set(title=title)
         self.axes.set(xlabel="Frequency (kHz)")  # TODO: Somewhere we should convert requencies back to Hz...
         self.axes.set(ylabel="Power")
 

@@ -96,16 +96,15 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         shape = time_series.read_data_shape()
         LOG.debug("time_series shape is %s" % (str(shape)))
         LOG.debug("Provided segment_length is %s" % (str(segment_length)))
-        LOG.debug("Provided window_function shape is %s" % (str(window_function)))
+        LOG.debug("Provided window_function is %s" % (str(window_function)))
         ##-------------------- Fill Algorithm for Analysis -------------------##
         if segment_length is not None:
             self.algorithm.segment_length = segment_length
-        if (window_function is not None 
-                and isinstance(window_function, str) and len(window_function) > 1):
-            self.algorithm.window_function = window_function
+
+        self.algorithm.window_function = window_function
         self.algorithm.time_series = time_series
         LOG.debug("Using segment_length is %s" % (str(self.algorithm.segment_length)))
-        LOG.debug("Using window_function shape is %s" % (str(self.algorithm.window_function)))
+        LOG.debug("Using window_function  is %s" % (str(self.algorithm.window_function)))
     
     def get_required_memory_size(self, **kwargs):
         """
@@ -153,7 +152,7 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         ##----------- Prepare a FourierSpectrum object for result ------------##
         spectra = spectral.FourierSpectrum(source=time_series,
                                            segment_length=self.algorithm.segment_length,
-                                           window_function=self.algorithm.window_function,
+                                           windowing_function=str(window_function),
                                            storage_path=self.storage_path)
         
         ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
