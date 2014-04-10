@@ -388,6 +388,7 @@ background: rgba(250, 247, 228, 0.2);
 padding: 3px 2px 3px 2px;
 vertical-align: bottom;
 height: 80px;
+cursor:pointer;
 }
 
 .ss-connectivity .matrix td.identifier {

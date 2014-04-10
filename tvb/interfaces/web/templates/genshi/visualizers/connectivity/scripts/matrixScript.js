@@ -227,25 +227,7 @@ function hideNodeDetails() {
 function toggleIngoingLines(index) {
 	var hiddenNodeField = document.getElementById('currentlyEditedNode');
 	var indexes = hiddenNodeField.value.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
-	start_hemisphere_idx = null
-	for (var i=0; i<startPointsY.length - 1; i++) {
-		if (indexes[index] >= startPointsY[i] && indexes[index] <= startPointsY[i + 1]){
-			start_hemisphere_idx = startPointsY[i];
-		}
-	}
-	if (start_hemisphere_idx == null) {
-		start_hemisphere_idx = startPointsY[startPointsY.length - 1];
-	}
-	end_hemisphere_idx = null
-	for (var i=0; i<endPointsY.length - 1; i++) {
-		if (indexes[index] >= endPointsY[i] && indexes[index] <= endPointsY[i + 1]){
-			end_hemisphere_idx = endPointsY[i + 1];
-		}
-	}
-	if (end_hemisphere_idx == null) {
-		end_hemisphere_idx = endPointsY[endPointsY.length - 1];
-	}	
-	
+
 	for (var i=0; i<NO_POSITIONS; i++) {
 		if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][indexes[index]] > 0) {
             if (GVAR_connectivityMatrix[i][indexes[index]] == 1) {
@@ -271,25 +253,7 @@ function toggleIngoingLines(index) {
 function toggleOutgoingLines(index) {
 	var hiddenNodeField = document.getElementById('currentlyEditedNode');
 	var indexes = hiddenNodeField.value.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
-	start_hemisphere_idx = null
-	for (var i=0; i<startPointsX.length - 1; i++) {
-		if (indexes[index] >= startPointsX[i] && indexes[index] <= startPointsX[i + 1]){
-			start_hemisphere_idx = startPointsX[i];
-		}
-	}
-	if (start_hemisphere_idx == null) {
-		start_hemisphere_idx = startPointsX[startPointsX.length - 1];
-	}
-	end_hemisphere_idx = null
-	for (var i=0; i<endPointsX.length - 1; i++) {
-		if (indexes[index] >= endPointsX[i] && indexes[index] <= endPointsX[i + 1]){
-			end_hemisphere_idx = endPointsX[i + 1];
-		}
-	}
-	if (end_hemisphere_idx == null) {
-		end_hemisphere_idx = endPointsX[endPointsX.length - 1];
-	}	
-	
+
 	for (var i=0; i<NO_POSITIONS; i++) {
 			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[index]][i] > 0 ) {
 	            if (GVAR_connectivityMatrix[indexes[index]][i] == 1) {
@@ -315,25 +279,7 @@ function toggleOutgoingLines(index) {
 function cutIngoingLines(index) {
 	var hiddenNodeField = document.getElementById('currentlyEditedNode');
 	var indexes = hiddenNodeField.value.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
-	start_hemisphere_idx = null
-	for (var i=0; i<startPointsY.length - 1; i++) {
-		if (indexes[index] >= startPointsY[i] && indexes[index] <= startPointsY[i + 1]){
-			start_hemisphere_idx = startPointsY[i];
-		}
-	}
-	if (start_hemisphere_idx == null) {
-		start_hemisphere_idx = startPointsY[startPointsY.length - 1];
-	}
-	end_hemisphere_idx = null
-	for (var i=0; i<endPointsY.length - 1; i++) {
-		if (indexes[index] >= endPointsY[i] && indexes[index] <= endPointsY[i + 1]){
-			end_hemisphere_idx = endPointsY[i + 1];
-		}
-	}
-	if (end_hemisphere_idx == null) {
-		end_hemisphere_idx = endPointsY[endPointsY.length - 1];
-	}	
-	
+
 	for (var i=0; i<NO_POSITIONS; i++) {
         	GVAR_connectivityMatrix[i][indexes[index]] = 0;
         }
@@ -358,25 +304,7 @@ function cutIngoingLines(index) {
 function cutOutgoingLines(index) {
 	var hiddenNodeField = document.getElementById('currentlyEditedNode');
 	var indexes = hiddenNodeField.value.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
-	start_hemisphere_idx = null
-	for (var i=0; i<startPointsX.length - 1; i++) {
-		if (indexes[index] >= startPointsX[i] && indexes[index] <= startPointsX[i + 1]){
-			start_hemisphere_idx = startPointsX[i];
-		}
-	}
-	if (start_hemisphere_idx == null) {
-		start_hemisphere_idx = startPointsX[startPointsX.length - 1];
-	}
-	end_hemisphere_idx = null
-	for (var i=0; i<endPointsX.length - 1; i++) {
-		if (indexes[index] >= endPointsX[i] && indexes[index] <= endPointsX[i + 1]){
-			end_hemisphere_idx = endPointsX[i + 1];
-		}
-	}
-	if (end_hemisphere_idx == null) {
-		end_hemisphere_idx = endPointsX[endPointsX.length - 1];
-	}	
-	
+
 	for (var i=0; i<NO_POSITIONS; i++) {
 		if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[index]][i] > 0){
     		HLPR_removeByElement(CONN_comingInLinesIndices[i], parseInt(indexes[index]));
@@ -440,6 +368,15 @@ function updateNodeInterest(nodeIdx) {
     }
 }
 
+function _toggleNode(index){
+    if (GFUNC_isNodeAddedToInterestArea(index)) {
+		GFUNC_removeNodeFromInterestArea(index);
+	} else {
+		GFUNC_addNodeToInterestArea(index);
+	}
+	updateNodeInterest(index);
+    SEL_selector.val(GVAR_interestAreaNodeIndexes);
+}
 /**
  * Method called when clicking on a node index from the top column. Change the entire column
  * associated with that index
@@ -449,13 +386,7 @@ function updateNodeInterest(nodeIdx) {
 function changeEntireColumn(domElem) {
 	var index = domElem.id.split("upper_change_")[1];
 	index = parseInt(index.split('_')[0]);
-	if (GFUNC_isNodeAddedToInterestArea(index)) {
-		GFUNC_removeNodeFromInterestArea(index);
-	} else {
-		GFUNC_addNodeToInterestArea(index);	
-	}
-	updateNodeInterest(index);
-    SEL_selector.val(GVAR_interestAreaNodeIndexes);
+    _toggleNode(index);
 }
 
 
@@ -468,13 +399,7 @@ function changeEntireColumn(domElem) {
 function changeEntireRow(domElem) {
 	var index = domElem.id.split("left_change_")[1];
 	index = parseInt(index.split('_')[0]);
-	if (GFUNC_isNodeAddedToInterestArea(index)) {
-		GFUNC_removeNodeFromInterestArea(index);
-	} else {
-		GFUNC_addNodeToInterestArea(index);
-	}
-	updateNodeInterest(index);
-    SEL_selector.val(GVAR_interestAreaNodeIndexes);
+    _toggleNode(index);
 }
 
 

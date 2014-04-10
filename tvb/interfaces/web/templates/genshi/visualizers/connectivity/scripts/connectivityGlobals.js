@@ -30,9 +30,6 @@ function GFUN_initializeConnectivityFull() {
         $('#monitorDiv').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
         $('#canvasDiv').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
         $('#GLcanvas').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
-        $('#GLcanvas_3D').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
-        $('#canvasDiv_3D').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
-        $('#canvasDiv_PLOT').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
 
         //Draw any additional elements like color picking and hide all tabs but the default one
         ColSch_initColorSchemeParams(GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'],
