@@ -23,13 +23,16 @@
             <section py:for="groupName, options in groupedOptions"
                      py:with="sectionWidth=100/len(groupedOptions)"
                      class="submatrix" style="width:${sectionWidth}%">
-                <h5>$groupName</h5>
+                <h6>$groupName</h6>
 
-                <label py:for="j in xrange(0, len(options))" title="${options[j][1]}">
+                <label py:for="value, label in options"
+                       py:with="selected = value in initialSelection"
+                       title="$label"
+                       class="${'selected' if selected else None}">
                     <input type='checkbox' autocomplete="off"
-                           value="${options[j][0]}"
-                           checked="${'checked' if j in initialSelection else None}"/>
-                    ${options[j][1]}
+                           value="$value"
+                           checked="${'checked' if selected else None}"/>
+                    $label
                 </label>
             </section>
         </div>
