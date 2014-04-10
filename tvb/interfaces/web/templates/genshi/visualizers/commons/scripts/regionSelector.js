@@ -26,11 +26,20 @@
  * .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
  **/
 
+// This file uses some js patterns.
+// Prototypes. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Inheritance_and_the_prototype_chain
+// The 'module pattern' : Immediately invoked anonymous functions
+// "use strict" strict js semantics
+// Jquery custom events pub/sub
+
+/**
+ * Module of tvb ui components
+ * @module {TVBUI}
+ */
 var TVBUI = TVBUI || {};
 
 /**
  * depends on jquery and displayMessage
- * exports the RegionSelectComponent constructor
  * @module
  */
 (function($, displayMessage, TVBUI){
@@ -122,7 +131,7 @@ RegionSelectComponent.prototype.dom2model = function(){
         }
     });
     this._dropDownOptions.each(function(i, el){
-        if(i != 0){
+        if(i !== 0){
             var $el = $(el);
             self._namedSelections.push([$el.text(), $el.val()]);
         }
@@ -142,7 +151,7 @@ RegionSelectComponent.prototype.selectedValues2dom = function(){
     var self = this;
     this._boxes.each(function(_, el){
         var idx = self._selectedValues.indexOf(el.value);
-        el.checked = idx != -1;
+        el.checked = idx !== -1;
         self._updateDecoration(el);
     });
     self._dropDownOptions = self._dropDown.find('option');
@@ -155,15 +164,15 @@ RegionSelectComponent.prototype.selectedValues2dom = function(){
 RegionSelectComponent.prototype._onNewSelection = function(){
     var self = this;
     var name = $.trim(self._textBox.val());
-    if (name != ""){
+    if (name !== ""){
         // add to model
         self._namedSelections.push([name, self._selectedValues.slice()]);
         self._textBox.val('');
         // do not update the selection box. let a event listener decide
         self.$dom.trigger("newSelection", [name, self._selectedValues.slice()]);
     }else{
-		displayMessage("Selection name must not be empty.", "errorMessage");
-	}
+        displayMessage("Selection name must not be empty.", "errorMessage");
+    }
 };
 
 /**
@@ -189,7 +198,7 @@ RegionSelectComponent.prototype._set_val = function(arg){
         var val = arg[i].toString();
         // filter bad values
         var idx = this._allValues.indexOf(val);
-        if( idx != -1){
+        if( idx !== -1){
             this._selectedValues.push(val);
             this._selectedIndices.push(idx);
         }else{
@@ -197,7 +206,7 @@ RegionSelectComponent.prototype._set_val = function(arg){
         }
     }
     this.selectedValues2dom();
-}
+};
 
 /**
  * Gets the selected values if no argument is given
@@ -244,6 +253,7 @@ RegionSelectComponent.prototype.checkAll = function(){
  * @param regionSelectComponent
  * @param textDom
  * @param buttonDom
+ * @param onerror
  * @constructor
  */
 function QuickSelectComponent(regionSelectComponent, textDom, buttonDom, onerror){
@@ -263,7 +273,7 @@ function QuickSelectComponent(regionSelectComponent, textDom, buttonDom, onerror
             self._regionSelectComponent.val(values);
         }
     });
-};
+}
 
 QuickSelectComponent.prototype._selected_to_text = function(){
     this._text.val( '[' + this._regionSelectComponent.selectedLabels().join(', ') + ']' );
@@ -278,7 +288,7 @@ QuickSelectComponent.prototype._parse = function(text){
         var node = nodes[i].trim();
         // labels have the same order as _allvalues
         var label_idx = this._regionSelectComponent._labels.indexOf(node);
-        if (label_idx != -1){
+        if (label_idx !== -1){
             values.push(this._regionSelectComponent._allValues[label_idx]);
         }else{
             badLabels.push(node);
@@ -292,25 +302,67 @@ QuickSelectComponent.prototype._parse = function(text){
     }
 };
 
+/**
+ * This inherits from RegionSelectComponent and adds arbitrary text for each channel
+ * It is a view. It holds no model. The text values are not remembered.
+ * Debatable if inheritance is worth it. If it is not merge this behaviour in parent
+ * The favor of inheritance used is described below
+ * @constructor
+ * @extends RegionSelectComponent
+ */
+function TextGridSelectComponent(dom, settings){
+    // calling a ctor without new creates no new object but attaches everything to this
+    // so calling it with the current (empty) object initializes as the super ctor would have
+    RegionSelectComponent.call(this, dom, settings);
+    if (this.settings.emptyValue == null) { this.settings.emptyValue = 0; }
+    // inject spans
+    this._boxes.each(function(){
+        $("<span>0</span>").addClass("node-scale").appendTo($(this).parent());
+    });
+    this._spans = this.$dom.find("span.node-scale");
+}
 
-// exports
+// proto chain setup TextGridSelectComponent.prototype = {new empty obj} -> RegionSelectComponent.prototype
+// Object.create is needed TextGridSelectComponent.prototype = RegionSelectComponent.prototype;
+// would have had the effect that changing TextGridSelectComponent.prototype would've changed RegionSelectComponent.prototype
+TextGridSelectComponent.prototype = Object.create(RegionSelectComponent.prototype);
+
+TextGridSelectComponent.prototype.setScaleNumberForSelection = function(nr){
+    for(var i = 0; i < this._selectedIndices.length; i++){
+        var selected_idx = this._selectedIndices[i];
+        var sp = $(this._spans[selected_idx]);
+        sp.text(nr);
+        sp.toggleClass("node-scale-selected", nr !== 0);
+    }
+};
+
+TextGridSelectComponent.prototype.setScaleNumbers = function(nrs){
+    for(var i = 0; i < nrs.length; i++){
+        var sp = $(this._spans[i]);
+        sp.text('' + nrs[i]);
+        sp.toggleClass("node-scale-selected", nrs[i] !== this.settings.emptyValue);
+    }
+};
+
+// @exports
 TVBUI.RegionSelectComponent = RegionSelectComponent;
+TVBUI.TextGridSelectComponent = TextGridSelectComponent;
 TVBUI.QuickSelectComponent = QuickSelectComponent;
 
 })($, displayMessage, TVBUI);  //depends
 
 /**
+ * This module has factory methods for the selection components.
+ * It also synchronizes named selection with the server for the created components
  * @module
  */
 (function($, displayMessage, doAjaxCall, TVBUI){
 "use strict";
 /**
- * Creates a selection component which saves selections on the server
+ * Makes a selection component save selections on the server
+ * @private
  */
-TVBUI.regionSelector = function(dom, settings){
-    var filterGid = settings.filterGid;
-    var component =  new TVBUI.RegionSelectComponent(dom, settings);
-
+function createServerSynchronizingSelector(component, filterGid){
     function getSelections() {
         doAjaxCall({type: "POST",
             async: false,
@@ -329,7 +381,8 @@ TVBUI.regionSelector = function(dom, settings){
     getSelections();
 
     component.$dom.on("newSelection", function(_ev, name, selection){
-        doAjaxCall({  	type: "POST",
+        doAjaxCall({
+            type: "POST",
             url: '/flow/store_measure_points_selection/' + name,
             data: {'selection': JSON.stringify(selection),
                    'datatype_gid': filterGid},
@@ -347,9 +400,42 @@ TVBUI.regionSelector = function(dom, settings){
             }
         });
     });
+}
+
+/**
+ * Creates a selection component.
+ * Synchronizes named selections with the server.
+ * @param dom selector for the container div
+ * @param [settings]
+ * @returns {TVBUI.RegionSelectComponent}
+ */
+TVBUI.regionSelector = function(dom, settings){
+    var component =  new TVBUI.RegionSelectComponent(dom, settings);
+    createServerSynchronizingSelector(component, settings.filterGid);
     return component;
 };
 
+/**
+ * Creates a selection component that associates a number with each label
+ * Synchronizes named selections with the server.
+ * @param dom selector for the container div
+ * @param [settings]
+ * @returns {TVBUI.TextGridSelectComponent}
+ */
+TVBUI.textGridRegionSelector = function(dom, settings){
+    var component =  new TVBUI.TextGridSelectComponent(dom, settings);
+    createServerSynchronizingSelector(component, settings.filterGid);
+    return component;
+};
+
+/**
+ * Creates a quick selection component wrapping a selection component
+ * Synchronizes named selections with the server.
+ * @param regionSelectComponent A {TVBUI.RegionSelectComponent}
+ * @param textDom a selector of the text area containing the text represenatation of the selection
+ * @param buttonDom a selector for the apply selection button
+ * @returns {TVBUI.QuickSelectComponent}
+ */
 TVBUI.quickSelector = function(regionSelectComponent, textDom, buttonDom){
     return new TVBUI.QuickSelectComponent(regionSelectComponent,
         textDom, buttonDom, function(txt) {displayMessage(txt, "errorMessage");});
