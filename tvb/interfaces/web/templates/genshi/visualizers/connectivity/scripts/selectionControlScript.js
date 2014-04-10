@@ -17,10 +17,14 @@
  *
  **/
 
-/*
+/**
+ * @deprecated
  * Variables and functions for simple not selection updates are defined below.
  */
 
+/**
+ * @deprecated
+ */
 function SEL_toggleNodeSelection(tableElement) {
 	var selectedNode = parseInt(tableElement.id.replace('nodeSelection', ''));
 	if (GFUNC_isNodeAddedToInterestArea(selectedNode)) {
@@ -32,6 +36,9 @@ function SEL_toggleNodeSelection(tableElement) {
 	GFUNC_refreshOnContextChange();
 }
 
+/**
+ * @deprecated
+ */
 function SEL_loadSelectionFromText() {
 	var textAreaValue = document.getElementById('selection-text-area').value.replace('[', '').replace(']', '');
 	var nodes = textAreaValue.split(',');
@@ -61,6 +68,9 @@ function SEL_loadSelectionFromText() {
 	}
 }
 
+/**
+ * @deprecated
+ */
 function SEL_refreshSelectionTable() {
 	var selectionString = '[';
 	for (var i = 0; i < GVAR_pointsLabels.length; i++) {
@@ -71,12 +81,15 @@ function SEL_refreshSelectionTable() {
 			$('#nodeSelection'+i).removeClass('selected');
 		}
 	}
-	if (selectionString.length > 2) 
+	if (selectionString.length > 2)
 		selectionString = selectionString.substring(0, selectionString.length-1) + ']'
 	else selectionString = selectionString + ']'
 	document.getElementById('selection-text-area').value = selectionString;
 }
 
+/**
+ * @deprecated
+ */
 function SEL_populateAvailableSelections() {
     var connectivityGid = $("#connectivityGid").val();
 	doAjaxCall({
@@ -94,6 +107,7 @@ function SEL_populateAvailableSelections() {
 }
 
 /**
+ * @deprecated
  * This method should be called in order to init the selection component.
  * Make sure that before calling this method all the needed data
  * is loaded (specially the data related to the selected connectivity).

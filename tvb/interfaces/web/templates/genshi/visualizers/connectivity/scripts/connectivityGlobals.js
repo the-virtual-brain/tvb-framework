@@ -20,13 +20,12 @@
 /**
  * This file is the main connectivity script.
  */
+var SEL_selector;
 
 /**
  * Function called when Connectivity Page is loaded and ready for initialization.
  */
 function GFUN_initializeConnectivityFull() {
-        initConnectivitySelectionComponent();
-
         //Set the mouse listeners for the 3d visualizers: Top DIV, WebGL-edges (div & canvas), WebGL-3D (div & canvas).
         $('#monitorDiv').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
         $('#canvasDiv').mousewheel(function(event, delta) { return _customMouseWheelEvent(delta); });
@@ -43,6 +42,28 @@ function GFUN_initializeConnectivityFull() {
 
         $('#leftSideDefaultSelectedTabId').click();   // enable only the first tab so others don't get exported
         $('#rightSideDefaultSelectedTabId').click();
+}
+
+
+function GFUN_initSelectionComponent(selectionGID){
+    SEL_selector = TVBUI.regionSelector("#channelSelector", {filterGid: selectionGID});
+    TVBUI.quickSelector(SEL_selector, "#selection-text-area", "#loadSelectionFromTextBtn");
+
+    SEL_selector.change(function(value){
+        GVAR_interestAreaNodeIndexes = [];
+        for(var i=0; i < value.length; i++){
+            GVAR_interestAreaNodeIndexes.push(parseInt(value[i], 10));
+        }
+        refreshTableInterestArea(); //notify matrix display
+        GFUNC_updateLeftSideVisualization();
+    });
+    //sync region filter with initial selection
+    GVAR_interestAreaNodeIndexes = [];
+    var selection = SEL_selector.val();
+    for(var i=0; i < selection.length; i++){
+        GVAR_interestAreaNodeIndexes.push(parseInt(selection[i], 10));
+    }
+    refreshTableInterestArea();
 }
 
 function _onColorSchemeChanged(){
@@ -134,6 +155,7 @@ function GFUNC_updateContextMenu(selectedNodeIndex, selectedNodeLabel, isAnyComi
 	 * When clicking on a new node from the connectivity 3D visualization, create a specific context menu depending on
 	 * conditions like (was a node selected, is the node part of interest area, are the lines already drawn)
 	 */
+    //todo-mh: jquery toggle will simplify these
     if (selectedNodeIndex == -1) {
         $('#nodeNameId').text("Please select a node...");
         $("#addNodeToInterestAreaItemId").hide();
@@ -289,6 +311,9 @@ function GFUNC_isNodeAddedToInterestArea(nodeIndex) {
  * ------ Global functions related to selection handling, like saving loading etc. ----------------
  * ------------------------------------------------------------------------------------------------
  */
+/**
+ * @deprecated
+ */
 function GFUNC_doSelectionSave() {
 	var selectionName = $("#currentSelectionName").val();
     var connectivityGid = $("#connectivityGid").val();
@@ -324,6 +349,9 @@ function GFUNC_doSelectionSave() {
 	}
 }
 
+/**
+ * @deprecated
+ */
 function GFUNC_refreshWithNewSelection(selectComp) {
 	var selectedOption = selectComp.options[selectComp.selectedIndex];
 	var selectionNodes = selectedOption.value.replace('{', '').replace('}', '').split(',');
@@ -348,25 +376,29 @@ function GFUNC_refreshWithNewSelection(selectComp) {
 	SEL_refreshSelectionTable();
 }
 
-/*
+/**
  * Methods to add/remove the entire connectivity matrix to the interest area.
+ * @deprecated
  */
 function GFUNC_addAllMatrixToInterestArea() {
 	for (var i = 0; i < NO_POSITIONS; i++) {
 		if (!GFUNC_isNodeAddedToInterestArea(i)) {
 	        GFUNC_addNodeToInterestArea(i);
-	    }			
+	    }
 	}
 	refreshTableInterestArea();
 	GFUNC_refreshOnContextChange();
 	SEL_refreshSelectionTable();
 }
 
+/**
+ * @deprecated
+ */
 function GFUNC_removeAllMatrixFromInterestArea() {
 	for (var i = 0; i < NO_POSITIONS; i++) {
 		if (GFUNC_isNodeAddedToInterestArea(i)) {
 	        GFUNC_removeNodeFromInterestArea(i);
-	    }			
+	    }
 	}
 	refreshTableInterestArea();
 	GFUNC_refreshOnContextChange();
@@ -420,10 +452,6 @@ function showTractsTable() {
 	MATRIX_colorTable();
 }
 
-function showSelectionTable() {
-	$("#matrix-hemispheres-selection-id").show();
-	SEL_refreshSelectionTable();
-}
 
 /*
  * ------------------------------Left side tab functions below------------------------------------
@@ -444,7 +472,9 @@ function GFUNC_updateLeftSideVisualization() {
 		 drawSceneSpaceTime();
 	 }
 }
-
+/**
+ * @deprecated
+ */
 function GFUNC_refreshOnContextChange() {
 	 GFUNC_updateLeftSideVisualization();
 	 var selection_button = $("#save-selection-button");

@@ -21,6 +21,7 @@
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityStepPlot.js?$currentVersionJS"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityGlobals.js?$currentVersionJS" ></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/selectionControlScript.js?$currentVersionJS"></script>
+    <script type="text/javascript" src="/static_view/commons/scripts/regionSelector.js?$currentVersionJS"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/orientation.js?$currentVersionJS"></script>
 
 	<link rel="stylesheet" type="text/css" href="/static/style/section_connectivity.css?$currentVersionJS"/>
@@ -96,10 +97,8 @@
     	<ul class="matrix-switcher tabswitcher">
 			<li class="active"><a href="#" id="rightSideDefaultSelectedTabId" onclick="hideRightSideTabs(this); showWeightsTable();">Weights Matrix</a></li>
 			<li><a href="#" onclick="hideRightSideTabs(this); showTractsTable();">Tracts Matrix</a></li>
-			<li><a href="#" onclick="hideRightSideTabs(this); showSelectionTable()">Selection View</a></li>
 		</ul>
 
-        <xi:include href="hemispheres.html"/>
 		<!-- Toolbar -->
     	<ul class="toolbar-inline matrix-control">
 
@@ -137,9 +136,17 @@
 		    		</div>
 				</nav>
 			</li>
-			
-			<!-- Selection storage -->
-            ${drawConnectivitySelection(connectivity_entity.gid, False, True)}
+
+            <li class="selector-storage">
+                <xi:include href="../commons/channel_selector_button.html" />
+                ${drawRegionSelectorButton(connectivity_entity.display_name, groupedLabels, initialSelection, buttonTitle="Select Nodes")}
+            </li>
+
+            <li class="selector-storage">
+                <xi:include href="../commons/channel_selector_quick.html"/>
+                ${drawQuickSelector("selection-text-area", "loadSelectionFromTextBtn")}
+            </li>
+
 		</ul>
 
 		<xi:include href="matrix_with_quadrants.html"/>
@@ -171,11 +178,6 @@
 			${drawMatrixLegendArea('tracts-legend')}
 	    </div>
 
-		<!-- Matrices: Selection view/hemispheres -->
-    	<div id="matrix-hemispheres-selection-id" class="matrix-viewer matrix-selection">
-    		${drawHemisphereSection('First', pointsLabels[:len(pointsLabels)/2], 0, 'interestSelection')}
-    		${drawHemisphereSection('Second', pointsLabels[len(pointsLabels)/2:], len(pointsLabels)/2, 'interestSelection')}
-    	</div>
     </div>
     
     <py:with vars="start_points_x= '[0, ' + str(int(len(pointsLabels)/2)) + ', 0, ' + str(int(len(pointsLabels)/2)) + ']' ">
@@ -198,6 +200,7 @@
 			prepareConnectivity('$urlWeights', '$urlTracts', '$urlPositions', '$urlVertices', '$urlTriangles', '$urlNormals',
                                 '$connectivity_nose_correction', false, '$conductionSpeed', '$raysArray', '$colorsArray');
             GVAR_baseSelection = '$base_selection';
+            GFUN_initSelectionComponent("${measurePointsSelectionGID}");
             GFUN_initializeConnectivityFull();
         });
 

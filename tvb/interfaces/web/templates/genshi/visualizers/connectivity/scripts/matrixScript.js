@@ -109,11 +109,11 @@ function changeSingleCell(table_elem, i, j) {
 	var labelInfoSource = document.getElementById('selectedSourceNodeDetails');
 	var labelInfoTarget = document.getElementById('selectedTargetNodeDetails');
 	var descriptionText = GVAR_pointsLabels[i];
-	if (labelInfoSource != null && labelInfoSource != undefined) {
+	if (labelInfoSource != null) {
 		labelInfoSource.innerHTML = descriptionText;		
 	}
 	descriptionText = GVAR_pointsLabels[j];
-	if (labelInfoTarget != null && labelInfoTarget != undefined) {
+	if (labelInfoTarget != null) {
 		labelInfoTarget.innerHTML = descriptionText;
 	}
 	
@@ -191,7 +191,7 @@ function saveNodeDetails() {
 	lastElementColor = null;
 	
 	MATRIX_colorTable();
-	GFUNC_refreshOnContextChange();
+	GFUNC_updateLeftSideVisualization();
 }
 
 
@@ -203,9 +203,9 @@ function hideNodeDetails() {
 	var inputDiv = document.getElementById('editNodeValues');
 	var hiddenNodeField = document.getElementById('currentlyEditedNode');
 	var tableNodeID = hiddenNodeField.value;
-	if (tableNodeID != undefined && tableNodeID != null && tableNodeID != "") {
+	if (tableNodeID != null && tableNodeID != "") {
 		inputDiv.style.display = 'none';
-		if (lastEditedElement != undefined && lastEditedElement != null) {
+		if (lastEditedElement != null) {
 			lastEditedElement.className = lastElementClass;
 			lastEditedElement.style.backgroundColor = lastElementColor;			
 		}
@@ -345,7 +345,7 @@ function cutIngoingLines(index) {
     	GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][indexes[index]] = 0;
     }
     MATRIX_colorTable();
-	GFUNC_refreshOnContextChange();
+	GFUNC_updateLeftSideVisualization();
 }
 
 /**
@@ -386,7 +386,7 @@ function cutOutgoingLines(index) {
     	GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[index]][i] = 0;
     }	
     MATRIX_colorTable();
-	GFUNC_refreshOnContextChange();
+	GFUNC_updateLeftSideVisualization();
 }
 
 
@@ -455,8 +455,7 @@ function changeEntireColumn(domElem) {
 		GFUNC_addNodeToInterestArea(index);	
 	}
 	updateNodeInterest(index);
-	SEL_refreshSelectionTable(); 
-    GFUNC_refreshOnContextChange();
+    SEL_selector.val(GVAR_interestAreaNodeIndexes);
 }
 
 
@@ -475,8 +474,7 @@ function changeEntireRow(domElem) {
 		GFUNC_addNodeToInterestArea(index);
 	}
 	updateNodeInterest(index);
-	SEL_refreshSelectionTable(); 
-    GFUNC_refreshOnContextChange();
+    SEL_selector.val(GVAR_interestAreaNodeIndexes);
 }
 
 
@@ -518,14 +516,13 @@ function MATRIX_colorTable() {
     var minValue = selectedMatrix.min_val;
     var maxValue = selectedMatrix.max_val;
 
-    for (var hemisphereIdx=0; hemisphereIdx<startPointsX.length; hemisphereIdx++)
-	{
+    for (var hemisphereIdx=0; hemisphereIdx<startPointsX.length; hemisphereIdx++){
 		var startX = startPointsX[hemisphereIdx];
 		var endX = endPointsX[hemisphereIdx];
 		var startY = startPointsY[hemisphereIdx];
 		var endY = endPointsY[hemisphereIdx];
 
-		for (var i=startX; i<endX; i++)
+		for (var i=startX; i<endX; i++){
 			for (var j=startY; j<endY; j++) {
 				var tableDataID = 'td_' + prefix_id + '_' + i + '_' + j;
 				var tableElement = document.getElementById(tableDataID);
@@ -533,6 +530,7 @@ function MATRIX_colorTable() {
                     tableElement.style.backgroundColor = getGradientColorString(dataValues[i][j], minValue, maxValue);
                 }
 			}
+        }
 	}
 	_updateLegendColors();
 }

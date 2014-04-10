@@ -920,9 +920,6 @@ function prepareConnectivity(fileWeights, fileTracts, filePositions, urlVertices
 	connectivity_initCanvas();
 	saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
                     	   urlNormalsList, conn_nose_correction, conductionSpeed, rays, colors);
-    if (!isSingleMode) {
-        GFUNC_addAllMatrixToInterestArea();
-    }
     connectivity_startGL(isSingleMode);
 }
 
