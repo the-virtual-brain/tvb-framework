@@ -163,20 +163,6 @@ class UserServiceTest(TransactionalTestCase):
         self.assertNotEqual(inserted_user.password, md5("test_password"), "Password not reset for some reason!")
 
 
-    def test_reset_pass_wrong_user(self):
-        """
-        Test method for the reset password method. Username is not valid, 
-        should raise exception
-        """
-        data = dict(username="test_user", password=md5("test_password").hexdigest(),
-                    email="test_user@tvb.org", role="user", comment="")
-        self.user_service.create_user(**data)
-        inserted_user = dao.get_user_by_name("test_user")
-        self.assertEqual(inserted_user.password, md5("test_password").hexdigest(), "Incorrect password")
-        reset_pass_data = dict(username="wrong_user", email="test_user@tvb.org")
-        self.assertRaises(UsernameException, self.user_service.reset_password, **reset_pass_data)
-
-
     def test_reset_pass_wrong_email(self):
         """
         Test method for the reset password method. Email is not valid, 

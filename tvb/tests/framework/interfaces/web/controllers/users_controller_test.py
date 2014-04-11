@@ -250,7 +250,7 @@ class UsersControllerTest(TransactionalTestCase, BaseControllersTest):
         Test a valid password recovery.
         """
         cherrypy.request.method = "POST"
-        data = {'username': self.test_user.username, "email": self.test_user.email}
+        data = {"email": self.test_user.email}
         self._expect_redirect("/user", self.user_c.recoverpassword, **data)
         self.assertTrue(cherrypy.session[common.KEY_MESSAGE_TYPE] == common.TYPE_INFO,
                         "Info message informing successfull reset should be present")
