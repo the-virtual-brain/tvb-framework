@@ -39,6 +39,55 @@ overflow: auto;
 /* !-------------------------------------------- */
 /* !COMPONENT: Region management */
 /* !-------------------------------------------- */
+.regionSelector{
+width: 100%;
+padding: 0 10px 10px 10px;
+-webkit-box-sizing: border-box;
+-moz-box-sizing: border-box;
+}
+
+.regionSelector h5,.regionSelector h6{
+color: #194343;
+font-size: 14px;
+margin: 5px 0 10px 0;
+text-shadow: rgba(255, 255, 255, 0.2) 0px 1px 0px, rgba(0, 0, 0, 0.4) 0px -1px 0px;
+text-transform: uppercase;
+}
+
+.regionSelector h5{
+/*hide connectivity name*/
+display: none;
+}
+
+.regionSelector .submatrix label{
+width: 120px;
+
+border-right: 5px solid #bbb;
+background: #ccc;
+cursor: pointer;
+padding: 2px 2px 2px 2px;
+-webkit-transition: border-color .5s ease;
+-moz-transition: color .5s ease;
+}
+
+.regionSelector .submatrix label.selected{
+border-color: #41921f;
+-webkit-transition: border-color .5s ease;
+-moz-transition: color .5s ease;
+}
+
+.regionSelector .node-scale{
+font-weight: normal;
+}
+
+.regionSelector .node-scale-selected{
+color:#41921f;
+font-weight: bold;
+}
+
+.toolbar-inline > li:last-child{
+float:right;
+}
 
 /* Oh my god. This is just an ugly copy from section_connectivity.css. Shouldn't be. */
 .hemisphere {

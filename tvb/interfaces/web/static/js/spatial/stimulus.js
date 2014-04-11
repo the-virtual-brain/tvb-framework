@@ -30,7 +30,22 @@
 var originalRegionStimulusWeights = [];
 // the updated weights values for a region stimulus
 var updatedRegionStimulusWeights = [];
+var SEL_selector;
 
+function STIM_initSelectionComponent(selectionGID){
+    SEL_selector = TVBUI.textGridRegionSelector("#channelSelector", {filterGid: selectionGID});
+    TVBUI.quickSelector(SEL_selector, "#selection-text-area", "#loadSelectionFromTextBtn");
+
+    SEL_selector.change(function(value){
+        GVAR_interestAreaNodeIndexes = [];
+        for(var i=0; i < value.length; i++){
+            GVAR_interestAreaNodeIndexes.push(parseInt(value[i], 10));
+        }
+    });
+
+    SEL_selector.setGridText(updatedRegionStimulusWeights);
+    SEL_selector.checkAll();
+}
 
 /**
  * Method used for making initializations.
@@ -39,42 +54,14 @@ function STIM_initConnectivityViewer(weights) {
         //The click event is bound on the div in which will be placed the connectivity canvas.
         //If I bind the event on the canvas and I'll change the connectivity which in turn
         // will change the canvas => on the new canvas the click event won't be bound
-        $('#GLcanvas')
-            .unbind('click.toggleNodeSelection')
-            .bind('click.toggleNodeSelection', function (e) {
-                    if (e.target == document.getElementById("GLcanvas")) {
-                        STIM_toggleNodeSelection(CONN_pickedIndex);
-                    }
-                });
+        $('#GLcanvas').unbind('click.toggleNodeSelection').bind('click.toggleNodeSelection', function (e) {
+            if (e.target == document.getElementById("GLcanvas")) {
+                STIM_toggleNodeSelection(CONN_pickedIndex);
+            }
+        });
         originalRegionStimulusWeights = weights;
         updatedRegionStimulusWeights = originalRegionStimulusWeights.slice(0);
-        GVAR_interestAreaNodeIndexes = [];
         GVAR_connectivityNodesWithPositiveWeight = [];
-        _refreshWeights();
-}
-
-
-/**
- * Displays with a different color all the nodes that have a weight grater than 0.
- */
-function _refreshWeights() {
-    $("input[name='weight']").val($.toJSON(updatedRegionStimulusWeights));
-    for (var i = 0; i < updatedRegionStimulusWeights.length; i++) {
-        $("#nodeScale" + i).text(updatedRegionStimulusWeights[i]);
-        if (updatedRegionStimulusWeights[i] > 0) {
-            GFUNC_addNodeToNodesWithPositiveWeight(i);
-            document.getElementById("nodeScale" + i).className = "node-scale node-scale-selected"
-        } else {
-            GFUNC_removeNodeFromNodesWithPositiveWeight(i);
-            document.getElementById("nodeScale" + i).className = "node-scale"
-        }
-    }
-
-    if (GVAR_interestAreaNodeIndexes.length > 0) {
-        $("#selectionMsg").text("You have " + GVAR_interestAreaNodeIndexes.length + " node(s) selected.");
-    } else {
-        $("#selectionMsg").text("You have no node selected.");
-    }
 }
 
 function _STIM_server_update_scaling(){
@@ -90,17 +77,16 @@ function _STIM_server_update_scaling(){
  * Saves the given weight for all the selected nodes.
  */
 function STIM_saveWeightForSelectedNodes() {
-    var weightElement = $("input[name='current_weight']");
-    var newWeight = weightElement.val();
-    if (newWeight != null && newWeight.trim().length > 0 && !isNaN(newWeight)) {
-        newWeight = parseFloat(newWeight);
+    var weightElement = $("#current_weight");
+    var newWeight = parseFloat(weightElement.val());
+    if (!isNaN(newWeight)) {
         for (var i = 0; i < GVAR_interestAreaNodeIndexes.length; i++) {
             var nodeIndex = GVAR_interestAreaNodeIndexes[i];
             updatedRegionStimulusWeights[nodeIndex] = newWeight;
         }
         weightElement.val("");
-        GFUNC_removeAllMatrixFromInterestArea();
-        _refreshWeights();
+        SEL_selector.setTextForSelection(newWeight);
+        SEL_selector.clearAll();
         _STIM_server_update_scaling();
     }
 }
@@ -111,7 +97,7 @@ function STIM_saveWeightForSelectedNodes() {
  */
 function STIM_resetRegionStimulusWeights() {
     updatedRegionStimulusWeights = originalRegionStimulusWeights.slice(0);
-    _refreshWeights();
+    SEL_selector.setGridText(updatedRegionStimulusWeights);
     _STIM_server_update_scaling();
 }
 
@@ -122,9 +108,9 @@ function STIM_resetRegionStimulusWeights() {
  * @param nodeIndex the index of the selected node.
  */
 function STIM_toggleNodeSelection(nodeIndex) {
-    BS_toggleNodeSelection(nodeIndex);
     if (nodeIndex >= 0) {
-        _refreshWeights();
+        GFUNC_toggleNodeInInterestArea(nodeIndex);
+        SEL_selector.val(GVAR_interestAreaNodeIndexes);
     }
 }
 
@@ -229,12 +215,12 @@ function _submitPageData(actionUrl, baseData) {
     document.body.appendChild(parametersForm);
 
     for (var key in baseData) {
-	        var input = document.createElement('INPUT');
-	        input.type = 'hidden';
-	        input.name = key;
-	        input.value = baseData[key];
-	        parametersForm.appendChild(input);
-	    }
+        var input = document.createElement('INPUT');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = baseData[key];
+        parametersForm.appendChild(input);
+    }
 
     parametersForm.submit();
 }

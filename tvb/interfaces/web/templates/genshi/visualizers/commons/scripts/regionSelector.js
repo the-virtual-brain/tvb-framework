@@ -327,7 +327,7 @@ function TextGridSelectComponent(dom, settings){
 // would have had the effect that changing TextGridSelectComponent.prototype would've changed RegionSelectComponent.prototype
 TextGridSelectComponent.prototype = Object.create(RegionSelectComponent.prototype);
 
-TextGridSelectComponent.prototype.setScaleNumberForSelection = function(nr){
+TextGridSelectComponent.prototype.setTextForSelection = function(nr){
     for(var i = 0; i < this._selectedIndices.length; i++){
         var selected_idx = this._selectedIndices[i];
         var sp = $(this._spans[selected_idx]);
@@ -336,7 +336,7 @@ TextGridSelectComponent.prototype.setScaleNumberForSelection = function(nr){
     }
 };
 
-TextGridSelectComponent.prototype.setScaleNumbers = function(nrs){
+TextGridSelectComponent.prototype.setGridText = function(nrs){
     for(var i = 0; i < nrs.length; i++){
         var sp = $(this._spans[i]);
         sp.text('' + nrs[i]);

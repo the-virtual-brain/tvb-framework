@@ -303,6 +303,13 @@ function GFUNC_isNodeAddedToInterestArea(nodeIndex) {
     return elemIdx != -1;
 }
 
+function GFUNC_toggleNodeInInterestArea(nodeIndex){
+    if (GFUNC_isNodeAddedToInterestArea(nodeIndex)) {
+		GFUNC_removeNodeFromInterestArea(nodeIndex);
+	} else {
+		GFUNC_addNodeToInterestArea(nodeIndex);
+	}
+}
 /*
  * ------------------------------------------------------------------------------------------------
  * ------ Global functions related to selection handling, like saving loading etc. ----------------

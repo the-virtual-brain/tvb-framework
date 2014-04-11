@@ -369,11 +369,7 @@ function updateNodeInterest(nodeIdx) {
 }
 
 function _toggleNode(index){
-    if (GFUNC_isNodeAddedToInterestArea(index)) {
-		GFUNC_removeNodeFromInterestArea(index);
-	} else {
-		GFUNC_addNodeToInterestArea(index);
-	}
+    GFUNC_toggleNodeInInterestArea(index);
 	updateNodeInterest(index);
     SEL_selector.val(GVAR_interestAreaNodeIndexes);
 }

@@ -2,25 +2,24 @@
 	
 	<h4><mark>Manage</mark> Regions</h4>
 	
+    <xi:include href="../visualizers/commons/channel_selector.html" />
+    <xi:include href="../visualizers/commons/channel_selector_quick.html" />
+
 	<ul class="toolbar-inline">
 		<li>
 			<label for="current_weight">New scaling</label>
-			<input type="text" name="current_weight" id="current_weight"/> 
+			<input type="text" name="current_weight" id="current_weight"/>
 			<button onclick="STIM_saveWeightForSelectedNodes();" class="action action-store" title="Scaling can change the intensity of the defined stimulus for individual nodes.">Set scaling</button>
 		</li>
 		<li>
 			<button onclick="STIM_resetRegionStimulusWeights();" class="action action-reset" title="Reset all scalings defined in this session.">Reset scaling</button>
 		</li>
+        <!-- Quick-Select -->
+        <li class="selector-storage">
+            ${drawQuickSelector("selection-text-area", "loadSelectionFromTextBtn")}
+        </li>
 	</ul>
-	
-    <xi:include href="../visualizers/connectivity/hemispheres.html"/>
-    ${drawConnectivitySelection(selectedConnectivityGid)}
 
-    <section class="hemisphere">
-    	${drawHemisphereSection('First', pointsLabels[:len(pointsLabels)/2], 0, 'setStimulusScale')}
-    </section>
-    <section class="hemisphere">
-    	${drawHemisphereSection('Second', pointsLabels[len(pointsLabels)/2:], len(pointsLabels)/2, 'setStimulusScale')}
-    </section>
-        
+    ${drawRegionSelector(connectivity_entity.display_name, "channelSelector", groupedLabels, initialSelection)}
+
 </section>

@@ -93,7 +93,7 @@ function BS_stopSignalVisualization() {
 /**
  * Method used for selecting/unselecting a connectivity node. This method will
  * also select/unselect the node from the 'hemispheres' component.
- *
+ * @deprecated
  * @param nodeIndex the index of the node that hast to be toggled.
  */
 function BS_toggleNodeSelection(nodeIndex) {
