@@ -126,6 +126,7 @@ var VS_showLegend = true;
 var isInternalSensorView = false;
 var displayMeasureNodes = false;
 
+var drawNavigator = false;
 var drawTriangleLines = false;
 var drawBoundaries = false;
 /**
@@ -223,10 +224,10 @@ function _VS_static_entrypoint(urlVerticesList, urlLinesList, urlTrianglesList, 
     AG_isStopped = true;
     VS_showLegend = showLegend;
     displayMeasureNodes = argDisplayMeasureNodes;
-    isFaceToDisplay = argIsFaceToDisplay;
+    isFaceToDisplay = argIsFaceToDisplay; // this could be retrieved from the dom like drawNavigator
     // make checkbox consistent with this flag
     $("#displayFaceChkId").attr('checked', isFaceToDisplay);
-
+    drawNavigator = $("#showNavigator").prop('checked');
     // initialize global data
 
     if (noOfMeasurePoints == 0){
@@ -300,6 +301,7 @@ function _VS_movie_entrypoint(baseDatatypeURL, onePageSize, urlTimeList, urlVert
         GL_DEFAULT_Z_POS = 300;
         $("#displayFaceChkId").trigger('click');
     }
+    drawNavigator = $("#showNavigator").prop('checked');
     GL_zTranslation = GL_DEFAULT_Z_POS;
 
     var canvas = document.getElementById(BRAIN_CANVAS_ID);
@@ -719,6 +721,9 @@ function resetSpeedSlider() {
     refreshCurrentDataSlice();
 }
 
+function setNavigatorVisibility(enable) {
+    drawNavigator = enable;
+}
 
 function toggleDrawTriangleLines() {
     drawTriangleLines = !drawTriangleLines;
@@ -1162,7 +1167,7 @@ function drawScene() {
             mvPopMatrix();
         }
 
-        if(!isInternalSensorView && !isPreview && !isDoubleView){
+        if(drawNavigator){
             NAV_draw_navigator();
         }
 

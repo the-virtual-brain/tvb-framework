@@ -63,6 +63,14 @@
                 <label for="showSpeculars">shiny surface</label>
             </dd>
 
+            <py:if test="not extended_view">
+                <dt></dt>
+                <dd><input id="showNavigator" type="checkbox" onchange="setNavigatorVisibility(this.checked);"
+                           autocomplete="off" checked="checked"/>
+                    <label for="showNavigator">show navigator</label>
+                </dd>
+            </py:if>
+
             <py:if test="not isOneToOneMapping">
                 <dt></dt>
                 <dd><input id="showMeasurePoints" type="checkbox" onchange="toggleMeasureNodes();"

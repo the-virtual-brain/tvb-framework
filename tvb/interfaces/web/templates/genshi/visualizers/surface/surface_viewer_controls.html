@@ -30,6 +30,14 @@
             <label for="showSpeculars">shiny surface</label>
         </dd>
 
+        <py:if test="not extended_view">
+            <dt></dt>
+            <dd><input id="showNavigator" type="checkbox" onchange="setNavigatorVisibility(this.checked);"
+                       autocomplete="off" checked="checked"/>
+                <label for="showNavigator">show navigator</label>
+            </dd>
+        </py:if>
+
         <dt></dt>
         <dd>
             <input id="ctrl-action-points" type="checkbox" onchange="wireFrame();" tabindex="1"
