@@ -73,7 +73,7 @@ class ConnectivityViewerTest(TransactionalTestCase):
         """
         viewer = ConnectivityViewer()
         result = viewer.launch(self.connectivity)
-        expected_keys = ['weightsMin', 'weightsMax', 'weights', 'urlWeights', 'urlVertices',
+        expected_keys = ['weightsMin', 'weightsMax', 'urlWeights', 'urlVertices',
                          'urlTriangles', 'urlTracts', 'urlPositions', 'urlNormals',
                          'rightHemisphereJson', 'raysArray', 'rayMin', 'rayMax', 'positions',
                          'leftHemisphereJson', 'connectivity_entity', 'bothHemisphereJson']
