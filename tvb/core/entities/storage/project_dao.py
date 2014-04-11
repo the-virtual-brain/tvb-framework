@@ -113,13 +113,13 @@ class CaseDAO(RootDAO):
             raise
 
 
-    def get_user_by_name_email(self, username, email):
+    def get_user_by_name_email(self, email):
         """For a username and a email reset the password to a random one"""
         user = None
         try:
-            user = self.session.query(model.User).filter_by(username=username, email=email).one()
+            user = self.session.query(model.User).filter_by(email=email).one()
         except SQLAlchemyError:
-            pass
+            self.logger.exception("Could not get user by email " + email)
         return user
 
 

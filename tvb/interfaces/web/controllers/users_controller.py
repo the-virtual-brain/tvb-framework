@@ -315,8 +315,7 @@ class UserController(BaseController):
                 template_specification[common.KEY_ERRORS] = excep.unpack_errors()
                 redirect = False
             except UsernameException, excep1:
-                self.logger.error("Could not reset password!")
-                self.logger.exception(excep1)
+                self.logger.exception("Could not reset password!")
                 common.set_error_message(excep1.message)
                 redirect = False
         if redirect:
@@ -441,7 +440,6 @@ class RecoveryForm(formencode.Schema):
     """
     Validate Recover Password Form
     """
-    username = formencode.All(validators.UnicodeString(not_empty=True), validators.PlainText())
     email = validators.Email(not_empty=True)
 
 

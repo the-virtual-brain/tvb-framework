@@ -429,6 +429,10 @@ width: 121px;
     border-spacing: 0;
 }
 
+.contentTable td{
+    padding-right: 15px;
+}
+
 body#s-user div.main-settings table.contentTable input {
 	min-width: 350px;
 	font-size: 14px;

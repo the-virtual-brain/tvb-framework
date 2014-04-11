@@ -132,16 +132,13 @@ class UserService:
         """
         Service Layer for resetting a password.
         """
-        if (KEY_USERNAME not in data) or len(data[KEY_USERNAME]) < 1:
-            raise UsernameException("Empty UserName!")
         if (KEY_EMAIL not in data) or len(data[KEY_EMAIL]) < 1:
             raise UsernameException("Empty Email!")
 
         old_pass, user = None, None
         try:
-            user_name = data[KEY_USERNAME]
             email = data[KEY_EMAIL]
-            user = dao.get_user_by_name_email(user_name, email)
+            user = dao.get_user_by_name_email(email)
             if user is None:
                 raise UsernameException("Given credentials don't match!")
 
@@ -149,15 +146,14 @@ class UserService:
             new_pass = ''.join(chr(randint(48, 122)) for _ in range(DEFAULT_PASS_LENGTH))
             user.password = md5(new_pass).hexdigest()
             self.edit_user(user, old_pass)
-            self.logger.info("Setting new password for user " + user_name + " !")
+            self.logger.info("Resetting password for email : " + email )
             email_sender.send(FROM_ADDRESS, email, SUBJECT_RECOVERY, TEXT_RECOVERY % (new_pass,))
             return TEXT_DISPLAY
         except Exception, excep:
             if old_pass and len(old_pass) > 1 and user:
                 user.password = old_pass
                 dao.store_entity(user)
-            self.logger.error("Could not change user password!")
-            self.logger.exception(excep)
+            self.logger.exception("Could not change user password!")
             raise UsernameException(excep.message)
 
 
