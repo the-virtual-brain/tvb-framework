@@ -1,4 +1,4 @@
-<py:def function="draw2DConnectivityMatrix(hemisphereId, nr, weights, pointsLabels, startHemisphereIdx, endHemisphereIdx, startHemisphereIdy, endHemisphereIdy, prefix)" xmlns:py="http://genshi.edgewall.org/">
+<py:def function="draw2DConnectivityMatrix(hemisphereId, nr, pointsLabels, startHemisphereIdx, endHemisphereIdx, startHemisphereIdy, endHemisphereIdy, prefix)" xmlns:py="http://genshi.edgewall.org/">
        <div id="${hemisphereId}">
 	       <table>
 	    		<thead>
@@ -12,7 +12,9 @@
 									<div class="dropdown-pane">
 										<mark>Select a quadrant to work with:</mark>
 										<ul>
-											<li class="${'active' if nr==i else ''}" onclick="selectHemisphere($i)" tabindex="7" onkeypress="fireOnClick(this)" py:for="i in range(4)">
+											<li py:for="i in range(4)" class="${'active' if nr==i else ''}"
+                                                tabindex="7"
+                                                onclick="selectHemisphere($i)" onkeypress="fireOnClick(this)">
 												<a href="#" title="Select this quadrant" onclick="selectHemisphere($i)">Quadrant ${i+1}</a>
 											</li>
 										</ul>

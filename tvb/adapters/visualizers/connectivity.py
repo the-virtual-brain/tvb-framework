@@ -201,7 +201,7 @@ class ConnectivityViewer(ABCDisplayer):
         global_params = dict(urlWeights=path_weights, urlPositions=path_pos, urlTracts=path_tracts,
                              originalConnectivity=input_data.gid, title="Connectivity Control",
                              submitURL=submit_url,
-                             positions=input_data.centres, weights=input_data.weights,
+                             positions=input_data.centres,
                              tractsMin=minimum_t, tractsMax=maximum_t,
                              weightsMin=minimum, weightsMax=maximum,
                              tractsNonZeroMin=minimum_non_zero_t, weightsNonZeroMin=minimum_non_zero,
