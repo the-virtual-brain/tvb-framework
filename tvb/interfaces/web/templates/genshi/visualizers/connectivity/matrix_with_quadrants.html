@@ -23,7 +23,7 @@
 						
 						<!-- Horizontal column headers -->
 						<py:for each="i in range(startHemisphereIdx, endHemisphereIdx)">
-							<th id="upper_change_${i}_${hemisphereId}" onclick="changeEntireColumn(this, ${startHemisphereIdx}, ${endHemisphereIdx})" 
+							<th id="upper_change_${i}_${hemisphereId}" onclick="changeEntireColumn(this)"
 								scope="col" class="" tabindex="8" onkeypress="fireOnClick(this)" title='${pointsLabels[i]}'>
 								<a href="#" tabindex='-1' title='${pointsLabels[i]}' class="action-select select-col">${pointsLabels[i]}</a>
 							</th>

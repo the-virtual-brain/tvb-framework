@@ -28,7 +28,7 @@ function displayMessage(msg, className) {
     messagesDiv.append(msg);
     if (className == 'errorMessage'){
     	className = 'msg-sticky msg-level-fatal';
-        console.error(msg);
+        console.warn(msg);
     } else if (className =='warningMessage') {
     	className = 'msg-transient transient-medium msg-level-warn';
         console.warn(msg);
