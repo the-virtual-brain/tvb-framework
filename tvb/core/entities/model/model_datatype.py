@@ -69,7 +69,7 @@ FILTER_CATEGORIES = {'model.DataType.subject': {'display': 'Subject', 'type': 's
                                                    'operations': ['!=', '==', 'like']},
                      'model.Operation.start_date': {'display': 'Start date', 'type': 'date',
                                                     'operations': ['!=', '<', '>']},
-                     'model.BurstConfiguration.name': {'display': 'Burst Name', 'type': 'string',
+                     'model.BurstConfiguration.name': {'display': 'Simulation name', 'type': 'string',
                                                        'operations': ['==', '!=', 'like']},
                      'model.Operation.completion_date': {'display': 'Completion date', 'type': 'date',
                                                          'operations': ['!=', '<', '>']}}
