@@ -349,6 +349,12 @@ function exportProject(projectId) {
 	window.location = "/project/downloadproject/?project_id=" + projectId
 }
 
+function removeProject(projectId, formId){
+    var form = document.getElementById(formId);
+    form.action = "/project/editone/"+ projectId + "/?delete=Delete" ;
+    form.submit();
+}
+
 // ---------------END PROJECT ------------------------
 
 
