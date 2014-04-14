@@ -67,7 +67,10 @@ class GIFTISurfaceImporter(ABCUploader):
                  'label': 'Please select file to import (.gii)'},
 
                 {'name': 'data_file_part2', 'type': 'upload', 'required_type': '.gii', 'required': False,
-                 'label': 'Please select part 2 of the file to import (.gii)'}
+                 'label': 'Please select part 2 of the file to import (.gii)'},
+
+                {'name': 'should_center', 'type': 'bool', 'default': False,
+                 'label': 'Center surface using vertex means along axes'}
                 ]
 
 
@@ -75,13 +78,13 @@ class GIFTISurfaceImporter(ABCUploader):
         return [CorticalSurface, SkinAir, FaceSurface]
 
 
-    def launch(self, file_type, data_file, data_file_part2):
+    def launch(self, file_type, data_file, data_file_part2, should_center=False):
         """
         Execute import operations:
         """
         parser = GIFTIParser(self.storage_path, self.operation_id)
         try:
-            surface = parser.parse(data_file, data_file_part2, file_type)
+            surface = parser.parse(data_file, data_file_part2, file_type, should_center=should_center)
             return [surface]             
         except ParseException, excep:
             logger = get_logger(__name__)

@@ -36,6 +36,7 @@
 import numpy
 
 from tvb.adapters.uploaders.abcuploader import ABCUploader
+from tvb.adapters.uploaders.handler_surface import center_vertices
 from tvb.adapters.uploaders.zip_surface.parser import ZipSurfaceParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
@@ -65,7 +66,9 @@ class ZIPSurfaceImporter(ABCUploader):
                              {'name': 'Skin Air', 'value': OUTER_SKIN},
                              {'name': 'EEG Cap', 'value': EEG_CAP},
                              {'name': 'Face Surface', 'value': FACE}]},
-                {'name': 'zero_based_triangles', 'label': 'Zero based triangles', 'type': 'bool', 'default': True}]
+                {'name': 'zero_based_triangles', 'label': 'Zero based triangles', 'type': 'bool', 'default': True},
+                {'name': 'should_center', 'type': 'bool', 'default': False,
+                 'label': 'Center surface using vertex means along axes'}]
 
 
     def get_output(self):
@@ -91,7 +94,7 @@ class ZIPSurfaceImporter(ABCUploader):
             raise LaunchException(exception_str)
 
 
-    def launch(self, uploaded, surface_type, zero_based_triangles=False):
+    def launch(self, uploaded, surface_type, zero_based_triangles=False, should_center=False):
         """
         Execute import operations: unpack ZIP and build Surface object as result.
 
@@ -120,7 +123,11 @@ class ZIPSurfaceImporter(ABCUploader):
         surface = self._make_surface(surface_type)
         surface.storage_path = self.storage_path
         surface.zero_based_triangles = zero_based_triangles
-        surface.vertices = zip_surface.vertices
+        if should_center:
+            vertices = center_vertices(zip_surface.vertices)
+        else:
+            vertices = zip_surface.vertices
+        surface.vertices = vertices
         if len(zip_surface.normals) != 0:
             surface.vertex_normals = zip_surface.normals
         if zero_based_triangles:

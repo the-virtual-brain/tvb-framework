@@ -37,7 +37,7 @@ import os
 import numpy as np
 from nibabel.gifti import giftiio
 from nibabel.nifti1 import intent_codes, data_type_codes
-from tvb.adapters.uploaders.handler_surface import create_surface_of_type
+from tvb.adapters.uploaders.handler_surface import create_surface_of_type, center_vertices
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException
 from tvb.datatypes.time_series import TimeSeriesSurface
@@ -91,7 +91,7 @@ class GIFTIParser():
                 and data_type_codes.code["NIFTI_TYPE_FLOAT32"] == data_arrays[0].datatype)
 
 
-    def _parse_surface(self, data_arrays, data_arrays_part2, surface_type):
+    def _parse_surface(self, data_arrays, data_arrays_part2, surface_type, should_center):
         meta_dict = self._get_meta_dict(data_arrays[0])
         anatomical_structure_primary = meta_dict.get(self.ASP_ATTR)
         gid = meta_dict.get(self.UNIQUE_ID_ATTR)
@@ -130,6 +130,9 @@ class GIFTIParser():
             vertices = np.vstack([vertices, data_arrays_part2[0].data])
             triangles = np.vstack([triangles, offset + data_arrays_part2[1].data])
 
+        if should_center:
+            vertices = center_vertices(vertices)
+
         surface.vertices = vertices
         surface.triangles = triangles
         return surface
@@ -165,7 +168,7 @@ class GIFTIParser():
         return time_series
 
 
-    def parse(self, data_file, data_file_part2=None, surface_type=OPTION_READ_METADATA):
+    def parse(self, data_file, data_file_part2=None, surface_type=OPTION_READ_METADATA, should_center=False):
         """
         Parse NIFTI file(s) and returns A Surface or a TimeSeries for it.
         :param surface_type: one of "Cortex" "Head" "ReadFromMetaData"
@@ -200,7 +203,7 @@ class GIFTIParser():
             # If a second part exists is must be of the same type
             if data_arrays_part2 is not None and not self._is_surface_gifti(data_arrays_part2):
                 raise ParseException("Second file must be a surface too")
-            return self._parse_surface(data_arrays, data_arrays_part2, surface_type)
+            return self._parse_surface(data_arrays, data_arrays_part2, surface_type, should_center)
         elif self._is_timeseries_gifti(data_arrays):
             return self._parse_timeseries(data_arrays)
         else:

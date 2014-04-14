@@ -329,4 +329,10 @@ def create_surface_of_type(surface_type):
         raise ParseException("Could not determine type of the surface")
     
 
-    
+def center_vertices(vertices):
+    """
+    Centres the vertices using means along axes.
+    :param vertices: a numpy array of shape (n, 3)
+    :returns: the centered array
+    """
+    return vertices - numpy.mean(vertices, axis=0).reshape((1,3))

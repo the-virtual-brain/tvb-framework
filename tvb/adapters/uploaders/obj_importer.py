@@ -34,7 +34,7 @@
 
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.constants import OPTION_SURFACE_CORTEX, OPTION_SURFACE_SKINAIR, OPTION_SURFACE_FACE
-from tvb.adapters.uploaders.handler_surface import create_surface_of_type
+from tvb.adapters.uploaders.handler_surface import create_surface_of_type, center_vertices
 from tvb.adapters.uploaders.obj.surface import ObjSurface
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.entities.storage import transactional
@@ -62,7 +62,10 @@ class ObjSurfaceImporter(ABCUploader):
                  'default': OPTION_SURFACE_FACE},
 
                 {'name': 'data_file', 'type': 'upload', 'required_type': '.obj',
-                 'label': 'Please select file to import', 'required': True}]
+                 'label': 'Please select file to import', 'required': True},
+
+                {'name': 'should_center', 'type': 'bool', 'default': False,
+                 'label': 'Center surface using vertex means along axes'}]
         
         
     def get_output(self):
@@ -70,7 +73,7 @@ class ObjSurfaceImporter(ABCUploader):
 
 
     @transactional
-    def launch(self, surface_type, data_file):
+    def launch(self, surface_type, data_file, should_center=False):
         """
         Execute import operations:
         """
@@ -83,8 +86,14 @@ class ObjSurfaceImporter(ABCUploader):
             with open(data_file) as f:
                 obj = ObjSurface(f)
 
-            surface.vertices = obj.vertices
+            if should_center:
+                vertices = center_vertices(obj.vertices)
+            else:
+                vertices = obj.vertices
+
+            surface.vertices = vertices
             surface.triangles = obj.triangles
+
             if obj.have_normals:
                 self.log.debug("OBJ came with normals included")
                 surface.vertex_normals = obj.normals
