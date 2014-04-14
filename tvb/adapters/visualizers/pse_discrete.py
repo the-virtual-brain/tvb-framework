@@ -42,7 +42,7 @@ from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.basic.filters.chain import FilterChain
 
 
-MAX_NUMBER_OF_POINT_TO_SUPPORT = 200
+MAX_NUMBER_OF_POINT_TO_SUPPORT = 512
 
 
 
