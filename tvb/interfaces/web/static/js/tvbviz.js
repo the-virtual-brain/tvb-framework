@@ -748,7 +748,9 @@ tv.plot = {
 
                 line_avg = d3.mean(da_lines[sig_idx]);
                 for (var tt_idx = 0; tt_idx < ys.shape[0]; tt_idx++) {
-                    da_lines[sig_idx][tt_idx] = f.magic_fcs_amp_scl * (da_lines[sig_idx][tt_idx] - line_avg)
+                    da_lines[sig_idx][tt_idx] = f.magic_fcs_amp_scl * (da_lines[sig_idx][tt_idx] - line_avg);
+                    // multiply by -1 because the y axis points down
+                    da_lines[sig_idx][tt_idx] *= -1;
                 }
 
                 da_lines[sig_idx] = {sig: da_lines[sig_idx], id: sig_idx}
@@ -774,6 +776,8 @@ tv.plot = {
                 }
                 da_xs[j] = Math.sqrt(da_xs[j] / n_chan - ((da_x[j] / n_chan) * (da_x[j] / n_chan)));
                 da_x [j] = (da_x[j] / n_chan - ys_mean) / ys_std;
+                // multiply by -1 because y axis points down
+                da_x[j] *= -1;
 
                 if ((isNaN(da_x[j])) || (isNaN(da_xs[j]))) {
                     console.log("encountered NaN in data: da_x[" + j + "] = " + da_x[j] + ", da_xs[" + j + "] = " + da_xs[j] + ".");
@@ -784,14 +788,19 @@ tv.plot = {
             da_xs.min = tv.ndar.from(da_xs).min();
             for (var jj = 0; jj < da_xs.length; jj++) {
                 da_xs[jj] -= da_xs.min;
-                da_xs[jj] /= ys_std
+                da_xs[jj] /= ys_std;
+                // multiply by -1 because y axis points down
+                da_xs[jj] *= -1;
             }
 
             // center and scale to std each signal
             for (var jjj = 0; jjj < n_chan; jjj++) {
                 da_y[jjj] = [];
-                for (var ii = 0; ii < f.sz_ctx_y.x; ii++)
-                    da_y[jjj][ii] = (ys.data[ ii * n_chan + j ] - ys_mean) / ys_std
+                for (var ii = 0; ii < f.sz_ctx_y.x; ii++){
+                    da_y[jjj][ii] = (ys.data[ ii * n_chan + j ] - ys_mean) / ys_std;
+                    // multiply by -1 because y axis points down
+                    da_y[jjj][ii] *= -1;
+                }
             }
 
             f.da_lines = da_lines;
