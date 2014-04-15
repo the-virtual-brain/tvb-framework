@@ -45,6 +45,7 @@ from tvb.core import utils
 from tvb.basic.traits.types_mapped import MappedType
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.model import DataTypeGroup
 from tvb.core.utils import string2date, date2string, timedelta2string
 from tvb.core.removers_factory import get_remover
 from tvb.core.entities import model
@@ -396,24 +397,39 @@ class ProjectService:
         """ Returns all finished upload operations. """
         return dao.get_all_operations_for_uploaders(project_id)
 
-
-    @staticmethod
-    def set_operation_and_group_visibility(entity_gid, is_visible, is_operation_group=False):
+    def set_operation_and_group_visibility(self, entity_gid, is_visible, is_operation_group=False):
         """
         Sets the operation visibility.
 
         If 'is_operation_group' is True than this method will change the visibility for all
         the operation from the OperationGroup with the GID field equal to 'entity_gid'.
         """
-        if not is_operation_group:
-            #we assure that if the operation belongs to a group than the visibility will be changed for the entire group
-            operation = dao.get_operation_by_gid(entity_gid)
-            if operation.fk_operation_group is not None:
-                op_group = dao.get_operationgroup_by_id(operation.fk_operation_group)
-                entity_gid = op_group.gid
-                is_operation_group = True
+        def set_visibility(op):
+            # workaround:
+            # 'reload' the operation so that it has the project property set.
+            # get_operations_in_group does not eager load it and now we're out of a sqlalchemy session
+            # write_operation_metadata requires that property
+            op = dao.get_operation_by_id(op.id)
+            # end hack
+            op.visible = is_visible
+            self.structure_helper.write_operation_metadata(op)
+            dao.store_entity(op)
 
-        dao.set_operation_and_group_visibility(entity_gid, is_visible, is_operation_group)
+        def set_group_descendants_visibility(operation_group_id):
+            ops_in_group = dao.get_operations_in_group(operation_group_id)
+            for group_op in ops_in_group:
+                set_visibility(group_op)
+
+        if is_operation_group:
+            op_group_id = dao.get_operationgroup_by_gid(entity_gid).id
+            set_group_descendants_visibility(op_group_id)
+        else:
+            operation = dao.get_operation_by_gid(entity_gid)
+            #we assure that if the operation belongs to a group than the visibility will be changed for the entire group
+            if operation.fk_operation_group is not None:
+                set_group_descendants_visibility(operation.fk_operation_group)
+            else:
+                set_visibility(operation)
 
 
     def get_operation_details(self, operation_gid, is_group):
@@ -992,11 +1008,28 @@ class ProjectService:
         Sets the dataType visibility. If the given dataType is a dataType group or it is part of a
         dataType group than this method will set the visibility for each dataType from this group.
         """
-        datatype = dao.get_datatype_by_gid(datatype_gid)
-        if datatype.fk_datatype_group is not None:
-            datatype_gid = dao.get_datatype_by_id(datatype.fk_datatype_group).gid
+        def set_visibility(dt):
+            """ set visibility flag, persist in db and h5"""
+            dt.visible = is_visible
+            dt = dao.store_entity(dt)
+            dt.persist_full_metadata()
 
-        dao.set_datatype_visibility(datatype_gid, is_visible)
+        def set_group_descendants_visibility(datatype_group_id):
+            datatypes_in_group = dao.get_datatypes_from_datatype_group(datatype_group_id)
+            for group_dt in datatypes_in_group:
+                set_visibility(group_dt)
+
+        datatype = dao.get_datatype_by_gid(datatype_gid)
+
+        if isinstance(datatype, DataTypeGroup):   # datatype is a group
+            set_group_descendants_visibility(datatype.id)
+        elif datatype.fk_datatype_group is not None:  # datatype is member of a group
+            set_group_descendants_visibility(datatype.fk_datatype_group)
+            # the datatype to be updated is the parent datatype group
+            datatype = dao.get_datatype_by_id(datatype.fk_datatype_group)
+
+        # update the datatype or datatype group.
+        set_visibility(datatype)
 
 
     @staticmethod
