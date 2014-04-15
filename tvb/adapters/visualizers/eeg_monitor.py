@@ -35,7 +35,7 @@
 import json
 import numpy
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
-from tvb.datatypes.time_series import TimeSeriesEEG
+from tvb.datatypes.time_series import TimeSeries
 from tvb.core.adapters.exceptions import LaunchException
 
 
@@ -48,8 +48,8 @@ class EegMonitor(ABCDisplayer):
     dimensions are supported.
     """
     has_nan = False
-    _ui_name = "EEG lines Visualizer"
-    _ui_subsection = "eeg"
+    _ui_name = "Animated Time Series Visualizer"
+    _ui_subsection = "animated_timeseries"
 
     page_size = 4000
     preview_page_size = 250
@@ -59,11 +59,11 @@ class EegMonitor(ABCDisplayer):
     def get_input_tree(self):
         """ Accept as input Array of any size"""
         return [{'name': 'input_data', 'label': 'Input Data', 'required': True,
-                 'type': TimeSeriesEEG, 'description': 'Time series to display.'},
+                 'type': TimeSeries, 'description': 'Time series to display.'},
                 {'name': 'data_2', 'label': 'Input Data 2',
-                 'type': TimeSeriesEEG, 'description': 'Time series to display.'},
+                 'type': TimeSeries, 'description': 'Time series to display.'},
                 {'name': 'data_3', 'label': 'Input Data 3',
-                 'type': TimeSeriesEEG, 'description': 'Time series to display.'}]
+                 'type': TimeSeries, 'description': 'Time series to display.'}]
 
 
     def get_required_memory_size(self, time_series):
@@ -194,10 +194,11 @@ class EegMonitor(ABCDisplayer):
         shape = timeseries.read_data_shape()
         channels = []
         for j in range(shape[self.selected_dimensions[1]]):
-            if len(timeseries.sensors.labels) > 0:
-                this_label = "[" + str(timeseries.sensors.labels[j]) + "]"
+            space_labels = timeseries.get_space_labels()
+            if len(space_labels) > 0:
+                this_label = str(space_labels[j])
             else:
-                this_label = "[channel:" + str(j) + "]"
+                this_label = "channel_" + str(j)
             if mult_inp:
                 this_label = str(timeseries.id) + '.' + this_label
             graph_labels.append(this_label)

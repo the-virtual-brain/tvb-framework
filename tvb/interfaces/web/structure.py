@@ -104,7 +104,7 @@ class WebStructure(object):
     SUB_SECTION_VIEW_6 = "view_complex_coherence"
     SUB_SECTION_VIEW_7 = "view_correlation"
     SUB_SECTION_VIEW_8 = "view_correlation_pearson"
-    SUB_SECTION_VIEW_9 = "view_eeg"
+    SUB_SECTION_VIEW_9 = "view_animated_timeseries"
     SUB_SECTION_VIEW_10 = "view_fourier"
     SUB_SECTION_VIEW_11 = "view_histogram"
     SUB_SECTION_VIEW_12 = "view_ica"
@@ -185,7 +185,7 @@ class WebStructure(object):
         SUB_SECTION_VIEW_6: "Complex Coherence Visualizer",
         SUB_SECTION_VIEW_7: "Cross Correlation Visualizer",
         SUB_SECTION_VIEW_8: "Pearson Correlation Coefficients Visualizer",
-        SUB_SECTION_VIEW_9: "EEG Visualizer",
+        SUB_SECTION_VIEW_9: "Animated TimeSeries Visualizer",
         SUB_SECTION_VIEW_10: "Fourier Visualizer",
         SUB_SECTION_VIEW_11: "Histogram Visualizer",
         SUB_SECTION_VIEW_12: "ICA Visualizer",
