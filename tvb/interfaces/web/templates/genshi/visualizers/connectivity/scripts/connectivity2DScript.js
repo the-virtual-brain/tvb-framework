@@ -61,7 +61,7 @@ function drawConnectivity(json, shouldRefreshNodes) {
             //This method is called right before plotting an edge. This method is useful to change edge styles individually.
             onBeforePlotLine: function(adj) {
                 if (!adj.data.$lineWidth)
-                    adj.data.$lineWidth = adj.data.weight * scaleFactor;
+                    adj.data.$lineWidth = Math.max(Math.min(adj.data.weight * scaleFactor, 12.0), 0); // clamp to 0..12
             },
             //Add node click handler and some styles. This method is called only once for each node/label crated.
             onCreateLabel: function(domElement, node) {
