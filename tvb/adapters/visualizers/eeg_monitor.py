@@ -253,21 +253,13 @@ class EegMonitor(ABCDisplayer):
     @staticmethod
     def _get_sub_title(datatype_list):
         """ Compute sub-title for current page"""
-        sub_title = ""
-        for array_w in datatype_list:
-            if len(sub_title.strip()) > 0:
-                sub_title = sub_title + "_" + array_w.display_name
-            else:
-                sub_title = array_w.display_name
-        return sub_title
+        return "_".join(d.display_name for d in datatype_list)
 
 
     @staticmethod
     def _get_label_x(original_timeseries):
-        """
-        Compute the label displayed on the x axis
-        """
-        return "Time(" + original_timeseries.sample_period_unit + ")"
+        """ Compute the label displayed on the x axis """
+        return "Time(%s)" % original_timeseries.sample_period_unit
 
 
     def _get_data_set_urls(self, list_of_timeseries, is_preview=False):
