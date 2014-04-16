@@ -18,9 +18,7 @@
  **/
 
 // with this factor will be changed the weights of the edges of all charts
-var scaleFactor = 1;
-// contains all the data needed for redrawing the charts
-var cache = [];
+var scaleFactor = 5;
 // the index of the node which should be the root of the chart which contains the both hemispheres
 var rootNode = 1;
 // contains the points that were selected by the user. Only this points will be drawn in the main view.
@@ -126,44 +124,6 @@ function drawConnectivity(json, shouldRefreshNodes) {
     rgraph.plot();
     rgraph.controller.onBeforeCompute(rgraph.graph.getNode(rgraph.root));
     rgraph.controller.onAfterCompute();
-}
-
-/**
- * Draws the slider which allows the user to change the weight af an edge.
- */
-function drawSliderForWeightsScale() {
-
-    var weightsFactorObj = $("#weightsScaleFactor");
-    weightsFactorObj.slider({ value: 1, min: 1, max: 10 });
-    weightsFactorObj.slider({
-                            change: function() {
-                                scaleFactor = $('#weightsScaleFactor').slider("option", "value");
-                                $("#display-weights-scale").html(" " + scaleFactor);
-                                drawConnectivity(C2D_hemispheresJSON[C2D_selectedView], C2D_shouldRefreshNodes);
-                            }
-    });
-}
-
-/**
- * Add to cache all the data needed for drawing a chart
- *
- * @param divId the container id in which will be drawn the view
- * @param json a string which contains all the data needed for drawing a chart
- * @param shouldRefreshNodes if the drawn chart contains data related to both hemisphere
- */
-function addToCache(divId, json, shouldRefreshNodes) {
-    var existsInCache = false;
-    for (var i = 0; i < cache.length; i++) {
-        if (cache[i][0] == divId) {
-            cache[i][1] = json;
-            existsInCache = true;
-            break;
-        }
-    }
-
-    if (!existsInCache) {
-        cache.push([divId, json, shouldRefreshNodes]);
-    }
 }
 
 /**

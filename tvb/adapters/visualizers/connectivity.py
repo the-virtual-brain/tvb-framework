@@ -188,9 +188,7 @@ class ConnectivityViewer(ABCDisplayer):
         if surface_data:
             url_vertices, url_normals, _, url_triangles = surface_data.get_urls_for_rendering()
         else:
-            url_vertices = []
-            url_triangles = []
-            url_normals = []
+            url_vertices, url_normals, url_triangles = [], [], []
 
         submit_url = self.get_submit_method_url("submit_connectivity")
         global_pages = dict(controlPage="connectivity/top_right_controls")
@@ -298,7 +296,7 @@ class Connectivity2DViewer(object):
                                     1, 2, norm_rays[half:], colors[half:], X_CANVAS_SMALL, Y_CANVAS_SMALL)
         left_json = self._get_json(input_data.region_labels[:half], input_data.centres[:half], weights[0], math.pi,
                                    1, 2, norm_rays[:half], colors[:half], X_CANVAS_SMALL, Y_CANVAS_SMALL)
-        full_json = self._get_json(input_data.region_labels, input_data.centres, input_data.weights, math.pi,
+        full_json = self._get_json(input_data.region_labels, input_data.centres, normalized_weights, math.pi,
                                    0, 1, norm_rays, colors, X_CANVAS_FULL, Y_CANVAS_FULL)
 
         params = dict(bothHemisphereJson=full_json, rightHemisphereJson=right_json, leftHemisphereJson=left_json,
