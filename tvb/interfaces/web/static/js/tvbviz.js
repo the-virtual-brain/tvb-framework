@@ -599,7 +599,7 @@ tv.plot = {
             var dom = f.sc_fcs_x.domain()
                 , lo = Math.floor((dom[0] - f.t0()) / f.dt())
                 , hi = Math.floor((dom[1] - f.t0()) / f.dt())
-                , di = Math.floor((hi - lo) / f.point_limit());
+                , di = Math.floor((hi - lo) / (2*f.point_limit()));
 
             di = di === 0 ? 1 : di;
 
@@ -824,6 +824,7 @@ tv.plot = {
                         return "translate(0, " + f.sc_fcs_y(i) + ")"
                     })
                     .append("path")
+		      .attr("vector-effect", "non-scaling-stroke")
             }
 
             g.select("path").attr("d", function (d) {
@@ -905,8 +906,8 @@ tv.plot = {
                 , area = dx * dy
                 , area2 = total.x * total.y;
 
-                //console.log(area / area2);
-            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "" + Math.min(2*Math.sqrt(Math.abs(area / area2)), 0.1));
+            //console.log(area / area2);
+            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", ""+1);//4*Math.sqrt(Math.abs(area / area2)))
         };
 
         f.add_brushes = function () {
