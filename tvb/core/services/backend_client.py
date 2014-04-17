@@ -238,8 +238,10 @@ class ClusterSchedulerClient(object):
             walltime = "48:00:00"
         else:
             walltime = "167:00:00"
+        #Make sure node 01 is not used
+        do_not_use_this_node = 'n01'
 
-        call_arg = config.CLUSTER_SCHEDULE_COMMAND % (walltime, operation_identifier, user_name_label)
+        call_arg = config.CLUSTER_SCHEDULE_COMMAND % (do_not_use_this_node, walltime, operation_identifier, user_name_label)
         LOGGER.info(call_arg)
         process_ = Popen([call_arg], stdout=PIPE, shell=True)
         job_id = process_.stdout.read().replace('\n', '').split('OAR_JOB_ID=')[-1]

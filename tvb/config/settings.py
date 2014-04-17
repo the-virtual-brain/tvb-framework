@@ -204,7 +204,7 @@ class BaseProfile():
     # Specify if the current process is executing an operation (via clusterLauncher)
     OPERATION_EXECUTION_PROCESS = False
 
-    CLUSTER_SCHEDULE_COMMAND = 'oarsub -l walltime=%s -q tvb -S "/home/tvbadmin/clusterLauncher %s %s"'
+    CLUSTER_SCHEDULE_COMMAND = 'oarsub -"not like %s" -l walltime=%s -q tvb -S "/home/tvbadmin/clusterLauncher %s %s"'
     CLUSTER_STOP_COMMAND = 'oardel %s'
 
     _CACHED_RUNNING_ON_CLUSTER_NODE = None
