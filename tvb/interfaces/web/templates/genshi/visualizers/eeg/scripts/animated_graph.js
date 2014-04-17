@@ -214,6 +214,16 @@ function AG_startAnimatedChartPreview(channelsPerSet, baseURLS, pageSize, nrOfPa
                        noOfChannels, totalLength, doubleView, channelLabels);
     _AG_initPaginationState(number_of_visible_points);
     _AG_preStart();
+
+    // If no values are selected the eeg view breaks! By default select the first few channels
+    // warning: Assumes channel values are a range
+    if (AG_submitableSelectedChannels.length == 0) {
+        var defaultSelectionLength = Math.min(totalNumberOfChannels, DEFAULT_MAX_CHANNELS);
+        for(var i=0; i < defaultSelectionLength; i++){
+            AG_submitableSelectedChannels.push(i);
+        }
+    }
+
     refreshChannels();
 }
 
