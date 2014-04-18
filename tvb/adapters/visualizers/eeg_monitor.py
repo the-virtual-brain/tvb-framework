@@ -116,8 +116,9 @@ class EegMonitor(ABCDisplayer):
         else:
             max_chunck_length = min(self.preview_page_size, original_timeseries[0].read_data_shape()[0])
 
-        ( no_of_channels, ts_names, labels, total_time_length,
-          graph_labels, modes, state_vars  ) = self._pre_process(original_timeseries, multiple_input)
+        ( no_of_channels, ts_names, grouped_labels, total_time_length,
+          graph_labels, initial_selections, measure_points_selectionGIDs,
+          modes, state_vars  ) = self._pre_process(original_timeseries, multiple_input)
         # ts_names : a string representing the time series
         # labels, modes, state_vars are maps ts_name -> list(...)
         # The label values must reach the client in ascending ordered. ts_names preserves the
@@ -126,11 +127,10 @@ class EegMonitor(ABCDisplayer):
             total_time_length = max_chunck_length
         # compute how many elements will be visible on the screen
         points_visible = min(max_chunck_length, 500)
-        measure_points_selectionGIDs = [t.get_measure_points_selection_gid() for t in original_timeseries]
 
         parameters = dict(title=self._get_sub_title(original_timeseries),
                           tsNames=ts_names,
-                          labelsForCheckBoxes=labels,
+                          groupedLabels=grouped_labels,
                           tsModes=modes,
                           tsStateVars=state_vars,
                           graphLabels=json.dumps(graph_labels),
@@ -150,7 +150,8 @@ class EegMonitor(ABCDisplayer):
                           extended_view=False,
                           entities=original_timeseries,
                           page_size=min(self.page_size, max_chunck_length),
-                          measurePointsSelectionGIDs=json.dumps(measure_points_selectionGIDs))
+                          measurePointsSelectionGIDs=json.dumps(measure_points_selectionGIDs),
+                          initialSelection=initial_selections)
         return parameters
 
 
@@ -174,7 +175,8 @@ class EegMonitor(ABCDisplayer):
         no_of_lines, max_length = 0, 0
         modes , state_vars = {}, {}
         # all these arrays are consistently indexed. At index idx they all refer to the same time series
-        ts_names, graph_labels, labels  = [], [], []
+        initial_selections, measure_points_selectionGIDs = [], []
+        ts_names, graph_labels, grouped_labels  = [], [], []
 
         for timeseries in timeseries_list:
             shape = timeseries.read_data_shape()
@@ -187,11 +189,20 @@ class EegMonitor(ABCDisplayer):
             ts_name = timeseries.display_name + " [id:" + str(timeseries.id) + "]"
             ts_names.append(ts_name)
 
-            labels.append(timeseries.get_space_labels())
+            if multiple_inputs:
+                # for multiple inputs the default selections might be too big: select the first few
+                # warn: assumes that the selection values are a range
+                initial_selections.append(range(4))
+            else:
+                initial_selections.append(timeseries.get_default_selection())
+
+            measure_points_selectionGIDs.append(timeseries.get_measure_points_selection_gid())
+            grouped_labels.append(timeseries.get_grouped_space_labels())
+
             state_vars[ts_name] = timeseries.labels_dimensions.get(timeseries.labels_ordering[1], [])
             modes[ts_name] = range(shape[3])
 
-        return no_of_lines, ts_names, labels, max_length, graph_labels, modes, state_vars
+        return no_of_lines, ts_names, grouped_labels, max_length, graph_labels, initial_selections, measure_points_selectionGIDs, modes, state_vars
 
 
     def _fill_graph_labels(self, timeseries, graph_labels, mult_inp):

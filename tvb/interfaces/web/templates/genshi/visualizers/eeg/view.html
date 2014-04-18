@@ -80,7 +80,7 @@
 	    					<xi:include href="${channelsPage}"/>
 	    					<xi:include href='../commons/state_mode_selector.html'/>
                             <py:for each="idx, name in enumerate(tsNames)">
-                                ${drawRegionSelector(name, "channelSelector" + str(idx), [('', list(enumerate(labelsForCheckBoxes[idx])))])}
+                                ${drawRegionSelector(name, "channelSelector" + str(idx), groupedLabels[idx], initialSelection[idx])}
                             </py:for>
 		    			</div>
 		    		</div>

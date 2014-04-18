@@ -84,7 +84,9 @@ class EEGMonitorTest(TransactionalTestCase):
         result = viewer.launch(time_series)
         expected_keys = ['tsStateVars', 'tsModes', 'translationStep', 'total_length', 'title', 
                          'timeSetPaths', 'number_of_visible_points', 'normalizedSteps', 'noOfChannels',
-                         'labelsForCheckBoxes', 'label_x', 'graphLabels', 'entities', 'channelsPage']
+                         'groupedLabels', 'label_x', 'graphLabels', 'entities', 'channelsPage',
+                         'measurePointsSelectionGIDs', 'initialSelection', 'extended_view',
+                         'longestChannelLength', 'tsNames', 'nan_value_found', 'baseURLS']
         for key in expected_keys:
             self.assertTrue(key in result)
     
