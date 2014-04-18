@@ -215,9 +215,10 @@ function AG_startAnimatedChartPreview(channelsPerSet, baseURLS, pageSize, nrOfPa
     _AG_initPaginationState(number_of_visible_points);
     _AG_preStart();
 
-    // If no values are selected the eeg view breaks! By default select the first few channels
+    // Initialize AG_submitableSelectedChannels
     // warning: Assumes channel values are a range
     if (AG_submitableSelectedChannels.length == 0) {
+        // Viewer breaks if this is empty. Fill the first few channels
         var defaultSelectionLength = Math.min(totalNumberOfChannels, DEFAULT_MAX_CHANNELS);
         for(var i=0; i < defaultSelectionLength; i++){
             AG_submitableSelectedChannels.push(i);
@@ -331,15 +332,17 @@ function _AG_init_selection(filterGids){
     // his selection is synchronized with the brain
     AG_regionSelector = selectors[0];
 
-    // If no values are selected the eeg view breaks! By default select the first channels of the first selector.
-    // If there is any information stored in 'AG_submitableSelectedChannels' then the call to drawAnimatedChart.
-    //came from a refrsh with a different page size. In this case there is no need to update the channel list.
+    // Initialize AG_submitableSelectedChannels
+    AG_submitableSelectedChannels = getSelectedChannelsAsGlobalIndices();
+
     if (AG_submitableSelectedChannels.length == 0) {
+        // Viewer breaks if this is empty. Fill the first few channels
         var defaultSelectionLength = Math.min(totalNumberOfChannels, DEFAULT_MAX_CHANNELS);
         // we take the values form the dom, a range(defaultSelectionLength) is not a valid selection if there are multiple time series
         AG_submitableSelectedChannels = AG_regionSelector._allValues.slice(0, defaultSelectionLength);
+        AG_regionSelector.val(AG_submitableSelectedChannels);
     }
-    AG_regionSelector.val(AG_submitableSelectedChannels);
+    refreshChannels();
 }
 
 /**
