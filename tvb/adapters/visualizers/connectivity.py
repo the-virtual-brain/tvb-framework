@@ -332,7 +332,6 @@ class Connectivity2DViewer(object):
         """
         Method used for creating a valid JSON for an entire chart.
         """
-        result_json = '['
         max_y = max(positions[:, coord_idx2])
         min_y = min(positions[:, coord_idx2])
         max_x = max(positions[:, coord_idx1])
@@ -341,18 +340,22 @@ class Connectivity2DViewer(object):
         x_scale = 2 * x_canvas / (max_x - min_x)
         mid_x_value = (max_x + min_x) / 2
         mid_y_value = (max_y + min_y) / 2
+
+        result_json = []
+
         for i in xrange(len(positions)):
-            result_json += self.point2json(labels[i], (positions[i][coord_idx1] - mid_x_value) * x_scale,
-                                           (positions[i][coord_idx2] - mid_y_value) * y_scale,
-                                           Connectivity2DViewer.get_adjacencies_json(weights[i], labels),
-                                           rotate_angle, dimensions_list[i], colors_list[i])
-            if i != len(positions) - 1:
-                result_json += ','
-        return result_json + ']'
+            x_coord = (positions[i][coord_idx1] - mid_x_value) * x_scale
+            y_coord = (positions[i][coord_idx2] - mid_y_value) * y_scale
+            adjacencies = Connectivity2DViewer._get_adjacencies_json(weights[i], labels)
 
+            r = self.point2json(labels[i], x_coord, y_coord, adjacencies,
+                                rotate_angle, dimensions_list[i], colors_list[i])
+            result_json.append(r)
 
-    @classmethod
-    def _get_weights(cls, weights):
+        return json.dumps(result_json)
+
+    @staticmethod
+    def _get_weights(weights):
         """
         Method used for calculating the weights for the right and for the 
         left hemispheres. Those matrixes are obtained from
@@ -378,26 +381,26 @@ class Connectivity2DViewer(object):
         angle += math.atan2(y_coord, x_coord)
         radius = math.sqrt(math.pow(x_coord, 2) + math.pow(y_coord, 2))
 
-        result_json = '{"id": "' + node_lbl + '",' + '"name": "' + node_lbl + '", '
-        result_json += '"data": {"$dim": ' + str(default_dimension) + ', "$type": "' + form + '",'
-        result_json += '  "$color": "' + self.DEFAULT_COLOR + '", "customShapeDimension": ' + str(shape_dimension) + ','
-        result_json += '  "customShapeColor": "' + str(shape_color) + '", "angle": ' + str(angle) + ','
-        result_json += '  "radius": ' + str(radius) + ' }, '
-        result_json += '"adjacencies": [' + adjacencies + '] }'
-        return result_json
+        return {
+            "id": node_lbl, "name": node_lbl,
+            "data": {
+                "$dim": default_dimension, "$type": form ,
+                "$color": self.DEFAULT_COLOR, "customShapeDimension": shape_dimension,
+                "customShapeColor": shape_color, "angle": angle,
+                "radius": radius
+            },
+            "adjacencies": adjacencies
+        }
 
-
-    @classmethod
-    def get_adjacencies_json(cls, point_weights, points_labels):
+    @staticmethod
+    def _get_adjacencies_json(point_weights, points_labels):
         """
         Method used for obtaining a valid JSON which will contain all the edges of a certain node.
         """
-        adjacencies = ""
-        for i, weight in enumerate(point_weights):
+        adjacencies = []
+        for weight, label in zip(point_weights, points_labels):
             if weight:
-                if len(adjacencies) > 0:
-                    adjacencies += ","
-                adjacencies += '{ "nodeTo": "' + points_labels[i] + '", "data": {"weight": ' + str(weight) + '} }'
+                adjacencies.append( { "nodeTo": label, "data": {"weight": weight} } )
         return adjacencies
 
 
