@@ -854,8 +854,8 @@ function connectivity_initCanvas() {
  * only once.
  */
 function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList, urlTrianglesList,
-								urlNormalsList, conn_nose_correction, condSpeed, rays, colors) {
-	GVAR_initPointsAndLabels(filePositions);
+								urlNormalsList, urlLabels, conn_nose_correction, condSpeed, rays, colors) {
+	GVAR_initPointsAndLabels(filePositions, urlLabels);
     connectivity_nose_correction = $.parseJSON(conn_nose_correction);
     NO_POSITIONS = GVAR_positionsPoints.length;
     GFUNC_initTractsAndWeights(fileWeights, fileTracts);
@@ -916,10 +916,10 @@ function changeSurfaceTransparency(inputField) {
  * be drawn alone, without widths and tracts.
  */
 function prepareConnectivity(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                             urlNormalsList, conn_nose_correction, isSingleMode, conductionSpeed, rays, colors) {
+                             urlNormalsList, urlLabels,  conn_nose_correction, isSingleMode, conductionSpeed, rays, colors) {
 	connectivity_initCanvas();
 	saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                    	   urlNormalsList, conn_nose_correction, conductionSpeed, rays, colors);
+                    	   urlNormalsList, urlLabels, conn_nose_correction, conductionSpeed, rays, colors);
     connectivity_startGL(isSingleMode);
 }
 

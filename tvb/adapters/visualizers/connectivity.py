@@ -181,9 +181,10 @@ class ConnectivityViewer(ABCDisplayer):
                              position relative to the full brain cortical surface
         :type surface_data: `CorticalSurface`
         """
-        path_weights = self.paths2url(input_data, 'weights')
-        path_pos = self.paths2url(input_data, 'centres')
-        path_tracts = self.paths2url(input_data, 'tract_lengths')
+        path_weights = self.paths2url(input_data, 'ordered_weights')
+        path_pos = self.paths2url(input_data, 'ordered_centres')
+        path_tracts = self.paths2url(input_data, 'ordered_tracts')
+        path_labels = self.paths2url(input_data, 'ordered_labels')
 
         if surface_data:
             url_vertices, url_normals, _, url_triangles = surface_data.get_urls_for_rendering()
@@ -193,17 +194,18 @@ class ConnectivityViewer(ABCDisplayer):
         submit_url = self.get_submit_method_url("submit_connectivity")
         global_pages = dict(controlPage="connectivity/top_right_controls")
 
-        minimum, maximum, minimum_non_zero = self._compute_matrix_extrema(input_data.weights)
-        minimum_t, maximum_t, minimum_non_zero_t = self._compute_matrix_extrema(input_data.tract_lengths)
+        minimum, maximum, minimum_non_zero = self._compute_matrix_extrema(input_data.ordered_weights)
+        minimum_t, maximum_t, minimum_non_zero_t = self._compute_matrix_extrema(input_data.ordered_tracts)
 
-        global_params = dict(urlWeights=path_weights, urlPositions=path_pos, urlTracts=path_tracts,
+        global_params = dict(urlWeights=path_weights, urlPositions=path_pos,
+                             urlTracts=path_tracts, urlLabels=path_labels,
                              originalConnectivity=input_data.gid, title="Connectivity Control",
                              submitURL=submit_url,
-                             positions=input_data.centres,
+                             positions=input_data.ordered_centres,
                              tractsMin=minimum_t, tractsMax=maximum_t,
                              weightsMin=minimum, weightsMax=maximum,
                              tractsNonZeroMin=minimum_non_zero_t, weightsNonZeroMin=minimum_non_zero,
-                             pointsLabels=input_data.region_labels, conductionSpeed=input_data.speed or 1,
+                             pointsLabels=input_data.ordered_labels, conductionSpeed=input_data.speed or 1,
                              urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
                              urlNormals=json.dumps(url_normals),
                              connectivity_nose_correction=json.dumps(input_data.nose_correction),
@@ -285,18 +287,18 @@ class Connectivity2DViewer(object):
             raise LaunchException('The connectivity matrix you selected has fewer nodes than acceptable for display!')
 
         half = input_data.number_of_regions / 2
-        normalized_weights = self._normalize_weights(input_data.weights)
+        normalized_weights = self._normalize_weights(input_data.ordered_weights)
         weights = Connectivity2DViewer._get_weights(normalized_weights)
 
         ## Compute shapes and colors ad adjacent data
         norm_rays, min_ray, max_ray = self._normalize_rays(rays, input_data.number_of_regions)
         colors, step = self._prepare_colors(colors, input_data.number_of_regions, step)
 
-        right_json = self._get_json(input_data.region_labels[half:], input_data.centres[half:], weights[1], math.pi,
+        right_json = self._get_json(input_data.ordered_labels[half:], input_data.ordered_centres[half:], weights[1], math.pi,
                                     1, 2, norm_rays[half:], colors[half:], X_CANVAS_SMALL, Y_CANVAS_SMALL)
-        left_json = self._get_json(input_data.region_labels[:half], input_data.centres[:half], weights[0], math.pi,
+        left_json = self._get_json(input_data.ordered_labels[:half], input_data.ordered_centres[:half], weights[0], math.pi,
                                    1, 2, norm_rays[:half], colors[:half], X_CANVAS_SMALL, Y_CANVAS_SMALL)
-        full_json = self._get_json(input_data.region_labels, input_data.centres, normalized_weights, math.pi,
+        full_json = self._get_json(input_data.ordered_labels, input_data.ordered_centres, normalized_weights, math.pi,
                                    0, 1, norm_rays, colors, X_CANVAS_FULL, Y_CANVAS_FULL)
 
         params = dict(bothHemisphereJson=full_json, rightHemisphereJson=right_json, leftHemisphereJson=left_json,
@@ -318,7 +320,7 @@ class Connectivity2DViewer(object):
             normalizer_size_coeficient = (height * 0.8) / 700.0
         x_size = X_CANVAS_FULL * normalizer_size_coeficient
         y_size = Y_CANVAS_FULL * normalizer_size_coeficient
-        full_json = self._get_json(input_data.region_labels, input_data.centres, input_data.weights, math.pi, 0, 1,
+        full_json = self._get_json(input_data.ordered_labels, input_data.ordered_centres, input_data.ordered_weights, math.pi, 0, 1,
                                    norm_rays, colors, x_size, y_size)
         params = dict(bothHemisphereJson=full_json, stepValue=step or max_ray, firstColor=self.DEFAULT_COLOR,
                       secondColor=self.OTHER_COLOR, minRay=min_ray, maxRay=max_ray)
@@ -477,9 +479,9 @@ class MPLH5Connectivity():
         figure = pylab.figure(figsize=(7, 8))
         pylab.clf()
 
-        matrix = input_data.weights
+        matrix = input_data.ordered_weights
         matrix_size = input_data.number_of_regions
-        labels = input_data.region_labels
+        labels = input_data.ordered_labels
         plot_title = "Connection Strength"
 
         order = numpy.arange(matrix_size)

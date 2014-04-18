@@ -26,9 +26,9 @@
  * Given an input file containing the center positions and the labels, read these data
  * and compute the required normalization steps in order to center the brain on the canvas.
  */
-function HLPR_readPointsAndLabels(filePoints) {
+function HLPR_readPointsAndLabels(filePoints, urlLabels) {
     var positions = HLPR_readJSONfromFile(filePoints);
-    var labels = HLPR_readJSONfromFile(filePoints.replace('/centres', '/region_labels'));
+    var labels = HLPR_readJSONfromFile(urlLabels);
 	var steps = HLPR_computeNormalizationSteps(positions);
     return [positions, labels, steps[0], steps[1]];
 }

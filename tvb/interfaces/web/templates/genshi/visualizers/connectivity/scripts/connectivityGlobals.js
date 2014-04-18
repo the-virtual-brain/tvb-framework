@@ -239,8 +239,8 @@ var GVAR_pointsLabels = [];
 // The intereset area under which this connectivity was saved.
 var GVAR_baseSelection = '';
 
-function GVAR_initPointsAndLabels(filePositions) {
-	var pointsAndLabels = HLPR_readPointsAndLabels(filePositions);
+function GVAR_initPointsAndLabels(filePositions, urlLabels) {
+	var pointsAndLabels = HLPR_readPointsAndLabels(filePositions, urlLabels);
     GVAR_positionsPoints = pointsAndLabels[0];
     GVAR_pointsLabels = pointsAndLabels[1];
     GVAR_additionalXTranslationStep = -pointsAndLabels[2];
