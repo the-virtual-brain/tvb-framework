@@ -289,27 +289,32 @@ function _AG_preStart() {
 }
 
 /**
- * Init selection component(s). Part of AG startup
+ * Creates a selection component for each time series displayed by this eeg view
+ * Part of AG startup
+ * The order of the filterGids determines the order of the selectors
+ * It must have the same ordering as all other timeseries arrays
  * @private
  */
 function _AG_init_selection(filterGids){
-    // create a selection component for each time series displayed by this eeg view
     var selectors = [];
-
-    function getSelectedValuesOfAllSelectors(){
+    /**
+     * Returns the selected channel indices as interpreted by AG_submitableSelectedChannels
+     * ( starting at 0 and ending at len(timeseries_0_channels) + ... + len(timeseries_final_channels) )
+     */
+    function getSelectedChannelsAsGlobalIndices(){
         var all_selected = [];
-        for(var selidx = 0; selidx < selectors.length; selidx++){
-            all_selected = all_selected.concat( selectors[selidx].val() );
+        var offset = 0;
+
+        for(var i = 0; i < selectors.length; i++){
+            var selector = selectors[i];
+            var selected_in_current = selector.selectedIndices();
+
+            for(var j = 0; j < selected_in_current.length; j++){
+                all_selected.push( offset + selected_in_current[j] );
+        }
+            offset += selector._allValues.length;
         }
         return all_selected;
-    }
-
-    function mapInt(seq){
-        var ret = [];
-        for(var i = 0; i < seq.length ; i++){
-            ret.push(parseInt(seq[i], 10));
-        }
-        return ret;
     }
 
     // init selectors
@@ -317,7 +322,7 @@ function _AG_init_selection(filterGids){
         var selectorId = "#channelSelector" + i;
         var selector = TVBUI.regionSelector(selectorId, {filterGid: filterGids[i]});
         selector.change(function(_current_selection){
-            AG_submitableSelectedChannels = mapInt(getSelectedValuesOfAllSelectors());
+            AG_submitableSelectedChannels = getSelectedChannelsAsGlobalIndices();
             refreshChannels();
         });
         selectors.push(selector);
