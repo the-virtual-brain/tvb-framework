@@ -128,30 +128,35 @@ class EegMonitor(ABCDisplayer):
         # compute how many elements will be visible on the screen
         points_visible = min(max_chunck_length, 500)
 
+        #todo: page_size vs pageSize
+        ag_settings = dict(channelsPerSet=channels_per_set,
+                           channelLabels=graph_labels,
+                           noOfChannels=no_of_channels,
+                           translationStep=step,
+                           normalizedSteps=translations,
+                           nan_value_found=self.has_nan,
+                           baseURLS=base_urls,
+                           pageSize=page_size,
+                           nrOfPages=total_pages,
+                           timeSetPaths=time_set_urls,
+                           totalLength=total_time_length,
+                           number_of_visible_points=points_visible,
+                           extended_view=False,
+                           measurePointsSelectionGIDs=measure_points_selectionGIDs)
+
         parameters = dict(title=self._get_sub_title(original_timeseries),
                           tsNames=ts_names,
                           groupedLabels=grouped_labels,
                           tsModes=modes,
                           tsStateVars=state_vars,
-                          graphLabels=json.dumps(graph_labels),
-                          noOfChannels=no_of_channels,
-                          translationStep=step,
-                          normalizedSteps=json.dumps(translations),
-                          nan_value_found=self.has_nan,
-                          baseURLS=json.dumps(base_urls),
-                          pageSize=page_size,
-                          nrOfPages=json.dumps(total_pages),
-                          timeSetPaths=json.dumps(time_set_urls),
-                          channelsPerSet=json.dumps(channels_per_set),
-                          total_length=total_time_length,
                           longestChannelLength=max_chunck_length,
-                          number_of_visible_points=points_visible,
                           label_x=self._get_label_x(original_timeseries[0]),
-                          extended_view=False,
                           entities=original_timeseries,
                           page_size=min(self.page_size, max_chunck_length),
-                          measurePointsSelectionGIDs=json.dumps(measure_points_selectionGIDs),
-                          initialSelection=initial_selections)
+                          number_of_visible_points=points_visible,
+                          extended_view=False,
+                          initialSelection=initial_selections,
+                          ag_settings=json.dumps(ag_settings))
         return parameters
 
 

@@ -14,16 +14,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            AG_startAnimatedChart('$channelsPerSet','$baseURLS', ${pageSize}, '$nrOfPages',
-                    '${timeSetPaths}', $translationStep, '$normalizedSteps', '${number_of_visible_points}',
-                    '${nan_value_found}', $noOfChannels, $total_length,
-                    ${'true' if extended_view else 'false'}, '${graphLabels}', '$measurePointsSelectionGIDs');
-            bindHoverEvent();
-            initializeCanvasEvents();
-
-		    if (!${'true' if extended_view else 'false'}) {
-		        bindZoomEvent();
-		    }
+            AG_startAnimatedChart($ag_settings);
         });
     </script>
 	

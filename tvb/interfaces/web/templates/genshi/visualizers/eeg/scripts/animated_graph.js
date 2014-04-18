@@ -188,31 +188,27 @@ window.onresize = function() {
 /**
  * Animated graph entry point
  */
-function AG_startAnimatedChart(channelsPerSet, baseURLS, pageSize, nrOfPages,
-						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found, 
-						   noOfChannels, totalLength, doubleView, channelLabels, filterGids) {
-
+function AG_startAnimatedChart(ag_settings) {
     isSmallPreview = false;
-    _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
-                    timeSetPaths, step, normalizations, nan_value_found,
-                           noOfChannels, totalLength, doubleView, channelLabels);
-    _AG_initPaginationState(number_of_visible_points);
+    _AG_initGlobals(ag_settings);
+    _AG_initPaginationState(ag_settings.number_of_visible_points);
     _AG_preStart();
     drawSliderForScale();
     drawSliderForAnimationSpeed();
-    _AG_init_selection($.parseJSON(filterGids));
+    _AG_init_selection(ag_settings.measurePointsSelectionGIDs);
+
+    bindHoverEvent();
+    initializeCanvasEvents();
+    if (! ag_settings.extended_view ) {
+        bindZoomEvent();
+    }
 }
 
-function AG_startAnimatedChartPreview(channelsPerSet, baseURLS, pageSize, nrOfPages,
-						   timeSetPaths, step, normalizations, number_of_visible_points, nan_value_found,
-						   noOfChannels, totalLength, doubleView, channelLabels) {
-
+function AG_startAnimatedChartPreview(ag_settings) {
     isSmallPreview = true;
     AG_isStopped = true;
-    _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
-                    timeSetPaths, step, normalizations, nan_value_found,
-                       noOfChannels, totalLength, doubleView, channelLabels);
-    _AG_initPaginationState(number_of_visible_points);
+    _AG_initGlobals(ag_settings);
+    _AG_initPaginationState(ag_settings.number_of_visible_points);
     _AG_preStart();
 
     // Initialize AG_submitableSelectedChannels
@@ -241,26 +237,22 @@ function AG_rePaginate(number_of_visible_points) {
  * Initialize global state. Part of the AG startup.
  * @private
  */
-function _AG_initGlobals(channelsPerSet, baseURLS, pageSize, nrOfPages,
-                           timeSetPaths, step, normalizations, nan_value_found,
-                           noOfChannels, totalLength, doubleView, channelLabels){
-    isDoubleView = doubleView;
+function _AG_initGlobals(ag_settings){
+    isDoubleView = ag_settings.extended_view;
     // dataSetUrls = $.parseJSON(dataSetPaths);
-    baseDataURLS = $.parseJSON(baseURLS);
-    nrOfPagesSet = $.parseJSON(nrOfPages);
-    dataPageSize = pageSize;
-    chanDisplayLabels = $.parseJSON(channelLabels);
-    noOfChannelsPerSet = $.parseJSON(channelsPerSet);
-    timeSetUrls = $.parseJSON(timeSetPaths);
-    maxChannelLength = parseInt(pageSize);
-    AG_normalizationSteps = $.parseJSON(normalizations);
+    baseDataURLS = ag_settings.baseURLS;
+    nrOfPagesSet = ag_settings.nrOfPages;
+    dataPageSize = ag_settings.pageSize;
+    chanDisplayLabels = ag_settings.channelLabels;
+    noOfChannelsPerSet = ag_settings.channelsPerSet;
+    timeSetUrls = ag_settings.timeSetPaths;
+    maxChannelLength = parseInt(ag_settings.pageSize);
+    AG_normalizationSteps = ag_settings.normalizedSteps;
     setMaxDataFileIndex(nrOfPagesSet);
-    totalNumberOfChannels = noOfChannels;
-    totalTimeLength = totalLength;
-    if (nan_value_found == "True") {
-        nanValueFound = true;
-    }
-    AG_computedStep = step;
+    totalNumberOfChannels = ag_settings.noOfChannels;
+    totalTimeLength = ag_settings.totalLength;
+    nanValueFound = ag_settings.nan_value_found;
+    AG_computedStep = ag_settings.translationStep;
 }
 
 /**
