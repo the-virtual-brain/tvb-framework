@@ -30,6 +30,7 @@
 """
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+import json
 import os
 import unittest
 import demo_data.sensors as sensors_dataset
@@ -82,14 +83,22 @@ class EEGMonitorTest(TransactionalTestCase):
         time_series = self.datatypeFactory.create_timeseries(self.connectivity, 'EEG', sensors)
         viewer = EegMonitor()
         result = viewer.launch(time_series)
-        expected_keys = ['tsStateVars', 'tsModes', 'translationStep', 'total_length', 'title', 
-                         'timeSetPaths', 'number_of_visible_points', 'normalizedSteps', 'noOfChannels',
-                         'groupedLabels', 'label_x', 'graphLabels', 'entities', 'channelsPage',
-                         'measurePointsSelectionGIDs', 'initialSelection', 'extended_view',
-                         'longestChannelLength', 'tsNames', 'nan_value_found', 'baseURLS']
+        expected_keys = ['tsNames', 'groupedLabels', 'tsModes', 'tsStateVars', 'longestChannelLength',
+                          'label_x', 'entities', 'page_size', 'number_of_visible_points',
+                          'extended_view', 'initialSelection', 'ag_settings', 'ag_settings']
+
         for key in expected_keys:
-            self.assertTrue(key in result)
-    
+            self.assertTrue(key in result, "key not found %s" % key)
+
+        expected_ag_settings = ['channelsPerSet', 'channelLabels', 'noOfChannels', 'translationStep',
+                                'normalizedSteps', 'nan_value_found', 'baseURLS', 'pageSize',
+                                'nrOfPages', 'timeSetPaths', 'totalLength', 'number_of_visible_points',
+                                'extended_view', 'measurePointsSelectionGIDs']
+
+        ag_settings = json.loads(result['ag_settings'])
+
+        for key in expected_ag_settings:
+            self.assertTrue(key in ag_settings, "ag_settings should have the key %s" % key)
     
 def suite():
     """
