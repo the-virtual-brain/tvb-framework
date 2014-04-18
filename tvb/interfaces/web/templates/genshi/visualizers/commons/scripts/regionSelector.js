@@ -58,6 +58,7 @@ function RegionSelectComponent(dom, settings){
     self._selectedValues = [];
     self._selectedIndices = [];
     self._namedSelections = [];
+    // array with the values of all check boxes
     self._allValues = [];
     self._labels = [];
     // save dom variables, set up listeners

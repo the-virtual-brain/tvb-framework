@@ -550,7 +550,7 @@ function generateChannelColors(nr_of_channels) {
 	AG_reversedChannelColorsDict = {};
 	var step = parseInt(255 / nr_of_channels);
 	for (var i=0; i<nr_of_channels; i++) {
-		var color = "rgb("+255*(i%2)+","+(255-i*step)+","+255*((i+1)%2)+")";
+		var color = "rgb("+250*(i%2)+","+(200-i*step)+","+220*((i+1)%2)+")";
 		AG_channelColorsDict[color] = i;
 		AG_reversedChannelColorsDict[i] = color; 
 	}
@@ -559,14 +559,14 @@ function generateChannelColors(nr_of_channels) {
 
 function setLabelColors() {
 	/*
-	 * Get x-axis labels and update colors to correspond to each channel
+	 * Get y-axis labels and update colors to correspond to each channel
 	 */
-	var labels = $('.tickLabel');
+	var labels = $('.flot-y-axis .tickLabel');
 	for (var i=0; i<labels.length; i++) {
 		var chan_idx = chanDisplayLabels.indexOf(labels[i].firstChild.textContent);
 		if (chan_idx >= 0) {
 			labels[i].style.color = AG_reversedChannelColorsDict[displayedChannels.indexOf(chan_idx)];
-			labels[i].style.width = '100px';
+			labels[i].style.left = 80 + (i % 2) * 40 + 'px';
 		}
 	}
 }
