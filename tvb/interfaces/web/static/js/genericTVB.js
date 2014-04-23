@@ -993,3 +993,59 @@ function toSignificantDigits(number, precision){
         return number.toPrecision(precision);
     }
 }
+
+var activeMenu = null;
+
+function openMenu(selector){
+    hideMenus();
+    activeMenu = $(selector);
+    activeMenu.find('.extension').show();
+}
+
+function hideMenus(){
+    if (activeMenu){
+        activeMenu.find('.extension').hide();
+        activeMenu = null;
+    }
+}
+
+/**
+ * Binds menu events for all menus.
+ * By default attaches events to elements matching $(".can-extend").not(".auto-extends").add(".inline-menu")
+ * If the parent param is present it will search it's children for menus
+ * @param [parent]
+ * Dynamically created menus must call this to initialize. parent is provided so that this use case will not rebind all events.
+ * todo: Introduce a new class for this new menu behaviour as the above selector is complex
+ */
+function setupMenuEvents(parent){
+    if(parent == null){
+        parent = $(document);
+    }
+    // By menu root understand the element which shows the menu on click. The root contains the menu dom.
+    var menuRoots = parent.find(".can-extend").not(".auto-extends").add(".inline-menu");
+
+    menuRoots.off('click.menus');
+
+    menuRoots.on('click.menus', function(event){
+        // hide menu if the menu root of the current menu has been clicked
+        // but do nothing if the menu extension was clicked
+        var clickedOnActiveMenu = activeMenu && activeMenu[0] == this;
+        if (clickedOnActiveMenu){
+            var clickedExtension = activeMenu.find('.extension').find(event.target).length;
+            if( ! clickedExtension){
+                hideMenus();
+            }
+        }else{
+            openMenu(this);
+        }
+    });
+
+    $(document).click(function(event){
+        if (activeMenu){
+            var clickedOutsideMenu = activeMenu.find(event.target).length === 0;
+            if (clickedOutsideMenu){
+                hideMenus();
+            }
+        }
+    });
+}
