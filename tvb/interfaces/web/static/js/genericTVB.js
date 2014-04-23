@@ -1049,3 +1049,8 @@ function setupMenuEvents(parent){
         }
     });
 }
+
+// todo: this is *NOT* the right place. Where is the place for document wide initialisations?
+$(document).ready(function(){
+    setupMenuEvents();
+});

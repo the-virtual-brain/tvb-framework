@@ -995,10 +995,9 @@ outline: none !important; /* removes unwanted outline caused by tabindex */
 
 header .extension,
 #main .header-component .extension {
-top: 0;
+top: 58px; /* menu dropdown should not extend over parent so that we can click the parent */
 display: none;
 left: 0;
-padding-top: 58px;
 position: absolute;
 z-index: 500;
 }
@@ -1020,6 +1019,10 @@ header .header-component.can-extend .extension:hover,
 header .header-component.can-extend.auto-extends .extension,
 #main .header-component.can-extend.auto-extends .extension {
 cursor: text;
+}
+
+header .header-component.can-extend.auto-extends .extension,
+#main .header-component.can-extend.auto-extends .extension {
 display: block;
 }
 
@@ -1032,7 +1035,7 @@ display: block;
 height: 10px;
 left: 0;
 position: absolute;
-top: 58px;
+/*top: 58px; menu dropdown should not extend over parent*/
 width: 100%;
 }
 

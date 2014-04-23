@@ -207,11 +207,6 @@ height: 100%;
 position: absolute;
 right: 2px;
 top: 0;
-width: 20px;
-}
-
-.view-history .inline-menu:active, 
-.view-history .inline-menu:hover {
 width: 100%;
 }
 
