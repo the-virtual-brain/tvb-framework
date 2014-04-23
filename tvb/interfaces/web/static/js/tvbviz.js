@@ -765,7 +765,7 @@ tv.plot = {
                 , n_chan = ys.shape[1]
                 , datum;
 
-            // center and scale to std an average signal
+            // center an average signal
             for (var j = 0; j < ts.shape[0]; j++) {
                 da_x[j] = 0;
                 da_xs[j] = 0;
@@ -775,7 +775,7 @@ tv.plot = {
                     da_xs[j] += datum * datum
                 }
                 da_xs[j] = Math.sqrt(da_xs[j] / n_chan - ((da_x[j] / n_chan) * (da_x[j] / n_chan)));
-                da_x [j] = (da_x[j] / n_chan - ys_mean) / ys_std;
+                da_x [j] = (da_x[j] / n_chan - ys_mean);
                 // multiply by -1 because y axis points down
                 da_x[j] *= -1;
 
@@ -783,6 +783,15 @@ tv.plot = {
                     console.log("encountered NaN in data: da_x[" + j + "] = " + da_x[j] + ", da_xs[" + j + "] = " + da_xs[j] + ".");
                 }
             }
+
+	    // scale average siganl by ptp
+	    var _dar = new tv.ndar(da_x);
+	    var da_max = _dar.max()
+	      , da_min = _dar.min()
+	      , da_ptp = da_max - da_min;
+
+	    for (var i = 0; i < da_x.length; i++)
+	        da_x[i] = da_x[i]/da_ptp;
 
             // center and scale the std line
             da_xs.min = tv.ndar.from(da_xs).min();
