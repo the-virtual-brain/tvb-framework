@@ -39,6 +39,7 @@ import sys
 import signal
 import Queue
 import threading
+import datetime
 from subprocess import Popen, PIPE
 from tvb.basic.profile import TvbProfile as tvb_profile
 from tvb.basic.config.settings import TVBSettings as config
@@ -226,22 +227,19 @@ class ClusterSchedulerClient(object):
         # Load operation so we can estimate the execution time
         operation = dao.get_operation_by_id(operation_identifier)
         kwargs = parse_json_parameters(operation.parameters)
+        kwargs = adapter_instance.prepare_ui_inputs(kwargs)
         time_estimate = int(adapter_instance.get_execution_time_approximation(**kwargs))
         hours = int(time_estimate / 3600)
         minutes = (int(time_estimate) % 3600) / 60
         seconds = int(time_estimate) % 60
-        # Anything lower than 2 hours just use default walltime
-        ## TODO: clean this hard-coded values (TVB-1225)
-        if hours < 2:
+        # Anything lower than 5 hours just use default walltime
+        if hours < 5:
             walltime = "05:00:00"
-        if (hours >= 2 or hours <= 24):
-            walltime = "48:00:00"
         else:
-            walltime = "167:00:00"
-        #Make sure node 01 is not used
-        do_not_use_this_node = 'n01'
+            walltime = datetime.time(hours, minutes, seconds)
+            walltime = walltime.strftime("%H:%M:%S")
 
-        call_arg = config.CLUSTER_SCHEDULE_COMMAND % (do_not_use_this_node, walltime, operation_identifier, user_name_label)
+        call_arg = config.CLUSTER_SCHEDULE_COMMAND % (walltime, operation_identifier, user_name_label)
         LOGGER.info(call_arg)
         process_ = Popen([call_arg], stdout=PIPE, shell=True)
         job_id = process_.stdout.read().replace('\n', '').split('OAR_JOB_ID=')[-1]

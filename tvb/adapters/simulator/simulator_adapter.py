@@ -216,15 +216,24 @@ class SimulatorAdapter(ABCAsynchronous):
         # it's finished. This should be done with a higher grade of sensitivity
         # Magic number connecting simulation length to simulation computation time
         # This number should as big as possible, as long as it is still realistic, to
-        magic_number = 2.0
-        simulation_length = int(float(kwargs['simulation_length']))
-        if simulation_length <= magic_number:
-            # No matter how small the simulation, we're going to approximate at least 1 second of execution time
-            return 1
-        if 'surface' in kwargs and kwargs['surface'] is not None and kwargs['surface'] != '':
-            return simulation_length * 10.0
-        return simulation_length / magic_number
+        magic_number = 6.57e-06     # seconds
+        approx_number_of_nodes = 500
+        approx_nvar = 15
+        approx_modes = 15
 
+        simulation_length = int(float(kwargs['simulation_length']))
+        approx_integrator_dt = float(kwargs['integrator_parameters']['dt'])
+
+        if approx_integrator_dt == 0.0:
+            approx_integrator_dt = 1.0
+
+        if 'surface' in kwargs and kwargs['surface'] is not None and kwargs['surface'] != '':
+            approx_number_of_nodes *= approx_number_of_nodes
+
+        estimation = magic_number * approx_number_of_nodes * approx_nvar * approx_modes * simulation_length \
+            / approx_integrator_dt
+
+        return max(int(estimation), 1)
 
 
     def launch(self, model, model_parameters, integrator, integrator_parameters, connectivity,
