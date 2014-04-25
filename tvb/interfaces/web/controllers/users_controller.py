@@ -384,7 +384,7 @@ class UserController(BaseController):
         if self.version_info is None:
             try:
                 content = urlopen(cfg.URL_TVB_VERSION, timeout=7).read()
-                self.version_info = json.loads(content)[0]
+                self.version_info = json.loads(content)
                 pos = cfg.URL_TVB_VERSION.find('/tvb')
                 self.version_info['url'] = cfg.URL_TVB_VERSION[:pos]
                 self.logger.debug("Read version: " + json.dumps(self.version_info))
