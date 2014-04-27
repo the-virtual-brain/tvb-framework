@@ -213,7 +213,7 @@ class BaseProfile():
             return FrameworkSettings.CURRENT_DIR
 
 
-    EXTERNALS_FOLDER_PARENT = os.path.dirname(BIN_FOLDER)
+    EXTERNALS_FOLDER_PARENT = os.path.dirname(FrameworkSettings.BIN_FOLDER)
 
     # Specify if the current process is executing an operation (via clusterLauncher)
     OPERATION_EXECUTION_PROCESS = False
