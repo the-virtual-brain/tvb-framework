@@ -200,6 +200,7 @@ class BaseProfile():
 
     CURRENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
     @ClassProperty
     @staticmethod
     def BIN_FOLDER():
@@ -213,7 +214,11 @@ class BaseProfile():
             return FrameworkSettings.CURRENT_DIR
 
 
-    EXTERNALS_FOLDER_PARENT = os.path.dirname(FrameworkSettings.BIN_FOLDER)
+    @ClassProperty
+    @staticmethod
+    def EXTERNALS_FOLDER_PARENT():
+        return os.path.dirname(FrameworkSettings.BIN_FOLDER)
+
 
     # Specify if the current process is executing an operation (via clusterLauncher)
     OPERATION_EXECUTION_PROCESS = False
