@@ -257,7 +257,7 @@ class ABCAdapter(object):
             required_disk_space = self.get_required_disk_size(**kwargs)
             if available_disk_space < 0:
                 raise NoMemoryAvailableException("You have exceeded you HDD space quota"
-                                                 " by %.2f MB Stopping execution." % (- available_disk_space / 2**10,))
+                                                 " by %.2f MB Stopping execution." % (- available_disk_space / 2 ** 10))
             if available_disk_space - required_disk_space < 0:
                 raise NoMemoryAvailableException("You only have %.2f GB of disk space available but the operation you "
                                                  "launched might require %.2f "
@@ -512,10 +512,8 @@ class ABCAdapter(object):
 
         for entry in algorithm_inputs:
             ## Now that first level was handled, go recursively on selected options only          
-            if (self.KEY_REQUIRED in entry
-                and entry[self.KEY_REQUIRED] is True
-                and ABCAdapter.KEY_OPTIONS in entry
-                and entry[ABCAdapter.KEY_OPTIONS] is not None):
+            if (self.KEY_REQUIRED in entry and entry[self.KEY_REQUIRED] is True
+                    and ABCAdapter.KEY_OPTIONS in entry and entry[ABCAdapter.KEY_OPTIONS] is not None):
 
                 for option in entry[ABCAdapter.KEY_OPTIONS]:
                     #Only go recursive on option that was submitted
@@ -629,21 +627,31 @@ class ABCAdapter(object):
     def __validate_range_for_value_input(self, value, row):
 
         if value < row[xml_reader.ATT_MINVALUE] or value > row[xml_reader.ATT_MAXVALUE]:
-            raise InvalidParameterException("Field %s [%s] should be between %s and %s but provided value was %s." % (
+
+            warning_message = "Field %s [%s] should be between %s and %s but provided value was %s." % (
                 row[self.KEY_LABEL], row[self.KEY_NAME], row[xml_reader.ATT_MINVALUE],
-                row[xml_reader.ATT_MAXVALUE], value))
+                row[xml_reader.ATT_MAXVALUE], value)
+
+            self.log.warning(warning_message)
+
+            #raise InvalidParameterException(warning_message)
+            # As described in TVB-1295, we do no longer raise exception, but only log a warning
 
 
     def __validate_range_for_array_input(self, array, row):
 
         min_val = numpy.min(array)
         max_val = numpy.max(array)
+
         if min_val < row[xml_reader.ATT_MINVALUE] or max_val > row[xml_reader.ATT_MAXVALUE]:
-            raise InvalidParameterException("Field %s [%s] should have values between %s and %s but provided array"
-                                            " contains min-max: (%s, %s)." % (row[self.KEY_LABEL], row[self.KEY_NAME],
-                                                                              row[xml_reader.ATT_MINVALUE],
-                                                                              row[xml_reader.ATT_MAXVALUE],
-                                                                              min_val, max_val))
+
+            warning_message = "Field %s [%s] should have values between %s and %s but provided array contains min-" \
+                              "max:(%s, %s)." % (row[self.KEY_LABEL], row[self.KEY_NAME], row[xml_reader.ATT_MINVALUE],
+                                                 row[xml_reader.ATT_MAXVALUE], min_val, max_val)
+            self.log.warning(warning_message)
+
+            #raise InvalidParameterException(warning_message)
+            # As described in TVB-1295, we do no longer raise exception, but only log a warning
 
 
     def __convert_to_array(self, input_data, row):
