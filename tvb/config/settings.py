@@ -34,7 +34,6 @@ TVB global configurations are predefined/read from here.
 
 import os
 import sys
-import bin
 from copy import copy
 from sys import platform
 from subprocess import Popen, PIPE
@@ -197,8 +196,23 @@ class BaseProfile():
     LOCALHOST = "127.0.0.1"
     SYSTEM_USER_NAME = 'TVB system'
     DEFAULT_ADMIN_EMAIL = 'jira.tvb@gmail.com'
-    BIN_FOLDER = os.path.dirname(os.path.abspath(bin.__file__))
+
+
     CURRENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    @ClassProperty
+    @staticmethod
+    def BIN_FOLDER():
+        """
+        :return:
+        """
+        try:
+            import tvb_bin
+            return os.path.dirname(os.path.abspath(tvb_bin.__file__))
+        except ImportError:
+            return FrameworkSettings.CURRENT_DIR
+
+
     EXTERNALS_FOLDER_PARENT = os.path.dirname(BIN_FOLDER)
 
     # Specify if the current process is executing an operation (via clusterLauncher)

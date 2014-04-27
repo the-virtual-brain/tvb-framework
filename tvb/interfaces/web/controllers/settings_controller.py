@@ -106,7 +106,7 @@ class SettingsController(UserController):
         sleep(5)
 
         python_path = cfg().get_python_path()
-        proc_params = [python_path, '-m', 'bin.app', 'start', 'web']
+        proc_params = [python_path, '-m', 'tvb_bin.app', 'start', 'web']
         if should_reset:
             proc_params.append('reset')
 
