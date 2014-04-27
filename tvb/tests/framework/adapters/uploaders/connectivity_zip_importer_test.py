@@ -33,7 +33,7 @@
 """
 from os import path
 import unittest
-import demo_data
+import tvb_data
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -58,12 +58,12 @@ class ConnectivityZipTest(TransactionalTestCase):
     @staticmethod
     def import_test_connectivity96(test_user, test_project, subject=DataTypeMetaData.DEFAULT_SUBJECT):
         """
-        Import a connectivity with 96 regions from demo_data.
+        Import a connectivity with 96 regions from tvb_data.
         """
         group = dao.find_group('tvb.adapters.uploaders.zip_connectivity_importer', 'ZIPConnectivityImporter')
         importer = ABCAdapter.build_adapter(group)
 
-        data_dir = path.abspath(path.dirname(demo_data.__file__))
+        data_dir = path.abspath(path.dirname(tvb_data.__file__))
         zip_path = path.join(data_dir, 'connectivity', 'connectivity_96.zip')
         ### Launch Operation
         FlowService().fire_operation(importer, test_user, test_project.id, uploaded=zip_path, Data_Subject=subject)

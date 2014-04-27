@@ -34,7 +34,7 @@
 
 import os
 import unittest
-import demo_data.tables as dataset
+import tvb_data.tables as dataset
 from tvb.adapters.uploaders.lookup_table_importer import LookupTableImporter
 from tvb.datatypes.lookup_tables import NerfTable, PsiTable
 from tvb.tests.framework.core.test_factory import TestFactory

@@ -34,7 +34,7 @@
 """
 import os
 import unittest
-import demo_data.cff as dataset
+import tvb_data.cff as dataset
 from tvb.core.services.flow_service import FlowService
 from tvb.core.entities.storage import dao
 from tvb.tests.framework.core.test_factory import TestFactory

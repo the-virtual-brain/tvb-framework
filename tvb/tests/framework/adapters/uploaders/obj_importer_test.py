@@ -45,7 +45,7 @@ from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.surfaces import FaceSurface
 
-import demo_data.obj
+import tvb_data.obj
 
 
 
@@ -54,8 +54,8 @@ class ObjSurfaceImporterTest(TransactionalTestCase):
     Unit-tests for Obj Surface importer.
     """
 
-    torrus = os.path.join(os.path.dirname(demo_data.obj.__file__), 'test_torus.obj')
-    ball = os.path.join(os.path.dirname(demo_data.obj.__file__), 'Test_Ball.obj')
+    torrus = os.path.join(os.path.dirname(tvb_data.obj.__file__), 'test_torus.obj')
+    ball = os.path.join(os.path.dirname(tvb_data.obj.__file__), 'Test_Ball.obj')
 
 
     def setUp(self):

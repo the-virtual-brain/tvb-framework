@@ -33,7 +33,7 @@
 """
 
 import unittest
-import demo_data
+import tvb_data
 from os import path
 from tvb.adapters.uploaders.csv_connectivity_importer import CSVConnectivityParser
 from tvb.basic.filters.chain import FilterChain
@@ -52,7 +52,7 @@ TEST_SUBJECT_A = "TEST_SUBJECT_A"
 TEST_SUBJECT_B = "TEST_SUBJECT_B"
 
 class CSVConnectivityParserTest(BaseTestCase):
-    BASE_PTH = path.join(path.dirname(demo_data.__file__), 'dti_pipeline', 'Output_Toronto')
+    BASE_PTH = path.join(path.dirname(tvb_data.__file__), 'dti_pipeline', 'Output_Toronto')
 
     def test_parse_happy(self):
         cap_pth = path.join(self.BASE_PTH, 'output_ConnectionDistanceMatrix.csv')
@@ -85,7 +85,7 @@ class CSVConnectivityImporterTest(TransactionalTestCase):
     def _import_csv_test_connectivity(self, reference_connectivity_gid, subject):
 
         ### First prepare input data:
-        data_dir = path.abspath(path.dirname(demo_data.__file__))
+        data_dir = path.abspath(path.dirname(tvb_data.__file__))
 
         torronto_dir = path.join(data_dir, 'dti_pipeline', 'Output_Toronto')
         weights = path.join(torronto_dir, 'output_ConnectionCapacityMatrix.csv')

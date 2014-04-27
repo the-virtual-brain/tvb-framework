@@ -35,7 +35,7 @@ module docstring
 
 import unittest
 import os.path
-import demo_data
+import tvb_data
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.exceptions import OperationException
 from tvb.datatypes.connectivity import Connectivity
@@ -55,7 +55,7 @@ class ConnectivityMeasureImporterTest(TransactionalTestCase):
     """
 
     def setUp(self):
-        zip_path = os.path.join(os.path.dirname(demo_data.__file__), 'connectivity', 'connectivity_66.zip')
+        zip_path = os.path.join(os.path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_66.zip')
         self.test_user = TestFactory.create_user('Test_User')
         self.test_project = TestFactory.create_project(self.test_user, "Test_Project")
         TestFactory.import_zip_connectivity(self.test_user,self.test_project, "John", zip_path)

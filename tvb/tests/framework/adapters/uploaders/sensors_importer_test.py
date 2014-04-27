@@ -44,7 +44,7 @@ from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
-import demo_data.sensors as demo_data
+import tvb_data.sensors as demo_data
 
 
 

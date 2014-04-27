@@ -33,8 +33,8 @@
 """
 import os
 import unittest
-import demo_data.projectionMatrix as dataset
-import demo_data.sensors as sensors_dataset
+import tvb_data.projectionMatrix as dataset
+import tvb_data.sensors as sensors_dataset
 from tvb.datatypes.projections import ProjectionRegionEEG, ProjectionSurfaceEEG
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.sensors import SensorsEEG

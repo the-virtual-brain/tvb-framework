@@ -33,7 +33,7 @@
 import json
 import os
 import unittest
-import demo_data.sensors as sensors_dataset
+import tvb_data.sensors as sensors_dataset
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.visualizers.eeg_monitor import EegMonitor
 from tvb.datatypes.surfaces import CorticalSurface

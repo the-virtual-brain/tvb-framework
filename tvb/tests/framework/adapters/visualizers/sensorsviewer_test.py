@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
 import os
 import unittest
-import demo_data.surfaceData as surfaces_dataset
-import demo_data.sensors as sensors_dataset
+import tvb_data.surfaceData as surfaces_dataset
+import tvb_data.sensors as sensors_dataset
 from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
 from tvb.adapters.visualizers.sensors import EegSensorViewer, MEGSensorViewer, InternalSensorViewer
 from tvb.core.entities.file.files_helper import FilesHelper

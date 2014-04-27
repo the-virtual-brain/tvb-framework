@@ -43,7 +43,7 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.time_series import TimeSeries
 from tvb.core.services.exceptions import OperationException
 
-import demo_data.nifti as demo_data
+import tvb_data.nifti as demo_data
 
 
 

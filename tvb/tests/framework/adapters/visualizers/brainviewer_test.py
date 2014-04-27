@@ -32,8 +32,8 @@
 """
 import os
 import unittest
-import demo_data.surfaceData as surface_dataset
-import demo_data.sensors as sensors_dataset
+import tvb_data.surfaceData as surface_dataset
+import tvb_data.sensors as sensors_dataset
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.surfaces import CorticalSurface, FaceSurface, EEGCap
 from tvb.datatypes.connectivity import Connectivity

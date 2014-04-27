@@ -45,7 +45,7 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.surfaces import CorticalSurface
 from tvb.datatypes.surfaces_data import CORTICAL
 
-import demo_data.surfaceData
+import tvb_data.surfaceData
 
 
 
@@ -54,7 +54,7 @@ class ZIPSurfaceImporterTest(TransactionalTestCase):
     Unit-tests for Zip Surface importer.
     """
 
-    surf80k = os.path.join(os.path.dirname(demo_data.surfaceData.__file__), 'surface_80k', 'surface_80k.zip')
+    surf80k = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'surface_80k', 'surface_80k.zip')
 
 
     def setUp(self):
