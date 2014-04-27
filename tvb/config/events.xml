@@ -22,14 +22,14 @@
         <adapter module="tvb.adapters.uploaders.cff_importer" class="CFF_Importer" uid="cff_74k"/>
         <method name="launch"/>
         <args>
-            <arg name='cff' value="dataset_74.cff" module='demo_data.cff' type="file" />
+            <arg name='cff' value="dataset_74.cff" module='tvb_data.cff' type="file" />
         </args>
     </event>
     <event hookpoint="ProjectService.store_project" type="adapter" delay="1">
         <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer" uid="eeg_62"/>
         <method name="launch"/>
         <args>
-            <arg name='sensors_file' value="EEG_unit_vectors_BrainProducts_62.txt.bz2" module='demo_data.sensors' type="file" />
+            <arg name='sensors_file' value="EEG_unit_vectors_BrainProducts_62.txt.bz2" module='tvb_data.sensors' type="file" />
             <arg name='sensors_type' value='EEG Sensors' type='str' />  
         </args>
     </event>
@@ -37,7 +37,7 @@
         <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer"/>
         <method name="launch"/>
         <args>
-            <arg name='sensors_file' value="meg_channels_reg13.txt.bz2" module='demo_data.sensors' type="file" />
+            <arg name='sensors_file' value="meg_channels_reg13.txt.bz2" module='tvb_data.sensors' type="file" />
             <arg name='sensors_type' value='MEG sensors' type='str' />  
         </args>
     </event>
@@ -45,7 +45,7 @@
         <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer"/>
         <method name="launch"/>
         <args>
-            <arg name='sensors_file' value="internal_39.txt.bz2" module='demo_data.sensors' type="file" />
+            <arg name='sensors_file' value="internal_39.txt.bz2" module='tvb_data.sensors' type="file" />
             <arg name='sensors_type' value='Internal Sensors' type='str' />  
         </args>
     </event>
@@ -53,7 +53,7 @@
         <adapter module="tvb.adapters.uploaders.zip_surface_importer" class="ZIPSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
-            <arg name='uploaded' value="eeg_skin_surface.zip" module='demo_data.surfaceData' type="file" />
+            <arg name='uploaded' value="eeg_skin_surface.zip" module='tvb_data.surfaceData' type="file" />
             <arg name='surface_type' value='EEG Cap' type='str' /> 
             <arg name='zero_based_triangles' value='1' type='int' />  
         </args>
@@ -62,7 +62,7 @@
          <adapter module="tvb.adapters.uploaders.obj_importer" class="ObjSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
-            <arg name='data_file' value="face_surface.obj" module='demo_data.obj' type="file" />
+            <arg name='data_file' value="face_surface.obj" module='tvb_data.obj' type="file" />
             <arg name='surface_type' value='Face' type='str' />
         </args>
     </event>
@@ -70,7 +70,7 @@
         <adapter module="tvb.adapters.uploaders.projection_matrix_importer" class="ProjectionMatrixRegionEEGImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
-            <arg name='projection_file' value="region_conn_74_eeg_1020_62.mat" module='demo_data.projectionMatrix' type="file" />
+            <arg name='projection_file' value="region_conn_74_eeg_1020_62.mat" module='tvb_data.projectionMatrix' type="file" />
             <arg name='sensors' value='eeg_62' type='uid' />  
             <arg name='connectivity' value='conn_74' type='uid' />
         </args>
@@ -79,7 +79,7 @@
         <adapter module="tvb.adapters.uploaders.projection_matrix_importer" class="ProjectionMatrixSurfaceEEGImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
-            <arg name='projection_file' value="surface_reg_13_eeg_62.mat" module='demo_data.projectionMatrix' type="file" />
+            <arg name='projection_file' value="surface_reg_13_eeg_62.mat" module='tvb_data.projectionMatrix' type="file" />
             <arg name='sensors' value='eeg_62' type='uid' />  
             <arg name='surface' value='srf_reg13' type='uid' />
         </args>
@@ -90,7 +90,7 @@
         <adapter module="tvb.adapters.uploaders.zip_surface_importer" class="ZIPSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
-            <arg name='uploaded' value="eeg_skin_surface.zip" module='demo_data.surfaceData' type="file" />
+            <arg name='uploaded' value="eeg_skin_surface.zip" module='tvb_data.surfaceData' type="file" />
             <arg name='surface_type' value='EEG Cap' type='str' /> 
             <arg name='zero_based_triangles' value='1' type='int' />  
         </args>
@@ -99,7 +99,7 @@
         <adapter module="tvb.adapters.uploaders.obj_importer" class="ObjSurfaceImporter"/>
         <method name="launch" operation-hidden="true"/>
         <args>
-            <arg name='data_file' value="face_surface.obj" module='demo_data.obj' type="file" />
+            <arg name='data_file' value="face_surface.obj" module='tvb_data.obj' type="file" />
             <arg name='surface_type' value='Face' type='str' />
         </args>
     </event>
@@ -109,7 +109,7 @@
         <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer"/>
         <method name="launch"/>
         <args>
-            <arg name='sensors_file' value="internal_39.txt.bz2" module='demo_data.sensors' type="file" />
+            <arg name='sensors_file' value="internal_39.txt.bz2" module='tvb_data.sensors' type="file" />
             <arg name='sensors_type' value='Internal Sensors' type='str' />  
         </args>
     </event>
