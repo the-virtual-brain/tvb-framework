@@ -3,10 +3,17 @@
 	<h4><mark>Select</mark> Connectivity Region</h4>
 	
     <xi:include href="left_template_connectivity_view.html"/>
-    
+
+    <div id="modelEquations" style="padding: 0 40px">
+        ${Markup(modelEquations)}
+    </div>
+
     <script type="text/javascript">
-        $("#GLcanvas").click(function () {
-            MP_toggleAndLoadModel(CONN_pickedIndex);
+        $(document).ready(function(){
+            $("#GLcanvas").click(function () {
+                MP_toggleAndLoadModel(CONN_pickedIndex);
+            });
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'modelEquations']);
         });
     </script>
     
