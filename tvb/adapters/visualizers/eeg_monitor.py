@@ -72,8 +72,57 @@ class EegMonitor(ABCDisplayer):
         """
         return -1
 
+    @staticmethod
+    def _get_input_time_series(input_data, data_2=None, data_3=None, is_preview=False):
+        """
+        Returns a list of the distinct time series to be viewed
+        Convert Original ArrayWrappers into a 2D list.
+        :param input_data: Time series to display
+        :type input_data: `TimeSeriesEEG`
+        :param data_2: additional input data
+        :param data_3: additional input data
+        """
+        original_timeseries = [input_data]
 
-    def compute_parameters(self, input_data, data_2=None, data_3=None, is_preview=False, selected_dimensions=None):
+        error_sample = "The input TimeSeries have different sample periods. You cannot view them in the same time !"
+        if data_2 is not None and data_2.gid != input_data.gid and is_preview is False:
+            if data_2.sample_period != input_data.sample_period:
+                raise LaunchException(error_sample)
+            original_timeseries.append(data_2)
+
+        if (data_3 is not None and data_3.gid != input_data.gid
+                and (data_2 is None or data_2.gid != data_3.gid) and is_preview is False):
+            if data_3.sample_period != input_data.sample_period:
+                raise LaunchException(error_sample)
+            original_timeseries.append(data_3)
+
+        return original_timeseries
+
+
+    def _compute_ag_settings(self, original_timeseries, is_preview, graph_labels, no_of_channels, total_time_length,
+                            points_visible, is_extended_view, measure_points_selectionGIDs):
+        # Compute distance between channels
+        step, translations, channels_per_set = self.compute_required_info(original_timeseries)
+        base_urls, page_size, total_pages, time_set_urls = self._get_data_set_urls(original_timeseries, is_preview)
+
+        return dict(channelsPerSet=channels_per_set,
+            channelLabels=graph_labels,
+            noOfChannels=no_of_channels,
+            translationStep=step,
+            normalizedSteps=translations,
+            nan_value_found=self.has_nan,
+            baseURLS=base_urls,
+            pageSize=page_size,
+            nrOfPages=total_pages,
+            timeSetPaths=time_set_urls,
+            totalLength=total_time_length,
+            number_of_visible_points=points_visible,
+            extended_view=is_extended_view,
+            measurePointsSelectionGIDs=measure_points_selectionGIDs)
+
+
+    def compute_parameters(self, input_data, data_2=None, data_3=None, is_preview=False,
+                           is_extended_view=False, selected_dimensions=None):
         """
         Start the JS visualizer, similar to EEG-lab
 
@@ -87,62 +136,30 @@ class EegMonitor(ABCDisplayer):
 
         :raises LaunchException: when at least two input data parameters are provided and they sample periods differ
         """
-        #Convert Original ArrayWrappers into a 2D list.
-        original_timeseries = [input_data]
-        multiple_input = False
-
-        error_sample = "The input TimeSeries have different sample periods. You cannot view them in the same time !"
-        if data_2 is not None and data_2.gid != input_data.gid and is_preview is False:
-            if data_2.sample_period != input_data.sample_period:
-                raise LaunchException(error_sample)
-            original_timeseries.append(data_2)
-            multiple_input = True
-
-        if (data_3 is not None and data_3.gid != input_data.gid
-                and (data_2 is None or data_2.gid != data_3.gid) and is_preview is False):
-            if data_3.sample_period != input_data.sample_period:
-                raise LaunchException(error_sample)
-            original_timeseries.append(data_3)
-            multiple_input = True
-
+        original_timeseries = self._get_input_time_series(input_data, data_2, data_3)
         self.selected_dimensions = selected_dimensions or [0, 2]
-        # Compute distance between channels
-        step, translations, channels_per_set = self.compute_required_info(original_timeseries)
 
-        base_urls, page_size, total_pages, time_set_urls = self._get_data_set_urls(original_timeseries, is_preview)
         # Hardcoded now 1st dimension is time
-        if is_preview is False:
+        if not is_preview:
             max_chunck_length = max([timeseries.read_data_shape()[0] for timeseries in original_timeseries])
         else:
             max_chunck_length = min(self.preview_page_size, original_timeseries[0].read_data_shape()[0])
+        # compute how many elements will be visible on the screen
+        points_visible = min(max_chunck_length, 500)
 
         ( no_of_channels, ts_names, grouped_labels, total_time_length,
           graph_labels, initial_selections, measure_points_selectionGIDs,
-          modes, state_vars  ) = self._pre_process(original_timeseries, multiple_input)
+          modes, state_vars ) = self._pre_process(original_timeseries)
         # ts_names : a string representing the time series
         # labels, modes, state_vars are maps ts_name -> list(...)
         # The label values must reach the client in ascending ordered. ts_names preserves the
         # order created by _pre_process
         if is_preview:
             total_time_length = max_chunck_length
-        # compute how many elements will be visible on the screen
-        points_visible = min(max_chunck_length, 500)
 
-        #todo: page_size vs pageSize
-        ag_settings = dict(channelsPerSet=channels_per_set,
-                           channelLabels=graph_labels,
-                           noOfChannels=no_of_channels,
-                           translationStep=step,
-                           normalizedSteps=translations,
-                           nan_value_found=self.has_nan,
-                           baseURLS=base_urls,
-                           pageSize=page_size,
-                           nrOfPages=total_pages,
-                           timeSetPaths=time_set_urls,
-                           totalLength=total_time_length,
-                           number_of_visible_points=points_visible,
-                           extended_view=False,
-                           measurePointsSelectionGIDs=measure_points_selectionGIDs)
+        ag_settings = self._compute_ag_settings(original_timeseries, is_preview, graph_labels, no_of_channels,
+                                               total_time_length, points_visible, is_extended_view,
+                                               measure_points_selectionGIDs)
 
         parameters = dict(title=self._get_sub_title(original_timeseries),
                           tsNames=ts_names,
@@ -154,7 +171,7 @@ class EegMonitor(ABCDisplayer):
                           entities=original_timeseries,
                           page_size=min(self.page_size, max_chunck_length),
                           number_of_visible_points=points_visible,
-                          extended_view=False,
+                          extended_view=is_extended_view,
                           initialSelection=initial_selections,
                           ag_settings=json.dumps(ag_settings))
         return parameters
@@ -175,8 +192,9 @@ class EegMonitor(ABCDisplayer):
         return self.build_display_result("eeg/view", params, pages=pages)
 
 
-    def _pre_process(self, timeseries_list, multiple_inputs):
+    def _pre_process(self, timeseries_list):
         """From input, Compute no of lines and labels."""
+        multiple_inputs = len(timeseries_list) > 1
         no_of_lines, max_length = 0, 0
         modes , state_vars = {}, {}
         # all these arrays are consistently indexed. At index idx they all refer to the same time series

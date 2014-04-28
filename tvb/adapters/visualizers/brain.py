@@ -367,9 +367,8 @@ class BrainEEG(BrainViewer):
         """
         self.eeg_cap = eeg_cap
         params = BrainViewer.compute_parameters(self, surface_activity, shell_surface)
-        params.update(EegMonitor().compute_parameters(surface_activity))
+        params.update(EegMonitor().compute_parameters(surface_activity, is_extended_view=True))
         params['biHemispheric'] = False
-        params['extended_view'] = True
         params['isOneToOneMapping'] = False
         params['brainViewerTemplate'] = 'view.html'
         return self.build_display_result("brain/extendedview", params,
