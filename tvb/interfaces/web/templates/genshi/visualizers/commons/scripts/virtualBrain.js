@@ -913,6 +913,32 @@ function initRegionBoundaries(boundariesURL) {
 }
 
 /**
+ * Make a draw call towards the shaderProgram compiled from common/vertex_shader common_fragment_shader
+ * Note: all attributes have to be bound even if the shader does not explicitly use them (ex picking mode)
+ * @param drawMode Triangles / Points
+ * @param buffers Buffers to be drawn. Array of (vertices, normals, triangles, colors) for one to one mappings
+ *                Array of (vertices, normals, triangles, alphas, alphaindices) for region based drawing
+ */
+function drawBuffer(drawMode, buffers){
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers[0]);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers[1]);
+    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+    if (isOneToOneMapping) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers[3]);
+        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+    } else {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers[3]);
+        gl.vertexAttribPointer(shaderProgram.vertexAlphaAttribute, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers[4]);
+        gl.vertexAttribPointer(shaderProgram.vertexColorIndicesAttribute, 3, gl.FLOAT, false, 0, 0);
+    }
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers[2]);
+    setMatrixUniforms();
+    gl.drawElements(drawMode, buffers[2].numItems, gl.UNSIGNED_SHORT, 0);
+}
+
+/**
  *
  * @param drawMode Triangles / Points
  * @param buffersSets Actual buffers to be drawn. Array or (vertices, normals, triangles)
@@ -943,22 +969,7 @@ function drawBuffers(drawMode, buffersSets, bufferSetsMask, useBlending, cullFac
         if(bufferSetsMask != null && !bufferSetsMask[i]){
             continue;
         }
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][0]);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][1]);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-        if (isOneToOneMapping) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][3]);
-            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
-        } else {
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][3]);
-            gl.vertexAttribPointer(shaderProgram.vertexAlphaAttribute, 2, gl.FLOAT, false, 0, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffersSets[i][4]);
-            gl.vertexAttribPointer(shaderProgram.vertexColorIndicesAttribute, 3, gl.FLOAT, false, 0, 0);
-        }
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffersSets[i][2]);
-        setMatrixUniforms();
-        gl.drawElements(drawMode, buffersSets[i][2].numItems, gl.UNSIGNED_SHORT, 0);
+        drawBuffer(drawMode, buffersSets[i]);
     }
 
     if (useBlending) {
@@ -1175,26 +1186,19 @@ function drawScene() {
         gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
         gl.disable(gl.BLEND);
         gl.disable(gl.DITHER);
-        gl.uniform1f(shaderProgram.isPicking, 1);   
+        gl.uniform1f(shaderProgram.isPicking, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         if (GL_colorPickerInitColors.length == 0) {
             GL_initColorPickingData(NO_OF_MEASURE_POINTS);
         }    
-             
+
         for (var i = 0; i < NO_OF_MEASURE_POINTS; i++){
-            gl.uniform3f(shaderProgram.pickingColor, GL_colorPickerInitColors[i][0], 
-                                                     GL_colorPickerInitColors[i][1], 
+            gl.uniform3f(shaderProgram.pickingColor, GL_colorPickerInitColors[i][0],
+                                                     GL_colorPickerInitColors[i][1],
                                                      GL_colorPickerInitColors[i][2]);
-            gl.bindBuffer(gl.ARRAY_BUFFER, measurePointsBuffers[i][0]);
-            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, measurePointsBuffers[i][1]);
-            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-            
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, measurePointsBuffers[i][2]);
-            setMatrixUniforms();
-            gl.drawElements(gl.TRIANGLES, measurePointsBuffers[i][2].numItems, gl.UNSIGNED_SHORT, 0);
-         }    
+            drawBuffer(gl.TRIANGLES, measurePointsBuffers[i]);
+        }
         var pickedIndex = GL_getPickedIndex();
         if (pickedIndex != undefined && pickedIndex != GL_NOTFOUND) {
             if (isDoubleView) {
