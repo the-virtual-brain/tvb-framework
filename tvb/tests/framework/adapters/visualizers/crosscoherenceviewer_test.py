@@ -72,10 +72,10 @@ class CrossCoherenceViewerTest(TransactionalTestCase):
         Check that all required keys are present in output from BrainViewer launch.
         """
         time_series = self.datatypeFactory.create_timeseries(self.connectivity)
-        ccoherence = self.datatypeFactory.create_crosscoherence(time_series)
+        cross_coherence = self.datatypeFactory.create_crosscoherence(time_series)
         viewer = CrossCoherenceVisualizer()
-        result = viewer.launch(ccoherence)
-        expected_keys = ['strides', 'shape', 'mainContent', 'isAdapter', 'frequency', 'coherence']
+        result = viewer.launch(cross_coherence)
+        expected_keys = ['matrix_data', 'matrix_shape', 'matrix_strides', 'frequency']
         for key in expected_keys:
             self.assertTrue(key in result)
     
