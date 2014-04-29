@@ -21,11 +21,11 @@
                     ;
 
             // set data on plotter
-            var frequency = tv.ndar.from($.parseJSON('${frequency}'))
-                    , coherence = tv.ndar.from($.parseJSON('${coherence}'));
+            var frequency = tv.ndar.from($.parseJSON('${frequency}'));
+            var coherence = tv.ndar.from($.parseJSON('${matrix_data}'));
 
-            coherence.shape = $.parseJSON('${shape}');
-            coherence.strides = $.parseJSON('${strides}');
+            coherence.shape = $.parseJSON('${matrix_shape}');
+            coherence.strides = $.parseJSON('${matrix_strides}');
 
             plot.f(frequency).coh(coherence);
 

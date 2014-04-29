@@ -35,53 +35,21 @@ A displayer for covariance.
 
 """
 
-import json
+from tvb.adapters.visualizers.matrix_viewer import MappedArrayVisualizer
 from tvb.datatypes.graph import Covariance
-from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
 
-
-class CovarianceVisualizer(ABCDisplayer):
+class CovarianceVisualizer(MappedArrayVisualizer):
     _ui_name = "Covariance Visualizer"
-
 
     def get_input_tree(self):
         """Inform caller of the data we need"""
-
-        return [{"name": "covariance",
-                 "type": Covariance,
-                 "label": "Covariance",
-                 "required": True
-                 }]
-
-
-    def get_required_memory_size(self, **kwargs):
-        """Return required memory. Here, it's unknown/insignificant."""
-        return -1
+        return [{"name": "covariance", "type": Covariance,
+                 "label": "Covariance", "required": True }]
 
 
     def launch(self, covariance):
         """Construct data for visualization and launch it."""
-
-        # get data from corr datatype, convert to json
+        # get data from corr datatype
         matrix = covariance.get_data('array_data')
-
-        matrix_data = self.dump_prec(matrix.flat)
-        matrix_shape = json.dumps(matrix.shape)
-        matrix_strides = json.dumps(map(lambda x: x / matrix.itemsize, matrix.strides))
-
-        view_pars = dict(matrix_data=matrix_data, matrix_shape=matrix_shape, matrix_strides=matrix_strides)
-        return self.build_display_result("covariance/view", view_pars)
-
-
-    def generate_preview(self, covariance, figure_size):
-        return self.launch(covariance)
-
-
-    def dump_prec(self, xs, prec=3):
-        """
-        Dump a list of numbers into a string, each at the specified precision. 
-        """
-
-        return "[" + ",".join(map(lambda x: ("%0." + str(prec) + "g") % (x,), xs)) + "]"
-
+        return self.main_display(matrix, 'Covariance matrix plot')

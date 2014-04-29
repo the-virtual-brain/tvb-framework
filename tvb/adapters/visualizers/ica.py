@@ -1,4 +1,32 @@
-# -*-coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+#
+#
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
+# Web-UI helpful to run brain-simulations. To use it, you also need do download
+# TheVirtualBrain-Scientific Package (for simulators). See content of the
+# documentation-folder for more details. See also http://www.thevirtualbrain.org
+#
+# (c) 2012-2013, Baycrest Centre for Geriatric Care ("Baycrest")
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License version 2 as published by the Free
+# Software Foundation. This program is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details. You should have received a copy of the GNU General
+# Public License along with this program; if not, you can download it here
+# http://www.gnu.org/licenses/old-licenses/gpl-2.0
+#
+#
+#   CITATION:
+# When using The Virtual Brain for scientific publications, please cite it as follows:
+#
+#   Paula Sanz Leon, Stuart A. Knock, M. Marmaduke Woodman, Lia Domide,
+#   Jochen Mersmann, Anthony R. McIntosh, Viktor Jirsa (2013)
+#       The Virtual Brain: a simulator of primate brain network dynamics.
+#   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
+#
+#
 
 """
 A matrix displayer for the Independent Component Analysis.
@@ -8,35 +36,22 @@ It displays the mixing matrix of siae n_features x n_components
 
 """
 
-import json
+from tvb.adapters.visualizers.matrix_viewer import MappedArrayVisualizer
 from tvb.datatypes.mode_decompositions import IndependentComponents
-from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.basic.logger.builder import get_logger
 
 LOG = get_logger(__name__)
 
 
 
-class ICA(ABCDisplayer):
+class ICA(MappedArrayVisualizer):
     _ui_name = "Independent Components Analysis Visualizer"
 
 
     def get_input_tree(self):
         """Inform caller of the data we need"""
-
-        return [{"name": "ica",
-                 "type": IndependentComponents,
-                 "label": "Independent component analysis:",
-                 "required": True
-                 }]
-
-
-    def get_required_memory_size(self, **kwargs):
-        """
-        :param kwargs: Parameters to launch viewer with
-        :return: required memory. Here, it's unknown/insignificant.
-        """
-        return -1
+        return [{"name": "ica", "type": IndependentComponents,
+                 "label": "Independent component analysis:", "required": True }]
 
 
     def launch(self, ica):
@@ -45,21 +60,4 @@ class ICA(ABCDisplayer):
         # get data from IndependentComponents datatype, convert to json
         # HACK: dump only a 2D array
         matrix = abs(ica.get_data('mixing_matrix')[:, :, 0, 0])
-        matrix_data = self.dump_prec(matrix.flat)
-        matrix_shape = json.dumps(matrix.shape)
-        matrix_strides = json.dumps(map(lambda x: x / matrix.itemsize, matrix.strides))
-
-        view_pars = dict(matrix_data=matrix_data, matrix_shape=matrix_shape, matrix_strides=matrix_strides)
-        return self.build_display_result("ica/view", view_pars)
-
-
-    def generate_preview(self, ica, figure_size):
-        return self.launch(ica)
-
-
-    def dump_prec(self, xs, prec=3):
-        """
-        Dump a list of numbers into a string, each at the specified precision. 
-        """
-        return "[" + ",".join(map(lambda x: ("%0." + str(prec) + "g") % (x,), xs)) + "]"
-
+        return self.main_display(matrix, 'Mixing matrix plot')
