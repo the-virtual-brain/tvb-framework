@@ -236,8 +236,11 @@ class ClusterSchedulerClient(object):
         if hours < 5:
             walltime = "05:00:00"
         else:
-            walltime = datetime.time(hours, minutes, seconds)
-            walltime = walltime.strftime("%H:%M:%S")
+            #walltime = datetime.time(hours, minutes, seconds)
+            #walltime = walltime.strftime("%H:%M:%S")
+            if (hours < 10):
+                hours = "0%d" % hours
+            walltime = "%s:%s:%s" % (hours, str(minutes), str(seconds))
 
         call_arg = config.CLUSTER_SCHEDULE_COMMAND % (walltime, operation_identifier, user_name_label)
         LOGGER.info(call_arg)
