@@ -117,12 +117,11 @@ content: "Z"
 /* !-------------------------------------------- */
 
 #s-brain .monitor .helper {
-background: rgba(0, 0, 0, 0.5);
 bottom: 0;
-color: #fff;
-height: 60px;
+color: rgb(133, 133, 133);
+padding: 0 2px;
+font-size: 11px;
 position: absolute;
-width: 200px;
 }
 
 .brainArea {
@@ -201,10 +200,10 @@ width: 200px;
 }
 
 .usecaseClass {
-   text-align: left; 
-   margin-left: 15px;
+   text-align: left;
    padding:5px;
    float: left;
+   font-size: 11px;
 }
 .lastChild {
     content: "";
