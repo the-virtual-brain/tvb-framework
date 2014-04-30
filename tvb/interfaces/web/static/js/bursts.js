@@ -115,7 +115,7 @@ function loadBurstHistory() {
         			historyElem.empty();
         			historyElem.append(r);
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub, "section-view-history"]);
-                    setupMenuEvents(historyElem);
+                    //setupMenuEvents(historyElem);
         },
         error: function() {
             		displayMessage("Simulator data could not be loaded properly..", "errorMessage");
