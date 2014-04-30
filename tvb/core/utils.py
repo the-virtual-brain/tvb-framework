@@ -249,6 +249,60 @@ def bool2string(bool_value):
 
 
 
+def parse_slice(slice_str):
+    """
+    Parse a slicing expression
+    >>> parse_slice("::1, :")
+    (slice(None, None, 1), slice(None, None, None))
+    >>> parse_slice("2")
+    2
+    """
+    ret = []
+    for d in slice_str.replace(' ', '').split(','):
+        frags = d.split(':')
+        if len(frags) == 1:
+            if frags[0] == '':
+                ret.append(slice(None))
+            else:
+                ret.append(int(frags[0]))
+        elif len(frags) <= 3:
+            frags = [int(d) if d else None for d in frags]
+            ret.append(slice(*frags))
+        else:
+            raise ValueError('invalid slice')
+    if len(ret) > 1:
+        return tuple(ret)
+    else:
+        return ret[0]
+
+
+
+def slice_str(slice_or_tuple):
+    """
+    >>> slice_str(slice(1, None, 2))
+    '1::2'
+    >>> slice_str((slice(None, None, 2), slice(None), 4))
+    '::2, :, 4'
+    Does not handle ... yet
+    """
+    def sl_str(s):
+        if isinstance(s, slice):
+            if s.start is s.step is None:
+                return '%s' % (s.stop if s.stop is not None else ':')
+            r = '%s:%s' % (s.start or '', s.stop or '')
+            if s.step is not None:
+                r += ':%d' %s.step
+            return r
+        else:
+            return str(int(s))
+
+    if isinstance(slice_or_tuple, tuple):
+        return ', '.join(sl_str(s) for s in slice_or_tuple)
+    else:
+        return sl_str(slice_or_tuple)
+
+
+
 ARRAY_BEGIN = -1
 DATA_UNCONVERTED = 1
 DATA_CONVERTED = 2

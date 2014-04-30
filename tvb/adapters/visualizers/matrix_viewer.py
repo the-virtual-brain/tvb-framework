@@ -38,6 +38,7 @@
 import json
 import numpy
 from tvb.basic.filters.chain import FilterChain
+from tvb.core.utils import parse_slice, slice_str
 from tvb.datatypes.arrays import MappedArray
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
@@ -46,11 +47,12 @@ class MappedArrayVisualizer(ABCDisplayer):
     _ui_name = "Matrix Visualizer"
 
     def get_input_tree(self):
-        return [{'name': 'datatype', 'label': 'Array data type', 'type': MappedArray,
-                 'required': True,
+        return [{'name': 'datatype', 'label': 'Array data type',
+                 'type': MappedArray, 'required': True,
                  'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                           operations=["=="], values=[2])
-                }]
+                                           operations=[">="], values=[2])},
+                {'name':'slice', 'label':'slice of the data in numpy format',
+                 'type': 'str', 'required': False}]
 
 
     def get_required_memory_size(self, datatype):
@@ -58,9 +60,9 @@ class MappedArrayVisualizer(ABCDisplayer):
         return numpy.prod(input_size) / input_size[0] * 8.0
 
 
-    def launch(self, datatype):
+    def launch(self, datatype, slice=''):
         matrix = datatype.get_data('array_data')
-        return self.main_display(matrix, "matrix plot")
+        return self.main_display(matrix, "matrix plot", slice)
 
 
     def generate_preview(self, datatype, figure_size):
@@ -69,26 +71,64 @@ class MappedArrayVisualizer(ABCDisplayer):
 
     def compute_matrix_params(self, matrix):
         """
-        Prepare JSON matrix for display
-        :param matrix: input 2D matrix
+        Prepare matrix for display
         """
         matrix_data = self._dump_prec(matrix.flat)
         matrix_shape = json.dumps(matrix.shape)
-        matrix_strides = json.dumps(map(lambda x: x / matrix.itemsize, matrix.strides))
+        matrix_strides = json.dumps([x / matrix.itemsize for x in matrix.strides])
 
         return dict(matrix_data=matrix_data,
                     matrix_shape=matrix_shape,
                     matrix_strides=matrix_strides)
 
 
-    def main_display(self, matrix, viewer_title):
+    def main_display(self, matrix, viewer_title, slice_s=None):
         """
         Prepare JSON matrix for display
-        :param matrix: input 2D matrix
+        :param matrix: input matrix
+        :param slice_s: a string representation of a slice. This slice should cut a 2d view from matrix
+        If the matrix is not 2d and the slice will not make it 2d then a default slice is used
+        If the matrix is complex the real part is shown
         """
-        view_pars = self.compute_matrix_params(matrix)
-        view_pars['viewer_title'] = viewer_title
+        matrix2d, slice_s_corrected = self._compute_2d_view(matrix, slice_s)
+        view_pars = self.compute_matrix_params(matrix2d)
+
+        view_pars.update(original_matrix_shape=str(matrix.shape),
+                         show_slice_info=slice_s is not None,
+                         slice_str=slice_s_corrected,
+                         is_slice_corrected=(slice_s != slice_s_corrected),
+                         viewer_title=viewer_title)
+
         return self.build_display_result("matrix/view", view_pars)
+
+
+    @staticmethod
+    def _compute_2d_view(matrix, slice_s):
+        """
+        Create a 2d view of the matrix using the suggested slice
+        If the given slice is invalid or fails to produce a 2d array the default is used
+        which selects the first 2 dimensions.
+        :param slice_s: a string representation of a slice
+        :return: a 2d array and the slice used to make it
+        """
+        default = (slice(None), slice(None)) + tuple(0 for _ in range(matrix.ndim - 2)) # [:,:,0,0,0,0 etc]
+
+        try:
+            if slice_s is not None:
+                matrix_slice = parse_slice(slice_s)
+            else:
+                matrix_slice = slice(None)
+
+            m = matrix[matrix_slice]
+
+            if m.ndim > 2:  # the slice did not produce a 2d array, treat as error
+                raise ValueError(str(matrix.shape))
+
+        except (IndexError, ValueError):  # if the slice could not be parsed or it failed to produce a 2d array
+            matrix_slice = default
+            slice_s = slice_str(matrix_slice)
+
+        return matrix[matrix_slice], slice_s
 
 
     @staticmethod

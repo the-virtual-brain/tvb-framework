@@ -35,7 +35,6 @@ A displayer for the cross coherence of a time series.
 
 """
 
-import json
 from tvb.adapters.visualizers.matrix_viewer import MappedArrayVisualizer
 from tvb.datatypes.spectral import CoherenceSpectrum
 
