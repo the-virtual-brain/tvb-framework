@@ -36,7 +36,8 @@ It displays the mixing matrix of siae n_features x n_components
 
 """
 
-from tvb.adapters.visualizers.matrix_viewer import MappedArrayVisualizer
+from tvb.adapters.visualizers.matrix_viewer import MappedArraySVGVisualizerMixin
+from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.mode_decompositions import IndependentComponents
 from tvb.basic.logger.builder import get_logger
 
@@ -44,7 +45,7 @@ LOG = get_logger(__name__)
 
 
 
-class ICA(MappedArrayVisualizer):
+class ICA(MappedArraySVGVisualizerMixin, ABCDisplayer):
     _ui_name = "Independent Components Analysis Visualizer"
 
 
@@ -56,8 +57,8 @@ class ICA(MappedArrayVisualizer):
 
     def launch(self, ica):
         """Construct data for visualization and launch it."""
-
         # get data from IndependentComponents datatype, convert to json
         # HACK: dump only a 2D array
         matrix = abs(ica.get_data('mixing_matrix')[:, :, 0, 0])
-        return self.main_display(matrix, 'Mixing matrix plot')
+        pars = self.compute_params(matrix, 'Mixing matrix plot')
+        return self.build_display_result("matrix/svg_view", pars)

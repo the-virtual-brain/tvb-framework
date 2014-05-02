@@ -37,13 +37,106 @@
 
 import json
 import numpy
+import pylab
 from tvb.basic.filters.chain import FilterChain
+from tvb.basic.config.settings import TVBSettings
 from tvb.core.utils import parse_slice, slice_str
 from tvb.datatypes.arrays import MappedArray
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
+def compute_2d_view(matrix, slice_s):
+    """
+    Create a 2d view of the matrix using the suggested slice
+    If the given slice is invalid or fails to produce a 2d array the default is used
+    which selects the first 2 dimensions.
+    If the matrix is complex the real part is shown
+    :param slice_s: a string representation of a slice
+    :return: a 2d array and the slice used to make it
+    """
+    default = (slice(None), slice(None)) + tuple(0 for _ in range(matrix.ndim - 2)) # [:,:,0,0,0,0 etc]
 
-class MappedArrayVisualizer(ABCDisplayer):
+    try:
+        if slice_s is not None:
+            matrix_slice = parse_slice(slice_s)
+        else:
+            matrix_slice = slice(None)
+
+        m = matrix[matrix_slice]
+
+        if m.ndim > 2:  # the slice did not produce a 2d array, treat as error
+            raise ValueError(str(matrix.shape))
+
+    except (IndexError, ValueError):  # if the slice could not be parsed or it failed to produce a 2d array
+        matrix_slice = default
+        slice_s = slice_str(matrix_slice)
+
+    return matrix[matrix_slice].astype(float), slice_s
+
+
+def dump_prec(xs, prec=3):
+    """ Dump a list of numbers into a string, each at the specified precision. """
+    format_str = "%0." + str(prec) + "g"
+    return "[" + ",".join(format_str % s for s in xs) + "]"
+
+
+class MappedArraySVGVisualizerMixin(object):
+    """
+    To be mixed in a ABCDisplayer
+    """
+    def get_required_memory_size(self, datatype):
+        input_size = datatype.read_data_shape()
+        return numpy.prod(input_size) / input_size[0] * 8.0
+
+    def generate_preview(self, datatype, figure_size):
+        return self.launch(datatype)
+
+    @staticmethod
+    def compute_raw_matrix_params(matrix):
+        """
+        Serializes matrix data, shape and stride metadata to json
+        """
+        matrix_data = dump_prec(matrix.flat)
+        matrix_shape = json.dumps(matrix.shape)
+        matrix_strides = json.dumps([x / matrix.itemsize for x in matrix.strides])
+
+        return dict(matrix_data=matrix_data,
+                    matrix_shape=matrix_shape,
+                    matrix_strides=matrix_strides)
+
+
+    def compute_params(self, matrix, viewer_title, slice_s=None):
+        """
+        Prepare a 2d matrix to display
+        :param matrix: input matrix
+        :param slice_s: a string representation of a slice. This slice should cut a 2d view from matrix
+        If the matrix is not 2d and the slice will not make it 2d then a default slice is used
+        """
+        matrix2d, slice_s_corrected = compute_2d_view(matrix, slice_s)
+        view_pars = self.compute_raw_matrix_params(matrix2d)
+        view_pars.update(original_matrix_shape=str(matrix.shape),
+                         show_slice_info=slice_s is not None,
+                         slice_str=slice_s_corrected,
+                         is_slice_corrected=(slice_s != slice_s_corrected),
+                         viewer_title=viewer_title)
+        return view_pars
+
+
+class MappedArrayMplVisualizer(object):
+    @staticmethod
+    def compute_parameters(matrix, plot_title):
+        figure = pylab.figure(figsize=(7, 8))
+        pylab.clf()
+
+        axes = figure.gca()
+        img = axes.matshow(matrix)
+        axes.set_title(plot_title)
+        figure.colorbar(img)
+        figure.canvas.draw()
+        return dict(serverIp=TVBSettings.SERVER_IP, serverPort=TVBSettings.MPLH5_SERVER_PORT,
+                    figureNumber=figure.number, showFullToolbar=False)
+
+
+class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     _ui_name = "Matrix Visualizer"
 
     def get_input_tree(self):
@@ -55,84 +148,11 @@ class MappedArrayVisualizer(ABCDisplayer):
                  'type': 'str', 'required': False}]
 
 
-    def get_required_memory_size(self, datatype):
-        input_size = datatype.read_data_shape()
-        return numpy.prod(input_size) / input_size[0] * 8.0
-
-
     def launch(self, datatype, slice=''):
         matrix = datatype.get_data('array_data')
-        return self.main_display(matrix, "matrix plot", slice)
+        matrix2d, _ = compute_2d_view(matrix, slice)
 
+        pars = self.compute_params(matrix, 'Matrix plot', slice)
+        pars.update(MappedArrayMplVisualizer.compute_parameters(matrix2d, 'Matrix plot'))
 
-    def generate_preview(self, datatype, figure_size):
-        return self.launch(datatype)
-
-
-    def compute_matrix_params(self, matrix):
-        """
-        Prepare matrix for display
-        """
-        matrix_data = self._dump_prec(matrix.flat)
-        matrix_shape = json.dumps(matrix.shape)
-        matrix_strides = json.dumps([x / matrix.itemsize for x in matrix.strides])
-
-        return dict(matrix_data=matrix_data,
-                    matrix_shape=matrix_shape,
-                    matrix_strides=matrix_strides)
-
-
-    def main_display(self, matrix, viewer_title, slice_s=None):
-        """
-        Prepare JSON matrix for display
-        :param matrix: input matrix
-        :param slice_s: a string representation of a slice. This slice should cut a 2d view from matrix
-        If the matrix is not 2d and the slice will not make it 2d then a default slice is used
-        If the matrix is complex the real part is shown
-        """
-        matrix2d, slice_s_corrected = self._compute_2d_view(matrix, slice_s)
-        view_pars = self.compute_matrix_params(matrix2d)
-
-        view_pars.update(original_matrix_shape=str(matrix.shape),
-                         show_slice_info=slice_s is not None,
-                         slice_str=slice_s_corrected,
-                         is_slice_corrected=(slice_s != slice_s_corrected),
-                         viewer_title=viewer_title)
-
-        return self.build_display_result("matrix/view", view_pars)
-
-
-    @staticmethod
-    def _compute_2d_view(matrix, slice_s):
-        """
-        Create a 2d view of the matrix using the suggested slice
-        If the given slice is invalid or fails to produce a 2d array the default is used
-        which selects the first 2 dimensions.
-        :param slice_s: a string representation of a slice
-        :return: a 2d array and the slice used to make it
-        """
-        default = (slice(None), slice(None)) + tuple(0 for _ in range(matrix.ndim - 2)) # [:,:,0,0,0,0 etc]
-
-        try:
-            if slice_s is not None:
-                matrix_slice = parse_slice(slice_s)
-            else:
-                matrix_slice = slice(None)
-
-            m = matrix[matrix_slice]
-
-            if m.ndim > 2:  # the slice did not produce a 2d array, treat as error
-                raise ValueError(str(matrix.shape))
-
-        except (IndexError, ValueError):  # if the slice could not be parsed or it failed to produce a 2d array
-            matrix_slice = default
-            slice_s = slice_str(matrix_slice)
-
-        return matrix[matrix_slice], slice_s
-
-
-    @staticmethod
-    def _dump_prec(xs, prec=3):
-        """ Dump a list of numbers into a string, each at the specified precision. """
-        format_str = "%0." + str(prec) + "g"
-        return "[" + ",".join(format_str % s for s in xs) + "]"
+        return self.build_display_result("matrix/combined_view", pars)

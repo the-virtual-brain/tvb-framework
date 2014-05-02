@@ -35,11 +35,12 @@ A displayer for cross correlation.
 .. moduleauthor:: Marmaduke Woodman <mw@eml.cc>
 
 """
-from tvb.adapters.visualizers.matrix_viewer import MappedArrayVisualizer
+from tvb.adapters.visualizers.matrix_viewer import MappedArraySVGVisualizerMixin
+from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.temporal_correlations import CrossCorrelation
 
 
-class CrossCorrelationVisualizer(MappedArrayVisualizer):
+class CrossCorrelationVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     _ui_name = "Cross Correlation Visualizer"
     _ui_subsection = "correlation"
 
@@ -54,4 +55,5 @@ class CrossCorrelationVisualizer(MappedArrayVisualizer):
     def launch(self, cross_correlation):
         """Construct data for visualization and launch it."""
         matrix = cross_correlation.get_data('array_data').mean(axis=0)[:, :, 0, 0]
-        return self.main_display(matrix, 'Correlation matrix plot')
+        pars = self.compute_params(matrix, 'Correlation matrix plot')
+        return self.build_display_result("matrix/svg_view", pars)

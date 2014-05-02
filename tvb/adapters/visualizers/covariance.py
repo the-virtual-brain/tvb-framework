@@ -52,4 +52,5 @@ class CovarianceVisualizer(MappedArrayVisualizer):
         """Construct data for visualization and launch it."""
         # get data from corr datatype
         matrix = covariance.get_data('array_data')
-        return self.main_display(matrix, 'Covariance matrix plot')
+        pars = self.compute_params(matrix, 'Covariance matrix plot')
+        return self.build_display_result("matrix/svg_view", pars)

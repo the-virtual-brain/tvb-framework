@@ -359,7 +359,7 @@ function go_home(id) {
 }
 
 function maximise(id, parent_div_id) {
-    pcs = document.getElementById(parent_div_id);
+    var pcs = document.getElementById(parent_div_id);
     var w = pcs.clientWidth - 10; 
     var h = pcs.clientHeight - 40;
     MPLH5_resize = id;
