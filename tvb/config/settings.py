@@ -223,7 +223,7 @@ class BaseProfile():
     # Specify if the current process is executing an operation (via clusterLauncher)
     OPERATION_EXECUTION_PROCESS = False
 
-    CLUSTER_SCHEDULE_COMMAND = 'oarsub -"not like n01" -l walltime=%s -q tvb -S "/home/tvbadmin/clusterLauncher %s %s"'
+    CLUSTER_SCHEDULE_COMMAND = 'oarsub -p %s -l walltime=%s -q tvb -S "/home/tvbadmin/clusterLauncher %s %s"'
     CLUSTER_STOP_COMMAND = 'oardel %s'
 
     _CACHED_RUNNING_ON_CLUSTER_NODE = None
@@ -280,7 +280,7 @@ class BaseProfile():
     # Traits Specific
     TRAITS_CONFIGURATION = EnhancedDictionary()
     TRAITS_CONFIGURATION.interface_method_name = 'interface'
-    TRAITS_CONFIGURATION.use_storage = True
+    TRAITS_CONFIGURATION.use_storage = False
     #Logger specific
     LOGGER_CONFIG_FILE_NAME = "logger_config.conf"
 
