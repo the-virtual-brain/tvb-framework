@@ -133,7 +133,7 @@ class MappedArrayMplVisualizer(object):
         figure.colorbar(img)
         figure.canvas.draw()
         return dict(serverIp=TVBSettings.SERVER_IP, serverPort=TVBSettings.MPLH5_SERVER_PORT,
-                    figureNumber=figure.number, showFullToolbar=False)
+                    figureNumber=figure.number, showFullToolbar=True)
 
 
 class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
@@ -151,8 +151,9 @@ class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     def launch(self, datatype, slice=''):
         matrix = datatype.get_data('array_data')
         matrix2d, _ = compute_2d_view(matrix, slice)
+        title = datatype.display_name + " matrix plot"
 
-        pars = self.compute_params(matrix, 'Matrix plot', slice)
-        pars.update(MappedArrayMplVisualizer.compute_parameters(matrix2d, 'Matrix plot'))
+        pars = self.compute_params(matrix, title, slice)
+        pars.update(MappedArrayMplVisualizer.compute_parameters(matrix2d, title))
 
         return self.build_display_result("matrix/combined_view", pars)

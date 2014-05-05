@@ -31,7 +31,7 @@ function matrix_view_init_svg(matrix_data, matrix_shape, matrix_strides, title, 
     var width = 900;
     var height = 600;
 
-    var div = d3.select("#svg-viewer").attr("style", "width:" + width + "px; height:" + height + "px;");
+    var div = d3.select("#svg-viewer").attr("style", "width:" + width + "px;");
     var svg = div.append("svg").attr("width", width).attr("height", height);
     var group = svg.append("g").attr("transform", "translate(200, 0)");
     var text = svg.append("g").attr("transform", "translate(20, 100)")
