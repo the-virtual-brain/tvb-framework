@@ -280,7 +280,7 @@ class BaseProfile():
     # Traits Specific
     TRAITS_CONFIGURATION = EnhancedDictionary()
     TRAITS_CONFIGURATION.interface_method_name = 'interface'
-    TRAITS_CONFIGURATION.use_storage = False
+    TRAITS_CONFIGURATION.use_storage = True
     #Logger specific
     LOGGER_CONFIG_FILE_NAME = "logger_config.conf"
 
