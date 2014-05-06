@@ -236,14 +236,13 @@ class ClusterSchedulerClient(object):
         if hours < 5:
             walltime = "05:00:00"
         else:
-            #walltime = datetime.time(hours, minutes, seconds)
-            #walltime = walltime.strftime("%H:%M:%S")
-            if (hours < 10):
+            if hours < 10:
                 hours = "0%d" % hours
+            else:
+                hours = str(hours)
             walltime = "%s:%s:%s" % (hours, str(minutes), str(seconds))
 
-        node_restrictions = '''"host>'n07' AND host<='n20'"'''
-        call_arg = config.CLUSTER_SCHEDULE_COMMAND % (node_restrictions, walltime, operation_identifier, user_name_label)
+        call_arg = config.CLUSTER_SCHEDULE_COMMAND % (walltime, operation_identifier, user_name_label)
         LOGGER.info(call_arg)
         process_ = Popen([call_arg], stdout=PIPE, shell=True)
         job_id = process_.stdout.read().replace('\n', '').split('OAR_JOB_ID=')[-1]
