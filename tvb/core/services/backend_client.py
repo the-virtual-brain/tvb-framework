@@ -39,7 +39,6 @@ import sys
 import signal
 import Queue
 import threading
-import datetime
 from subprocess import Popen, PIPE
 from tvb.basic.profile import TvbProfile as tvb_profile
 from tvb.basic.config.settings import TVBSettings as config
@@ -148,7 +147,7 @@ class OperationExecutor(threading.Thread):
                 handle = ctypes.windll.kernel32.OpenProcess(1, False, int(pid))
                 ctypes.windll.kernel32.TerminateProcess(handle, -1)
                 ctypes.windll.kernel32.CloseHandle(handle)
-            except WindowsError, _:
+            except OSError, _:
                 return False
         else:
             try:
