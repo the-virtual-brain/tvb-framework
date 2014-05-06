@@ -422,16 +422,34 @@ function tvbSubmitPage(action, params){
 	document.body.removeChild(form);
 }
 
+function tvbSubmitPageAsync(action, params){
+    doAjaxCall({
+        url: action,
+        data: params,
+        success: function (data) {
+            displayMessage("Operation launched.", "infoMessage");
+        },
+        error: function (){
+            displayMessage("Operation failed to launch.", "errorMessage");
+        }
+    });
+}
+
 /**
  * Launch from DataType overlay an analysis or a visualize algorithm.
  */
-function doLaunch(visualizer_url, param_name, data_gid, param_algo, algo_ident, back_page_link) {
+function doLaunch(visualizer_url, param_name, data_gid, param_algo, algo_ident, back_page_link, launchAsync) {
     var params = {};
     params[param_name] = data_gid;
     if(param_algo){
         params[param_algo] = algo_ident;
     }
-    tvbSubmitPage(visualizer_url + "?back_page="+back_page_link, params)
+
+    if (launchAsync){
+        tvbSubmitPageAsync(visualizer_url, params);
+    }else {
+        tvbSubmitPage(visualizer_url + "?back_page=" + back_page_link, params);
+    }
 }
 
 /**

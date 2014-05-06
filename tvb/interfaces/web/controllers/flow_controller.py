@@ -182,7 +182,7 @@ class FlowController(BaseController):
             back_indicator = back_page if back_page == 'burst' else 'operations'
             success_url = self._compute_back_link(back_indicator, project)
             data[common.KEY_ADAPTER] = adapter_key
-            template_specification = self.execute_post(project.id, submit_link, success_url,
+            template_specification = self.execute_post(project.id, submit_link,
                                                        step_key, algo_group, **data)
         else:
             if (('Referer' not in cherrypy.request.headers or
@@ -423,7 +423,7 @@ class FlowController(BaseController):
         return None
 
 
-    def execute_post(self, project_id, submit_url, success_url, step_key, algo_group, method_name=None, **data):
+    def execute_post(self, project_id, submit_url, step_key, algo_group, method_name=None, **data):
         """ Execute HTTP POST on a generic step."""
         errors = None
         adapter_instance = self.flow_service.build_adapter_instance(algo_group)
@@ -448,12 +448,10 @@ class FlowController(BaseController):
                 if isinstance(result, list):
                     result = "Launched %s operations." % len(result)
                 common.set_info_message(str(result))
-                raise cherrypy.HTTPRedirect(success_url)
         except formencode.Invalid, excep:
             errors = excep.unpack_errors()
         except OperationException, excep1:
-            self.logger.error("Error while executing a Launch procedure:" + excep1.message)
-            self.logger.exception(excep1)
+            self.logger.exception("Error while executing a Launch procedure:" + excep1.message)
             common.set_error_message(excep1.message)
 
         previous_step = self.context.get_current_substep()

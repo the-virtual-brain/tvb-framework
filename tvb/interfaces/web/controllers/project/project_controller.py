@@ -603,23 +603,20 @@ class ProjectController(BaseController):
         Start Upload mechanism
         """
         success_link = "/project/editstructure/" + str(project_id)
-        if ((cherrypy.request.method == 'POST' and cancel) or
-                not (project_id and int(project_id) and (algo_group_id is not None) and int(algo_group_id))):
+        # do not allow GET
+        if cherrypy.request.method != 'POST' or cancel:
+            raise cherrypy.HTTPRedirect(success_link)
+        try:
+            int(project_id)
+            int(algo_group_id)
+        except (ValueError, TypeError):
             raise cherrypy.HTTPRedirect(success_link)
 
         project = self.project_service.find_project(project_id)
         group = self.flow_service.get_algo_group_by_identifier(algo_group_id)
-        template_specification = FlowController().execute_post(project.id, success_link, success_link,
-                                                               group.fk_category, group, **data)
-        # In case no redirect was done until now, it means there was a problem.
-        if template_specification is None or cherrypy.request.method == 'POST':
-            # It is a non-recoverable problem, error message is in session.
-            raise cherrypy.HTTPRedirect(success_link)
-        template_specification[KEY_CONTENT] = "project/structure",
-        template_specification["baseUrl"] = cfg.BASE_URL,
-        template_specification[common.KEY_TITLE] = ""
-        template_specification["project"] = project
-        return self.fill_default_attributes(template_specification, 'data')
+        FlowController().execute_post(project.id, success_link, group.fk_category, group, **data)
+
+        raise cherrypy.HTTPRedirect(success_link)
 
 
     @cherrypy.expose
