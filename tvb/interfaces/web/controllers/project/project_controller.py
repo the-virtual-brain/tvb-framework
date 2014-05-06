@@ -325,9 +325,10 @@ class ProjectController(BaseController):
     
 
     @expose_fragment("overlay")
-    def get_datatype_details(self, entity_gid, back_page='burst', exclude_tabs=None):
+    def get_datatype_details(self, entity_gid, back_page='null', exclude_tabs=None):
         """
         Returns the HTML which contains the details for the given dataType.
+        :param back_page: if different from 'null' (the default) it will redirect to it after saving metedata changes
         """
         if exclude_tabs is None:
             exclude_tabs = []
