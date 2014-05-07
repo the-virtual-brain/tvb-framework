@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+
 import json
 import math
 import numpy
@@ -42,6 +43,7 @@ from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.filters.chain import FilterChain
 from tvb.core.entities.storage import dao
+from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.graph import ConnectivityMeasure
 from tvb.datatypes.surfaces import CorticalSurface, RegionMapping
@@ -143,6 +145,8 @@ class ConnectivityViewer(ABCDisplayer):
         """
         result = []
         conn = self.load_entity_by_gid(original_connectivity)
+        self.meta_data[DataTypeMetaData.KEY_SUBJECT] = conn.subject
+
         result_connectivity = conn.generate_new_connectivity(new_weights, interest_area_indexes,
                                                              self.storage_path, new_tracts)
         result.append(result_connectivity)
@@ -158,7 +162,7 @@ class ConnectivityViewer(ABCDisplayer):
 
     @staticmethod
     def _compute_matrix_extrema(m):
-        """Returns the min max and the minmal nonzero value from ``m``"""
+        """Returns the min max and the minimal nonzero value from ``m``"""
         minv = float('inf')
         min_nonzero = float('inf')
         maxv = - float('inf')
