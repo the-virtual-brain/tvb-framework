@@ -438,31 +438,18 @@ function tvbSubmitPageAsync(action, params){
 /**
  * Launch from DataType overlay an analysis or a visualize algorithm.
  */
-function doLaunch(visualizer_url, param_name, data_gid, param_algo, algo_ident, back_page_link, launchAsync) {
+function launchAdapter(adapter_url, param_name, param_val, param_algo, algo_ident, back_page_link, launchAsync){
     var params = {};
-    params[param_name] = data_gid;
+    params[param_name] = param_val;
     if(param_algo){
         params[param_algo] = algo_ident;
     }
-
     if (launchAsync){
-        tvbSubmitPageAsync(visualizer_url, params);
+        tvbSubmitPageAsync(adapter_url, params);
     }else {
-        tvbSubmitPage(visualizer_url + "?back_page=" + back_page_link, params);
+        tvbSubmitPage(adapter_url + "?back_page=" + back_page_link, params);
     }
 }
-
-/**
- * Launch from DataType overlay an analysis or a visualize algorithm.
- */
-function doGroupLaunch(visualizer_url, param_name, param_algo, algo_ident) {
-    var params = {range_param_name: param_name};
-    if(param_algo){
-        params[param_algo] = algo_ident;
-    }
-    tvbSubmitPage(visualizer_url, params);
-}
-
 
 /**
  * Called when the visibility filter is changed.

@@ -21,20 +21,19 @@
 				<div class="dropdown-pane" onkeypress="redirectToHrefChild(this)" tabindex="3">
 					<mark>${operation_row['count']} operations</mark>
 					<p>Group ${operation_row['group']}</p>
-					
-					
-					<py:for each="view_group in operation_row.view_groups">
-						<py:if test="not view_group.get('part_of_group', False)">
-                        	<a href="#" title="Go view the diagram" class="action action-crosslink crosslink-s-project crosslink-ss-stray" tabindex="-1"
-                       				onclick="doLaunch('$view_group.url','$view_group.param_name', '${operation_row['datatype_group_gid']}', '', '','operations')">
-                       		$view_group.name</a>
-                        </py:if>
-                        <py:if test="view_group.get('part_of_group', False)">
-                        	<a href="#" title="Go view the diagram" class="action action-crosslink crosslink-s-project crosslink-ss-stray" tabindex="-1"
-                       				onclick="doGroupLaunch('$view_group.url','$view_group.param_name', '', '')">
-                       		$view_group.name</a>
-                        </py:if>
-					</py:for>
+
+                    <py:for each="view_group in operation_row.view_groups"
+                            py:with="isPartOfGroup = view_group.get('part_of_group', False);
+                                     launchParamName = view_group.param_name if not isPartOfGroup else 'range_param_name';
+                                     launchParamVal = operation_row['datatype_group_gid'] if not isPartOfGroup else view_group.param_name">
+
+                        <a href="#" title="Go view the diagram"
+                           class="action action-crosslink crosslink-s-project crosslink-ss-stray" tabindex="-1"
+                           onclick="launchAdapter('$view_group.url', '$launchParamName', '$launchParamVal', '', '', 'operations', false);">
+
+                           $view_group.name
+                        </a>
+                    </py:for>
 				</div>
 			</div>
 		</nav>

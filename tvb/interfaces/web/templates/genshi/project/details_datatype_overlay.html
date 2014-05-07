@@ -1,44 +1,39 @@
 <div xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
-	
+
 	<script type="text/javascript" src="/static/jquery/jquery.jstree.js"></script>
-	
+
 	<py:with vars="tab_names = [tab.name for tab in overlay_tabs_horizontal]">
-		
+
 		<!-- Overlay: Metadata -->
 		<section id="overlayTabContent_0" class="node-data node-metadata active">
 			<xi:include href="details_operation_overlay.html"/>
-	    </section> 
-	    
-	    <py:def function="displayAlgoGroupButtons(algo_group, category, launchAsync)">
-	    	<py:with vars="algoName = '' if algo_group['algo_param'] is None else algo_group['algo_param'];
-	                       displayName = algo_group['displayName'];
-	                       url = algo_group['url'];
-	                       isPartOfGroup = algo_group.get('part_of_group', False)">
+	    </section>
 
-				<h5 py:if="algoName != ''"> $displayName </h5>
-				<ul>
-					<li py:for="algo in sorted(algo_group['children'], key=lambda k: k['name'])">
-						<py:with vars="ident = '' if algo['ident'] is None else algo['ident'];
-	                                   name = algo['name']; paramName = algo['param_name'];
-	                                   linkLabel = name if algoName != '' else  displayName">
-	                        <py:if test="not isPartOfGroup">
-	                        	<button class="action action-$category $category-${linkLabel.lower().replace(' ','')}"
-                                        onclick="doLaunch('$url', '$paramName', '$entity_gid' , '$algoName', '$ident', '$backPageIdentifier', $launchAsync);">
-									$linkLabel
-								</button>
-	                        </py:if>
-	                        <py:if test="isPartOfGroup">
-	                        	<button class="action action-$category $category-${linkLabel.lower().replace(' ','')}"
-                                        onclick="doGroupLaunch('$url', '$paramName', '$algoName', '$ident');">
-									$linkLabel
-								</button>
-	                        </py:if>
-						</py:with>
-					</li>
-				</ul>
-			</py:with>
-	    </py:def> 
-	       
+        <py:def function="displayAlgoGroupButtons(algo_group, category, launchAsync)">
+            <py:with vars="algoName = '' if algo_group['algo_param'] is None else algo_group['algo_param'];
+                           displayName = algo_group['displayName'];
+                           url = algo_group['url'];
+                           isPartOfGroup = algo_group.get('part_of_group', False)">
+
+                <h5 py:if="algoName != ''"> $displayName </h5>
+                <ul>
+                    <li py:for="algo in sorted(algo_group['children'], key=lambda k: k['name'])">
+                        <py:with vars="ident = '' if algo['ident'] is None else algo['ident'];
+                                       paramName = algo['param_name'];
+                                       linkLabel = algo['name'] if algoName != '' else displayName;
+                                       launchParamName = paramName if not isPartOfGroup else 'range_param_name';
+                                       launchParamVal = entity_gid if not isPartOfGroup else paramName">
+
+                            <button class="action action-$category $category-${linkLabel.lower().replace(' ','')}"
+                                    onclick="launchAdapter('$url', '$launchParamName', '$launchParamVal', '$algoName', '$ident', '$backPageIdentifier', $launchAsync);">
+                                $linkLabel
+                            </button>
+                        </py:with>
+                    </li>
+                </ul>
+            </py:with>
+        </py:def>
+
 	    <!-- Overlay: Analyzers -->
 		<section id="overlayTabContent_1" class="node-data node-analyze ">
 			<div py:if="categories and 'Analyze' in categories">
