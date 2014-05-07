@@ -3,7 +3,7 @@
 	<fieldset class="toolbar-inline">
 		<ul>
             <li py:if="'operation' not in nodeType">
-            	<button type="submit" value="Save" tabindex="4" onclick="overlaySubmitMetadata('form_edit_metadata', '$backPageIdentifier'); return false;"
+            	<button type="button" value="Save" tabindex="4" onclick="overlaySubmitMetadata('form_edit_metadata', 'null');"
                         class="action action-confirm" title="Submit current changes to node attributes">Save</button>
             </li>
             <li py:if="'operation' in nodeType and displayReloadBtn">
@@ -12,18 +12,17 @@
             </li>
                 
 			<!--MakeRelevant/MakeNotRelevant-->
-	        <py:with vars="toBeStatus= 'False' if isRelevant else 'True';
-	        			   buttonLabel='Make irrelevant' if isRelevant else 'Make relevant';
-	        			   buttonClass='action-make-irrelevant' if isRelevant else 'action-make-relevant';">
-	            <li>
-	            	<button class="action action-relevancy $buttonClass" title="Make this operation(s) ${'Irrelevant' if isRelevant else 'Relevant'}"
-	            			onclick="overlayMarkVisibility('${entity_gid}', '$nodeType', '$toBeStatus', '$backPageIdentifier');return false;">$buttonLabel</button>
+            <li with="toBeStatus = 'False' if isRelevant else 'True';
+                      buttonLabel ='Make irrelevant' if isRelevant else 'Make relevant';
+	                  buttonClass ='action-make-irrelevant' if isRelevant else 'action-make-relevant';">
+
+	            <button type="button" class="action action-relevancy $buttonClass" title="Make this operation(s) ${'Irrelevant' if isRelevant else 'Relevant'}"
+	            		onclick="overlayMarkVisibility('${entity_gid}', '$nodeType', '$toBeStatus', '$backPageIdentifier');">$buttonLabel</button>
 	            	
-	            </li>
-	        </py:with>
+            </li>
 	        
 			<li py:if="'operation' not in nodeType" class="tool-removal">
-				<button tabindex='2' type="submit" value="Remove" onclick="overlayRemoveEntity(${project.id}, '${entity_gid}', '$backPageIdentifier'); return false;"
+				<button type="button" tabindex='2' value="Remove" onclick="overlayRemoveEntity(${project.id}, '${entity_gid}', '$backPageIdentifier');"
 						class="action action-remove" title="Delete currently selected node">Remove</button>
             </li>
 		</ul>
