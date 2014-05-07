@@ -416,7 +416,7 @@ class BaseProfile():
     @settings_loaded()
     def MAX_THREADS_NUMBER():
         """Maximum number of threads in the pool of simulations range."""
-        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_MAX_THREAD_NR, 2, int)
+        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_MAX_THREAD_NR, 4, int)
 
 
     # The maximum number of operations that can be launched with a PSE mechanism.

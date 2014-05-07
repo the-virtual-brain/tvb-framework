@@ -141,8 +141,10 @@ class DiscretePSEAdapter(ABCDisplayer):
 
         operation_group = dao.get_operationgroup_by_id(datatype_group.fk_operation_group)
 
-        range1_name, range1_values, range1_labels = DiscretePSEAdapter.prepare_range_labels(operation_group, operation_group.range1)
-        range2_name, range2_values, range2_labels = DiscretePSEAdapter.prepare_range_labels(operation_group, operation_group.range2)
+        range1_name, range1_values, range1_labels = DiscretePSEAdapter.prepare_range_labels(operation_group,
+                                                                                            operation_group.range1)
+        range2_name, range2_values, range2_labels = DiscretePSEAdapter.prepare_range_labels(operation_group,
+                                                                                            operation_group.range2)
 
         pse_context = ContextDiscretePSE(datatype_group_gid, color_metric, size_metric, back_page)
         pse_context.setRanges(range1_name, range1_values, range1_labels, range2_name, range2_values, range2_labels)
@@ -160,9 +162,11 @@ class DiscretePSEAdapter(ABCDisplayer):
 
             datatype = None
             if operation_.status == model.STATUS_FINISHED:
-                datatype = dao.get_results_for_operation(operation_.id)[0]
-                measures = dao.get_generic_entity(DatatypeMeasure, datatype.gid, '_analyzed_datatype')
-                pse_context.prepare_metrics_datatype(measures, datatype)
+                datatypes = dao.get_results_for_operation(operation_.id)
+                if len(datatypes) > 0:
+                    datatype = datatypes[0]
+                    measures = dao.get_generic_entity(DatatypeMeasure, datatype.gid, '_analyzed_datatype')
+                    pse_context.prepare_metrics_datatype(measures, datatype)
 
             if key_1 not in final_dict:
                 final_dict[key_1] = {key_2: pse_context.build_node_info(operation_, datatype)}

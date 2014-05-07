@@ -64,11 +64,15 @@ else:
         con.execute("PRAGMA temp_store = MEMORY")
         con.execute("PRAGMA cache_size = 500000")
 
+    def __have_journal_WAL(con, con_record):
+        con.execute("PRAGMA journal_mode=WAL")
+
     if getattr(cfg, "TRADE_CRASH_SAFETY_FOR_SPEED", False):
-        # uncomment for speed and no crash safety
-        # use only in development
+        # use for speed, but without crash safety; use only in development
         LOGGER.warn("TRADE_CRASH_SAFETY_FOR_SPEED is on")
         event.listen(DB_ENGINE, 'connect', __have_journal_in_memory)
+    else:
+        event.listen(DB_ENGINE, 'connect', __have_journal_WAL)
 
 
 SA_SESSIONMAKER = sessionmaker(bind=DB_ENGINE)
@@ -97,13 +101,13 @@ def singleton(cls):
 
 def MetaClassFactory(decorator_functions, new_attributes):
     """
-    A metaclass factory that creates a metaclass which makes sure a list of decorators
+    A meta-class factory that creates a meta-class which makes sure a list of decorators
     are applied to all it's classes and also adds a dictionary of attributes.
     
     :param decorator_functions: a list of functions. These will be applied as decorators to
-        all methods from the class that uses the returned metaclass.
+        all methods from the class that uses the returned meta-class.
     :param new_attributes: a dictionary of attribute_name & attribute_value pairs that will
-        be added to the class that uses the returned metaclass
+        be added to the class that uses the returned meta-class
     """
 
     class MetaClass(type):
@@ -132,7 +136,7 @@ def MetaClassFactory(decorator_functions, new_attributes):
 
 class SessionsStack(object):
     """
-    Helper class that holds a stack of SqlAlchemys session object and a counter that
+    Helper class that holds a stack of SqlAlchemy's session object and a counter that
     keeps track of how many transactions are opened.
     """
 
@@ -188,7 +192,7 @@ class SessionsStack(object):
         """
         Start a new transaction. If this is top level transaction just created new session.
         Otherwise depending if we support nested or not, either raise exception or create a session
-        binded to parent one.
+        bound to parent one.
         """
         if self.open_transactions == 0:
             # New transaction, just create a new session.
@@ -320,10 +324,10 @@ class SessionMaker(object):
 
 def transactional(func):
     """
-    Decorator that makes sure that all DAO calls that will result from the docorated
+    Decorator that makes sure that all DAO calls that will result from the decorated
     method will be encapsulated in a transaction that will be rolled back if any 
     unexpected exceptions appear.
-    This is indended to be used on service layer methods.
+    This is intended to be used on service layer methods.
     """
 
     @wraps(func)
@@ -360,16 +364,21 @@ def add_session(func):
         Decorate by populating self.session
         """
         args[0].session.open_session()
+
         try:
             result = func(*args, **kwargs)
+
         except NoResultFound:
             raise
-        except Exception, ex:
+
+        except Exception:
+            LOGGER.exception("Could not commit session...")
             args[0].session.rollback()
-            LOGGER.exception(ex)
             raise
+
         finally:
             args[0].session.close_session()
+
         return result
 
 

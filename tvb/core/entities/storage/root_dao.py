@@ -58,8 +58,13 @@ class RootDAO(object):
 
     def store_entity(self, entity):
         """Store in DB one generic entity."""
+        self.logger.debug("We will store entity of type: %s with id %s" % (entity.__class__.__name__, str(entity.id)))
+
         self.session.add(entity)
         self.session.commit()
+
+        self.logger.debug("After commit %s ID is %s" % (entity.__class__.__name__, str(entity.id)))
+
         saved_entity = self.session.query(entity.__class__).filter_by(id=entity.id).one()
         return saved_entity
 
@@ -68,6 +73,7 @@ class RootDAO(object):
         """Store in DB a list of generic entities."""
         self.session.add_all(entities_list)
         self.session.commit()
+
         stored_entities = []
         for entity in entities_list:
             stored_entities.append(self.session.query(entity.__class__).filter_by(id=entity.id).one())
