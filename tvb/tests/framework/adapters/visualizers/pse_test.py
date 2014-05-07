@@ -70,7 +70,7 @@ class PSETest(TransactionalTestCase):
         for key in expected_keys:
             self.assertTrue(key in result)
         self.assertEqual(self.group.gid, result["datatype_group_gid"])
-        self.assertEqual(False, result["has_started_ops"])
+        self.assertEqual('false', result["has_started_ops"])
 
 
 
