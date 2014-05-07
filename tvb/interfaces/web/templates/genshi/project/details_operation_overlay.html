@@ -12,7 +12,7 @@
             </li>
                 
 			<!--MakeRelevant/MakeNotRelevant-->
-            <li with="toBeStatus = 'False' if isRelevant else 'True';
+            <li py:with="toBeStatus = 'False' if isRelevant else 'True';
                       buttonLabel ='Make irrelevant' if isRelevant else 'Make relevant';
 	                  buttonClass ='action-make-irrelevant' if isRelevant else 'action-make-relevant';">
 
