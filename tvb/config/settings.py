@@ -751,7 +751,7 @@ class DevelopmentProfile(BaseProfile):
     """
 
     LOGGER_CONFIG_FILE_NAME = "dev_logger_config.conf"
-    TRADE_CRASH_SAFETY_FOR_SPEED = False
+
 
 
 class TestSQLiteProfile(BaseProfile):
@@ -762,7 +762,7 @@ class TestSQLiteProfile(BaseProfile):
     TVB_CONFIG_FILE = os.path.expanduser(os.path.join("~", '.test.tvb.configuration'))
 
     RENDER_HTML = False
-    TRADE_CRASH_SAFETY_FOR_SPEED = True
+
 
     @ClassProperty
     @staticmethod

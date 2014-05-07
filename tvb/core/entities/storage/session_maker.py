@@ -58,21 +58,10 @@ else:
     ### SqlLite does not support pool-size
     DB_ENGINE = create_engine(cfg.DB_URL, pool_recycle=5)
 
-    def __have_journal_in_memory(con, con_record):
-        con.execute("PRAGMA journal_mode = MEMORY")
-        con.execute("PRAGMA synchronous = OFF")
-        con.execute("PRAGMA temp_store = MEMORY")
-        con.execute("PRAGMA cache_size = 500000")
-
     def __have_journal_WAL(con, con_record):
         con.execute("PRAGMA journal_mode=WAL")
 
-    if getattr(cfg, "TRADE_CRASH_SAFETY_FOR_SPEED", False):
-        # use for speed, but without crash safety; use only in development
-        LOGGER.warn("TRADE_CRASH_SAFETY_FOR_SPEED is on")
-        event.listen(DB_ENGINE, 'connect', __have_journal_in_memory)
-    else:
-        event.listen(DB_ENGINE, 'connect', __have_journal_WAL)
+    event.listen(DB_ENGINE, 'connect', __have_journal_WAL)
 
 
 SA_SESSIONMAKER = sessionmaker(bind=DB_ENGINE)
