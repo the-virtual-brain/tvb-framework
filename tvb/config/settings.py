@@ -751,6 +751,7 @@ class DevelopmentProfile(BaseProfile):
     """
 
     LOGGER_CONFIG_FILE_NAME = "dev_logger_config.conf"
+    TRADE_CRASH_SAFETY_FOR_SPEED = False
 
 
 
@@ -762,6 +763,7 @@ class TestSQLiteProfile(BaseProfile):
     TVB_CONFIG_FILE = os.path.expanduser(os.path.join("~", '.test.tvb.configuration'))
 
     RENDER_HTML = False
+    TRADE_CRASH_SAFETY_FOR_SPEED = True
 
 
     @ClassProperty
@@ -818,6 +820,14 @@ class TestSQLiteProfile(BaseProfile):
         if not os.path.exists(tmp_path):
             os.makedirs(tmp_path)
         return tmp_path
+
+
+    @ClassProperty
+    @staticmethod
+    @settings_loaded()
+    def MAX_THREADS_NUMBER():
+        """Maximum number of threads in the pool of simulations range."""
+        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_MAX_THREAD_NR, 2, int)
 
 
 
