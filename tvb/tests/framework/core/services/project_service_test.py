@@ -363,7 +363,7 @@ class ProjectServiceTest(TransactionalTestCase):
         adapter_instance = StoreAdapter([value_wrapper])
         OperationService().initiate_prelaunch(operation, adapter_instance, {})
         all_value_wrappers = FlowService().get_available_datatypes(test_project.id,
-                                                                   "tvb.datatypes.mapped_values.ValueWrapper")
+                                                                   "tvb.datatypes.mapped_values.ValueWrapper")[0]
         if len(all_value_wrappers) != 1:
             raise Exception("Should be only one value wrapper.")
         result_vw = ABCAdapter.load_entity_by_gid(all_value_wrappers[0][2])

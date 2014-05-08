@@ -67,10 +67,11 @@ class TestFactory():
         :param expected_data: specifies the class whose entity is returned
         """
         data_types = FlowService().get_available_datatypes(project.id,
-                                                           expected_data.module + "." + expected_data.type, filters)
+                                                           expected_data.module + "." + expected_data.type, filters)[0]
         entity = ABCAdapter.load_entity_by_gid(data_types[0][2])
         return entity
-    
+
+
     @staticmethod
     def get_entity_count(project, datatype):
         """
@@ -78,9 +79,9 @@ class TestFactory():
 
         :param datatype: the class whose entities are counted
         """
-        data_types = FlowService().get_available_datatypes(project.id, datatype.module + "." + datatype.type)
-        return len(data_types)
-    
+        return FlowService().get_available_datatypes(project.id, datatype.module + "." + datatype.type)[1]
+
+
     @staticmethod
     def create_user(username='test_user', password='test_pass',
                     mail='test_mail@tvb.org', validated=True, role='test'):

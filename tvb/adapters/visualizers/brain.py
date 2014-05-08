@@ -158,7 +158,7 @@ class BrainViewer(ABCDisplayer):
     def get_shell_surface_urls(shell_surface=None, project_id=0):
 
         if shell_surface is None:
-            shell_surface = dao.get_values_of_datatype(project_id, FaceSurface)
+            shell_surface = dao.get_values_of_datatype(project_id, FaceSurface)[0]
 
             if not shell_surface:
                 raise Exception('No face object found in database.')
@@ -197,7 +197,7 @@ class BrainViewer(ABCDisplayer):
 
         boundary_url = self._get_url_for_region_boundaries(time_series)
 
-        ret = dict(title="Cerebral Activity", isOneToOneMapping=one_to_one_map,
+        retu = dict(title="Cerebral Activity", isOneToOneMapping=one_to_one_map,
                     urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
                     urlLines=json.dumps(url_lines), urlNormals=json.dumps(url_normals),
                     urlMeasurePointsLabels=measure_points_labels, measure_points=measure_points,
@@ -209,11 +209,11 @@ class BrainViewer(ABCDisplayer):
                     biHemispheric=biHemispheres, hemisphereChunkMask=json.dumps(hemisphere_chunk_mask),
                     time_series=time_series, pageSize=self.PAGE_SIZE, boundary_url=boundary_url,
                     measurePointsLabels=time_series.get_space_labels(),
-                    measurePointsTitle=time_series.title )
+                    measurePointsTitle=time_series.title)
 
-        ret.update(self.build_template_params_for_subselectable_datatype(time_series))
+        retu.update(self.build_template_params_for_subselectable_datatype(time_series))
 
-        return ret
+        return retu
 
     @staticmethod
     def _prepare_mappings(mappings_dict):
@@ -340,7 +340,7 @@ class BrainEEG(BrainViewer):
         """
 
         if eeg_cap is None:
-            eeg_cap = dao.get_values_of_datatype(project_id, EEGCap)
+            eeg_cap = dao.get_values_of_datatype(project_id, EEGCap)[0]
             if eeg_cap:
                 eeg_cap = ABCDisplayer.load_entity_by_gid(eeg_cap[-1][2])
 

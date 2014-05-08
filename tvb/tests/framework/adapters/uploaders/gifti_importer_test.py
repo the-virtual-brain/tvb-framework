@@ -87,7 +87,7 @@ class GIFTISurfaceImporterTest(TransactionalTestCase):
 
         surface = CorticalSurface()
         data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           surface.module + "." + surface.type)
+                                                           surface.module + "." + surface.type)[0]
         self.assertEqual(1, len(data_types), "Project should contain only one data type.")
 
         surface = ABCAdapter.load_entity_by_gid(data_types[0][2])

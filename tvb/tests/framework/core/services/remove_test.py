@@ -86,7 +86,7 @@ class RemoveTest(TransactionalTestCase):
         Tests the remove of a connectivity which is used by other data types
         """
         connectivities = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                   "tvb.datatypes.connectivity.Connectivity")
+                                                                   "tvb.datatypes.connectivity.Connectivity")[0]
         self.assertEqual(len(connectivities), 1, "Problems when inserting data")
         gid = connectivities[0][2]
         try:
@@ -104,14 +104,14 @@ class RemoveTest(TransactionalTestCase):
         Tries to remove an used surface
         """
         mapping = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                            "tvb.datatypes.surfaces.RegionMapping")
+                                                            "tvb.datatypes.surfaces.RegionMapping")[0]
         self.assertEquals(len(mapping), 1, "There should be one Mapping.")
         mapping_gid = mapping[0][2]
         mapping = ABCAdapter.load_entity_by_gid(mapping_gid)
         #delete surface
-        surfaces = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                             "tvb.datatypes.surfaces.CorticalSurface")
-        self.assertTrue(len(surfaces) > 0, "At least one Cortex expected")
+        surface_count = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                                  "tvb.datatypes.surfaces.CorticalSurface")[1]
+        self.assertTrue(surface_count > 0, "At least one Cortex expected")
         surface = dao.get_datatype_by_gid(mapping.surface.gid)
         self.assertEqual(surface.gid, mapping.surface.gid, "The surfaces should have the same GID")
         try:
@@ -128,7 +128,7 @@ class RemoveTest(TransactionalTestCase):
         """
         Try to remove entity. Fail otherwise.
         """
-        gid_list = self.flow_service.get_available_datatypes(self.test_project.id, data_name)
+        gid_list = self.flow_service.get_available_datatypes(self.test_project.id, data_name)[0]
         self.assertEquals(len(gid_list), before_number)
         for i in xrange(len(gid_list)):
             data_gid = gid_list[i][2]
@@ -156,12 +156,12 @@ class RemoveTest(TransactionalTestCase):
         """
         Tests the happy flow for the deletion of a time series.
         """
-        datatypes = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                              "tvb.datatypes.time_series.TimeSeries")
-        self.assertEqual(len(datatypes), 0, "There should be no time series")
+        count = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                          "tvb.datatypes.time_series.TimeSeries")[1]
+        self.assertEqual(count, 0, "There should be no time series")
         self._create_timeseries()
         series = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                           "tvb.datatypes.time_series.TimeSeries")
+                                                           "tvb.datatypes.time_series.TimeSeries")[0]
         self.assertEqual(len(series), 1, "There should be only one time series")
         self.project_service.remove_datatype(self.test_project.id, series[0][2])
         res = dao.get_datatype_by_gid(series[0][2])
@@ -172,13 +172,13 @@ class RemoveTest(TransactionalTestCase):
         """
         Tests the happy flow for the deletion of an array wrapper.
         """
-        array_wrappers = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                   "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(array_wrappers), 1, "There should be no array")
+        count_array = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                                "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(count_array, 1, "There should be no array")
         data = {'param_1': 'some value'}
         OperationService().initiate_prelaunch(self.operation, self.adapter_instance, {}, **data)
         array_wrappers = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                   "tvb.datatypes.arrays.MappedArray")
+                                                                   "tvb.datatypes.arrays.MappedArray")[0]
         self.assertEqual(len(array_wrappers), 2, "Should be only one array")
         arraygid = array_wrappers[0][2]
         self.project_service.remove_datatype(self.test_project.id, arraygid)
@@ -190,9 +190,9 @@ class RemoveTest(TransactionalTestCase):
         """
         Test the deletion of a value wrapper dataType
         """
-        wrappers = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                             "tvb.datatypes.mapped_values.ValueWrapper")
-        self.assertEqual(len(wrappers), 0, "There should be no value wrapper")
+        count_vals = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                               "tvb.datatypes.mapped_values.ValueWrapper")[1]
+        self.assertEqual(count_vals, 0, "There should be no value wrapper")
         value_wrapper = self._create_value_wrapper()
         self.project_service.remove_datatype(self.test_project.id, value_wrapper.gid)
         res = dao.get_datatype_by_gid(value_wrapper.gid)
@@ -212,9 +212,9 @@ class RemoveTest(TransactionalTestCase):
         time_series.sample_period_unit = 'ms'
 
         self._store_entity(time_series, "TimeSeries", "tvb.datatypes.time_series")
-        timeseries = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                               "tvb.datatypes.time_series.TimeSeries")
-        self.assertEqual(len(timeseries), 1, "Should be only one TimeSeries")
+        count_ts = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                             "tvb.datatypes.time_series.TimeSeries")[1]
+        self.assertEqual(count_ts, 1, "Should be only one TimeSeries")
 
 
     def _create_value_wrapper(self):
@@ -222,7 +222,7 @@ class RemoveTest(TransactionalTestCase):
         value_ = ValueWrapper(data_value=5.0, data_name="my_value")
         self._store_entity(value_, "ValueWrapper", "tvb.datatypes.mapped_values")
         valuew = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                           "tvb.datatypes.mapped_values.ValueWrapper")
+                                                           "tvb.datatypes.mapped_values.ValueWrapper")[0]
         self.assertEqual(len(valuew), 1, "Should be only one value wrapper")
         return ABCAdapter.load_entity_by_gid(valuew[0][2])
 

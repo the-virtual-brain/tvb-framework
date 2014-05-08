@@ -103,8 +103,9 @@ class ImportServiceTest(TransactionalTestCase):
         #create an array mapped in DB
         data = {'param_1': 'some value'}
         OperationService().initiate_prelaunch(self.operation, self.adapter_instance, {}, **data)
-        inserted = self.flow_service.get_available_datatypes(self.test_project.id, "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(inserted), 2, "Problems when inserting data")
+        inserted = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                             "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(inserted, 2, "Problems when inserting data")
         
         #create a value wrapper
         value_wrapper = self._create_value_wrapper()
@@ -137,7 +138,7 @@ class ImportServiceTest(TransactionalTestCase):
             self.assertEqual(datatype.type, expected_results[gid][1], 'DataTypes not imported correctly')
         #check the value wrapper
         new_val = self.flow_service.get_available_datatypes(self.test_project.id, 
-                                                            "tvb.datatypes.mapped_values.ValueWrapper")
+                                                            "tvb.datatypes.mapped_values.ValueWrapper")[0]
         self.assertEqual(len(new_val), 1, "One !=" + str(len(new_val)))
         new_val = ABCAdapter.load_entity_by_gid(new_val[0][2])
         self.assertEqual(value_wrapper.data_value, new_val.data_value, "Data value incorrect")
@@ -158,8 +159,9 @@ class ImportServiceTest(TransactionalTestCase):
         #create an array mapped in DB
         data = {'param_1': 'some value'}
         OperationService().initiate_prelaunch(self.operation, self.adapter_instance, {}, **data)
-        inserted = self.flow_service.get_available_datatypes(self.test_project.id, "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(inserted), 2, "Problems when inserting data")
+        inserted = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                             "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(inserted, 2, "Problems when inserting data")
         
         #create a value wrapper
         self._create_value_wrapper()
@@ -186,9 +188,9 @@ class ImportServiceTest(TransactionalTestCase):
                                  storage_path=storage_path, label_y="Time", time_data=time_data, data_name='TestSeries',
                                  activity_data=activity_data, sample_period=10.0)
         self._store_entity(time_series, "TimeSeries", "tvb.datatypes.time_series")
-        timeseries = self.flow_service.get_available_datatypes(self.test_project.id, 
-                                                               "tvb.datatypes.time_series.TimeSeries")
-        self.assertEqual(len(timeseries), 1, "Should be only one TimeSeries")
+        timeseries_count = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                                     "tvb.datatypes.time_series.TimeSeries")[1]
+        self.assertEqual(timeseries_count, 1, "Should be only one TimeSeries")
 
 
     def _create_value_wrapper(self):
@@ -196,7 +198,7 @@ class ImportServiceTest(TransactionalTestCase):
         value_ = ValueWrapper(data_value=5.0, data_name="my_value")
         self._store_entity(value_, "ValueWrapper", "tvb.datatypes.mapped_values")
         valuew = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                           "tvb.datatypes.mapped_values.ValueWrapper")
+                                                           "tvb.datatypes.mapped_values.ValueWrapper")[0]
         self.assertEqual(len(valuew), 1, "Should be only one value wrapper")
         return ABCAdapter.load_entity_by_gid(valuew[0][2])
 

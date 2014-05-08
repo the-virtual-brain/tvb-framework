@@ -90,7 +90,7 @@ class NIFTIImporterTest(TransactionalTestCase):
 
         time_series = TimeSeries()
         data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           time_series.module + "." + time_series.type)
+                                                           time_series.module + "." + time_series.type)[0]
         self.assertEqual(1, len(data_types), "Project should contain only one data type.")
 
         time_series = ABCAdapter.load_entity_by_gid(data_types[0][2])

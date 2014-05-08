@@ -132,6 +132,7 @@ class ABCAdapter(object):
     KEY_OPTIONS = xml_reader.ELEM_OPTIONS
     KEY_ATTRIBUTES = xml_reader.ATT_ATTRIBUTES
     KEY_NAME = xml_reader.ATT_NAME
+    KEY_DESCRIPTION = xml_reader.ATT_DESCRIPTION
     KEY_VALUE = xml_reader.ATT_VALUE
     KEY_LABEL = xml_reader.ATT_LABEL
     KEY_DEFAULT = "default"
@@ -1107,7 +1108,7 @@ class ABCGroupAdapter(ABCAdapter):
             option[self.KEY_VALUE] = identifier
             option[self.KEY_NAME] = algorithms[identifier][self.KEY_NAME]
             algorithm = dao.get_algorithm_by_group(self.algorithm_group.id, identifier)
-            option['description'] = algorithm.description
+            option[self.KEY_DESCRIPTION] = algorithm.description
             inputs = algorithms[identifier][INPUTS_KEY]
             option[self.KEY_ATTRIBUTES] = [inputs[key] for key in inputs.keys()]
             option[ELEM_OUTPUTS] = self.xml_reader.get_outputs(identifier)

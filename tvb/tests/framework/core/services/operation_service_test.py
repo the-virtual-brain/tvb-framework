@@ -136,7 +136,8 @@ class OperationServiceTest(BaseTestCase):
         group = dao.find_group(module, class_name)
         self.assertEqual(group.module, 'tvb.tests.framework.adapters.testadapter1', "Wrong data stored.")
         self.assertEqual(group.classname, 'TestAdapter1', "Wrong data stored.")
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype1)
+        dts, count = dao.get_values_of_datatype(self.test_project.id, Datatype1)
+        self.assertEqual(count, 1)
         self.assertEqual(len(dts), 1)
         datatype = dao.get_datatype_by_id(dts[0][0])
         self.assertEqual(datatype.subject, DataTypeMetaData.DEFAULT_SUBJECT, "Wrong data stored.")
@@ -157,11 +158,11 @@ class OperationServiceTest(BaseTestCase):
         TVBSettings.MAX_DISK_SPACE = float(adapter.get_required_disk_size(**data))
         tmp_folder = FilesHelper().get_project_folder(self.test_project, "TEMP")
 
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 0)
         self.operation_service.initiate_operation(self.test_user, self.test_project.id, adapter,
                                                   tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 1)
 
         datatype = dao.get_datatype_by_id(dts[0][0])
@@ -171,12 +172,12 @@ class OperationServiceTest(BaseTestCase):
         #Now update the maximum disk size to be the size of the previously resulted datatypes (transform from kB to MB)
         #plus what is estimated to be required from the next one (transform from B to MB)
         ProjectService().remove_datatype(self.test_project.id, datatype.gid)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 0)
 
         self.operation_service.initiate_operation(self.test_user, self.test_project.id, adapter,
                                                   tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 1)
         datatype = dao.get_datatype_by_id(dts[0][0])
         self.assertEqual(datatype.subject, DataTypeMetaData.DEFAULT_SUBJECT, "Wrong data stored.")
@@ -198,7 +199,7 @@ class OperationServiceTest(BaseTestCase):
         tmp_folder = FilesHelper().get_project_folder(self.test_project, "TEMP")
         self.operation_service.initiate_operation(self.test_user, self.test_project.id, adapter,
                                                   tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 1)
         datatype = dao.get_datatype_by_id(dts[0][0])
         self.assertEqual(datatype.subject, DataTypeMetaData.DEFAULT_SUBJECT, "Wrong data stored.")
@@ -209,7 +210,7 @@ class OperationServiceTest(BaseTestCase):
 
         self.operation_service.initiate_operation(self.test_user, self.test_project.id, adapter,
                                                   tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 2)
         datatype = dao.get_datatype_by_id(dts[1][0])
         self.assertEqual(datatype.subject, DataTypeMetaData.DEFAULT_SUBJECT, "Wrong data stored.")
@@ -232,7 +233,7 @@ class OperationServiceTest(BaseTestCase):
         tmp_folder = FilesHelper().get_project_folder(self.test_project, "TEMP")
         self.operation_service.initiate_operation(self.test_user, self.test_project.id, adapter,
                                                   tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 1)
         datatype = dao.get_datatype_by_id(dts[0][0])
         self.assertEqual(datatype.subject, DataTypeMetaData.DEFAULT_SUBJECT, "Wrong data stored.")
@@ -244,7 +245,7 @@ class OperationServiceTest(BaseTestCase):
         self.assertRaises(NoMemoryAvailableException, self.operation_service.initiate_operation, self.test_user,
                           self.test_project.id, adapter,
                           tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 1)
 
 
@@ -263,7 +264,7 @@ class OperationServiceTest(BaseTestCase):
         tmp_folder = FilesHelper().get_project_folder(self.test_project, "TEMP")
         self.operation_service.initiate_operation(self.test_user, self.test_project.id, adapter,
                                                   tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 1)
         datatype = dao.get_datatype_by_id(dts[0][0])
         self.assertEqual(datatype.subject, DataTypeMetaData.DEFAULT_SUBJECT, "Wrong data stored.")
@@ -289,7 +290,7 @@ class OperationServiceTest(BaseTestCase):
         tmp_folder = FilesHelper().get_project_folder(self.test_project, "TEMP")
         self.operation_service.initiate_operation(self.test_user, self.test_project.id, adapter,
                                                   tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 1)
         datatype = dao.get_datatype_by_id(dts[0][0])
         self.assertEqual(datatype.subject, DataTypeMetaData.DEFAULT_SUBJECT, "Wrong data stored.")
@@ -310,7 +311,7 @@ class OperationServiceTest(BaseTestCase):
         self.assertRaises(NoMemoryAvailableException, self.operation_service.initiate_operation, self.test_user,
                           self.test_project.id, adapter,
                           tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 0)
 
 
@@ -332,7 +333,7 @@ class OperationServiceTest(BaseTestCase):
         self.assertRaises(NoMemoryAvailableException, self.operation_service.initiate_operation, self.test_user,
                           self.test_project.id, adapter,
                           tmp_folder, method_name=ABCAdapter.LAUNCH_METHOD, **data)
-        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)
+        dts = dao.get_values_of_datatype(self.test_project.id, Datatype2)[0]
         self.assertEqual(len(dts), 0)
 
 
@@ -473,8 +474,9 @@ class OperationServiceTest(BaseTestCase):
          the NDimensionArrayAdapter adapter is correct. The passed data should be a list
          of arrays with one dimension.
         """
-        inserted_data = FlowService().get_available_datatypes(self.test_project.id, "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(inserted_data), 0, "Expected to find no data.")
+        inserted_count = FlowService().get_available_datatypes(self.test_project.id,
+                                                               "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(inserted_count, 0, "Expected to find no data.")
         #create an operation
         algorithm_id = FlowService().get_algorithm_by_module_and_class('tvb.tests.framework.adapters.ndimensionarrayadapter',
                                                                        'NDimensionArrayAdapter')[0].id
@@ -486,7 +488,8 @@ class OperationServiceTest(BaseTestCase):
         adapter_instance = NDimensionArrayAdapter()
         PARAMS = {}
         self.operation_service.initiate_prelaunch(operation, adapter_instance, {}, **PARAMS)
-        inserted_data = FlowService().get_available_datatypes(self.test_project.id, "tvb.datatypes.arrays.MappedArray")
+        inserted_data = FlowService().get_available_datatypes(self.test_project.id,
+                                                              "tvb.datatypes.arrays.MappedArray")[0]
         self.assertEqual(len(inserted_data), 1, "Problems when inserting data")
         gid = inserted_data[0][2]
         entity = dao.get_datatype_by_gid(gid)

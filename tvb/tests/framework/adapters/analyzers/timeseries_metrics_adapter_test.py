@@ -98,7 +98,7 @@ class TimeSeriesMetricsAdapterTest(TransactionalTestCase):
 
         # Get connectivity
         connectivities = FlowService().get_available_datatypes(self.test_project.id,
-                                                               "tvb.datatypes.connectivity.Connectivity")
+                                                               "tvb.datatypes.connectivity.Connectivity")[0]
         self.assertEqual(len(connectivities), 1)
         connectivity_gid = connectivities[0][2]
 

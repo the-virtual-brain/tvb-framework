@@ -231,23 +231,22 @@ class FlowServiceTest(TransactionalTestCase):
         self._store_float_array(one_dim_array, "John Doe 2", operation_1.id)
         self._store_float_array(two_dim_array, "John Doe 3", operation_2.id)
 
-        inserted_data = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                  "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(inserted_data), 3, "Problems with inserting data")
+        count = self.flow_service.get_available_datatypes(self.test_project.id, "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(count, 3, "Problems with inserting data")
         first_filter = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'], operations=["=="], values=[1])
-        filtered_data = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                  "tvb.datatypes.arrays.MappedArray", first_filter)
-        self.assertEqual(len(filtered_data), 2, "Data was not filtered")
+        count = self.flow_service.get_available_datatypes(self.test_project.id,
+                                                          "tvb.datatypes.arrays.MappedArray", first_filter)[1]
+        self.assertEqual(count, 2, "Data was not filtered")
 
         second_filter = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'], operations=["=="], values=[2])
         filtered_data = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                  "tvb.datatypes.arrays.MappedArray", second_filter)
+                                                                  "tvb.datatypes.arrays.MappedArray", second_filter)[0]
         self.assertEqual(len(filtered_data), 1, "Data was not filtered")
         self.assertEqual(filtered_data[0][3], "John Doe 3")
 
         third_filter = FilterChain(fields=[FilterChain.datatype + '._length_1d'], operations=["=="], values=[3])
         filtered_data = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                  "tvb.datatypes.arrays.MappedArray", third_filter)
+                                                                  "tvb.datatypes.arrays.MappedArray", third_filter)[0]
         self.assertEqual(len(filtered_data), 1, "Data was not filtered correct")
         self.assertEqual(filtered_data[0][3], "John Doe 3")
         try:
@@ -314,7 +313,7 @@ class FlowServiceTest(TransactionalTestCase):
                     dao.store_entity(datatype_inst)
 
         returned_data = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                  "tvb.tests.framework.datatypes.datatype1.Datatype1")
+                                                                "tvb.tests.framework.datatypes.datatype1.Datatype1")[0]
         for row in returned_data:
             if row[1] != 'Datatype1':
                 self.fail("Some invalid data was returned!")
@@ -323,7 +322,8 @@ class FlowServiceTest(TransactionalTestCase):
         filter_op = FilterChain(fields=[FilterChain.datatype + ".state", FilterChain.operation + ".start_date"],
                                 values=["RAW", datetime.strptime("08-01-2010", "%m-%d-%Y")], operations=["==", ">"])
         returned_data = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                  "tvb.tests.framework.datatypes.datatype1.Datatype1", filter_op)
+                                                                  "tvb.tests.framework.datatypes.datatype1.Datatype1",
+                                                                  filter_op)[0]
         returned_subjects = [one_data[3] for one_data in returned_data]
 
         if "John Doe0" not in returned_subjects or "John Doe1" not in returned_subjects or len(returned_subjects) != 2:

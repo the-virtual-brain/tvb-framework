@@ -56,7 +56,13 @@ class FlowService:
     """
     Service Layer for all TVB generic Work-Flow operations.
     """
-    
+
+    MAXIMUM_DATA_TYPES_DISPLAYED = 50
+    KEY_WARNING = "warning"
+    WARNING_OVERFLOW = "Too many entities in storage; some of them were not returned, to avoid overcrowding. " \
+                       "Use filters, to make the list small enought to fit in here!"
+
+
     def __init__(self):
         self.logger = get_logger(self.__class__.__module__)
         self.file_helper = FilesHelper()
@@ -214,10 +220,10 @@ class FlowService:
         data_class = FilterChain._get_class_instance(data_name)
         if data_class is None:
             self.logger.warning("Invalid Class specification:" + str(data_name))
-            return []
+            return [], 0
         else:
             self.logger.debug('Filtering:' + str(data_class))
-            return dao.get_values_of_datatype(project_id, data_class, filters)
+            return dao.get_values_of_datatype(project_id, data_class, filters, self.MAXIMUM_DATA_TYPES_DISPLAYED)
         
     
     @staticmethod
@@ -274,7 +280,12 @@ class FlowService:
                 else:
                     filter_condition = FilterChain('', [FilterChain.datatype + '.visible'], [True], operations=["=="])
                     
-                data_list = self.get_available_datatypes(project_id, param[ABCAdapter.KEY_TYPE], filter_condition)
+                data_list, total_count = self.get_available_datatypes(project_id, param[ABCAdapter.KEY_TYPE],
+                                                                      filter_condition)
+
+                if total_count > self.MAXIMUM_DATA_TYPES_DISPLAYED:
+                    transformed_param[self.KEY_WARNING] = self.WARNING_OVERFLOW
+
                 complex_dt_attributes = None
                 if param.get(ABCAdapter.KEY_ATTRIBUTES):
                     complex_dt_attributes = self.prepare_parameters(param[ABCAdapter.KEY_ATTRIBUTES], 
@@ -283,7 +294,7 @@ class FlowService:
                                               category_key, complex_dt_attributes)
                 
                 if (transformed_param.get(ABCAdapter.KEY_REQUIRED) and len(values) > 0 and
-                            transformed_param.get(ABCAdapter.KEY_DEFAULT) in [None, 'None']):
+                        transformed_param.get(ABCAdapter.KEY_DEFAULT) in [None, 'None']):
                     def_val = str(values[-1][ABCAdapter.KEY_VALUE])
                     transformed_param[ABCAdapter.KEY_DEFAULT] = def_val
                 transformed_param[ABCAdapter.KEY_FILTERABLE] = FilterChain.get_filters_for_type(
@@ -311,8 +322,8 @@ class FlowService:
                     transformed_param[ABCAdapter.KEY_OPTIONS] = self.prepare_parameters(param[ABCAdapter.KEY_OPTIONS],
                                                                                         project_id, category_key)
                     if (transformed_param.get(ABCAdapter.KEY_REQUIRED) and
-                                len(param[ABCAdapter.KEY_OPTIONS]) > 0 and
-                                (transformed_param.get(ABCAdapter.KEY_DEFAULT) in [None, 'None'])):
+                            len(param[ABCAdapter.KEY_OPTIONS]) > 0 and
+                            (transformed_param.get(ABCAdapter.KEY_DEFAULT) in [None, 'None'])):
                         def_val = str(param[ABCAdapter.KEY_OPTIONS][-1][ABCAdapter.KEY_VALUE])
                         transformed_param[ABCAdapter.KEY_DEFAULT] = def_val
                     

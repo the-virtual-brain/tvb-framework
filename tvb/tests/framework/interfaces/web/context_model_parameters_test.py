@@ -65,7 +65,7 @@ class ContextModelParametersTest(TransactionalTestCase):
         TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
         self.default_model = models_module.Generic2dOscillator()
 
-        all_connectivities = self.flow_service.get_available_datatypes(self.test_project.id, Connectivity)
+        all_connectivities = self.flow_service.get_available_datatypes(self.test_project.id, Connectivity)[0]
         self.connectivity = ABCAdapter.load_entity_by_gid(all_connectivities[0][2])
         self.connectivity.number_of_regions = 74
         self.context_model_param = ContextModelParameters(self.connectivity, self.default_model)

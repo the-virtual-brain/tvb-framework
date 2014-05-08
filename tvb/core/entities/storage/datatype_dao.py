@@ -405,14 +405,20 @@ class DatatypeDAO(RootDAO):
             return None
 
 
-    def get_values_of_datatype(self, project_id, datatype_class, filters=None):
-        """Retrieve a list of dataTypes matching a filter inside a project."""
+    def get_values_of_datatype(self, project_id, datatype_class, filters=None, page_end=50):
+        """
+        Retrieve a list of dataTypes matching a filter inside a project.
+        :returns: (results, total_count) maximum page_end rows are returned, to avoid endless time when loading a page
+        """
         result = []
+        count = 0
+
         if not issubclass(datatype_class, model.Base):
             self.logger.warning("Trying to filter not DB class:" + str(datatype_class))
-            return result
-            #prepare generic query
+            return result, count
+
         try:
+            #Prepare generic query:
             query = self.session.query(datatype_class.id,
                                        func.max(datatype_class.type),
                                        func.max(datatype_class.gid),
@@ -432,11 +438,16 @@ class DatatypeDAO(RootDAO):
                 filter_str = filters.get_sql_filter_equivalent(datatype_to_check='datatype_class')
                 if filter_str is not None:
                     query = query.filter(eval(filter_str))
-            #Compute the result
-            result = query.group_by(datatype_class.id).order_by(datatype_class.id).all()
+
+            #Retrieve the results
+            query = query.group_by(datatype_class.id).order_by(desc(datatype_class.id))
+
+            result = query.limit(max(page_end, 0)).all()
+            count = query.count()
         except Exception, excep:
             self.logger.exception(excep)
-        return result
+
+        return result, count
 
 
     def get_datatypes_for_range(self, op_group_id, range_json):

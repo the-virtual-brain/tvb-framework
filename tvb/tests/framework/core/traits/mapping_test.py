@@ -122,7 +122,7 @@ class MappingTest(BaseTestCase):
             result.array_data = None
         
         inserted_data = self.flow_service.get_available_datatypes(self.test_project.id,
-                                                                  "tvb.datatypes.arrays.MappedArray")
+                                                                  "tvb.datatypes.arrays.MappedArray")[0]
         self.assertEqual(len(inserted_data), 4, "Found " + str(len(inserted_data)))
  
         for i in range(4):

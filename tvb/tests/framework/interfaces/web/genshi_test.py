@@ -413,12 +413,14 @@ class GenshiTestNDimensionArray(GenshiTest):
         to select one dimension from a multi dimension array
         """
         flow_service = FlowService()
-        inserted_data = flow_service.get_available_datatypes(self.test_project.id, "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(inserted_data), 0, "Expected to find no data")
+        insert_count = flow_service.get_available_datatypes(self.test_project.id,
+                                                            "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(insert_count, 0, "Expected to find no data")
         adapter_instance = NDimensionArrayAdapter()
         PARAMS = {}
         OperationService().initiate_prelaunch(self.operation, adapter_instance, {}, **PARAMS)
-        inserted_data = flow_service.get_available_datatypes(self.test_project.id, "tvb.datatypes.arrays.MappedArray")
+        inserted_data = flow_service.get_available_datatypes(self.test_project.id,
+                                                             "tvb.datatypes.arrays.MappedArray")[0]
         self.assertEqual(len(inserted_data), 1, "Problems when inserting data")
 
         algogroup = dao.find_group('tvb.tests.framework.adapters.ndimensionarrayadapter', 'NDimensionArrayAdapter')

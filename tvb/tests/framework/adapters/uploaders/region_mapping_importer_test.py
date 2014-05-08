@@ -92,7 +92,7 @@ class RegionMappingImporterTest(TransactionalTestCase):
         :return: an object of class `expected_data`
         """
         data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           expected_data.module + "." + expected_data.type, filters)
+                                                           expected_data.module + "." + expected_data.type, filters)[0]
         self.assertEqual(1, len(data_types), "Project should contain only one data type:" + str(expected_data.type))
         
         entity = ABCAdapter.load_entity_by_gid(data_types[0][2])

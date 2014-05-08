@@ -109,9 +109,9 @@ class TVBImporterTest(TransactionalTestCase):
             in the same zip file - exported from a group)
         """
         self._import(self.zip_file_path)
-        data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           self.datatype.module + "." + self.datatype.type)
-        self.assertEqual(9, len(data_types), "9 datatypes should have been imported from group.")
+        count = FlowService().get_available_datatypes(self.test_project.id,
+                                                      self.datatype.module + "." + self.datatype.type)[1]
+        self.assertEqual(9, count, "9 datatypes should have been imported from group.")
 
 
     def test_h5_import(self):

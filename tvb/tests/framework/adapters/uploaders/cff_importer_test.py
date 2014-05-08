@@ -62,7 +62,7 @@ class CFFUploadTest(TransactionalTestCase):
         """
         all_dt = self.get_all_datatypes()
         self.assertEqual(0, len(all_dt))
-        TestFactory.import_cff(cff_path = self.VALID_CFF)
+        TestFactory.import_cff(cff_path=self.VALID_CFF)
         all_dt = self.get_all_datatypes()
         self.assertTrue(0 < len(all_dt))
     
@@ -76,13 +76,13 @@ class CFFUploadTest(TransactionalTestCase):
         TestFactory.import_cff(cff_path=self.VALID_CFF, test_user=self.test_user, test_project=self.test_project)
         flow_service = FlowService()
         ### Check that at one Connectivity was persisted
-        gid_list = flow_service.get_available_datatypes(self.test_project.id, 'tvb.datatypes.connectivity.Connectivity')
-        self.assertEquals(len(gid_list), 1)
+        count = flow_service.get_available_datatypes(self.test_project.id, 'tvb.datatypes.connectivity.Connectivity')[1]
+        self.assertEquals(count, 1)
         ### Check that at one RegionMapping was persisted
-        gid_list = flow_service.get_available_datatypes(self.test_project.id, 'tvb.datatypes.surfaces.RegionMapping')
-        self.assertEquals(len(gid_list), 1)
+        count = flow_service.get_available_datatypes(self.test_project.id, 'tvb.datatypes.surfaces.RegionMapping')[1]
+        self.assertEquals(count, 1)
         ### Check that at one LocalConnectivity was persisted
-        gids = flow_service.get_available_datatypes(self.test_project.id, 'tvb.datatypes.surfaces.LocalConnectivity')
+        gids = flow_service.get_available_datatypes(self.test_project.id, 'tvb.datatypes.surfaces.LocalConnectivity')[0]
         self.assertEquals(len(gids), 1)
         connectivity = dao.get_datatype_by_gid(gids[0][2])
         metadata = connectivity.get_metadata()
@@ -92,8 +92,8 @@ class CFFUploadTest(TransactionalTestCase):
         self.assertFalse(metadata['Is_nan'])
         self.assertEqual(metadata['Type'], 'LocalConnectivity')
         ### Check that at 2 Surfaces were persisted
-        gid_list = flow_service.get_available_datatypes(self.test_project.id, 'tvb.datatypes.surfaces_data.SurfaceData')
-        self.assertEquals(len(gid_list), 2)
+        count = flow_service.get_available_datatypes(self.test_project.id, 'tvb.datatypes.surfaces_data.SurfaceData')[1]
+        self.assertEquals(count, 2)
         
      
      

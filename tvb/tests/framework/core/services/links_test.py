@@ -75,10 +75,12 @@ class _BaseLinksTest(TransactionalTestCase):
         self.clean_database(delete_folders=True)
 
     def red_datatypes_in(self, project_id):
-        return len(self.flow_service.get_available_datatypes(project_id, Datatype1))
+        return self.flow_service.get_available_datatypes(project_id, Datatype1)[1]
 
     def blue_datatypes_in(self, project_id):
-        return len(self.flow_service.get_available_datatypes(project_id, Datatype2))
+        return self.flow_service.get_available_datatypes(project_id, Datatype2)[1]
+
+
 
 class LinksTest(_BaseLinksTest):
     """
@@ -147,7 +149,7 @@ class ImportExportProjectWithLinksTest(_BaseLinksTest):
             self.assertTrue('links-to-external-projects/Operation.xml' in z.namelist())
 
     def _export_and_remove_dest(self):
-        "export the destination project and remove it"
+        """export the destination project and remove it"""
         dest_id = self.dest_project.id
         export_file = self.export_mng.export_project(self.dest_project)
         self.project_service.remove_project(dest_id)
@@ -189,6 +191,7 @@ class ImportExportProjectWithLinksTest(_BaseLinksTest):
         self.assertEqual(1, len(links))
         self.assertEquals(self.red_datatype.gid, links[0].gid)
 
+
 def suite():
     """
     Gather all the tests in a test suite.
@@ -197,6 +200,7 @@ def suite():
     test_suite.addTest(unittest.makeSuite(LinksTest))
     test_suite.addTest(unittest.makeSuite(ImportExportProjectWithLinksTest))
     return test_suite
+
 
 if __name__ == "__main__":
     #So you can run tests from this package individually.

@@ -90,7 +90,7 @@ class SensorsImporterTest(TransactionalTestCase):
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
 
         data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           expected_data.module + "." + expected_data.type)
+                                                           expected_data.module + "." + expected_data.type)[0]
         self.assertEqual(1, len(data_types), "Project should contain only one data type = Sensors.")
 
         time_series = ABCAdapter.load_entity_by_gid(data_types[0][2])

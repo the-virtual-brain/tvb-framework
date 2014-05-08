@@ -179,8 +179,6 @@ class FlowController(BaseController):
 
         submit_link = self.get_url_adapter(step_key, adapter_key, back_page)
         if cherrypy.request.method == 'POST':
-            back_indicator = back_page if back_page == 'burst' else 'operations'
-            success_url = self._compute_back_link(back_indicator, project)
             data[common.KEY_ADAPTER] = adapter_key
             template_specification = self.execute_post(project.id, submit_link,
                                                        step_key, algo_group, **data)
@@ -382,7 +380,8 @@ class FlowController(BaseController):
         new_filter.operations.extend(filters[FILTER_OPERATIONS])
         new_filter.values.extend(filters[FILTER_VALUES])
         #Get dataTypes that match the filters from DB then populate with values
-        datatypes = self.flow_service.get_available_datatypes(common.get_current_project().id, datatype, new_filter)
+        datatypes, total_count = self.flow_service.get_available_datatypes(common.get_current_project().id,
+                                                                           datatype, new_filter)
         values = self.flow_service.populate_values(datatypes, datatype, self.context.get_current_step())
         #Create a dictionary that matches what the template expects
         parameters = {ABCAdapter.KEY_NAME: name,
@@ -390,6 +389,9 @@ class FlowController(BaseController):
                       ABCAdapter.KEY_TYPE: ABCAdapter.TYPE_SELECT,
                       ABCAdapter.KEY_OPTIONS: values,
                       ABCAdapter.KEY_DATATYPE: datatype}
+
+        if total_count > self.flow_service.MAXIMUM_DATA_TYPES_DISPLAYED:
+            parameters[self.flow_service.KEY_WARNING] = self.flow_service.WARNING_OVERFLOW
 
         if ABCAdapter.KEY_REQUIRED in current_node:
             parameters[ABCAdapter.KEY_REQUIRED] = current_node[ABCAdapter.KEY_REQUIRED]

@@ -512,8 +512,8 @@ class ProjectStructureTest(TransactionalTestCase):
         :param project_id: the project in which the arrays are created
         :return: a list of dummy `MappedArray`
         """
-        array_wrappers = self.flow_service.get_available_datatypes(project_id, "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(array_wrappers), 0)
+        count = self.flow_service.get_available_datatypes(project_id, "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(count, 0)
         
         algo_group = dao.find_group('tvb.tests.framework.adapters.ndimensionarrayadapter', 'NDimensionArrayAdapter')
         group, _ = self.flow_service.prepare_adapter(project_id, algo_group)
@@ -522,16 +522,17 @@ class ProjectStructureTest(TransactionalTestCase):
         data = {'param_1': 'some value'}
         #create 3 data types
         self.flow_service.fire_operation(adapter_instance, self.test_user, project_id, **data)
-        array_wrappers = self.flow_service.get_available_datatypes(project_id, "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(array_wrappers), 1)
+        count = self.flow_service.get_available_datatypes(project_id, "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(count, 1)
         
         self.flow_service.fire_operation(adapter_instance, self.test_user, project_id, **data)
-        array_wrappers = self.flow_service.get_available_datatypes(project_id, "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(array_wrappers), 2)
+        count = self.flow_service.get_available_datatypes(project_id, "tvb.datatypes.arrays.MappedArray")[1]
+        self.assertEqual(count, 2)
         
         self.flow_service.fire_operation(adapter_instance, self.test_user, project_id, **data)
-        array_wrappers = self.flow_service.get_available_datatypes(project_id, "tvb.datatypes.arrays.MappedArray")
-        self.assertEqual(len(array_wrappers), 3)
+        array_wrappers, count = self.flow_service.get_available_datatypes(project_id,
+                                                                          "tvb.datatypes.arrays.MappedArray")
+        self.assertEqual(count, 3)
 
         return array_wrappers
 

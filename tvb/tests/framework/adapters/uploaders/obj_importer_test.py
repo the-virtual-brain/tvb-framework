@@ -74,16 +74,15 @@ class ObjSurfaceImporterTest(TransactionalTestCase):
         importer = ABCAdapter.build_adapter(group)
 
         args = {'data_file': import_file_path,
-                "surface_type" : OPTION_SURFACE_FACE,
-                DataTypeMetaData.KEY_SUBJECT: "John"
-        }
+                "surface_type": OPTION_SURFACE_FACE,
+                DataTypeMetaData.KEY_SUBJECT: "John"}
 
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
 
         surface = FaceSurface()
         data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           surface.module + "." + surface.type)
+                                                           surface.module + "." + surface.type)[0]
         self.assertEqual(1, len(data_types), "Project should contain only one data type.")
 
         surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
