@@ -39,7 +39,7 @@
 				<div class="extension">
 					<div class="dropdown-pane">
 						<mark>${inputRow.label if 'label' in inputRow else inputRow.name}</mark>
-                        <div style="overflow-y: auto;max-height:220px;width: 440px">${Markup(inputRow.description.replace('\n', '&lt;br/&gt;'))}</div>
+                        <div class="dropdown-pane-overlay">${Markup(inputRow.description.replace('\n', '&lt;br/&gt;'))}</div>
 					</div>
 				</div>
 			</nav>

@@ -2443,6 +2443,11 @@ a:focus {
 	font-weight:bold;
 }
 
+.dropdown-pane-overlay {
+    overflow-y: auto;
+    max-height:300px;
+}
+
 /*===============================================*/
 /*CSS related to connectivity selection component*/
 /*===============================================*/
@@ -2545,6 +2550,7 @@ font-weight: bold;
 .quickSelector li{
 float: none;
 }
+
 fieldset input[type="button"]
 {
     background-color: gray;
