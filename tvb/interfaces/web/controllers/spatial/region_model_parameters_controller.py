@@ -35,6 +35,7 @@
 
 import json
 import cherrypy
+from tvb.basic.traits.util import multiline_math_directives_to_matjax
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json, handle_error, check_user
@@ -59,51 +60,12 @@ class RegionsModelParametersController(SpatioTemporalController):
         """
         Looks for sphinx math directives if the docstring of the dfun function of a model.
         It converts them in html text that will be interpreted by mathjax
-        The parsing is simplistic, not a rst parser.
-        Wraps .. math :: body in \[\begin{split}\end{split}\]
+        The parsing is simplistic, not a full rst parser.
         """
-
-        def parse(doc):
-            """
-            parse docstrings for .. math :: directive
-            """
-            # doc = text | math
-            BEGIN = r'\[\begin{split}'
-            END = r'\end{split}\]'
-            in_math = False
-            out_lines = []
-            indent = ''
-
-            for line in doc.splitlines():
-                if not in_math:
-                    # math = indent directive math_body
-                    indent, sep, _ = line.partition('.. math::')
-                    if sep:
-                        out_lines.append(BEGIN)
-                        in_math = True
-                    else:
-                        out_lines.append(line)
-                else:
-                    # math body is at least 1 space more indented than the directive, but we tolerate empty lines
-                    if line.startswith(indent + ' ') or line.strip() == '':
-                        out_lines.append(line)
-                    else:
-                        # this line is not properly indented, math block is over
-                        out_lines.append(END)
-                        out_lines.append(line)
-                        in_math = False
-
-            if in_math:
-                # close math tag
-                out_lines.append(END)
-
-            return '\n'.join(out_lines)
-
-
         dfun = getattr(model, 'dfun', None)
 
         if dfun:
-            return parse(dfun.__doc__).replace('&', '&amp;').replace('.. math::','')
+            return multiline_math_directives_to_matjax(dfun.__doc__).replace('&', '&amp;').replace('.. math::','')
         else:
             return ''
 
