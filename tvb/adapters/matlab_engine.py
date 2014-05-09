@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 #
 #
@@ -31,6 +32,10 @@
 """
 .. moduleauthor:: Marmaduke Woodman <mw@eml.cc>
 
+=======
+
+"""
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 This module provides an interface to part of the MATLAB Engine API. 
 
 Startup is a little slow as with the existing MATLAB adapter, but the subsequent calls
@@ -44,6 +49,7 @@ as well.
 # import the FFI
 from ctypes import *
 
+<<<<<<< HEAD
 try:
     # open the engine library
     lib = CDLL('libeng.so')
@@ -68,6 +74,24 @@ class MATLABEngine(object):
     buffer_size = property(_get_buffer_size, _set_buffer_size)
 
 
+=======
+# open the engine library
+lib = CDLL('libeng.so')
+
+class MATLABEngine(object):
+
+    _buffer, _buffer_size = None, 0
+
+    def _set_buffer_size(self, val):
+        self._buffer_size = val 
+        self._buffer = create_string_buffer(val + 1)
+
+    def _get_buffer_size(self):
+        return self._buffer_size
+
+    buffer_size = property(_get_buffer_size, _set_buffer_size)
+
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
     @property
     def output(self):
         b = self._buffer
@@ -76,17 +100,27 @@ class MATLABEngine(object):
             print 'MLEng output buffer filled'
         return out
 
+<<<<<<< HEAD
 
     def __init__(self, startcmd="", bufsize=100 * 1024):
+=======
+    def __init__(self, startcmd="", bufsize=100*1024):
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         self._eng = lib.engOpen(startcmd)
         self.buffer_size = bufsize
         lib.engOutputBuffer(self._eng, self._buffer, self.buffer_size)
 
+<<<<<<< HEAD
 
     def __del__(self):
         lib.engClose(self._eng)
 
 
+=======
+    def __del__(self):
+        lib.engClose(self._eng)
+
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
     def __call__(self, cmd, out='print'):
         if not type(cmd) in (str,):
             cmd = str(cmd)

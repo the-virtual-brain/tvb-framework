@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 #
 #
@@ -38,6 +39,9 @@ try:
 except ImportError:
     raise Exception("Yappi not available!!")
 
+=======
+import yappi
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 
 def impl():
     out = '''

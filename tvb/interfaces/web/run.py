@@ -53,7 +53,12 @@ TvbProfile.set_profile(argv, True, try_reload=(__name__ == '__main__'))
 ### For Linux Distribution, correctly set MatplotLib Path, before start.
 from tvb.basic.config.settings import TVBSettings
 if TVBSettings().is_linux():
-    os.environ['MATPLOTLIBDATA'] = os.path.join(TVBSettings().get_library_folder(), 'mpl-data')
+    mpl_data_path_maybe = os.path.join(TVBSettings().get_library_folder(), 'mpl-data')
+    try:
+        os.stat(mpl_data_path_maybe)
+        os.environ['MATPLOTLIBDATA'] = mpl_data_path_maybe
+    except:
+        pass
 
 ### Import MPLH5 asap, to have the back-end Thread started before other pylab/matplotlib import
 from tvb.basic.logger.builder import get_logger
@@ -143,7 +148,7 @@ def init_cherrypy(arguments=None):
 
 
 
-def start_tvb(arguments):
+def start_tvb(arguments, browser=True):
     """
     Fire CherryPy server and listen on a free port
     """
@@ -171,7 +176,8 @@ def start_tvb(arguments):
 
     init_cherrypy(arguments)
 
-    run_browser()
+    if browser:
+        run_browser()
 
     ## Launch CherryPy loop forever.
     LOGGER.info("Finished starting TVB version %s in %.3f s", TVBSettings.CURRENT_VERSION, time.time() - STARTUP_TIC)

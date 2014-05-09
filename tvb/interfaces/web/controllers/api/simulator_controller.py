@@ -165,6 +165,7 @@ def build_and_run(spec):
     try:
         r = build_and_run_(spec)
     except Exception as e:
+        print 'launch of the simulator failed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
         import traceback
         traceback.print_exc()
         r = e
@@ -190,6 +191,10 @@ class SimulatorController(BaseController):
     def index(self):
         return 'Please see the documentation of the tvb.interfaces.web.controllers.api.simulator module'
 
+    """
+    Need to check how the burst controller queries operations for simulations
+
+    """
 
     @cherrypy.expose
     def read(self, ix=None):
@@ -221,6 +226,11 @@ class SimulatorController(BaseController):
 
         return json.dumps(dump)
 
+    """
+    - reformat data as received by MATLAB to what BurstController.launch_burst() expects
+    - urlget on the URL directly? or inherit a burst controller...
+
+    """
 
     @cherrypy.expose
     @threadsafe
@@ -239,6 +249,10 @@ class SimulatorController(BaseController):
         self.sims[ix] = spec
         return str(ix)
 
+    """
+    No changes needed.
+
+    """
 
     @cherrypy.expose
     def dir(self):
@@ -261,6 +275,11 @@ class SimulatorController(BaseController):
 
         return json.dumps(info)
 
+    """
+    Remove the processor pool deal, and stick to just removal one or more 
+    operations already perofrmed.
+
+    """
 
     @cherrypy.expose
     @threadsafe

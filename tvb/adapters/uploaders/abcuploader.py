@@ -35,6 +35,7 @@
 from abc import abstractmethod
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
+from tvb.core.entities.storage import dao
 
 
 class ABCUploader(ABCSynchronous):
@@ -87,3 +88,16 @@ class ABCUploader(ABCSynchronous):
         As it is an upload algorithm and we do not have information about data, we can not approximate this.
         """
         return 0
+
+    def ensure_db(self):
+        "Ensure algorithm exists in DB and add it if not"
+        cat = dao.get_uploader_categories()[0]
+        cls = self.__class__
+        cmd, cnm = cls.__module__, cls.__name__
+        gp = dao.find_group(cmd, cnm)
+        if gp is None:
+            gp = AlgorithmGroup(cmd, cnm, cat.id)
+            gp = dao.store_entity(gp)
+            dao.store_entity(Algorithm(gp.id, cnm, cnm))
+        self.algorithm_group = gp
+

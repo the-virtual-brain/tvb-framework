@@ -312,7 +312,6 @@ class BurstController(BaseController):
         self._validate_burst_name(burst_name)
         self.burst_service.rename_burst(burst_id, burst_name)
 
-
     @expose_json
     def launch_burst(self, launch_mode, burst_name, **data):
         """

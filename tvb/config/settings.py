@@ -171,6 +171,12 @@ class BaseProfile():
         except Exception:
             pass
 
+        try:
+            proc = Popen(['git', 'rev-parse', 'HEAD'], stdout=PIPE)
+            return proc.stdout.read().strip()
+        except Exception:
+            pass
+
         raise ValueError('cannot determine svn version')
 
 
@@ -732,16 +738,26 @@ class BaseProfile():
 
     def get_python_path(self):
         """Get Python path, based on running options."""
+
         if self.is_development():
-            return 'python'
+            path =  'python'
         if self.is_windows():
-            return os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
+            path =  os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
         if self.is_mac():
             root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(FrameworkSettings.BIN_FOLDER))))
-            return os.path.join(root_dir, 'MacOS', self.get_python_exe_name())
+            path =  os.path.join(root_dir, 'MacOS', self.get_python_exe_name())
         if self.is_linux():
-            return os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
-        raise Exception("Invalid BUILD type found!!!")
+            path =  os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
+
+        try:
+            # check if file actually exists
+            os.stat(path)
+            return path
+        except:
+            # otherwise best guess is the current interpreter!
+            return sys.executable
+
+        # raise Exception("Invalid BUILD type found!!!")
 
 
 
