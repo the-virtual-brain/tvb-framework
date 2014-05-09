@@ -1104,19 +1104,17 @@ function fill_burst_name(burstName, isReadOnly, addPrefix) {
 		burstName = "Copy of " + burstName;
 	} 
 	
-	if (isReadOnly) {
-		titleSimulation.empty();
+    titleSimulation.empty();
+    inputBurstName.val(burstName);
+    titlePortlets.empty();
+
+    if (isReadOnly) {
 		titleSimulation.append("<mark>Review</mark> Simulation core for "+ burstName);
-		titlePortlets.empty();
 		titlePortlets.append(burstName);
 		sessionStoredBurst.name = burstName;
 		inputBurstName.parent().parent().removeClass('is-created');
-		
 	} else {
-		inputBurstName[0].value = burstName;
-		titleSimulation.empty();
 		titleSimulation.append("<mark>Create</mark> New simulation core");
-		titlePortlets.empty();
 		if (burstName != '') {
 			titlePortlets.append(burstName);
 		} else {
