@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 #
 #
@@ -33,32 +31,13 @@
 """
 .. moduleauthor:: Marmaduke Woodman <mw@eml.cc>
 
-=======
-
-"""
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
-=======
-
-"""
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 Facilitate profiling.
 
 """
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 import cherrypy
-=======
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 import cStringIO as StringIO
-
-import cherrypy
 from tvb.interfaces.web.controllers.base_controller import BaseController
-<<<<<<< HEAD
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 
 try:
     import yappi
@@ -67,49 +46,21 @@ try:
     class Yappi(object):
         exposed = True
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose
         def start(self):
             yappi.start()
             return '<a href="stats">stats</a>'
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose
         def stop(self):
             yappi.stop()
             return '<a href="stats">stats</a>'
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
-        @cherrypy.expose
         def clear_stats(self):
             yappi.clear_stats()
             return '<a href="stats">stats</a>'
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose
         def stats(self):
             reload(yappi_stats)
@@ -118,14 +69,7 @@ try:
 except ImportError:
     class Yappi(object):
         exposed = True
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
-=======
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose
         def start(self):
             return 'Yappi not available'
