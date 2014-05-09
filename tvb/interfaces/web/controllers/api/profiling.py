@@ -36,8 +36,6 @@ Facilitate profiling.
 """
 
 import cherrypy
-import cStringIO as StringIO
-from tvb.interfaces.web.controllers.base_controller import BaseController
 
 try:
     import yappi
@@ -52,14 +50,18 @@ try:
             yappi.start()
             return '<a href="stats">stats</a>'
 
+
         @cherrypy.expose
         def stop(self):
             yappi.stop()
             return '<a href="stats">stats</a>'
 
+
+        @cherrypy.expose
         def clear_stats(self):
             yappi.clear_stats()
             return '<a href="stats">stats</a>'
+
 
         @cherrypy.expose
         def stats(self):
@@ -69,6 +71,7 @@ try:
 except ImportError:
     class Yappi(object):
         exposed = True
+
 
         @cherrypy.expose
         def start(self):
