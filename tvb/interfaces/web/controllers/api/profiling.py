@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 #
 #
@@ -36,17 +37,27 @@
 
 """
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
+=======
+
+"""
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 Facilitate profiling.
 
 """
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import cherrypy
 =======
+=======
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 import cStringIO as StringIO
 
 import cherrypy
 from tvb.interfaces.web.controllers.base_controller import BaseController
+<<<<<<< HEAD
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
+=======
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 
 try:
@@ -57,7 +68,10 @@ try:
         exposed = True
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 =======
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose
@@ -66,7 +80,10 @@ try:
             return '<a href="stats">stats</a>'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 =======
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose
@@ -75,7 +92,10 @@ try:
             return '<a href="stats">stats</a>'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 =======
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose
@@ -84,7 +104,10 @@ try:
             return '<a href="stats">stats</a>'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 =======
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose
@@ -96,8 +119,11 @@ except ImportError:
     class Yappi(object):
         exposed = True
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 =======
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
         @cherrypy.expose

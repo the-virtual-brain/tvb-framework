@@ -177,7 +177,11 @@ class BaseProfile():
         except Exception:
             pass
 
+<<<<<<< HEAD
         raise ValueError('cannot determine svn version')
+=======
+        return 42424242 # raise ValueError('cannot determine svn version')
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 
 
     @ClassProperty
@@ -202,6 +206,7 @@ class BaseProfile():
     LOCALHOST = "127.0.0.1"
     SYSTEM_USER_NAME = 'TVB system'
     DEFAULT_ADMIN_EMAIL = 'jira.tvb@gmail.com'
+<<<<<<< HEAD
 
 
     CURRENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -225,6 +230,12 @@ class BaseProfile():
     def EXTERNALS_FOLDER_PARENT():
         return os.path.dirname(FrameworkSettings.BIN_FOLDER)
 
+=======
+    CURRENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # bin & externals not in the git repo so best guess is current directory
+    BIN_FOLDER = './' # os.path.dirname(os.path.abspath(bin.__file__))
+    EXTERNALS_FOLDER_PARENT = './' # os.path.dirname(BIN_FOLDER)
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 
     # Specify if the current process is executing an operation (via clusterLauncher)
     OPERATION_EXECUTION_PROCESS = False

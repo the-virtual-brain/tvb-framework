@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 #
 #
@@ -43,6 +44,8 @@ importing interacting with the full framework.
 """
 
 =======
+=======
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 """
 tvb.console
 -----------
@@ -52,11 +55,15 @@ Provides convenient access to framework from the console.
 """
 
 ## Select the profile with storage enabled, but without web interface:
+<<<<<<< HEAD
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
+=======
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 from tvb.basic.profile import TvbProfile as tvb_profile
 tvb_profile.set_profile(["-profile", "CONSOLE_PROFILE"], try_reload=False)
 
 from tvb.core.traits import db_events
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 from tvb.core.entities.model import *
@@ -73,6 +80,8 @@ db_events.attach_db_events()
 
 
 =======
+=======
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 from tvb.core.entities.model import AlgorithmGroup, Algorithm
 from tvb.core.entities.storage import dao
 from tvb.core.services.flow_service import FlowService
@@ -116,4 +125,7 @@ db_events.attach_db_events()
                                                       project.id,
                                                       **launch_args)
 """
+<<<<<<< HEAD
+>>>>>>> bcbe888501607d2593180265b7432448f21b31ea
+=======
 >>>>>>> bcbe888501607d2593180265b7432448f21b31ea
