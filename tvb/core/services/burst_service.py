@@ -57,7 +57,8 @@ from tvb.core.portlets.portlet_configurer import PortletConfigurer
 
 
 MAX_BURSTS_DISPLAYED = 50
-
+LAUNCH_NEW = 'new'
+LAUNCH_BRANCH = 'branch'
 
 class BurstService():
     """
@@ -287,7 +288,7 @@ class BurstService():
         return dao.get_portlet_by_identifier(portlet_identifier)
 
 
-    def launch_burst(self, burst_configuration, simulator_index, simulator_id, user_id, launch_mode='new'):
+    def launch_burst(self, burst_configuration, simulator_index, simulator_id, user_id, launch_mode=LAUNCH_NEW):
         """
         Given a burst configuration and all the necessary data do the actual launch.
         
@@ -300,7 +301,7 @@ class BurstService():
         :param launch_mode: new/branch/continue
         """
         ## 1. Prepare BurstConfiguration entity
-        if launch_mode == 'new':
+        if launch_mode == LAUNCH_NEW:
             ## Fully new entity for new simulation
             burst_config = burst_configuration.clone()
             if burst_config.name is None:
@@ -324,7 +325,7 @@ class BurstService():
             burst_config.name = burst_config.name + "_" + launch_mode + str(count)
             
         ## 2. Create Operations and do the actual launch  
-        if launch_mode in ['new', 'branch']:
+        if launch_mode in [LAUNCH_NEW, LAUNCH_BRANCH]:
             ## New Burst entry in the history
             burst_id = self._store_burst_config(burst_config)
             thread = threading.Thread(target=self._async_launch_and_prepare,

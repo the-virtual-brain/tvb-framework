@@ -43,7 +43,7 @@ from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS, MEASURE_METRICS_MODULE
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.utils import generate_guid, string2bool
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.services.burst_service import BurstService, KEY_PARAMETER_CHECKED
+from tvb.core.services.burst_service import BurstService, KEY_PARAMETER_CHECKED, LAUNCH_NEW
 from tvb.core.services.workflow_service import WorkflowService
 from tvb.core.services.operation_service import RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.interfaces.web.controllers import common
@@ -324,7 +324,7 @@ class BurstController(BaseController):
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
 
         ## Validate new burst-name
-        if burst_name != 'none_undefined':
+        if launch_mode == LAUNCH_NEW and burst_name != 'none_undefined':
             self._validate_burst_name(burst_name)
             burst_config.name = burst_name
 
