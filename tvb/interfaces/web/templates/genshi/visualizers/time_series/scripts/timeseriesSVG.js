@@ -26,19 +26,28 @@ var _initial_magic_fcs_amp_scl;
 var tsView;
 
 /**
+ * Initialize selected channels to default values. This is used when no selection ui is present (portlet mode)
+ * initializes global TS_SVG_selectedChannels
+ * Takes the first 20 channels or all
+ */
+function _initDefaultSelection(){
+    for(var i = 0; i < Math.min(MAX_INITIAL_CHANNELS, allChannelLabels.length); i++){
+            TS_SVG_selectedChannels.push(i);
+    }
+}
+
+/**
  * Initializes selected channels
  * initializes global TS_SVG_selectedChannels
  */
-function _initSelection(filterGid){
+function _initSelection(filterGid) {
     // initialize selection component
     var regionSelector = TVBUI.regionSelector("#channelSelector", {filterGid: filterGid});
     var initialSelection = regionSelector.val();
 
-    // If there is no selection take the first 20 channels or all
     if (initialSelection.length == 0) {
-        for(var i = 0; i < Math.min(MAX_INITIAL_CHANNELS, allChannelLabels.length); i++){
-            TS_SVG_selectedChannels.push(i);
-        }
+        // If there is no selection use the default
+        _initDefaultSelection();
         regionSelector.val(TS_SVG_selectedChannels);
     } else if (initialSelection.length > MAX_INITIAL_CHANNELS) {
         // Take a default of maximum 20 channels at start to be displayed
@@ -50,20 +59,20 @@ function _initSelection(filterGid){
     }
     // we bind the event here after the previous val calls
     // do not want those to trigger the change event as tsView is not initialized yet
-    regionSelector.change(function(value){
+    regionSelector.change(function (value) {
         TS_SVG_selectedChannels = [];
-        for(var i=0; i < value.length; i++){
+        for (var i = 0; i < value.length; i++) {
             TS_SVG_selectedChannels.push(parseInt(value[i], 10));
         }
         refreshChannels();
     });
+}
 
-    // compute labels for initial selection
+function _compute_labels_for_current_selection() {
     var selectedLabels = [];
     for(i = 0; i < TS_SVG_selectedChannels.length; i++){
         selectedLabels.push(allChannelLabels[TS_SVG_selectedChannels[i]]);
     }
-
     return selectedLabels;
 }
 
@@ -100,7 +109,13 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     // setup dimensions, div, svg elements and plotter
     var ts = tv.plot.time_series();
 
-    var selectedLabels = _initSelection(filterGid);
+    isPreview = (isPreview === "True");
+
+    if(isPreview){
+        _initDefaultSelection();
+    }else{
+        _initSelection(filterGid);
+    }
 
     dataShape = $.parseJSON(dataShape);
     dataShape[2] = TS_SVG_selectedChannels.length;
@@ -109,7 +124,7 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     var displayElem = $('#time-series-viewer');
     ts.w(displayElem.width()).h(displayElem.height()).baseURL(baseURL).preview(isPreview).mode(0).state_var(0);
     ts.shape(dataShape).t0(t0).dt(dt);
-    ts.labels(selectedLabels);
+    ts.labels(_compute_labels_for_current_selection());
     ts.channels(TS_SVG_selectedChannels);
     // run
     ts(d3.select("#time-series-viewer"));
@@ -118,11 +133,13 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     // This is arbitrarily set to a value. To be consistent with tsview we rescale relative to this value
     _initial_magic_fcs_amp_scl = tsView.magic_fcs_amp_scl;
 
-    $("#ctrl-input-scale").slider({ value: 50, min: 0, max: 100,
-        slide: function(event, target) {
-            _updateScalingFromSlider(target.value);
-        }
-    });
+    if (!isPreview) {
+        $("#ctrl-input-scale").slider({ value: 50, min: 0, max: 100,
+            slide: function (event, target) {
+                _updateScalingFromSlider(target.value);
+            }
+        });
+    }
 }
 
 /*
