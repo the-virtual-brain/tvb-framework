@@ -126,7 +126,8 @@ class MappingTest(BaseTestCase):
         self.assertEqual(len(inserted_data), 4, "Found " + str(len(inserted_data)))
  
         for i in range(4):
-            actual_datatype = dao.get_generic_entity(MappedArray, inserted_data[i][2], 'gid')[0]
+            ## inserted_data will be retrieved in the opposite order than the insert order
+            actual_datatype = dao.get_generic_entity(MappedArray, inserted_data[3 - i][2], 'gid')[0]
             self.assertEqual(actual_datatype.length_1d, shapes[i][0])
             if i > 0:
                 self.assertEqual(actual_datatype.length_2d, shapes[i][1])

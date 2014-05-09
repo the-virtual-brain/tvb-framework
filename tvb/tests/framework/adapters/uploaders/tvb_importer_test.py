@@ -121,7 +121,7 @@ class TVBImporterTest(TransactionalTestCase):
         self._import(self.h5_file_path)
 
         data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           self.datatype.module + "." + self.datatype.type)
+                                                           self.datatype.module + "." + self.datatype.type)[0]
         self.assertEqual(1, len(data_types), "Project should contain only one data type.")
 
         data_type_entity = ABCAdapter.load_entity_by_gid(data_types[0][2])
