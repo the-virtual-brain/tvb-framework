@@ -177,11 +177,7 @@ class BaseProfile():
         except Exception:
             pass
 
-<<<<<<< HEAD
         raise ValueError('cannot determine svn version')
-=======
-        return 42424242 # raise ValueError('cannot determine svn version')
->>>>>>> bcbe888501607d2593180265b7432448f21b31ea
 
 
     @ClassProperty
