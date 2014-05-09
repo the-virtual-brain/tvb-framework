@@ -71,22 +71,6 @@ class MATLABEngine(object):
     buffer_size = property(_get_buffer_size, _set_buffer_size)
 
 
-# open the engine library
-lib = CDLL('libeng.so')
-
-class MATLABEngine(object):
-
-    _buffer, _buffer_size = None, 0
-
-    def _set_buffer_size(self, val):
-        self._buffer_size = val 
-        self._buffer = create_string_buffer(val + 1)
-
-    def _get_buffer_size(self):
-        return self._buffer_size
-
-    buffer_size = property(_get_buffer_size, _set_buffer_size)
-
     @property
     def output(self):
         b = self._buffer
