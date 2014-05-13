@@ -39,6 +39,7 @@ import copy
 import json
 import cherrypy
 import formencode
+import numpy
 
 from tvb.basic.filters.chain import FilterChain
 from tvb.datatypes.arrays import MappedArray
@@ -521,10 +522,11 @@ class FlowController(BaseController):
     def read_datatype_attribute(self, entity_gid, dataset_name, flatten=False, datatype_kwargs='null', **kwargs):
         """
         Retrieve from a given DataType a property or a method result.
-        :returns: JSON with a NumPy array
+        :returns: JSON representation of the attribute.
         :param entity_gid: GID for DataType entity
         :param dataset_name: name of the dataType property /method 
         :param flatten: result should be flatten before return (use with WebGL data mainly e.g vertices/triangles)
+                        Ignored if the attribute is not an ndarray
         :param datatype_kwargs: if passed, will contain a dictionary of type {'name' : 'gid'}, and for each such
         pair, a load_entity will be performed and kwargs will be updated to contain the result
         :param kwargs: extra parameters to be passed when dataset_name is method. 
@@ -538,15 +540,20 @@ class FlowController(BaseController):
                     kwargs[key] = ABCAdapter.load_entity_by_gid(value)
             dataset = getattr(entity, dataset_name)
             if not kwargs:
-                numpy_array = copy.deepcopy(dataset)
+                # why the deep copy?
+                result = copy.deepcopy(dataset)
             else:
-                numpy_array = dataset(**kwargs)
-            if flatten is True or flatten == "True":
-                numpy_array = numpy_array.flatten()
-            return numpy_array.tolist()
-        except Exception, excep:
-            self.logger.error("Could not retrieve complex entity field:" + str(entity_gid) + "/" + str(dataset_name))
-            self.logger.exception(excep)
+                result = dataset(**kwargs)
+
+            if isinstance(result, numpy.ndarray):
+                # for ndarrays honor the flatten kwarg and convert to lists as ndarrs are not json-able
+                if flatten is True or flatten == "True":
+                    result = result.flatten()
+                return result.tolist()
+            else:
+                return result
+        except Exception:
+            self.logger.exception("Could not retrieve complex entity field:" + str(entity_gid) + "/" + str(dataset_name))
 
 
     @expose_page
