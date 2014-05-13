@@ -37,6 +37,8 @@ Decorators for Cherrypy exposed methods are defined here.
 import os
 import json
 import cherrypy
+import cProfile
+from datetime import datetime
 from functools import wraps
 from genshi.template import TemplateLoader
 from tvb.basic.config.settings import TVBSettings as cfg
@@ -244,3 +246,40 @@ def expose_json(func):
     func = handle_error(redirect=False)(func)
     func = cherrypy.expose(func)
     return func
+
+
+def profile_func(func):
+    def wrapper(*args, **kwargs):
+        log = get_logger(_LOGGER_NAME)
+        profile_file = func.__name__ + datetime.now().strftime("%d-%H-%M-%S") + ".profile"
+        log.info("profiling function %s. Profile stored in %s" % (func.__name__, profile_file))
+        prof = cProfile.Profile()
+        ret = prof.runcall(func, *args, **kwargs)
+        prof.dump_stats(profile_file)
+        return ret
+
+    return wrapper
+
+
+def _profile_sqlalchemy(func):
+    """
+    Count the number of db queries. Note that this implementation should be used
+    for debugging only and on few functions. Due to a limitation in sqlalchemy 1.7 it leaks events
+    """
+    from sqlalchemy import event
+    from sqlalchemy.engine.base import Engine
+
+    log = get_logger(_LOGGER_NAME)
+
+    def wrapper(*args, **kwargs):
+        d = [0]
+        def _after_cursor_execute(conn, cursor, stmt, params, context, execmany):
+            d[0] += 1
+
+        event.listen(Engine, "after_cursor_execute", _after_cursor_execute)
+        ret = func(*args, **kwargs)
+        # event.remove(Engine, "after_cursor_execute", _after_cursor_execute)
+        log.info("Queries issues by function %s, id %s : %s" % (func.__name__, id(func), d[0]))
+        return ret
+
+    return wrapper
