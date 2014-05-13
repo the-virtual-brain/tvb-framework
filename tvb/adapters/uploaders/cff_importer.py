@@ -107,37 +107,22 @@ class CFF_Importer(ABCUploader):
             cdatas = conn_obj.get_connectome_data()
 
             warning_message = ""
-            if network:
-                msg = self.__parse_connectome_network(network)
-                if msg is not None:
-                    warning_message += msg
-            if surfaces:
-                msg = self.__parse_connectome_surface(surfaces, cdatas)
-                if msg is not None:
-                    warning_message += msg
 
-            ####################################################################
-            # !! CFF doesn't delete temporary folders created, 
-            #        so we need to track and delete them manually!!
-            temp_files = []
-            root_folder = gettempdir()
-            for ele in conn_obj.get_all():
-                if hasattr(ele, 'tmpsrc') and os.path.exists(ele.tmpsrc):
-                    full_path = ele.tmpsrc
-                    while os.path.split(full_path)[0] != root_folder and os.path.split(full_path)[0] != os.sep:
-                        full_path = os.path.split(full_path)[0]
-                    #Get the root parent from the $gettempdir()$
-                    temp_files.append(full_path)
-            conn_obj.close_all()
-            conn_obj._zipfile.close()
-            for ele in temp_files:
+            if network:
                 try:
-                    if os.path.isdir(ele):
-                        shutil.rmtree(ele)
-                    elif os.path.isfile(ele):
-                        os.remove(ele)
-                except WindowsError:
-                    self.logger.exception("Could not cleanup temporary files after import...")
+                    self._parse_connectome_network(network)
+                except Exception, excep:
+                    self.log.exception(excep)
+                    warning_message += "Problem when importing a Connectivity!! \n"
+
+            if surfaces:
+                try:
+                    self._parse_connectome_surface(surfaces, cdatas)
+                except Exception, excep:
+                    self.log.exception(excep)
+                    warning_message += "Problem when importing Surface (or related attributes: LocalConnectivity/RegionMapping) !! \n"
+
+            self._cleanup_after_cfflib(conn_obj)
 
             current_op = dao.get_operation_by_id(self.operation_id)
             current_op.user_group = conn_obj.get_connectome_meta().title
@@ -154,71 +139,90 @@ class CFF_Importer(ABCUploader):
             self.logger.info("Output from cfflib2 library: %s" % (print_output,))
 
 
-    def __parse_connectome_network(self, connectome_network):
+    def _parse_connectome_network(self, connectome_network):
         """
         Parse data from a NetworkX object and save it in Connectivity DataTypes.
         """
-        try:
-            for net in connectome_network:
-                conn, uid = networkx2connectivity(net, self.storage_path)
-                self.nr_of_datatypes += 1
-                self._capture_operation_results([conn], uid)
-        except Exception, excep:
-            self.log.warning(excep)
-            self.log.exception(excep)
-            return "Problem when importing a Connectivity!! \n"
+        for net in connectome_network:
+            conn, uid = networkx2connectivity(net, self.storage_path)
+            self.nr_of_datatypes += 1
+            self._capture_operation_results([conn], uid)
 
 
-    def __parse_connectome_surface(self, connectome_surface, connectome_data):
+    def _parse_connectome_surface(self, connectome_surface, connectome_data):
         """
         Parse data from a CSurface object and save it in our internal Surface DataTypes
         """
-        try:
-            for c_surface in connectome_surface:
-                # create a meaningful but unique temporary path to extract
-                tmpdir = os.path.join(gettempdir(), c_surface.parent_cfile.get_unique_cff_name())
-                self.log.debug("Using temporary folder for CFF import:" + tmpdir)
-                _zipfile = ZipFile(c_surface.parent_cfile.src, 'r', ZIP_DEFLATED)
-                gifti_file = _zipfile.extract(c_surface.src, tmpdir)
-                gifti_img = loadImage(gifti_file)
-                surface_meta = gifti_img.meta.get_data_as_dict()
-                res, uid = None, None
+        for c_surface in connectome_surface:
+            # create a meaningful but unique temporary path to extract
+            tmpdir = os.path.join(gettempdir(), c_surface.parent_cfile.get_unique_cff_name())
+            self.log.debug("Using temporary folder for CFF import:" + tmpdir)
+            _zipfile = ZipFile(c_surface.parent_cfile.src, 'r', ZIP_DEFLATED)
+            gifti_file = _zipfile.extract(c_surface.src, tmpdir)
+            gifti_img = loadImage(gifti_file)
+            surface_meta = gifti_img.meta.get_data_as_dict()
+            res, uid = None, None
 
-                if ct.SURFACE_CLASS in surface_meta and surface_meta[ct.SURFACE_CLASS] == ct.CLASS_SURFACE:
-                    vertices, normals, triangles = None, None, None
-                    for one_data in connectome_data:
-                        cd_meta = one_data.get_metadata_as_dict()
-                        if ct.KEY_UID in cd_meta and surface_meta[ct.KEY_UID] == cd_meta[ct.KEY_UID]:
-                            if cd_meta[ct.KEY_ROLE] == ct.ROLE_VERTICES:
-                                vertices = one_data
-                            if cd_meta[ct.KEY_ROLE] == ct.ROLE_NORMALS:
-                                normals = one_data
-                            if cd_meta[ct.KEY_ROLE] == ct.ROLE_TRIANGLES:
-                                triangles = one_data
-                    res, uid = handler_surface.gifti2surface(gifti_img, vertices, normals,
-                                                             triangles, self.storage_path)
-                    self.nr_of_datatypes += 1
-                    self._capture_operation_results([res], uid)
+            if surface_meta.get(ct.SURFACE_CLASS) == ct.CLASS_SURFACE:
+                vertices, normals, triangles = None, None, None
+                for one_data in connectome_data:
+                    cd_meta = one_data.get_metadata_as_dict()
+                    if ct.KEY_UID in cd_meta and surface_meta[ct.KEY_UID] == cd_meta[ct.KEY_UID]:
+                        if cd_meta[ct.KEY_ROLE] == ct.ROLE_VERTICES:
+                            vertices = one_data
+                        if cd_meta[ct.KEY_ROLE] == ct.ROLE_NORMALS:
+                            normals = one_data
+                        if cd_meta[ct.KEY_ROLE] == ct.ROLE_TRIANGLES:
+                            triangles = one_data
+                res, uid = handler_surface.gifti2surface(gifti_img, vertices, normals,
+                                                         triangles, self.storage_path)
+                self.nr_of_datatypes += 1
+                self._capture_operation_results([res], uid)
 
-                elif surface_meta[ct.SURFACE_CLASS] == ct.CLASS_CORTEX:
-                    for one_data in connectome_data:
-                        cd_meta = one_data.get_metadata_as_dict()
-                        if ct.KEY_UID not in cd_meta or surface_meta[ct.KEY_UID] != cd_meta[ct.KEY_UID]:
-                            continue
-                        if cd_meta[ct.KEY_ROLE] == ct.ROLE_REGION_MAP:
-                            res, uid = handler_surface.cdata2region_mapping(one_data, surface_meta, self.storage_path)
-                        if cd_meta[ct.KEY_ROLE] == ct.ROLE_LOCAL_CON:
-                            res, uid = handler_surface.cdata2local_connectivity(one_data, surface_meta,
-                                                                                self.storage_path)
-                        if res is not None:
-                            self.nr_of_datatypes += 1
-                            self._capture_operation_results([res], uid)
-
+            elif surface_meta.get(ct.SURFACE_CLASS) == ct.CLASS_CORTEX:
+                for one_data in connectome_data:
+                    cd_meta = one_data.get_metadata_as_dict()
+                    if ct.KEY_UID not in cd_meta or surface_meta[ct.KEY_UID] != cd_meta[ct.KEY_UID]:
+                        continue
+                    if cd_meta[ct.KEY_ROLE] == ct.ROLE_REGION_MAP:
+                        res, uid = handler_surface.cdata2region_mapping(one_data, surface_meta, self.storage_path)
+                    if cd_meta[ct.KEY_ROLE] == ct.ROLE_LOCAL_CON:
+                        res, uid = handler_surface.cdata2local_connectivity(one_data, surface_meta,
+                                                                            self.storage_path)
+                    if res is not None:
+                        self.nr_of_datatypes += 1
+                        self._capture_operation_results([res], uid)
+            try:
                 if os.path.exists(tmpdir):
                     shutil.rmtree(tmpdir)
-
-        except Exception, excep:
-            self.log.exception(excep)
-            return "Problem when importing Surface (or related attributes: LocalConnectivity/RegionMapping) !! \n"
+            except OSError:
+                self.log.exception("could not clean up temp file")
 
 
+    def _cleanup_after_cfflib(self, conn_obj):
+        """
+        !! CFF doesn't delete temporary folders created,
+           so we need to track and delete them manually!!
+        """
+        temp_files = []
+        root_folder = gettempdir()
+
+        for ele in conn_obj.get_all():
+            if hasattr(ele, 'tmpsrc') and os.path.exists(ele.tmpsrc):
+                full_path = ele.tmpsrc
+                while os.path.split(full_path)[0] != root_folder and os.path.split(full_path)[0] != os.sep:
+                    full_path = os.path.split(full_path)[0]
+                #Get the root parent from the $gettempdir()$
+                temp_files.append(full_path)
+
+        conn_obj.close_all()
+        conn_obj._zipfile.close()
+
+        for ele in temp_files:
+            try:
+                if os.path.isdir(ele):
+                    shutil.rmtree(ele)
+                elif os.path.isfile(ele):
+                    os.remove(ele)
+            except OSError:
+                self.logger.exception("Could not cleanup temporary files after import...")
