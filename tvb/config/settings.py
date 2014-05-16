@@ -768,6 +768,7 @@ class TestSQLiteProfile(BaseProfile):
 
     RENDER_HTML = False
     TRADE_CRASH_SAFETY_FOR_SPEED = True
+    DEFAULT_STORAGE = os.path.expanduser(os.path.join('~', 'TVB_TEST'))
 
 
     @ClassProperty
@@ -775,7 +776,7 @@ class TestSQLiteProfile(BaseProfile):
     @settings_loaded()
     def TVB_STORAGE():
         """Root folder for all projects and users."""
-        default = os.path.expanduser(os.path.join("~", "TVB_TEST" + os.sep))
+        default = FrameworkSettings.DEFAULT_STORAGE
         current_storage = FrameworkSettings.get_attribute(FrameworkSettings.KEY_STORAGE, default)
 
         if not os.path.exists(current_storage):
