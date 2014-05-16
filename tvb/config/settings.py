@@ -302,6 +302,8 @@ class BaseProfile():
         """
         pass
 
+    FIRST_RUN_STORAGE = os.path.expanduser(os.path.join('~', '.tvb-temp'))
+    DEFAULT_STORAGE = os.path.expanduser(os.path.join('~', 'TVB'))
 
     # III. Attributes that can be overwritten from config file.
     #     Will have only default values in here.
@@ -310,7 +312,7 @@ class BaseProfile():
     @settings_loaded()
     def TVB_STORAGE():
         """Root folder for all projects and users."""
-        default = os.path.expanduser(os.path.join("~", "TVB" + os.sep))
+        default = FrameworkSettings.FIRST_RUN_STORAGE
         return FrameworkSettings.get_attribute(FrameworkSettings.KEY_STORAGE, default)
 
 
@@ -363,8 +365,8 @@ class BaseProfile():
     @staticmethod
     def ACEEPTED_DBS():
         """A dictionary with accepted db's and their default URLS"""
-        return {'postgres': FrameworkSettings.POSTGRES_URL,
-                'sqlite': ('sqlite:///' + os.path.join(FrameworkSettings.TVB_STORAGE, "tvb-database.db"))}
+        return {'postgres': 'postgresql+psycopg2://postgres:root@127.0.0.1:5432/tvb?user=postgres&password=postgres',
+                'sqlite': ('sqlite:///' + os.path.join(FrameworkSettings.DEFAULT_STORAGE, "tvb-database.db"))}
 
 
     @ClassProperty
@@ -378,23 +380,11 @@ class BaseProfile():
 
     @ClassProperty
     @staticmethod
+    @settings_loaded()
     def DB_URL():
         """Used DB url: IP,PORT. The DB  needs to be created in advance."""
-        if FrameworkSettings.SELECTED_DB in FrameworkSettings.ACEEPTED_DBS:
-            return FrameworkSettings.ACEEPTED_DBS[FrameworkSettings.SELECTED_DB]
-        return 'sqlite:///' + os.path.join(FrameworkSettings.TVB_STORAGE, "tvb-database.db")
-
-
-    @ClassProperty
-    @staticmethod
-    @settings_loaded()
-    def POSTGRES_URL():
-        """Default URL for Postgres DB"""
-        default = 'postgresql+psycopg2://postgres:root@127.0.0.1:5432/tvb?user=postgres&password=postgres'
-        current_url = FrameworkSettings.get_attribute(FrameworkSettings.KEY_DB_URL, default)
-        if FrameworkSettings.SELECTED_DB == 'postgres' and current_url.startswith('postgresql'):
-            return current_url
-        return default
+        default = 'sqlite:///' + os.path.join(FrameworkSettings.TVB_STORAGE, "tvb-database.db")
+        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_DB_URL, default)
 
 
     @ClassProperty
@@ -578,10 +568,9 @@ class BaseProfile():
     def parse_svn_version(version_string):
         if ':' in version_string:
             version_string = version_string.split(':')[1]
-            number = ''.join([ch for ch in version_string if ch.isdigit()])
-            return int(number)
-        else:
-            return int(version_string)
+
+        number = ''.join([ch for ch in version_string if ch.isdigit()])
+        return int(number)
 
 
     @staticmethod

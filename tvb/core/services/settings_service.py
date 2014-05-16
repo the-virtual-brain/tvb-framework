@@ -76,7 +76,8 @@ class SettingsService():
     def __init__(self):
         self.logger = get_logger(__name__)
         self.configurable_keys = {
-            self.KEY_STORAGE: {'label': 'Root folder for all projects', 'value': cfg.TVB_STORAGE,
+            self.KEY_STORAGE: {'label': 'Root folder for all projects',
+                               'value': cfg.TVB_STORAGE if not self.is_first_run() else cfg.DEFAULT_STORAGE,
                                'readonly': not self.is_first_run(), 'type': 'text'},
             self.KEY_MAX_DISK_SPACE_USR: {'label': 'Max hard disk space per user (MBytes)',
                                           'value': cfg.MAX_DISK_SPACE / 2 ** 10, 'type': 'text'},
@@ -87,7 +88,7 @@ class SettingsService():
             self.KEY_SELECTED_DB: {'label': 'Select one DB engine', 'value': cfg.SELECTED_DB,
                                    'type': 'select', 'readonly': not self.is_first_run(),
                                    'options': cfg.ACEEPTED_DBS},
-            self.KEY_DB_URL: {'label': "DB connection URL", 'value': cfg.DB_URL,
+            self.KEY_DB_URL: {'label': "DB connection URL", 'value': cfg.ACEEPTED_DBS[cfg.SELECTED_DB],
                               'type': 'text', 'readonly': cfg.SELECTED_DB == 'sqlite'},
             self.KEY_IP: {'label': 'Server name', 'value': cfg.SERVER_IP, 'type': 'text'},
             self.KEY_PORT: {'label': 'The port used by Cherrypy',
