@@ -64,7 +64,7 @@ def initialize_startup():
             shutil.rmtree(cfg.DB_VERSIONING_REPO)
         migratesqlapi.create(cfg.DB_VERSIONING_REPO, os.path.split(cfg.DB_VERSIONING_REPO)[1])
         _update_sql_scripts()
-        migratesqlapi.version_control(cfg.DB_URL, cfg.DB_VERSIONING_REPO, version=cfg.DB_CURRENT_VERSION)
+        migratesqlapi.version_control(cfg.DB_URL, unicode(cfg.DB_VERSIONING_REPO, 'utf-8'), version=cfg.DB_CURRENT_VERSION)
         session = SA_SESSIONMAKER()
         model.Base.metadata.create_all(bind=session.connection())
         session.commit()
