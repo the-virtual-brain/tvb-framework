@@ -39,12 +39,10 @@ import json
 import datetime
 import uuid
 import numpy
-from scipy import io as scipy_io
 from tvb.basic.config.settings import TVBSettings as configFile
 from tvb.basic.logger.builder import get_logger
 from tvb.core.decorators import user_environment_execution
 
-LOGGER = get_logger(__name__)
 
 MATLAB = "matlab"
 OCTAVE = "octave"
@@ -104,27 +102,6 @@ def get_unique_file_name(storage_folder, file_name, try_number=0):
 
 
 ################## FILE related methods start here ###############
-
-def read_matlab_data(path, matlab_data_name=None):
-    """
-    Read array from matlab file.
-    """
-    try:
-        matlab_data = scipy_io.matlab.loadmat(path)
-    except NotImplementedError:
-        LOGGER.error("Could not read Matlab content from: " + path)
-        LOGGER.error("Matlab files must be saved in a format <= -V7...")
-        raise
-
-    try:
-        return matlab_data[matlab_data_name]
-    except KeyError:
-        def double__(n):
-            n = str(n)
-            return n.startswith('__') and n.endswith('__')
-        available = [s for s in matlab_data if not double__(s)]
-        raise KeyError("Could not find dataset named %s. Available datasets: %s" % (matlab_data_name, available))
-
 
 def store_list_data(data_list, file_name, storage_folder, overwrite=False):
     """
@@ -291,7 +268,7 @@ def slice_str(slice_or_tuple):
                 return '%s' % (s.stop if s.stop is not None else ':')
             r = '%s:%s' % (s.start or '', s.stop or '')
             if s.step is not None:
-                r += ':%d' %s.step
+                r += ':%d' % s.step
             return r
         else:
             return str(int(s))

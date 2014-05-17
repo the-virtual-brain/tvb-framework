@@ -33,7 +33,6 @@
 """
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.basic.logger.builder import get_logger
-from tvb.core import utils
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.entities.storage import transactional
 from tvb.datatypes.connectivity import Connectivity
@@ -76,7 +75,7 @@ class ConnectivityMeasureImporter(ABCUploader):
         Execute import operations:
         """
         try:
-            data = utils.read_matlab_data(data_file, dataset_name)
+            data = self.read_matlab_data(data_file, dataset_name)
             measurement_count, node_count = data.shape
 
             if node_count != connectivity.number_of_regions:
@@ -86,7 +85,7 @@ class ConnectivityMeasureImporter(ABCUploader):
             measures = []
             for i in xrange(measurement_count):
                 measure = ConnectivityMeasure(storage_path=self.storage_path,
-                                              connectivity=connectivity, array_data=data[i,:])
+                                              connectivity=connectivity, array_data=data[i, :])
                 measure.user_tag_2 = "nr.-%d" % (i + 1)
                 measure.user_tag_3 = "conn_%d" % node_count
                 measures.append(measure)

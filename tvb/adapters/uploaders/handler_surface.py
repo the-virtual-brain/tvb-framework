@@ -44,7 +44,7 @@ from cfflib import CData
 from tvb.core.adapters.exceptions import ParseException
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
-from tvb.core.utils import get_unique_file_name, read_matlab_data
+from tvb.core.utils import get_unique_file_name
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.gifti.util import GiftiDataType, GiftiIntentCode
 from tvb.adapters.uploaders.gifti.gifti import GiftiNVPairs, GiftiMetaData, saveImage, GiftiDataArray, GiftiImage
@@ -245,7 +245,7 @@ def cdata2local_connectivity(local_connectivity_data, meta, storage_path, expect
     
     local_connectivity = surfaces.LocalConnectivity()
     local_connectivity.storage_path = storage_path 
-    local_connectivity_data = read_matlab_data(local_connectivity_path, constants.DATA_NAME_LOCAL_CONN)
+    local_connectivity_data = ABCUploader.read_matlab_data(local_connectivity_path, constants.DATA_NAME_LOCAL_CONN)
     
     if local_connectivity_data.shape[0] < expected_length:
         padding = sparse.csc_matrix((local_connectivity_data.shape[0],
@@ -300,7 +300,7 @@ def cdata2eeg_mapping(eeg_mapping_data, meta, storage_path, expected_shape=0):
     LOG.debug("Using temporary folder for EEG_Mapping import: " + tmpdir)
     _zipfile = ZipFile(eeg_mapping_data.parent_cfile.src, 'r', ZIP_DEFLATED)
     eeg_projection_path = _zipfile.extract(eeg_mapping_data.src, tmpdir)
-    eeg_projection_data = read_matlab_data(eeg_projection_path, constants.DATA_NAME_PROJECTION)
+    eeg_projection_data = ABCUploader.read_matlab_data(eeg_projection_path, constants.DATA_NAME_PROJECTION)
     if eeg_projection_data.shape[1] < expected_shape:
         padding = numpy.zeros((eeg_projection_data.shape[0], expected_shape - eeg_projection_data.shape[1]))
         eeg_projection_data = numpy.hstack((eeg_projection_data, padding))

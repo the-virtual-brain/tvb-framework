@@ -36,7 +36,6 @@ import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.constants import DATA_NAME_PROJECTION
 from tvb.basic.logger.builder import get_logger
-from tvb.core import utils
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.surfaces import CorticalSurface
 from tvb.datatypes.connectivity import Connectivity
@@ -116,7 +115,7 @@ class ProjectionMatrixRegionEEGImporter(ABCUploader):
             raise LaunchException("No sensors selected. Please initiate upload again and select one.")
         
         self.logger.debug("Reading projection matrix from uploaded file...")
-        eeg_projection_data = utils.read_matlab_data(projection_file, dataset_name)
+        eeg_projection_data = self.read_matlab_data(projection_file, dataset_name)
         
         if eeg_projection_data is None or len(eeg_projection_data) == 0:
             raise LaunchException("Invalid (empty) dataset...")

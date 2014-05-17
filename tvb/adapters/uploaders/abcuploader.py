@@ -35,6 +35,8 @@
 import os
 import numpy
 from abc import abstractmethod
+from scipy import io as scipy_io
+from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
@@ -45,6 +47,7 @@ class ABCUploader(ABCSynchronous):
     """
     Base class of the uploaders
     """
+    LOGGER = get_logger(__name__)
 
     def get_input_tree(self):
         """
@@ -123,4 +126,26 @@ class ABCUploader(ABCSynchronous):
             file_ending = os.path.split(full_path)[1]
             exc.args = (exc.args[0] + " In file: " + file_ending,)
             raise
+
+
+    @staticmethod
+    def read_matlab_data(path, matlab_data_name=None):
+        """
+        Read array from matlab file.
+        """
+        try:
+            matlab_data = scipy_io.matlab.loadmat(path)
+        except NotImplementedError:
+            ABCUploader.LOGGER.error("Could not read Matlab content from: " + path)
+            ABCUploader.LOGGER.error("Matlab files must be saved in a format <= -V7...")
+            raise
+
+        try:
+            return matlab_data[matlab_data_name]
+        except KeyError:
+            def double__(n):
+                n = str(n)
+                return n.startswith('__') and n.endswith('__')
+            available = [s for s in matlab_data if not double__(s)]
+            raise KeyError("Could not find dataset named %s. Available datasets: %s" % (matlab_data_name, available))
 
