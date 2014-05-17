@@ -45,12 +45,12 @@ from tvb.core.adapters.exceptions import ParseException
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
 from tvb.core.utils import get_unique_file_name, read_matlab_data
+from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.gifti.util import GiftiDataType, GiftiIntentCode
 from tvb.adapters.uploaders.gifti.gifti import GiftiNVPairs, GiftiMetaData, saveImage, GiftiDataArray, GiftiImage
 from tvb.adapters.uploaders.helper_handler import get_uids_dict, get_gifty_file_name
 from tvb.adapters.uploaders import constants
 from tvb.basic.config.settings import TVBSettings as cfg
-from tvb.basic.traits.util import read_list_data
 from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes import surfaces, projections
@@ -62,6 +62,8 @@ NUMPY_TEMP_FOLDER = os.path.join(cfg.TVB_STORAGE, "NUMPY_TMP")
 #
 # Surface <-> GIFTI
 # 
+
+
 def _create_gifty_array(input_data_list, intent, datatype=GiftiDataType.NIFTI_TYPE_FLOAT32):
     """
     From a input list of points, the intent of this list and the number of points(used for dimensionality)
@@ -280,7 +282,7 @@ def cdata2region_mapping(region_mapping_data, meta, storage_path):
     connectivity = ABCAdapter.load_entity_by_gid(gid)
     
     region_mapping = surfaces.RegionMapping(storage_path=storage_path)
-    region_mapping.array_data = read_list_data(region_mapping_path, dtype=numpy.int32)
+    region_mapping.array_data = ABCUploader.read_list_data(region_mapping_path, dtype=numpy.int32)
     region_mapping.connectivity = connectivity
     region_mapping.surface = surface_data
     uid = meta[constants.KEY_UID] if constants.KEY_UID in meta else None
@@ -335,4 +337,4 @@ def center_vertices(vertices):
     :param vertices: a numpy array of shape (n, 3)
     :returns: the centered array
     """
-    return vertices - numpy.mean(vertices, axis=0).reshape((1,3))
+    return vertices - numpy.mean(vertices, axis=0).reshape((1, 3))

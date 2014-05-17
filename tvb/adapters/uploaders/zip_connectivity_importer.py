@@ -35,7 +35,6 @@
 
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
-from tvb.basic.traits.util import read_list_data
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.connectivity import Connectivity
@@ -105,20 +104,20 @@ class ZIPConnectivityImporter(ABCUploader):
         for file_name in files:
             file_name_low = file_name.lower()
             if self.WEIGHT_TOKEN in file_name_low:
-                weights_matrix = read_list_data(file_name)
+                weights_matrix = self.read_list_data(file_name)
             elif self.CENTRES_TOKEN in file_name_low:
-                centres = read_list_data(file_name, usecols=[1, 2, 3])
-                labels_vector = read_list_data(file_name, dtype=numpy.str, usecols=[0])
+                centres = self.read_list_data(file_name, usecols=[1, 2, 3])
+                labels_vector = self.read_list_data(file_name, dtype=numpy.str, usecols=[0])
             elif self.TRACT_TOKEN in file_name_low:
-                tract_matrix = read_list_data(file_name)
+                tract_matrix = self.read_list_data(file_name)
             elif self.ORIENTATION_TOKEN in file_name_low:
-                orientation = read_list_data(file_name)
+                orientation = self.read_list_data(file_name)
             elif self.AREA_TOKEN in file_name_low:
-                areas = read_list_data(file_name)
+                areas = self.read_list_data(file_name)
             elif self.CORTICAL_INFO in file_name_low:
-                cortical_vector = read_list_data(file_name, dtype=numpy.bool)
+                cortical_vector = self.read_list_data(file_name, dtype=numpy.bool)
             elif self.HEMISPHERE_INFO in file_name_low:
-                hemisphere_vector = read_list_data(file_name, dtype=numpy.bool)
+                hemisphere_vector = self.read_list_data(file_name, dtype=numpy.bool)
 
         ### Clean remaining text-files.
         FilesHelper.remove_files(files, True)

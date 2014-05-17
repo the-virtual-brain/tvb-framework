@@ -34,7 +34,6 @@
 
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
-from tvb.basic.traits.util import read_list_data
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.sensors import Sensors, SensorsEEG, SensorsMEG, SensorsInternal
@@ -103,12 +102,12 @@ class Sensors_Importer(ABCUploader):
             raise LaunchException(exception_str)
             
         sensors_inst.storage_path = self.storage_path
-        sensors_inst.locations = read_list_data(sensors_file, usecols=[1, 2, 3])
-        sensors_inst.labels = read_list_data(sensors_file, dtype=numpy.str, usecols=[0])
+        sensors_inst.locations = self.read_list_data(sensors_file, usecols=[1, 2, 3])
+        sensors_inst.labels = self.read_list_data(sensors_file, dtype=numpy.str, usecols=[0])
         
         if isinstance(sensors_inst, SensorsMEG):
             try:
-                sensors_inst.orientations = read_list_data(sensors_file, usecols=[4, 5, 6])
+                sensors_inst.orientations = self.read_list_data(sensors_file, usecols=[4, 5, 6])
             except IndexError:
                 raise LaunchException("Uploaded file does not contains sensors orientation.")
          

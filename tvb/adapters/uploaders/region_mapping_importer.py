@@ -39,7 +39,6 @@ import zipfile
 import tempfile
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.basic.logger.builder import get_logger
-from tvb.basic.traits.util import read_list_data
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -110,12 +109,12 @@ class RegionMapping_Importer(ABCUploader):
                 files = FilesHelper().unpack_zip(mapping_file, tmp_folder)
                 if len(files) > 1:
                     raise LaunchException("Please upload a ZIP file containing only one file.")
-                array_data = read_list_data(files[0], dtype=numpy.int32)    
+                array_data = self.read_list_data(files[0], dtype=numpy.int32)
             finally:
                 if os.path.exists(tmp_folder):
                     shutil.rmtree(tmp_folder)
         else:
-            array_data = read_list_data(mapping_file, dtype=numpy.int32)
+            array_data = self.read_list_data(mapping_file, dtype=numpy.int32)
         
         # Now we do some checks before building final RegionMapping
         if array_data is None or len(array_data) == 0:
