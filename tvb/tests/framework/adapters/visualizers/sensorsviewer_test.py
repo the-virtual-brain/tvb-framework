@@ -79,7 +79,7 @@ class SensorViewersTest(TransactionalTestCase):
         self.test_user = self.datatypeFactory.get_user()
 
         ## Import Shelf Face Object
-        zip_path = os.path.join(os.path.dirname(surfaces_dataset.__file__), 'face-surface.zip')
+        zip_path = os.path.join(os.path.dirname(surfaces_dataset.__file__), 'Face_surface_old.zip')
         TestFactory.import_surface_zip(self.test_user, self.test_project, zip_path, FACE, True)
 
 

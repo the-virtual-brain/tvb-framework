@@ -54,7 +54,7 @@ class ZIPSurfaceImporterTest(TransactionalTestCase):
     Unit-tests for Zip Surface importer.
     """
 
-    surf80k = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'surface_80k', 'surface_80k.zip')
+    surf80k = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'Surface_cortex_80k', 'surface_80k.zip')
 
 
     def setUp(self):

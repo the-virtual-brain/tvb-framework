@@ -60,7 +60,7 @@ class BrainViewerTest(TransactionalTestCase):
         self.test_user = self.datatypeFactory.get_user()
         
         TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
-        zip_path = os.path.join(os.path.dirname(surface_dataset.__file__), 'face-surface.zip')
+        zip_path = os.path.join(os.path.dirname(surface_dataset.__file__), 'Face_surface_old.zip')
         TestFactory.import_surface_zip(self.test_user, self.test_project, zip_path, 'Face', 1)
         zip_path = os.path.join(os.path.dirname(surface_dataset.__file__), 'eeg_skin_surface.zip')
         TestFactory.import_surface_zip(self.test_user, self.test_project, zip_path, 'EEG Cap', 1)
