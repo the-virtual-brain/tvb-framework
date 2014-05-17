@@ -126,7 +126,7 @@ function __tryExport(canvas, kwargs, remainingTrials) {
     if (canvas.notReadyForExport)
         // the mplh5 canvases will set this flag to TRUE after they finish resizing, so they can be exported at Hi Res
         // undefined or FALSE means it CAN BE exported
-        setTimeout(function() { __tryExport(canvas, kwargs, remainingTrials - 1) }, 200);
+        setTimeout(function() { __tryExport(canvas, kwargs, remainingTrials - 1) }, 300);
 
     else {              // canvas is ready for export
         var data = canvas.toDataURL("image/png");
@@ -171,12 +171,12 @@ function __storeCanvas(canvas, kwargs) {
     if (canvas.multipleImageExport){
         canvas.multipleImageExport(function(saveimgKwargs){
             $.extend(kwargs, saveimgKwargs);
-            __tryExport(canvas, kwargs, 15);
+            __tryExport(canvas, kwargs, 25);
         });
         return;
     }
 
     canvas.drawForImageExport();        // interface-like function that redraws the canvas at bigger dimension
 
-    __tryExport(canvas, kwargs, 15);
+    __tryExport(canvas, kwargs, 25);
 }
