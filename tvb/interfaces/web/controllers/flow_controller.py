@@ -522,14 +522,16 @@ class FlowController(BaseController):
     def read_datatype_attribute(self, entity_gid, dataset_name, flatten=False, datatype_kwargs='null', **kwargs):
         """
         Retrieve from a given DataType a property or a method result.
+
         :returns: JSON representation of the attribute.
         :param entity_gid: GID for DataType entity
         :param dataset_name: name of the dataType property /method 
         :param flatten: result should be flatten before return (use with WebGL data mainly e.g vertices/triangles)
-                        Ignored if the attribute is not an ndarray
+            Ignored if the attribute is not an ndarray
         :param datatype_kwargs: if passed, will contain a dictionary of type {'name' : 'gid'}, and for each such
-        pair, a load_entity will be performed and kwargs will be updated to contain the result
-        :param kwargs: extra parameters to be passed when dataset_name is method. 
+            pair, a load_entity will be performed and kwargs will be updated to contain the result
+        :param kwargs: extra parameters to be passed when dataset_name is method.
+
         """
         try:
             self.logger.debug("Starting to read HDF5: " + entity_gid + "/" + dataset_name + "/" + str(kwargs))
@@ -553,7 +555,7 @@ class FlowController(BaseController):
             else:
                 return result
         except Exception:
-            self.logger.exception("Could not retrieve complex entity field:" + str(entity_gid) + "/" + str(dataset_name))
+            self.logger.exception("Could not retrieve complex entity field: %s / %s" % (entity_gid, dataset_name))
 
 
     @expose_page

@@ -96,7 +96,7 @@ def initialize(introspected_modules, load_xml_events=True):
     ## In case actions related to latest code-changes are needed, make sure they are executed.
     CodeUpdateManager().run_all_updates()
 
-    ## Clean a tvb temp if
+    ## Clean tvb-first-time-run temporary folder, if we are no longer at the first run:
     if not SettingsService.is_first_run():
         shutil.rmtree(cfg.FIRST_RUN_STORAGE, True)
             
