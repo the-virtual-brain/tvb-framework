@@ -40,7 +40,7 @@ from tvb.adapters.uploaders.handler_surface import center_vertices
 from tvb.adapters.uploaders.zip_surface.parser import ZipSurfaceParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.datatypes.surfaces import Surface, CorticalSurface, SkinAir, BrainSkull, SkullSkin, EEGCap, FaceSurface
+from tvb.datatypes.surfaces import Surface, make_surface
 from tvb.datatypes.surfaces_data import CORTICAL, OUTER_SKIN, OUTER_SKULL, INNER_SKULL, EEG_CAP, FACE
 
 
@@ -77,21 +77,14 @@ class ZIPSurfaceImporter(ABCUploader):
 
     @staticmethod
     def _make_surface(surface_type):
-        if surface_type == CORTICAL:
-            return CorticalSurface()
-        elif surface_type == INNER_SKULL:
-            return BrainSkull()
-        elif surface_type == OUTER_SKULL:
-            return SkullSkin()
-        elif surface_type == OUTER_SKIN:
-            return SkinAir()
-        elif surface_type == EEG_CAP:
-            return EEGCap()
-        elif surface_type == FACE:
-            return FaceSurface()
-        else:
-            exception_str = "Could not determine surface type (selected option %s)" % surface_type
-            raise LaunchException(exception_str)
+
+        result = make_surface(surface_type)
+
+        if result is not None:
+            return result
+
+        exception_str = "Could not determine surface type (selected option %s)" % surface_type
+        raise LaunchException(exception_str)
 
 
     def launch(self, uploaded, surface_type, zero_based_triangles=False, should_center=False):
