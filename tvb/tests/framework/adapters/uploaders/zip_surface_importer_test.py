@@ -42,8 +42,8 @@ from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.datatypes.surfaces import CorticalSurface
-from tvb.datatypes.surfaces_data import CORTICAL
+from tvb.datatypes.surfaces import SkullSkin
+from tvb.datatypes.surfaces_data import OUTER_SKULL
 
 import tvb_data.surfaceData
 
@@ -54,7 +54,7 @@ class ZIPSurfaceImporterTest(TransactionalTestCase):
     Unit-tests for Zip Surface importer.
     """
 
-    surf80k = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'Surface_cortex_80k', 'surface_80k.zip')
+    surf_skull = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'outer_skull_4096.zip')
 
 
     def setUp(self):
@@ -72,7 +72,7 @@ class ZIPSurfaceImporterTest(TransactionalTestCase):
         group = dao.find_group('tvb.adapters.uploaders.zip_surface_importer', 'ZIPSurfaceImporter')
         importer = ABCAdapter.build_adapter(group)
         args = {
-            'uploaded': import_file_path, 'surface_type': CORTICAL,
+            'uploaded': import_file_path, 'surface_type': OUTER_SKULL,
             'zero_based_triangles': True,
             DataTypeMetaData.KEY_SUBJECT: "John"
         }
@@ -80,7 +80,7 @@ class ZIPSurfaceImporterTest(TransactionalTestCase):
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
 
-        surface = CorticalSurface()
+        surface = SkullSkin()
         data_types = FlowService().get_available_datatypes(self.test_project.id,
                                                            surface.module + "." + surface.type)[0]
         self.assertEqual(1, len(data_types), "Project should contain only one data type.")
@@ -91,9 +91,9 @@ class ZIPSurfaceImporterTest(TransactionalTestCase):
 
 
     def test_import_surf80k(self):
-        surface = self._importSurface(self.surf80k)
-        self.assertEqual(81924, len(surface.vertices))
-        self.assertEqual(163840, len(surface.triangles))
+        surface = self._importSurface(self.surf_skull)
+        self.assertEqual(4096, len(surface.vertices))
+        self.assertEqual(7062, len(surface.triangles))
 
 
 def suite():
