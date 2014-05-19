@@ -255,6 +255,16 @@ class MatlabValidator(formencode.FancyValidator):
             raise formencode.Invalid('No valid matlab installation was found at the path you provided.', '', None)
 
 
+class AsciiValidator(formencode.FancyValidator):
+    """
+    Allow only ascii strings
+    """
+    def _convert_to_python(self, value, _):
+        try:
+            return str(value).encode('ascii')
+        except UnicodeError:
+            raise formencode.Invalid('Invalid ascii string %s' % value, '', None)
+
 
 class SettingsForm(formencode.Schema):
     """
@@ -264,7 +274,7 @@ class SettingsForm(formencode.Schema):
     ADMINISTRATOR_NAME = formencode.All(validators.UnicodeString(not_empty=True), validators.PlainText())
     ADMINISTRATOR_PASSWORD = validators.UnicodeString(not_empty=True)
     ADMINISTRATOR_EMAIL = validators.Email(not_empty=True)
-    TVB_STORAGE = validators.UnicodeString(not_empty=True)
+    TVB_STORAGE = AsciiValidator(not_empty=True)
     USR_DISK_SPACE = DiskSpaceValidator()
     MATLAB_EXECUTABLE = MatlabValidator()
     SELECTED_DB = validators.UnicodeString(not_empty=True)
