@@ -313,7 +313,7 @@ class BaseProfile():
     def TVB_STORAGE():
         """Root folder for all projects and users."""
         default = FrameworkSettings.FIRST_RUN_STORAGE
-        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_STORAGE, default)
+        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_STORAGE, default, unicode)
 
 
     @ClassProperty
