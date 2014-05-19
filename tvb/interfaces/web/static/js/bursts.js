@@ -880,8 +880,8 @@ function changeBurstTile(selectedHref) {
 			setPortletsStaticPreviews();				
 		} else {
 			var sectionPortlets = $("#section-portlets")[0];
-			var width = sectionPortlets.clientWidth;
-			var height = sectionPortlets.clientHeight;
+			var width = Math.floor(sectionPortlets.clientWidth);
+			var height = Math.floor(sectionPortlets.clientHeight);
 			doAjaxCall({
 				type: "POST", 
 				url: '/burst/load_configured_visualizers/' + width + '/' + height,
@@ -1015,8 +1015,8 @@ function loadBurst(burst_id) {
                     var sectionPortletsElem = $("#section-portlets");
 			    	sectionPortletsElem.show();
 			    	var portletsDisplay = $("#portlets-display")[0];
-			    	var fullWidth = portletsDisplay.clientWidth;
-					var fullHeight = sectionPortletsElem[0].clientHeight - 95;
+			    	var fullWidth = Math.floor(portletsDisplay.clientWidth);
+					var fullHeight = Math.floor(sectionPortletsElem[0].clientHeight - 95);
 			    	doAjaxCall({  	
 						type: "POST", 
 						url: '/burst/load_configured_visualizers/' + fullWidth + '/' + fullHeight,
