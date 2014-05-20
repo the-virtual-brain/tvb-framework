@@ -86,11 +86,13 @@ class OperationExecutor(threading.Thread):
         # In the exceptional case where the user pressed stop while the Thread startup is done,
         # We should no longer launch the operation.
         if self.stopped() is False:
+
             env = os.environ.copy()
-            # anything that was already in $PYTHONPATH should have
-            # been reproduced in sys.path
-            env['PYTHONPATH'] = ':'.join(sys.path)
+            env['PYTHONPATH'] = os.pathsep.join(sys.path)
+            # anything that was already in $PYTHONPATH should have been reproduced in sys.path
+
             launched_process = Popen(run_params, stdout=PIPE, stderr=PIPE, env=env)
+
             LOGGER.debug("Storing pid=%s for operation id=%s launched on local machine." % (operation_id,
                                                                                             launched_process.pid))
             op_ident = model.OperationProcessIdentifier(operation_id, pid=launched_process.pid)

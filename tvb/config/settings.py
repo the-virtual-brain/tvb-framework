@@ -728,24 +728,24 @@ class BaseProfile():
         """Get Python path, based on running options."""
 
         if self.is_development():
-            path =  'python'
-        if self.is_windows():
-            path =  os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
-        if self.is_mac():
+            python_path = 'python'
+        elif self.is_windows():
+            python_path = os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
+        elif self.is_mac():
             root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(FrameworkSettings.BIN_FOLDER))))
-            path =  os.path.join(root_dir, 'MacOS', self.get_python_exe_name())
-        if self.is_linux():
-            path =  os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
+            python_path = os.path.join(root_dir, 'MacOS', self.get_python_exe_name())
+        elif self.is_linux():
+            python_path = os.path.join(os.path.dirname(FrameworkSettings.BIN_FOLDER), 'exe', self.get_python_exe_name())
+        else:
+            python_path = 'python'
 
         try:
             # check if file actually exists
-            os.stat(path)
-            return path
+            os.stat(python_path)
+            return python_path
         except:
             # otherwise best guess is the current interpreter!
             return sys.executable
-
-        # raise Exception("Invalid BUILD type found!!!")
 
 
 
