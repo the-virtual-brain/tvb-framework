@@ -57,6 +57,8 @@ class ConnectivityViewer(ABCDisplayer):
     The surface is only displayed as a shadow.
     """
 
+    _ui_name = "Connectivity Visualizer"
+
 
     def get_input_tree(self):
         """
@@ -298,12 +300,12 @@ class Connectivity2DViewer(object):
         norm_rays, min_ray, max_ray = self._normalize_rays(rays, input_data.number_of_regions)
         colors, step = self._prepare_colors(colors, input_data.number_of_regions, step)
 
-        right_json = self._get_json(input_data.ordered_labels[half:], input_data.ordered_centres[half:], weights[1], math.pi,
-                                    1, 2, norm_rays[half:], colors[half:], X_CANVAS_SMALL, Y_CANVAS_SMALL)
-        left_json = self._get_json(input_data.ordered_labels[:half], input_data.ordered_centres[:half], weights[0], math.pi,
-                                   1, 2, norm_rays[:half], colors[:half], X_CANVAS_SMALL, Y_CANVAS_SMALL)
-        full_json = self._get_json(input_data.ordered_labels, input_data.ordered_centres, normalized_weights, math.pi,
-                                   0, 1, norm_rays, colors, X_CANVAS_FULL, Y_CANVAS_FULL)
+        right_json = self._get_json(input_data.ordered_labels[half:], input_data.ordered_centres[half:], weights[1],
+                                    math.pi, 1, 2, norm_rays[half:], colors[half:], X_CANVAS_SMALL, Y_CANVAS_SMALL)
+        left_json = self._get_json(input_data.ordered_labels[:half], input_data.ordered_centres[:half], weights[0],
+                                   math.pi, 1, 2, norm_rays[:half], colors[:half], X_CANVAS_SMALL, Y_CANVAS_SMALL)
+        full_json = self._get_json(input_data.ordered_labels, input_data.ordered_centres, normalized_weights,
+                                   math.pi, 0, 1, norm_rays, colors, X_CANVAS_FULL, Y_CANVAS_FULL)
 
         params = dict(bothHemisphereJson=full_json, rightHemisphereJson=right_json, leftHemisphereJson=left_json,
                       stepValue=step or max_ray, firstColor=self.DEFAULT_COLOR,
@@ -324,8 +326,8 @@ class Connectivity2DViewer(object):
             normalizer_size_coeficient = (height * 0.8) / 700.0
         x_size = X_CANVAS_FULL * normalizer_size_coeficient
         y_size = Y_CANVAS_FULL * normalizer_size_coeficient
-        full_json = self._get_json(input_data.ordered_labels, input_data.ordered_centres, input_data.ordered_weights, math.pi, 0, 1,
-                                   norm_rays, colors, x_size, y_size)
+        full_json = self._get_json(input_data.ordered_labels, input_data.ordered_centres, input_data.ordered_weights,
+                                   math.pi, 0, 1, norm_rays, colors, x_size, y_size)
         params = dict(bothHemisphereJson=full_json, stepValue=step or max_ray, firstColor=self.DEFAULT_COLOR,
                       secondColor=self.OTHER_COLOR, minRay=min_ray, maxRay=max_ray)
         return params, {}
@@ -388,7 +390,7 @@ class Connectivity2DViewer(object):
         return {
             "id": node_lbl, "name": node_lbl,
             "data": {
-                "$dim": default_dimension, "$type": form ,
+                "$dim": default_dimension, "$type": form,
                 "$color": self.DEFAULT_COLOR, "customShapeDimension": shape_dimension,
                 "customShapeColor": shape_color, "angle": angle,
                 "radius": radius
@@ -404,7 +406,7 @@ class Connectivity2DViewer(object):
         adjacencies = []
         for weight, label in zip(point_weights, points_labels):
             if weight:
-                adjacencies.append( { "nodeTo": label, "data": {"weight": weight} } )
+                adjacencies.append({"nodeTo": label, "data": {"weight": weight}})
         return adjacencies
 
 
