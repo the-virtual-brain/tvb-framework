@@ -29,7 +29,9 @@
  tv.plot     reusable plotting components
  tv.util     utility stuff
 
- */
+*/
+
+/* global tv, d3 */
 
 tv = {};
 
@@ -53,7 +55,7 @@ tv.util = {
         p.append("h3").classed("instructions", true).text(heading);
         p.append("ul").selectAll("li").data(notes)
             .enter().append("li").classed("instructions", true).text(function (d) {
-                return d
+                return d;
             });
     },
 
@@ -74,7 +76,7 @@ tv.util = {
                 return p && a[1] // if property name and first argument exist
                     ? a[1][p] // return property from first argument
                     : a[i]; // assume argument index and return i-th argument
-            })
+            });
     },
 
     get_array_shape: function (baseURL, callback) {
@@ -86,7 +88,7 @@ tv.util = {
             currentStateVar, currentMode, slices[0].di, JSON.stringify(channels));
         //NOTE: If we need to add slices for the other dimensions pass them as the 'specific_slices' parameter.
         //      Method called is from time_series_framework.py.
-        $.getJSON(readDataURL, callback)
+        $.getJSON(readDataURL, callback);
     }
 };
 
@@ -95,8 +97,9 @@ tv.ndar = function (data) {
     this.data = data;
 
     this.imap = function (f) {
-        for (var i = 0; i < this.data.length; i++)
+        for (var i = 0; i < this.data.length; i++) {
             this.data[i] = f(this.data[i]);
+        }
         return this;
     };
 
@@ -105,8 +108,9 @@ tv.ndar = function (data) {
     };
 
     this.reduce = function (f, init) {
-        for (var i = 0; i < this.data.length; i++)
+        for (var i = 0; i < this.data.length; i++) {
             init = f(init, this.data[i]);
+        }
         return init;
     };
 
@@ -180,7 +184,9 @@ tv.ndar = function (data) {
 
     this.nd2lin = function (idx) {
         var l = 0;
-        for (var i = 0; i < idx.length; i++) l += this.strides[i] * idx[i];
+        for (var i = 0; i < idx.length; i++) {
+            l += this.strides[i] * idx[i];
+        }
         return l;
     };
 
@@ -223,7 +229,7 @@ tv.ndar = function (data) {
 
     this.slice = function (lo, hi) {
         return tv.ndar.from(this.data.slice(lo, hi));
-    }
+    };
 
 };
 
@@ -258,8 +264,9 @@ tv.ndar.range = function (a, b, c) {
 
     var end = Math.floor((hi - lo) / dx);
     var ar = new tv.ndar([]);
-    for (var i = 0; i < end; i++)
+    for (var i = 0; i < end; i++) {
         ar.data[i] = dx * i + lo;
+    }
     return ar;
 
 };
@@ -369,9 +376,9 @@ tv.plot = {
                 cb_gp.select(".y.axis").call(cb_ax_y);
 
                 // refresh the color map
-                ma_sc_c.domain([mn, mx])
+                ma_sc_c.domain([mn, mx]);
 
-            }
+            };
         };
 
         // generate configurators
@@ -442,21 +449,21 @@ tv.plot = {
                 .selectAll("path").data([d3.zip(f_d.map(x_s).data, acoh_d.map(y_s).data)]).enter()
                 .append("path")
                 .attr("d", d3.svg.line());
-	
-			// Add axis titles.
-			var xCoordinates = xAxis[0][0].getBoundingClientRect();
-			svg.append("text")
-				    .attr("text-anchor", "middle")
-				    .attr("x", xCoordinates.left + xCoordinates.width / 2)
-				    .attr("y", f.h() - 6)
-				    .text("Frequency (Hz)");
-			var yCoordinates = yAxis[0][0].getBoundingClientRect();
-			svg.append("text")
-			        .attr("transform", "rotate(-90)")
-			        .attr("y", yCoordinates.left - yCoordinates.width - 5)
-			        .attr("x", 0 - (f.h() / 2))
-			        .style("text-anchor", "middle")
-			        .text("Average Cross-Coherence");
+
+            // Add axis titles.
+            var xCoordinates = xAxis[0][0].getBoundingClientRect();
+            svg.append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("x", xCoordinates.left + xCoordinates.width / 2)
+                    .attr("y", f.h() - 6)
+                    .text("Frequency (Hz)");
+            var yCoordinates = yAxis[0][0].getBoundingClientRect();
+            svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", yCoordinates.left - yCoordinates.width - 5)
+                    .attr("x", 0 - (f.h() / 2))
+                    .style("text-anchor", "middle")
+                    .text("Average Cross-Coherence");
             
             // setup matrix plot, initialized with all freq bands
             var selcoh_d = mean_axis_0(coh_d, 0, coh_d.shape[0]);
@@ -464,14 +471,14 @@ tv.plot = {
             var mp_gp = svg.append("g").attr("transform", "translate(" + f.w() / 2 + ", " + f.pad() * f.h() + ")");
 
             // Implement mat_over method set on mat() function
-			mp_pl.mat_over = function() {
+            mp_pl.mat_over = function() {
                 return function (d, i) {
                             var matShape = f.coh().shape[1];
                             var yVal = Math.floor(i / matShape);
                             var xVal = i % matShape;
                             f.infoelem().text("Value is " + d + " for Node " + xVal + " x Node " + yVal);
                         };
-				};
+                };
             mp_pl(mp_gp);
 
             // add brush to select coherence data to show
@@ -501,10 +508,10 @@ tv.plot = {
             // Add text element which updates with mat hover.
             var svgCoordinates = svg[0][0].getBoundingClientRect();
             f.infoelem(svg.append("text")
-								    .attr("text-anchor", "middle")
-								    .attr("x", 3 * svgCoordinates.width / 4)
-								    .attr("y", f.h() - 60)
-								    .text("Hover over nodes for info."));
+                                    .attr("text-anchor", "middle")
+                                    .attr("x", 3 * svgCoordinates.width / 4)
+                                    .attr("y", f.h() - 60)
+                                    .text("Hover over nodes for info."));
         };
 
         f.config_fields = ["f", "coh", "w", "h", "pad", "usage", "infoelem"];
@@ -544,13 +551,13 @@ tv.plot = {
 
             // inversion of flow control in progress
             f.we_are_setup = false;
-            f.render()
+            f.render();
         }; // end function f()
 
         f.render = function () {
             f.status_line.text("waiting for data from server...");
-	    //console.log(f.baseURL(), f.current_slice())
-            tv.util.get_array_slice(f.baseURL(), f.current_slice(), f.render_callback, f.channels(), f.mode(), f.state_var())
+        //console.log(f.baseURL(), f.current_slice())
+            tv.util.get_array_slice(f.baseURL(), f.current_slice(), f.render_callback, f.channels(), f.mode(), f.state_var());
         };
 
         f.render_callback = function (data) {
@@ -589,10 +596,10 @@ tv.plot = {
                 f.render_contexts();
                 f.add_brushes();
                 f.br_fcs_endfn(true); // no_render=true
-                f.we_are_setup = true
+                f.we_are_setup = true;
             }
 
-            f.status_line.text("")
+            f.status_line.text("");
         };
 
         f.current_slice = function () {
@@ -605,10 +612,10 @@ tv.plot = {
 
             if (lo > f.shape()[0]) {
                 console.log("time_series.current_slice(): found lo>shape[0]: " + lo + ">" + f.shape()[0]);
-                lo = f.shape()[0]
+                lo = f.shape()[0];
             }
 
-            return [ {lo: lo, hi: hi, di: di} ]
+            return [ {lo: lo, hi: hi, di: di} ];
         };
 
         // dimensions and placement of focus and context areas
@@ -633,10 +640,10 @@ tv.plot = {
 
             rgp.append("g").append("rect").classed("tv-resizer", true)
                 .on("mouseover", function () {
-                    rgp.attr("style", "cursor: se-resize")
+                    rgp.attr("style", "cursor: se-resize");
                 })
                 .on("mouseout", function () {
-                    rgp.attr("style", "")
+                    rgp.attr("style", "");
                 })
                 .attr("x", f.w() - f.pad.x / 2).attr("y", f.h() - f.pad.y / 2)
                 .attr("width", f.pad.x / 2).attr("height", f.pad.y / 2)
@@ -645,15 +652,15 @@ tv.plot = {
                         , p2 = resize_start
                         , scl = {x: p1[0] / p2[0], y: p1[1] / p2[1] };
                     rgp.attr("transform", "scale(" + scl.x + ", " + scl.y + ")");
-                    svg.attr("width", scl.x * f.w()).attr("height", scl.y * f.h())
+                    svg.attr("width", scl.x * f.w()).attr("height", scl.y * f.h());
                 }).on("dragstart", function () {
-                        resize_start = d3.mouse(rgp.node())
-                    }))
+                        resize_start = d3.mouse(rgp.node());
+                }));
         };
 
         // TODO migrate to tv.util
         var new_clip_path = function (el, id) {
-            return el.append("defs").append("clipPath").attr("id", id)
+            return el.append("defs").append("clipPath").attr("id", id);
         };
 
         f.mouse_scroll = function () {
@@ -662,7 +669,7 @@ tv.plot = {
                 , sh = ev.shiftKey
                 , dr = !!(da > 0);
 
-	    //console.log(ev)
+        //console.log(ev)
             if (sh) {
                 f.magic_fcs_amp_scl *= dr ? 1.2 : 1 / 1.2;
                 // TODO scale transform instead via direct access...
@@ -743,7 +750,7 @@ tv.plot = {
 
                 da_lines[sig_idx] = [];
                 for (var t_idx = 0; t_idx < ys.shape[0]; t_idx++) {
-                    da_lines[sig_idx][t_idx] = ys.data[ys.strides[0] * t_idx + sig_idx]
+                    da_lines[sig_idx][t_idx] = ys.data[ys.strides[0] * t_idx + sig_idx];
                 }
 
                 line_avg = d3.mean(da_lines[sig_idx]);
@@ -753,7 +760,7 @@ tv.plot = {
                     da_lines[sig_idx][tt_idx] *= -1;
                 }
 
-                da_lines[sig_idx] = {sig: da_lines[sig_idx], id: sig_idx}
+                da_lines[sig_idx] = {sig: da_lines[sig_idx], id: sig_idx};
             }
 
             // compute context data
@@ -772,7 +779,7 @@ tv.plot = {
                 for (var i = 0; i < n_chan; i++) {
                     datum = ys.data[ j * n_chan + i ];
                     da_x [j] += datum;
-                    da_xs[j] += datum * datum
+                    da_xs[j] += datum * datum;
                 }
                 da_xs[j] = Math.sqrt(da_xs[j] / n_chan - ((da_x[j] / n_chan) * (da_x[j] / n_chan)));
                 da_x [j] = (da_x[j] / n_chan - ys_mean);
@@ -784,14 +791,15 @@ tv.plot = {
                 }
             }
 
-	    // scale average siganl by ptp
-	    var _dar = new tv.ndar(da_x);
-	    var da_max = _dar.max()
-	      , da_min = _dar.min()
-	      , da_ptp = da_max - da_min;
+            // scale average siganl by ptp
+            var _dar = new tv.ndar(da_x);
+            var da_max = _dar.max()
+              , da_min = _dar.min()
+              , da_ptp = da_max - da_min;
 
-	    for (var i = 0; i < da_x.length; i++)
-	        da_x[i] = da_x[i]/da_ptp;
+            for (var i = 0; i < da_x.length; i++) {
+                da_x[i] = da_x[i] / da_ptp;
+            }
 
             // center and scale the std line
             da_xs.min = tv.ndar.from(da_xs).min();
@@ -816,36 +824,36 @@ tv.plot = {
             f.da_x_dt = f.dt() * f.current_slice()[0].di;
             f.da_x = da_x;
             f.da_xs = [0, da_xs[da_xs.length - 1]].concat(da_xs, [0]); // filled area needs start == end
-            f.da_y = da_y
+            f.da_y = da_y;
         };
 
         f.render_focus = function () {
 
             var ts = f.ts()
                 , g = f.gp_lines.selectAll("g").data(f.da_lines, function (d) {
-                    return d.id
+                    return d.id;
                 });
 
             if (!f.we_are_setup) {
                 f.line_paths = g.enter()
                     .append("g")
                     .attr("transform", function (d, i) {
-                        return "translate(0, " + f.sc_fcs_y(i) + ")"
+                        return "translate(0, " + f.sc_fcs_y(i) + ")";
                     })
                     .append("path")
-		      .attr("vector-effect", "non-scaling-stroke")
+              .attr("vector-effect", "non-scaling-stroke");
             }
 
             g.select("path").attr("d", function (d) {
                 return d3.svg.line()
                     .x(function (dd, i) {
-                        return f.sc_ctx_x(ts.data[i])
+                        return f.sc_ctx_x(ts.data[i]);
                     })
                     .y(function (dd) {
-                        return dd
+                        return dd;
                     })
-                    (d.sig)
-            })
+                    (d.sig);
+            });
         };
 
         f.render_contexts = function () {
@@ -857,16 +865,16 @@ tv.plot = {
             var f2 = f1.selectAll("g").data([f.da_x]).enter();
             var f3 = f2.append("g")
                 .attr("transform", function () {
-                    return "translate(0, " + (f.sz_ctx_x.y / 2) + ") scale(1, 0.5)"
+                    return "translate(0, " + (f.sz_ctx_x.y / 2) + ") scale(1, 0.5)";
                 })
                 .classed("tv-ctx-line", true);
             var f4 = f3.append("path")
                 .attr("d", d3.svg.line()
                     .x(function (d, i) {
-                        return f.sc_ctx_x((i+0.5) * f.da_x_dt)
+                        return f.sc_ctx_x((i+0.5) * f.da_x_dt);
                     })
                     .y(function (d) {
-                        return d * f.sz_ctx_x.y
+                        return d * f.sz_ctx_x.y;
                     }));
 
             // error on context line
@@ -883,27 +891,27 @@ tv.plot = {
                 .attr("d", d3.svg.line()
                     .x(function (d, i) {
                         var idx = (i < da_x_len) ? i : (2 * da_x_len - i);
-                        return f.sc_ctx_x(idx * f.da_x_dt)
+                        return f.sc_ctx_x(idx * f.da_x_dt);
                     })
                     .y(function (d, i) {
                         var std = (i < da_x_len) ? f.da_xs[i] : -f.da_xs[2 * da_x_len - i - 1];
-                        return f.sz_ctx_x.y * (d + std)
+                        return f.sz_ctx_x.y * (d + std);
                     }));
 
             // vertical context lines
             f.gp_ctx_y.append("g").selectAll("g").data(f.da_y)
                 .enter()
                 .append("g").attr("transform", function (d, i) {
-                    return "translate(0, " + f.sc_ctx_y(i) + ")"
+                    return "translate(0, " + f.sc_ctx_y(i) + ")";
                 })
                 .classed("tv-ctx-line", true)
                 .append("path")
                 .attr("d", d3.svg.line().x(function (d, i) {
-                    return 2 + (f.sz_ctx_y.x - 2) * i / f.sz_ctx_y.x
-                })
+                    return 2 + (f.sz_ctx_y.x - 2) * i / f.sz_ctx_y.x;
+                    })
                     .y(function (d) {
-                        return d
-                    }))
+                        return d;
+                    }));
         };
 
         f.scale_focus_stroke = function () {
@@ -931,7 +939,7 @@ tv.plot = {
                     f.gp_ax_fcs_x.call(f.ax_fcs_x);
                     // TODO: This seems to cause problems with negative values and commenting it out does not seem to
                     // cause any additional problems. This could do with some double checking.
-                    f.gp_lines.attr("transform", "translate(" + sc(0) + ", 0) scale(" + x_scaling + ", 1)")
+                    f.gp_lines.attr("transform", "translate(" + sc(0) + ", 0) scale(" + x_scaling + ", 1)");
                 }
 
             // vertical context brush
@@ -954,7 +962,7 @@ tv.plot = {
                     // to be tested further to see if it was really needed, and if so look into the problem of zooming
                     // described above.
 
-                    f.render()
+                    f.render();
                 };
 
             f.br_ctx_y_fn = br_ctx_y_fn;
@@ -976,7 +984,7 @@ tv.plot = {
                     // to be tested further to see if it was really needed, and if so look into the problem of zooming
                     // described above.
 
-                    f.render()
+                    f.render();
                 }
             };
 
@@ -986,7 +994,7 @@ tv.plot = {
                 f.br_ctx_x.extent([ex[0][0], ex[1][0]]);
                 f.br_ctx_y.extent([ex[0][1], ex[1][1]]);
                 f.gp_br_ctx_y.call(f.br_ctx_y);
-                f.gp_br_ctx_x.call(f.br_ctx_x)
+                f.gp_br_ctx_x.call(f.br_ctx_x);
             };
 
             // create brushes
@@ -1006,16 +1014,16 @@ tv.plot = {
             f.gp_br_fcs = f.gp_fcs.append("g").classed("brush", true).call(f.br_fcs);
 
             f.gp_br_ctx_y.append("g").classed("brush", true).call(f.br_ctx_y).selectAll("rect").attr("width", f.sz_ctx_y.x);
-            f.gp_br_ctx_x.append("g").classed("brush", true).call(f.br_ctx_x).selectAll("rect").attr("height", f.sz_ctx_x.y)
+            f.gp_br_ctx_x.append("g").classed("brush", true).call(f.br_ctx_x).selectAll("rect").attr("height", f.sz_ctx_x.y);
         };
 
         f.parameters = ["w", "h", "p", "baseURL", "preview", "labels", "shape",
             "t0", "dt", "ts", "ys", "point_limit", "channels", "mode", "state_var"];
         f.parameters.map(function (name) {
-            f[name] = tv.util.gen_access(f, name)
+            f[name] = tv.util.gen_access(f, name);
         });
 
-        return f
+        return f;
     },
 
     components: function () {
@@ -1043,16 +1051,16 @@ tv.plot = {
             // draw vertical grid lines
             vt.append("g").attr("transform", "translate(" + -w / 4.5 + "," + (-h / 3 - 15) + ")").selectAll("line").data(tv.ndar.range(n).data).enter()
                 .append("line").attr("x1",function (d) {
-                    return w / 2.25 / n * d
+                    return w / 2.25 / n * d;
                 }).attr("x2", function (d) {
-                    return w / 2.25 / n * d
+                    return w / 2.25 / n * d;
                 })
                 .attr("y2", 2 * h / 3).attr("y1", -15).attr("stroke", function (d) {
                     return d % 5 === 0 ? "#ccc" : "#eee";
                 });
 
             function vt_axes_yoff(d, i) {
-                return i / nkeep * 2 * h / 3 - h / 3
+                return i / nkeep * 2 * h / 3 - h / 3;
             }
 
             // organize the data (TODO: there's gotta be a better way of doing this)
@@ -1077,7 +1085,7 @@ tv.plot = {
                 return color_map(i);
             });
             vt_axes.append("text").classed("vt-pm-sign", true).attr("x", -6).text("+");
-            vt_axes.append("text").classed("vt-pm-sign", true).attr("x", -5).attr("y", 5).text("-")
+            vt_axes.append("text").classed("vt-pm-sign", true).attr("x", -5).attr("y", 5).text("-");
 
         };
 
@@ -1085,7 +1093,7 @@ tv.plot = {
         conf.map(function (name) {
             f[name] = tv.util.gen_access(f, name);
         });
-        return f
+        return f;
     },
 
     ica: function () {
@@ -1104,7 +1112,7 @@ tv.plot = {
             f[name] = tv.util.gen_access(f, name);
         });
 
-        return f
+        return f;
     }
     
 };
