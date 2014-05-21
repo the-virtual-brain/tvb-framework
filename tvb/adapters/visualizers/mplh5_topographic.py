@@ -262,19 +262,28 @@ class TopographicViewer(BaseTopography, ABCMPLH5Displayer):
 
         arrays = []
         titles = []
+        min_vals = []
+        max_vals = []
         for measure in [data_0, data_1, data_2]:
             if measure is not None:
                 if len(measure.connectivity.centres) != sensor_number:
                     raise Exception("Use the same connectivity!!!")
                 arrays.append(measure.array_data.tolist())
                 titles.append(measure.title)
+                min_vals.append(measure.array_data.min())
+                max_vals.append(measure.array_data.max())
+
+        # Check that we are displaying the same metric
+        color_bar_min=0
+        color_bar_max=0
+        if titles.count(titles[0]) == len(titles):
+            color_bar_min = min(min_vals)
+            color_bar_max = max(max_vals)
+
 
         self.init_topography(sensor_locations)
 
         for i, array_data in enumerate(arrays):
             figure.add_subplot(1, len(arrays), i + 1)
-            all_zeros = self.draw_head_topo(figure, array_data)
+            all_zeros = self.draw_head_topo(figure, array_data, color_bar_min=color_bar_min, color_bar_max=color_bar_max)
             figure.gca().set_title(titles[i] + ("\n - Topography is all zeroes -" if all_zeros else ""))
-
-
-
