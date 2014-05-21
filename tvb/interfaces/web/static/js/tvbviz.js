@@ -581,7 +581,7 @@ tv.plot = {
             var ts = [], t0 = f.t0(), dt = f.dt();
 
             for (var ii = 0; ii < shape[0]; ii++) {
-                ts.push(t0 + dt * sl.lo + ii * dt * sl.di)
+                ts.push(t0 + dt * sl.lo + ii * dt * sl.di);
             }
 
             f.ts(tv.ndar.ndfrom({data: ts, shape: [shape[0]], strides: [1]}));
@@ -628,7 +628,7 @@ tv.plot = {
             f.ul_ctx_x = {x: 2 * f.pad.x + f.sz_ctx_y.x, y: 2 * f.pad.y + f.sz_ctx_y.y};
             f.sz_ctx_x = {x: f.w() - 3 * f.pad.x - f.sz_ctx_y.x, y: f.pad.y};
             f.ul_fcs = {x: f.ul_ctx_x.x, y: f.ul_ctx_y.y};
-            f.sz_fcs = {x: f.sz_ctx_x.x, y: f.sz_ctx_y.y}
+            f.sz_fcs = {x: f.sz_ctx_x.x, y: f.sz_ctx_y.y};
 
         };
 
@@ -797,8 +797,8 @@ tv.plot = {
               , da_min = _dar.min()
               , da_ptp = da_max - da_min;
 
-            for (var i = 0; i < da_x.length; i++) {
-                da_x[i] = da_x[i] / da_ptp;
+            for (var si = 0; si < da_x.length; si++) {
+                da_x[si] = da_x[si] / da_ptp;
             }
 
             // center and scale the std line
@@ -813,8 +813,10 @@ tv.plot = {
             // center and scale to std each signal
             for (var jjj = 0; jjj < n_chan; jjj++) {
                 da_y[jjj] = [];
-                for (var ii = 0; ii < f.sz_ctx_y.x; ii++){
-                    da_y[jjj][ii] = (ys.data[ ii * n_chan + j ] - ys_mean) / ys_std;
+                // This computes a slice at the beginning of the signal to be displayed on the y axis
+                // The signal might be shorter than the width hence the min
+                for (var ii = 0; ii < Math.min(f.sz_ctx_y.x, ys.shape[0]); ii++){
+                    da_y[jjj][ii] = (ys.data[ ii * n_chan + jjj ] - ys_mean) / ys_std;
                     // multiply by -1 because y axis points down
                     da_y[jjj][ii] *= -1;
                 }
