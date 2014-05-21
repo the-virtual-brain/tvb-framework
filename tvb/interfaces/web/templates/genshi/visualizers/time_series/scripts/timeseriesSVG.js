@@ -122,7 +122,8 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
 
     // configure data
     var displayElem = $('#time-series-viewer');
-    ts.w(displayElem.width()).h(displayElem.height()).baseURL(baseURL).preview(isPreview).mode(0).state_var(0);
+    ts.w(displayElem.width()).h(displayElem.height());
+    ts.baseURL(baseURL).preview(isPreview).mode(0).state_var(0);
     ts.shape(dataShape).t0(t0).dt(dt);
     ts.labels(_compute_labels_for_current_selection());
     ts.channels(TS_SVG_selectedChannels);
@@ -158,7 +159,7 @@ function refreshChannels() {
         for (var i = 0; i < TS_SVG_selectedChannels.length; i++) {
             selectedLabels.push(allChannelLabels[TS_SVG_selectedChannels[i]]);
         }
-        shape[2] = TS_SVG_selectedChannels.length
+        shape[2] = TS_SVG_selectedChannels.length;
     }
 
     var new_ts = tv.plot.time_series();
@@ -174,7 +175,20 @@ function refreshChannels() {
     displayElem.empty();
     new_ts(d3.select("#time-series-viewer"));
     tsView = new_ts;
-    _updateScalingFromSlider();
+    // The new_ts(...) call above will trigger a data load from the server based on the selected channels
+    // Until that internal ajax returns the new_ts has no time series data
+    // _updateScalingFromSlider calls new_ts render so that the rendering takes into account the slider value
+    // We use settimeout to defer _updateScalingFromSlider until data is available to it
+    // todo: The proper way to handle this is to subscribe to a data_loaded event raised by new_ts
+    function await_data() {
+        if (tsView.ts() == null) {
+            setTimeout(await_data, 100);
+            console.warn('tick');
+        } else {
+            _updateScalingFromSlider();
+        }
+    }
+    await_data();
 }
 
 function changeMode() {
