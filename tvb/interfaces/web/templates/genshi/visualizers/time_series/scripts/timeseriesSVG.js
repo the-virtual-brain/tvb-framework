@@ -183,7 +183,6 @@ function refreshChannels() {
     function await_data() {
         if (tsView.ts() == null) {
             setTimeout(await_data, 100);
-            console.warn('tick');
         } else {
             _updateScalingFromSlider();
         }
@@ -197,6 +196,6 @@ function changeMode() {
 }
 
 function changeStateVar() {
-    tsView.state_var($('#state-var-select').val());
+    tsView.state_var($('#state-variable-select').val());
     refreshChannels();
 }
