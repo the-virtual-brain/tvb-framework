@@ -16,6 +16,7 @@
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0
  *
  **/
+/* global doAjaxCall, displayMessage */
 
 // We keep all-nodes information for current PSE as a global, to have them ready at node-selection, node-overlay.
 var PSE_nodesInfo;
@@ -23,7 +24,7 @@ var PSE_nodesInfo;
 var _PSE_plotOptions; 
 var _PSE_minColor;
 var _PSE_maxColor;
-var _PSE_plot = undefined;
+var _PSE_plot;
 
 /*
  * @param canvasId: the id of the HTML DIV on which the drawing is done. This should have sizes defined or else FLOT can't do the drawing.
@@ -36,9 +37,9 @@ var _PSE_plot = undefined;
  * @param backPage: page where visualizers fired from overlay should take you back.
  */
 function _updatePlotPSE(canvasId, xLabels, yLabels, seriesArray, data_info, min_color, max_color, backPage) {
-	
-	_PSE_minColor = min_color;
-	_PSE_maxColor = max_color;
+
+    _PSE_minColor = min_color;
+    _PSE_maxColor = max_color;
     PSE_nodesInfo = data_info;
     
     _PSE_plotOptions = {
@@ -69,7 +70,7 @@ function _updatePlotPSE(canvasId, xLabels, yLabels, seriesArray, data_info, min_
             max: yLabels.length,
             tickSize: 1,
             tickFormatter: function(val) {
-                if (val < 0 || val >= yLabels.length || yLabels[val] == "_") {
+                if (val < 0 || val >= yLabels.length || yLabels[val] === "_") {
                     return "";
                 }
                 return yLabels[val];
@@ -96,10 +97,11 @@ function _updatePlotPSE(canvasId, xLabels, yLabels, seriesArray, data_info, min_
  * Do a redraw of the plot. Be sure to keep the resizable margin elements as the plot method seems to destroy them.
  */
 function redrawPlot(plotCanvasId) {
-	
-	if (_PSE_plot != undefined) {
-	    _PSE_plot = $.plot($('#'+plotCanvasId)[0], _PSE_plot.getData(), $.extend(true, {}, _PSE_plotOptions));
-	}
+    // todo: mh the selected element is not an ancestor of the second tab!!!
+    // thus this redraw call fails, ex on resize
+    if (_PSE_plot != null) {
+        _PSE_plot = $.plot($('#'+plotCanvasId)[0], _PSE_plot.getData(), $.extend(true, {}, _PSE_plotOptions));
+    }
 }
 
 /*
@@ -108,16 +110,16 @@ function redrawPlot(plotCanvasId) {
 function applyClickEvent(canvasId, backPage) {
 
     var currentCanvas = $("#"+canvasId);
-	currentCanvas.unbind("plotclick");
-	currentCanvas.bind("plotclick", function (event, pos, item) {
-				if (item != null) {
-						var dataPoint = item.datapoint;
-			            var dataInfo = PSE_nodesInfo[dataPoint[0]][dataPoint[1]];
-			            if (dataInfo['dataType'] != undefined) {
-			            	displayNodeDetails(dataInfo['Gid'], dataInfo['dataType'], backPage);
-						}
-				}
-			});
+    currentCanvas.unbind("plotclick");
+    currentCanvas.bind("plotclick", function (event, pos, item) {
+                if (item != null) {
+                        var dataPoint = item.datapoint;
+                        var dataInfo = PSE_nodesInfo[dataPoint[0]][dataPoint[1]];
+                        if (dataInfo['dataType'] != undefined) {
+                            displayNodeDetails(dataInfo['Gid'], dataInfo['dataType'], backPage);
+                        }
+                }
+            });
 }
 
 var previousPoint = null;
@@ -125,7 +127,7 @@ var previousPoint = null;
  * On hover display few additional information about this node.
  */
 function applyHoverEvent(canvasId) {
-	
+
     $("#" + canvasId).bind("plothover", function (event, pos, item) {
         if (item) {
             if (previousPoint != item.dataIndex) {
@@ -137,7 +139,7 @@ function applyHoverEvent(canvasId) {
 
                 $('<div id="tooltip"> </div>').html(tooltipText
                     ).css({ position: 'absolute', display: 'none', top: item.pageY + 5, left: item.pageX + 5,
-						   border: '1px solid #fdd', padding: '2px', 'background-color': '#C0C0C0', opacity: 0.80 }
+                           border: '1px solid #fdd', padding: '2px', 'background-color': '#C0C0C0', opacity: 0.80 }
                     ).appendTo('body').fadeIn(200);
             }
         } else {
@@ -153,16 +155,16 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson,
 
     //ColSch_initColorSchemeParams(min_color, max_color, changeColors);
 
-	var labels_x = $.parseJSON(labelsXJson);
-	var labels_y = $.parseJSON(labelsYJson);
-	var data = $.parseJSON(dataJson);
-	
-	_updatePlotPSE('main_div_pse', labels_x, labels_y, series_array, data, min_color, max_color, backPage);
+    var labels_x = $.parseJSON(labelsXJson);
+    var labels_y = $.parseJSON(labelsYJson);
+    var data = $.parseJSON(dataJson);
 
-	$('#minColorLabel')[0].innerHTML = '<mark>Minimum color metric</mark> ' + Math.round(min_color * 1000) / 1000;
-	$('#maxColorLabel')[0].innerHTML = '<mark>Maximum color metris</mark> ' + Math.round(max_color * 1000) / 1000;
+    _updatePlotPSE('main_div_pse', labels_x, labels_y, series_array, data, min_color, max_color, backPage);
+
+    $('#minColorLabel')[0].innerHTML = '<mark>Minimum color metric</mark> ' + Math.round(min_color * 1000) / 1000;
+    $('#maxColorLabel')[0].innerHTML = '<mark>Maximum color metris</mark> ' + Math.round(max_color * 1000) / 1000;
     $('#minShapeLabel')[0].innerHTML = '<mark>Minimum shape</mark> ' + Math.round(min_size * 1000) / 1000;
-	$('#maxShapeLabel')[0].innerHTML = '<mark>Maximum shape</mark> ' + Math.round(max_size * 1000) / 1000;
+    $('#maxShapeLabel')[0].innerHTML = '<mark>Maximum shape</mark> ' + Math.round(max_size * 1000) / 1000;
 
     // Prepare functions for Export Canvas as Image
     var canvas = $("#main_div_pse").find(".flot-base")[0];
@@ -186,10 +188,10 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson,
                 canvasDiv.attr('style', canvas.oldStyle);
                 redrawPlot('main_div_pse');
     };
-	
-	if (hasStartedOperations) {
-		setTimeout("PSE_mainDraw('main_div_pse','" + backPage + "')", 3000);
-	}
+
+    if (hasStartedOperations) {
+        setTimeout("PSE_mainDraw('main_div_pse','" + backPage + "')", 3000);
+    }
 }
 
 
@@ -197,32 +199,32 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, series_array, dataJson,
  * Take currently selected metrics and refresh the plot. 
  */
 function PSE_mainDraw(parametersCanvasId, backPage, groupGID) {
-	
-	if (groupGID == undefined) {
-		// We didn't get parameter, so try to get group id from page
-		groupGID = document.getElementById("datatype-group-gid").value;
-	}
-    if (backPage == undefined || backPage == '') {
+
+    if (groupGID == null) {
+        // We didn't get parameter, so try to get group id from page
+        groupGID = document.getElementById("datatype-group-gid").value;
+    }
+    if (backPage == null || backPage == '') {
         backPage = get_URL_param('back_page');
     }
 
-	var url = '/burst/explore/draw_discrete_exploration/' + groupGID + '/' + backPage;
-	var selectedColorMetric = $('#color_metric_select').val();
-	var selectedSizeMetric = $('#size_metric_select').val();
-	
-	if (selectedColorMetric != '' && selectedColorMetric != undefined) { 
+    var url = '/burst/explore/draw_discrete_exploration/' + groupGID + '/' + backPage;
+    var selectedColorMetric = $('#color_metric_select').val();
+    var selectedSizeMetric = $('#size_metric_select').val();
+
+    if (selectedColorMetric != '' && selectedColorMetric != null) {
         url += '/' + selectedColorMetric;
-        if (selectedSizeMetric != ''  && selectedSizeMetric != undefined) {
-            url += '/' + selectedSizeMetric
+        if (selectedSizeMetric != ''  && selectedSizeMetric != null) {
+            url += '/' + selectedSizeMetric;
         }
-	}
-	
-	doAjaxCall({
-			type: "POST", 
-			url: url,
+    }
+
+    doAjaxCall({
+            type: "POST",
+            url: url,
             success: function(r) { 
-            		$('#' + parametersCanvasId).html(r);
-            	},
+                    $('#' + parametersCanvasId).html(r);
+                },
             error: function() {
                 displayMessage("Could not refresh with the new metrics.", "errorMessage");
             }});
@@ -262,11 +264,11 @@ var currentFigure = null;
  */
 function resizePlot(width, height) {
 
-	if (currentFigure != null) {
+    if (currentFigure != null) {
         MPLH5_resize = currentFigure;
-	    do_resize(currentFigure, width, height);
+        do_resize(currentFigure, width, height);
         MPLH5_resize = -1;
-	}
+    }
 }
 
 /*
@@ -274,12 +276,12 @@ function resizePlot(width, height) {
  */
 function initISOData(metric, figDict, servIp, servPort) {
 
-	figuresDict = $.parseJSON(figDict);
-	serverIp = servIp;
-	serverPort = servPort;
-	currentFigure = figuresDict[metric];
-	connect_manager(serverIp, serverPort, figuresDict[metric]);
-	$('#' + metric).show();
+    figuresDict = $.parseJSON(figDict);
+    serverIp = servIp;
+    serverPort = servPort;
+    currentFigure = figuresDict[metric];
+    connect_manager(serverIp, serverPort, figuresDict[metric]);
+    $('#' + metric).show();
     initMPLH5CanvasForExportAsImage(figuresDict[metric]);
 }
 
@@ -288,8 +290,8 @@ function initISOData(metric, figDict, servIp, servPort) {
  */
 function updateMetric(selectComponent) {
 
-	var newMetric = $(selectComponent).find(':selected').val();
-	showMetric(newMetric);
+    var newMetric = $(selectComponent).find(':selected').val();
+    showMetric(newMetric);
     var pseElem = $('#section-pse');
     var width = pseElem.width() - 60;
     var height = pseElem.height() - 90;
@@ -301,16 +303,17 @@ function updateMetric(selectComponent) {
  */
 function showMetric(newMetric) {
 
-	for (var key in figuresDict) {
-		$('#' + key).hide()
+    for (var key in figuresDict) {
+        $('#' + key).hide()
             .find('canvas').each(function () {
-                if (this.drawForImageExport)            // remove redrawing method such that only current view is exported
+                if (this.drawForImageExport) {            // remove redrawing method such that only current view is exported
                     this.drawForImageExport = null;
+                }
             });
-	}
-	currentFigure = figuresDict[newMetric];
-	connect_manager(serverIp, serverPort, figuresDict[newMetric]);
-	$('#' + newMetric).show();
+    }
+    currentFigure = figuresDict[newMetric];
+    connect_manager(serverIp, serverPort, figuresDict[newMetric]);
+    $('#' + newMetric).show();
     initMPLH5CanvasForExportAsImage(figuresDict[newMetric]);
 }
 
@@ -319,7 +322,7 @@ function showMetric(newMetric) {
  */
 function clickedDatatype(datatypeGid) {
 
-	displayNodeDetails(datatypeGid);
+    displayNodeDetails(datatypeGid);
 }
 
 /*
@@ -327,14 +330,15 @@ function clickedDatatype(datatypeGid) {
  */
 function hoverPlot(id, x, y, val) {
 
-	document.getElementById('cursor_info_' + id).innerHTML = 'x axis:' + x + ' y axis:' + y + ' value:' + val;
+    document.getElementById('cursor_info_' + id).innerHTML = 'x axis:' + x + ' y axis:' + y + ' value:' + val;
 }
 
 
 function Isocline_MainDraw(groupGID, divId, width, height) {
-
-	$('#' + divId).html('');
-	doAjaxCall({
+    width = Math.floor(width);
+    height = Math.floor(height);
+    $('#' + divId).html('');
+    doAjaxCall({
             type: "POST",
             url: '/burst/explore/draw_isocline_exploration/' + groupGID + '/' + width + '/' + height,
             success: function(r) {
@@ -342,7 +346,7 @@ function Isocline_MainDraw(groupGID, divId, width, height) {
                 },
             error: function() {
                 displayMessage("Could not refresh with the new metrics.", "errorMessage");
-	}});
+    }});
 }
 
 
