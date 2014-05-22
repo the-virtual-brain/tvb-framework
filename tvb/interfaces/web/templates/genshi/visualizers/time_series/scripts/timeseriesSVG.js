@@ -16,6 +16,7 @@
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0
  *
  **/
+/* global tv, d3, TVBUI */
 
 var TS_SVG_selectedChannels = [];
 // Store a list with all the channel labels so one can easily refresh between them on channel refresh
@@ -70,7 +71,7 @@ function _initSelection(filterGid) {
 
 function _compute_labels_for_current_selection() {
     var selectedLabels = [];
-    for(i = 0; i < TS_SVG_selectedChannels.length; i++){
+    for(var i = 0; i < TS_SVG_selectedChannels.length; i++){
         selectedLabels.push(allChannelLabels[TS_SVG_selectedChannels[i]]);
     }
     return selectedLabels;
@@ -152,7 +153,8 @@ function refreshChannels() {
     var selectedLabels = [];
     var shape = tsView.shape();
 
-    if (TS_SVG_selectedChannels.length == 0) {
+    if (TS_SVG_selectedChannels.length === 0) {
+        // if all channels are deselected show them all
         selectedLabels = allChannelLabels;
         shape[2] = allChannelLabels.length;
     } else {
@@ -170,7 +172,15 @@ function refreshChannels() {
     new_ts.baseURL(tsView.baseURL()).preview(tsView.preview()).mode(tsView.mode()).state_var(tsView.state_var());
     new_ts.shape(shape).t0(tsView.t0()).dt(tsView.dt());
     new_ts.labels(selectedLabels);
-    new_ts.channels(TS_SVG_selectedChannels);
+    // Usually the svg component shows the channels stored in TS_SVG_selectedChannels
+    // and that variable is in sync with the selection component.
+    // But if the selection is empty and we show a timeSeriesSurface
+    // then new_ts will get time series for all 65k vertices from the server.
+    if (TS_SVG_selectedChannels.length !== 0){
+        new_ts.channels(TS_SVG_selectedChannels);
+    }else {
+        new_ts.channels(tv.ndar.range(allChannelLabels.length).data);
+    }
 
     displayElem.empty();
     new_ts(d3.select("#time-series-viewer"));
