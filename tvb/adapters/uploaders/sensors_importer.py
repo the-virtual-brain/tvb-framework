@@ -102,7 +102,13 @@ class Sensors_Importer(ABCUploader):
             raise LaunchException(exception_str)
             
         sensors_inst.storage_path = self.storage_path
-        sensors_inst.locations = self.read_list_data(sensors_file, usecols=[1, 2, 3])
+        locations = self.read_list_data(sensors_file, usecols=[1, 2, 3])
+
+        # NOTE: TVB has the nose pointing -y and left ear pointing +x
+        # If the sensors are in CTF coordinates : nose pointing +x left ear +y
+        # to rotate the sensors by -90 along z uncomment below
+        # locations = numpy.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]]).dot(locations.T).T
+        sensors_inst.locations = locations
         sensors_inst.labels = self.read_list_data(sensors_file, dtype=numpy.str, usecols=[0])
         
         if isinstance(sensors_inst, SensorsMEG):
