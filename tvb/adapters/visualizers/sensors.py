@@ -96,7 +96,11 @@ class EegSensorViewer(ABCDisplayer):
                 {'name': 'eeg_cap', 'label': 'EEG Cap',
                  'type': EEGCap, 'required': False,
                  'description': 'The EEG Cap surface on which to display the results. '
-                                'When missing, we will take the first EEGCap from current project'}
+                                'When missing, we will take the first EEGCap from current project'},
+                {'name': 'shell_surface', 'label': 'Shell Surface',
+                 'type': SurfaceData, 'required': False,
+                 'description': "Wrapping surface over the sensors, "
+                                "to be displayed semi-transparently, for visual purposes only."}
                 ]
 
     @staticmethod
@@ -108,7 +112,7 @@ class EegSensorViewer(ABCDisplayer):
                 'urlLines': url_lines,
                 'urlNormals': url_normals}
 
-    def launch(self, sensors, eeg_cap=None):
+    def launch(self, sensors, eeg_cap=None, shell_surface=None):
         measure_points_info = BrainEEG.compute_sensor_surfacemapped_measure_points(self.current_project_id,
                                                                                    sensors, eeg_cap)
         if measure_points_info is None:
@@ -116,7 +120,7 @@ class EegSensorViewer(ABCDisplayer):
 
         measure_points_nr = measure_points_info[2]
         params = {
-            'shelfObject': BrainViewer.get_shell_surface_urls(project_id=self.current_project_id),
+            'shelfObject': BrainViewer.get_shell_surface_urls(shell_surface, self.current_project_id),
             'urlVertices': '', 'urlTriangles': '',
             'urlLines': '[]', 'urlNormals': '',
             'boundaryURL': '', 'urlAlphas': '', 'urlAlphasIndices': '',
