@@ -46,40 +46,40 @@ var lastElementClass = null;
  */
 function getMenuPosition(elem, contextMenuDiv){  
    
-	var posX = 210;  // Default offset
-	var posY = 15;  
-	                
-	while(elem != null){  
-    	posX += elem.offsetLeft;  
-	    posY += elem.offsetTop;  
-	    elem = elem.offsetParent;  
-	} 
-	var $w = $("#scrollable-matrix-section");
-	posY -= $w.scrollTop(); 
-	if ($w[0].offsetTop > 0) {
-		posY -= $w[0].offsetTop;
-		posY -= ($("#main").scrollTop() - $w[0].offsetTop);
-	}
-	//posX -= $w.scrollLeft()
-	
-	var mh = 214; //$(contextMenuDiv).height();
-	var mw = 200; //$(contextMenuDiv).width() 
-	var ww = $("body").width() - 15;
-	var wh = Math.max($(window).height(), $w.height());
-	
-	var maxRight = posX;
-	if (maxRight > ww) { 
-		posX -= (maxRight - ww); 
-	}
-	
-	var dir = "down";
-	if (posY + mh > wh) { 
-		dir = "up"; 
-	}
-	if (dir == "up") { 
-		posY -= (mh + 25); 
-	}
-	return {x : posX, y : posY };  
+    var posX = 210;  // Default offset
+    var posY = 15;
+
+    while(elem != null){
+        posX += elem.offsetLeft;
+        posY += elem.offsetTop;
+        elem = elem.offsetParent;
+    }
+    var $w = $("#scrollable-matrix-section");
+    posY -= $w.scrollTop();
+    if ($w[0].offsetTop > 0) {
+        posY -= $w[0].offsetTop;
+        posY -= ($("#main").scrollTop() - $w[0].offsetTop);
+    }
+    //posX -= $w.scrollLeft()
+
+    var mh = 214; //$(contextMenuDiv).height();
+    var mw = 200; //$(contextMenuDiv).width()
+    var ww = $("body").width() - 15;
+    var wh = Math.max($(window).height(), $w.height());
+
+    var maxRight = posX;
+    if (maxRight > ww) {
+        posX -= (maxRight - ww);
+    }
+
+    var dir = "down";
+    if (posY + mh > wh) {
+        dir = "up";
+    }
+    if (dir == "up") {
+        posY -= (mh + 25);
+    }
+    return {x : posX, y : posY };
 } 
 
 /**
@@ -88,41 +88,41 @@ function getMenuPosition(elem, contextMenuDiv){
  * @param table_elem the dom element which fired the click event
  */
 function changeSingleCell(table_elem, i, j) {
-	
-	var inputDiv = document.getElementById('editNodeValues');
-	if (!(GFUNC_isNodeAddedToInterestArea(i) && GFUNC_isNodeAddedToInterestArea(j))) {
-		displayMessage("The node you selected is not in the current interest area!", "warningMessage");
-	}
-	if (inputDiv.style.display == 'none') {
-		inputDiv.style.display = 'block';	
-	} else {			
-		lastEditedElement.className = lastElementClass;
-	}
-	lastEditedElement = table_elem;
-	lastElementClass = table_elem.className;
-	table_elem.className = "node edited";
-	var element_position = getMenuPosition(table_elem, inputDiv);
-	inputDiv.style.position = 'fixed';
-	inputDiv.style.left = element_position.x + 'px';
-	inputDiv.style.top = element_position.y + 'px';
-	
-	var labelInfoSource = document.getElementById('selectedSourceNodeDetails');
-	var labelInfoTarget = document.getElementById('selectedTargetNodeDetails');
-	var descriptionText = GVAR_pointsLabels[i];
-	if (labelInfoSource != null) {
-		labelInfoSource.innerHTML = descriptionText;		
-	}
-	descriptionText = GVAR_pointsLabels[j];
-	if (labelInfoTarget != null) {
-		labelInfoTarget.innerHTML = descriptionText;
-	}
-	
-	var inputText = document.getElementById('weightsValue');
-	inputText.value = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j];
-	
-	var hiddenNodeField = document.getElementById('currentlyEditedNode');
-	hiddenNodeField.value = table_elem.id;
-	MATRIX_colorTable();
+
+    var inputDiv = document.getElementById('editNodeValues');
+    if (!(GFUNC_isNodeAddedToInterestArea(i) && GFUNC_isNodeAddedToInterestArea(j))) {
+        displayMessage("The node you selected is not in the current interest area!", "warningMessage");
+    }
+    if (inputDiv.style.display == 'none') {
+        inputDiv.style.display = 'block';
+    } else {
+        lastEditedElement.className = lastElementClass;
+    }
+    lastEditedElement = table_elem;
+    lastElementClass = table_elem.className;
+    table_elem.className = "node edited";
+    var element_position = getMenuPosition(table_elem, inputDiv);
+    inputDiv.style.position = 'fixed';
+    inputDiv.style.left = element_position.x + 'px';
+    inputDiv.style.top = element_position.y + 'px';
+
+    var labelInfoSource = document.getElementById('selectedSourceNodeDetails');
+    var labelInfoTarget = document.getElementById('selectedTargetNodeDetails');
+    var descriptionText = GVAR_pointsLabels[i];
+    if (labelInfoSource != null) {
+        labelInfoSource.innerHTML = descriptionText;
+    }
+    descriptionText = GVAR_pointsLabels[j];
+    if (labelInfoTarget != null) {
+        labelInfoTarget.innerHTML = descriptionText;
+    }
+
+    var inputText = document.getElementById('weightsValue');
+    inputText.value = GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j];
+
+    var hiddenNodeField = document.getElementById('currentlyEditedNode');
+    hiddenNodeField.value = table_elem.id;
+    MATRIX_colorTable();
 }
 
 
@@ -132,66 +132,66 @@ function changeSingleCell(table_elem, i, j) {
  * display an error message. Either way close the details context menu.
  */
 function saveNodeDetails() {
-	var inputText = document.getElementById('weightsValue');
-	var newValue = parseFloat($.trim(inputText.value));
+    var inputText = document.getElementById('weightsValue');
+    var newValue = parseFloat($.trim(inputText.value));
     var hiddenNodeField = document.getElementById('currentlyEditedNode');
     var tableNodeID = hiddenNodeField.value;
     var table_element = document.getElementById(tableNodeID);
     table_element.className = lastElementClass;
 
-	if (isNaN(newValue)) {
-		displayMessage('The value you entered is not a valid float. Original value is kept.', 'warningMessage');
-	} else {
+    if (isNaN(newValue)) {
+        displayMessage('The value you entered is not a valid float. Original value is kept.', 'warningMessage');
+    } else {
         //displayMessage('')
         var selectedMatrix = GVAR_interestAreaVariables[GVAR_selectedAreaType];
         var indexes = tableNodeID.split("td_" + selectedMatrix.prefix + '_')[1].split("_");
         var idx = indexes[0];
         var jdx = indexes[1];
 
-		if (newValue > selectedMatrix.max_val){
-			selectedMatrix.max_val = newValue;
-			CONN_initLinesHistorgram();
-		}
-		if (newValue < 0) {
-			newValue = 0;
-		}
-		if (newValue < selectedMatrix.min_val){
-			selectedMatrix.min_val = newValue;
-			CONN_initLinesHistorgram();
-		}
-		if (selectedMatrix.values[idx][jdx] == selectedMatrix.max_val) {
-			selectedMatrix.values[idx][jdx] = newValue;
-			selectedMatrix.max_val = 0;
-			for (var i=0; i<selectedMatrix.values.length; i++) {
-				for (var j=0; j<selectedMatrix.values.length; j++) {
-					if (selectedMatrix.values[i][j] > selectedMatrix.max_val) {
+        if (newValue > selectedMatrix.max_val){
+            selectedMatrix.max_val = newValue;
+            CONN_initLinesHistorgram();
+        }
+        if (newValue < 0) {
+            newValue = 0;
+        }
+        if (newValue < selectedMatrix.min_val){
+            selectedMatrix.min_val = newValue;
+            CONN_initLinesHistorgram();
+        }
+        if (selectedMatrix.values[idx][jdx] == selectedMatrix.max_val) {
+            selectedMatrix.values[idx][jdx] = newValue;
+            selectedMatrix.max_val = 0;
+            for (var i=0; i<selectedMatrix.values.length; i++) {
+                for (var j=0; j<selectedMatrix.values.length; j++) {
+                    if (selectedMatrix.values[i][j] > selectedMatrix.max_val) {
                         selectedMatrix.max_val = selectedMatrix.values[i][j];
                     }
-				}
-			}
-			CONN_initLinesHistorgram();
-		}
-		else {
-			if (selectedMatrix.values[idx][jdx] == 0 && newValue > 0) {
-				CONN_comingInLinesIndices[jdx].push(parseInt(idx));
-				CONN_comingOutLinesIndices[idx].push(parseInt(jdx));
-			} 
-			if (selectedMatrix.values[idx][jdx] > 0 && newValue == 0) {
-				HLPR_removeByElement(CONN_comingInLinesIndices[jdx], parseInt(idx));
-				HLPR_removeByElement(CONN_comingOutLinesIndices[idx], parseInt(jdx));
-			}			
-			selectedMatrix.values[idx][jdx] = newValue;
-			CONN_lineWidthsBins[idx][jdx] = CONN_getLineWidthValue(newValue);
-		}	
-	}
-	var inputDiv = document.getElementById('editNodeValues');
-	inputDiv.style.display = 'none';	
-	lastElementClass = null;
-	lastEditedElement = null;
-	lastElementColor = null;
-	
-	MATRIX_colorTable();
-	GFUNC_updateLeftSideVisualization();
+                }
+            }
+            CONN_initLinesHistorgram();
+        }
+        else {
+            if (selectedMatrix.values[idx][jdx] == 0 && newValue > 0) {
+                CONN_comingInLinesIndices[jdx].push(parseInt(idx));
+                CONN_comingOutLinesIndices[idx].push(parseInt(jdx));
+            }
+            if (selectedMatrix.values[idx][jdx] > 0 && newValue == 0) {
+                HLPR_removeByElement(CONN_comingInLinesIndices[jdx], parseInt(idx));
+                HLPR_removeByElement(CONN_comingOutLinesIndices[idx], parseInt(jdx));
+            }
+            selectedMatrix.values[idx][jdx] = newValue;
+            CONN_lineWidthsBins[idx][jdx] = CONN_getLineWidthValue(newValue);
+        }
+    }
+    var inputDiv = document.getElementById('editNodeValues');
+    inputDiv.style.display = 'none';
+    lastElementClass = null;
+    lastEditedElement = null;
+    lastElementColor = null;
+
+    MATRIX_colorTable();
+    GFUNC_updateLeftSideVisualization();
 }
 
 
@@ -200,21 +200,21 @@ function saveNodeDetails() {
  * method is called when pressing the 'Cancel' button or when clicking outside the table/canvas.
  */
 function hideNodeDetails() {
-	var inputDiv = document.getElementById('editNodeValues');
-	var hiddenNodeField = document.getElementById('currentlyEditedNode');
-	var tableNodeID = hiddenNodeField.value;
-	if (tableNodeID != null && tableNodeID != "") {
-		inputDiv.style.display = 'none';
-		if (lastEditedElement != null) {
-			lastEditedElement.className = lastElementClass;
-			lastEditedElement.style.backgroundColor = lastElementColor;			
-		}
-		hiddenNodeField.value = null;
-		lastElementClass = null;
-		lastEditedElement = null;	
-		lastElementColor = null;
-		MATRIX_colorTable();
-	}
+    var inputDiv = document.getElementById('editNodeValues');
+    var hiddenNodeField = document.getElementById('currentlyEditedNode');
+    var tableNodeID = hiddenNodeField.value;
+    if (tableNodeID != null && tableNodeID != "") {
+        inputDiv.style.display = 'none';
+        if (lastEditedElement != null) {
+            lastEditedElement.className = lastElementClass;
+            lastEditedElement.style.backgroundColor = lastElementColor;
+        }
+        hiddenNodeField.value = null;
+        lastElementClass = null;
+        lastEditedElement = null;
+        lastElementColor = null;
+        MATRIX_colorTable();
+    }
 }
 
 /**
@@ -225,21 +225,24 @@ function hideNodeDetails() {
  * 				  0 = source node, 1 = destination node
  */
 function toggleIngoingLines(index) {
-	var hiddenNodeField = document.getElementById('currentlyEditedNode');
-	var indexes = hiddenNodeField.value.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+    var prefix = GVAR_interestAreaVariables[GVAR_selectedAreaType].prefix;
 
-	for (var i=0; i<NO_POSITIONS; i++) {
-		if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][indexes[index]] > 0) {
-            if (GVAR_connectivityMatrix[i][indexes[index]] == 1) {
-            	GVAR_connectivityMatrix[i][indexes[index]] = 0;
+    var hiddenNodeField = document.getElementById('currentlyEditedNode');
+    var indexes = hiddenNodeField.value.split("td_" + prefix + '_')[1].split("_");
+    var idx = indexes[index];
+
+    for (var i=0; i < NO_POSITIONS; i++) {
+        if (values[i][indexes[index]] > 0) {
+            if (GVAR_connectivityMatrix[i][idx] === 1) {
+                GVAR_connectivityMatrix[i][idx] = 0;
             } else {
-            	GVAR_connectivityMatrix[i][indexes[index]] = 1;
+                GVAR_connectivityMatrix[i][idx] = 1;
             }
+        } else {
+            GVAR_connectivityMatrix[i][idx] = 0;
         }
-       else {
-       		GVAR_connectivityMatrix[i][indexes[index]] = 0;
-       }     
-      }
+    }
     GFUNC_updateLeftSideVisualization();
 }
 
@@ -251,21 +254,24 @@ function toggleIngoingLines(index) {
  * 				  0 = source node, 1 = destination node
  */
 function toggleOutgoingLines(index) {
-	var hiddenNodeField = document.getElementById('currentlyEditedNode');
-	var indexes = hiddenNodeField.value.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+    var prefix = GVAR_interestAreaVariables[GVAR_selectedAreaType].prefix;
 
-	for (var i=0; i<NO_POSITIONS; i++) {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[index]][i] > 0 ) {
-	            if (GVAR_connectivityMatrix[indexes[index]][i] == 1) {
-	            	GVAR_connectivityMatrix[indexes[index]][i] = 0;
-	            } else {
-	            	GVAR_connectivityMatrix[indexes[index]][i] = 1;
-	            }
+    var hiddenNodeField = document.getElementById('currentlyEditedNode');
+    var indexes = hiddenNodeField.value.split("td_" + prefix + '_')[1].split("_");
+    var idx = indexes[index];
+
+    for (var i=0; i<NO_POSITIONS; i++) {
+        if (values[idx][i] > 0 ) {
+            if (GVAR_connectivityMatrix[idx][i] === 1) {
+                GVAR_connectivityMatrix[idx][i] = 0;
+            } else {
+                GVAR_connectivityMatrix[idx][i] = 1;
             }
-            else {
-            	GVAR_connectivityMatrix[indexes[index]][i] = 0;
-            }
-        }	
+        } else {
+            GVAR_connectivityMatrix[idx][i] = 0;
+        }
+    }
     GFUNC_updateLeftSideVisualization();
 }
 
@@ -274,24 +280,29 @@ function toggleOutgoingLines(index) {
  * aside a edited element.
  * 
  * @param index - specified which of the two nodes is the one for which to make the cut,
- * 				  0 = source node, 1 = destination node
+ *                0 = source node, 1 = destination node
  */
 function cutIngoingLines(index) {
-	var hiddenNodeField = document.getElementById('currentlyEditedNode');
-	var indexes = hiddenNodeField.value.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+    var prefix = GVAR_interestAreaVariables[GVAR_selectedAreaType].prefix;
 
-	for (var i=0; i<NO_POSITIONS; i++) {
-        	GVAR_connectivityMatrix[i][indexes[index]] = 0;
+    var hiddenNodeField = document.getElementById('currentlyEditedNode');
+    var indexes = hiddenNodeField.value.split("td_" + prefix + '_')[1].split("_");
+    var idx = indexes[index];
+    var i;
+
+    for (i=0; i<NO_POSITIONS; i++) {
+        GVAR_connectivityMatrix[i][idx] = 0;
+    }
+    for (i=0; i<NO_POSITIONS; i++) {
+        if (values[i][idx] > 0){
+            HLPR_removeByElement(CONN_comingInLinesIndices[idx], parseInt(i));
+            HLPR_removeByElement(CONN_comingOutLinesIndices[i], parseInt(idx));
         }
-    for (var i=0; i<NO_POSITIONS; i++) {
-    	if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][indexes[index]] > 0){
-    		HLPR_removeByElement(CONN_comingInLinesIndices[indexes[index]], parseInt(i));
-			HLPR_removeByElement(CONN_comingOutLinesIndices[i], parseInt(indexes[index]));
-    	}
-    	GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][indexes[index]] = 0;
+        values[i][idx] = 0;
     }
     MATRIX_colorTable();
-	GFUNC_updateLeftSideVisualization();
+    GFUNC_updateLeftSideVisualization();
 }
 
 /**
@@ -302,19 +313,23 @@ function cutIngoingLines(index) {
  * 				  0 = source node, 1 = destination node
  */
 function cutOutgoingLines(index) {
-	var hiddenNodeField = document.getElementById('currentlyEditedNode');
-	var indexes = hiddenNodeField.value.split("td_" + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_')[1].split("_");
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+    var prefix = GVAR_interestAreaVariables[GVAR_selectedAreaType].prefix;
 
-	for (var i=0; i<NO_POSITIONS; i++) {
-		if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[index]][i] > 0){
-    		HLPR_removeByElement(CONN_comingInLinesIndices[i], parseInt(indexes[index]));
-			HLPR_removeByElement(CONN_comingOutLinesIndices[indexes[index]], parseInt(i));
-    	}
-        GVAR_connectivityMatrix[indexes[index]][i] = 0;
-    	GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][indexes[index]][i] = 0;
+    var hiddenNodeField = document.getElementById('currentlyEditedNode');
+    var indexes = hiddenNodeField.value.split("td_" + prefix + '_')[1].split("_");
+    var idx = indexes[index];
+
+    for (var i=0; i<NO_POSITIONS; i++) {
+        if (values[idx][i] > 0){
+            HLPR_removeByElement(CONN_comingInLinesIndices[i], parseInt(idx));
+            HLPR_removeByElement(CONN_comingOutLinesIndices[idx], parseInt(i));
+        }
+        GVAR_connectivityMatrix[idx][i] = 0;
+        values[idx][i] = 0;
     }	
     MATRIX_colorTable();
-	GFUNC_updateLeftSideVisualization();
+    GFUNC_updateLeftSideVisualization();
 }
 
 
@@ -331,48 +346,50 @@ function refreshTableInterestArea() {
  * For a given node index update the style of the table correspondingly.
  */
 function updateNodeInterest(nodeIdx) {
-	var isInInterest = GFUNC_isNodeAddedToInterestArea(nodeIdx);
+    var isInInterest = GFUNC_isNodeAddedToInterestArea(nodeIdx);
     // todo: these two queries are very expensive on the big dom that we have. This function is called for each node. 400ms
     // construct the id's and select by id
-	var upperSideButtons = $("th[id^='upper_change_" + nodeIdx + "_']");
-	var leftSideButtons = $("td[id^='left_change_" + nodeIdx + "_']");    
-    
+    var upperSideButtons = $("th[id^='upper_change_" + nodeIdx + "_']");
+    var leftSideButtons = $("td[id^='left_change_" + nodeIdx + "_']");
+
+    var prefix = GVAR_interestAreaVariables[GVAR_selectedAreaType].prefix;
+
     for (var k = 0; k < upperSideButtons.length; k++) {
-	    if (isInInterest) {
-    		upperSideButtons[k].className = 'selected';
-    	} else {
-    		upperSideButtons[k].className = '';
-    	}	
+        if (isInInterest) {
+            upperSideButtons[k].className = 'selected';
+        } else {
+            upperSideButtons[k].className = '';
+        }
     }
     
     for (var k = 0; k < leftSideButtons.length; k++) {
-	    if (isInInterest) {
-    		leftSideButtons[k].className = 'identifier selected';
-    	} else {
-    		leftSideButtons[k].className = 'identifier';
-    	}	
+        if (isInInterest) {
+            leftSideButtons[k].className = 'identifier selected';
+        } else {
+            leftSideButtons[k].className = 'identifier';
+        }
     }    
     
     for (var i=0; i<NO_POSITIONS; i++){	
-    	var horiz_table_data_id = 'td_' + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_' + nodeIdx + '_' + i;
-    	var vertical_table_data_id = 'td_' + GVAR_interestAreaVariables[GVAR_selectedAreaType]['prefix'] + '_' + i + '_' + nodeIdx;
-    	var horiz_table_element = document.getElementById(horiz_table_data_id);
-    	var vertical_table_element = document.getElementById(vertical_table_data_id);
+        var horiz_table_data_id = 'td_' + prefix + '_' + nodeIdx + '_' + i;
+        var vertical_table_data_id = 'td_' + prefix + '_' + i + '_' + nodeIdx;
+        var horiz_table_element = document.getElementById(horiz_table_data_id);
+        var vertical_table_element = document.getElementById(vertical_table_data_id);
 
-	    if (isInInterest && GFUNC_isNodeAddedToInterestArea(i)) {
-	       	vertical_table_element.className = 'node selected';
-	    	horiz_table_element.className = 'node selected'; 		
-    	}
-    	else {
-			vertical_table_element.className = 'node';
-		    horiz_table_element.className = 'node';     		
-    	}	
+        if (isInInterest && GFUNC_isNodeAddedToInterestArea(i)) {
+            vertical_table_element.className = 'node selected';
+            horiz_table_element.className = 'node selected';
+        }
+        else {
+            vertical_table_element.className = 'node';
+            horiz_table_element.className = 'node';
+        }
     }
 }
 
 function _toggleNode(index){
     GFUNC_toggleNodeInInterestArea(index);
-	updateNodeInterest(index);
+    updateNodeInterest(index);
     SEL_selector.val(GVAR_interestAreaNodeIndexes);
 }
 /**
@@ -382,8 +399,8 @@ function _toggleNode(index){
  * @param domElem the dom element which fired the click event
  */  
 function changeEntireColumn(domElem) {
-	var index = domElem.id.split("upper_change_")[1];
-	index = parseInt(index.split('_')[0]);
+    var index = domElem.id.split("upper_change_")[1];
+    index = parseInt(index.split('_')[0]);
     _toggleNode(index);
 }
 
@@ -395,8 +412,8 @@ function changeEntireColumn(domElem) {
  * @param domElem the dom element which fired the click event
  */  
 function changeEntireRow(domElem) {
-	var index = domElem.id.split("left_change_")[1];
-	index = parseInt(index.split('_')[0]);
+    var index = domElem.id.split("left_change_")[1];
+    index = parseInt(index.split('_')[0]);
     _toggleNode(index);
 }
 
@@ -406,10 +423,10 @@ function changeEntireRow(domElem) {
  */
 
 function TBL_storeHemisphereDetails(newStartPointsX, newEndPointsX, newStartPointsY, newEndPointsY) {
-	startPointsX = eval(newStartPointsX);
-	endPointsX = eval(newEndPointsX);
-	startPointsY = eval(newStartPointsY);
-	endPointsY = eval(newEndPointsY);
+    startPointsX = eval(newStartPointsX);
+    endPointsX = eval(newEndPointsX);
+    startPointsY = eval(newStartPointsY);
+    endPointsY = eval(newEndPointsY);
 }
 
 /**
@@ -418,14 +435,14 @@ function TBL_storeHemisphereDetails(newStartPointsX, newEndPointsX, newStartPoin
  * @private
  */
 function _updateLegendColors(){
-	var div_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['legend_div_id'];
-	var legendDiv = document.getElementById(div_id);
+    var div_id = GVAR_interestAreaVariables[GVAR_selectedAreaType]['legend_div_id'];
+    var legendDiv = document.getElementById(div_id);
 
-	var height = Math.max($("#div-matrix-weights")[0].clientHeight, $("#div-matrix-tracts")[0].clientHeight);
+    var height = Math.max($("#div-matrix-weights")[0].clientHeight, $("#div-matrix-tracts")[0].clientHeight);
     ColSch_updateLegendColors(legendDiv, height);
 
     ColSch_updateLegendLabels('#table-' + div_id, GVAR_interestAreaVariables[GVAR_selectedAreaType]['min_val'],
-                              GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'], height)
+                              GVAR_interestAreaVariables[GVAR_selectedAreaType]['max_val'], height);
 }
 
 
@@ -440,22 +457,22 @@ function MATRIX_colorTable() {
     var maxValue = selectedMatrix.max_val;
 
     for (var hemisphereIdx=0; hemisphereIdx<startPointsX.length; hemisphereIdx++){
-		var startX = startPointsX[hemisphereIdx];
-		var endX = endPointsX[hemisphereIdx];
-		var startY = startPointsY[hemisphereIdx];
-		var endY = endPointsY[hemisphereIdx];
+        var startX = startPointsX[hemisphereIdx];
+        var endX = endPointsX[hemisphereIdx];
+        var startY = startPointsY[hemisphereIdx];
+        var endY = endPointsY[hemisphereIdx];
 
-		for (var i=startX; i<endX; i++){
-			for (var j=startY; j<endY; j++) {
-				var tableDataID = 'td_' + prefix_id + '_' + i + '_' + j;
-				var tableElement = document.getElementById(tableDataID);
-				if (dataValues){
+        for (var i=startX; i<endX; i++){
+            for (var j=startY; j<endY; j++) {
+                var tableDataID = 'td_' + prefix_id + '_' + i + '_' + j;
+                var tableElement = document.getElementById(tableDataID);
+                if (dataValues){
                     tableElement.style.backgroundColor = getGradientColorString(dataValues[i][j], minValue, maxValue);
                 }
-			}
+            }
         }
-	}
-	_updateLegendColors();
+    }
+    _updateLegendColors();
 }
 
 function saveChanges() {

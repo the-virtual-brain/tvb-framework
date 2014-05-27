@@ -17,6 +17,8 @@
  *
  **/
 
+/* globals gl */
+
 /**
  * WebGL methods "inheriting" from webGL_xx.js in static/js.
  */
@@ -27,7 +29,7 @@ var CONNECTIVITY_CANVAS_ID = "GLcanvas";
 
 
 function initShaders() {	
-	//INIT NORMAL SHADER
+    //INIT NORMAL SHADER
     basicInitShaders("shader-fs", "shader-vs");
     shaderProgram.colorAttribute = gl.getAttribLocation(shaderProgram, "aColor");
     gl.enableVertexAttribArray(shaderProgram.colorAttribute);
@@ -126,17 +128,17 @@ var minLineWidth = 1.0;
 var lineWidthNrOfBins = 10;
 
 function toogleShowMetrics() {
-	showMetricDetails = !showMetricDetails;
-	drawScene();
+    showMetricDetails = !showMetricDetails;
+    drawScene();
 }
 
 function customKeyDown(event) {
-	GL_handleKeyDown(event);
-	GFUNC_updateLeftSideVisualization();
+    GL_handleKeyDown(event);
+    GFUNC_updateLeftSideVisualization();
 }
 
 function customMouseDown(event) {
-	GL_handleMouseDown(event, event.target);
+    GL_handleMouseDown(event, event.target);
     doPick = true;
 
     GFUNC_updateContextMenu(CONN_pickedIndex, GVAR_pointsLabels[CONN_pickedIndex],
@@ -147,7 +149,7 @@ function customMouseDown(event) {
 
 function customMouseMove(event) {
     GL_handleMouseMove(event);
-	GFUNC_updateLeftSideVisualization();
+    GFUNC_updateLeftSideVisualization();
 }
 
 
@@ -167,7 +169,7 @@ function initBuffers() {
     }
 
      for (var index = 0; index < 24 ; index++){
-        	whitePointsColorsIndex = whitePointsColorsIndex.concat(COLORS[WHITE_COLOR_INDEX]);
+            whitePointsColorsIndex = whitePointsColorsIndex.concat(COLORS[WHITE_COLOR_INDEX]);
      }
 
     defaultColorIndexesBuffer = gl.createBuffer();
@@ -200,14 +202,14 @@ function initBuffers() {
 
 function displayPoints() {
     for (var i = 0; i < NO_POSITIONS; i++) {
-    	// Next line was ADDED FOR PICK
+        // Next line was ADDED FOR PICK
         var currentBuffers;
-    	if (showMetricDetails) {
-    		currentBuffers = positionsBuffers_3D[i];
-    		gl.uniform1i(shaderProgram.drawNodes, true);
-    	} else {
-    		currentBuffers = positionsBuffers[i];
-    	}
+        if (showMetricDetails) {
+            currentBuffers = positionsBuffers_3D[i];
+            gl.uniform1i(shaderProgram.drawNodes, true);
+        } else {
+            currentBuffers = positionsBuffers[i];
+        }
         mvPickMatrix = GL_mvMatrix.dup();
         mvPushMatrix();
         gl.bindBuffer(gl.ARRAY_BUFFER, currentBuffers[0]);
@@ -216,9 +218,9 @@ function displayPoints() {
         gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, currentBuffers[1].itemSize, gl.FLOAT, false, 0, 0);
         
         if (colorsWeights) {
-        	// We have some color weights defined (eg. connectivity viewer)
-        	var color = getGradientColor(colorsWeights[i], parseFloat($('#colorMinId').val()), parseFloat($('#colorMaxId').val()));
-        	gl.uniform3f(shaderProgram.colorUniform, color[0], color[1], color[2]);
+            // We have some color weights defined (eg. connectivity viewer)
+            var color = getGradientColor(colorsWeights[i], parseFloat($('#colorMinId').val()), parseFloat($('#colorMaxId').val()));
+            gl.uniform3f(shaderProgram.colorUniform, color[0], color[1], color[2]);
         }
         
         gl.bindBuffer(gl.ARRAY_BUFFER, currentBuffers[0]);
@@ -239,7 +241,7 @@ function displayPoints() {
         } else if (!hasPositiveWeights(i)) {
             gl.uniform1i(shaderProgram.colorIndex, BLACK_COLOR_INDEX);
         } else {
-        	gl.uniform1i(shaderProgram.colorIndex, WHITE_COLOR_INDEX);
+            gl.uniform1i(shaderProgram.colorIndex, WHITE_COLOR_INDEX);
         }
         // End ADDED FOR PICK
         setMatrixUniforms();
@@ -287,106 +289,105 @@ function drawScene() {
 
     loadIdentity();
 
-	if (!doPick) {
-		createLinesBuffer(getLinesIndexes());
-		gl.uniform1f(shaderProgram.isPicking, 0);
-		gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
-		if (GL_zoomSpeed != 0) {
+    if (!doPick) {
+        createLinesBuffer(getLinesIndexes());
+        gl.uniform1f(shaderProgram.isPicking, 0);
+        gl.uniform3f(shaderProgram.pickingColor, 1, 1, 1);
+        if (GL_zoomSpeed != 0) {
             GL_zTranslation += GL_zoomSpeed * GL_zTranslation;
             GL_zoomSpeed = 0;
         }
 
-	    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	    addLight();     
-	
-	    //draw the lines between the checked points
-	    mvPushMatrix();
-	    // Translate to get a good view.
-	    mvTranslate([0.0, 0.0, GL_zTranslation]);
-	    multMatrix(GL_currentRotationMatrix);
-	    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
-	    applyConnectivityNoseCorrection();
-	    _drawLines(linesBuffer);
-	    mvPopMatrix();
-	
-	    //draw the points
-	    mvPushMatrix();
-	    // Translate to get a good view.
-	    mvTranslate([0.0, 0.0, GL_zTranslation]);
-	    multMatrix(GL_currentRotationMatrix);
-	    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
-	    applyConnectivityNoseCorrection();
-	    displayPoints();
-	    mvPopMatrix();
-	
-	   ORIENTATION_draw_nose_and_ears();
-	
-	    // draw the brain cortical surface
-	    if (noOfBuffersToLoad == 0) {
-	        mvTranslate([0.0, 0.0, GL_zTranslation]);
-	        mvPushMatrix();
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        addLight();
+
+        //draw the lines between the checked points
+        mvPushMatrix();
+        // Translate to get a good view.
+        mvTranslate([0.0, 0.0, GL_zTranslation]);
+        multMatrix(GL_currentRotationMatrix);
+        mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
+        applyConnectivityNoseCorrection();
+        _drawLines(linesBuffer);
+        mvPopMatrix();
+
+        //draw the points
+        mvPushMatrix();
+        // Translate to get a good view.
+        mvTranslate([0.0, 0.0, GL_zTranslation]);
+        multMatrix(GL_currentRotationMatrix);
+        mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
+        applyConnectivityNoseCorrection();
+        displayPoints();
+        mvPopMatrix();
+
+       ORIENTATION_draw_nose_and_ears();
+
+        // draw the brain cortical surface
+        if (noOfBuffersToLoad === 0) {
+            mvTranslate([0.0, 0.0, GL_zTranslation]);
+            mvPushMatrix();
 
             // Blending function for alpha: transparent pix blended over opaque -> opaque pix
             gl.enable(gl.BLEND);
             gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
             gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
             gl.enable(gl.CULL_FACE);
-	        addLightForCorticalSurface();
-	        multMatrix(GL_currentRotationMatrix);
-	        applyConnectivityNoseCorrection();
-	        mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
+            addLightForCorticalSurface();
+            multMatrix(GL_currentRotationMatrix);
+            applyConnectivityNoseCorrection();
+            mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
 
             // Draw the transparent object twice, to get a correct rendering
             gl.cullFace(gl.FRONT);
-	        drawHemispheres(gl.TRIANGLES);
+            drawHemispheres(gl.TRIANGLES);
             gl.cullFace(gl.BACK);
             drawHemispheres(gl.TRIANGLES);
 
-	        gl.disable(gl.BLEND);
+            gl.disable(gl.BLEND);
             gl.disable(gl.CULL_FACE);
-	        mvPopMatrix();
-	    }
-	   }
-	   else {
-	   		gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
-	   		gl.disable(gl.BLEND);
-            gl.disable(gl.DITHER);
-	   		gl.uniform1f(shaderProgram.isPicking, 1);	
+            mvPopMatrix();
+        }
+    } else {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
+        gl.disable(gl.BLEND);
+        gl.disable(gl.DITHER);
+        gl.uniform1f(shaderProgram.isPicking, 1);
 
-	    	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	   	    if (GL_colorPickerInitColors.length == 0) {
-	   			GL_initColorPickingData(NO_POSITIONS);
-	   		}	 
+        if (GL_colorPickerInitColors.length == 0) {
+            GL_initColorPickingData(NO_POSITIONS);
+        }
 
-			mvPushMatrix();
-		    mvTranslate([0.0, 0.0, GL_zTranslation]);
-		    multMatrix(GL_currentRotationMatrix);
-		    mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
-		    applyConnectivityNoseCorrection();   
-		    
-		    for (var i = 0; i < NO_POSITIONS; i++){
-		    	gl.uniform3f(shaderProgram.pickingColor, GL_colorPickerInitColors[i][0], 
-		    											 GL_colorPickerInitColors[i][1], 
-		    											 GL_colorPickerInitColors[i][2]);
-	            gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffers[i][0]);
-		        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, positionsBuffers[i][0].itemSize, gl.FLOAT, false, 0, 0);
-				gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffers[i][1]);
-		        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, positionsBuffers[i][1].itemSize, gl.FLOAT, false, 0, 0);
-		        
-		        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, positionsBuffers[i][2]);
-		        setMatrixUniforms();
-        		gl.drawElements(gl.TRIANGLES, positionsBuffers[i][2].numItems, gl.UNSIGNED_SHORT, 0);
-	         }    
-	        var newPicked = GL_getPickedIndex();
-			if (newPicked!= undefined) {
-                CONN_pickedIndex = newPicked;
-			}
-		    mvPopMatrix();		 
-			doPick = false;
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-            drawScene();
-		}
+        mvPushMatrix();
+        mvTranslate([0.0, 0.0, GL_zTranslation]);
+        multMatrix(GL_currentRotationMatrix);
+        mvTranslate([GVAR_additionalXTranslationStep, GVAR_additionalYTranslationStep, 0]);
+        applyConnectivityNoseCorrection();
+
+        for (var i = 0; i < NO_POSITIONS; i++){
+            gl.uniform3f(shaderProgram.pickingColor, GL_colorPickerInitColors[i][0],
+                                                     GL_colorPickerInitColors[i][1],
+                                                     GL_colorPickerInitColors[i][2]);
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffers[i][0]);
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, positionsBuffers[i][0].itemSize, gl.FLOAT, false, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffers[i][1]);
+            gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, positionsBuffers[i][1].itemSize, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, positionsBuffers[i][2]);
+            setMatrixUniforms();
+            gl.drawElements(gl.TRIANGLES, positionsBuffers[i][2].numItems, gl.UNSIGNED_SHORT, 0);
+         }
+        var newPicked = GL_getPickedIndex();
+        if (newPicked != null) {
+            CONN_pickedIndex = newPicked;
+        }
+        mvPopMatrix();
+        doPick = false;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        drawScene();
+    }
 }
 
 /**
@@ -394,25 +395,24 @@ function drawScene() {
  * line between the points that correspond to those indexes.
  */
 function createLinesBuffer(dictOfIndexes) {
-	linesBuffer = [];
-	if (dictOfIndexes) {
-		for (var width in dictOfIndexes) {
-			var buffer = getElementArrayBuffer(dictOfIndexes[width]);
-			buffer.lineWidth = width;
-			linesBuffer.push(buffer);
-		}
-	}
+    linesBuffer = [];
+    if (dictOfIndexes) {
+        for (var width in dictOfIndexes) {
+            var buffer = getElementArrayBuffer(dictOfIndexes[width]);
+            buffer.lineWidth = width;
+            linesBuffer.push(buffer);
+        }
+    }
 }
 
 
 function computeRay(rayWeight, minWeight, maxWeight) {
     var minRay = 1;
     var maxRay = 4;
-	if (minWeight != maxWeight) {
-		return minRay + [(rayWeight - minWeight) / (maxWeight - minWeight)] * (maxRay - minRay);
-	}	
-    else{
-  		return minRay + (maxRay - minRay) / 2;  	
+    if (minWeight != maxWeight) {
+        return minRay + [(rayWeight - minWeight) / (maxWeight - minWeight)] * (maxRay - minRay);
+    }else{
+        return minRay + (maxRay - minRay) / 2;
     }
 }
 
@@ -421,14 +421,16 @@ function computeRay(rayWeight, minWeight, maxWeight) {
  * Get the aproximated line width value using a histogram like behaviour.
  */
 function CONN_getLineWidthValue(weightsValue) {
-	var minWeights = GVAR_interestAreaVariables[1].min_val;
-	var maxWeights = GVAR_interestAreaVariables[1].max_val;
-	if (maxWeights == minWeights) maxWeights = minWeights + 1;
-	var lineDiff = maxLineWidth - minLineWidth;
-	var scaling = (weightsValue - minWeights) / (maxWeights - minWeights);
-	var lineWidth = scaling * lineDiff;
-	var binInterval = lineDiff / lineWidthNrOfBins;
-	return (parseInt(lineWidth / binInterval) * binInterval + minLineWidth).toFixed(6);
+    var minWeights = GVAR_interestAreaVariables[1].min_val;
+    var maxWeights = GVAR_interestAreaVariables[1].max_val;
+    if (maxWeights === minWeights) {
+        maxWeights = minWeights + 1;
+    }
+    var lineDiff = maxLineWidth - minLineWidth;
+    var scaling = (weightsValue - minWeights) / (maxWeights - minWeights);
+    var lineWidth = scaling * lineDiff;
+    var binInterval = lineDiff / lineWidthNrOfBins;
+    return (parseInt(lineWidth / binInterval) * binInterval + minLineWidth).toFixed(6);
 }
 
 
@@ -437,15 +439,15 @@ function CONN_getLineWidthValue(weightsValue) {
  * with different widths.
  */
 function CONN_initLinesHistorgram() {
-	CONN_lineWidthsBins = [];
-	var weights = GVAR_interestAreaVariables[1].values;
-	for (var i = 0; i < weights.length; i++) {
-		var row = [];
-		for (var j = 0; j < weights.length; j++) {
-			row.push(CONN_getLineWidthValue(weights[i][j]));
-		}
-		CONN_lineWidthsBins.push(row);
-	}
+    CONN_lineWidthsBins = [];
+    var weights = GVAR_interestAreaVariables[1].values;
+    for (var i = 0; i < weights.length; i++) {
+        var row = [];
+        for (var j = 0; j < weights.length; j++) {
+            row.push(CONN_getLineWidthValue(weights[i][j]));
+        }
+        CONN_lineWidthsBins.push(row);
+    }
 }
 
 
@@ -455,22 +457,22 @@ function CONN_initLinesHistorgram() {
  * using a given width.
  */
 function getLinesIndexes() {
-	var lines = {};
-	var binInterval = (maxLineWidth - minLineWidth) / lineWidthNrOfBins;
-	for (var bin = minLineWidth; bin <= maxLineWidth + 0.000001; bin += binInterval) {
-		lines[bin.toFixed(6)] = [];
-	}
+    var lines = {};
+    var binInterval = (maxLineWidth - minLineWidth) / lineWidthNrOfBins;
+    for (var bin = minLineWidth; bin <= maxLineWidth + 0.000001; bin += binInterval) {
+        lines[bin.toFixed(6)] = [];
+    }
     for (var i = 0; i < GVAR_connectivityMatrix.length; i++) {
         for (var j = 0; j < GVAR_connectivityMatrix[i].length; j++) {
-            if (GVAR_connectivityMatrix[i][j] == 1) {
-            	try {
-            		var bins = CONN_lineWidthsBins[i][j];
-	            	lines[bins].push(i);
-	            	lines[bins].push(j);
-            	} catch(err) {
-            		console.log(err);
-            	}
-            	
+            if (GVAR_connectivityMatrix[i][j] === 1) {
+                try {
+                    var bins = CONN_lineWidthsBins[i][j];
+                    lines[bins].push(i);
+                    lines[bins].push(j);
+                } catch(err) {
+                    console.log(err);
+                }
+
             }
         }
     }
@@ -494,8 +496,8 @@ function highlightPoint() {
 
 
 function _drawLines(linesBuffers) {
-	gl.uniform1i(shaderProgram.colorIndex, NO_COLOR_INDEX);
-	gl.uniform1i(shaderProgram.useLightingUniform, false);
+    gl.uniform1i(shaderProgram.colorIndex, NO_COLOR_INDEX);
+    gl.uniform1i(shaderProgram.useLightingUniform, false);
     gl.bindBuffer(gl.ARRAY_BUFFER, positionsPointsBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, positionsPointsBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -506,12 +508,12 @@ function _drawLines(linesBuffers) {
     gl.vertexAttribPointer(shaderProgram.colorAttribute, colorsArrayBuffer.itemSize, gl.FLOAT, false, 0, 0);
     setMatrixUniforms();
     
-	for (var i = 0; i < linesBuffers.length; i++) {
-		var linesVertexIndicesBuffer = linesBuffers[i];
-		gl.lineWidth(parseFloat(linesVertexIndicesBuffer.lineWidth));
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesVertexIndicesBuffer);
-    	gl.drawElements(gl.LINES, linesVertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-	}
+    for (var i = 0; i < linesBuffers.length; i++) {
+        var linesVertexIndicesBuffer = linesBuffers[i];
+        gl.lineWidth(parseFloat(linesVertexIndicesBuffer.lineWidth));
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesVertexIndicesBuffer);
+        gl.drawElements(gl.LINES, linesVertexIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    }
     gl.lineWidth(1.0);
     gl.uniform1i(shaderProgram.useLightingUniform, true);
 }
@@ -521,17 +523,18 @@ function _drawLines(linesBuffers) {
  * For each index keep a list of all incoming lines in one dictionary, and all outgoing lines in the other.
  */
 function initLinesIndices() {
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
     for (var i = 0; i < NO_POSITIONS; i++) {
-    	var indexesIn = [];
-    	var indexesOut = [];
-	    for (var j = 0; j < NO_POSITIONS; j++) {
-	        if (j != i && parseFloat(GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j])) {
-	            indexesOut.push(j);
-	        }
-	        if (j != i && parseFloat(GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][j][i])) {
-	            indexesIn.push(j);
-	        } 
-	    }
+        var indexesIn = [];
+        var indexesOut = [];
+        for (var j = 0; j < NO_POSITIONS; j++) {
+            if (j !== i && parseFloat(values[i][j])) {
+                indexesOut.push(j);
+            }
+            if (j !== i && parseFloat(values[j][i])) {
+                indexesIn.push(j);
+            }
+        }
         CONN_comingOutLinesIndices.push(indexesOut);
         CONN_comingInLinesIndices.push(indexesIn);
     }
@@ -556,42 +559,47 @@ function getElementArrayBuffer(indices) {
  * @param draw swap between drawing(1) or hiding(0)
  */
 function handleLines(selectedNodeIdx, direction, draw) {
-	if (draw == 1)	{
-		setCurrentColorForNode(selectedNodeIdx);
-	}
-	if (direction == 1) {
-		//Coming out lines
-		for (var i=0; i<NO_POSITIONS; i++) {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][selectedNodeIdx][i] > 0) {
-				GVAR_connectivityMatrix[selectedNodeIdx][i] = draw;				
-			}
-		}
-	} else {
-		for (var ii=0; ii<NO_POSITIONS; ii++) {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][ii][selectedNodeIdx] > 0) {
-				GVAR_connectivityMatrix[ii][selectedNodeIdx] = draw;
-			}
-		}	
-	}
- 	drawScene();
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+
+    if (draw === 1)	{
+        setCurrentColorForNode(selectedNodeIdx);
+    }
+    if (direction === 1) {
+        //Coming out lines
+        for (var i=0; i<NO_POSITIONS; i++) {
+            if (values[selectedNodeIdx][i] > 0) {
+                GVAR_connectivityMatrix[selectedNodeIdx][i] = draw;
+            }
+        }
+    } else {
+        for (var ii=0; ii<NO_POSITIONS; ii++) {
+            if (values[ii][selectedNodeIdx] > 0) {
+                GVAR_connectivityMatrix[ii][selectedNodeIdx] = draw;
+            }
+        }
+    }
+    drawScene();
 }
 
 /**
  * Draw all the comming in and comming out lines for the connectivity matrix.
  */
 function checkAll() {
-	for (var i = 0; i < NO_POSITIONS; i++) {
-		var comingInEdgesIndexes = CONN_comingInLinesIndices[i];
-		for (var j = 0; j < comingInEdgesIndexes.length; j++) {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][comingInEdgesIndexes[j]][i] > 0 )
-             GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 1;
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+    for (var i = 0; i < NO_POSITIONS; i++) {
+        var comingInEdgesIndexes = CONN_comingInLinesIndices[i];
+        for (var j = 0; j < comingInEdgesIndexes.length; j++) {
+            if (values[comingInEdgesIndexes[j]][i] > 0 ) {
+                GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 1;
+            }
         }
         var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
-		for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
-			if (GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[jj]] > 0 )
-             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 1;
+        for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
+            if (values[i][comingOutEdgesIndexes[jj]] > 0 ) {
+                GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 1;
+            }
         }
-	}
+    }
     drawScene();
 }
 
@@ -612,20 +620,24 @@ function clearAll() {
  * Draw all the comming in and comming out lines for the connectivity matrix for selected nodes.
  */
 function checkAllSelected() {
-	for (var i = 0; i < NO_POSITIONS; i++) {
-		if (GFUNC_isNodeAddedToInterestArea(i)) {
-			var comingInEdgesIndexes = CONN_comingInLinesIndices[i];
-			for (var j = 0; j < comingInEdgesIndexes.length; j++) {
-				if (GFUNC_isNodeAddedToInterestArea(j) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][comingInEdgesIndexes[j]][i] > 0)
-	             GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 1;
-	        }
-	        var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
-			for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
-				if (GFUNC_isNodeAddedToInterestArea(jj) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[jj]] > 0 )
-	             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 1;
-	        }
-	  }
-	}
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+
+    for (var i = 0; i < NO_POSITIONS; i++) {
+        if (GFUNC_isNodeAddedToInterestArea(i)) {
+            var comingInEdgesIndexes = CONN_comingInLinesIndices[i];
+            for (var j = 0; j < comingInEdgesIndexes.length; j++) {
+                if (GFUNC_isNodeAddedToInterestArea(j) && values[comingInEdgesIndexes[j]][i] > 0) {
+                    GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 1;
+                }
+            }
+            var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
+            for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
+                if (GFUNC_isNodeAddedToInterestArea(jj) && values[i][comingOutEdgesIndexes[jj]] > 0 ) {
+                    GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 1;
+                }
+            }
+        }
+    }
     drawScene();
 }
 
@@ -633,21 +645,25 @@ function checkAllSelected() {
  * Clear all the comming in and comming out lines for the connectivity matrix for selected nodes.
  */
 function clearAllSelected() {
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+
     for (var i = 0; i < NO_POSITIONS; i++) {
-		if (GFUNC_isNodeAddedToInterestArea(i)) {
-			var comingInEdgesIndexes = CONN_comingInLinesIndices[i];
-			for (var j = 0; j < comingInEdgesIndexes.length; j++) {
-				if (GFUNC_isNodeAddedToInterestArea(j) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][comingInEdgesIndexes[j]][i] > 0)
-	             GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 0;
-	        }
-	        var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
-			for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
-				if (GFUNC_isNodeAddedToInterestArea(jj) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[jj]] > 0 )
-	             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 0;
-	        }
-	  }
-	}
-    drawScene();
+        if (GFUNC_isNodeAddedToInterestArea(i)) {
+            var comingInEdgesIndexes = CONN_comingInLinesIndices[i];
+            for (var j = 0; j < comingInEdgesIndexes.length; j++) {
+                if (GFUNC_isNodeAddedToInterestArea(j) && values[comingInEdgesIndexes[j]][i] > 0) {
+                    GVAR_connectivityMatrix[comingInEdgesIndexes[j]][i] = 0;
+                }
+            }
+            var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
+            for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
+                if (GFUNC_isNodeAddedToInterestArea(jj) && values[i][comingOutEdgesIndexes[jj]] > 0 ) {
+                    GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 0;
+                }
+            }
+      }
+    }
+    drawScene(); // todo: are 2 draw calls necessary?
     drawScene();
 }
 
@@ -680,8 +696,7 @@ var GVAR_additionalYTranslationStep = 0;
 
 
 function applyConnectivityNoseCorrection() {
-    if (connectivity_nose_correction != undefined && connectivity_nose_correction != null &&
-            connectivity_nose_correction.length == 3) {
+    if (connectivity_nose_correction != null && connectivity_nose_correction.length === 3) {
         mvRotate(parseInt(connectivity_nose_correction[0]), [1, 0, 0]);
         mvRotate(parseInt(connectivity_nose_correction[1]), [0, 1, 0]);
         mvRotate(parseInt(connectivity_nose_correction[2]), [0, 0, 1]);
@@ -702,26 +717,28 @@ function applyConnectivityNoseCorrection() {
 function isAnyPointChecked(idx, listOfIndexes, dir) {	
     for (var i = 0; i < listOfIndexes.length; i++) {
         var idx1 = listOfIndexes[i];
-		if (dir == 0) {
-	        if (GVAR_connectivityMatrix[idx1][idx] == 1 ) {
-	            return true;
-	        }			
-		}
-		if (dir == 1) {
-	        if (GVAR_connectivityMatrix[idx][idx1] == 1 ) {
-	            return true;
-	        }			
-		}
+        if (dir === 0) {
+            if (GVAR_connectivityMatrix[idx1][idx] === 1 ) {
+                return true;
+            }
+        }
+        if (dir === 1) {
+            if (GVAR_connectivityMatrix[idx][idx1] === 1 ) {
+                return true;
+            }
+        }
     }
     return false;
 }
 
 function hasPositiveWeights(i) {
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+
     var hasWeights = false;
     for (var j = 0; j < NO_POSITIONS; j++) {
-    	if ((GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][j] > 0 || GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][j][i] > 0) && (i != j)) {
-    		hasWeights = true;
-    	}
+        if ((values[i][j] > 0 || values[j][i] > 0) && (i !== j)) {
+            hasWeights = true;
+        }
     }
     return hasWeights;
 }
@@ -733,7 +750,7 @@ function hasPositiveWeights(i) {
  * @param isIndex Boolean marking when current buffer to draw is with indexes.
  */
 function getAsynchronousBuffers(urlList, resultBuffers, isIndex) {
-    if (urlList.length == 0) {
+    if (urlList.length === 0) {
         noOfBuffersToLoad -= 1;
         return;
     }
@@ -741,13 +758,13 @@ function getAsynchronousBuffers(urlList, resultBuffers, isIndex) {
         var dataList = eval(data);
         var buffer = gl.createBuffer();
         if (isIndex) {
-        	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
-        	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(dataList), gl.STATIC_DRAW);
-        	buffer.numItems = dataList.length;
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(dataList), gl.STATIC_DRAW);
+            buffer.numItems = dataList.length;
         } else {
-	        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-	        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(dataList), gl.STATIC_DRAW);
-		}
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(dataList), gl.STATIC_DRAW);
+        }
         resultBuffers.push(buffer);
         urlList.splice(0, 1);
         return getAsynchronousBuffers(urlList, resultBuffers, isIndex);
@@ -756,21 +773,21 @@ function getAsynchronousBuffers(urlList, resultBuffers, isIndex) {
 
 
 function selectHemisphere(index) {
-	$(".quadrant-display").each(function () {
-		$(this).removeClass('active');
-	});
-	$(".quadrant-"+ index).each(function () {
-		$(this).addClass('active');
-	});
-	
-	for (var k=0; k<hemispheres.length; k++){
-		$("#" + hemispheres[k]).hide();
-		$("#" + hemispheres[k]+'Tracts').hide();
-	}
+    $(".quadrant-display").each(function () {
+        $(this).removeClass('active');
+    });
+    $(".quadrant-"+ index).each(function () {
+        $(this).addClass('active');
+    });
+
+    for (var k=0; k<hemispheres.length; k++){
+        $("#" + hemispheres[k]).hide();
+        $("#" + hemispheres[k]+'Tracts').hide();
+    }
     $("#" + hemispheres[index]).show();
     $("#" + hemispheres[index]+'Tracts').show();
-	var inputDiv = document.getElementById('editNodeValues');
-	inputDiv.style.display = 'none';
+    var inputDiv = document.getElementById('editNodeValues');
+    inputDiv.style.display = 'none';
     highlightPoint();
 }
 
@@ -805,10 +822,10 @@ function drawHemispheres(drawingMode) {
  * be drawn alone, without widths and tracts.
  */
 function connectivity_startGL(isSingleMode) {
-	GL_DEFAULT_Z_POS = -310.0;
-	if (!GL_zTranslation)       // set it to default only if it's not set, in order to keep the zoom when switching tabs
+    GL_DEFAULT_Z_POS = -310.0;
+    if (!GL_zTranslation)       // set it to default only if it's not set, in order to keep the zoom when switching tabs
         GL_zTranslation = GL_DEFAULT_Z_POS;
-		
+
     for (var i = 0; i < COLORS.length; i++) {
         gl.uniform3f(shaderProgram.colorsArray[i], COLORS[i][0], COLORS[i][1], COLORS[i][2]);
     }
@@ -834,7 +851,7 @@ function ConnPlotUpdateColors(){
  * other GL based visualizers to re-initiate the canvas.
  */
 function connectivity_initCanvas() {
-	var canvas = document.getElementById(CONNECTIVITY_CANVAS_ID);
+    var canvas = document.getElementById(CONNECTIVITY_CANVAS_ID);
     canvas.width = canvas.parentNode.clientWidth - 10;       // resize the canvas to almost fill the parent
     canvas.height = 550;
     initGL(canvas);
@@ -855,20 +872,20 @@ function connectivity_initCanvas() {
  * only once.
  */
 function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList, urlTrianglesList,
-								urlNormalsList, urlLabels, conn_nose_correction, condSpeed, rays, colors) {
-	GVAR_initPointsAndLabels(filePositions, urlLabels);
+                                urlNormalsList, urlLabels, conn_nose_correction, condSpeed, rays, colors) {
+    GVAR_initPointsAndLabels(filePositions, urlLabels);
     connectivity_nose_correction = $.parseJSON(conn_nose_correction);
     NO_POSITIONS = GVAR_positionsPoints.length;
     GFUNC_initTractsAndWeights(fileWeights, fileTracts);
     if (rays) raysWeights = $.parseJSON(rays);
     if (colors) colorsWeights = $.parseJSON(colors);
 
-	conductionSpeed = parseFloat(condSpeed);
+    conductionSpeed = parseFloat(condSpeed);
     // Initialize the buffers for drawing the points
     var ray_value;
 
     for (var i = 0; i < NO_POSITIONS; i++) {
-    	if (raysWeights) {
+        if (raysWeights) {
             ray_value = computeRay(raysWeights[i], parseFloat($('#rayMinId').val()), parseFloat($('#rayMaxId').val()));
         }
         else {
@@ -881,13 +898,13 @@ function saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerti
     ORIENTATION_initOrientationBuffers();
 
     var urlVertices = $.parseJSON(urlVerticesList);
-	if (urlVertices.length > 0) {
-		var urlNormals = $.parseJSON(urlNormalsList);
-    	var urlTriangles = $.parseJSON(urlTrianglesList);
-	    getAsynchronousBuffers(urlVertices, verticesBuffers, false);
-	    getAsynchronousBuffers(urlNormals, normalsBuffers, false);
-	    getAsynchronousBuffers(urlTriangles, indexesBuffers, true);		
-	}
+    if (urlVertices.length > 0) {
+        var urlNormals = $.parseJSON(urlNormalsList);
+        var urlTriangles = $.parseJSON(urlTrianglesList);
+        getAsynchronousBuffers(urlVertices, verticesBuffers, false);
+        getAsynchronousBuffers(urlNormals, normalsBuffers, false);
+        getAsynchronousBuffers(urlTriangles, indexesBuffers, true);
+    }
     GFUNC_initConnectivityMatrix(NO_POSITIONS);
     // Initialize the indices buffers for drawing the lines between the drawn points
     initLinesIndices();
@@ -918,9 +935,9 @@ function changeSurfaceTransparency(inputField) {
  */
 function prepareConnectivity(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
                              urlNormalsList, urlLabels,  conn_nose_correction, isSingleMode, conductionSpeed, rays, colors) {
-	connectivity_initCanvas();
-	saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
-                    	   urlNormalsList, urlLabels, conn_nose_correction, conductionSpeed, rays, colors);
+    connectivity_initCanvas();
+    saveRequiredInputs_con(fileWeights, fileTracts, filePositions, urlVerticesList , urlTrianglesList,
+                           urlNormalsList, urlLabels, conn_nose_correction, conductionSpeed, rays, colors);
     connectivity_startGL(isSingleMode);
 }
 
