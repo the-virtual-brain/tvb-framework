@@ -148,7 +148,7 @@ class MEGSensorViewer(EegSensorViewer):
     """
     Sensor visualizer - for visual inspecting MEG sensors of TVB.
     """
-    _ui_name = "MEEG Sensor Visualizer"
+    _ui_name = "MEG Sensor Visualizer"
     _ui_subsection = "sensors"
 
     def get_input_tree(self):
