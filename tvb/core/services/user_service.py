@@ -110,10 +110,8 @@ class UserService:
             if role != 'ADMINISTRATOR' and email is not None:
                 admins = UserService.get_administrators()
                 admin = admins[randint(0, len(admins) - 1)]
-                if admin.email is not None and (admin.email != cfg.DEFAULT_ADMIN_EMAIL or
-                                                cfg.SERVER_IP != cfg.LOCALHOST):
-                    # Do not send validation email in case default admin email
-                    # remained unchanged but TVB in locally deployed....
+                if admin.email is not None and (admin.email != cfg.DEFAULT_ADMIN_EMAIL):
+                    # Do not send validation email in case default admin email remained unchanged
                     email_sender.send(FROM_ADDRESS, admin.email, SUBJECT_REGISTER, admin_msg)
                     self.logger.debug("Email sent to:" + admin.email + " for validating user:" + username + " !")
                 email_sender.send(FROM_ADDRESS, email, SUBJECT_REGISTER, email_msg)
@@ -146,7 +144,7 @@ class UserService:
             new_pass = ''.join(chr(randint(48, 122)) for _ in range(DEFAULT_PASS_LENGTH))
             user.password = md5(new_pass).hexdigest()
             self.edit_user(user, old_pass)
-            self.logger.info("Resetting password for email : " + email )
+            self.logger.info("Resetting password for email : " + email)
             email_sender.send(FROM_ADDRESS, email, SUBJECT_RECOVERY, TEXT_RECOVERY % (new_pass,))
             return TEXT_DISPLAY
         except Exception, excep:

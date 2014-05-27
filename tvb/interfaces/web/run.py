@@ -103,6 +103,7 @@ CONFIG_EXISTS = not SettingsService.is_first_run()
 PARAM_RESET_DB = "reset"
 LOGGER.info("TVB application will be running using encoding: " + sys.getdefaultencoding())
 
+
 def init_cherrypy(arguments=None):
     #### Mount static folders from modules marked for introspection
     arguments = arguments or []
@@ -201,10 +202,10 @@ def run_browser():
         else:
             browser_app.open(TVBSettings.BASE_URL + 'settings/settings')
 
-    except Exception, excep:
-        LOGGER.error("Browser could not be fired!  Please manually type in your preferred browser: "
-                     "http://127.0.0.1:8080/")
-        LOGGER.exception(excep)
+    except Exception:
+        LOGGER.exception("Browser could not be fired!  Please manually type in your "
+                         "preferred browser: %s" % TVBSettings.BASE_URL)
+
 
 
 if __name__ == '__main__':
