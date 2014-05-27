@@ -479,6 +479,7 @@ function getLinesIndexes() {
 
 
 function highlightPoint() {
+    //todo: attaching events to this many elements is expensive: ~1000ms
     $("td[id^='td_']").hover(
                             function () {
                                 var indexes = (this.id.split("td_")[1]).split("_");
@@ -620,7 +621,7 @@ function checkAllSelected() {
 	        }
 	        var comingOutEdgesIndexes = CONN_comingOutLinesIndices[i];
 			for (var jj = 0; jj < comingOutEdgesIndexes.length; jj++) {
-				if (GFUNC_isNodeAddedToInterestArea(j) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[jj]] > 0 )
+				if (GFUNC_isNodeAddedToInterestArea(jj) && GVAR_interestAreaVariables[GVAR_selectedAreaType]['values'][i][comingOutEdgesIndexes[jj]] > 0 )
 	             GVAR_connectivityMatrix[i][comingOutEdgesIndexes[jj]] = 1;
 	        }
 	  }

@@ -332,6 +332,8 @@ function refreshTableInterestArea() {
  */
 function updateNodeInterest(nodeIdx) {
 	var isInInterest = GFUNC_isNodeAddedToInterestArea(nodeIdx);
+    // todo: these two queries are very expensive on the big dom that we have. This function is called for each node. 400ms
+    // construct the id's and select by id
 	var upperSideButtons = $("th[id^='upper_change_" + nodeIdx + "_']");
 	var leftSideButtons = $("td[id^='left_change_" + nodeIdx + "_']");    
     
