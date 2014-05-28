@@ -253,8 +253,7 @@ function changeColors() {
  *************************************************************************************************************************/
 
 
-var serverIp = null;
-var serverPort = null;
+var serverURL = null;
 var figuresDict = null;
 var currentFigure = null;
 
@@ -274,13 +273,12 @@ function resizePlot(width, height) {
 /*
  * Store all needed data as js variables so we can use later on.
  */
-function initISOData(metric, figDict, servIp, servPort) {
+function initISOData(metric, figDict, servURL) {
 
     figuresDict = $.parseJSON(figDict);
-    serverIp = servIp;
-    serverPort = servPort;
+    serverURL = servURL;
     currentFigure = figuresDict[metric];
-    connect_manager(serverIp, serverPort, figuresDict[metric]);
+    connect_manager(serverURL, figuresDict[metric]);
     $('#' + metric).show();
     initMPLH5CanvasForExportAsImage(figuresDict[metric]);
 }
@@ -312,7 +310,7 @@ function showMetric(newMetric) {
             });
     }
     currentFigure = figuresDict[newMetric];
-    connect_manager(serverIp, serverPort, figuresDict[newMetric]);
+    connect_manager(serverURL, figuresDict[newMetric]);
     $('#' + newMetric).show();
     initMPLH5CanvasForExportAsImage(figuresDict[newMetric]);
 }

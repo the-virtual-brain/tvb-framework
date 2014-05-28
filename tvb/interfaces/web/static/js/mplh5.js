@@ -100,7 +100,7 @@ function draw_frame(id) {
 
 var last_manage = "";
     
-function connect_manager(server_ip, server_port, id) {
+function connect_manager(server_url, id) {
     // create the contexts for our canvii
     cursor_info[id] = 0;
     frame_counter[id] = 0;
@@ -113,9 +113,9 @@ function connect_manager(server_ip, server_port, id) {
     ldiv[id][0].addEventListener('mousedown', function (e) {clickCanvas(e, id, 0);}, false);
 
     if (window.MozWebSocket) {
-        canvas_socket[id] = new MozWebSocket('ws://' + server_ip + ':' + server_port + '/do');
+        canvas_socket[id] = new MozWebSocket(server_url);
     } else {
-        canvas_socket[id] = new WebSocket('ws://' + server_ip + ':' + server_port + '/');
+        canvas_socket[id] = new WebSocket(server_url);
     }
     document.getElementById('status_' + id).innerHTML = "Connecting to figure: " + id + "...";
     canvas_socket[id].onmessage = function(e) {

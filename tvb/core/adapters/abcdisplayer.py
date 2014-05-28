@@ -238,8 +238,10 @@ class ABCMPLH5Displayer(ABCDisplayer):
         self.plot(self.figure, **kwargs)
         self.figure.canvas.draw()
 
-        parameters = dict(title=self._ui_name, figureNumber=self.figure.number, showFullToolbar=show_full_toolbar,
-                          serverIp=config.SERVER_IP, serverPort=config.MPLH5_SERVER_PORT)
+        parameters = dict(title=self._ui_name,
+                          figureNumber=self.figure.number,
+                          showFullToolbar=show_full_toolbar,
+                          mplh5ServerURL=config.MPLH5_SERVER_URL)
 
         return self.build_display_result("mplh5/figure", parameters)
 

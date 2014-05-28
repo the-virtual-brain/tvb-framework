@@ -153,8 +153,7 @@ class PhasePlaneInteractive(object):
         self.ipp_fig.canvas.mpl_connect('button_press_event', self._click_trajectory)
         self.ipp_fig.canvas.draw()
 
-        return dict(serverIp=config.SERVER_IP, serverPort=config.MPLH5_SERVER_PORT,
-                    figureNumber=self.ipp_fig.number, showFullToolbar=False)
+        return dict(mplh5ServerURL=config.MPLH5_SERVER_URL, figureNumber=self.ipp_fig.number, showFullToolbar=False)
 
 
     def _add_state_variable_selector(self):
@@ -281,7 +280,7 @@ class PhasePlaneInteractive(object):
 
     def _add_reset_noise_button(self):
         """
-        Add a button to the figure for reseting the noise to its default value.
+        Add a button to the figure for resetting the noise to its default value.
         """
         bax = self.ipp_fig.add_axes([0.04, 0.4, 0.125, 0.04])
         self.reset_noise_button = Button(bax, 'Reset noise strength', color=BUTTONCOLOUR, hovercolor=HOVERCOLOUR)

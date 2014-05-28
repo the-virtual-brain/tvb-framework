@@ -156,13 +156,13 @@ class PseIsoModel(object):
         return result
 
     def as_json(self):
-        de_numpy_ed = dict( (k, v.tolist()) for k,v in self.apriori_data.iteritems())
+        de_numpy_ed = dict((k, v.tolist()) for k, v in self.apriori_data.iteritems())
         return json.dumps({
             'apriori_data': de_numpy_ed,
             'metrics': self.metrics,
             'datatypes_gids': self.datatypes_gids,
-            'range1':json.dumps([self.range1_name, self.range1]),
-            'range2':json.dumps([self.range2_name, self.range2])
+            'range1': json.dumps([self.range1_name, self.range1]),
+            'range2': json.dumps([self.range2_name, self.range2])
         })
 
 
@@ -240,8 +240,7 @@ class IsoclinePSEAdapter(ABCMPLH5Displayer):
             # Separate plot for each metric.
             self._create_plot(model, metric, figsize, figure_nrs)
 
-        parameters = dict(title=self._ui_name, showFullToolbar=True,
-                          serverIp=TVBSettings.SERVER_IP, serverPort=TVBSettings.MPLH5_SERVER_PORT,
+        parameters = dict(title=self._ui_name, showFullToolbar=True, mplh5ServerURL=TVBSettings.MPLH5_SERVER_URL,
                           figureNumbers=figure_nrs, metrics=model.metrics, figuresJSON=json.dumps(figure_nrs))
 
         return self.build_display_result("pse_isocline/view", parameters)

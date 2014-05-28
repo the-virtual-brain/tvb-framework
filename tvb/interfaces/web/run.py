@@ -176,6 +176,7 @@ def start_tvb(arguments, browser=True):
 
     init_cherrypy(arguments)
 
+    #### Fire a browser page at the end.
     if browser:
         run_browser()
 
@@ -185,10 +186,10 @@ def start_tvb(arguments, browser=True):
     cherrypy.log.error_log
 
 
+
 @user_environment_execution
 def run_browser():
     try:
-    ################ Fire a browser page at the end. 
         if platform.startswith('win'):
             browser_app = webbrowser.get('windows-default')
         elif platform == 'darwin':
@@ -196,15 +197,16 @@ def run_browser():
         else:
             browser_app = webbrowser
 
-        ## Actual browser fire.
-        if CONFIG_EXISTS:
-            browser_app.open(TVBSettings.BASE_URL)
-        else:
-            browser_app.open(TVBSettings.BASE_URL + 'settings/settings')
+        url_to_open = TVBSettings.BASE_URL
+        if not CONFIG_EXISTS:
+            url_to_open += 'settings/settings'
+
+        LOGGER.info("We will try to open in a browser: " + url_to_open)
+        browser_app.open(url_to_open)
 
     except Exception:
-        LOGGER.exception("Browser could not be fired!  Please manually type in your "
-                         "preferred browser: %s" % TVBSettings.BASE_URL)
+        LOGGER.warning("Browser could not be fired!  Please manually type in your "
+                       "preferred browser: %s" % TVBSettings.BASE_URL)
 
 
 

@@ -395,13 +395,6 @@ class BaseProfile():
 
 
     # IP and Ports
-    @ClassProperty
-    @staticmethod
-    @settings_loaded()
-    def SERVER_IP():
-        """Web server access IP/name"""
-        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_IP, FrameworkSettings.LOCALHOST)
-
 
     # The maximum number of threads to allocate in case TVB is ran locally instead
     # of cluster. This represents the maximum number of operations that can be executed
@@ -464,8 +457,20 @@ class BaseProfile():
     @ClassProperty
     @staticmethod
     def BASE_URL():
-        """PUBLIC WEB reference towards the cluster."""
-        return 'http://' + FrameworkSettings.SERVER_IP + ':' + str(FrameworkSettings.WEB_SERVER_PORT) + '/'
+        """PUBLIC WEB reference towards the web site TVB."""
+        server_IP = FrameworkSettings.get_attribute(FrameworkSettings.KEY_IP, FrameworkSettings.LOCALHOST)
+        default = "http://%s:%s/" % (server_IP, str(FrameworkSettings.WEB_SERVER_PORT))
+        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_URL_WEB, default)
+
+
+    @ClassProperty
+    @staticmethod
+    @settings_loaded()
+    def MPLH5_SERVER_URL():
+        """URL for accessing the Matplotlib HTML5 backend"""
+        server_IP = FrameworkSettings.get_attribute(FrameworkSettings.KEY_IP, FrameworkSettings.LOCALHOST)
+        default = "ws://%s:%s/" % (server_IP, str(FrameworkSettings.MPLH5_SERVER_PORT))
+        return FrameworkSettings.get_attribute(FrameworkSettings.KEY_URL_MPLH5, default)
 
 
     @ClassProperty
@@ -655,6 +660,8 @@ class BaseProfile():
     KEY_IP = 'SERVER_IP'
     KEY_PORT = 'WEB_SERVER_PORT'
     KEY_PORT_MPLH5 = 'MPLH5_SERVER_PORT'
+    KEY_URL_WEB = 'URL_WEB'
+    KEY_URL_MPLH5 = 'URL_MPLH5'
     KEY_SELECTED_DB = 'SELECTED_DB'
     KEY_DB_URL = 'URL_VALUE'
     KEY_URL_VERSION = 'URL_TVB_VERSION'

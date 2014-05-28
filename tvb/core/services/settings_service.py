@@ -56,9 +56,10 @@ class SettingsService():
     KEY_STORAGE = cfg.KEY_STORAGE
     KEY_MAX_DISK_SPACE_USR = cfg.KEY_MAX_DISK_SPACE_USR
     KEY_MATLAB_EXECUTABLE = cfg.KEY_MATLAB_EXECUTABLE
-    KEY_IP = cfg.KEY_IP
     KEY_PORT = cfg.KEY_PORT
     KEY_PORT_MPLH5 = cfg.KEY_PORT_MPLH5
+    KEY_URL_WEB = cfg.KEY_URL_WEB
+    KEY_URL_MPLH5 = cfg.KEY_URL_MPLH5
     KEY_SELECTED_DB = cfg.KEY_SELECTED_DB
     KEY_DB_URL = cfg.KEY_DB_URL
     KEY_CLUSTER = cfg.KEY_CLUSTER
@@ -69,8 +70,8 @@ class SettingsService():
     #Display order for the keys. None means a separator/new line will be added
     KEYS_DISPLAY_ORDER = [KEY_ADMIN_NAME, KEY_ADMIN_PWD, KEY_ADMIN_EMAIL, None,
                           KEY_STORAGE, KEY_MAX_DISK_SPACE_USR, KEY_MATLAB_EXECUTABLE, KEY_SELECTED_DB, KEY_DB_URL, None,
-                          KEY_IP, KEY_PORT, KEY_PORT_MPLH5, None, KEY_CLUSTER,
-                          KEY_MAX_NR_THREADS, KEY_MAX_RANGE, KEY_MAX_NR_SURFACE_VERTEX]
+                          KEY_PORT, KEY_PORT_MPLH5, KEY_URL_WEB, KEY_URL_MPLH5, None,
+                          KEY_CLUSTER, KEY_MAX_NR_THREADS, KEY_MAX_RANGE, KEY_MAX_NR_SURFACE_VERTEX]
 
 
     def __init__(self):
@@ -90,11 +91,16 @@ class SettingsService():
                                    'options': cfg.ACEEPTED_DBS},
             self.KEY_DB_URL: {'label': "DB connection URL", 'value': cfg.ACEEPTED_DBS[cfg.SELECTED_DB],
                               'type': 'text', 'readonly': cfg.SELECTED_DB == 'sqlite'},
-            self.KEY_IP: {'label': 'Server name', 'value': cfg.SERVER_IP, 'type': 'text'},
-            self.KEY_PORT: {'label': 'The port used by Cherrypy',
+
+            self.KEY_PORT: {'label': 'Port to run Cherrypy on',
                             'value': cfg.WEB_SERVER_PORT, 'dtype': 'primitive', 'type': 'text'},
-            self.KEY_PORT_MPLH5: {'label': 'Port used by Matplotlib',
+            self.KEY_PORT_MPLH5: {'label': 'Port to run Matplotlib on',
                                   'value': cfg.MPLH5_SERVER_PORT, 'type': 'text', 'dtype': 'primitive'},
+            self.KEY_URL_WEB: {'label': 'URL for accessing web',
+                               'value': cfg.BASE_URL, 'type': 'text', 'dtype': 'primitive'},
+            self.KEY_URL_MPLH5: {'label': 'URL for accessing MPLH5 visualizers',
+                                 'value': cfg.MPLH5_SERVER_URL, 'type': 'text', 'dtype': 'primitive'},
+
             self.KEY_MAX_NR_THREADS: {'label': 'Maximum no. of threads for local installations',
                                       'value': cfg.MAX_THREADS_NUMBER, 'type': 'text', 'dtype': 'primitive'},
             self.KEY_MAX_RANGE: {'label': 'Maximum no. of operations in one PSE',
@@ -191,7 +197,7 @@ class SettingsService():
             os.makedirs(new_storage)
         max_space = data[self.KEY_MAX_DISK_SPACE_USR]
         available_mem_kb = SettingsService.get_disk_free_space(new_storage)
-        kb_value = int(max_space) * 2**10
+        kb_value = int(max_space) * 2 ** 10
         if not (0 < kb_value < available_mem_kb):
             raise InvalidSettingsException(
                 "Not enough disk space. There is a maximum of %d MB available "

@@ -40,7 +40,7 @@
                     ["Place mouse over matrix elements to inspect their values",
                       "Drag in colorbar to select and show entries in a range of values"]);
 
-            connect_manager('$serverIp', $serverPort, $figureNumber);
+            connect_manager('$mplh5ServerURL', $figureNumber);
             initMPLH5CanvasForExportAsImage($figureNumber);
         });
 

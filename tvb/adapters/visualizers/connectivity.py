@@ -512,8 +512,7 @@ class MPLH5Connectivity():
         axes.set_xticklabels(list(labels[order]), fontsize=8, rotation=90)
 
         figure.canvas.draw()
-        parameters = dict(serverIp=config.SERVER_IP, serverPort=config.MPLH5_SERVER_PORT,
-                          figureNumber=figure.number, showFullToolbar=False)
+        parameters = dict(mplh5ServerURL=config.MPLH5_SERVER_URL, figureNumber=figure.number, showFullToolbar=False)
         return parameters, {}
     
     

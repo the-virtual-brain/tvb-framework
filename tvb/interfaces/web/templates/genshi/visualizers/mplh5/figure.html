@@ -9,7 +9,7 @@
     
     <script type="text/javascript">
         $(document).ready(function() {
-            connect_manager('$serverIp', $serverPort, $figureNumber);
+            connect_manager('$mplh5ServerURL', $figureNumber);
             waitOnConnection($figureNumber, 'maximise($figureNumber, "mplh5_main_div")', 500, 15);
             initMPLH5CanvasForExportAsImage($figureNumber);
         });

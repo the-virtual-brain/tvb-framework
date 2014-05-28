@@ -29,8 +29,6 @@
 #
 
 """
-.. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
-.. moduleauthor:: Marmaduke Woodman <mw@eml.cc>
 .. moduleauthor:: Andrei Mihai <mihai.andrei@codemart.ro>
 
 """
@@ -44,6 +42,7 @@ from tvb.core.utils import parse_slice, slice_str
 from tvb.datatypes.arrays import MappedArray
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
+
 def compute_2d_view(matrix, slice_s):
     """
     Create a 2d view of the matrix using the suggested slice
@@ -53,7 +52,7 @@ def compute_2d_view(matrix, slice_s):
     :param slice_s: a string representation of a slice
     :return: a 2d array and the slice used to make it
     """
-    default = (slice(None), slice(None)) + tuple(0 for _ in range(matrix.ndim - 2)) # [:,:,0,0,0,0 etc]
+    default = (slice(None), slice(None)) + tuple(0 for _ in range(matrix.ndim - 2))     # [:,:,0,0,0,0 etc]
 
     try:
         if slice_s is not None:
@@ -132,8 +131,7 @@ class MappedArrayMplVisualizer(object):
         axes.set_title(plot_title)
         figure.colorbar(img)
         figure.canvas.draw()
-        return dict(serverIp=TVBSettings.SERVER_IP, serverPort=TVBSettings.MPLH5_SERVER_PORT,
-                    figureNumber=figure.number, showFullToolbar=True)
+        return dict(mplh5ServerURL=TVBSettings.MPLH5_SERVER_URL, figureNumber=figure.number, showFullToolbar=True)
 
 
 class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
@@ -144,7 +142,7 @@ class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
                  'type': MappedArray, 'required': True,
                  'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
                                            operations=[">="], values=[2])},
-                {'name':'slice', 'label':'slice of the data in numpy format',
+                {'name': 'slice', 'label': 'slice of the data in numpy format',
                  'type': 'str', 'required': False}]
 
 

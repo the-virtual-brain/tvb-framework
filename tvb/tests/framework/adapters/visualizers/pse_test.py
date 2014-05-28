@@ -81,8 +81,7 @@ class PSETest(TransactionalTestCase):
         viewer = IsoclinePSEAdapter()
         result = viewer.launch(self.group)
         self.assertEqual(viewer._ui_name, result["title"])
-        self.assertEqual(config.SERVER_IP, result["serverIp"])
-        self.assertEqual(config.MPLH5_SERVER_PORT, result["serverPort"])
+        self.assertEqual(config.MPLH5_SERVER_URL, result["mplh5ServerURL"])
         self.assertEqual(1, len(result["figureNumbers"]))
         self.assertEqual(1, len(result["metrics"]))
 
