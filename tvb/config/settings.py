@@ -365,8 +365,10 @@ class BaseProfile():
     @staticmethod
     def ACEEPTED_DBS():
         """A dictionary with accepted db's and their default URLS"""
-        return {'postgres': 'postgresql+psycopg2://postgres:root@127.0.0.1:5432/tvb?user=postgres&password=postgres',
-                'sqlite': ('sqlite:///' + os.path.join(FrameworkSettings.DEFAULT_STORAGE, "tvb-database.db"))}
+        return {'postgres': FrameworkSettings.get_attribute(FrameworkSettings.KEY_DB_URL,
+                            'postgresql+psycopg2://postgres:root@127.0.0.1:5432/tvb?user=postgres&password=postgres'),
+                'sqlite': FrameworkSettings.get_attribute(FrameworkSettings.KEY_DB_URL,
+                            'sqlite:///' + os.path.join(FrameworkSettings.DEFAULT_STORAGE, "tvb-database.db"))}
 
 
     @ClassProperty
