@@ -113,6 +113,16 @@
             <arg name='sensors_type' value='Internal Sensors' type='str' />  
         </args>
     </event>
+
+    <event hookpoint="CodeVersionsManager.update.6093" type="adapter">
+        <adapter module="tvb.adapters.uploaders.obj_importer" class="ObjSurfaceImporter"/>
+        <method name="launch" />
+        <args>
+            <arg name='data_file' value="face_surface.obj" module='tvb_data.obj' type="file" />
+            <arg name='surface_type' value='Face' type='str' />
+        </args>
+    </event>
+
 </events>
 
 

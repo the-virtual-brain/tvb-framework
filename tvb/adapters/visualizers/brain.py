@@ -163,7 +163,7 @@ class BrainViewer(ABCDisplayer):
             if not shell_surface:
                 raise Exception('No face object found in database.')
 
-            shell_surface = ABCDisplayer.load_entity_by_gid(shell_surface[-1][2])
+            shell_surface = ABCDisplayer.load_entity_by_gid(shell_surface[0][2])
 
         face_vertices, face_normals, _, face_triangles = shell_surface.get_urls_for_rendering()
         return json.dumps([face_vertices, face_normals, face_triangles])
