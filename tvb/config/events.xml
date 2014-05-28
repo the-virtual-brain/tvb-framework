@@ -26,7 +26,7 @@
         </args>
     </event>
     <event hookpoint="ProjectService.store_project" type="adapter" delay="1">
-        <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer" uid="eeg_62"/>
+        <adapter module="tvb.adapters.uploaders.sensors_importer" class="Sensors_Importer" uid="62_sensors"/>
         <method name="launch"/>
         <args>
             <arg name='sensors_file' value="EEG_unit_vectors_BrainProducts_62.txt.bz2" module='tvb_data.sensors' type="file" />
@@ -71,7 +71,7 @@
         <method name="launch" operation-hidden="true"/>
         <args>
             <arg name='projection_file' value="region_conn_74_eeg_1020_62.mat" module='tvb_data.projectionMatrix' type="file" />
-            <arg name='sensors' value='eeg_62' type='uid' />  
+            <arg name='sensors' value='62_sensors' type='uid' />
             <arg name='connectivity' value='conn_74' type='uid' />
         </args>
     </event>
@@ -80,7 +80,7 @@
         <method name="launch" operation-hidden="true"/>
         <args>
             <arg name='projection_file' value="surface_reg_13_eeg_62.mat" module='tvb_data.projectionMatrix' type="file" />
-            <arg name='sensors' value='eeg_62' type='uid' />  
+            <arg name='sensors' value='62_sensors' type='uid' />
             <arg name='surface' value='srf_reg13' type='uid' />
         </args>
     </event>
