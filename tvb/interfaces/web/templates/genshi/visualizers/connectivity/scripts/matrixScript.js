@@ -390,7 +390,7 @@ function updateNodeInterest(nodeIdx) {
 function _toggleNode(index){
     GFUNC_toggleNodeInInterestArea(index);
     updateNodeInterest(index);
-    SEL_selector.val(GVAR_interestAreaNodeIndexes);
+    GFUN_updateSelectionComponent();
 }
 /**
  * Method called when clicking on a node index from the top column. Change the entire column

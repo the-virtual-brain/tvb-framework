@@ -191,6 +191,7 @@ class ConnectivityViewer(ABCDisplayer):
         path_pos = self.paths2url(input_data, 'ordered_centres')
         path_tracts = self.paths2url(input_data, 'ordered_tracts')
         path_labels = self.paths2url(input_data, 'ordered_labels')
+        path_hemisphere_order_indices = self.paths2url(input_data, 'hemisphere_order_indices')
 
         if surface_data:
             url_vertices, url_normals, _, url_triangles = surface_data.get_urls_for_rendering()
@@ -217,7 +218,8 @@ class ConnectivityViewer(ABCDisplayer):
                              connectivity_nose_correction=json.dumps(input_data.nose_correction),
                              connectivity_entity=input_data, surface_entity=surface_data,
                              algo_group=self.get_algo_group(),
-                             base_selection=input_data.saved_selection_labels)
+                             base_selection=input_data.saved_selection_labels,
+                             hemisphereOrderUrl=path_hemisphere_order_indices)
         global_params.update(self.build_template_params_for_subselectable_datatype(input_data))
         return global_params, global_pages
 

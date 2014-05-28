@@ -20,7 +20,19 @@
 /**
  * This file is the main connectivity script.
  */
+
+/**
+ * The selection component
+ */
 var SEL_selector;
+
+/**
+ * A mapping from node indices as stored in GVAR_interestAreaNodeIndexes
+ * to node id's, as interpreted by the server and used by the selection component.
+ * Why: Server identifies a node as an index in the datatype arrays.
+ *      Those are not ordered by hemisphere, GVAR_interestAreaNodeIndexes is.
+ */
+var GVAR_nodeIdxToNodeId;
 
 /**
  * Function called when Connectivity Page is loaded and ready for initialization.
@@ -41,24 +53,57 @@ function GFUN_initializeConnectivityFull() {
         $('#rightSideDefaultSelectedTabId').click();
 }
 
+/**
+ * When the selection in the selection component has changed update the connectivity viewer parts
+ * @private
+ */
+function _GFUN_onSelectionComponentChange(value){
+    GVAR_interestAreaNodeIndexes = [];
+    for(var i=0; i < value.length; i++){
+        // map from node id's to node indices. See doc of GVAR_nodeIdxToNodeId.
+        var node_id = parseInt(value[i], 10);
+        var node_idx = GVAR_nodeIdxToNodeId.indexOf(node_id);
+        GVAR_interestAreaNodeIndexes.push(node_idx);
+    }
+    refreshTableInterestArea(); //notify matrix display
+    GFUNC_updateLeftSideVisualization();
+}
 
-function GFUN_initSelectionComponent(selectionGID){
+/**
+ * Update selection component from GVAR_interestAreaNodeIndexes
+ * translate from node indices to node ids. See doc of GVAR_nodeIdxToNodeId.
+ */
+function GFUN_updateSelectionComponent(){
+    var nodeIds = [];
+    for (var i=0; i < GVAR_interestAreaNodeIndexes.length; i++){
+        var selected_node_idx = GVAR_interestAreaNodeIndexes[i];
+        nodeIds.push(GVAR_nodeIdxToNodeId[selected_node_idx]);
+    }
+    SEL_selector.val(nodeIds);
+}
+
+/**
+ * Initialize selection component used by the connectivity view
+ */
+function GFUN_initSelectionComponent(selectionGID, hemisphereOrderUrl){
+    GVAR_nodeIdxToNodeId = HLPR_readJSONfromFile(hemisphereOrderUrl);
     SEL_selector = TVBUI.regionSelector("#channelSelector", {filterGid: selectionGID});
     TVBUI.quickSelector(SEL_selector, "#selection-text-area", "#loadSelectionFromTextBtn");
+    SEL_selector.change(_GFUN_onSelectionComponentChange);
 
-    SEL_selector.change(function(value){
-        GVAR_interestAreaNodeIndexes = [];
-        for(var i=0; i < value.length; i++){
-            GVAR_interestAreaNodeIndexes.push(parseInt(value[i], 10));
-        }
-        refreshTableInterestArea(); //notify matrix display
-        GFUNC_updateLeftSideVisualization();
-    });
     //sync region filter with initial selection
     GVAR_interestAreaNodeIndexes = [];
     var selection = SEL_selector.val();
     for(var i=0; i < selection.length; i++){
-        GVAR_interestAreaNodeIndexes.push(parseInt(selection[i], 10));
+        var node_id = parseInt(selection[i], 10);
+        var node_idx = GVAR_nodeIdxToNodeId.indexOf(node_id);
+
+        if (node_idx === -1){ // assert: this should never happen
+            displayMessage("Could not map node id " + node_id + "to an index.", "errorMessage");
+            return;
+        }
+
+        GVAR_interestAreaNodeIndexes.push(node_idx);
     }
     refreshTableInterestArea();
 }
