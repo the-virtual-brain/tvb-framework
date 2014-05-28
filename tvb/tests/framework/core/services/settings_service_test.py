@@ -126,7 +126,7 @@ class SettingsServiceTest(unittest.TestCase):
         test_dict = {self.settings_service.KEY_ADMIN_NAME: 'test_name',
                      self.settings_service.KEY_ADMIN_EMAIL: 'my@yahoo.com',
                      self.settings_service.KEY_PORT: 8081,
-                     self.settings_service.KEY_IP: "192.168.123.11"}
+                     self.settings_service.KEY_URL_WEB: "http://192.168.123.11:8081/"}
         
         self._write_cfg_file(test_dict)
         updated_cfg = self.settings_service.configurable_keys
