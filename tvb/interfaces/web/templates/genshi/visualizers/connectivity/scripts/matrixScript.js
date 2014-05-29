@@ -475,7 +475,7 @@ function MATRIX_colorTable() {
     _updateLegendColors();
 }
 
-function saveChanges() {
+function saveSubConnectivity() {
     // clone the weights matrix
     $("#newWeightsId").val($.toJSON(GVAR_interestAreaVariables[1]['values']));
     $("#newTractsId").val($.toJSON(GVAR_interestAreaVariables[2]['values']));
