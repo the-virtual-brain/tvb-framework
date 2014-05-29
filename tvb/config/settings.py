@@ -229,7 +229,7 @@ class BaseProfile():
     OPERATION_EXECUTION_PROCESS = False
 
     CLUSTER_SCHEDULE_COMMAND = 'oarsub ' \
-                               '-p "host>\'n07\' AND host<=\'n20\'" ' \
+                               '-p "host>\'n02\' AND host=>\'n02\'" ' \
                                '-l walltime=%s ' \
                                '-q tvb ' \
                                '-S "/home/tvbadmin/clusterLauncher %s %s"'
