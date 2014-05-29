@@ -224,6 +224,11 @@ function VS_StartPortletPreview(baseDatatypeURL, urlVerticesList, urlTrianglesLi
     canvas.onmousedown = customMouseDown;
     document.onmouseup = NAV_customMouseUp;
     document.onmousemove = GL_handleMouseMove;
+
+    // We use drawScene instead of tick because tick's performance is worse.
+    // Portlet previews are static, not movies. Tick's movie update is not required.
+    // A call to updateColors has to be made to initialize the color buffer.
+    updateColors(0);
     setInterval(drawScene, TICK_STEP);
 }
 
