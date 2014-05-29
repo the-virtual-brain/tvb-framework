@@ -43,10 +43,6 @@ class VolumeRemover(ABCRemover):
     Surface specific validations at remove time.
     """
 
-    def __init__(self, handled_datatype):
-        ABCRemover.__init__(self, handled_datatype)
-
-
     def remove_datatype(self, skip_validation=False):
         """
         Called when a Surface is to be removed.
@@ -61,7 +57,3 @@ class VolumeRemover(ABCRemover):
                 raise RemoveDataTypeException(error_msg + " SpatialPatternVolume.")
             
         ABCRemover.remove_datatype(self, skip_validation)
-        
-        
-        
-        

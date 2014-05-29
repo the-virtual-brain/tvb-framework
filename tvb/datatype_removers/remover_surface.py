@@ -45,10 +45,6 @@ class SurfaceRemover(ABCRemover):
     Surface specific validations at remove time.
     """
 
-    def __init__(self, handled_datatype):
-        ABCRemover.__init__(self, handled_datatype)
-
-
     def remove_datatype(self, skip_validation=False):
         """
         Called when a Surface is to be removed.
@@ -69,7 +65,3 @@ class SurfaceRemover(ABCRemover):
                 raise RemoveDataTypeException(error_msg + " StimuliSurfaceData.")
             
         ABCRemover.remove_datatype(self, skip_validation)
-        
-    
-        
-        

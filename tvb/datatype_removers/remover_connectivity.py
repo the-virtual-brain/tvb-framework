@@ -49,9 +49,6 @@ class ConnectivityRemover(ABCRemover):
     Connectivity specific validations at remove time.
     """
     
-    def __init__(self, handled_datatype): 
-        ABCRemover.__init__(self, handled_datatype)
-        
     def remove_datatype(self, skip_validation=False):
         """
         Called when a Connectivity is to be removed.

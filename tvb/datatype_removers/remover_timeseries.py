@@ -44,9 +44,6 @@ from tvb.core.services.exceptions import RemoveDataTypeException
 
 class TimeseriesRemover(ABCRemover):
 
-    def __init__(self, handled_datatype):
-        ABCRemover.__init__(self, handled_datatype)
-
     def remove_datatype(self, skip_validation=False):
         """
         Called when a TimeSeries is removed.
@@ -84,5 +81,3 @@ class TimeseriesRemover(ABCRemover):
             dao.store_entity(datatype_measure)
 
         ABCRemover.remove_datatype(self, skip_validation)
-        
-

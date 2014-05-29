@@ -18,7 +18,7 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0
 #
 #
-#   CITATION:
+# CITATION:
 # When using The Virtual Brain for scientific publications, please cite it as follows:
 #
 #   Paula Sanz Leon, Stuart A. Knock, M. Marmaduke Woodman, Lia Domide,
@@ -29,29 +29,27 @@
 #
 
 """
-This module contains custom functionality to be executed at remove time on various complex DataTypes.
-
-Factory for mapping DataTypes to Remove handlers is build here.
+.. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
-from tvb.datatype_removers.remover_connectivity import ConnectivityRemover
-from tvb.datatype_removers.remover_sensor import SensorRemover
-from tvb.datatype_removers.remover_surface import SurfaceRemover
-from tvb.datatype_removers.remover_timeseries import TimeseriesRemover
-from tvb.datatype_removers.remover_volume import VolumeRemover
+from tvb.core.entities.storage import dao
+from tvb.core.adapters.abcremover import ABCRemover
+from tvb.core.services.exceptions import RemoveDataTypeException
+from tvb.datatypes.projections import ProjectionMatrix
 
 
-REMOVERS_FACTORY = {
-    'Connectivity': ConnectivityRemover,
-    'CorticalSurface': SurfaceRemover,
-    'SkinAir': SurfaceRemover,
-    'BrainSkull': SurfaceRemover,
-    'SkullSkin': SurfaceRemover,
-    'SensorsEEG': SensorRemover,
-    'SensorsMEG': SensorRemover,
-    'TimeSeriesEEG': TimeseriesRemover,
-    'TimeSeriesRegion': TimeseriesRemover,
-    'TimeSeriesSurface': TimeseriesRemover,
-    'TimeSeriesVolume': TimeseriesRemover,
-    'Volume': VolumeRemover
-}
+class SensorRemover(ABCRemover):
+    """
+    Sensor specific validations at remove time.
+    """
+    def remove_datatype(self, skip_validation=False):
+        """
+        Called when a Sensor is to be removed.
+        """
+        if not skip_validation:
+            projection_matrices = dao.get_generic_entity(ProjectionMatrix, self.handled_datatype.gid, '_sensors')
+            error_msg = "Sensor cannot be removed because is still used by a "
+            if projection_matrices:
+                raise RemoveDataTypeException(error_msg + " Projection Matrix.")
+
+        ABCRemover.remove_datatype(self, skip_validation)
