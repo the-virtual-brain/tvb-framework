@@ -689,7 +689,7 @@ class BaseProfile():
         return (os.path.exists(os.path.join(tvb_root, 'AUTHORS'))
                 and os.path.exists(os.path.join(os.path.dirname(tvb_root), 'third_party_licenses'))
                 and os.path.exists(os.path.join(os.path.dirname(tvb_root), 'externals'))
-                and os.path.exists(os.path.join(os.path.dirname(tvb_root), 'documentor')))
+                and os.path.exists(os.path.join(os.path.dirname(tvb_root), 'tvb_documentation')))
 
 
     def is_windows(self):
