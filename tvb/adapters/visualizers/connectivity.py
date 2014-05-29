@@ -149,8 +149,13 @@ class ConnectivityViewer(ABCDisplayer):
         conn = self.load_entity_by_gid(original_connectivity)
         self.meta_data[DataTypeMetaData.KEY_SUBJECT] = conn.subject
 
-        result_connectivity = conn.generate_new_connectivity(new_weights, interest_area_indexes,
-                                                             self.storage_path, new_tracts)
+        new_weights = numpy.asarray(json.loads(new_weights))
+        new_tracts = numpy.asarray(json.loads(new_tracts))
+        interest_area_indexes = numpy.asarray(json.loads(interest_area_indexes))
+
+        result_connectivity = conn.generate_new_connectivity_from_ordered_arrays(
+                                            new_weights, interest_area_indexes,
+                                            self.storage_path, new_tracts )
         result.append(result_connectivity)
 
         linked_region_mappings = dao.get_generic_entity(RegionMapping, original_connectivity, '_connectivity')
