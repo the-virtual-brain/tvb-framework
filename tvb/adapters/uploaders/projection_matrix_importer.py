@@ -48,7 +48,7 @@ class ProjectionMatrixRegionEEGImporter(ABCUploader):
     """
     Upload ProjectionMatrix Region -> EEG from a MAT file.
     """ 
-    _ui_name = "Connectivity-EEG"
+    _ui_name = "Projection Matrix Regions - EEG "
     _ui_description = "Upload a Projection Matrix between Connectivity and EEG Sensors."
     _ui_subsection = "projection_reg_eeg"
     logger = get_logger(__name__)
@@ -144,7 +144,7 @@ class ProjectionMatrixSurfaceEEGImporter(ProjectionMatrixRegionEEGImporter):
     """
     Upload ProjectionMatrix Cortical Surface -> EEG from a MAT file.
     """ 
-    _ui_name = "Surface-EEG"
+    _ui_name = "Projection Matrix Surface - EEG "
     _ui_description = "Upload a Projection Matrix between a Brain Cortical Surface and EEG Sensors."
     _ui_subsection = "projection_srf_eeg"
  

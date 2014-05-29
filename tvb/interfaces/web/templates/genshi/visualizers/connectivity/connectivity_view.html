@@ -79,7 +79,7 @@
 		
 			<!-- Toolbar -->
 			<ul class="toolbar-inline monitor-control" py:if="not isSingleMode">
-				<li>Node edges</li>
+				<li>Edges color</li>
 				
 				<li class="tool-color">
 					<div id="nodeColorSelector" class="colorSelectorSmall">
@@ -89,14 +89,14 @@
 				
 				<li class="tool-all-edges" tabindex="4" onkeypress="redirectToHrefChild(this)">
 					All 
-					<a href="#" tabindex='-1' class="action action-plus" title="Display all edges" onclick='checkAll();'>Show</a>
-					<a href="#" tabindex='-1' class="action action-minus" title="Hide all edges" onclick='clearAll();'>Hide</a>
+					<a href="#" tabindex='-1' class="action action-plus" title="Display edges from all nodes" onclick='checkAll();'>Show</a>
+					<a href="#" tabindex='-1' class="action action-minus" title="Hide edges from all nodes" onclick='clearAll();'>Hide</a>
 				</li>
 				
 				<li class="tool-selected-edges" tabindex="5" onkeypress="redirectToHrefChild(this)">
 					Selected 
-					<a href="#" tabindex='-1' class="action action-plus" title="Display edges of selected nodes" onclick='checkAllSelected();'>Show</a>
-					<a href="#" tabindex='-1' class="action action-minus" title="Hide edges of selected nodes" onclick='clearAllSelected();'>Hide</a>
+					<a href="#" tabindex='-1' class="action action-plus" title="Display edges from selected nodes" onclick='checkAllSelected();'>Show</a>
+					<a href="#" tabindex='-1' class="action action-minus" title="Hide edges from selected nodes" onclick='clearAllSelected();'>Hide</a>
 				</li>
 				<li>Metrics details: <input type="checkbox" id="displayNodeDetails" onchange="toogleShowMetrics()"/></li>
 			</ul>
