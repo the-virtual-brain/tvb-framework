@@ -138,18 +138,18 @@ class ZIPSurfaceImporter(ABCUploader):
         triangles_min_vertex = numpy.amin(surface.triangles)
         if triangles_min_vertex < 0:
             if triangles_min_vertex == -1 and not zero_based_triangles:
-                raise RuntimeError("Triangles contain a negative vertex index. Maybe you have a ZERO based surface.")
+                raise LaunchException("Triangles contain a negative vertex index. Maybe you have a ZERO based surface.")
             else:
-                raise RuntimeError("Your triangles contain a negative vertex index: %d" % triangles_min_vertex)
+                raise LaunchException("Your triangles contain a negative vertex index: %d" % triangles_min_vertex)
 
         no_of_vertices = len(surface.vertices)
         triangles_max_vertex = numpy.amax(surface.triangles)
         if triangles_max_vertex >= no_of_vertices:
             if triangles_max_vertex == no_of_vertices and zero_based_triangles:
-                raise RuntimeError("Your triangles contain an invalid vertex index: %d. "
-                                   "Maybe your surface is NOT ZERO Based." % triangles_max_vertex)
+                raise LaunchException("Your triangles contain an invalid vertex index: %d. "
+                                      "Maybe your surface is NOT ZERO Based." % triangles_max_vertex)
             else:
-                raise RuntimeError("Your triangles contain an invalid vertex index: %d." % triangles_max_vertex)
+                raise LaunchException("Your triangles contain an invalid vertex index: %d." % triangles_max_vertex)
 
         self.logger.debug("Surface ready to be stored")
         return surface

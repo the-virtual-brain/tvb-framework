@@ -41,9 +41,12 @@ import os
 import json
 import zipfile
 import tvb.core.utils as utils
+import tvb.core.adapters.xml_reader as xml_reader
+
 from copy import copy
 from cgi import FieldStorage
 from datetime import datetime
+from tvb.basic.traits.exceptions import TVBException
 from tvb.basic.traits.types_basic import MapAsJson, Range
 from tvb.core.utils import parse_json_parameters
 from tvb.core.entities import model
@@ -53,7 +56,6 @@ from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.adapters.abcadapter import ABCAdapter, ABCSynchronous
 from tvb.core.services.backend_client import BACKEND_CLIENT
-import tvb.core.adapters.xml_reader as xml_reader
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.config.settings import TVBSettings as cfg
 from tvb.basic.logger.builder import get_logger
@@ -345,7 +347,7 @@ class OperationService:
         except zipfile.BadZipfile, excep:
             msg = "The uploaded file is not a valid ZIP!"
             self._handle_exception(excep, temp_files, msg, operation)
-        except LaunchException, excep:
+        except TVBException, excep:
             self._handle_exception(excep, temp_files, excep.message, operation)
         except MemoryError:
             msg = ("Could not execute operation because there is not enough free memory." +
