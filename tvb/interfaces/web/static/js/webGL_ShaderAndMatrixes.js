@@ -201,6 +201,11 @@ function mvRotate(ang, v) {
     multMatrix(m);
 }
 
+function mvScale(v){
+    var m = Matrix.Diagonal([v[0], v[1], v[2], 1]);
+    multMatrix(m);
+}
+
 var _GL_pMatrix;
 function perspective(fovy, aspect, znear, zfar) {
     _GL_pMatrix = makePerspective(fovy, aspect, znear, zfar);
