@@ -201,20 +201,25 @@ class DatatypeDAO(RootDAO):
         return count
 
 
-    def get_datatypes_for_project(self, project_id, page_start=0, page_end=20, count=False):
+    def get_datatypes_for_project(self, project_id, page_start=0, page_end=20, count=False, only_visible=False):
         """
         Return a list of datatypes for this project, paginated between page_start and start_end.
         :param project_id: the id of the project for which you want the datatypes count
         :param page_start: the index from which to start adding datatypes to the result list
         :param page_end: the index up until which you add datatypes to the result list
+        :param count: boolean. When true, return the count
+        :param only_visible: when true, filter and return or count only visible datatypes in project
         """
         resulted_data = []
         try:
             query = self.session.query(model.DataType).join(model.Operation).join(model.Project
                                         ).filter(model.Project.id == project_id)
+            if only_visible:
+                query = query.filter(model.DataType.visible == True)
             if count:
                 return query.count()
-            resulted_data = query.offset(max(page_start, 0)).limit(max(page_end, 0)).all()
+            resulted_data = query.order_by(model.DataType.fk_from_operation
+                                           ).offset(max(page_start, 0)).limit(max(page_end, 0)).all()
         except SQLAlchemyError, excep:
             self.logger.exception(excep)
 

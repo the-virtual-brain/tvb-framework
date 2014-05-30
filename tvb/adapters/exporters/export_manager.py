@@ -54,6 +54,11 @@ LOG = get_logger(__name__)
 BURST_PAGE_SIZE = 100
 DATAYPES_PAGE_SIZE = 100
 
+KEY_DT_GID = 'gid'
+KEY_OPERATION_ID = 'operation'
+KEY_BURST_ID = 'burst'
+
+
 
 class ExportManager:
     """
@@ -82,8 +87,8 @@ class ExportManager:
      
     def get_exporters_for_data(self, data):
         """
-            Get available exporters for current data type.
-            :returns: a dictionary with the {exporter_id : label}
+        Get available exporters for current data type.
+        :returns: a dictionary with the {exporter_id : label}
         """
         if data is None:
             raise InvalidExportDataException("Could not detect exporters for null data")
@@ -198,30 +203,29 @@ class ExportManager:
         files_helper.remove_folder(op_folder)
 
 
-    def _export_bursts(self, project, zip_file):
+    def _export_bursts(self, project, project_datatypes, zip_file):
+
         bursts_dict = {}
-        datatype_burst_mapping = {}
+
         bursts_count = dao.get_bursts_for_project(project.id, count=True)
         for start_idx in range(0, bursts_count, BURST_PAGE_SIZE):
             bursts = dao.get_bursts_for_project(project.id, page_start=start_idx, page_end=start_idx + BURST_PAGE_SIZE)
             for burst in bursts:
                 self._build_burst_export_dict(burst, bursts_dict)
 
-        datatypes_count = dao.get_datatypes_for_project(project.id, count=True)
-        for start_idx in range(0, datatypes_count, DATAYPES_PAGE_SIZE):
-            datatypes = dao.get_datatypes_for_project(project.id, page_start=start_idx,
-                                                      page_end=start_idx + DATAYPES_PAGE_SIZE)
-            for datatype in datatypes:
-                datatype_burst_mapping[datatype.gid] = datatype.fk_parent_burst
+        datatype_burst_mapping = {}
+        for dt in project_datatypes:
+            datatype_burst_mapping[dt[KEY_DT_GID]] = dt[KEY_BURST_ID]
 
         project_folder = FilesHelper().get_project_folder(project)
         bursts_file_name = os.path.join(project_folder, BURST_INFO_FILE)
         burst_info = {BURSTS_DICT_KEY: bursts_dict,
                       DT_BURST_MAP: datatype_burst_mapping}
+
         zip_file.writestr(os.path.basename(bursts_file_name), json.dumps(burst_info))
 
 
-    def export_project(self, project):
+    def export_project(self, project, optimize_size=False):
         """
         Given a project root and the TVB storage_path, create a ZIP
         ready for export.
@@ -232,6 +236,21 @@ class ExportManager:
 
         files_helper = FilesHelper()
         project_folder = files_helper.get_project_folder(project)
+        project_datatypes = self._gather_project_datatypes(project, optimize_size)
+        to_be_exported_folders = []
+        considered_op_ids = []
+
+        if optimize_size:
+            ## take only the DataType with visibility flag set ON
+            for dt in project_datatypes:
+                if dt[KEY_OPERATION_ID] not in considered_op_ids:
+                    to_be_exported_folders.append({'folder': files_helper.get_project_folder(project,
+                                                                                             str(dt[KEY_OPERATION_ID])),
+                                                   'archive_path_prefix': str(dt[KEY_OPERATION_ID]) + os.sep})
+                    considered_op_ids.append(dt[KEY_OPERATION_ID])
+        else:
+            to_be_exported_folders.append({'folder': project_folder,
+                                           'archive_path_prefix': '', 'exclude': ["TEMP"]})
 
         # Compute path and name of the zip file
         now = datetime.now()
@@ -242,17 +261,36 @@ class ExportManager:
         result_path = os.path.join(export_folder, zip_file_name)
 
         with TvbZip(result_path, "w") as zip_file:
-            # pack project content into a ZIP file
-            zip_file.write_folder(project_folder, exclude=["TEMP"])
-            self._export_bursts(project, zip_file)
+            # Pack project [filtered] content into a ZIP file:
+            for pack in to_be_exported_folders:
+                zip_file.write_folder(**pack)
+            self._export_bursts(project, project_datatypes, zip_file)
             self._export_linked_datatypes(project, zip_file)
+            ## Make sure the Project.xml file gets copied:
+            if optimize_size:
+                zip_file.write(files_helper.get_project_meta_file_path(project.name), files_helper.TVB_PROJECT_FILE)
 
         return result_path
-    
+
+
+    def _gather_project_datatypes(self, project, only_visible):
+
+        project_datatypes = []
+        datatypes_count = dao.get_datatypes_for_project(project.id, count=True, only_visible=only_visible)
+
+        for start_idx in range(0, datatypes_count, DATAYPES_PAGE_SIZE):
+            dts = dao.get_datatypes_for_project(project.id, page_start=start_idx,
+                                                page_end=start_idx + DATAYPES_PAGE_SIZE, only_visible=only_visible)
+            for dt in dts:
+                project_datatypes.append({KEY_DT_GID: dt.gid,
+                                          KEY_BURST_ID: dt.fk_parent_burst,
+                                          KEY_OPERATION_ID: dt.fk_from_operation})
+        return project_datatypes
+
     
     def _build_workflow_step_info(self, workflow):
         """
-        For the input workflow, get all workflop steps and return a list with information
+        For the input workflow, get all workflow steps and return a list with information
         that can be then exported.
         """
         wf_steps = []
