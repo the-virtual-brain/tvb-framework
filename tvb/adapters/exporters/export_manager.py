@@ -164,7 +164,10 @@ class ExportManager:
         for lnk_dt in dao.get_linked_datatypes_for_project(project.id):
             # get datatype as a mapped type
             lnk_dt = dao.get_datatype_by_gid(lnk_dt.gid)
-            paths.append(lnk_dt.get_storage_file_path())
+            if lnk_dt.storage_path is not None:
+                paths.append(lnk_dt.get_storage_file_path())
+            else:
+                LOG.warning("Problem when trying to retrieve path on %s:%s for export!" % (lnk_dt.type, lnk_dt.gid))
         return paths
 
 
