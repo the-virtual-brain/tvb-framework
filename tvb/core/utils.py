@@ -226,16 +226,24 @@ def bool2string(bool_value):
 
 
 
-def parse_slice(slice_str):
+def parse_slice(slice_string):
     """
     Parse a slicing expression
     >>> parse_slice("::1, :")
     (slice(None, None, 1), slice(None, None, None))
     >>> parse_slice("2")
     2
+    >>> parse_slice("[2]")
+    2
     """
     ret = []
-    for d in slice_str.replace(' ', '').split(','):
+    slice_string = slice_string.replace(' ', '')
+
+    # remove surrounding brackets if any
+    if slice_string[0] == '[' and slice_string[-1] == ']':
+        slice_string = slice_string[1:-1]
+
+    for d in slice_string.split(','):
         frags = d.split(':')
         if len(frags) == 1:
             if frags[0] == '':
@@ -274,9 +282,9 @@ def slice_str(slice_or_tuple):
             return str(int(s))
 
     if isinstance(slice_or_tuple, tuple):
-        return ', '.join(sl_str(s) for s in slice_or_tuple)
+        return '[' + ', '.join(sl_str(s) for s in slice_or_tuple) + ']'
     else:
-        return sl_str(slice_or_tuple)
+        return '[' + sl_str(slice_or_tuple) + ']'
 
 
 

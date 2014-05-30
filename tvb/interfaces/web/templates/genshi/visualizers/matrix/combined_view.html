@@ -20,9 +20,22 @@
         </div>
     </div>
 
-    <div py:if="show_slice_info" style="margin-top: 10px">
-        <p>Matrix shape $original_matrix_shape</p>
-        <p>Current slice [$slice_str] <i py:if="is_slice_corrected">( given slice failed to produce a 2d view )</i> </p>
+    <div py:if="show_slice_info" class="slice-info">
+        <p>Matrix shape <span class="npy-slice">$original_matrix_shape</span></p>
+
+        <py:if test="is_default_slice">
+            <py:if test="not given_slice">You have not entered a slice. </py:if>
+            <py:if test="given_slice">
+                The given slice <span class="npy-slice">[$given_slice]</span> has not produced a 2d view of the data.
+            </py:if>
+
+            The above view was produced by the default slice <span class="npy-slice">$slice_used</span>.
+        </py:if>
+
+        <span py:if="not is_default_slice">
+           Current slice <span class="npy-slice">$slice_used</span>.
+        </span>
+
     </div>
 
     <script type="text/javascript">

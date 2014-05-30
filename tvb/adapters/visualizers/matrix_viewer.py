@@ -50,7 +50,7 @@ def compute_2d_view(matrix, slice_s):
     which selects the first 2 dimensions.
     If the matrix is complex the real part is shown
     :param slice_s: a string representation of a slice
-    :return: a 2d array and the slice used to make it
+    :return: (a 2d array,  the slice used to make it, is_default_returned)
     """
     default = (slice(None), slice(None)) + tuple(0 for _ in range(matrix.ndim - 2))     # [:,:,0,0,0,0 etc]
 
@@ -67,9 +67,9 @@ def compute_2d_view(matrix, slice_s):
 
     except (IndexError, ValueError):  # if the slice could not be parsed or it failed to produce a 2d array
         matrix_slice = default
-        slice_s = slice_str(matrix_slice)
 
-    return matrix[matrix_slice].astype(float), slice_s
+    slice_used = slice_str(matrix_slice)
+    return matrix[matrix_slice].astype(float), slice_used, matrix_slice == default
 
 
 def dump_prec(xs, prec=3):
@@ -103,19 +103,21 @@ class MappedArraySVGVisualizerMixin(object):
                     matrix_strides=matrix_strides)
 
 
-    def compute_params(self, matrix, viewer_title, slice_s=None):
+    def compute_params(self, matrix, viewer_title, given_slice=None):
         """
         Prepare a 2d matrix to display
         :param matrix: input matrix
-        :param slice_s: a string representation of a slice. This slice should cut a 2d view from matrix
+        :param given_slice: a string representation of a slice. This slice should cut a 2d view from matrix
         If the matrix is not 2d and the slice will not make it 2d then a default slice is used
         """
-        matrix2d, slice_s_corrected = compute_2d_view(matrix, slice_s)
+        matrix2d, slice_used, is_default_slice = compute_2d_view(matrix, given_slice)
+
         view_pars = self.compute_raw_matrix_params(matrix2d)
         view_pars.update(original_matrix_shape=str(matrix.shape),
-                         show_slice_info=slice_s is not None,
-                         slice_str=slice_s_corrected,
-                         is_slice_corrected=(slice_s != slice_s_corrected),
+                         show_slice_info=given_slice is not None,
+                         given_slice=given_slice,
+                         slice_used=slice_used,
+                         is_default_slice=is_default_slice,
                          viewer_title=viewer_title)
         return view_pars
 
@@ -142,13 +144,13 @@ class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
                  'type': MappedArray, 'required': True,
                  'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
                                            operations=[">="], values=[2])},
-                {'name': 'slice', 'label': 'slice of the data in numpy format',
+                {'name': 'slice', 'label': 'slice indices in numpy syntax',
                  'type': 'str', 'required': False}]
 
 
     def launch(self, datatype, slice=''):
         matrix = datatype.get_data('array_data')
-        matrix2d, _ = compute_2d_view(matrix, slice)
+        matrix2d, _, _ = compute_2d_view(matrix, slice)
         title = datatype.display_name + " matrix plot"
 
         pars = self.compute_params(matrix, title, slice)
