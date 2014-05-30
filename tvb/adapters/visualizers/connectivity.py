@@ -75,9 +75,9 @@ class ConnectivityViewer(ABCDisplayer):
                  'description': 'A ConnectivityMeasure DataType that establishes a colormap for the nodes '
                                 'displayed in the 2D Connectivity tabs.'},
                 {'name': 'step', 'label': 'Color Threshold', 'type': 'float',
-                 'description': 'All nodes with a value greater than this threshold will be displayed as red discs, '
-                                'otherwise they will be yellow. (This applies to 2D Connectivity tabs and the '
-                                'threshold will depend on the metric used to set the Node Color)'},
+                 'description': 'All nodes with a value greater or equal (>=) than this threshold will be displayed '
+                                'as red discs, otherwise (<) they will be yellow. (This applies to 2D Connectivity  '
+                                'tabs and the threshold will depend on the metric used to set the Node Color)'},
                 {'name': 'rays', 'label': 'Shapes Dimensions', 'type': ConnectivityMeasure,
                  'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
                                            operations=["=="], values=[1]),
@@ -153,9 +153,8 @@ class ConnectivityViewer(ABCDisplayer):
         new_tracts = numpy.asarray(json.loads(new_tracts))
         interest_area_indexes = numpy.asarray(json.loads(interest_area_indexes))
 
-        result_connectivity = conn.generate_new_connectivity_from_ordered_arrays(
-                                            new_weights, interest_area_indexes,
-                                            self.storage_path, new_tracts )
+        result_connectivity = conn.generate_new_connectivity_from_ordered_arrays(new_weights, interest_area_indexes,
+                                                                                 self.storage_path, new_tracts)
         result.append(result_connectivity)
 
         linked_region_mappings = dao.get_generic_entity(RegionMapping, original_connectivity, '_connectivity')
@@ -166,6 +165,7 @@ class ConnectivityViewer(ABCDisplayer):
         for projection in linked_projection:
             result.append(projection.generate_new_projection(result_connectivity.gid, self.storage_path))
         return result
+
 
     @staticmethod
     def _compute_matrix_extrema(m):
@@ -442,7 +442,7 @@ class Connectivity2DViewer(object):
         """
         if rays is None:
             value = (self.MAX_RAY + self.MIN_RAY) / 2
-            return [value] * expected_size, value, value
+            return [value] * expected_size, 0.0, 0.0
         rays = rays.array_data.tolist()
         rays = ABCDisplayer.get_one_dimensional_list(rays, expected_size, "Invalid size for rays array.")
         min_x = min(rays)
