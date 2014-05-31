@@ -265,13 +265,19 @@ class ExportManager:
 
         with TvbZip(result_path, "w") as zip_file:
             # Pack project [filtered] content into a ZIP file:
+            LOG.debug("Done preparing, now we will write folders " + str(len(to_be_exported_folders)))
+            LOG.debug(str(to_be_exported_folders))
             for pack in to_be_exported_folders:
                 zip_file.write_folder(**pack)
+            LOG.debug("Done exporting files, now we will write the burst configurations...")
             self._export_bursts(project, project_datatypes, zip_file)
+            LOG.debug("Done exporting burst configurations, now we will export linked DTs")
             self._export_linked_datatypes(project, zip_file)
             ## Make sure the Project.xml file gets copied:
             if optimize_size:
+                LOG.debug("Done linked, now we write the project xml")
                 zip_file.write(files_helper.get_project_meta_file_path(project.name), files_helper.TVB_PROJECT_FILE)
+            LOG.debug("Done, closing")
 
         return result_path
 
