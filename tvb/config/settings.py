@@ -544,6 +544,7 @@ class BaseProfile():
                 'tools.sessions.on': True,
                 'tools.sessions.storage_type': 'ram',
                 'tools.sessions.timeout': 6000,  # 100 hours
+                'response.timeout': 1000000,
                 'tools.sessions.locking': 'explicit',
                 'tools.upload.on': True,    # Tool to check upload content size
                 'tools.cleanup.on': True    # Tool to clean up files on disk
