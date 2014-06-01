@@ -331,6 +331,8 @@ class ImportService():
                 datatype = self.load_datatype_from_file(op_path, file_name, operation_entity.id, datatype_group)
                 all_datatypes.append(datatype)
         all_datatypes.sort(key=lambda dt: dt.create_date)
+        for dt in all_datatypes:
+            self.logger.debug("Import order %s: %s" % (dt.type, dt.gid))
         return all_datatypes
 
 
