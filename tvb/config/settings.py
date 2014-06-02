@@ -458,10 +458,17 @@ class BaseProfile():
 
     @ClassProperty
     @staticmethod
-    def BASE_URL():
+    def BASE_LOCAL_URL():
         """PUBLIC WEB reference towards the web site TVB."""
         server_IP = FrameworkSettings.get_attribute(FrameworkSettings.KEY_IP, FrameworkSettings.LOCALHOST)
-        default = "http://%s:%s/" % (server_IP, str(FrameworkSettings.WEB_SERVER_PORT))
+        return "http://%s:%s/" % (server_IP, str(FrameworkSettings.WEB_SERVER_PORT))
+
+
+    @ClassProperty
+    @staticmethod
+    def BASE_URL():
+        """PUBLIC WEB reference towards the web site TVB."""
+        default = FrameworkSettings.BASE_LOCAL_URL
         return FrameworkSettings.get_attribute(FrameworkSettings.KEY_URL_WEB, default)
 
 

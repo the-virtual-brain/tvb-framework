@@ -197,7 +197,7 @@ def run_browser():
         else:
             browser_app = webbrowser
 
-        url_to_open = TVBSettings.BASE_URL
+        url_to_open = TVBSettings.BASE_LOCAL_URL
         if not CONFIG_EXISTS:
             url_to_open += 'settings/settings'
 
@@ -206,7 +206,7 @@ def run_browser():
 
     except Exception:
         LOGGER.warning("Browser could not be fired!  Please manually type in your "
-                       "preferred browser: %s" % TVBSettings.BASE_URL)
+                       "preferred browser: %s" % TVBSettings.BASE_LOCAL_URL)
 
 
 
