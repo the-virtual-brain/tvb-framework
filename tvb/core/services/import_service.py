@@ -129,13 +129,15 @@ class ImportService():
 
         try:
             self._download_and_unpack_project_zip(uploaded, uq_file_name, temp_folder)
-            self._import_project_from_folder(temp_folder)
+            self._import_projects_from_folder(temp_folder)
         except Exception, excep:
-            self.logger.exception("Error encountered during import. Deleting projects created during this operation.")
-            # Roll back projects created so far
-            project_service = ProjectService()
+            # Remove project folders created so far.
+            # Note that using the project service to remove the projects will not work
+            # because it assumes that it will not be called in a transaction and
+            # more importantly it assumes that project entities are stored in the db.
             for project in self.created_projects:
-                project_service.remove_project(project.id)
+                project_path = os.path.join(cfg.TVB_STORAGE, FilesHelper.PROJECTS_FOLDER, project.name)
+                shutil.rmtree(project_path)
             raise ProjectImportException(str(excep))
         finally:
             # Now delete uploaded file
@@ -177,7 +179,7 @@ class ImportService():
         return burst_ids_mapping
 
 
-    def _import_project_from_folder(self, temp_folder):
+    def _import_projects_from_folder(self, temp_folder):
         """
         Process each project from the uploaded pack, to extract names.
         """
