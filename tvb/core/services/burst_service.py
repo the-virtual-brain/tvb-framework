@@ -535,7 +535,7 @@ class BurstService():
             raise RemoveDataTypeException("Could not remove Burst entity!")
         
         for datatype in datatypes:
-            service.remove_datatype(burst_entity.fk_project, datatype.gid, True)
+            service.remove_datatype(burst_entity.fk_project, datatype.gid, False)
         
         ## Remove all Operations remained.
         correct = True

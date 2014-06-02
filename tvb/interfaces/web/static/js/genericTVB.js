@@ -587,6 +587,9 @@ function _stopOperationsOrBurst(operationId, isGroup, isBurst, removeAfter) {
             } else {
                 displayMessage("Could not remove operation.",'warningMessage');
             }
+            if (removeAfter) {
+                refreshOperations();
+            }
         },
         error: function() {
             displayMessage("Some error occurred while removing operation.",'errorMessage');

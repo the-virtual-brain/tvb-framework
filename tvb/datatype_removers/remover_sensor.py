@@ -42,14 +42,15 @@ class SensorRemover(ABCRemover):
     """
     Sensor specific validations at remove time.
     """
+
     def remove_datatype(self, skip_validation=False):
         """
         Called when a Sensor is to be removed.
         """
         if not skip_validation:
             projection_matrices = dao.get_generic_entity(ProjectionMatrix, self.handled_datatype.gid, '_sensors')
-            error_msg = "Sensor cannot be removed because is still used by a "
+            error_msg = "Sensor cannot be removed because is still used by %d Projection Matrix entities."
             if projection_matrices:
-                raise RemoveDataTypeException(error_msg + " Projection Matrix.")
+                raise RemoveDataTypeException(error_msg % len(projection_matrices))
 
         ABCRemover.remove_datatype(self, skip_validation)

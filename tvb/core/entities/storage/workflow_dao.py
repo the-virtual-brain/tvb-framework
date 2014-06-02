@@ -313,21 +313,23 @@ class WorkflowDAO(RootDAO):
 
     def get_all_datatypes_in_burst(self, burst_id):
         """
-        Get all dataTypes in burst
+        Get all dataTypes in burst, order by their creation, desc.
         
         :param burst_id BurstConfiguration Identifier.
         :returns: list dataType GIDs or empty list.
         """
         try:
-            result = self.session.query(model.DataTypeGroup,
+            groups = self.session.query(model.DataTypeGroup,
                            ).join(model.Operation, model.DataTypeGroup.fk_from_operation == model.Operation.id
                            ).join(model.WorkflowStep, model.Operation.id == model.WorkflowStep.fk_operation
-                           ).join(model.Workflow).filter(model.Workflow.fk_burst == burst_id).all()
-            datatypes = self.session.query(model.DataType
+                           ).join(model.Workflow).filter(model.Workflow.fk_burst == burst_id
+                           ).order_by(desc(model.DataTypeGroup.id)).all()
+            result = self.session.query(model.DataType
                                       ).filter(model.DataType.fk_parent_burst == burst_id
                                       ).filter(model.DataType.fk_datatype_group == None
-                                      ).filter(model.DataType.type != self.EXCEPTION_DATATYPE_GROUP).all()
-            result.extend(datatypes)
+                                      ).filter(model.DataType.type != self.EXCEPTION_DATATYPE_GROUP
+                                      ).order_by(desc(model.DataType.id)).all()
+            result.extend(groups)
         except SQLAlchemyError, exc:
             self.logger.exception(exc)
             result = []
