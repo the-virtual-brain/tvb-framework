@@ -50,7 +50,6 @@ from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.model.model_burst import BURST_INFO_FILE, BURSTS_DICT_KEY, DT_BURST_MAP
 from tvb.core.services.exceptions import ProjectImportException
 from tvb.core.services.flow_service import FlowService
-from tvb.core.services.project_service import ProjectService
 from tvb.core.project_versions.project_update_manager import ProjectUpdateManager
 from tvb.core.entities.file.xml_metadata_handlers import XMLReader
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -130,15 +129,19 @@ class ImportService():
         try:
             self._download_and_unpack_project_zip(uploaded, uq_file_name, temp_folder)
             self._import_projects_from_folder(temp_folder)
+
         except Exception, excep:
+            self.logger.exception("Error encountered during import. Deleting projects created during this operation.")
             # Remove project folders created so far.
-            # Note that using the project service to remove the projects will not work
-            # because it assumes that it will not be called in a transaction and
-            # more importantly it assumes that project entities are stored in the db.
+            # Note that using the project service to remove the projects will not work,
+            # because we do not have support for nested transaction.
+            # Removing from DB is not necessary because in transactional env a simple exception throw
+            # will erase everything to be inserted.
             for project in self.created_projects:
                 project_path = os.path.join(cfg.TVB_STORAGE, FilesHelper.PROJECTS_FOLDER, project.name)
                 shutil.rmtree(project_path)
             raise ProjectImportException(str(excep))
+
         finally:
             # Now delete uploaded file
             if os.path.exists(uq_file_name):

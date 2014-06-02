@@ -60,7 +60,7 @@ from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.decorators import settings, check_user, handle_error
 from tvb.interfaces.web.controllers.decorators import expose_page, expose_json, expose_fragment
 from tvb.interfaces.web.controllers.base_controller import BaseController
-from tvb.interfaces.web.controllers.flow_controller import FlowController, KEY_CONTENT
+from tvb.interfaces.web.controllers.flow_controller import FlowController
 
 
 class ProjectController(BaseController):
@@ -75,7 +75,6 @@ class ProjectController(BaseController):
     def __init__(self):
         super(ProjectController, self).__init__()
         self.project_service = ProjectService()
-        self.import_service = ImportService()
 
 
     @expose_page
@@ -129,7 +128,8 @@ class ProjectController(BaseController):
         try:
             upload_param = "uploadedfile"
             if upload_param in data and data[upload_param]:
-                self.import_service.import_project_structure(data[upload_param], common.get_logged_user().id)
+                import_service = ImportService()
+                import_service.import_project_structure(data[upload_param], common.get_logged_user().id)
         except ServicesBaseException, excep:
             self.logger.warning(excep.message)
             common.set_error_message(excep.message)
