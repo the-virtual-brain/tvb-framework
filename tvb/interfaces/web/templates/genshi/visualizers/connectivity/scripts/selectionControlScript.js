@@ -17,6 +17,8 @@
  *
  **/
 
+/*globals displayMessage,GFUNC_isNodeAddedToInterestArea */
+
 /**
  * @deprecated
  * Variables and functions for simple not selection updates are defined below.
@@ -26,65 +28,67 @@
  * @deprecated
  */
 function SEL_toggleNodeSelection(tableElement) {
-	var selectedNode = parseInt(tableElement.id.replace('nodeSelection', ''));
-	if (GFUNC_isNodeAddedToInterestArea(selectedNode)) {
-		GFUNC_removeNodeFromInterestArea(selectedNode);
-	} else {
-		GFUNC_addNodeToInterestArea(selectedNode);
-	}
-	SEL_refreshSelectionTable();
-	GFUNC_refreshOnContextChange();
+    var selectedNode = parseInt(tableElement.id.replace('nodeSelection', ''));
+    if (GFUNC_isNodeAddedToInterestArea(selectedNode)) {
+        GFUNC_removeNodeFromInterestArea(selectedNode);
+    } else {
+        GFUNC_addNodeToInterestArea(selectedNode);
+    }
+    SEL_refreshSelectionTable();
+    GFUNC_refreshOnContextChange();
 }
 
 /**
  * @deprecated
  */
 function SEL_loadSelectionFromText() {
-	var textAreaValue = document.getElementById('selection-text-area').value.replace('[', '').replace(']', '');
-	var nodes = textAreaValue.split(',');
-	var selectionOk = true;
-	var errorTxt = 'Invalid node names:';
-	for (var i = 0; i < nodes.length; i++) {
-		if (GVAR_pointsLabels.indexOf(nodes[i]) == -1) {
-			errorTxt = errorTxt + ' ' + nodes[i];
-			selectionOk = false;
-		}
-	}
-	if (! selectionOk ) {
-		displayMessage(errorTxt, "errorMessage");
-		return false;
-	} else {
-		displayMessage('Load succesfull.', "infoMessage");
-		for (var i = 0; i < GVAR_pointsLabels.length; i++) {
-			if (nodes.indexOf(GVAR_pointsLabels[i]) >= 0) {
-				GFUNC_addNodeToInterestArea(i);
-			} else {
-				GFUNC_removeNodeFromInterestArea(i);
-			}
-		}
-		SEL_refreshSelectionTable();
-		GFUNC_refreshOnContextChange();
-		refreshTableInterestArea();
-	}
+    var textAreaValue = document.getElementById('selection-text-area').value.replace('[', '').replace(']', '');
+    var nodes = textAreaValue.split(',');
+    var selectionOk = true;
+    var errorTxt = 'Invalid node names:';
+    var i;
+
+    for (i = 0; i < nodes.length; i++) {
+        if (GVAR_pointsLabels.indexOf(nodes[i]) == -1) {
+            errorTxt = errorTxt + ' ' + nodes[i];
+            selectionOk = false;
+        }
+    }
+    if (! selectionOk ) {
+        displayMessage(errorTxt, "errorMessage");
+        return false;
+    } else {
+        displayMessage('Load succesfull.', "infoMessage");
+        for (i = 0; i < GVAR_pointsLabels.length; i++) {
+            if (nodes.indexOf(GVAR_pointsLabels[i]) >= 0) {
+                GFUNC_addNodeToInterestArea(i);
+            } else {
+                GFUNC_removeNodeFromInterestArea(i);
+            }
+        }
+        SEL_refreshSelectionTable();
+        GFUNC_refreshOnContextChange();
+        refreshTableInterestArea();
+    }
 }
 
 /**
  * @deprecated
  */
 function SEL_refreshSelectionTable() {
-	var selectionString = '[';
-	for (var i = 0; i < GVAR_pointsLabels.length; i++) {
-		if (GFUNC_isNodeAddedToInterestArea(i)) {
-			selectionString = selectionString + GVAR_pointsLabels[i] + ',';
-			$('#nodeSelection'+i).addClass('selected');
-		} else {
-			$('#nodeSelection'+i).removeClass('selected');
-		}
-	}
-	if (selectionString.length > 2)
-		selectionString = selectionString.substring(0, selectionString.length-1) + ']'
-	else selectionString = selectionString + ']'
-	document.getElementById('selection-text-area').value = selectionString;
+    var selectionString = '[';
+    for (var i = 0; i < GVAR_pointsLabels.length; i++) {
+        if (GFUNC_isNodeAddedToInterestArea(i)) {
+            selectionString = selectionString + GVAR_pointsLabels[i] + ',';
+            $('#nodeSelection'+i).addClass('selected');
+        } else {
+            $('#nodeSelection'+i).removeClass('selected');
+        }
+    }
+    if (selectionString.length > 2)
+        selectionString = selectionString.substring(0, selectionString.length-1) + ']'
+    else selectionString = selectionString + ']'
+    document.getElementById('selection-text-area').value = selectionString;
 }
 
 /**
@@ -92,7 +96,7 @@ function SEL_refreshSelectionTable() {
  */
 function SEL_populateAvailableSelections() {
     var connectivityGid = $("#connectivityGid").val();
-	doAjaxCall({
+    doAjaxCall({
         type: "POST",
         async: false,
         url: '/flow/get_available_selections_connectivity',
@@ -141,117 +145,110 @@ SEL_OUTER_OPERATION = 4;
  */
 
 function divideSelectionBy(input, quantity) {
-	return input / quantity;
+    return input / quantity;
 }
 
 function multiplySelectionWith(input, quantity) {
-	return input * quantity;
+    return input * quantity;
 }
 
 function addToSelection(input, quantity) {
-	return input + quantity;
+    return input + quantity;
 }
 
 function decreaseSelection(input, quantity) {
-	return input - quantity;
+    return input - quantity;
 }
 
 function setSelection(input, quantity) {
-	return quantity;
+    return quantity;
 }
 
 OP_DICTIONARY ={ 1 : { 'name': 'Set(n)', 'operation': setSelection },
-				 2 : { 'name': 'Add(n)', 'operation': addToSelection },
-				 3 : { 'name': 'Decrease(n)', 'operation': decreaseSelection },
-				 4 : { 'name': 'Multiply(n)', 'operation': multiplySelectionWith },
-				 5 : { 'name': 'Divide(n)', 'operation': divideSelectionBy } }
-				 
+                 2 : { 'name': 'Add(n)', 'operation': addToSelection },
+                 3 : { 'name': 'Decrease(n)', 'operation': decreaseSelection },
+                 4 : { 'name': 'Multiply(n)', 'operation': multiplySelectionWith },
+                 5 : { 'name': 'Divide(n)', 'operation': divideSelectionBy } }
+
 EDGES_TYPES = { 1 : 'In --> In',
 				2 : 'In --> Out',
-				3 : 'Out --> In',
+                3 : 'Out --> In',
 				4 : 'Out --> Out' };
-				
+
 
 function SEL_createOperationsTable() {
-	var operationsSelect = document.getElementById("con-op-operation");
+    var operationsSelect = document.getElementById("con-op-operation");
     var index, option;
-	for (index in OP_DICTIONARY) {
-		option = new Option(OP_DICTIONARY[index]['name'], index);
-		operationsSelect.options[operationsSelect.options.length] = option;
-	}
-	
-	var edgesTypeSelect = document.getElementById("con-op-edges-type");
-	for (index in EDGES_TYPES) {
-		option = new Option(EDGES_TYPES[index], index);
-		edgesTypeSelect.options[edgesTypeSelect.options.length] = option;
-	}
+    for (index in OP_DICTIONARY) {
+        option = new Option(OP_DICTIONARY[index]['name'], index);
+        operationsSelect.options[operationsSelect.options.length] = option;
+    }
+
+    var edgesTypeSelect = document.getElementById("con-op-edges-type");
+    for (index in EDGES_TYPES) {
+        option = new Option(EDGES_TYPES[index], index);
+        edgesTypeSelect.options[edgesTypeSelect.options.length] = option;
+    }
 }
 
 function getOperationArguments() {
-	//TODO: if new functions will be needed with multiple arguments this should be edited
-	return parseFloat(document.getElementById('con-op-arguments').value);
+    //TODO: if new functions will be needed with multiple arguments this should be edited
+    return parseFloat(document.getElementById('con-op-arguments').value);
 }
 
 function doGroupOperation() {
-	//Selected operation
-	var operationsSelect = document.getElementById('con-op-operation');
-	var selectedOp = parseInt(operationsSelect.options[operationsSelect.selectedIndex].value);
-	selectedOp = OP_DICTIONARY[selectedOp]['operation'];
-	//Selected edges type
-	var edgesSelect = document.getElementById('con-op-edges-type');
-	var selectedEdgeType = parseInt(edgesSelect.options[edgesSelect.selectedIndex].value);
-	//Arguments and results label
-	var quantity = getOperationArguments(); 
-	
-	document.getElementById('con-op-arguments').value = '';
-	if (isNaN(quantity)) {
-		displayMessage("Operation failed. Be sure you provided the correct arguments.", "errorMessage");
-		return false;
-	}
-	//TODO: if we want to add operation on tracts we should change the '1' with some passed value to indicate weight or tract
-	try {
-		for (var i=0; i<GVAR_interestAreaVariables[1]['values'].length;i++) {
-			for (var j=0; j<GVAR_interestAreaVariables[1]['values'][i].length; j++) {
-				switch(selectedEdgeType) {
-                    // todo: review this bit. In all cases we do the same thing.
-				case 1: {
-				  if (GFUNC_isNodeAddedToInterestArea(i) && GFUNC_isNodeAddedToInterestArea(j)) {
-						GVAR_interestAreaVariables[1]['values'][i][j] = selectedOp(GVAR_interestAreaVariables[1]['values'][i][j], quantity)
-					} break; }
-				case 2: {
-				  if (GFUNC_isNodeAddedToInterestArea(i) && !GFUNC_isNodeAddedToInterestArea(j)) {
-						GVAR_interestAreaVariables[1]['values'][i][j] = selectedOp(GVAR_interestAreaVariables[1]['values'][i][j], quantity)
-					} break; }
-				case 3: {
-				  if (!GFUNC_isNodeAddedToInterestArea(i) && GFUNC_isNodeAddedToInterestArea(j)) {
-						GVAR_interestAreaVariables[1]['values'][i][j] = selectedOp(GVAR_interestAreaVariables[1]['values'][i][j], quantity)
-					} break; }
-				case 4: {
-				  if (!GFUNC_isNodeAddedToInterestArea(i) && !GFUNC_isNodeAddedToInterestArea(j)) {
-						GVAR_interestAreaVariables[1]['values'][i][j] = selectedOp(GVAR_interestAreaVariables[1]['values'][i][j], quantity)
-					} break; }
-				}
-			}
-		}
-		GFUNC_recomputeMinMaxW();
-		MATRIX_colorTable();
-		var objToday = new Date(),
-        weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        domEnder = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th' ],
-        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        dayOfWeek = weekday[objToday.getDay()],
-        dayOfMonth = today + (objToday.getDate() < 10) ? '0' + objToday.getDate() + domEnder[objToday.getDate()] : objToday.getDate() + domEnder[parseFloat(("" + objToday.getDate()).substr(("" + objToday.getDate()).length - 1))],
-        curMonth = months[objToday.getMonth()],
-        curYear = objToday.getFullYear(),
-        curHour = objToday.getHours() > 12 ? objToday.getHours() - 12 : (objToday.getHours() < 10 ? "0" + objToday.getHours() : objToday.getHours()),
-        curMinute = objToday.getMinutes() < 10 ? "0" + objToday.getMinutes() : objToday.getMinutes(),
-        curSeconds = objToday.getSeconds() < 10 ? "0" + objToday.getSeconds() : objToday.getSeconds(),
-        curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
-		var today = curHour + ":" + curMinute + "." + curSeconds + curMeridiem + " " + dayOfWeek + " " + dayOfMonth + " of " + curMonth + ", " + curYear;
-		displayMessage("Operation finished successfull at " + today + ".", "infoMessage");
-	} catch(err) {
-		displayMessage("Operation failed. Be sure you provided the correct arguments.", "errorMessage");
-	}
+    //Selected operation
+    var operationsSelect = document.getElementById('con-op-operation');
+    var selectedOp = parseInt(operationsSelect.options[operationsSelect.selectedIndex].value);
+    selectedOp = OP_DICTIONARY[selectedOp]['operation'];
+    //Selected edges type
+    var edgesSelect = document.getElementById('con-op-edges-type');
+    var selectedEdgeType = parseInt(edgesSelect.options[edgesSelect.selectedIndex].value);
+    //Arguments and results label
+    var quantity = getOperationArguments();
+
+    document.getElementById('con-op-arguments').value = '';
+    if (isNaN(quantity)) {
+        displayMessage("Operation failed. Be sure you provided the correct arguments.", "errorMessage");
+        return false;
+    }
+
+    // operate on currently visible matrix
+    var values = GVAR_interestAreaVariables[GVAR_selectedAreaType].values;
+
+    try {
+        for (var i=0; i < values.length; i++) {
+            for (var j=0; j < values[i].length; j++) {
+                switch(selectedEdgeType) {
+                    case 1:
+                        if (GFUNC_isNodeAddedToInterestArea(i) && GFUNC_isNodeAddedToInterestArea(j)) {
+                            values[i][j] = selectedOp(values[i][j], quantity);
+                        }
+                        break;
+                    case 2:
+                        if (GFUNC_isNodeAddedToInterestArea(i) && !GFUNC_isNodeAddedToInterestArea(j)) {
+                            values[i][j] = selectedOp(values[i][j], quantity);
+                        }
+                        break;
+                    case 3:
+                        if (!GFUNC_isNodeAddedToInterestArea(i) && GFUNC_isNodeAddedToInterestArea(j)) {
+                            values[i][j] = selectedOp(values[i][j], quantity);
+                        }
+                        break;
+                    case 4:
+                        if (!GFUNC_isNodeAddedToInterestArea(i) && !GFUNC_isNodeAddedToInterestArea(j)) {
+                            values[i][j] = selectedOp(values[i][j], quantity);
+                        }
+                        break;
+                }
+            }
+        }
+        GFUNC_recomputeMinMaxW();
+        MATRIX_colorTable();
+        displayMessage("Operation finished successfully.", "infoMessage");
+    } catch(err) {
+        displayMessage("Operation failed. Be sure you provided the correct arguments.", "errorMessage");
+    }
 }
 
 
