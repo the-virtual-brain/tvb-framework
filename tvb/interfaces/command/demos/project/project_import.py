@@ -35,7 +35,7 @@ Later on, this project will be available from the web-interface.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-import tvb.interfaces.console.prepare
+import tvb.interfaces.command.prepare
 from tvb.core.entities import model
 from tvb.core.services.user_service import UserService
 from tvb.core.services.import_service import ImportService

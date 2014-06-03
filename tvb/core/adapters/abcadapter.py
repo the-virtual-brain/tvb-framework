@@ -406,6 +406,24 @@ class ABCAdapter(object):
 
 
     @staticmethod
+    def prepare_adapter(adapter_class):
+        """
+        Having a subclass of ABCAdapter, prepare an instance for launching an operation with it.
+        """
+        try:
+            if not issubclass(adapter_class, ABCAdapter):
+                raise IntrospectionException("Invalid data type: It should extend adapters.ABCAdapter!")
+            algo_group = dao.find_group(adapter_class.__module__, adapter_class.__name__)
+
+            adapter_instance = adapter_class()
+            adapter_instance.algorithm_group = algo_group
+            return adapter_instance
+        except Exception, excep:
+            get_logger("ABCAdapter").exception(excep)
+            raise IntrospectionException(str(excep))
+
+
+    @staticmethod
     def build_adapter(algo_group):
         """
         Having a module and a class name, create an instance of ABCAdapter.

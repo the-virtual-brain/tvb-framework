@@ -33,7 +33,8 @@ Launch an operation from the command line
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-import tvb.interfaces.console.prepare
+
+import tvb.interfaces.command.prepare
 from tvb.core.entities.model import AlgorithmGroup, Algorithm
 from tvb.core.entities.storage import dao
 from tvb.core.services.flow_service import FlowService
