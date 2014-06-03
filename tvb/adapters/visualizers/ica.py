@@ -51,14 +51,14 @@ class ICA(MappedArraySVGVisualizerMixin, ABCDisplayer):
 
     def get_input_tree(self):
         """Inform caller of the data we need"""
-        return [{"name": "ica", "type": IndependentComponents,
+        return [{"name": "datatype", "type": IndependentComponents,
                  "label": "Independent component analysis:", "required": True }]
 
 
-    def launch(self, ica):
+    def launch(self, datatype):
         """Construct data for visualization and launch it."""
         # get data from IndependentComponents datatype, convert to json
         # HACK: dump only a 2D array
-        matrix = abs(ica.get_data('mixing_matrix')[:, :, 0, 0])
+        matrix = abs(datatype.get_data('mixing_matrix')[:, :, 0, 0])
         pars = self.compute_params(matrix, 'Mixing matrix plot')
         return self.build_display_result("matrix/svg_view", pars)

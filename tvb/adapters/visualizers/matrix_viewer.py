@@ -86,8 +86,10 @@ class MappedArraySVGVisualizerMixin(object):
         input_size = datatype.read_data_shape()
         return numpy.prod(input_size) / input_size[0] * 8.0
 
+
     def generate_preview(self, datatype, figure_size):
         return self.launch(datatype)
+
 
     @staticmethod
     def compute_raw_matrix_params(matrix):
@@ -136,7 +138,9 @@ class MappedArrayMplVisualizer(object):
         return dict(mplh5ServerURL=TVBSettings.MPLH5_SERVER_URL, figureNumber=figure.number, showFullToolbar=True)
 
 
+
 class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
+
     _ui_name = "Matrix Visualizer"
 
     def get_input_tree(self):

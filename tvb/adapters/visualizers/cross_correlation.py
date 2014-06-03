@@ -48,12 +48,12 @@ class CrossCorrelationVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     def get_input_tree(self):
         """Inform caller of the data we need as input """
 
-        return [{"name": "cross_correlation", "type": CrossCorrelation,
+        return [{"name": "datatype", "type": CrossCorrelation,
                  "label": "Cross correlation", "required": True}]
 
 
-    def launch(self, cross_correlation):
+    def launch(self, datatype):
         """Construct data for visualization and launch it."""
-        matrix = cross_correlation.get_data('array_data').mean(axis=0)[:, :, 0, 0]
+        matrix = datatype.get_data('array_data').mean(axis=0)[:, :, 0, 0]
         pars = self.compute_params(matrix, 'Correlation matrix plot')
         return self.build_display_result("matrix/svg_view", pars)

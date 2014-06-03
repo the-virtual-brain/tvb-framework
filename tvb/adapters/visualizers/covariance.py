@@ -44,13 +44,13 @@ class CovarianceVisualizer(MappedArrayVisualizer):
 
     def get_input_tree(self):
         """Inform caller of the data we need"""
-        return [{"name": "covariance", "type": Covariance,
+        return [{"name": "datatype", "type": Covariance,
                  "label": "Covariance", "required": True }]
 
 
-    def launch(self, covariance):
+    def launch(self, datatype):
         """Construct data for visualization and launch it."""
         # get data from corr datatype
-        matrix = covariance.get_data('array_data')
+        matrix = datatype.get_data('array_data')
         pars = self.compute_params(matrix, 'Covariance matrix plot')
         return self.build_display_result("matrix/svg_view", pars)

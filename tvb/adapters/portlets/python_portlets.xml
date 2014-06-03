@@ -142,7 +142,7 @@
                     <type value="tvb.adapters.visualizers.ica.ICA" field=""/>
                 </input>
                 <input overwrite="chain_2">
-                	<name value="ica"/>
+                	<name value="datatype"/>
                 	<label value="Overwrite input_data parameter of second adapter with the first release of the first adapter."/>
                 	<type value="dynamic" default="step_1[0]"/>
                 </input>
@@ -170,7 +170,7 @@
                     <type value="tvb.adapters.visualizers.covariance.CovarianceVisualizer" field=""/>
                 </input>
                 <input overwrite="chain_2">
-                	<name value="covariance"/>
+                	<name value="datatype"/>
                 	<label value="Overwrite input_data parameter of second adapter with the first release of the first adapter."/>
                 	<type value="dynamic" default="step_1[0]"/>
                 </input>
@@ -199,7 +199,7 @@
                     <type value="tvb.adapters.visualizers.cross_correlation.CrossCorrelationVisualizer" field=""/>
                 </input>
                 <input overwrite="chain_2">
-                	<name value="cross_correlation"/>
+                	<name value="datatype"/>
                 	<label value="Overwrite input_data parameter of second adapter with the first release of the first adapter."/>
                 	<type value="dynamic" default="step_1[0]"/>
                 </input>
@@ -257,7 +257,7 @@
                     <type value="tvb.adapters.visualizers.cross_coherence.CrossCoherenceVisualizer" field=""/>
                 </input>
                 <input overwrite="chain_2">
-                	<name value="coherence_spectrum"/>
+                	<name value="datatype"/>
                 	<label value="Overwrite input_data parameter of second adapter with the first release of the first adapter."/>
                 	<type value="dynamic" default="step_1[0]"/>
                 </input>

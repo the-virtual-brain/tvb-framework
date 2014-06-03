@@ -48,15 +48,15 @@ class CrossCoherenceVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     def get_input_tree(self):
         """Inform caller of the data we need"""
 
-        return [{"name": "coherence_spectrum", "type": CoherenceSpectrum,
+        return [{"name": "datatype", "type": CoherenceSpectrum,
                  "label": "Coherence spectrum:", "required": True}]
 
-    def launch(self, coherence_spectrum):
+    def launch(self, datatype):
         """Construct data for visualization and launch it."""
 
         # get data from coher datatype, convert to json
-        frequency = dump_prec(coherence_spectrum.get_data('frequency').flat)
-        array_data = coherence_spectrum.get_data('array_data')
+        frequency = dump_prec(datatype.get_data('frequency').flat)
+        array_data = datatype.get_data('array_data')
 
         params = self.compute_raw_matrix_params(array_data)
         params.update(frequency=frequency)
