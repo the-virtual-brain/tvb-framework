@@ -192,8 +192,12 @@ class BaseProfile():
     @settings_loaded()
     def CODE_CHECKED_TO_VERSION():
         """The version up until we done the upgrade properly for the file data storage."""
-        version_string = FrameworkSettings.get_attribute(FrameworkSettings.KEY_LAST_CHECKED_CODE_VERSION, '-1')
-        return BaseProfile.parse_svn_version(version_string)
+        default = -1
+        version_string = FrameworkSettings.get_attribute(FrameworkSettings.KEY_LAST_CHECKED_CODE_VERSION, str(default))
+        try:
+            return BaseProfile.parse_svn_version(version_string)
+        except Exception:
+            return default
 
 
     # Access rights for TVB generated files/folders.
