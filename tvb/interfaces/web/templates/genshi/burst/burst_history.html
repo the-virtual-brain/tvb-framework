@@ -9,7 +9,7 @@
 				<li class="burst ${'burst-group' if burst_list[idx].is_group else ''} ${'burst-started' if burst_list[idx].status == 'running' else 'burst-canceled' if burst_list[idx].status == 'canceled' else 'burst-error' if burst_list[idx].status == 'error' else 'burst-finished'}" 
 				    id='burst_id_${burst_list[idx].id}'>
 					<a href="#" onclick="changeBurstHistory(${burst_list[idx].id});" title="Load this simulation">${burst_list[idx].name}</a>
-					<nav class="inline-menu">
+					<nav class="inline-menu inline-hover-menu">
 						<button class="action action-edit action-menu">Edit</button>
 						<div class="extension">
 							<div class="dropdown-pane">
