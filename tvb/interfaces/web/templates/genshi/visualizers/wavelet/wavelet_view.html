@@ -1,0 +1,34 @@
+<div xmlns:py="http://genshi.edgewall.org/" id="wavelet-root">
+    <script type="text/javascript" src="/static/js/d3.v3.js"></script>
+    <script type="text/javascript" src="/static_view/wavelet/wavelet.js?$currentVersionJS"></script>
+    <script type="text/javascript" src="/static/coloring/colorSchemeComponent.js?$currentVersionJS"></script>
+    <link type="text/css" rel="stylesheet" href="/static/style/section_visualisers.css?$currentVersionJS"/>
+
+
+    <div class="matrix-legend" id="colorWeightsLegend"></div>
+    <div class="matrix-legend">
+        <table id="table-colorWeightsLegend" class="table-legend-labels">
+            <py:for each='label in range(7)'>
+                <py:if test='label != 0'>
+                    <tr height="${str(100/8) + '%'}" style='vertical-align: bottom;'>
+                        <td>${label}</td>
+                    </tr>
+                </py:if>
+                <py:if test='label == 0'>
+                    <tr height="20px">
+                        <td>${label}</td>
+                    </tr>
+                </py:if>
+            </py:for>
+        </table>
+    </div>
+    <svg class="wavelet-spectrogram-svg-container" id="svg-container"></svg>
+    <canvas class="wavelet-spectrogram-main-canvas" id="main-canvas"></canvas>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            wavelet_spectrogram_init('${matrix_data}', '${matrix_shape}', ${start_time}, ${end_time}, ${freq_lo}, ${freq_hi}, ${vmin}, ${vmax});
+            window.onresize = drawAxis;
+        });
+    </script>
+
+</div>

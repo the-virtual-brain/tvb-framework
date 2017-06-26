@@ -87,3 +87,28 @@ div.flot-tick-label{
     /* increase label contrast*/
     color: #000000;
 }
+
+.matrix-legend {
+    font-size: 10px;
+    font-weight: bold;
+    position: absolute;
+    height: 100%;
+    right: 5px;
+    text-align: center;
+    top: 0;
+}
+
+.wavelet-spectrogram-svg-container {
+    position: absolute;
+    top:0;
+    left:0;
+    width:95%;
+    height: 95%;
+}
+
+.wavelet-spectrogram-main-canvas {
+    position: absolute;
+    left:35px;
+    width:90%;
+    height: 90%;
+}
