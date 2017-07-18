@@ -615,7 +615,7 @@ tv.plot = {
                 lo = f.shape()[0];
             }
 
-            return [ {lo: lo, hi: hi, di: di} ];
+            return [ {lo: lo, hi: hi, di: 1} ];
         };
 
         // dimensions and placement of focus and context areas
@@ -928,7 +928,11 @@ tv.plot = {
                 , area2 = total.x * total.y;
 
             //console.log(area / area2);
-            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", ""+1);//4*Math.sqrt(Math.abs(area / area2)))
+            if (window.navigator.userAgent.indexOf("Edge") > -1) {
+                f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "0.3px");//4*Math.sqrt(Math.abs(area / area2)))
+            }else{
+                f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "1px");//4*Math.sqrt(Math.abs(area / area2)))
+            }
         };
 
         f.add_brushes = function () {
