@@ -49,8 +49,8 @@ def dump_prec(xs, prec=3):
 
 class WaveletSpectrogramVisualizer(ABCDisplayer):
     """
-        Plot the power of a WaveletCoefficients object using a MPLH5 canvas.
-        """
+    Plot the power of a WaveletCoefficients object using a MPLH5 canvas.
+    """
     _ui_name = "Spectrogram of Wavelet Power"
     _ui_subsection = "wavelet"
 
@@ -70,6 +70,11 @@ class WaveletSpectrogramVisualizer(ABCDisplayer):
         input_data = kwargs['input_data']
         shape = input_data.read_data_shape()
         return shape[0] * shape[1] * 8
+
+
+    def generate_preview(self, input_data, **kwargs):
+        return self.launch(input_data)
+
 
     def launch(self, input_data, **kwarg):
         shape = input_data.read_data_shape()
