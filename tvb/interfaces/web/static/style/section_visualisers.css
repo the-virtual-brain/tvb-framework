@@ -98,7 +98,7 @@ div.flot-tick-label{
     top: 0;
 }
 
-.wavelet-spectrogram-svg-container {
+.matrix2d-svg-container {
     position: absolute;
     top:0;
     left:0;
@@ -106,9 +106,25 @@ div.flot-tick-label{
     height: 95%;
 }
 
-.wavelet-spectrogram-main-canvas {
+.matrix2d-main-canvas {
     position: absolute;
-    left:35px;
-    width:90%;
-    height: 90%;
+    left:8%;
+    top:6%;
+    width:80%;
+    height: 80%;
+}
+
+.matrix2d-draw-content {
+    height:85%;
+    position:relative;
+    top:5%;
+}
+
+.matrix2d-toolTip {
+    position: absolute;
+    display: block;
+    background-color: #C0C0C0;
+    border: 1px solid #fdd;
+    padding: 2px;
+    opacity: 0.80;
 }

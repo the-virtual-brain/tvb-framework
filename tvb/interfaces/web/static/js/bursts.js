@@ -517,11 +517,8 @@ function loadGroup(groupGID) {
             }
 
             switch_top_level_visibility("#section-pse");
-            var pseElem = $('#section-pse');
-            var isoWidth = pseElem.width();
-            var isoHeight = pseElem.height();
             PSE_mainDraw('burst-pse-flot', 'burst', groupGID);
-            Isocline_MainDraw(groupGID, 'burst-pse-iso', isoWidth, isoHeight);
+            Isocline_MainDraw(groupGID, 'burst-pse-iso');
         },
         error: function() {
             displayMessage("Error while loading burst.", "errorMessage");
@@ -541,19 +538,9 @@ function changePSETab(clickedHref, toShow) {
     } else {
         $('#burst-pse-flot').hide();
         $('#burst-pse-iso').show();
-        resizeIsoFigures();
-    }
-}
-
-
-function resizeIsoFigures() {
-    var pseElem = $('#burst-pse-flot');
-    var width = pseElem.width();
-    var height = pseElem.height();
-    try {
-        resizePlot(width - 60, height - 90); // Don't resize quite to full since we have selects under plot and margins to plot
-    }
-    catch(ReferenceError) { // just means we on the error page so no plot to resize
+        redrawCanvas(null,'GlobalVariance',null);
+        drawAxis();
+        window.onresize = drawAxis;
     }
 }
 
