@@ -26,10 +26,14 @@
  * .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
  **/
 
-function matrix_view_init_svg(matrix_data, matrix_shape, matrix_strides, title, labels, notes){
+function matrix_view_init_svg(matrix_data, matrix_shape, matrix_strides, title, labels, notes, half_of_matrix, w, h){
     // setup dimensions, div, svg elements and plotter
     var width = 900;
     var height = 600;
+    if (w !== undefined) {
+        width = w;
+        height = h;
+    }
 
     var div = d3.select("#svg-viewer").attr("style", "width:" + width + "px;");
     var svg = div.append("svg").attr("width", width).attr("height", height);
@@ -43,7 +47,11 @@ function matrix_view_init_svg(matrix_data, matrix_shape, matrix_strides, title, 
     function mat_over (d, i) {
         var x = Math.floor(i / shape[0]);
         var y = Math.floor(i % shape[0]);
-        if (labels != null) {
+        if (half_of_matrix) {
+            if (x < y)
+                return "";
+        }
+        if (labels !== null) {
             x = labels[0][x];
             y = labels[1][y];
         }
@@ -51,6 +59,7 @@ function matrix_view_init_svg(matrix_data, matrix_shape, matrix_strides, title, 
     }
 
     var plot = tv.plot.mat().w(width - 200).h(height).mat_over(mat_over);
+    plot.half_only(half_of_matrix);
 
     plot.mat(tv.ndar.ndfrom({
         data: $.parseJSON(matrix_data),
