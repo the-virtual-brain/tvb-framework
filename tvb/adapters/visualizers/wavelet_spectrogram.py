@@ -41,16 +41,10 @@ from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.spectral import WaveletCoefficients
 
 
-def dump_prec(xs, prec=3):
-    """ Dump a list of numbers into a string, each at the specified precision. """
-    format_str = "%0." + str(prec) + "g"
-    return "[" + ",".join(format_str % s for s in xs) + "]"
-
-
 class WaveletSpectrogramVisualizer(ABCDisplayer):
     """
-        Plot the power of a WaveletCoefficients object using a MPLH5 canvas.
-        """
+    Plot the power of a WaveletCoefficients object using a MPLH5 canvas.
+    """
     _ui_name = "Spectrogram of Wavelet Power"
     _ui_subsection = "wavelet"
 
@@ -70,6 +64,11 @@ class WaveletSpectrogramVisualizer(ABCDisplayer):
         input_data = kwargs['input_data']
         shape = input_data.read_data_shape()
         return shape[0] * shape[1] * 8
+
+
+    def generate_preview(self, input_data, **kwargs):
+        return self.launch(input_data)
+
 
     def launch(self, input_data, **kwarg):
         shape = input_data.read_data_shape()
@@ -96,9 +95,12 @@ class WaveletSpectrogramVisualizer(ABCDisplayer):
         scale_range_end = max(1, int(0.75 * shape[1]))
         scale_min = data_matrix[:, scale_range_start:scale_range_end, :].min()
         scale_max = data_matrix[:, scale_range_start:scale_range_end, :].max()
-        matrix_data = dump_prec(data_matrix.flat)
+        matrix_data = ABCDisplayer.dump_with_precision(data_matrix.flat)
         matrix_shape = json.dumps(data_matrix.squeeze().shape)
-        params = dict(title="Wavelet Spectrogram Visualizer",
+        params = dict(canvasName="Wavelet Spectrogram for: " + input_data.source.type,
+                      xAxisName="Time (%s)" % str(input_data.source.sample_period_unit),
+                      yAxisName="Frequency (%s)" % str("kHz"),
+                      title=self._ui_name,
                       matrix_data=matrix_data,
                       matrix_shape=matrix_shape,
                       start_time=start_time,
