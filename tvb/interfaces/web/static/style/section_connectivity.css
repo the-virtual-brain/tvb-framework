@@ -668,3 +668,12 @@ margin-right: 2px;
     background-position: -18px -1327px;
     right: -15px;
 }
+
+.diagram-svg {
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+                margin: auto;
+}
