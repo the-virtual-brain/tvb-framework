@@ -1,16 +1,18 @@
 <div id="s-brain">
     <link rel="stylesheet" type="text/css" href="/static/style/section_connectivity.css"/>
-
+    <div id="slider">
+        <input type="checkbox" id="id-name--1" name="set-name" class="switch-input"/>
+        <label for="id-name--1" class="switch-label"><span class="toggle--on">Tract Length</span><span class="toggle--off">Weights</span></label>
+    </div>
     <svg class="diagram-svg" width="800" height="800"></svg>
-    <!--TODO use local copy of d3-->
-    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="/static/js/d3.v4.min.js"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/chordScript.js?$currentVersionJS"></script>
     <script type="text/javascript">
         $('document').ready(function () {
             set_region_labels(${labels});
             set_weights(${weights});
             set_tract_lenghts(${tract_lengths});
-            init_chord()
+            init_chord();
         })
     </script>
 </div>
