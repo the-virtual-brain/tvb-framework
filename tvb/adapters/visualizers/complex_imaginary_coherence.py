@@ -33,22 +33,10 @@
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 
 """
-import json
+
 import numpy
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.spectral import ComplexCoherenceSpectrum
-
-BACKGROUNDCOLOUR = "slategrey"
-EDGECOLOUR = "darkslateblue"
-AXCOLOUR = "steelblue"
-BUTTONCOLOUR = "steelblue"
-HOVERCOLOUR = "blue"
-
-CONTOLS_START_X = 0.02
-CONTROLS_WIDTH = 0.06
-CONTROLS_HEIGHT = 0.104
-
-NR_OF_PREVIEW_CHANS = 5
 
 
 class ImaginaryCoherenceDisplay(ABCDisplayer):
@@ -76,66 +64,21 @@ class ImaginaryCoherenceDisplay(ABCDisplayer):
         """
         return numpy.prod(kwargs['input_data'].read_data_shape()) * 8
 
-    def launch(self, **kwargs):
+    def launch(self, input_data, **kwargs):
         """
         Draw interactive display.
         """
         self.log.debug("Plot started...")
-        self.input_data = kwargs['input_data']
-        # self.figure = figure
-        # figure.facecolor = BACKGROUNDCOLOUR
-        # figure.edgecolor = EDGECOLOUR
-        # self.axes = figure.add_axes([CONTOLS_START_X + CONTROLS_WIDTH + 0.065, 0.07, 0.85, 0.85])
 
-        self.xscale = "linear"
-        self.yscale = "linear"
-        self.spectrum = "Imag"
-
-        shape = list(self.input_data.read_data_shape())
-
-        slices = (slice(shape[0]), slice(shape[1]), slice(shape[2]),)
-
-        # Plot the power spectra
-        if self.spectrum == "Imag":
-            data_matrix = self.input_data.get_data('array_data', slices).imag
-            indices = numpy.triu_indices(shape[0], 1)
-            data_matrix = data_matrix[indices]
-            HEX_COLOR = '#0F94DB'
-            HEX_FACE_COLOR = '#469EEB'
-
-        elif self.spectrum == "Re":
-            data_matrix = self.input_data.get_data('array_data', slices).real
-            data_matrix = data_matrix.reshape(shape[0] * shape[0], shape[2])
-            HEX_COLOR = '#16C4B9'
-            HEX_FACE_COLOR = '#0CF0E1'
-
-        else:
-            data_matrix = self.input_data.get_data('array_data', slices)
-            data_matrix = numpy.absolute(data_matrix)
-            data_matrix = data_matrix.reshape(shape[0] * shape[0], shape[2])
-            HEX_COLOR = '#CC4F1B'
-            HEX_FACE_COLOR = '#FF9848'
-
-        # Get the upper off-diagonal indices
-
-        coh_spec_sd = numpy.std(data_matrix, axis=0)
-        coh_spec_av = numpy.mean(data_matrix, axis=0)
-
-        coh_spec_sd= json.dumps(coh_spec_sd.tolist())
-        coh_spec_av= json.dumps(coh_spec_av.tolist())
-
-
-        # TODO pass real values not static, pass on ajax calls
-
-        params = dict(canvasName="canvasName",
-                      xAxisName="xLabel",
-                      yAxisName="yLabel",
-                      coh_spec_sd=coh_spec_sd,
-                      coh_spec_av=coh_spec_av,
-                      xmin=0,
-                      xmax=0.7,
-                      ymin=-0.6,
-                      ymax=0.6,
-                      vmin=-0.6,
-                      vmax=0.6)
+        params = dict(plotName=input_data.source.type,
+                      xAxisName="Frequency [kHz]",
+                      yAxisName="CohSpec",
+                      available_xScale=["linear", "log"],
+                      available_spectrum=["Re", "Imag", "Abs"],
+                      xscale="linear",
+                      spectrum="Imag",
+                      url_base=ABCDisplayer.paths2url(input_data, "get_spectrum_data", parameter=""),
+                      # TODO investigate the static xmin and xmax values
+                      xmin=0.02,
+                      xmax=0.8)
         return self.build_display_result("complex_coherence/view", params)

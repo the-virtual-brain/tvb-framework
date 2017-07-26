@@ -23,74 +23,210 @@
  */
 
 
-function complex_coherence_init(canvasName, xAxisName, yAxisName, coh_spec_sd, coh_spec_av, x_min, x_max, y_min, y_max, vmin, vmax) {
+var ComplexCoherence = {
+    MARGIN: {top: 30, right: 20, bottom: 30, left: 50},
+    cohAvDataCurve: null,
+    cohAreaDataCurve: null,
+    svgContainer: null,
+    xAxisScale: null,
+    yAxisScale: null,
+    xAxis: null,
+    yAxis: null,
+    xAxisLabel: null,
+    yAxisLabel: null,
+    plotTitle: null,
+    xMin: null,
+    xMax: null,
+    yMin: null,
+    yMax: null,
+    url_base: null,
+    hex_color: null,
+    hex_face_color: null
+};
 
+function complex_coherence_init(plotName, xAxisName, yAxisName, x_min, x_max, url_base) {
 
-    // TODO fix the Y scaling, fill contour, get data for logarithmic scale
-    var cohSdDataY=$.parseJSON(coh_spec_sd);
-    var cohSdDataX=[];
-    var cohTopDataFunction=[];
-    var cohBotDataFunction=[];
-    var cohAvDataY=$.parseJSON(coh_spec_av);
-    var cohAvDataX=[];
-    var cohAvDataFunction=[];
-    for(i=0;i<cohSdDataY.length;i++){
-        cohSdDataX[i]=((x_max-x_min)*i)/(cohSdDataY.length-1);
-        cohTopDataFunction[i]=[cohSdDataX[i],cohAvDataY[i]+cohSdDataY[i]];
-        cohBotDataFunction[i]=[cohSdDataX[i],cohAvDataY[i]-cohSdDataY[i]];
-        cohAvDataFunction[i]=[cohSdDataX[i],cohAvDataY[i]];
+    ComplexCoherence.xMin = x_min;
+    ComplexCoherence.xMax = x_max;
+    ComplexCoherence.url_base = url_base;
+
+    ComplexCoherence.hex_color = '#0F94DB';
+    ComplexCoherence.hex_face_color = '#469EEB';
+
+    var svgContainer = d3.select("#svg-container");
+    ComplexCoherence.svgContainer = svgContainer;
+
+    var xAxisScale = d3.scale.linear();
+    var yAxisScale = d3.scale.linear();
+
+    ComplexCoherence.xAxisScale = xAxisScale;
+    ComplexCoherence.yAxisScale = yAxisScale;
+
+    ComplexCoherence.xAxis = d3.svg.axis()
+        .scale(xAxisScale);
+    ComplexCoherence.yAxis = d3.svg.axis()
+        .scale(yAxisScale)
+        .orient("left");
+
+    var xAxisLabel = svgContainer.append("text")
+        .attr("text-anchor", "middle")
+        .text(xAxisName);
+    var plotTitle = svgContainer.append("text")
+        .attr("text-anchor", "middle")
+        .text(plotName);
+    var yAxisLabel = svgContainer.append("text")
+        .attr("text-anchor", "middle")
+        .text(yAxisName);
+
+    ComplexCoherence.xAxisLabel = xAxisLabel;
+    ComplexCoherence.yAxisLabel = yAxisLabel;
+    ComplexCoherence.plotTitle = plotTitle;
+
+}
+
+function loadData(coh_spec_sd, coh_spec_av) {
+    var x_min = ComplexCoherence.xMin;
+    var x_max = ComplexCoherence.xMax;
+    var cohSdDataY = $.parseJSON(coh_spec_sd);
+    var cohSdDataX = [];
+    var cohAreaDataCurve = [];
+    var cohAvDataY = $.parseJSON(coh_spec_av);
+    var cohAvDataCurve = [];
+    for (var i = 0; i < cohSdDataY.length; i++) {
+        cohSdDataX[i] = ((x_max - x_min) * i) / (cohSdDataY.length - 1) + x_min;
+        cohAvDataCurve[i] = [cohSdDataX[i], cohAvDataY[i]];
+        cohAreaDataCurve[i] = [cohSdDataX[i], cohAvDataY[i] - cohSdDataY[i], cohAvDataY[i] + cohSdDataY[i]];
     }
-    var margin = {top: 30, right: 20, bottom: 30, left: 50},
-        width = 1000 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+    ComplexCoherence.cohAvDataCurve = cohAvDataCurve;
+    ComplexCoherence.cohAreaDataCurve = cohAreaDataCurve;
+}
 
-// Set the ranges
-    var xScale = d3.scale.linear().range([margin.left, width - margin.right]).domain([x_min, x_max]);
-    var yScale = d3.scale.linear().range([height - margin.top, margin.bottom]).domain([y_min, y_max]);
+function drawGraph() {
+    d3.selectAll("g").remove();
+    d3.selectAll("path").remove();
+    d3.selectAll("rect").remove();
 
-// Define the axes
-    var xAxis = d3.svg.axis()
-            .scale(xScale),
-        yAxis = d3.svg.axis()
-            .scale(yScale)
-            .orient("left");
+    var svgContainer = ComplexCoherence.svgContainer;
+    var xAxis = ComplexCoherence.xAxis;
+    var yAxis = ComplexCoherence.yAxis;
+    var xAxisScale = ComplexCoherence.xAxisScale;
+    var yAxisScale = ComplexCoherence.yAxisScale;
 
-    var vis = d3.select("#svg-container");
+    var width = svgContainer["0"]["0"].clientWidth - ComplexCoherence.MARGIN.left - ComplexCoherence.MARGIN.right,
+        height = svgContainer["0"]["0"].clientHeight - ComplexCoherence.MARGIN.top - ComplexCoherence.MARGIN.bottom;
 
-    vis.append("svg:g")
+    xAxisScale.range([ComplexCoherence.MARGIN.left, width - ComplexCoherence.MARGIN.right]).domain([ComplexCoherence.xMin, ComplexCoherence.xMax]);
+    yAxisScale.range([height - ComplexCoherence.MARGIN.top, ComplexCoherence.MARGIN.bottom]).domain([ComplexCoherence.yMin, ComplexCoherence.yMax]);
+    xAxis.scale(xAxisScale);
+    yAxis.scale(yAxisScale);
+
+    svgContainer.append("svg:g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height - margin.bottom) + ")")
+        .attr("transform", "translate(0," + (height - ComplexCoherence.MARGIN.bottom) + ")")
         .call(xAxis);
-    vis.append("svg:g")
+
+    svgContainer.append("svg:g")
         .attr("class", "y axis")
-        .attr("transform", "translate(" + (margin.left) + ",0)")
+        .attr("transform", "translate(" + (ComplexCoherence.MARGIN.left) + ",0)")
         .call(yAxis);
+
+    svgContainer.append('rect')
+        .attr("height", height - ComplexCoherence.MARGIN.top - ComplexCoherence.MARGIN.bottom)
+        .attr("width", width - ComplexCoherence.MARGIN.left - ComplexCoherence.MARGIN.right)
+        .attr("transform", "translate(" + (ComplexCoherence.MARGIN.left) + "," + ComplexCoherence.MARGIN.bottom + ")")
+        .attr("fill", "white");
+
+    ComplexCoherence.xAxisLabel
+        .attr("transform", "translate(" + width / 2 + "," + (height + 10) + ")");
+    ComplexCoherence.yAxisLabel
+        .attr("transform", "translate(10," + height / 2 + ")" + "rotate(-90)");
+    ComplexCoherence.plotTitle
+        .attr("transform", "translate(" + width / 2 + ",15)");
+
+    drawDataCurves();
+}
+
+function drawDataCurves() {
+    var cohAvDataCurve = ComplexCoherence.cohAvDataCurve;
+    var cohAreaDataCurve = ComplexCoherence.cohAreaDataCurve;
+    var svgContainer = ComplexCoherence.svgContainer;
+    var xAxisScale = ComplexCoherence.xAxisScale;
+    var yAxisScale = ComplexCoherence.yAxisScale;
+    var area = d3.svg.area()
+        .x(function (d) {
+            return xAxisScale(d[0]);
+        })
+        .y0(function (d) {
+            return yAxisScale(d[1]);
+        })
+        .y1(function (d) {
+            return yAxisScale(d[2]);
+        });
 
     var lineGen = d3.svg.line()
         .x(function (d) {
-            return xScale(d[0]);
+            return xAxisScale(d[0]);
         })
         .y(function (d) {
-            return yScale(d[1]);
+            return yAxisScale(d[1]);
         })
-        .interpolate("basis");
+        .interpolate("linear");
 
-        vis.append('svg:path')
-            .attr('d', lineGen(cohTopDataFunction))
-            .attr('stroke', 'green')
-            .attr('stroke-width', 2)
-            .attr('fill', 'none');
 
-        vis.append('svg:path')
-            .attr('d', lineGen(cohAvDataFunction))
-            .attr('stroke', 'blue')
-            .attr('stroke-width', 2)
-            .attr('fill', 'none');
+    svgContainer.append('svg:path')
+        .datum(cohAreaDataCurve)
+        .attr("fill", ComplexCoherence.hex_face_color)
+        .attr("stroke-width", 0)
+        .attr("d", area);
 
-        vis.append('svg:path')
-            .attr('d', lineGen(cohBotDataFunction))
-            .attr('stroke', 'green')
-            .attr('stroke-width', 2)
-            .attr('fill', 'none');
+    svgContainer.append('svg:path')
+        .attr('d', lineGen(cohAvDataCurve))
+        .attr('stroke', ComplexCoherence.hex_color)
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
 }
 
+function changeXScale(xAxisScale) {
+    var svgContainer = ComplexCoherence.svgContainer;
+    var width = svgContainer["0"]["0"].clientWidth - ComplexCoherence.MARGIN.left - ComplexCoherence.MARGIN.right;
+    var x_min = ComplexCoherence.xMin;
+    var x_max = ComplexCoherence.xMax;
+    if (xAxisScale === "log")
+        ComplexCoherence.xAxisScale = d3.scale.log().range([ComplexCoherence.MARGIN.left, width - ComplexCoherence.MARGIN.right]).domain([x_min, x_max]);
+    else
+        ComplexCoherence.xAxisScale = d3.scale.linear().range([ComplexCoherence.MARGIN.left, width - ComplexCoherence.MARGIN.right]).domain([x_min, x_max]);
+    drawGraph();
+}
+
+function getSpectrum(spectrum) {
+    let url_base = ComplexCoherence.url_base;
+    doAjaxCall({
+        url: url_base + "selected_spectrum=" + spectrum,
+        type: 'POST',
+        async: true,
+        success: function (data) {
+            data = $.parseJSON(data);
+            loadData(data.coh_spec_sd, data.coh_spec_av);
+            ComplexCoherence.yMin = data.ymin;
+            ComplexCoherence.yMax = data.ymax;
+            ComplexCoherence.yAxisScale.domain([data.ymin, data.ymax]);
+            updateColourForSpectrum(spectrum);
+            drawGraph();
+        }
+    });
+}
+
+function updateColourForSpectrum(spectrum) {
+    if (spectrum === "Imag") {
+        ComplexCoherence.hex_color = '#0F94DB';
+        ComplexCoherence.hex_face_color = '#469EEB';
+    }
+    else if (spectrum === "Re") {
+        ComplexCoherence.hex_color = '#16C4B9';
+        ComplexCoherence.hex_face_color = '#0CF0E1';
+    }
+    else {
+        ComplexCoherence.hex_color = '#CC4F1B';
+        ComplexCoherence.hex_face_color = '#FF9848';
+    }
+}
