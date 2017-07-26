@@ -72,4 +72,4 @@ class ChordView(ABCDisplayer):
                 "tract_lengths": ChordView.dump_prec(connectivity.tract_lengths.flat)
         }
 
-        return self.build_display_result("connectivity/chord_view", pars)
+        return self.build_display_result("connectivity/chord_view", pars, pages={"controlPage": "connectivity/chord_control"})

@@ -49,17 +49,29 @@ function set_tract_lenghts(t){
     data.tract_lengths = t;
 }
 
+function float_array_to_hex(f){
+    return "#" + (f[0] * 255).toString(16) + "" + (f[1] * 255).toString(16) + "" + (f[2] * 255).toString(16);
+}
+
 function init_chord(){
+    var l = data.region_labels.length;
+    var colorScheme = ColSch_initColorSchemeGUI(0, l, function () {
+        var diagram = d3.select(".diagram-svg").selectAll("*");
+        diagram.transition().duration(100).style("fill-opacity", "0");
+        diagram.remove();
+        init_data();
+    });
     init_data();
     //add event listener to switch button
     $(".switch-input").on("click", function(e){
-        d3.select(".diagram.svg").transition().duration(100).style("isVisible", "no");
-        d3.select(".diagram-svg").selectAll("*").remove();
+        var diagram = d3.select(".diagram-svg").selectAll("*");
+        diagram.transition().duration(100).style("fill-opacity", "0");
+        diagram.remove();
         toggleParameters = !toggleParameters;
         init_data();
+        diagram.transition().duration(100).style("fill-opacity", "1");
     });
     function init_data(){
-        var l = data.region_labels.length;
         for(var i = 0; i < l; i++){
             var counts_line = [];
             for(var j = 0; j < l; j++){
@@ -88,10 +100,7 @@ function init_chord(){
             .outerRadius(outerRadius);
         var ribbon = d3.ribbon()
             .radius(innerRadius);
-        //TODO can we use tvb color schemes ?
-        var color = d3.scaleOrdinal()
-            .domain(d3.range(4))
-            .range(["#7aeac9", "#00c7ff", "#ffa4e2", "#8e60f2"]);
+
         var g = diagram.append("g")
             .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
             .datum(chord(data.data_counts));
@@ -102,13 +111,12 @@ function init_chord(){
             .data(function(chords) { return chords.groups; })
             .enter().append("g");
 
-
         group.append("path")
-            .style("fill", function(d) { return color(d.index); })
-            .style("stroke", function(d) { return d3.rgb(color(d.index)).darker(); })
+            .style("fill", function(d) { return float_array_to_hex(ColSch_getColor(d.index)); })
+            .style("stroke", function(d) { return d3.rgb(float_array_to_hex(ColSch_getColor(d.index))).darker(); })
             .attr("d", arc)
             .attr("id", function(d, i){return "group-" + i;})
-            .on("mouseover", fade(.1))
+            .on("mouseover", fade(.01))
             .on("mouseout", fade(1));
 
         var groupTick = group.selectAll(".group-tick")
@@ -138,9 +146,8 @@ function init_chord(){
           .data(function(chords) { return chords; })
           .enter().append("path")
             .attr("d", ribbon)
-            .style("fill", function(d) { return color(d.target.index); })
-            .style("stroke", function(d) { return d3.rgb(color(d.target.index)).darker(); })
-
+            .style("fill", function(d) { return float_array_to_hex(ColSch_getColor(d.source.index)); })
+            .style("stroke", function(d) { return d3.rgb(float_array_to_hex(ColSch_getColor(d.source.index))).darker(); })
 
         // Returns an array of tick angles and values for a given group and step.
         function groupTicks(d, step) {
@@ -152,10 +159,10 @@ function init_chord(){
 
         function fade(opacity) {
             return function(d, i) {
-            diagram.selectAll("path.chord")
+            diagram.selectAll("g.ribbons path")
                 .filter(function(d) { return d.source.index != i && d.target.index != i; })
                 .transition()
-                .duration(200)
+                .duration(100)
                 .style("stroke-opacity", opacity)
                 .style("fill-opacity", opacity);
             };
