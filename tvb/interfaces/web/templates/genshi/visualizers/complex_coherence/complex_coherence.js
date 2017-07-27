@@ -39,16 +39,18 @@ var ComplexCoherence = {
     xMax: null,
     yMin: null,
     yMax: null,
+    available_spectrum: null,
     url_base: null,
     hex_color: null,
     hex_face_color: null
 };
 
-function complex_coherence_init(plotName, xAxisName, yAxisName, x_min, x_max, url_base) {
+function Complex_complex_coherence_init(plotName, xAxisName, yAxisName, x_min, x_max, url_base, available_spectrum) {
 
     ComplexCoherence.xMin = x_min;
     ComplexCoherence.xMax = x_max;
     ComplexCoherence.url_base = url_base;
+    ComplexCoherence.available_spectrum=$.parseJSON(available_spectrum);
 
     ComplexCoherence.hex_color = '#0F94DB';
     ComplexCoherence.hex_face_color = '#469EEB';
@@ -84,7 +86,7 @@ function complex_coherence_init(plotName, xAxisName, yAxisName, x_min, x_max, ur
 
 }
 
-function loadData(coh_spec_sd, coh_spec_av) {
+function _Complex_loadData(coh_spec_sd, coh_spec_av) {
     var x_min = ComplexCoherence.xMin;
     var x_max = ComplexCoherence.xMax;
     var cohSdDataY = $.parseJSON(coh_spec_sd);
@@ -101,7 +103,7 @@ function loadData(coh_spec_sd, coh_spec_av) {
     ComplexCoherence.cohAreaDataCurve = cohAreaDataCurve;
 }
 
-function drawGraph() {
+function Complex_drawGraph() {
     d3.selectAll("g").remove();
     d3.selectAll("path").remove();
     d3.selectAll("rect").remove();
@@ -143,10 +145,10 @@ function drawGraph() {
     ComplexCoherence.plotTitle
         .attr("transform", "translate(" + width / 2 + ",15)");
 
-    drawDataCurves();
+    _Complex_drawDataCurves();
 }
 
-function drawDataCurves() {
+function _Complex_drawDataCurves() {
     var cohAvDataCurve = ComplexCoherence.cohAvDataCurve;
     var cohAreaDataCurve = ComplexCoherence.cohAreaDataCurve;
     var svgContainer = ComplexCoherence.svgContainer;
@@ -186,7 +188,7 @@ function drawDataCurves() {
         .attr('fill', 'none');
 }
 
-function changeXScale(xAxisScale) {
+function Complex_changeXScale(xAxisScale) {
     var svgContainer = ComplexCoherence.svgContainer;
     var width = svgContainer["0"]["0"].clientWidth - ComplexCoherence.MARGIN.left - ComplexCoherence.MARGIN.right;
     var x_min = ComplexCoherence.xMin;
@@ -195,10 +197,10 @@ function changeXScale(xAxisScale) {
         ComplexCoherence.xAxisScale = d3.scale.log().range([ComplexCoherence.MARGIN.left, width - ComplexCoherence.MARGIN.right]).domain([x_min, x_max]);
     else
         ComplexCoherence.xAxisScale = d3.scale.linear().range([ComplexCoherence.MARGIN.left, width - ComplexCoherence.MARGIN.right]).domain([x_min, x_max]);
-    drawGraph();
+    Complex_drawGraph();
 }
 
-function getSpectrum(spectrum) {
+function Complex_getSpectrum(spectrum) {
     let url_base = ComplexCoherence.url_base;
     doAjaxCall({
         url: url_base + "selected_spectrum=" + spectrum,
@@ -206,22 +208,22 @@ function getSpectrum(spectrum) {
         async: true,
         success: function (data) {
             data = $.parseJSON(data);
-            loadData(data.coh_spec_sd, data.coh_spec_av);
+            _Complex_loadData(data.coh_spec_sd, data.coh_spec_av);
             ComplexCoherence.yMin = data.ymin;
             ComplexCoherence.yMax = data.ymax;
             ComplexCoherence.yAxisScale.domain([data.ymin, data.ymax]);
-            updateColourForSpectrum(spectrum);
-            drawGraph();
+            _Complex_updateColourForSpectrum(spectrum);
+            Complex_drawGraph();
         }
     });
 }
 
-function updateColourForSpectrum(spectrum) {
-    if (spectrum === "Imag") {
+function _Complex_updateColourForSpectrum(spectrum) {
+    if (spectrum === ComplexCoherence.available_spectrum[0]) {
         ComplexCoherence.hex_color = '#0F94DB';
         ComplexCoherence.hex_face_color = '#469EEB';
     }
-    else if (spectrum === "Re") {
+    else if (spectrum === ComplexCoherence.available_spectrum[1]) {
         ComplexCoherence.hex_color = '#16C4B9';
         ComplexCoherence.hex_face_color = '#0CF0E1';
     }

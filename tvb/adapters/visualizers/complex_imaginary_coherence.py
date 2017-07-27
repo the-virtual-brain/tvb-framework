@@ -33,7 +33,7 @@
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 
 """
-
+import json
 import numpy
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.spectral import ComplexCoherenceSpectrum
@@ -64,6 +64,9 @@ class ImaginaryCoherenceDisplay(ABCDisplayer):
         """
         return numpy.prod(kwargs['input_data'].read_data_shape()) * 8
 
+    def generate_preview(self, input_data, **kwargs):
+        return self.launch(input_data)
+
     def launch(self, input_data, **kwargs):
         """
         Draw interactive display.
@@ -74,9 +77,10 @@ class ImaginaryCoherenceDisplay(ABCDisplayer):
                       xAxisName="Frequency [kHz]",
                       yAxisName="CohSpec",
                       available_xScale=["linear", "log"],
-                      available_spectrum=["Re", "Imag", "Abs"],
+                      available_spectrum=json.dumps(input_data.spectrum_types),
+                      spectrum_list=input_data.spectrum_types,
                       xscale="linear",
-                      spectrum="Imag",
+                      spectrum=input_data.spectrum_types[0],
                       url_base=ABCDisplayer.paths2url(input_data, "get_spectrum_data", parameter=""),
                       # TODO investigate the static xmin and xmax values
                       xmin=0.02,
