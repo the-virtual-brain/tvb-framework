@@ -89,7 +89,7 @@ function init_chord(){
         var diagram = d3.select(".diagram-svg"),
         width = +diagram.attr("width"),
         height = +diagram.attr("height"),
-        outerRadius = Math.min(width, height) * 0.5 - 40,
+        outerRadius = Math.min(width, height) * 0.5 - 70,
         innerRadius = outerRadius - 30;
 
         var chord = d3.chord()
@@ -151,8 +151,8 @@ function init_chord(){
 
         // Returns an array of tick angles and values for a given group and step.
         function groupTicks(d, step) {
-          var k = (d.endAngle - d.startAngle) / d.value;
-          return d3.range(0, d.value, step).map(function(value) {
+          var k = d.value !== 0 ? (d.endAngle - d.startAngle) / d.value : 0;
+          return d3.range(0, d.value + 0.1, step).map(function(value) {
             return {value: value, angle: value * k + d.startAngle};
           });
         }
