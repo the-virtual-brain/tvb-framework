@@ -20,7 +20,7 @@
 /**
  * Created by vlad.farcas on 7/21/2017.
  *
- * Many thanks to Mike Bostock's bl.ock: https://gist.github.com/mbostock/4062006 and https://bl.ocks.org/mbostock/6452972
+ * Many thanks to Mike Bostock's bl.ock: https://bl.ocks.org/mbostock/7607999
  *
  * A first prototype of the connectivity chord viewer
  *
@@ -32,7 +32,9 @@ var data = {
     region_labels : [""],
     weights : [],
     tract_lengths : [],
-    data_counts : [],
+    data_counts_middle : [],
+    data_counts_left : [],
+    data_counts_right : [],
     beta : 10, //weights parameter
     alpha: 0.001 //tract_length parameter
 }
@@ -53,121 +55,214 @@ function float_array_to_hex(f){
     return "#" + (f[0] * 255).toString(16) + "" + (f[1] * 255).toString(16) + "" + (f[2] * 255).toString(16);
 }
 
-function init_chord(){
+function init_chord() {
     var l = data.region_labels.length;
-    var colorScheme = ColSch_initColorSchemeGUI(0, l, function () {
-        var diagram = d3.select(".diagram-svg").selectAll("*");
-        diagram.transition().duration(100).style("fill-opacity", "0");
-        diagram.remove();
-        init_data();
-    });
+    var middle_chord = d3.select("#middle-chord");
+
     init_data();
+
     //add event listener to switch button
     $(".switch-input").on("click", function(e){
-        var diagram = d3.select(".diagram-svg").selectAll("*");
-        diagram.transition().duration(100).style("fill-opacity", "0");
-        diagram.remove();
+
+        middle_chord.selectAll("*").transition().duration(100).style("fill-opacity", "0");
+        middle_chord.selectAll("*").remove();
+
         toggleParameters = !toggleParameters;
+
         init_data();
-        diagram.transition().duration(100).style("fill-opacity", "1");
+
+        middle_chord.selectAll("*").transition().duration(100).style("fill-opacity", "1");
     });
-    function init_data(){
-        for(var i = 0; i < l; i++){
-            var counts_line = [];
-            for(var j = 0; j < l; j++){
+
+    function init_data() {
+        var diameter = 700,
+            radius = diameter / 2,
+            innerRadius = radius - 120;
+
+        var cluster = d3.cluster()
+            .size([360, innerRadius]);
+
+        var line = d3.radialLine()
+            .curve(d3.curveBundle.beta(0.85))
+            .radius(function (d) {
+                return d.y;
+            })
+            .angle(function (d) {
+                return d.x / 180 * Math.PI;
+            });
+
+        var svg = middle_chord
+            .attr("width", diameter)
+            .attr("height", diameter)
+            .append("g")
+            .attr("transform", "translate(" + radius + "," + radius + ")");
+
+        var link = svg.append("g").selectAll(".link"),
+            node = svg.append("g").selectAll(".node");
+
+        var jsonified_region_labels = [];
+
+        for (var i = 0; i < l; i++) {
+            var json_line = {};
+            json_line.imports = [];
+            var k = 0; //k is a counter for connected regions with the j-th region
+            for (var j = 0; j < l; j++) {
                 var w = 0;
                 if (toggleParameters) {//We have chosen the weigths parameter
-                     w = data.weights[i * l + j] * data.beta;
+                    w = data.weights[i * l + j];
                 }
-                else{//We have chosen the tract length parameter
-                     w = data.tract_lengths[i * l + j] * data.alpha;
+                else {//We have chosen the tract length parameter
+                    w = data.tract_lengths[i * l + j]
                 }
-                counts_line[j] = w;
+                json_line.name = data.region_labels[i];
+                if (w !== 0) {
+                    json_line.imports[k] = data.region_labels[j];
+                    k++;
+                }
             }
-            data.data_counts[i] = counts_line;
-        }
-        var diagram = d3.select(".diagram-svg"),
-        width = +diagram.attr("width"),
-        height = +diagram.attr("height"),
-        outerRadius = Math.min(width, height) * 0.5 - 70,
-        innerRadius = outerRadius - 30;
-
-        var chord = d3.chord()
-            .padAngle(0.05)
-            .sortSubgroups(d3.descending);
-        var arc = d3.arc()
-            .innerRadius(innerRadius)
-            .outerRadius(outerRadius);
-        var ribbon = d3.ribbon()
-            .radius(innerRadius);
-
-        var g = diagram.append("g")
-            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-            .datum(chord(data.data_counts));
-
-        var group = g.append("g")
-            .attr("class", "groups")
-            .selectAll("g")
-            .data(function(chords) { return chords.groups; })
-            .enter().append("g");
-
-        group.append("path")
-            .style("fill", function(d) { return float_array_to_hex(ColSch_getColor(d.index)); })
-            .style("stroke", function(d) { return d3.rgb(float_array_to_hex(ColSch_getColor(d.index))).darker(); })
-            .attr("d", arc)
-            .attr("id", function(d, i){return "group-" + i;})
-            .on("mouseover", fade(.01))
-            .on("mouseout", fade(1));
-
-        var groupTick = group.selectAll(".group-tick")
-          .data(function(d) { return groupTicks(d, 1e3); })
-          .enter().append("g")
-            .attr("class", "group-tick")
-            .attr("transform", function(d) { return "rotate(" + (d.angle * 180 / Math.PI - 90) + ") translate(" + outerRadius + ",0)"; });
-
-        groupTick.append("line")
-            .attr("x2", 6);
-
-        //NOTE: in case we want different order/group of region centers, take care of this
-        var i = -1;
-
-        groupTick
-          .filter(function(d) { return d.value % 5e3 === 0; })
-          .append("text")
-            .attr("x", 8)
-            .attr("dy", ".35em")
-            .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180) translate(-16)" : null; })
-            .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
-            .text(function(d){i++; return data.region_labels[i];});
-
-        g.append("g")
-            .attr("class", "ribbons")
-          .selectAll("path")
-          .data(function(chords) { return chords; })
-          .enter().append("path")
-            .attr("d", ribbon)
-            .style("fill", function(d) { return float_array_to_hex(ColSch_getColor(d.source.index)); })
-            .style("stroke", function(d) { return d3.rgb(float_array_to_hex(ColSch_getColor(d.source.index))).darker(); })
-
-        // Returns an array of tick angles and values for a given group and step.
-        function groupTicks(d, step) {
-          var k = d.value !== 0 ? (d.endAngle - d.startAngle) / d.value : 0;
-          return d3.range(0, d.value + 0.1, step).map(function(value) {
-            return {value: value, angle: value * k + d.startAngle};
-          });
+            jsonified_region_labels[i] = json_line;
         }
 
-        function fade(opacity) {
-            return function(d, i) {
-            diagram.selectAll("g.ribbons path")
-                .filter(function(d) { return d.source.index != i && d.target.index != i; })
-                .transition()
-                .duration(100)
-                .style("stroke-opacity", opacity)
-                .style("fill-opacity", opacity);
-            };
+
+        var diameter = 700,
+            radius = diameter / 2,
+            innerRadius = radius - 120;
+
+        var cluster = d3.cluster()
+            .size([360, innerRadius]);
+
+        var line = d3.radialLine()
+            .curve(d3.curveBundle.beta(0.85))
+            .radius(function (d) {
+                return d.y;
+            })
+            .angle(function (d) {
+                return d.x / 180 * Math.PI;
+            });
+
+        var svg = d3.select("#middle-chord")
+            .attr("width", diameter)
+            .attr("height", diameter)
+            .append("g")
+            .attr("transform", "translate(" + radius + "," + radius + ")");
+
+        var link = svg.append("g").selectAll(".link"),
+            node = svg.append("g").selectAll(".node");
+
+        var root = packageHierarchy(jsonified_region_labels)
+            .sum(function (d) {
+                return d.size;
+            });
+
+        cluster(root);
+
+        link = link
+            .data(packageImports(root.leaves()))
+            .enter().append("path")
+            .each(function (d) {
+                d.source = d[0], d.target = d[d.length - 1];
+            })
+            .attr("class", "link")
+            .attr("d", line);
+
+        node = node
+            .data(root.leaves())
+            .enter().append("text")
+            .attr("class", "node")
+            .attr("dy", "0.31em")
+            .attr("transform", function (d) {
+                return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)");
+            })
+            .attr("text-anchor", function (d) {
+                return d.x < 180 ? "start" : "end";
+            })
+            .text(function (d) {
+                return d.data.key;
+            })
+            .on("mouseover", mouseovered)
+            .on("mouseout", mouseouted);
+
+        function mouseovered(d) {
+            node
+                .each(function (n) {
+                    n.target = n.source = false;
+                });
+
+            link
+                .classed("link--target", function (l) {
+                    if (l.target === d) return l.source.source = true;
+                })
+                .classed("link--source", function (l) {
+                    if (l.source === d) return l.target.target = true;
+                })
+                .filter(function (l) {
+                    return l.target === d || l.source === d;
+                })
+                .raise();
+
+            node
+                .classed("node--target", function (n) {
+                    return n.target;
+                })
+                .classed("node--source", function (n) {
+                    return n.source;
+                });
+        }
+
+        function mouseouted(d) {
+            link
+                .classed("link--target", false)
+                .classed("link--source", false);
+
+            node
+                .classed("node--target", false)
+                .classed("node--source", false);
+        }
+
+// Lazily construct the package hierarchy from class names.
+        function packageHierarchy(classes) {
+            var map = {};
+
+            function find(name, data) {
+                var node = map[name], i;
+                if (!node) {
+                    node = map[name] = data || {name: name, children: []};
+                    if (name.length) {
+                        node.parent = find(name.substring(0, i = name.lastIndexOf(".")));
+                        node.parent.children.push(node);
+                        node.key = name.substring(i + 1);
+                    }
+                }
+                return node;
+            }
+
+            classes.forEach(function (d) {
+                find(d.name, d);
+            });
+
+            return d3.hierarchy(map[""]);
+        }
+
+// Return a list of imports for the given array of nodes.
+        function packageImports(nodes) {
+            var map = {},
+                imports = [];
+
+            // Compute a map from name to node.
+            nodes.forEach(function (d) {
+                map[d.data.name] = d;
+            });
+
+            // For each import, construct a link from the source to target node.
+            nodes.forEach(function (d) {
+                if (d.data.imports) d.data.imports.forEach(function (i) {
+                    imports.push(map[d.data.name].path(map[i]));
+                });
+            });
+
+            return imports;
         }
     }
+
+
 }
-
-

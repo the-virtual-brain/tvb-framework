@@ -1,12 +1,6 @@
 <div id="s-brain">
     <link rel="stylesheet" type="text/css" href="/static/style/section_connectivity.css"/>
-    <div id="slider">
-        <input type="checkbox" id="id-name--1" name="set-name" class="switch-input"/>
-        <label for="id-name--1" class="switch-label"><span class="toggle--on">Tract Length</span><span class="toggle--off">Weights</span></label>
-    </div>
-    <svg class="diagram-svg" width="800" height="800"></svg>
     <script src="/static/js/d3.v4.min.js"></script>
-    <script type="text/javascript" src="/static/coloring/colorSchemeComponent.js?$currentVersionJS"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/chordScript.js?$currentVersionJS"></script>
     <script type="text/javascript">
         $('document').ready(function () {
@@ -16,4 +10,21 @@
             init_chord();
         })
     </script>
+    <div class="container">
+        <div class="toppane">
+            <div id="slider">
+                <input type="checkbox" id="id-name--1" name="set-name" class="switch-input"/>
+                <label for="id-name--1" class="switch-label"><span class="toggle--on">Tract Length</span><span class="toggle--off">Weights</span></label>
+            </div>
+        </div>
+        <div class="leftpane">
+            <div class="pan-description" height="50"></div>
+        </div>
+        <div class="middlepane">
+            <svg class="diagram-svg" id="middle-chord"></svg>
+        </div>
+        <div class="rightpane">
+            <div class="pan-description" height="50"></div>
+        </div>
+    </div>
 </div>
