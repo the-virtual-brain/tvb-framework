@@ -26,7 +26,7 @@
  * .. moduleauthor:: Dan Pop <dan.pop@codemart.ro>
  **/
 
-var PearsonCorrelation ={
+var PearsonCorrelation = {
     url_base: null,
     width: null,
     height: null,
@@ -40,7 +40,7 @@ var PearsonCorrelation ={
     title: null
 };
 
-function Pc_init(matrix_shape, title, labels, url_base, notes, w, h){
+function Pc_init(matrix_shape, title, labels, url_base, notes, w, h) {
     // setup dimensions, div, svg elements and plotter
     var width = 900;
     var height = 600;
@@ -49,42 +49,42 @@ function Pc_init(matrix_shape, title, labels, url_base, notes, w, h){
         height = h;
     }
 
-    var div = d3.select("#svg-viewer").attr("style", "width:" + width + "px;");
+    var div = d3.select("#pearson-viewer").attr("style", "width:" + width + "px;");
     var svg = div.append("svg").attr("width", width).attr("height", height);
     var group = svg.append("g").attr("transform", "translate(200, 0)");
     var text = svg.append("g").attr("transform", "translate(20, 100)")
-                  .append("text").attr("class", "matrix-text");
+        .append("text").attr("class", "matrix-text");
 
     var shape = $.parseJSON(matrix_shape);
     labels = $.parseJSON(labels);
 
-    PearsonCorrelation.labels=labels;
-    PearsonCorrelation.shape=shape;
-    PearsonCorrelation.group=group;
-    PearsonCorrelation.text=text;
-    PearsonCorrelation.svg=svg;
-    PearsonCorrelation.height=height;
-    PearsonCorrelation.width=width;
-    PearsonCorrelation.div=div;
-    PearsonCorrelation.notes=notes;
-    PearsonCorrelation.title=title;
-    PearsonCorrelation.url_base=url_base;
+    PearsonCorrelation.labels = labels;
+    PearsonCorrelation.shape = shape;
+    PearsonCorrelation.group = group;
+    PearsonCorrelation.text = text;
+    PearsonCorrelation.svg = svg;
+    PearsonCorrelation.height = height;
+    PearsonCorrelation.width = width;
+    PearsonCorrelation.div = div;
+    PearsonCorrelation.notes = notes;
+    PearsonCorrelation.title = title;
+    PearsonCorrelation.url_base = url_base;
 
     tv.util.usage(div, title, notes);
 }
 
 function _Pc_plotFunction(matrix_data) {
-    var svg= PearsonCorrelation.svg;
+    var svg = PearsonCorrelation.svg;
     d3.selectAll("g").remove();
     var group = svg.append("g").attr("transform", "translate(200, 0)");
     var text = svg.append("g").attr("transform", "translate(20, 100)")
-                  .append("text").attr("class", "matrix-text");
-    var height=PearsonCorrelation.height;
-    var width=PearsonCorrelation.width;
+        .append("text").attr("class", "matrix-text");
+    var height = PearsonCorrelation.height;
+    var width = PearsonCorrelation.width;
     var labels = PearsonCorrelation.labels;
     var shape = PearsonCorrelation.shape;
 
-    function mat_over (d, i) {
+    function mat_over(d, i) {
         var x = Math.floor(i / shape[0]);
         var y = Math.floor(i % shape[0]);
         if (x < y)
@@ -100,15 +100,16 @@ function _Pc_plotFunction(matrix_data) {
     plot.half_only(true);
 
     plot.mat(tv.ndar.ndfrom({
-        data: $.parseJSON(matrix_data),
-        shape: shape}
+            data: $.parseJSON(matrix_data),
+            shape: shape
+        }
     ));
 
     plot(group);
 }
 
 function Pc_changeMode(mode) {
-    Pc_getData($("#state_select option:selected").val(),mode);
+    Pc_getData($("#state_select option:selected").val(), mode);
 }
 function Pc_changeState(state) {
     Pc_getData(state, $("#mode_select option:selected").text());

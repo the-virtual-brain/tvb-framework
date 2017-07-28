@@ -26,7 +26,7 @@
  * .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
  **/
 
-function matrix_view_init_svg(matrix_data, matrix_shape, title, labels, notes, w, h){
+function matrix_view_init_svg(matrix_data, matrix_shape, title, labels, notes, w, h) {
     // setup dimensions, div, svg elements and plotter
     var width = 900;
     var height = 600;
@@ -39,12 +39,12 @@ function matrix_view_init_svg(matrix_data, matrix_shape, title, labels, notes, w
     var svg = div.append("svg").attr("width", width).attr("height", height);
     var group = svg.append("g").attr("transform", "translate(200, 0)");
     var text = svg.append("g").attr("transform", "translate(20, 100)")
-                  .append("text").attr("class", "matrix-text");
+        .append("text").attr("class", "matrix-text");
 
     var shape = $.parseJSON(matrix_shape);
     labels = $.parseJSON(labels);
 
-    function mat_over (d, i) {
+    function mat_over(d, i) {
         var x = Math.floor(i / shape[0]);
         var y = Math.floor(i % shape[0]);
         if (labels !== null) {
@@ -57,8 +57,9 @@ function matrix_view_init_svg(matrix_data, matrix_shape, title, labels, notes, w
     var plot = tv.plot.mat().w(width - 200).h(height).mat_over(mat_over);
 
     plot.mat(tv.ndar.ndfrom({
-        data: $.parseJSON(matrix_data),
-        shape: shape}
+            data: $.parseJSON(matrix_data),
+            shape: shape
+        }
     ));
 
     plot(group);
