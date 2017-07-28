@@ -57,19 +57,12 @@ class ChordView(ABCDisplayer):
         """Return required memory."""
         return -1
 
-    # TODO use simular metdhod from ABCDisplayer
-    @staticmethod
-    def dump_prec(xs, prec=3):
-        """ Dump a list of numbers into a string, each at the specified precision. """
-        format_str = "%0." + str(prec) + "g"
-        return "[" + ",".join(format_str % s for s in xs) + "]"
-
     def launch(self, connectivity):
         """Construct data for visualization and launch it."""
 
         pars = {"labels": json.dumps(connectivity.region_labels.tolist()),
-                "weights": ChordView.dump_prec(connectivity.weights.flat),
-                "tract_lengths": ChordView.dump_prec(connectivity.tract_lengths.flat)
+                "weights": ABCDisplayer.dump_with_precision(connectivity.weights.flat),
+                "tract_lengths": ABCDisplayer.dump_with_precision(connectivity.tract_lengths.flat)
         }
 
         return self.build_display_result("connectivity/chord_view", pars, pages={"controlPage": "connectivity/chord_control"})

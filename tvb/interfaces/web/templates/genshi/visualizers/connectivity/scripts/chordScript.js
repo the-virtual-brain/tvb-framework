@@ -26,9 +26,8 @@
  *
  */
 
-var toggleParameters = true;
-
-var data = {
+var ChordData = {
+    toggleParameters : true,
     region_labels : [""],
     weights : [],
     tract_lengths : [],
@@ -40,15 +39,15 @@ var data = {
 }
 
 function set_region_labels(l){
-    data.region_labels = l;
+    ChordData.region_labels = l;
 }
 
 function set_weights(w){
-    data.weights = w;
+    ChordData.weights = w;
 }
 
 function set_tract_lenghts(t){
-    data.tract_lengths = t;
+    ChordData.tract_lengths = t;
 }
 
 function float_array_to_hex(f){
@@ -56,7 +55,7 @@ function float_array_to_hex(f){
 }
 
 function init_chord() {
-    var l = data.region_labels.length;
+    var l = ChordData.region_labels.length;
     var middle_chord = d3.select("#middle-chord");
 
     init_data();
@@ -67,7 +66,7 @@ function init_chord() {
         middle_chord.selectAll("*").transition().duration(100).style("fill-opacity", "0");
         middle_chord.selectAll("*").remove();
 
-        toggleParameters = !toggleParameters;
+        ChordData.toggleParameters = !ChordData.toggleParameters;
 
         init_data();
 
@@ -108,15 +107,15 @@ function init_chord() {
             var k = 0; //k is a counter for connected regions with the j-th region
             for (var j = 0; j < l; j++) {
                 var w = 0;
-                if (toggleParameters) {//We have chosen the weigths parameter
-                    w = data.weights[i * l + j];
+                if (ChordData.toggleParameters) {//We have chosen the weigths parameter
+                    w = ChordData.weights[i * l + j];
                 }
                 else {//We have chosen the tract length parameter
-                    w = data.tract_lengths[i * l + j]
+                    w = ChordData.tract_lengths[i * l + j]
                 }
-                json_line.name = data.region_labels[i];
+                json_line.name = ChordData.region_labels[i];
                 if (w !== 0) {
-                    json_line.imports[k] = data.region_labels[j];
+                    json_line.imports[k] = ChordData.region_labels[j];
                     k++;
                 }
             }
