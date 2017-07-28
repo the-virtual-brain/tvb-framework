@@ -140,8 +140,8 @@ function init_chord() {
             });
 
         var svg = d3.select("#middle-chord")
-            .attr("width", diameter)
-            .attr("height", diameter)
+            // .attr("width", diameter)
+            // .attr("height", diameter)
             .append("g")
             .attr("transform", "translate(" + radius + "," + radius + ")");
 

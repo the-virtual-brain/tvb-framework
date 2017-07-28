@@ -717,16 +717,11 @@ margin-right: 2px;
   stroke: #2ca02c;
 }
 
-
-
-
-
-
-
-
 .diagram-svg {
-    display: block;
-    margin: auto;
+  width: 100%;
+  height: 100%;
+  display: block;
+  margin: auto;
 }
 
 .switch-input {
@@ -800,11 +795,6 @@ body, html {
 .container {
   width: 98%;
   height: 99%;
-}
-
-.diagram-svg{
-  display:block;
-  margin:auto;
 }
 
 .leftpane {
