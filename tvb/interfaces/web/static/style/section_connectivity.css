@@ -801,16 +801,8 @@ body, html {
     width: 20%;
     height: 87%;
     float: left;
-    background-color: rosybrown;
+    background-color: #ffffff;
     border-collapse: collapse;
-}
-
-.leftpane .pan-description {
-    color: #0C5404;
-    font-size: 20pt;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 50px;
 }
 
 .middlepane {
@@ -826,16 +818,8 @@ body, html {
   height: 87%;
   position: relative;
   float: right;
-  background-color: #4169e1;
+  background-color: #ffffff;
   border-collapse: collapse;
-}
-
-.rightpane .pan-description {
-    color: #ffffff;
-    font-size: 20pt;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 50px;
 }
 
 .toppane {
