@@ -95,11 +95,9 @@ class MappedArraySVGVisualizerMixin(object):
         """
         matrix_data = ABCDisplayer.dump_with_precision(matrix.flat)
         matrix_shape = json.dumps(matrix.shape)
-        matrix_strides = json.dumps([x / matrix.itemsize for x in matrix.strides])
 
         return dict(matrix_data=matrix_data,
-                    matrix_shape=matrix_shape,
-                    matrix_strides=matrix_strides)
+                    matrix_shape=matrix_shape)
 
 
     def compute_params(self, matrix, viewer_title, given_slice=None, labels=None):
