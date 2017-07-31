@@ -619,7 +619,7 @@ tv.plot = {
                 lo = f.shape()[0];
             }
 
-            return [ {lo: lo, hi: hi, di: 1} ];
+            return [ {lo: lo, hi: hi, di: di} ];
         };
 
         // dimensions and placement of focus and context areas

@@ -34,8 +34,6 @@ var ChordData = {
     data_counts_middle : [],
     data_counts_left : [],
     data_counts_right : [],
-    beta : 10, //weights parameter
-    alpha: 0.001 //tract_length parameter
 }
 
 function set_region_labels(l){
@@ -50,10 +48,6 @@ function set_tract_lenghts(t){
     ChordData.tract_lengths = t;
 }
 
-function float_array_to_hex(f){
-    return "#" + (f[0] * 255).toString(16) + "" + (f[1] * 255).toString(16) + "" + (f[2] * 255).toString(16);
-}
-
 function init_chord() {
     var l = ChordData.region_labels.length;
     var middle_chord = d3.select("#middle-chord");
@@ -61,7 +55,7 @@ function init_chord() {
     init_data();
 
     //add event listener to switch button
-    $(".switch-input").on("click", function(e){
+    $("#switch-1").on("click", function(e){
 
         middle_chord.selectAll("*").transition().duration(100).style("fill-opacity", "0");
         middle_chord.selectAll("*").remove();
@@ -74,7 +68,7 @@ function init_chord() {
     });
 
     function init_data() {
-        var diameter = 700,
+        var diameter = middle_chord.targetHeight,
             radius = diameter / 2,
             innerRadius = radius - 120;
 
