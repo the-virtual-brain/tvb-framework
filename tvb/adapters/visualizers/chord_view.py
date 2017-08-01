@@ -49,7 +49,7 @@ class ChordView(ABCDisplayer):
         """
         return [{"name": "connectivity",
                  "type": Connectivity,
-                 "label": "Connectivity to be displayed in a chord diagram",
+                 "label": "Connectivity to be displayed in a hierarchical edge bundle",
                  "required": True
                  }]
 

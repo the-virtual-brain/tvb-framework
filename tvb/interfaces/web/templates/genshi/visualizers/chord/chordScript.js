@@ -68,31 +68,6 @@ function init_chord() {
     });
 
     function init_data() {
-        var diameter = middle_chord.targetHeight,
-            radius = diameter / 2,
-            innerRadius = radius - 120;
-
-        var cluster = d3.cluster()
-            .size([360, innerRadius]);
-
-        var line = d3.radialLine()
-            .curve(d3.curveBundle.beta(0.85))
-            .radius(function (d) {
-                return d.y;
-            })
-            .angle(function (d) {
-                return d.x / 180 * Math.PI;
-            });
-
-        var svg = middle_chord
-            .attr("width", diameter)
-            .attr("height", diameter)
-            .append("g")
-            .attr("transform", "translate(" + radius + "," + radius + ")");
-
-        var link = svg.append("g").selectAll(".link"),
-            node = svg.append("g").selectAll(".node");
-
         var jsonified_region_labels = [];
 
         for (var i = 0; i < l; i++) {
@@ -116,8 +91,7 @@ function init_chord() {
             jsonified_region_labels[i] = json_line;
         }
 
-
-        var diameter = 700,
+        var diameter = $("#middle-chord").height(),
             radius = diameter / 2,
             innerRadius = radius - 120;
 
