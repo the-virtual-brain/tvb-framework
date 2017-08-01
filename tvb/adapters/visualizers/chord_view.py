@@ -61,8 +61,7 @@ class ChordView(ABCDisplayer):
         """Construct data for visualization and launch it."""
 
         pars = {"labels": json.dumps(connectivity.region_labels.tolist()),
-                "weights": ABCDisplayer.dump_with_precision(connectivity.weights.flat),
-                "tract_lengths": ABCDisplayer.dump_with_precision(connectivity.tract_lengths.flat)
+                "url_base": ABCDisplayer.paths2url(connectivity, attribute_name="weights", flatten="True")
         }
 
         return self.build_display_result("chord/chord_view", pars)
