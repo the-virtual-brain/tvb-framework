@@ -155,7 +155,7 @@ function Plot_changeYScale(yAxisScale) {
     var height = svgContainer["0"]["0"].clientHeight - Plot1d.MARGIN.top - Plot1d.MARGIN.bottom;
     var y_min = Plot1d.yMin;
     var y_max = Plot1d.yMax;
-    if (yAxisScale === "log")
+    if (yAxisScale === "Logarithmic")
         Plot1d.yAxisScale = d3.scale.log().range([height - Plot1d.MARGIN.top, Plot1d.MARGIN.bottom]).domain([y_min, y_max]);
     else
         Plot1d.yAxisScale = d3.scale.linear().range([height - Plot1d.MARGIN.top, Plot1d.MARGIN.bottom]).domain([y_min, y_max]);
