@@ -24,6 +24,10 @@
 
 
 var ComplexCoherence = {
+    MARGIN: {top: 30, right: 20, bottom: 30, left: 50},
+    AVAILABLE_COLORS: [{hex_color: '#0F94DB', hex_face_color: '#469EEB'},
+        {hex_color: '#16C4B9', hex_face_color: '#0CF0E1'},
+        {hex_color: '#CC4F1B', hex_face_color: '#FF9848'}],
     cohAvDataCurve: null,
     cohAreaDataCurve: null,
     available_spectrum: null,
@@ -108,16 +112,14 @@ function Complex_getSpectrum(spectrum) {
 }
 
 function _Complex_updateColourForSpectrum(spectrum) {
-    if (spectrum === ComplexCoherence.available_spectrum[0]) {
-        ComplexCoherence.hex_color = '#0F94DB';
-        ComplexCoherence.hex_face_color = '#469EEB';
+    let found_Idx = 0;
+    for (let i = 0; i < ComplexCoherence.available_spectrum.length; i++) {
+        if (ComplexCoherence.available_spectrum[i] === spectrum) {
+            found_Idx = i;
+            break;
+        }
     }
-    else if (spectrum === ComplexCoherence.available_spectrum[1]) {
-        ComplexCoherence.hex_color = '#16C4B9';
-        ComplexCoherence.hex_face_color = '#0CF0E1';
-    }
-    else {
-        ComplexCoherence.hex_color = '#CC4F1B';
-        ComplexCoherence.hex_face_color = '#FF9848';
-    }
+    found_Idx = found_Idx % ComplexCoherence.AVAILABLE_COLORS.length;
+    ComplexCoherence.hex_color = ComplexCoherence.AVAILABLE_COLORS[found_Idx].hex_color;
+    ComplexCoherence.hex_face_color = ComplexCoherence.AVAILABLE_COLORS[found_Idx].hex_face_color;
 }
