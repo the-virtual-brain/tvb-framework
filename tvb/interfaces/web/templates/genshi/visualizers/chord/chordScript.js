@@ -29,50 +29,46 @@
 var ChordData = {
     region_labels : [""],
     matrix: [],
+    svg_d3: null,
+    url_base: "",
+    state: "tract_lengths"
 }
 
-function init_chord(url_base, labels) {
+function ajaxify(){
 
-    var matrix = "weights";
+    let newstate = ChordData.state === "weights" ? "tract_lengths" : "weights";
 
     doAjaxCall({
-        url: url_base,
+        url: ChordData.url_base.replace(ChordData.state, newstate),
         type: 'POST',
         async: true,
         success: function (data){
             ChordData.matrix = $.parseJSON(data);
+            init_data(ChordData);
         }
     });
+
+    ChordData.state = newstate;
+}
+
+function init_chord(url_base, labels) {
 
     ChordData.region_labels = labels;
 
     var l = ChordData.region_labels.length;
 
-    var middle_chord = d3.select("#middle-chord");
+    ChordData.svg_d3 = d3.select("#middle-chord");
 
-    init_data(ChordData, middle_chord);
+    ChordData.url_base = url_base;
 
     //add event listener to switch button
     $("#switch-1").on("click", function(e){
 
-        let newmatrix = matrix === "weights" ? "tract_lengths" : "weights";
+        ChordData.svg_d3.selectAll("*").transition().duration(100).style("fill-opacity", "0");
+        ChordData.svg_d3.selectAll("*").remove();
 
-        doAjaxCall({
-            url: url_base.replace(matrix, newmatrix),
-            type: 'POST',
-            async: true,
-            success: function (data) {
-                ChordData.matrix = $.parseJSON(data);
-            }
-        });
+        ajaxify();
 
-        matrix = newmatrix;
-
-        middle_chord.selectAll("*").transition().duration(100).style("fill-opacity", "0");
-        middle_chord.selectAll("*").remove();
-
-        init_data(ChordData, middle_chord);
-
-        middle_chord.selectAll("*").transition().duration(100).style("fill-opacity", "1");
+        ChordData.svg_d3.selectAll("*").transition().duration(100).style("fill-opacity", "1");
     });
 }

@@ -24,9 +24,11 @@
  * @param svg_d3  The html svg element that is going to be mutated
  */
 
-function init_data(data, svg_d3) {
+function init_data(data) {
 
     var l = data.region_labels.length;
+
+    var svg_d3 = data.svg_d3;
 
     var jsonified_region_labels = [];
 
@@ -63,8 +65,6 @@ function init_data(data, svg_d3) {
         });
 
     var svg = svg_d3
-    // .attr("width", diameter)
-    // .attr("height", diameter)
         .append("g")
         .attr("transform", "translate(" + radius + "," + radius + ")");
 
