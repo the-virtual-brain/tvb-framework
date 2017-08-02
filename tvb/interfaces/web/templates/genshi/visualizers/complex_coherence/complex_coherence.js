@@ -24,7 +24,6 @@
 
 
 var ComplexCoherence = {
-    MARGIN: {top: 30, right: 20, bottom: 30, left: 50},
     AVAILABLE_COLORS: [{hex_color: '#0F94DB', hex_face_color: '#469EEB'},
         {hex_color: '#16C4B9', hex_face_color: '#0CF0E1'},
         {hex_color: '#CC4F1B', hex_face_color: '#FF9848'}],

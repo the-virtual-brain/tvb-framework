@@ -143,7 +143,7 @@ function Plot_changeXScale(xAxisScale) {
     var width = svgContainer["0"]["0"].clientWidth - Plot1d.MARGIN.left - Plot1d.MARGIN.right;
     var x_min = Plot1d.xMin;
     var x_max = Plot1d.xMax;
-    if (xAxisScale === "log")
+    if (xAxisScale === "Logarithmic")
         Plot1d.xAxisScale = d3.scale.log().range([Plot1d.MARGIN.left, width - Plot1d.MARGIN.right]).domain([x_min, x_max]);
     else
         Plot1d.xAxisScale = d3.scale.linear().range([Plot1d.MARGIN.left, width - Plot1d.MARGIN.right]).domain([x_min, x_max]);
