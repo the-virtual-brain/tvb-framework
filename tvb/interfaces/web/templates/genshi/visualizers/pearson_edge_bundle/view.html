@@ -1,19 +1,25 @@
 <div id="s-brain">
     <link rel="stylesheet" type="text/css" href="/static/style/section_connectivity.css"/>
+
     <script src="/static/js/d3.v4.min.js"></script>
     <script type="text/javascript" src="/static_view/pearson_edge_bundle/pearson_edge_bundle.js?$currentVersionJS"></script>
     <script type="text/javascript" src="/static_view/commons/scripts/hierarchicalEdgeBundle.js?$currentVersionJS"></script>
+
     <script type="text/javascript">
         $('document').ready(function () {
-            init_chord("${url_base}");
+            init_chord("${url_base}", ${matrix_labels},
+                    ${matrix_shape},
+                    "${state_variable}",
+                    "${mode}",
+                    ${state_list},
+                    ${mode_list});
+            ajaxify();
         })
     </script>
     <div class="container">
         <div class="toppane">
-            <div id="slider">
-                <input type="checkbox" id="switch-1" class="switch-input"/>
-                <label for="switch-1" class="switch-label"><span class="toggle--on">Tract Length</span><span class="toggle--off">Weights</span></label>
-            </div>
+            <input id="slider" type="range" oninput="{showVal(this.value); ajaxify()}" onchange="showVal(this.value)" value="0" min="-1" max="1" step="0.01" class="blue"/>
+            <output id="slider-value" type="text">0.00</output>
         </div>
         <div class="leftpane">
         </div>

@@ -38,13 +38,13 @@ class PearsonChord(MappedArrayVisualizer):
         if not labels:
             labels = None
         # TODO use default Pearson correlation values (-1, 1) for min and max)
-        pars = dict(matrix_labels=json.dumps([labels, labels]),
+        pars = dict(matrix_labels=json.dumps(labels),
                     matrix_shape=json.dumps(matrix_shape),
                     viewer_title='Pearson Edge Bundle',
-                    url_base=MappedArrayVisualizer.paths2url(datatype, "get_correlation_data", parameter=""),
+                    url_base=MappedArrayVisualizer.paths2url(datatype, "get_correlation_data", flatten="True", parameter=""),
                     state_variable=state_list[0],
                     mode=mode_list[0],
-                    state_list=state_list,
-                    mode_list=mode_list)
+                    state_list=json.dumps(state_list),
+                    mode_list=json.dumps(mode_list))
 
         return self.build_display_result("pearson_edge_bundle/view", pars)

@@ -664,15 +664,6 @@ margin-right: 2px;
     right:40px;
 }
 
-#main .view-column .action.action-branch-connectivity{
-    background-position: -18px -1327px;
-    right: -15px;
-}
-
-
-
-
-
 .node {
   font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
   fill: #bbb;
@@ -786,12 +777,6 @@ margin-right: 2px;
   display: none;
 }
 
-body, html {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-}
-
 .container {
   width: 98%;
   height: 99%;
@@ -826,5 +811,114 @@ body, html {
   width: 100%;
   height: 85px;
   border-collapse: collapse;
-  background-color: #4da6ff;
+  background-color: #4169e1;
+    position: relative;
+    display: inline-block;
+}
+
+/*
+ * slider
+ */
+/* Import */
+@import url("https://fonts.googleapis.com/css?family=Sniglet|Oswald");
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+output {
+    font-family: 'Roboto', sans-serif;
+    top: 50%; left: 49%; position: absolute;
+    font-weight: bold;
+    font-size: large;
+    color: white;
+}
+
+input {
+  -webkit-appearance: none;
+  width: 160px;
+  height: 20px;
+  margin: 10px 50px;
+  background: linear-gradient(to right, #16a085 0%, #16a085 100%);
+  background-size: 150px 10px;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  outline: none;
+  zoom: 130%;
+  display: block;
+  margin: auto;
+  margin-bottom: 30px;
+}
+
+input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #27ae60;
+  position: relative;
+  z-index: 3;
+}
+
+input::-webkit-slider-thumb:after {
+  content: " ";
+  width: 160px;
+  height: 10px;
+  position: absolute;
+  z-index: 1;
+  right: 20px;
+  top: 5px;
+  background: #2ecc71;
+}
+
+.blue::-webkit-slider-thumb {
+  background: #2980b9;
+}
+
+.blue::-webkit-slider-thumb:after {
+  background: #3498db;
+}
+
+.one {
+  width: 0px;
+  height: 0px;
+  background-color: transparent;
+  line-height: 30px;
+  color: #ecf0f1;
+  cursor: pointer;
+  border: 70px solid transparent;
+  border-left: 70px solid #16a085;
+  border-top: 70px solid #16a085;
+  left: 0px;
+  top: 0px;
+  position: absolute;
+}
+
+a {
+  text-decoration: none;
+}
+
+.one span {
+  margin-left: -60px;
+  position: absolute;
+  margin-top: -40px;
+}
+
+.two {
+  width: 0px;
+  height: 0px;
+  background-color: transparent;
+  line-height: 30px;
+  color: #ecf0f1;
+  cursor: pointer;
+  border: 70px solid transparent;
+  border-right: 70px solid #16a085;
+  border-top: 70px solid #16a085;
+  right: 0px;
+  top: 0px;
+  position: absolute;
+}
+
+.two span {
+  margin-left: -15px;
+  position: absolute;
+  margin-top: -40px;
+  white-space: nowrap;
 }

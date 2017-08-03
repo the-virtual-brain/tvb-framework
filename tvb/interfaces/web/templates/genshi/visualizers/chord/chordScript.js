@@ -44,7 +44,9 @@ function ajaxify(){
         async: true,
         success: function (data){
             ChordData.matrix = $.parseJSON(data);
-            init_data(ChordData);
+            init_data(ChordData, function(d){
+                return d !== 0;
+            });
         }
     });
 

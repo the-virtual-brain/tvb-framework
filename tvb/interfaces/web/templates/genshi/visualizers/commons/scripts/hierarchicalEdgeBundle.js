@@ -23,8 +23,7 @@
  * @param data    The data structure that has the region labels and the attributes matrix
  * @param svg_d3  The html svg element that is going to be mutated
  */
-
-function init_data(data) {
+function init_data(data, test) {
 
     var l = data.region_labels.length;
 
@@ -40,7 +39,7 @@ function init_data(data) {
             var w = 0;
             w = data.matrix[i * l + j];
             json_line.name = data.region_labels[i];
-            if (w !== 0) {
+            if (test(w)) {
                 json_line.imports[k] = data.region_labels[j];
                 k++;
             }
