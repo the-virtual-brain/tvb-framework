@@ -18,8 +18,46 @@
     </script>
     <div class="container">
         <div class="toppane">
-            <input id="slider" type="range" oninput="{showVal(this.value); ajaxify()}" onchange="showVal(this.value)" value="0" min="-1" max="1" step="0.01" class="blue"/>
-            <output id="slider-value" type="text">0.00</output>
+            <div id="c1">
+                <div class="inner-c1">
+                    <form action="#">
+
+                        <div class="select-box">
+
+                            <label for="select-box1" class="label select-box1"><span class="label-desc">State</span> </label>
+                            <select id="select-box1" class="select">
+
+                            </select>
+
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+            <div id="c2">
+
+                <input id="slider" type="range" oninput="{showVal(this.value); ajaxify()}" onchange="showVal(this.value)" value="0" min="-1" max="1" step="0.01" class="blue"/>
+                <output id="slider-value" type="text">0.00</output>
+
+            </div>
+            <div id="c3">
+
+                 <div class="inner-c3">
+                    <form action="#">
+
+                        <div class="select-box">
+
+                            <label for="select-box2" class="label select-box2"><span class="label-desc">Mode</span> </label>
+                            <select id="select-box2" class="select">
+
+                            </select>
+
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
         </div>
         <div class="leftpane">
         </div>

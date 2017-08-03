@@ -813,7 +813,8 @@ margin-right: 2px;
   border-collapse: collapse;
   background-color: #4169e1;
     position: relative;
-    display: inline-block;
+    display: table;
+
 }
 
 /*
@@ -823,32 +824,30 @@ margin-right: 2px;
 @import url("https://fonts.googleapis.com/css?family=Sniglet|Oswald");
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
-output {
+#slider-value {
     font-family: 'Roboto', sans-serif;
-    top: 50%; left: 49%; position: absolute;
+    top: 50%; left: 45%; position: relative;
     font-weight: bold;
     font-size: large;
     color: white;
 }
 
-input {
+#slider {
   -webkit-appearance: none;
   width: 160px;
   height: 20px;
-  margin: 10px 50px;
-  background: linear-gradient(to right, #16a085 0%, #16a085 100%);
+  background: linear-gradient(to right, #16a085 0%, #96c869 100%);
   background-size: 150px 10px;
   background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
   outline: none;
-  zoom: 130%;
+  zoom: 100%;
   display: block;
   margin: auto;
-  margin-bottom: 30px;
 }
 
-input::-webkit-slider-thumb {
+#slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
@@ -857,7 +856,7 @@ input::-webkit-slider-thumb {
   z-index: 3;
 }
 
-input::-webkit-slider-thumb:after {
+#slider::-webkit-slider-thumb:after {
   content: " ";
   width: 160px;
   height: 10px;
@@ -921,4 +920,95 @@ a {
   position: absolute;
   margin-top: -40px;
   white-space: nowrap;
+}
+
+/*
+ * panes in toppane
+ */
+
+#inner-c1{
+    float:left;width:33%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#inner-c3{
+    float:right;
+    width:auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#c1, #c3 {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#c2 {
+    display: table-cell;
+    vertical-align: middle;
+    margin:auto auto;
+    width:33%;
+}
+
+.select, .label{
+    display: block;
+    margin: auto;
+}
+
+.label{
+    text-align: center;
+}
+
+/*
+ * select boxes
+ */
+
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro);
+
+.select-box {
+  cursor: pointer;
+  position : relative;
+  max-width:  20em;
+  margin: 5em auto;
+  width: 100%;
+}
+
+.select,
+.label {
+  color: #414141;
+  font: 400 17px/2em 'Source Sans Pro', sans-serif;
+}
+
+.select {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  padding: 5px 0;
+  height: 100%;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  background: none transparent;
+  border: 0 none;
+}
+.select-box1, .select-box2 {
+  background: #ececec;
+}
+
+.label {
+  position: relative;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.open .label::after {
+   content: "▲";
+}
+.label::after {
+  content: "▼";
+  font-size: 12px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 5px 15px;
+  border-left: 5px solid #fff;
 }

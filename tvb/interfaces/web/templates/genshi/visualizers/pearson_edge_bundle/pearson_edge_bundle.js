@@ -77,6 +77,34 @@ function init_chord(url_base, labels, shape, state, mode, state_list, mode_list)
 
     ajaxify();
 
+    state_list.forEach(function(d, i){
+        $("#select-box1").append($("<option />").val(i).text(d))
+    });
+
+    mode_list.forEach(function(d, i){
+        $("#select-box2").append($("<option />").val(i).text(d))
+    });
+
+    //select boxes
+    $(".select").change(function(){
+
+        var selection = $(this).find("option:selected"),
+            labelFor = $(this).attr("id"),
+            label = $("[for='" + labelFor + "']");
+
+        selection.prop("selected", "selected");
+        label.find(".label-desc").html(selection.text());
+
+        triggerRedraw();
+
+    });
+
+}
+
+function triggerRedraw(){
+    ChordData.state = ($("#select-box1").find("option:selected").attr("value"));
+    ChordData.mode = ($("#select-box2").find("option:selected").attr("value"));
+    ajaxify();
 }
 
 //slider for threshold
