@@ -938,7 +938,7 @@ tv.plot = {
             //console.log(area / area2);
             if (window.navigator.userAgent.indexOf("Edge") > -1) {
                 f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "0.3px");//4*Math.sqrt(Math.abs(area / area2)))
-            }else{
+            } else {
                 f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "1px");//4*Math.sqrt(Math.abs(area / area2)))
             }
         };
