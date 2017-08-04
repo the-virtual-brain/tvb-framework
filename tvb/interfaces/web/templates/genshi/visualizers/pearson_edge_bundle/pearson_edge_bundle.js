@@ -28,88 +28,69 @@
 
 
 var ChordData = {
-    region_labels : [""],
-    matrix : [],
-    svg_d3 : null,
-    url_base : "",
-    mode : "",
-    mode_list : "",
+    region_labels: [""],
+    matrix: [],
+    svg: {
+        d3: null,
+        svg: null
+    },
+    url_base: "",
+    mode: "",
+    mode_list: "",
     state: "",
-    state_list : "",
+    state_list: "",
     thresh: -1,
-}
+};
 
-function ajaxify(){
-
-    ChordData.svg_d3.selectAll("*").transition().duration(100).style("fill-opacity", "0");
-    ChordData.svg_d3.selectAll("*").remove();
-    ChordData.svg_d3.selectAll("*").transition().duration(100).style("fill-opacity", "1");
-
-    ChordData.thresh = parseFloat($('#slider').attr("value"));
+function ajaxify() {
 
     doAjaxCall({
         url: ChordData.url_base + "selected_state=" + "0" + ";selected_mode=" + ChordData.mode,
         type: 'POST',
         async: true,
-        success: function (data){
+        success: function (data) {
             ChordData.matrix = $.parseJSON(data);
-            init_data(ChordData, function(d){
-                return d >= ChordData.thresh ;
-            });
+            refresh_edges();
         }
     });
 
 }
 
-function init_chord(url_base, labels, shape, state, mode, state_list, mode_list) {
+function init_chord(url_base, labels, state, mode) {
 
     ChordData.region_labels = labels;
     ChordData.state = state;
     ChordData.mode = mode;
-    ChordData.state_list = state_list;
-    ChordData.mode_list = mode_list;
-
-    var l = ChordData.region_labels.length;
-
-    ChordData.svg_d3 = d3.select("#middle-chord");
-
+    ChordData.svg.d3 = d3.select("#middle-edge-bundle");
+    ChordData.svg.svg = $("#middle-edge-bundle");
     ChordData.url_base = url_base;
 
     ajaxify();
-
-    state_list.forEach(function(d, i){
-        $("#select-box1").append($("<option />").val(i).text(d))
-    });
-
-    mode_list.forEach(function(d, i){
-        $("#select-box2").append($("<option />").val(i).text(d))
-    });
-
-    //select boxes
-    $(".select").change(function(){
-
-        var selection = $(this).find("option:selected"),
-            labelFor = $(this).attr("id"),
-            label = $("[for='" + labelFor + "']");
-
-        selection.prop("selected", "selected");
-        label.find(".label-desc").html(selection.text());
-
-        triggerRedraw();
-
-    });
-
 }
 
-function triggerRedraw(){
-    ChordData.state = ($("#select-box1").find("option:selected").attr("value"));
-    ChordData.mode = ($("#select-box2").find("option:selected").attr("value"));
+function triggerRedraw() {
+    ChordData.state = ($("#mode_select").find("option:selected").attr("value"));
+    ChordData.mode = ($("#state_select").find("option:selected").attr("value"));
     ajaxify();
 }
 
 //slider for threshold
-function showVal(newVal){
+function changeThreshold(newVal) {
+
     $("#slider").attr("value", newVal);
     $("#valBox").html(newVal);
     $("#slider-value").html(newVal);
+    ChordData.thresh = parseFloat($('#slider').attr("value"));
+    refresh_edges();
+}
+
+function refresh_edges(){
+    ChordData.svg.d3.selectAll("*").transition().duration(100).style("fill-opacity", "0");
+    ChordData.svg.d3.selectAll("*").remove();
+    ChordData.svg.d3.selectAll("*").transition().duration(100).style("fill-opacity", "1");
+
+    init_data(ChordData, function (d) {
+        return d >= ChordData.thresh;
+    });
+
 }

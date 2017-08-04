@@ -1,70 +1,54 @@
-<div id="s-brain">
-    <link rel="stylesheet" type="text/css" href="/static/style/section_connectivity.css"/>
+<div class="view-column" xmlns:py="http://genshi.edgewall.org/">
+    <link rel="stylesheet" type="text/css" href="/static/style/subsection_edge_bundle.css"/>
 
-    <script src="/static/js/d3.v4.min.js"></script>
-    <script type="text/javascript" src="/static_view/pearson_edge_bundle/pearson_edge_bundle.js?$currentVersionJS"></script>
+    <script type="text/javascript" src="/static/js/d3.v4.min.js"></script>
     <script type="text/javascript" src="/static_view/commons/scripts/hierarchicalEdgeBundle.js?$currentVersionJS"></script>
+    <script type="text/javascript" src="/static_view/pearson_edge_bundle/pearson_edge_bundle.js?$currentVersionJS"></script>
 
     <script type="text/javascript">
         $('document').ready(function () {
             init_chord("${url_base}", ${matrix_labels},
-                    ${matrix_shape},
-                    "${state_variable}",
-                    "${mode}",
-                    ${state_list},
-                    ${mode_list});
-            ajaxify();
+                "${state_variable}",
+                "${mode}");
+            $("#main").addClass("colscheme-1");
         })
     </script>
-    <div class="container">
-        <div class="toppane">
-            <div id="c1">
-                <div class="inner-c1">
-                    <form action="#">
 
-                        <div class="select-box">
+    <ul class="toolbar-inline">
+        <li>
+            <label for="mode_select">Mode</label>
+            <select id="mode_select" onchange="triggerRedraw()">
+                <py:for each="mod in mode_list">
+                    <py:if test="mod==mode">
+                        <option value="$mod" selected="selected">$mod</option>
+                    </py:if>
+                    <py:if test="mod!=mode">
+                        <option value="$mod">$mod</option>
+                    </py:if>
+                </py:for>
+            </select>
+        </li>
+        <li>
+            <label for="state_select">State Variable</label>
+            <select id="state_select" onchange="triggerRedraw()">
+                <py:for each="idx, state in enumerate(state_list)">
+                    <py:if test="state==state_variable">
+                        <option value="$idx" selected="selected">$state</option>
+                    </py:if>
+                    <py:if test="state!=state_variable">
+                        <option value="$idx">$state</option>
+                    </py:if>
+                </py:for>
+            </select>
+        </li>
+        <li>
+            <input id="slider" type="range" oninput="{changeThreshold(this.value);}"
+                   value="0" min="-1" max="1" step="0.01" class="blue"/>
+            <output id="slider-value" type="text">0.00</output>
+        </li>
 
-                            <label for="select-box1" class="label select-box1"><span class="label-desc">State</span> </label>
-                            <select id="select-box1" class="select">
+    </ul>
+        <svg viewBox="0 0 700 700" preserveAspectRatio="xMidYMid meet" class="diagram-svg"
+             id="middle-edge-bundle"></svg>
 
-                            </select>
-
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-            <div id="c2">
-
-                <input id="slider" type="range" oninput="{showVal(this.value); ajaxify()}" onchange="showVal(this.value)" value="0" min="-1" max="1" step="0.01" class="blue"/>
-                <output id="slider-value" type="text">0.00</output>
-
-            </div>
-            <div id="c3">
-
-                 <div class="inner-c3">
-                    <form action="#">
-
-                        <div class="select-box">
-
-                            <label for="select-box2" class="label select-box2"><span class="label-desc">Mode</span> </label>
-                            <select id="select-box2" class="select">
-
-                            </select>
-
-                        </div>
-
-                    </form>
-                </div>
-
-            </div>
-        </div>
-        <div class="leftpane">
-        </div>
-        <div class="middlepane">
-            <svg viewBox="0 0 700 700" preserveAspectRatio="xMidYMid meet" class="diagram-svg" id="middle-chord"></svg>
-        </div>
-        <div class="rightpane">
-        </div>
-    </div>
 </div>

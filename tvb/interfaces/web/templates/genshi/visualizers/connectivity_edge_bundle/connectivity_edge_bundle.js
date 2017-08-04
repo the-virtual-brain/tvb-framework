@@ -22,19 +22,22 @@
  *
  * Many thanks to Mike Bostock's bl.ock: https://bl.ocks.org/mbostock/7607999
  *
- * A first prototype of the connectivity chord viewer
+ * connectivity_edge_bundle viewer
  *
  */
 
 var ChordData = {
-    region_labels : [""],
+    region_labels: [""],
     matrix: [],
-    svg_d3: null,
+    svg: {
+        d3: null,
+        svg: null,
+    },
     url_base: "",
     state: "tract_lengths"
-}
+};
 
-function ajaxify(){
+function ajaxify() {
 
     let newstate = ChordData.state === "weights" ? "tract_lengths" : "weights";
 
@@ -42,9 +45,9 @@ function ajaxify(){
         url: ChordData.url_base.replace(ChordData.state, newstate),
         type: 'POST',
         async: true,
-        success: function (data){
+        success: function (data) {
             ChordData.matrix = $.parseJSON(data);
-            init_data(ChordData, function(d){
+            init_data(ChordData, function (d) {
                 return d !== 0;
             });
         }
@@ -56,21 +59,20 @@ function ajaxify(){
 function init_chord(url_base, labels) {
 
     ChordData.region_labels = labels;
-
-    var l = ChordData.region_labels.length;
-
-    ChordData.svg_d3 = d3.select("#middle-chord");
-
+    ChordData.svg.d3 = d3.select("#middle-edge-bundle");
+    ChordData.svg.svg = $("#middle-edge-bundle");
     ChordData.url_base = url_base;
 
     //add event listener to switch button
-    $("#switch-1").on("click", function(e){
+    $("#switch-1").on("click", function (e) {
 
-        ChordData.svg_d3.selectAll("*").transition().duration(100).style("fill-opacity", "0");
-        ChordData.svg_d3.selectAll("*").remove();
+        ChordData.svg.d3.selectAll("*").transition().duration(100).style("fill-opacity", "0");
+        ChordData.svg.d3.selectAll("*").remove();
 
         ajaxify();
 
-        ChordData.svg_d3.selectAll("*").transition().duration(100).style("fill-opacity", "1");
+        ChordData.svg.d3.selectAll("*").transition().duration(100).style("fill-opacity", "1");
     });
+
+    ajaxify();
 }

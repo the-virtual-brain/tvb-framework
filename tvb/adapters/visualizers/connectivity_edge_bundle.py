@@ -29,7 +29,7 @@
 #
 
 """
-A Javascript displayer for connectivity, using chord diagrams.
+A Javascript displayer for connectivity, using hierarchical edge bundle diagrams from d3.js.
 
 .. moduleauthor:: Vlad Farcas <vlad.farcas@codemart.ro>
 
@@ -39,8 +39,8 @@ import json
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
-class ChordView(ABCDisplayer):
-    _ui_name = "Connectivity Chord View"
+class ConnectivityEdgeBundle(ABCDisplayer):
+    _ui_name = "Connectivity Edge Bundle View"
     _ui_subsection = "connectivity"
 
     def get_input_tree(self):
@@ -64,4 +64,4 @@ class ChordView(ABCDisplayer):
                 "url_base": ABCDisplayer.paths2url(connectivity, attribute_name="tract_lengths", flatten="True")
         }
 
-        return self.build_display_result("chord/chord_view", pars)
+        return self.build_display_result("connectivity_edge_bundle/view", pars)

@@ -33,8 +33,8 @@ List here all Python modules where Visualization adapters are described.
 Listed modules will be introspected and DB filled.
 """
 
-__all__ = ["annotations_viewer", "brain", "chord_view", "connectivity", "complex_imaginary_coherence", 
+__all__ = ["annotations_viewer", "brain", "connectivity_edge_bundle", "connectivity", "complex_imaginary_coherence",
            "cross_coherence", "cross_correlation", "covariance", "histogram", "ica", "eeg_monitor", 
-           "local_connectivity_view", "matrix_viewer", "pearson_cross_correlation", "pearson_chord", "mplh5_fourier_spectrum",
+           "local_connectivity_view", "matrix_viewer", "pearson_cross_correlation", "pearson_edge_bundle",
            "mplh5_topographic", "pca", "pse_discrete", "pse_isocline", "region_volume_mapping",
            "sensors", "surface_view", "time_series", "time_series_volume", "tract", "wavelet_spectrogram"]

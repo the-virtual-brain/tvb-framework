@@ -27,7 +27,7 @@ function init_data(data, test) {
 
     var l = data.region_labels.length;
 
-    var svg_d3 = data.svg_d3;
+    var svg_d3 = data.svg.d3;
 
     var jsonified_region_labels = [];
 
@@ -47,9 +47,9 @@ function init_data(data, test) {
         jsonified_region_labels[i] = json_line;
     }
 
-    var diameter = $("#middle-chord").height(),
-        radius = diameter / 2,
-        innerRadius = radius - 120;
+    var diameter = data.svg.svg.height(),
+        radius = diameter * 0.51 + 1,
+        innerRadius = radius - 150;
 
     var cluster = d3.cluster()
         .size([360, innerRadius]);
