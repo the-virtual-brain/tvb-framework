@@ -64,7 +64,7 @@ function init_chord(url_base, labels) {
     ChordData.url_base = url_base;
 
     //add event listener to switch button
-    $("#switch-1").on("click", function (e) {
+    $("#switch-matrix").on("click", function (e) {
 
         ChordData.svg.d3.selectAll("*").transition().duration(100).style("fill-opacity", "0");
         ChordData.svg.d3.selectAll("*").remove();

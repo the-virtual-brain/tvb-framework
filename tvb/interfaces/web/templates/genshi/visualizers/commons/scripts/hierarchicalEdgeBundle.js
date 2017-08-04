@@ -110,10 +110,10 @@ function init_data(data, test) {
             });
 
         link
-            .classed("link--target", function (l) {
+            .classed("link-target", function (l) {
                 if (l.target === d) return l.source.source = true;
             })
-            .classed("link--source", function (l) {
+            .classed("link-source", function (l) {
                 if (l.source === d) return l.target.target = true;
             })
             .filter(function (l) {
@@ -122,22 +122,22 @@ function init_data(data, test) {
             .raise();
 
         node
-            .classed("node--target", function (n) {
+            .classed("node-target", function (n) {
                 return n.target;
             })
-            .classed("node--source", function (n) {
+            .classed("node-source", function (n) {
                 return n.source;
             });
     }
 
     function mouseouted(d) {
         link
-            .classed("link--target", false)
-            .classed("link--source", false);
+            .classed("link-target", false)
+            .classed("link-source", false);
 
         node
-            .classed("node--target", false)
-            .classed("node--source", false);
+            .classed("node-target", false)
+            .classed("node-source", false);
     }
 
 // Lazily construct the package hierarchy from class names.
