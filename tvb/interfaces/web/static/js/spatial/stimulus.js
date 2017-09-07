@@ -63,8 +63,9 @@ function STIM_saveWeightForSelectedNodes() {
     var weightElement = $("#current_weight");
     var newWeight = parseFloat(weightElement.val());
     if (!isNaN(newWeight)) {
+        var length = updatedRegionStimulusWeights.length;
         for (var i = 0; i < GVAR_interestAreaNodeIndexes.length; i++) {
-            var nodeIndex = GVAR_interestAreaNodeIndexes[i];
+            var nodeIndex = (GVAR_interestAreaNodeIndexes[i]+length/2)%length;
             updatedRegionStimulusWeights[nodeIndex] = newWeight;
         }
         weightElement.val("");
