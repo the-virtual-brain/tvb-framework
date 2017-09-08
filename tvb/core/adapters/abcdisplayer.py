@@ -33,11 +33,8 @@
 
 import os
 import sys
-import pylab
 from threading import Lock
-from abc import ABCMeta, abstractmethod
-from tvb.basic.profile import TvbProfile
-from tvb.core.decorators import synchronized
+from abc import ABCMeta
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
 
@@ -56,10 +53,10 @@ class ABCDisplayer(ABCSynchronous):
     PARAM_FIGURE_SIZE = 'figure_size'
     VISUALIZERS_ROOT = ''
     VISUALIZERS_URL_PREFIX = ''
-     
-     
+
+
     def get_output(self):
-        return []   
+        return []
 
 
     def generate_preview(self, **kwargs):
@@ -78,8 +75,8 @@ class ABCDisplayer(ABCSynchronous):
         self.user_id = operation.fk_launched_by
 
         return self.launch(**kwargs), 0
-    
-    
+
+
     def get_required_disk_size(self, **kwargs):
         """
         Visualizers should no occupy any additional disk space.
@@ -101,7 +98,7 @@ class ABCDisplayer(ABCSynchronous):
         if os.path.isabs(template):
             parameters[self.KEY_CONTENT_MODULE] = ""
         else:
-            content_module = self.VISUALIZERS_ROOT + "." 
+            content_module = self.VISUALIZERS_ROOT + "."
             content_module = content_module + template.replace("/", ".")
             parameters[self.KEY_CONTENT_MODULE] = content_module
 
@@ -174,75 +171,3 @@ class ABCDisplayer(ABCSynchronous):
         """
         format_str = "%0." + str(precision) + "g"
         return "[" + ",".join(format_str % s for s in xs) + "]"
-
-
-
-class ABCMPLH5Displayer(ABCDisplayer):
-    """
-    Abstract class, for Displayer that will want to use MatplotLib graphs.
-    """ 
-    _ui_name = "MatplotLib Display"
-    SHOW_FULL_TOOLBAR = 'show_toolbar'
-    
-    
-    def __init__(self):
-        ABCDisplayer.__init__(self)
-        self.current_page = 0
-        self.total_pages = 1
-        self.figure = None
-        self.kwargs = {}
-
-
-    def __del__(self):
-        pass
-
-    
-    @abstractmethod
-    def plot(self, figure, **kwargs):
-        """
-        Abstract method, in the implementation, you should place calls like:
-        figure.plot, figure.gca().set_ylabel()..... .
-        """
-
-    
-    def generate_preview(self, **kwargs):
-        self.is_preview = True
-        return self.launch(**kwargs)
-    
-    
-    def launch(self, **kwargs):
-        """
-        Actual drawing of data inside a new canvas.
-        """
-        if not hasattr(self, 'is_preview'):
-            self.is_preview = False
-        self.log.debug("Preparing for a new MPL figure....")
-
-        show_full_toolbar = kwargs.pop(self.SHOW_FULL_TOOLBAR, True)
-
-        if self.PARAM_FIGURE_SIZE in kwargs:
-            figsize = kwargs.pop(self.PARAM_FIGURE_SIZE)
-            figsize = (figsize[0] / 100, figsize[1] / 120)
-        else:
-            figsize = (15, 7)
-
-        self.kwargs = kwargs
-        self.figure = self._create_new_figure(figsize)
-        self.plot(self.figure, **kwargs)
-        self.figure.canvas.draw()
-
-        parameters = dict(title=self._ui_name,
-                          figureNumber=self.figure.number,
-                          showFullToolbar=show_full_toolbar,
-                          mplh5ServerURL=TvbProfile.current.web.MPLH5_SERVER_URL)
-
-        return self.build_display_result("mplh5/figure", parameters)
-
-
-    @synchronized(LOCK_CREATE_FIGURE)
-    def _create_new_figure(self, figsize):
-        """
-        synchronized method to avoid creating the same figure number.
-        """
-        return pylab.figure(figsize=figsize)
-

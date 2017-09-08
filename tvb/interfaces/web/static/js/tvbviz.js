@@ -304,20 +304,16 @@ tv.plot = {
                 .range([0, f.h() * (1 - 2 * f.pad())])
                 , ma_sc_c = d3.scale.linear().domain([f.mat().min(), f.mat().max()]).range([0, 255]) // block color
 
-            if (f.pearson_min() && f.pearson_max()) {
-                cb_sc_y.domain([f.pearson_max(), f.pearson_min()]);
-                ma_sc_c.domain([f.pearson_min(), f.pearson_max()]);
+            if (f.absolute_min() && f.absolute_max()) {
+                cb_sc_y.domain([f.absolute_max(), f.absolute_min()]);
+                ma_sc_c.domain([f.absolute_min(), f.absolute_max()]);
             }
 
             var ma_ax_x = d3.svg.axis().orient("top").scale(ma_sc_x)
                 , ma_ax_y = d3.svg.axis().orient("left").scale(ma_sc_y)
                 , cb_ax_y = d3.svg.axis().orient("right").scale(cb_sc_y)
-
-                ,
-                ma_gp = root.append("g").attr("transform", "translate(" + f.pad() * f.w() + ", " + f.h() * f.pad() + ")")
-                ,
-                cb_gp = root.append("g").attr("transform", "translate(" + (f.w() * (1 - 2 * f.pad())) + ", " + f.h() * f.pad() + ")")
-
+                , ma_gp = root.append("g").attr("transform", "translate(" + f.pad() * f.w() + ", " + f.h() * f.pad() + ")")
+                , cb_gp = root.append("g").attr("transform", "translate(" + (f.w() * (1 - 2 * f.pad())) + ", " + f.h() * f.pad() + ")")
             ;
 
 
@@ -394,7 +390,7 @@ tv.plot = {
         };
 
         // generate configurators
-        var conf_fields = ["w", "h", "pad", "mat", "mat_over", "half_only", "pearson_min", "pearson_max"];
+        var conf_fields = ["w", "h", "pad", "mat", "mat_over", "half_only", "absolute_min", "absolute_max"];
         conf_fields.map(function (name) {
             f[name] = tv.util.gen_access(f, name);
         });
@@ -940,7 +936,11 @@ tv.plot = {
                 , area2 = total.x * total.y;
 
             //console.log(area / area2);
-            f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "" + 1);//4*Math.sqrt(Math.abs(area / area2)))
+            if (window.navigator.userAgent.indexOf("Edge") > -1) {
+                f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "0.3px");//4*Math.sqrt(Math.abs(area / area2)))
+            } else {
+                f.gp_lines.selectAll("g").selectAll("path").attr("stroke-width", "1px");//4*Math.sqrt(Math.abs(area / area2)))
+            }
         };
 
         f.add_brushes = function () {
@@ -978,7 +978,7 @@ tv.plot = {
                     // to be tested further to see if it was really needed, and if so look into the problem of zooming
                     // described above.
 
-                    f.render();
+                   // f.render();
                 };
 
             f.br_ctx_y_fn = br_ctx_y_fn;
@@ -1000,7 +1000,7 @@ tv.plot = {
                     // to be tested further to see if it was really needed, and if so look into the problem of zooming
                     // described above.
 
-                    f.render();
+                    //f.render();
                 }
             };
 

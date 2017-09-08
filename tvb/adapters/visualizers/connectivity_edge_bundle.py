@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -27,50 +27,42 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+
 """
-.. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
+A Javascript displayer for connectivity, using hierarchical edge bundle diagrams from d3.js.
+
+.. moduleauthor:: Vlad Farcas <vlad.farcas@codemart.ro>
+
 """
 
-import threading
-import matplotlib
-# Import this, to make sure the build process marks this code as reference.
-import mplh5canvas.simple_server
-
-SYNC_EVENT = threading.Event()
+import json
+from tvb.datatypes.connectivity import Connectivity
+from tvb.core.adapters.abcdisplayer import ABCDisplayer
 
 
+class ConnectivityEdgeBundle(ABCDisplayer):
+    _ui_name = "Connectivity Edge Bundle View"
+    _ui_subsection = "connectivity_edge"
 
-class ServerStarter(threading.Thread):
-    """
-    Handler for starting in a different thread the MPLH5 server.
-    Synchronization event. We want to start MPLH5 server in a new thread, 
-    but the main thread should wait for it, otherwise wrong import 
-    of pylb might be used.
-    """
-    logger = None
-
-    def run(self):
+    def get_input_tree(self):
         """
-        Start MPLH5 server. 
-        This method needs to be executed as soon as possible, before any import of pylab.
-        Otherwise the proper mplh5canvas back-end will not be used correctly.
+        Inform caller of the data we need as input.
         """
-        try:
-            matplotlib.use('module://tvb.interfaces.web.mplh5.mplh5_backend')
-            self.logger.info("MPLH5 back-end server started.")
-        except Exception, excep:
-            self.logger.error("Could not start MatplotLib server side!!!")
-            self.logger.exception(excep)
-        SYNC_EVENT.set()
+        return [{"name": "connectivity",
+                 "type": Connectivity,
+                 "label": "Connectivity to be displayed in a hierarchical edge bundle",
+                 "required": True
+                 }]
 
+    def get_required_memory_size(self, **kwargs):
+        """Return required memory."""
+        return -1
 
+    def launch(self, connectivity):
+        """Construct data for visualization and launch it."""
 
-def start_server(logger):
-    """Start MPLH5 server in a new thread, to avoid crashes."""
-    thread = ServerStarter()
-    thread.logger = logger
-    thread.start()
-    SYNC_EVENT.wait()
+        pars = {"labels": json.dumps(connectivity.region_labels.tolist()),
+                "url_base": ABCDisplayer.paths2url(connectivity, attribute_name="weights", flatten="True")
+                }
 
-
-
+        return self.build_display_result("connectivity_edge_bundle/view", pars)

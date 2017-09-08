@@ -79,9 +79,9 @@ class SettingsController(UserController):
                     raise cherrypy.HTTPRedirect('/tvb')
                 # Here we will leave the same settings page to be displayed.
                 # It will continue reloading when CherryPy restarts.
-            except formencode.Invalid, excep:
+            except formencode.Invalid as excep:
                 template_specification[common.KEY_ERRORS] = excep.unpack_errors()
-            except InvalidSettingsException, excep:
+            except InvalidSettingsException as excep:
                 self.logger.error('Invalid settings!  Exception %s was raised' % (str(excep)))
                 common.set_error_message(excep.message)
         template_specification.update({'keys_order': self.settingsservice.KEYS_DISPLAY_ORDER,
@@ -92,14 +92,8 @@ class SettingsController(UserController):
 
     def _restart_services(self, should_reset):
         """
-        Restart CherryPy and Backend.
+        Restart CherryPy Backend.
         """
-        mplh5 = TvbProfile.current.web.MPLH5_Server_Thread
-        if mplh5 is not None:
-            mplh5.shutdown()
-            mplh5.server_close()
-        else:
-            self.logger.warning('For some reason the mplh5 never started.')
         cherrypy.engine.exit()
 
         self.logger.info("Waiting for Cherrypy to shut down ... ")
@@ -134,7 +128,7 @@ class SettingsController(UserController):
                             'message': 'Could not create root storage for TVB. Please check write permissions!'}
             self.settingsservice.check_db_url(data[self.settingsservice.KEY_DB_URL])
             return {'status': 'ok', 'message': 'The database URL is valid.'}
-        except InvalidSettingsException, excep:
+        except InvalidSettingsException as excep:
             self.logger.error(excep)
             return {'status': 'not ok', 'message': 'The database URL is not valid.'}
 
@@ -277,9 +271,7 @@ class SettingsForm(formencode.Schema):
     ADMINISTRATOR_EMAIL = validators.Email(not_empty=True)
 
     WEB_SERVER_PORT = PortValidator()
-    MPLH5_SERVER_PORT = PortValidator()
     URL_WEB = validators.URL(not_empty=True, require_tld=False)
-    URL_MPLH5 = AsciiValidator(not_empty=True)
 
     SELECTED_DB = validators.UnicodeString(not_empty=True)
     URL_VALUE = validators.UnicodeString(not_empty=True)

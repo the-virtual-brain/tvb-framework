@@ -91,7 +91,7 @@ function __storeSVG(svgElement, kwargs, save) {
 	var data = wrap.innerHTML;
 
     // get the styles for the svg
-    $.get( "/static/style/sections_svg.css", function (stylesheet) {
+    $.get( "/static/style/subsection_svg.css", function (stylesheet) {
                                                                          // strip all
         var re = new RegExp("[\\s\\n^]*\\/\\*(.|[\\r\\n])*?\\*\\/" +     // block style comments
                             "|([\\s\\n]*\\/\\/.*)" +                     // single line comments
@@ -164,7 +164,7 @@ function C2IbuildUrlQueryString(baseUrl, kwargs){
 /**
  * This function sends canvas' snapshot to server, after it has been prepared by <code>__storeCanvas()</code>
  *
- * NOTE: Some canvases (e.g. MPLH5) set <code>canvas.notReadyForExport</code> flag to indicate that their resize is not done
+ * NOTE: Use canvases <code>canvas.notReadyForExport</code> flag to indicate that their resize is not done
  * yet; if such flag exists, exporting continues only when it is set to <code>false</code> or after
  * <code>remainingTrials</code> trials
  *
@@ -181,7 +181,7 @@ function __tryExport(canvas, kwargs, remainingTrials) {
     }
 
     if (canvas.notReadyForExport) {
-        // the mplh5 canvases will set this flag to TRUE after they finish resizing, so they can be exported at Hi Res
+        // some canvases will set this flag to TRUE after they finish resizing, so they can be exported at Hi Res
         // undefined or FALSE means it CAN BE exported
         setTimeout(function () { __tryExport(canvas, kwargs, remainingTrials - 1); }, 300);
     } else {              // canvas is ready for export
@@ -206,7 +206,7 @@ function __tryExport(canvas, kwargs, remainingTrials) {
             displayMessage("Canvas contains no image data. Try again or report to your TVB technical contact",
                            "warningMessage");
         }
-        // restore original canvas size; non-webGL canvases (EEG, mplh5, JIT) have custom resizing methods
+        // restore original canvas size; non-webGL canvases (EEG, JIT) have custom resizing methods
         if (canvas.afterImageExport) {
             canvas.afterImageExport();
         }
