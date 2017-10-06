@@ -54,12 +54,17 @@ TVB_INSTALL_REQUIREMENTS = ["apscheduler", "beautifulsoup", "cherrypy", "genshi"
 EXCLUDE_INTROSPECT_FOLDERS = [folder for folder in os.listdir(".")
                               if os.path.isdir(os.path.join(".", folder)) and folder != "tvb"]
 
-setuptools.setup(name="tvb",
+setuptools.setup(name="tvbe",
                  version=VERSION,
                  packages=setuptools.find_packages(exclude=EXCLUDE_INTROSPECT_FOLDERS),
+                 description='A package for performing whole brain simulations',
+				 url='https://github.com/the-virtual-brain/tvb-framework',
                  license="GPL v3",
                  author=TVB_TEAM,
                  author_email='lia.domide@codemart.ro',
+				 download_url = 'https://github.com/the-virtual-brain/tvb-framework',
+                 keywords='brain simulator neuroscience human animal neuronal dynamics models delay',
+                 long_description=open('README.md').read(),
                  include_package_data=True,
                  install_requires=TVB_INSTALL_REQUIREMENTS,
                  extras_require={'postgres': ["psycopg2"]})
