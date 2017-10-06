@@ -54,7 +54,7 @@ TVB_INSTALL_REQUIREMENTS = ["apscheduler", "beautifulsoup", "cherrypy", "genshi"
 EXCLUDE_INTROSPECT_FOLDERS = [folder for folder in os.listdir(".")
                               if os.path.isdir(os.path.join(".", folder)) and folder != "tvb"]
 
-setuptools.setup(name="tvbe",
+setuptools.setup(name="tvb-framework",
                  version=VERSION,
                  packages=setuptools.find_packages(exclude=EXCLUDE_INTROSPECT_FOLDERS),
                  description='A package for performing whole brain simulations',
