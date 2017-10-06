@@ -153,6 +153,10 @@ function drawCanvas() {
 
 function drawAxis() {
     var canvas = Matrix2d.canvas;
+    if (canvas === null) {
+        console.warn("We won't draw axes because canvas has not yet been drawn!");
+        return;
+    }
     var context = canvas.node().getContext("2d");
     var cWidth = context.canvas.clientWidth;
     var cHeight = context.canvas.clientHeight;
