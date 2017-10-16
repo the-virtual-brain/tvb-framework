@@ -59,7 +59,7 @@ function _updatePlotPSE(canvasId, xLabels, yLabels, xValues, yValues, seriesArra
         margins: { // is this the correct way to be doing margins? It's just how I have in the past,
             top: 20,
             bottom: 40,
-            left: 20,
+            left: 50,
             right: 50
         },
         xaxis: {
@@ -400,7 +400,7 @@ function d3Plot(placeHolder, data, options, pageParam) {
     yAxisClip = canvas.append("svg:clipPath")
         .attr("id", "yClip")
         .append("svg:rect")
-        .attr("x", -_PSE_plotOptions.margins.left * 2)// these two areas are simply selected for what they accomplish visually. I wonder if there could be a real connection to the values used for arranging the canvas
+        .attr("x", -_PSE_plotOptions.margins.left)// these two areas are simply selected for what they accomplish visually. I wonder if there could be a real connection to the values used for arranging the canvas
         .attr("y", _PSE_plotOptions.margins.top)
         .attr("width", _PSE_plotOptions.margins.right)//
         .attr("height", innerHeight - _PSE_plotOptions.margins.bottom - _PSE_plotOptions.margins.top);
@@ -707,18 +707,28 @@ function d3Plot(placeHolder, data, options, pageParam) {
      */
     d3.selectAll("circle")
         .on("mouseover", function (d) {
-            var nodeInfo = getNodeInfo(d.coords);
-            var toolTipText = nodeInfo.tooltip.split("&amp;").join("&").split("&lt;").join("<").split("&gt;").join(">");
+            let offsetX = window.event.pageX;
+            let offsetY = window.event.pageY - 100;
+            const portletContainer = document.getElementById("section-pse");
+            if (portletContainer) {
+                let relativeOffsetLeft = portletContainer.offsetLeft;
+                let relativeOffsetTop = portletContainer.offsetTop;
+                offsetX = offsetX - relativeOffsetLeft;
+                offsetY = offsetY - relativeOffsetTop;
+            }
+            let nodeInfo = getNodeInfo(d.coords);
+            let toolTipText = nodeInfo.tooltip.split("&amp;").join("&").split("&lt;").join("<").split("&gt;").join(">");
             toolTipDiv.html(toolTipText);
             toolTipDiv.style({
                 position: "absolute",
-                left: (d3.event.pageX) + "px",
-                top: (d3.event.pageY - 100) + "px",
+                left: (offsetX) + "px",
+                top: (offsetY) + "px",
                 display: "block",
                 'background-color': '#C0C0C0',
                 border: '1px solid #fdd',
                 padding: '2px',
-                opacity: 0.80
+                opacity: 0.80,
+                'z-index': 999
             })
         })
         .on("mouseout", function (d) {
