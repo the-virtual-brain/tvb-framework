@@ -33,7 +33,6 @@
 
 import copy
 import json
-import unittest
 import cherrypy
 from time import sleep
 from tvb.tests.framework.core.test_factory import TestFactory
@@ -52,7 +51,7 @@ from tvb.tests.framework.adapters.simulator.simulator_adapter_test import SIMULA
 class TestFlowContoller(BaseControllersTest):
     """ Unit tests for FlowController """
     
-    def setUp(self):
+    def setup_method(self):
         """
         Sets up the environment for testing;
         creates a `FlowController`
@@ -63,7 +62,7 @@ class TestFlowContoller(BaseControllersTest):
         self.operation_service = OperationService()
     
     
-    def tearDown(self):
+    def teardown_method(self):
         """ Cleans up the testing environment """
         self.cleanup()
         self.clean_database()

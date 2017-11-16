@@ -32,7 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import unittest
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.surfaces import FaceSurface, EEGCap
 from tvb.datatypes.connectivity import Connectivity
@@ -40,7 +40,6 @@ from tvb.datatypes.sensors import SensorsEEG
 from tvb.adapters.visualizers.brain import BrainViewer, DualBrainViewer
 from tvb.tests.framework.core.test_factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
 
 class TestBrainViewer(TransactionalTestCase):

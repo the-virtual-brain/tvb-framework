@@ -32,7 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
-import unittest
+
 import numpy
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.storage import dao

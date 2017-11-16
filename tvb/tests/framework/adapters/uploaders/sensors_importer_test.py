@@ -32,8 +32,8 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
-import unittest
 import os
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.exceptions import OperationException
 from tvb.core.services.flow_service import FlowService
@@ -42,7 +42,6 @@ from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
 from tvb.tests.framework.core.test_factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
 import tvb_data.sensors as demo_data
 

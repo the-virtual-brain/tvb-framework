@@ -32,11 +32,10 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import os 
-import unittest
+import os
 import cherrypy
-from hashlib import md5
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
+from hashlib import md5
 from tvb.tests.framework.core.test_factory import TestFactory
 from tvb.core import utils
 from tvb.interfaces.web.controllers import common

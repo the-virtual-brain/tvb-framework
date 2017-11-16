@@ -33,7 +33,6 @@
 """
 
 import os
-import unittest
 from PIL import Image
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core import utils

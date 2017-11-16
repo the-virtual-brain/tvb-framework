@@ -33,9 +33,9 @@
 """
 
 import os
-import unittest
 import tvb_data.obj
 import tvb_data.sensors
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
 from tvb.adapters.visualizers.sensors import SensorsViewer
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -43,7 +43,6 @@ from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.datatypes.surfaces import EEGCap, EEG_CAP, FACE
 from tvb.tests.framework.core.test_factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
 
 

@@ -77,7 +77,7 @@ from tvb.core.entities import model
 LOGGER = get_logger(__name__)
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseTestCase(object):
     """
     This class should implement basic functionality which is common to all TVB tests.
     """

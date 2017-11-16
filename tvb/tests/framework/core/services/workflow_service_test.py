@@ -32,7 +32,6 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import unittest
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper

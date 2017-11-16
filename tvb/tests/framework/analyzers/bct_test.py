@@ -34,9 +34,9 @@
 
 import numpy
 import pytest
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.model import STATUS_FINISHED
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.utils import get_matlab_executable
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
