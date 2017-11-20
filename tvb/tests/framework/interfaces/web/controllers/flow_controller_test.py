@@ -35,8 +35,8 @@ import copy
 import json
 import cherrypy
 from time import sleep
-from tvb.tests.framework.core.test_factory import TestFactory
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseControllersTest
+from tvb.tests.framework.core.test_factory import TestFactory
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.services.operation_service import OperationService
