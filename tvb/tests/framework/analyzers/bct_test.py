@@ -43,7 +43,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.services.operation_service import OperationService
 from tvb.core.adapters.exceptions import InvalidParameterException
 from tvb.datatypes.connectivity import Connectivity
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 
 
 class TestBCT(TransactionalTestCase):

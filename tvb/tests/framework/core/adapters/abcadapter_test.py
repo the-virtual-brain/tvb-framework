@@ -36,7 +36,7 @@ from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCSynchronous
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 
 
 class ComplexInterfaceAdapter(ABCSynchronous):

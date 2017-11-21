@@ -59,7 +59,7 @@ from tvb.core.services.exceptions import InvalidPortletConfiguration
 from tvb.core.portlets.xml_reader import KEY_DYNAMIC
 from tvb.core.portlets.portlet_configurer import ADAPTER_PREFIX_ROOT
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.datatypes.datatype1 import Datatype1
 from tvb.tests.framework.datatypes.datatype2 import Datatype2
 from tvb.tests.framework.datatypes import datatypes_factory

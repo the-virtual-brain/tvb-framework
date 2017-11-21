@@ -42,7 +42,7 @@ from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.exceptions import FileStructureException
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 
 
 root_storage = TvbProfile.current.TVB_STORAGE

@@ -38,7 +38,7 @@ from tvb.datatypes.surfaces import FaceSurface, EEGCap
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.sensors import SensorsEEG
 from tvb.adapters.visualizers.brain import BrainViewer, DualBrainViewer
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 
 

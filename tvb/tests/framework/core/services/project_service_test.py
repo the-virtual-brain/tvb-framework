@@ -37,7 +37,7 @@ import pytest
 import tvb_data
 import tvb.config as config
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.tests.framework.core.test_factory import TestFactory, ExtremeTestFactory
+from tvb.tests.framework.core.factory import TestFactory, ExtremeTestFactory
 from tvb.tests.framework.datatypes import datatypes_factory
 from tvb.tests.framework.datatypes.datatype1 import Datatype1
 from tvb.tests.framework.adapters.storeadapter import StoreAdapter

@@ -53,7 +53,7 @@ from tvb.datatypes.arrays import MappedArray
 from tvb.interfaces.web.controllers.flow_controller import FlowController
 from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
 from tvb.tests.framework.adapters.ndimensionarrayadapter import NDimensionArrayAdapter
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 
 
 

@@ -43,7 +43,7 @@ from tvb.core.services.exceptions import OperationException
 from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity
 from tvb.tests.framework.adapters.uploaders.connectivity_zip_importer_test import TestConnectivityZip
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 
 
 TEST_SUBJECT_A = "TEST_SUBJECT_A"

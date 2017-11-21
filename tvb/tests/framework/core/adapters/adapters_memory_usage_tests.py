@@ -39,7 +39,7 @@ from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.exceptions import NoMemoryAvailableException
 from tvb.core.services.operation_service import OperationService
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 
 
 class TestAdapterMemoryUsage(TransactionalTestCase):
