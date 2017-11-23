@@ -34,7 +34,6 @@
 import pytest
 import threading
 from tvb.tests.framework.core.base_testcase import BaseTestCase, transactional_test
-import tvb.config as config
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao, transactional
