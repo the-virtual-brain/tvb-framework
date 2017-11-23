@@ -56,14 +56,13 @@ class TestsTransactional(BaseTestCase):
         Set-up the environment for testing; clean the database and save events
         """
         self.clean_database()
-        self.old_events = config.EVENTS_FOLDER
+
         
     def teardown_method(self):
         """
         Clean-up after testing; clean the database and restore events
         """
         self.clean_database(True)
-        config.EVENTS_FOLDER = self.old_events
     
 
     def test_transaction_happy_flow(self):

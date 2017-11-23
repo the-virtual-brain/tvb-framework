@@ -36,6 +36,7 @@
 
 import re
 import six
+import warnings
 import sqlalchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
@@ -61,6 +62,19 @@ def compute_table_name(class_name):
     if not tablename.endswith("_DATA"):
         tablename = tablename + '_DATA'
     return tablename
+
+
+def log_warnings(message, category, filename, lineno, file=None, line=None):
+    LOG.warning("%s -- %s " % (category, message))
+    LOG.debug("%s : %d " % (filename, lineno))
+    if file is not None or line is not None:
+        LOG.debug("%s : %s " % (file, line))
+
+
+## Disable SqlAlchemy recent warnings from appearing in the console, and make them respect logging strategy in TVB
+## We have them generated from DeclarativeMetaType.__new__
+warnings.showwarning = log_warnings
+
 
 
 class DeclarativeMetaType(DeclarativeMeta, MetaType):
