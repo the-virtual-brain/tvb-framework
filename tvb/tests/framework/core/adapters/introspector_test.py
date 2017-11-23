@@ -77,10 +77,11 @@ class TestIntrospector(BaseTestCase):
         nr_adapters_mod2 = 0
         for algorithm in adapters:
             assert algorithm.module in ['tvb.tests.framework.adapters.testadapter1',
-                                                 'tvb.tests.framework.adapters.testadapter2',
-                                                 'tvb.tests.framework.adapters.testadapter3',
-                                                 'tvb.tests.framework.adapters.ndimensionarrayadapter',
-                                                 'tvb.tests.framework.adapters.testgroupadapter'], "Unknown Adapter module:" + str(algorithm.module)
+                                        'tvb.tests.framework.adapters.testadapter2',
+                                        'tvb.tests.framework.adapters.testadapter3',
+                                        'tvb.tests.framework.adapters.ndimensionarrayadapter',
+                                        'tvb.tests.framework.adapters.testgroupadapter'], \
+                "Unknown Adapter module:" + str(algorithm.module)
             assert algorithm.classname in ["TestAdapter1", "TestAdapterDatatypeInput",
                                                     "TestAdapter2", "TestAdapter22", "TestAdapterHugeMemoryRequired",
                                                     "TestAdapter3", "TestAdapterHDDRequired",

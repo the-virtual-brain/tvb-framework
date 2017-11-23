@@ -48,7 +48,7 @@ def init_test_env():
     """
     # Set a default test profile, for when running tests from dev-env.
     if TvbProfile.CURRENT_PROFILE_NAME is None:
-        profile = TvbProfile.TEST_POSTGRES_PROFILE
+        profile = TvbProfile.TEST_SQLITE_PROFILE
         if len(sys.argv) > 1:
             for i in range(1,len(sys.argv)-1):
                 if "--profile=" in sys.argv[i]:

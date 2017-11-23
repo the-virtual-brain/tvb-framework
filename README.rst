@@ -69,6 +69,11 @@ pytest --pyargs tvb.tests.framework
 pytest --pyargs tvb.tests.framework
 
 
+For changing the testing profile at runtime use the command::
+
+  pytest --profile=TEST_POSTGRES_PROFILE
+  default value is TEST_SQLITE_PROFILE
+
 Coverage
 ========
 

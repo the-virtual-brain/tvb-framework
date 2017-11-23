@@ -126,5 +126,5 @@ class TestBCT(TransactionalTestCase):
         Iterate all BCT algorithms and check that description has been extracted from *.m files.
         """
         for adapter_instance in self.bct_adapters:
-            assert len(adapter_instance.stored_adapter.description) > 10, "Description was not loaded properly for algorithm %s" % (str(adapter_instance))
-
+            assert len(adapter_instance.stored_adapter.description) > 10, \
+                "Description was not loaded properly for algorithm %s" % (str(adapter_instance))

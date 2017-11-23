@@ -132,5 +132,6 @@ class TestFiltering(TransactionalTestCase):
         except Exception as excep:
             session.close_session()
             raise excep
-        assert expected_number == len(result), "Expected %s DTs after filtering with %s, but got %s instead." % (expected_number, filter_chain, len(result,))
+        assert expected_number == len(result), "Expected %s DTs after filtering with %s, "\
+        "but got %s instead." % (expected_number, filter_chain, len(result,))
 

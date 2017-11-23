@@ -111,7 +111,8 @@ class TestSensorViewers(TransactionalTestCase):
         result = viewer.launch(sensors)
         self.assert_compliant_dictionary(self.EXPECTED_KEYS_EEG, result)
         for key in ['urlVertices', 'urlTriangles', 'urlLines', 'urlNormals']:
-            assert not result[key] or result[key] == "[]", "Value at key %s should be None or empty, but is %s" % (key, result[key])
+            assert not result[key] or result[key] == "[]", \
+                "Value at key %s should be None or empty, but is %s" % (key, result[key])
 
 
     def test_launch_MEG(self):

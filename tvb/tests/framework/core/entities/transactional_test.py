@@ -133,7 +133,9 @@ class TestsTransactional(BaseTestCase):
         user_id = stored_user.id
         self._dao_delete_user_forget_commit(user_id)
         final_user_count = dao.get_all_users(is_count=True)
-        assert initial_user_count == final_user_count, "Added user should have been deleted even without explicit commit call..Expected %s but got %s" % (initial_user_count, final_user_count)
+        assert initial_user_count == final_user_count, \
+            "Added user should have been deleted even without explicit commit call.." \
+            "Expected %s but got %s" % (initial_user_count, final_user_count)
 
     
     def test_multi_threaded_access(self):
