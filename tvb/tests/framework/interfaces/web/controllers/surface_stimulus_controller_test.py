@@ -32,7 +32,6 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import unittest
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.interfaces.web.controllers.common import get_from_session
@@ -42,7 +41,7 @@ from tvb.core.entities.transient.context_stimulus import SURFACE_PARAMETER
 
 
 
-class SurfaceStimulusControllerTest(BaseTransactionalControllerTest):
+class TestSurfaceStimulusController(BaseTransactionalControllerTest):
     """ Unit tests for SurfaceStimulusController """
     
     def setUp(self):
@@ -61,9 +60,9 @@ class SurfaceStimulusControllerTest(BaseTransactionalControllerTest):
         expected_keys = ['temporalPlotInputList', 'temporalFieldsPrefixes', 'temporalEquationViewerUrl',
                          'spatialPlotInputList', 'spatialFieldsPrefixes', 'spatialEquationViewerUrl',
                          'selectedFocalPoints', 'mainContent', 'existentEntitiesInputList']
-        map(lambda x: self.assertTrue(x in result_dict), expected_keys)
-        self.assertEqual(result_dict['mainContent'], 'spatial/stimulus_surface_step1_main')
-        self.assertEqual(result_dict['next_step_url'], '/spatial/stimulus/surface/step_1_submit')
+        assert all(x in result_dict for x in expected_keys)
+        assert result_dict['mainContent'] == 'spatial/stimulus_surface_step1_main'
+        assert result_dict['next_step_url'] == '/spatial/stimulus/surface/step_1_submit'
         
      
     def test_step_2(self):
@@ -75,23 +74,8 @@ class SurfaceStimulusControllerTest(BaseTransactionalControllerTest):
         expected_keys = ['urlVerticesPick', 'urlVertices', 'urlTrianglesPick', 'urlTriangles',
                          'urlNormalsPick', 'urlNormals', 'surfaceGID', 'mainContent', 
                          'loadExistentEntityUrl', 'existentEntitiesInputList', 'definedFocalPoints']
-        map(lambda x: self.assertTrue(x in result_dict), expected_keys)
-        self.assertEqual(result_dict['next_step_url'], '/spatial/stimulus/surface/step_2_submit')
-        self.assertEqual(result_dict['mainContent'], 'spatial/stimulus_surface_step2_main')
-        self.assertEqual(result_dict['loadExistentEntityUrl'], '/spatial/stimulus/surface/load_surface_stimulus')
+        assert all(x in result_dict for x in expected_keys)
+        assert result_dict['next_step_url'] == '/spatial/stimulus/surface/step_2_submit'
+        assert result_dict['mainContent'] == 'spatial/stimulus_surface_step2_main'
+        assert result_dict['loadExistentEntityUrl'] == '/spatial/stimulus/surface/load_surface_stimulus'
 
-
-def suite():
-    """
-    Gather all the tests in a test suite.
-    """
-    test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(SurfaceStimulusControllerTest))
-    return test_suite
-
-
-if __name__ == "__main__":
-    #So you can run tests individually.
-    TEST_RUNNER = unittest.TextTestRunner()
-    TEST_SUITE = suite()
-    TEST_RUNNER.run(TEST_SUITE)

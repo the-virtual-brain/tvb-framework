@@ -34,8 +34,8 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
-import unittest
 import os
+import sys
 import shutil
 from functools import wraps
 from types import FunctionType
@@ -48,7 +48,12 @@ def init_test_env():
     """
     # Set a default test profile, for when running tests from dev-env.
     if TvbProfile.CURRENT_PROFILE_NAME is None:
-        TvbProfile.set_profile(TvbProfile.TEST_SQLITE_PROFILE)
+        profile = TvbProfile.TEST_SQLITE_PROFILE
+        if len(sys.argv) > 1:
+            for i in range(1,len(sys.argv)-1):
+                if "--profile=" in sys.argv[i]:
+                    profile = sys.argv[i].split("=")[1]
+        TvbProfile.set_profile(profile)
         print("Not expected to happen except from PyCharm: setting profile", TvbProfile.CURRENT_PROFILE_NAME)
         db_file = TvbProfile.current.db.DB_URL.replace('sqlite:///', '')
         if os.path.exists(db_file):
@@ -77,7 +82,7 @@ from tvb.core.entities import model
 LOGGER = get_logger(__name__)
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseTestCase(object):
     """
     This class should implement basic functionality which is common to all TVB tests.
     """
@@ -86,8 +91,7 @@ class BaseTestCase(unittest.TestCase):
 
 
     def assertEqual(self, expected, actual, message=""):
-        super(BaseTestCase, self).assertEqual(expected, actual,
-                                              message + " Expected %s but got %s." % (expected, actual))
+        assert expected == actual,message + " Expected %s but got %s." % (expected, actual)
 
 
     def clean_database(self, delete_folders=True):
@@ -224,9 +228,9 @@ class BaseTestCase(unittest.TestCase):
         When in expected_dictionary the value is not None, validate also to be found in found_dict.
         """
         for key, value in expected.iteritems():
-            self.assertTrue(key in found_dict, "%s not found in result" % key)
+            assert key in found_dict, "%s not found in result" % key
             if value is not None:
-                self.assertEqual(value, found_dict[key])
+                assert value == found_dict[key]
 
 
 def transactional_test(func, callback=None):

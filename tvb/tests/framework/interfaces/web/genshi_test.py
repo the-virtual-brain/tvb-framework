@@ -35,15 +35,14 @@
 
 import os
 import re
-import unittest
 import numpy
 import cherrypy
 import tvb.basic.traits as trait
 import tvb.interfaces.web.templates.genshi.flow as root_html
+from tvb.tests.framework.core.base_testcase import BaseTestCase
 from bs4 import BeautifulSoup
 from genshi.template.loader import TemplateLoader
 from tvb.core.adapters.input_tree import InputTreeManager
-from tvb.tests.framework.core.base_testcase import BaseTestCase
 from tvb.basic.profile import TvbProfile
 from tvb.interfaces.web.controllers import common
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -54,7 +53,7 @@ from tvb.datatypes.arrays import MappedArray
 from tvb.interfaces.web.controllers.flow_controller import FlowController
 from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
 from tvb.tests.framework.adapters.ndimensionarrayadapter import NDimensionArrayAdapter
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 
 
 
@@ -115,7 +114,7 @@ class GenshiTest(BaseTestCase):
     This class contains the base initialization for tests for the GENSHI TemplateLoader.
     """
 
-    def setUp(self):
+    def setup_method(self):
         """
         Define a default template specification.
         """
@@ -130,12 +129,12 @@ class GenshiTest(BaseTestCase):
         TvbProfile.current.web.RENDER_HTML = True
 
 
-    def tearDown(self):
+    def teardown_method(self):
         TvbProfile.current.web.RENDER_HTML = False
 
 
 
-class GenthiTraitTest(GenshiTest):
+class TestGenthiTrait(GenshiTest):
     """
     Test HTML generation for a trait based interface.
     """
@@ -151,21 +150,21 @@ class GenthiTraitTest(GenshiTest):
         soup = BeautifulSoup(resulted_html)
         #Find dictionary div which should be dict_+${dict_var_name}
         dict_div = soup.find_all('div', attrs=dict(id="dict_test_dict"))
-        self.assertEqual(len(dict_div), 1, 'Dictionary div not found')
+        assert len(dict_div) == 1, 'Dictionary div not found'
         dict_entries = soup.find_all('input', attrs=dict(name=re.compile('^test_dict_parameters*')))
-        self.assertEqual(len(dict_entries), 2, 'Not all entries found')
+        assert len(dict_entries) == 2, 'Not all entries found'
         for i in range(2):
             if dict_entries[i]['name'] == "test_dict_parameters_W":
-                self.assertEqual(dict_entries[0]['value'], "-6.0", "Incorrect values")
+                assert dict_entries[0]['value'] == "-6.0", "Incorrect values"
             if dict_entries[i]['name'] == "test_dict_parameters_V":
-                self.assertEqual(dict_entries[1]['value'], "-3.0", "Incorrect values")
+                assert dict_entries[1]['value'] == "-3.0", "Incorrect values"
         array_entry = soup.find_all('input', attrs=dict(name='test_array'))
-        self.assertEqual(len(array_entry), 1, 'Array entry not found')
-        self.assertEqual(array_entry[0]['value'], "[[-3.0, -6.0], [3.0, 6.0]]", "Wrong value stored")
+        assert len(array_entry) == 1, 'Array entry not found'
+        assert array_entry[0]['value'] == "[[-3.0, -6.0], [3.0, 6.0]]", "Wrong value stored"
 
 
 
-class GenshiTestSimulator(GenshiTest):
+class TestGenshiSimulator(GenshiTest):
     """
     For the simulator interface, test that various fields are generated correctly.
     """
@@ -175,11 +174,11 @@ class GenshiTestSimulator(GenshiTest):
     input_tree = InputTreeManager.prepare_param_names(input_tree)
 
 
-    def setUp(self):
+    def setup_method(self):
         """
         Set up any additionally needed parameters.
         """
-        super(GenshiTestSimulator, self).setUp()
+        super(TestGenshiSimulator, self).setup_method()
 
         self.template_specification['inputList'] = self.input_tree
         self.template_specification['draw_hidden_ranges'] = True
@@ -203,8 +202,8 @@ class GenshiTestSimulator(GenshiTest):
             ## Replacing with IN won't work
             if one_entry.has_attr('disabled'):
                 count_disabled += 1
-        self.assertTrue(len(all_inputs) > 100, "Not enough input fields generated")
-        self.assertTrue(count_disabled > 100, "Not enough input fields disabled")
+        assert len(all_inputs) > 100, "Not enough input fields generated"
+        assert count_disabled > 100, "Not enough input fields disabled"
 
 
     def test_hidden_ranger_fields(self):
@@ -213,8 +212,8 @@ class GenshiTestSimulator(GenshiTest):
         """
         ranger1 = self.soup.find_all('input', attrs=dict(type="hidden", id=RANGE_PARAMETER_1))
         ranger2 = self.soup.find_all('input', attrs=dict(type="hidden", id=RANGE_PARAMETER_2))
-        self.assertEqual(1, len(ranger1), "First ranger generated wrong")
-        self.assertEqual(1, len(ranger2), "Second ranger generated wrong")
+        assert 1 == len(ranger1), "First ranger generated wrong"
+        assert 1 == len(ranger2), "Second ranger generated wrong"
 
 
     def test_sub_algorithms(self):
@@ -226,9 +225,9 @@ class GenshiTestSimulator(GenshiTest):
         exp = re.compile('data_model[A-Z][a-zA-Z]*')
         enabled_algo = self.soup.find_all('div', attrs=dict(id=exp, style="display:block"))
         all_algo_disabled = self.soup.find_all('div', attrs=dict(id=exp, style="display:none"))
-        self.assertEqual(1, len(enabled_algo))
-        self.assertEqual(11, len(all_algo_disabled))
-        self.assertFalse(enabled_algo[0] in all_algo_disabled, fail_message)
+        assert 1 == len(enabled_algo)
+        assert 11 == len(all_algo_disabled)
+        assert not enabled_algo[0] in all_algo_disabled, fail_message
 
 
     def test_normal_ranger(self):
@@ -241,11 +240,11 @@ class GenshiTestSimulator(GenshiTest):
 
         exp = re.compile('data_model*')
         ranger_parent = self.soup.find_all('table', attrs={'id': exp, 'class': "ranger-div-class"})
-        self.assertTrue(len(ranger_parent) > 100, fail_message)
+        assert len(ranger_parent) > 100, fail_message
 
         range_expand = self.soup.find_all('input', attrs=dict(
             id="data_modelGeneric2dOscillatormodel_parameters_option_Generic2dOscillator_tau_RANGER_buttonExpand"))
-        self.assertEqual(1, len(range_expand))
+        assert 1 == len(range_expand)
 
 
     def test_multiple_select(self):
@@ -256,39 +255,39 @@ class GenshiTestSimulator(GenshiTest):
         exp = re.compile('data_monitors[A-Z][a-zA-Z]*')
         all_multiple_options = self.soup.find_all('div', attrs=dict(id=exp))
         disabled_options = self.soup.find_all('div', attrs=dict(id=exp, disabled='disabled'))
-        self.assertEqual(9, len(all_multiple_options), fail_message)
-        self.assertEqual(8, len(disabled_options), fail_message)
+        assert 9 == len(all_multiple_options), fail_message
+        assert 8 == len(disabled_options), fail_message
         exp = re.compile('monitors_parameters*')
         all_multiple_params = self.soup.find_all('input', attrs=dict(name=exp))
         disabled_params = self.soup.find_all('input', attrs=dict(name=exp, disabled='disabled'))
-        self.assertTrue(len(all_multiple_params) > 50, fail_message)
-        self.assertTrue(len(disabled_params) > 50, fail_message)
+        assert len(all_multiple_params) > 50, fail_message
+        assert len(disabled_params) > 50, fail_message
 
 
 
-class GenshiTestNDimensionArray(GenshiTest):
+class TestGenshiNDimensionArray(GenshiTest):
     """
     This class tests the generation of the component which allows
     a user to reduce the dimension of an array.
     """
 
 
-    def setUp(self):
+    def setup_method(self):
         """
         Set up any additionally needed parameters.
         """
         self.clean_database()
-        super(GenshiTestNDimensionArray, self).setUp()
+        super(TestGenshiNDimensionArray, self).setup_method()
         self.test_user = TestFactory.create_user()
         self.test_project = TestFactory.create_project(self.test_user)
         self.operation = TestFactory.create_operation(test_user=self.test_user, test_project=self.test_project)
 
 
-    def tearDown(self):
+    def teardown_method(self):
         """
         Reset the database when test is done.
         """
-        super(GenshiTestNDimensionArray, self).tearDown()
+        super(TestGenshiNDimensionArray, self).teardown_method()
         self.clean_database()
 
 
@@ -299,12 +298,12 @@ class GenshiTestNDimensionArray(GenshiTest):
         """
         flow_service = FlowService()
         array_count = self.count_all_entities(MappedArray)
-        self.assertEqual(0, array_count, "Expected to find no data")
+        assert 0 == array_count, "Expected to find no data"
         adapter_instance = NDimensionArrayAdapter()
         PARAMS = {}
         OperationService().initiate_prelaunch(self.operation, adapter_instance, {}, **PARAMS)
         inserted_arrays, array_count = flow_service.get_available_datatypes(self.test_project.id, MappedArray)
-        self.assertEqual(1, array_count, "Problems when inserting data")
+        assert 1 == array_count, "Problems when inserting data"
 
         algorithm = flow_service.get_algorithm_by_module_and_class(
             'tvb.tests.framework.adapters.ndimensionarrayadapter', 'NDimensionArrayAdapter')
@@ -314,7 +313,7 @@ class GenshiTestNDimensionArray(GenshiTest):
         self.soup = BeautifulSoup(resulted_html)
 
         found_divs = self.soup.find_all('p', attrs=dict(id="dimensionsDiv_input_data"))
-        self.assertEqual(len(found_divs), 1, "Data generated incorrect")
+        assert len(found_divs) == 1, "Data generated incorrect"
 
         gid = inserted_arrays[0][2]
         cherrypy.session = {'user': self.test_user}
@@ -326,72 +325,50 @@ class GenshiTestNDimensionArray(GenshiTest):
         found_selects_0 = self.soup.find_all('select', attrs=dict(id="dimId_input_data_dimensions_0"))
         found_selects_1 = self.soup.find_all('select', attrs=dict(id="dimId_input_data_dimensions_1"))
         found_selects_2 = self.soup.find_all('select', attrs=dict(id="dimId_input_data_dimensions_2"))
-        self.assertEqual(len(found_selects_0), 1, "select not found")
-        self.assertEqual(len(found_selects_1), 1, "select not found")
-        self.assertEqual(len(found_selects_2), 1, "select not found")
+        assert len(found_selects_0) == 1, "select not found"
+        assert len(found_selects_1) == 1, "select not found"
+        assert len(found_selects_2) == 1, "select not found"
 
         #check the aggregation functions selects
         agg_selects_0 = self.soup.find_all('select', attrs=dict(id="funcId_input_data_dimensions_0"))
         agg_selects_1 = self.soup.find_all('select', attrs=dict(id="funcId_input_data_dimensions_1"))
         agg_selects_2 = self.soup.find_all('select', attrs=dict(id="funcId_input_data_dimensions_2"))
-        self.assertEqual(len(agg_selects_0), 1, "incorrect first dim")
-        self.assertEqual(len(agg_selects_1), 1, "incorrect second dim")
-        self.assertEqual(len(agg_selects_2), 1, "incorrect third dim.")
+        assert len(agg_selects_0), 1 == "incorrect first dim"
+        assert len(agg_selects_1), 1 == "incorrect second dim"
+        assert len(agg_selects_2), 1 == "incorrect third dim."
 
         data_shape = entity.shape
-        self.assertEqual(len(data_shape), 3, "Shape of the array is incorrect")
+        assert len(data_shape) == 3, "Shape of the array is incorrect"
         for i in range(data_shape[0]):
             options = self.soup.find_all('option', attrs=dict(value=gid + "_0_" + str(i)))
-            self.assertEqual(len(options), 1, "Generated option is incorrect")
-            self.assertEqual(options[0].text, "Time " + str(i), "The label of the option is not correct")
-            self.assertEqual(options[0].parent["name"], "input_data_dimensions_0")
+            assert len(options) == 1, "Generated option is incorrect"
+            assert options[0].text == "Time " + str(i), "The label of the option is not correct"
+            assert options[0].parent["name"] == "input_data_dimensions_0"
         for i in range(data_shape[1]):
             options = self.soup.find_all('option', attrs=dict(value=gid + "_1_" + str(i)))
-            self.assertEqual(len(options), 1, "Generated option is incorrect")
-            self.assertEqual(options[0].text, "Channel " + str(i), "Option's label incorrect")
-            self.assertEqual(options[0].parent["name"], "input_data_dimensions_1", "incorrect parent")
+            assert len(options) == 1, "Generated option is incorrect"
+            assert options[0].text == "Channel " + str(i), "Option's label incorrect"
+            assert options[0].parent["name"] == "input_data_dimensions_1", "incorrect parent"
         for i in range(data_shape[2]):
             options = self.soup.find_all('option', attrs=dict(value=gid + "_2_" + str(i)))
-            self.assertEqual(len(options), 1, "Generated option is incorrect")
-            self.assertEqual(options[0].text, "Line " + str(i), "The label of the option is not correct")
-            self.assertEqual(options[0].parent["name"], "input_data_dimensions_2")
+            assert len(options) == 1, "Generated option is incorrect"
+            assert options[0].text == "Line " + str(i), "The label of the option is not correct"
+            assert options[0].parent["name"] == "input_data_dimensions_2"
 
         #check the expected hidden fields
         expected_shape = self.soup.find_all('input', attrs=dict(id="input_data_expected_shape"))
-        self.assertEqual(len(expected_shape), 1, "The generated option is not correct")
-        self.assertEqual(expected_shape[0]["value"], "expected_shape_", "The generated option is not correct")
+        assert len(expected_shape) == 1, "The generated option is not correct"
+        assert expected_shape[0]["value"] == "expected_shape_", "The generated option is not correct"
         input_hidden_op = self.soup.find_all('input', attrs=dict(id="input_data_operations"))
-        self.assertEqual(len(input_hidden_op), 1, "The generated option is not correct")
-        self.assertEqual(input_hidden_op[0]["value"], "operations_", "The generated option is not correct")
+        assert len(input_hidden_op) == 1, "The generated option is not correct"
+        assert input_hidden_op[0]["value"] == "operations_", "The generated option is not correct"
         input_hidden_dim = self.soup.find_all('input', attrs=dict(id="input_data_expected_dim"))
-        self.assertEqual(len(input_hidden_dim), 1, "The generated option is not correct")
-        self.assertEqual(input_hidden_dim[0]["value"], "requiredDim_1", "The generated option is not correct")
+        assert len(input_hidden_dim) == 1, "The generated option is not correct"
+        assert input_hidden_dim[0]["value"] == "requiredDim_1", "The generated option is not correct"
         input_hidden_shape = self.soup.find_all('input', attrs=dict(id="input_data_array_shape"))
-        self.assertEqual(len(input_hidden_shape), 1, "The generated option is not correct")
-        self.assertEqual(input_hidden_shape[0]["value"], "[5, 1, 3]", "The generated option is not correct")
+        assert len(input_hidden_shape) == 1, "The generated option is not correct"
+        assert input_hidden_shape[0]["value"] == "[5, 1, 3]", "The generated option is not correct"
 
         #check only the first option from the aggregations functions selects
         options = self.soup.find_all('option', attrs=dict(value="func_none"))
-        self.assertEqual(len(options), 3, "The generated option is not correct")
-
-
-
-def suite():
-    """
-    Gather all the tests in a test suite.
-    """
-    test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(GenshiTestNDimensionArray))
-    test_suite.addTest(unittest.makeSuite(GenshiTestSimulator))
-    test_suite.addTest(unittest.makeSuite(GenthiTraitTest))
-    return test_suite
-
-
-
-if __name__ == "__main__":
-    #So you can run tests individually.
-    TEST_RUNNER = unittest.TextTestRunner()
-    TEST_SUITE = suite()
-    TEST_RUNNER.run(TEST_SUITE)
-            
-            
+        assert len(options) == 3, "The generated option is not correct"

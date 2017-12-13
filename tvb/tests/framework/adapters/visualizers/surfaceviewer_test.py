@@ -32,16 +32,15 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-import unittest
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.adapters.visualizers.surface_view import SurfaceViewer, RegionMappingViewer
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.surfaces import CorticalSurface
 from tvb.datatypes.region_mapping import RegionMapping
-from tvb.tests.framework.core.test_factory import TestFactory
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
+from tvb.tests.framework.core.factory import TestFactory
 
 
-class SurfaceViewersTest(TransactionalTestCase):
+class TestSurfaceViewers(TransactionalTestCase):
     """
     Unit-tests for Surface & RegionMapping viewers.
     """
@@ -61,10 +60,10 @@ class SurfaceViewersTest(TransactionalTestCase):
         self.test_project = TestFactory.import_default_project(self.test_user)
 
         self.surface = TestFactory.get_entity(self.test_project, CorticalSurface())
-        self.assertTrue(self.surface is not None)
+        assert self.surface is not None
 
         self.region_mapping = TestFactory.get_entity(self.test_project, RegionMapping())
-        self.assertTrue(self.region_mapping is not None)
+        assert self.region_mapping is not None
 
 
     def tearDown(self):
@@ -94,20 +93,3 @@ class SurfaceViewersTest(TransactionalTestCase):
         result = viewer.launch(self.region_mapping)
 
         self.assert_compliant_dictionary(self.EXPECTED_KEYS, result)
-
-
-
-def suite():
-    """
-    Gather all the tests in a test suite.
-    """
-    test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(SurfaceViewersTest))
-    return test_suite
-
-
-if __name__ == "__main__":
-    #So you can run tests from this package individually.
-    TEST_RUNNER = unittest.TextTestRunner()
-    TEST_SUITE = suite()
-    TEST_RUNNER.run(TEST_SUITE)

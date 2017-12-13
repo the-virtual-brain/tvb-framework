@@ -33,9 +33,8 @@
 """
 
 import os
-import unittest
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
@@ -43,7 +42,7 @@ from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity
 
 
-class NetworkxImporterTest(TransactionalTestCase):
+class TestNetworkxImporter(TransactionalTestCase):
     """
     Unit-tests for Obj Surface importer.
     """
@@ -64,7 +63,7 @@ class NetworkxImporterTest(TransactionalTestCase):
     def test_import(self):
 
         count_before = self.count_all_entities(Connectivity)
-        self.assertEqual(0, count_before)
+        assert 0  == count_before
 
         ### Retrieve Adapter instance
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.networkx_importer',
@@ -76,24 +75,9 @@ class NetworkxImporterTest(TransactionalTestCase):
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
 
         count_after = self.count_all_entities(Connectivity)
-        self.assertEqual(1, count_after)
+        assert 1 == count_after
 
         conn = self.get_all_entities(Connectivity)[0]
-        self.assertEqual(83, conn.number_of_regions)
+        assert 83 == conn.number_of_regions
 
 
-
-def suite():
-    """
-    Gather all the tests in a test suite.
-    """
-    test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(NetworkxImporterTest))
-    return test_suite
-
-
-if __name__ == "__main__":
-    #So you can run tests from this package individually.
-    TEST_RUNNER = unittest.TextTestRunner()
-    TEST_SUITE = suite()
-    TEST_RUNNER.run(TEST_SUITE)

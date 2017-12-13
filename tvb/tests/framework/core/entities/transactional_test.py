@@ -31,33 +31,33 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import unittest
+import pytest
 import threading
+from tvb.tests.framework.core.base_testcase import BaseTestCase, transactional_test
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.storage.session_maker import add_session, SessionMaker
 from tvb.core.entities.storage.exceptions import NestedTransactionUnsupported
-from tvb.tests.framework.core.test_factory import TestFactory
-from tvb.tests.framework.core.base_testcase import BaseTestCase, transactional_test
+from tvb.tests.framework.core.factory import TestFactory
 
 SESSIONMAKER = SessionMaker()
 
 
-class TransactionalTests(BaseTestCase):
+class TestsTransactional(BaseTestCase):
     """
     This class contains tests for the tvb.core.entities.modelmanager module.
     """
     session = SessionMaker()
     
-    def setUp(self):
+    def setup_method(self):
         """
         Set-up the environment for testing; clean the database and save events
         """
         self.clean_database()
 
         
-    def tearDown(self):
+    def teardown_method(self):
         """
         Clean-up after testing; clean the database and restore events
         """
@@ -76,7 +76,7 @@ class TransactionalTests(BaseTestCase):
         final_user_count = dao.get_all_users(is_count=True)
         error_msg = ("Transaction should have committed and %s more users should have been available in the database. "
                      "Expected %s but got %s" % (n_of_users, initial_user_count + n_of_users, final_user_count))
-        self.assertEqual(initial_user_count + n_of_users, final_user_count, error_msg)
+        assert initial_user_count + n_of_users, final_user_count == error_msg
     
     
     def test_transaction_rollback(self):
@@ -92,8 +92,8 @@ class TransactionalTests(BaseTestCase):
         except Exception:
             pass
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count, final_user_count, "Transaction should have rolled back due to exception."
-                         "Expected %s but got %s" % (initial_user_count, final_user_count))
+        assert initial_user_count == final_user_count,"Transaction should have rolled back due to exception."\
+                         "Expected %s but got %s" % (initial_user_count, final_user_count)
         
         
     def test_add_entity_forget_commit(self):
@@ -104,9 +104,9 @@ class TransactionalTests(BaseTestCase):
         initial_user_count = len(all_users) if all_users is not None else 0
         self._dao_add_user_forget_commit()
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count + 1, final_user_count, "Commit should have been done automatically and one "
+        assert initial_user_count + 1 == final_user_count, "Commit should have been done automatically and one "\
                                                                    "more user expected. Expected %s but got %s" % (
-                                                                   initial_user_count, final_user_count))
+                                                                   initial_user_count, final_user_count)
         
         
     def test_edit_entity_forget_commit(self):
@@ -117,8 +117,8 @@ class TransactionalTests(BaseTestCase):
         user_id = stored_user.id
         self._dao_change_user_forget_commit(user_id, 'new_name')
         edited_user = dao.get_user_by_id(user_id)
-        self.assertEqual(edited_user.username, 'new_name',
-                         "User should be edited but it is not. Expected 'new_name' got %s" % edited_user.username)
+        assert edited_user.username == 'new_name',\
+                         "User should be edited but it is not. Expected 'new_name' got %s" % edited_user.username
         
         
     def test_delete_entity_forget_commit(self):
@@ -131,9 +131,9 @@ class TransactionalTests(BaseTestCase):
         user_id = stored_user.id
         self._dao_delete_user_forget_commit(user_id)
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count, final_user_count,
-                         "Added user should have been deleted even without explicit commit call.."
-                         "Expected %s but got %s" % (initial_user_count, final_user_count))
+        assert initial_user_count == final_user_count, \
+            "Added user should have been deleted even without explicit commit call.." \
+            "Expected %s but got %s" % (initial_user_count, final_user_count)
 
     
     def test_multi_threaded_access(self):
@@ -147,11 +147,11 @@ class TransactionalTests(BaseTestCase):
         n_of_users_per_thread = 4
         self._run_transaction_multiple_threads(n_of_threads, n_of_users_per_thread)
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count,
-                         "Each thread should have created %s more users to a total of 16."
+        assert initial_user_count + n_of_threads * n_of_users_per_thread == final_user_count,\
+                         "Each thread should have created %s more users to a total of 16."\
                          "Expected %s but got %s" % (n_of_threads * n_of_users_per_thread,
                                                      initial_user_count + n_of_threads * n_of_users_per_thread,
-                                                     final_user_count))
+                                                     final_user_count)
         
             
     def test_multi_threaded_access_overflow_db_connection(self):
@@ -165,11 +165,11 @@ class TransactionalTests(BaseTestCase):
         n_of_users_per_thread = 6
         self._run_transaction_multiple_threads(n_of_threads, n_of_users_per_thread)
         final_user_count = dao.get_all_users(is_count=True)
-        self.assertEqual(initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count,
-                         "Each of %s threads should have created %s more users to a total of %s. "
+        assert initial_user_count + n_of_threads * n_of_users_per_thread == final_user_count,\
+                         "Each of %s threads should have created %s more users to a total of %s. "\
                          "Expected %s but got %s" % (
                          n_of_threads, n_of_users_per_thread, n_of_threads * n_of_users_per_thread,
-                         initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count))
+                         initial_user_count + n_of_threads * n_of_users_per_thread, final_user_count)
 
     @transactional_test
     def test_transaction_nested(self):
@@ -180,7 +180,8 @@ class TransactionalTests(BaseTestCase):
         """    
         TvbProfile.current.db.ALLOW_NESTED_TRANSACTIONS = False
         try:
-            self.assertRaises(NestedTransactionUnsupported, self._store_users_nested, 4, self._store_users_happy_flow)
+            with pytest.raises(NestedTransactionUnsupported):
+                self._store_users_nested(4, self._store_users_happy_flow)
         finally:
             TvbProfile.current.db.ALLOW_NESTED_TRANSACTIONS = True
 
@@ -260,17 +261,3 @@ class TransactionalTests(BaseTestCase):
         for idx in range(n_users):
             TestFactory.create_user('test_user' + str(idx), 'pass', 'test@test.test', True, 'test')
         raise Exception("This is just so transactional kicks in and a rollback should be done.")
-        
-
-def suite():
-    """
-        Gather all the tests in a test suite.
-    """
-    test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(TransactionalTests))
-    return test_suite
-
-
-if __name__ == "__main__":
-    #So you can run tests from this package individually.
-    unittest.main()   

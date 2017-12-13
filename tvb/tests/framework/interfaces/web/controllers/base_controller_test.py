@@ -31,7 +31,7 @@
 import os
 import cherrypy
 from tvb.tests.framework.core.base_testcase import BaseTestCase, TransactionalTestCase
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 from tvb.basic.profile import TvbProfile
 from tvb.basic.config.utils import EnhancedDictionary
 from tvb.interfaces.web.controllers.common import KEY_PROJECT, KEY_USER
@@ -58,10 +58,10 @@ class BaseControllersTest(BaseTestCase):
         """
         try:
             method(*args, **kwargs)
-            self.fail("Expected redirect to %s." % (page,))
+            raise AssertionError("Expected redirect to %s." % (page,))
         except cherrypy.HTTPRedirect, redirect:
             url = redirect.urls[0]
-            self.assertTrue(url.endswith(page), "Should be redirect to %s not %s" % (page, url))
+            assert url.endswith(page), "Should be redirect to %s not %s" % (page, url)
 
 
     def init(self, with_data=True, user_role="test"):

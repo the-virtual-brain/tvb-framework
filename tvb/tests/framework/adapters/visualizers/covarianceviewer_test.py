@@ -32,16 +32,15 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import unittest
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.visualizers.covariance import CovarianceVisualizer
 from tvb.datatypes.connectivity import Connectivity
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
 
-class CovarianceViewerTest(TransactionalTestCase):
+class TestCovarianceViewer(TransactionalTestCase):
     """
     Unit-tests for Covariance Viewer.
     """
@@ -59,7 +58,7 @@ class CovarianceViewerTest(TransactionalTestCase):
 
         TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
         self.connectivity = TestFactory.get_entity(self.test_project, Connectivity())
-        self.assertTrue(self.connectivity is not None)
+        assert self.connectivity is not None
 
 
     def tearDown(self):
@@ -79,20 +78,4 @@ class CovarianceViewerTest(TransactionalTestCase):
         result = viewer.launch(covariance)
         expected_keys = ['matrix_shape', 'matrix_data', 'mainContent', 'isAdapter']
         for key in expected_keys:
-            self.assertTrue(key in result)
-
-
-def suite():
-    """
-    Gather all the tests in a test suite.
-    """
-    test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(CovarianceViewerTest))
-    return test_suite
-
-
-if __name__ == "__main__":
-    # So you can run tests from this package individually.
-    TEST_RUNNER = unittest.TextTestRunner()
-    TEST_SUITE = suite()
-    TEST_RUNNER.run(TEST_SUITE)
+            assert (key in result)

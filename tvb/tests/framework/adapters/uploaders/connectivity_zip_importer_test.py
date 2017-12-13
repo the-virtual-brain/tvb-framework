@@ -32,16 +32,15 @@
 
 """
 from os import path
-import unittest
 import tvb_data
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.services.flow_service import FlowService
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.tests.framework.core.test_factory import TestFactory
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
+from tvb.tests.framework.core.factory import TestFactory
 
 
-class ConnectivityZipTest(TransactionalTestCase):
+class TestConnectivityZip(TransactionalTestCase):
     """
     Unit-tests for CFF-importer.
     """
@@ -73,33 +72,13 @@ class ConnectivityZipTest(TransactionalTestCase):
         Test that importing a CFF generates at least one DataType in DB.
         """
         dt_count_before = TestFactory.get_entity_count(self.test_project, Connectivity())
-        
-        ConnectivityZipTest.import_test_connectivity96(self.test_user, self.test_project)
+
+        TestConnectivityZip.import_test_connectivity96(self.test_user, self.test_project)
 
         dt_count_after = TestFactory.get_entity_count(self.test_project, Connectivity())
-        self.assertEqual(dt_count_before + 1, dt_count_after)
+        assert dt_count_before + 1 == dt_count_after
 
 
-        
-def suite():
-    """
-    Gather all the tests in a test suite.
-    """
-    test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(ConnectivityZipTest))
-    return test_suite
-
-
-if __name__ == "__main__":
-    #So you can run tests from this package individually.
-    TEST_RUNNER = unittest.TextTestRunner()
-    TEST_SUITE = suite()
-    TEST_RUNNER.run(TEST_SUITE)
-    
-    
-    
-       
-        
         
         
     

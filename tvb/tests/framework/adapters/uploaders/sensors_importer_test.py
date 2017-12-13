@@ -32,23 +32,22 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
-import unittest
 import os
+from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.exceptions import OperationException
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
-from tvb.tests.framework.core.test_factory import TestFactory
+from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
-from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 
 import tvb_data.sensors as demo_data
 
 
 
-class SensorsImporterTest(TransactionalTestCase):
+class TestSensorsImporter(TransactionalTestCase):
     """
     Unit-tests for Sensors importer.
     """
@@ -90,10 +89,10 @@ class SensorsImporterTest(TransactionalTestCase):
 
         data_types = FlowService().get_available_datatypes(self.test_project.id,
                                                            expected_data.module + "." + expected_data.type)[0]
-        self.assertEqual(1, len(data_types), "Project should contain only one data type = Sensors.")
+        assert 1, len(data_types) == "Project should contain only one data type = Sensors."
 
         time_series = ABCAdapter.load_entity_by_gid(data_types[0][2])
-        self.assertTrue(time_series is not None, "Sensors instance should not be none")
+        assert time_series is not None, "Sensors instance should not be none"
 
         return time_series
 
@@ -105,11 +104,11 @@ class SensorsImporterTest(TransactionalTestCase):
         eeg_sensors = self._import(self.EEG_FILE, self.importer.EEG_SENSORS, SensorsEEG())
 
         expected_size = 62
-        self.assertTrue(eeg_sensors.labels is not None)
-        self.assertEqual(expected_size, len(eeg_sensors.labels))
-        self.assertEqual(expected_size, len(eeg_sensors.locations))
-        self.assertEqual((expected_size, 3), eeg_sensors.locations.shape)
-        self.assertEqual(expected_size, eeg_sensors.number_of_sensors)
+        assert eeg_sensors.labels is not None
+        assert expected_size == len(eeg_sensors.labels)
+        assert expected_size == len(eeg_sensors.locations)
+        assert (expected_size, 3) == eeg_sensors.locations.shape
+        assert expected_size == eeg_sensors.number_of_sensors
 
 
     def test_import_meg_sensors(self):
@@ -119,14 +118,14 @@ class SensorsImporterTest(TransactionalTestCase):
         meg_sensors = self._import(self.MEG_FILE, self.importer.MEG_SENSORS, SensorsMEG())
 
         expected_size = 151
-        self.assertTrue(meg_sensors.labels is not None)
-        self.assertEqual(expected_size, len(meg_sensors.labels))
-        self.assertEqual(expected_size, len(meg_sensors.locations))
-        self.assertEqual((expected_size, 3), meg_sensors.locations.shape)
-        self.assertEqual(expected_size, meg_sensors.number_of_sensors)
-        self.assertTrue(meg_sensors.has_orientation)
-        self.assertEqual(expected_size, len(meg_sensors.orientations))
-        self.assertEqual((expected_size, 3), meg_sensors.orientations.shape)
+        assert meg_sensors.labels is not None
+        assert expected_size == len(meg_sensors.labels)
+        assert expected_size == len(meg_sensors.locations)
+        assert (expected_size, 3) == meg_sensors.locations.shape
+        assert expected_size == meg_sensors.number_of_sensors
+        assert meg_sensors.has_orientation
+        assert expected_size == len(meg_sensors.orientations)
+        assert (expected_size, 3) == meg_sensors.orientations.shape
 
 
     def test_import_meg_without_orientation(self):
@@ -135,7 +134,7 @@ class SensorsImporterTest(TransactionalTestCase):
         """
         try:
             self._import(self.EEG_FILE, self.importer.MEG_SENSORS, SensorsMEG())
-            self.fail("Import should fail in case of a MEG import without orientation.")
+            raise AssertionError("Import should fail in case of a MEG import without orientation.")
         except OperationException:
             # Expected exception
             pass
@@ -148,26 +147,9 @@ class SensorsImporterTest(TransactionalTestCase):
         internal_sensors = self._import(self.EEG_FILE, self.importer.INTERNAL_SENSORS, SensorsInternal())
 
         expected_size = 62
-        self.assertTrue(internal_sensors.labels is not None)
-        self.assertEqual(expected_size, len(internal_sensors.labels))
-        self.assertEqual(expected_size, len(internal_sensors.locations))
-        self.assertEqual((expected_size, 3), internal_sensors.locations.shape)
-        self.assertEqual(expected_size, internal_sensors.number_of_sensors)
+        assert internal_sensors.labels is not None
+        assert expected_size, len(internal_sensors.labels)
+        assert expected_size, len(internal_sensors.locations)
+        assert (expected_size, 3), internal_sensors.locations.shape
+        assert expected_size, internal_sensors.number_of_sensors
 
-
-
-def suite():
-    """
-    Gather all the tests in a test suite.
-    """
-    test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(SensorsImporterTest))
-    return test_suite
-
-
-
-if __name__ == "__main__":
-    #So you can run tests from this package individually.
-    TEST_RUNNER = unittest.TextTestRunner()
-    TEST_SUITE = suite()
-    TEST_RUNNER.run(TEST_SUITE)
