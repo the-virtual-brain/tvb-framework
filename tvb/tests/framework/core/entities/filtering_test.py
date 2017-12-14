@@ -81,7 +81,6 @@ class TestFiltering(TransactionalTestCase):
         for entry in op_page_filters:
             assert isinstance(entry, FilterChain), "We expect a list of filters."
 
-
     def test_filter_sql_equivalent(self):
         """
         Test applying a filter on DB.
@@ -110,7 +109,6 @@ class TestFiltering(TransactionalTestCase):
 
         all_stored_dts = self.count_all_entities(Datatype1)
         assert 3 == all_stored_dts
-
         self._evaluate_db_filter(test_filter_1, 2)
         self._evaluate_db_filter(test_filter_2, 0)
         self._evaluate_db_filter(test_filter_3, 1)

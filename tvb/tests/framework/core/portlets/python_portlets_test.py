@@ -75,4 +75,4 @@ class TestPythonPortlets(TransactionalTestCase):
                     assert entry['default'] == 'step_0[0]', "Overwritten default not in effect."
                 if entry['name'] == 'test2':
                     assert entry['default'] == '0', "Value that was not overwritten changed."
-        
+
