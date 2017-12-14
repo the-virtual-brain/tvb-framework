@@ -168,7 +168,7 @@ class TestFilesHelper(TransactionalTestCase):
         open(datatype.get_storage_file_path(), 'w') 
         assert os.path.exists(datatype.get_storage_file_path()), "Test file was not created!"
         self.files_helper.remove_datatype(datatype) 
-        assert not os.path.exists(datatype.get_storage_file_path()), "Test file was not deleted!"  
+        assert not os.path.exists(datatype.get_storage_file_path()), "Test file was not deleted!"
         
         
     def test_remove_dt_non_existent(self):

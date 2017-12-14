@@ -42,7 +42,6 @@ from tvb.tests.framework.core.factory import TestFactory
 class ComplexInterfaceAdapter(ABCSynchronous):
     """Adapter with a complex interface, target for testing ABCAdapter methods."""
 
-
     def get_input_tree(self):
         return [{'name': 'surface', 'type': 'tvb.core.entities.model.DataType', "datatype": True,
                  'attributes': [{'name': 'att1', 'type': 'int', 'default': '0'},
@@ -73,10 +72,8 @@ class ComplexInterfaceAdapter(ABCSynchronous):
         return 0
 
 
-
 class TestAdapterABC(TransactionalTestCase):
     """Unit test for ABCAdapter"""
-
     EXPECTED_FLAT_NAMES = ["surface", "surface_parameters_att1", "surface_parameters_att2",
                            "monitors", "length",
                            "monitors_parameters_option_EEG_mon_att1", "monitors_parameters_option_EEG_mon_att2",
@@ -125,13 +122,11 @@ class TestAdapterABC(TransactionalTestCase):
     EXPECTED_FILTERED_SET4 = {"surface": None.__class__, "monitors": list,
                               "monitors_parameters": dict, "length": int}
 
-
     def setUp(self):
         """
         Reset the database before each test.
         """
         self.test_adapter = ComplexInterfaceAdapter()
-
 
     def test_flat_interface(self):
         """
@@ -141,7 +136,6 @@ class TestAdapterABC(TransactionalTestCase):
         assert len(self.EXPECTED_FLAT_NAMES) == len(list_flat)
         for row in list_flat:
             assert row["name"] in self.EXPECTED_FLAT_NAMES
-
 
     def test_prepare_ui_inputs_simple(self):
         """
@@ -159,14 +153,12 @@ class TestAdapterABC(TransactionalTestCase):
         assert isinstance(kwargs["monitors_parameters"]["EEG"]["mon_att1"], int)
         assert isinstance(kwargs["monitors_parameters"]["EEG"]["mon_att2"], float)
 
-
     def test_prepare_inputs_wrong_type(self):
         """
         Test for ABCAdapter.prepare_ui_inputs, when invalid values passed for numeric fields.
         """
         with pytest.raises(Exception):
-            self.test_adapter.prepare_ui_inputs( self.SUBMIT_DATASET_2)
-
+            self.test_adapter.prepare_ui_inputs(self.SUBMIT_DATASET_2)
 
     def test_prepare_inputs_datatype(self):
         """
@@ -189,7 +181,6 @@ class TestAdapterABC(TransactionalTestCase):
         assert isinstance(kwargs["surface_parameters"]["att1"], int)
         assert isinstance(kwargs["surface_parameters"]["att2"], float)
 
-
     def test_prepare_select_multiple(self):
         """
         Test for ABCAdapter.prepare_ui_inputs method when submitting 2 values in a multiple-select input.
@@ -207,5 +198,3 @@ class TestAdapterABC(TransactionalTestCase):
         assert 42 == kwargs["monitors_parameters"]["BOLD"]["mon_att1"]
         assert 43 == kwargs["monitors_parameters"]["EEG"]["mon_att1"]
         assert isinstance(kwargs["monitors_parameters"]["BOLD"]["mon_att4"], str)
-
-
