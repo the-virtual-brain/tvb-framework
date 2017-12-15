@@ -38,6 +38,9 @@ var _PSE_minColor;
 var _PSE_maxColor;
 var _PSE_plot;
 
+var _PSE_back_page;
+var _PSE_seriesArray;
+var _PSE_hasStartedOperations;
 /*
  * @param canvasId: the id of the HTML DIV on which the drawing is done. This should have sizes defined or else FLOT can't do the drawing.
  * @param xLabels: the labels for the x - axis
@@ -48,7 +51,7 @@ var _PSE_plot;
  * @param max_color: maximum color, used for gradient
  * @param backPage: page where visualizers fired from overlay should take you back.
  */
-function _updatePlotPSE(canvasId, xLabels, yLabels, xValues, yValues, seriesArray, min_color, max_color, backPage, d3Data) {
+function _updatePlotPSE(canvasId, xLabels, yLabels, xValues, yValues, min_color, max_color, backPage, d3Data) {
 
     // why is it that we don't associate the labels into the attributes of the actual data_info or seriesArray?
     // where does the seriesArray structure get created?
@@ -72,7 +75,6 @@ function _updatePlotPSE(canvasId, xLabels, yLabels, xValues, yValues, seriesArra
         }
 
     };
-    _d3PSE_plot = d3Plot("#" + canvasId, seriesArray, $.extend(true, {}, _PSE_plotOptions), backPage);
 }
 
 
@@ -87,7 +89,7 @@ function d3Plot(placeHolder, data, options, pageParam) {
     if (d3.select(".outerCanvas").empty() != true) {
         d3.selectAll(".outerCanvas").remove()
     }
-    if (d3.selectAll("#main_div_pse")[0].length != 1) {
+    if (d3.selectAll("#main_div_pse")[0].length > 1) {
         var oneOrMoreDiv = d3.selectAll("div > div.flex-wrapper"); //index necessary because selection is an array with two elements, and second is unneccessary
 
         if (oneOrMoreDiv[0].length > 1) {
@@ -466,7 +468,7 @@ function d3Plot(placeHolder, data, options, pageParam) {
                 let color = d3.rgb("black"); // leave pending results blacked out if not complete.
                 let nodeInfo = getNodeInfo(d.coords);
                 if (nodeInfo.tooltip.search("PENDING") === -1 && nodeInfo.tooltip.search("CANCELED") === -1) { // this prevents code from trying to find reasonable color values when simulation results haven't been generated for them
-                    color = returnfill(nodeInfo.color_weight);
+                        color = returnfill(nodeInfo.color_weight);
                 }
                 return color; // otherwise fill out with color in keeping with scheme.
             }
@@ -780,7 +782,7 @@ function updateLegend(minColor, maxColor) {
 }
 
 
-function PSEDiscreteInitialize(labelsXJson, labelsYJson, valuesXJson, valuesYJson, series_array, dataJson, backPage, hasStartedOperations,
+function PSEDiscreteInitialize(labelsXJson, labelsYJson, valuesXJson, valuesYJson, dataJson, backPage, hasStartedOperations,
                                min_color, max_color, min_size, max_size) {
 
     var labels_x = $.parseJSON(labelsXJson);
@@ -788,15 +790,14 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, valuesXJson, valuesYJso
     var values_x = $.parseJSON(valuesXJson);
     var values_y = $.parseJSON(valuesYJson);
     var data = $.parseJSON(dataJson);
-    series_array = typeof (series_array) === "string" ? $.parseJSON(series_array) : series_array;
-
+    _PSE_back_page = backPage
     min_color = parseFloat(min_color); // todo run a batch of simulations part of the way,  and then cancel to see what the result looks like.
     max_color = parseFloat(max_color);
     min_size = parseFloat(min_size);
     max_size = parseFloat(max_size);
 
     ColSch_initColorSchemeGUI(min_color, max_color, function () { //this now doesn't create error in simulator panel, why?
-        _updatePlotPSE('main_div_pse', labels_x, labels_y, values_x, values_y, series_array, min_color, max_color, backPage, data);
+        _updatePlotPSE('main_div_pse', labels_x, labels_y, values_x, values_y, min_color, max_color, backPage, data);
     });
 
     function _fmt_lbl(sel, v) {
@@ -808,22 +809,35 @@ function PSEDiscreteInitialize(labelsXJson, labelsYJson, valuesXJson, valuesYJso
     _fmt_lbl('#minShapeLabel', min_size);
     _fmt_lbl('#maxShapeLabel', max_size);
 
+    updateLegend(min_color, max_color);
     if (Number.isNaN(min_color)) {
         min_color = 0;
         max_color = 1;
     }
-    _updatePlotPSE('main_div_pse', labels_x, labels_y, values_x, values_y, series_array, min_color, max_color, backPage, data);
-    updateLegend(min_color, max_color);
-
-    if (hasStartedOperations) {
-        setTimeout("PSE_mainDraw('main_div_pse','" + backPage + "')", 3000);
-    }
+    _updatePlotPSE('main_div_pse', labels_x, labels_y, values_x, values_y, min_color, max_color, backPage, data);
 }
 
 
-/*
- * Take currently selected metrics and refresh the plot.
- */
+
+/*********************************************************************************************************************
+ *            ISOCLINE PSE BELLOW
+ *********************************************************************************************************************/
+
+function Isocline_MainDraw(groupGID, divId) {
+    $('#' + divId).html('');
+    doAjaxCall({
+        type: "POST",
+        url: '/burst/explore/draw_isocline_exploration/' + groupGID,
+        success: function (r) {
+            $('#' + divId).html(r);
+        },
+        error: function () {
+            displayMessage("Could not refresh with the new metrics.", "warningMessage");
+        }
+    });
+}
+
+
 function PSE_mainDraw(parametersCanvasId, backPage, groupGID) {
 
     if (groupGID === null || groupGID === undefined) {
@@ -857,21 +871,30 @@ function PSE_mainDraw(parametersCanvasId, backPage, groupGID) {
     });
 }
 
+function RedrawPlotOnResize(){
+    d3Plot('#main_div_pse', _PSE_seriesArray, $.extend(true, {}, _PSE_plotOptions), _PSE_back_page);
 
-/*********************************************************************************************************************
- *            ISOCLINE PSE BELLOW
- *********************************************************************************************************************/
+    if (_PSE_hasStartedOperations) {
+        setTimeout("loadNodeMatrixDiscrete()", 3000);
+    }
+}
 
-function Isocline_MainDraw(groupGID, divId) {
-    $('#' + divId).html('');
+
+function loadNodeMatrixDiscrete(groupGID=null) {
+     if (groupGID === null || groupGID === undefined) {
+        groupGID = document.getElementById("datatype-group-gid").value;
+    }
     doAjaxCall({
-        type: "POST",
-        url: '/burst/explore/draw_isocline_exploration/' + groupGID,
-        success: function (r) {
-            $('#' + divId).html(r);
-        },
-        error: function () {
-            displayMessage("Could not refresh with the new metrics.", "warningMessage");
+        url: '/burst/explore/get_series_array_discrete/',
+        data: {'datatype_group_gid': groupGID,
+                'backPage':_PSE_back_page},
+        type: 'GET',
+        async: false,
+        success: function (data) {
+            let pse_context=$.parseJSON(data);
+            _PSE_hasStartedOperations=pse_context.has_started_ops;
+            _PSE_seriesArray = $.parseJSON(pse_context.series_array);
+            RedrawPlotOnResize();
         }
     });
 }
