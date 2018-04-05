@@ -58,7 +58,7 @@ def bct_description(mat_file_name):
     return extract_matlab_doc_string(os.path.join(BCT_PATH, mat_file_name))
 
 
-class BaseBCT(ABCAsynchronous):
+class BaseBCT:
     """
     Interface between Brain Connectivity Toolbox of Olaf Sporns and TVB Framework.
     This adapter requires BCT deployed locally, and Matlab or Octave installed separately of TVB.
@@ -134,7 +134,7 @@ class BaseBCT(ABCAsynchronous):
         pass
 
 
-class BaseUndirected(BaseBCT):
+class BaseUndirected:
     """
     """
     _ui_connectivity_label = "Undirected connection matrix:"
@@ -150,7 +150,7 @@ class BaseUndirected(BaseBCT):
         pass
 
 
-class ModularityOCSM(BaseBCT):
+class ModularityOCSM:
     """
     """
     _ui_group = BCT_GROUP_MODULARITY
@@ -172,7 +172,7 @@ class ModularityOCSM(BaseBCT):
         return [measure, value]
 
 
-class ModularityOpCSMU(ModularityOCSM):
+class ModularityOpCSMU:
     """
     """
     _ui_name = "Optimal Community Structure and Modularity (Undirected)"
@@ -180,7 +180,7 @@ class ModularityOpCSMU(ModularityOCSM):
     _matlab_code = "[Ci,Q] = modularity_und(CW);"
 
 
-class DistanceDBIN(BaseBCT):
+class DistanceDBIN:
     """
     """
     _ui_group = BCT_GROUP_DISTANCE
@@ -197,7 +197,7 @@ class DistanceDBIN(BaseBCT):
         return [measure]
 
 
-class DistanceDWEI(DistanceDBIN):
+class DistanceDWEI:
     """
     """
     _ui_connectivity_label = "Weighted (directed/undirected) connection matrix:"
@@ -206,7 +206,7 @@ class DistanceDWEI(DistanceDBIN):
     _matlab_code = "D = distance_wei(A);"
 
 
-class DistanceRDM(DistanceDBIN):
+class DistanceRDM:
     """
     """
     _ui_name = "Reachability and distance matrices (Breadth-first search)"
@@ -223,7 +223,7 @@ class DistanceRDM(DistanceDBIN):
         return [measure1, measure2]
 
 
-class DistanceRDA(DistanceRDM):
+class DistanceRDA:
     """
     """
     _ui_name = "Reachability and distance matrices (Algebraic path count)"
@@ -231,7 +231,7 @@ class DistanceRDA(DistanceRDM):
     _matlab_code = "[R,D] = reachdist(A);"
 
 
-class DistanceNETW(DistanceDBIN):
+class DistanceNETW:
     """
     """
     _ui_name = "Network walks"
