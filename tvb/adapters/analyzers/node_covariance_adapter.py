@@ -36,6 +36,7 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 
 """
 
+from __future__ import absolute_import
 import numpy
 from tvb.analyzers.node_covariance import NodeCovariance
 from tvb.core.adapters.abcadapter import ABCAsynchronous
@@ -44,6 +45,7 @@ from tvb.datatypes.graph import Covariance
 from tvb.basic.traits.util import log_debug_array
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
+from six.moves import range
 
 LOG = get_logger(__name__)
 

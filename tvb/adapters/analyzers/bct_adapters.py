@@ -28,6 +28,7 @@
 #
 #
 
+from __future__ import absolute_import
 import os
 from abc import abstractmethod
 from tvb.adapters.analyzers.matlab_worker import MatlabWorker

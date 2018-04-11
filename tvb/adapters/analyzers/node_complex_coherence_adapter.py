@@ -36,6 +36,7 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 
 """
 
+from __future__ import absolute_import
 import numpy
 from tvb.analyzers.node_complex_coherence import NodeComplexCoherence
 from tvb.core.adapters.abcadapter import ABCAsynchronous

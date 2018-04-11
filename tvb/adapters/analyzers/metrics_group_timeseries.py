@@ -39,6 +39,7 @@ Analyzer used to calculate a single measure for TimeSeries.
 
 """
 
+from __future__ import absolute_import
 import numpy
 from tvb.analyzers.metrics_base import BaseTimeseriesMetricAlgorithm
 from tvb.basic.traits.util import log_debug_array
@@ -75,7 +76,7 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
         tree[0]['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
                                             operations=["=="], values=[4])
 
-        algo_names = self.available_algorithms.keys()
+        algo_names = list(self.available_algorithms.keys())
         options = []
         for name in algo_names:
             options.append({ABCAdapter.KEY_NAME: name, ABCAdapter.KEY_VALUE: name})
@@ -123,7 +124,7 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
         :rtype: `DatatypeMeasure`
         """
         if algorithms is None:
-            algorithms = self.available_algorithms.keys()
+            algorithms = list(self.available_algorithms.keys())
 
         shape = time_series.read_data_shape()
         log_debug_array(LOG, time_series, "time_series")
