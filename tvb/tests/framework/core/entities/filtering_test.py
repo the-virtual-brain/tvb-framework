@@ -32,6 +32,7 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 ## Used in sql filter eval
+from __future__ import absolute_import
 from sqlalchemy import and_
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.transient.filtering import StaticFiltersFactory

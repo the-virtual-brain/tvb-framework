@@ -32,6 +32,7 @@
 .. Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.datatypes.patterns import StimuliSurface, StimuliRegion
 from tvb.datatypes.equations import Equation

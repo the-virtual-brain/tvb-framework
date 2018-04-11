@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 import os
 import shutil

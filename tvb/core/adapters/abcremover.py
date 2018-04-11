@@ -33,6 +33,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 

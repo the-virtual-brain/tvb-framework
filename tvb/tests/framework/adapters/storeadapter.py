@@ -32,6 +32,7 @@
 .. Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.basic.traits.types_mapped import MappedType
 

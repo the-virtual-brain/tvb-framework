@@ -32,6 +32,7 @@
 .. moduleauthor:: Andrei Mihai <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import cherrypy
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
@@ -45,6 +46,8 @@ from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller impo
 from tvb.simulator.integrators import EulerStochastic
 from tvb.simulator.models import Generic2dOscillator
 from tvb.simulator.noise import Additive
+import six
+from six.moves import range
 
 
 class TestNoiseConfigurationController(BaseTransactionalControllerTest):
@@ -62,7 +65,7 @@ class TestNoiseConfigurationController(BaseTransactionalControllerTest):
         stored_burst = cherrypy.session[common.KEY_BURST_CONFIG]
 
         new_params = {}
-        for key, val in SIMULATOR_PARAMETERS.iteritems():
+        for key, val in six.iteritems(SIMULATOR_PARAMETERS):
             new_params[key] = {'value': val}
         new_params['connectivity'] = {'value': self.connectivity.gid}
 
@@ -84,7 +87,7 @@ class TestNoiseConfigurationController(BaseTransactionalControllerTest):
         Submit noise configuration writes the noise array on the required key in the burst configuration
         """
         # a noise configuration in the format expected by submit. Assumes Generic2dOscillator model.
-        nodes_range = range(self.connectivity.number_of_regions)
+        nodes_range = list(range(self.connectivity.number_of_regions))
         noise_in = [{'V': 1.0, 'W': 2.0} for _ in nodes_range]
         noise_in = json.dumps(noise_in)
 

@@ -35,10 +35,12 @@ A Javascript displayer for time series, using SVG.
 
 """
 
+from __future__ import absolute_import
 import json
 import tvb.datatypes.time_series as tsdata
 from tvb.basic.filters.chain import FilterChain
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
+from six.moves import range
 
 
 
@@ -91,7 +93,7 @@ class TimeSeries(ABCDisplayer):
                 'ts_title': time_series.title, 'preview': preview, 'figsize': figsize,
                 'shape': repr(shape), 't0': ts[0],
                 'dt': ts[1] - ts[0] if len(ts) > 1 else 1,
-                'labelsStateVar': state_variables, 'labelsModes': range(shape[3])
+                'labelsStateVar': state_variables, 'labelsModes': list(range(shape[3]))
                 }
         pars.update(self.build_template_params_for_subselectable_datatype(time_series))
 

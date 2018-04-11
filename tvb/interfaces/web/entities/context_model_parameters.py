@@ -32,6 +32,7 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 from copy import deepcopy
 from tvb.basic.traits.core import Type
@@ -187,7 +188,7 @@ class SurfaceContextModelParameters(object):
         result = {}
         for param in self.applied_equations:
             equation = self.applied_equations[param][KEY_EQUATION]
-            keys = sorted(equation.parameters.keys(), key=lambda x: len(x))
+            keys = sorted(list(equation.parameters.keys()), key=lambda x: len(x))
             keys.reverse()
             base_equation = equation.trait['equation'].interface['description']
             for eq_param in keys:

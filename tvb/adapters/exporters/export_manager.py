@@ -34,6 +34,7 @@ Class responsible for all TVB exports (datatype or project).
 .. moduleauthor:: Calin Pavel
 """
 
+from __future__ import absolute_import
 import os
 import json
 from datetime import datetime
@@ -48,6 +49,7 @@ from tvb.core.entities.transient.burst_export_entities import BurstInformation, 
 from tvb.core.entities.transient.burst_export_entities import WorkflowStepInformation, WorkflowViewStepInformation
 from tvb.core.entities.storage import dao
 from tvb.basic.logger.builder import get_logger
+from six.moves import range
 
 LOG = get_logger(__name__)
 BURST_PAGE_SIZE = 100

@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcremover import ABCRemover
 from tvb.core.services.exceptions import RemoveDataTypeException

@@ -32,6 +32,7 @@
 Constants and functions used by all controllers
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 from copy import copy
 import cherrypy
 

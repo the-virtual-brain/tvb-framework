@@ -32,10 +32,12 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy as np
 from tvb.adapters.uploaders.obj.parser import ObjParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException
+from six.moves import range
 
 
 class ObjSurface(object):

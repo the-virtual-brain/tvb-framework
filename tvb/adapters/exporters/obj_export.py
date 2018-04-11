@@ -32,6 +32,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 from tvb.adapters.exporters.abcexporter import ABCExporter
 from tvb.adapters.uploaders.obj.parser import ObjWriter

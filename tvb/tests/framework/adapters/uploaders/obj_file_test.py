@@ -32,6 +32,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 from StringIO import StringIO
 from tvb.adapters.uploaders.obj.parser import ObjWriter, ObjParser
 

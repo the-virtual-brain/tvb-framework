@@ -31,6 +31,7 @@
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import json
 import cherrypy
 from tvb.adapters.visualizers.connectivity import ConnectivityViewer
@@ -38,6 +39,7 @@ from tvb.core.services.burst_config_serialization import SerializationManager
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.burst.base_controller import BurstBaseController
 from tvb.interfaces.web.controllers.decorators import expose_page, handle_error, check_user
+from six.moves import range
 
 
 class NoiseConfigurationController(BurstBaseController):

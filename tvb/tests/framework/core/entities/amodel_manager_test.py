@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import pytest
 from tvb.tests.framework.core.base_testcase import BaseTestCase, init_test_env

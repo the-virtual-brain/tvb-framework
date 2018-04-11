@@ -32,6 +32,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.obj.surface import ObjSurface
 from tvb.core.adapters.exceptions import ParseException, LaunchException

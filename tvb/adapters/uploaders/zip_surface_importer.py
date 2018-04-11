@@ -33,6 +33,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.zip_surface.parser import ZipSurfaceParser

@@ -30,6 +30,7 @@
 """
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+from __future__ import absolute_import
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
 from tvb.interfaces.web.structure import WebStructure
 from tvb.interfaces.web.controllers.help.help_controller import HelpController

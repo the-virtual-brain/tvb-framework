@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.visualizers.cross_correlation import CrossCorrelationVisualizer

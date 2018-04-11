@@ -31,6 +31,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
+from __future__ import absolute_import
 from os import path
 import tvb_data
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase

@@ -33,22 +33,23 @@ Root class for export functionality.
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
+from __future__ import absolute_import
 from datetime import datetime
 from abc import ABCMeta, abstractmethod
 from tvb.core.entities.model import DataTypeGroup
 from tvb.core.services.project_service import ProjectService
 from tvb.core.adapters.abcadapter import ABCAdapter
+import six
 
 # List of DataTypes to be excluded from export due to not having a valid export mechanism implemented yet.
 EXCLUDED_DATATYPES = ['Cortex', 'CortexActivity', 'CapEEGActivity', 'Cap', 'ValueWrapper', 'SpatioTermporalMask']
 
 
-class ABCExporter:
+class ABCExporter(six.with_metaclass(ABCMeta)):
     """
     Base class for all data type exporters
     This should provide common functionality for all TVB exporters.
     """
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def get_supported_types(self):

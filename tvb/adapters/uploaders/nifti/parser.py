@@ -33,10 +33,12 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import nibabel as nib
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException
+from six.moves import range
 
 
 

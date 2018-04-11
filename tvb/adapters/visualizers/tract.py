@@ -32,6 +32,7 @@
 A tracts visualizer
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 from tvb.adapters.visualizers.surface_view import prepare_shell_surface_urls
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.surfaces import CorticalSurface

@@ -33,6 +33,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -46,6 +47,7 @@ from tvb.core.services.flow_service import FlowService
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.core.services.project_service_test import TestProjectService
 from tvb.tests.framework.core.services.flow_service_test import TEST_ADAPTER_VALID_MODULE, TEST_ADAPTER_VALID_CLASS
+from six.moves import range
 
 
 

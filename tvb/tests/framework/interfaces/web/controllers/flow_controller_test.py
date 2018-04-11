@@ -31,6 +31,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import copy
 import json
 import cherrypy
@@ -46,6 +47,7 @@ from tvb.interfaces.web.controllers.burst.burst_controller import BurstControlle
 from tvb.tests.framework.adapters.testadapter1 import TestAdapter1
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.tests.framework.adapters.simulator.simulator_adapter_test import SIMULATOR_PARAMETERS
+from six.moves import range
 
 
 class TestFlowContoller(BaseControllersTest):
@@ -149,7 +151,7 @@ class TestFlowContoller(BaseControllersTest):
                                                              'this is the stored data'.split())
         args = {'length': 101}
         returned_data = self.flow_c.read_datatype_attribute(dt.gid, 'return_test_data', **args)
-        assert returned_data == str(range(101))
+        assert returned_data == str(list(range(101)))
         
         
     def test_get_simple_adapter_interface(self):

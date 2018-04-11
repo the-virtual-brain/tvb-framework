@@ -33,6 +33,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import numpy
 import pytest
@@ -51,6 +52,7 @@ from tvb.tests.framework.datatypes.datatype1 import Datatype1
 from tvb.tests.framework.datatypes.datatype2 import Datatype2
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
+from six.moves import range
 
 
 TEST_ADAPTER_VALID_MODULE = "tvb.tests.framework.core.services.flow_service_test"

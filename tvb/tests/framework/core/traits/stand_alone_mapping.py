@@ -37,6 +37,7 @@ unless we rewrite major parts from the setup.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy import Column, Integer, String, ForeignKey, create_engine
 from sqlalchemy.orm import sessionmaker
 #from sqlalchemy.ext.declarative import declarative_base

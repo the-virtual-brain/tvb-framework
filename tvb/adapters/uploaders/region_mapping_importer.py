@@ -32,6 +32,7 @@
 .. moduleauthor:: Calin Pavel
 """
 
+from __future__ import absolute_import
 import os
 import numpy
 import shutil

@@ -31,6 +31,7 @@
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import numpy
 import scipy.io
 

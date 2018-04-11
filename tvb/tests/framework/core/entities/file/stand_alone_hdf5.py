@@ -38,6 +38,8 @@ simultaneous read operations of hdf5 files with either pytables, h5py or tvb's h
 Is NOT intended to be included in the automated tests run periodically.
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import sys
 import threading
@@ -45,6 +47,7 @@ import numpy
 import tables as hdf5
 import h5py
 import tvb.core.entities.file.hdf5_storage_manager as hdf5storage
+from six.moves import range
 
 excep_count = 0
 isok = True
@@ -89,8 +92,8 @@ def test_using_hdf5manager(nr_of_threads):
         for thread in threading.enumerate():
             if thread is not threading.currentThread():
                 thread.join()
-    print("RAN FINE FOR " + str(th_nr * 80) + " THREADS")
-    print("STOPPED DUE TO EXCEPTION " + str(exception))
+    print(("RAN FINE FOR " + str(th_nr * 80) + " THREADS"))
+    print(("STOPPED DUE TO EXCEPTION " + str(exception)))
 
 
 def test_using_h5py(nr_of_threads):
@@ -132,8 +135,8 @@ def test_using_h5py(nr_of_threads):
         for thread in threading.enumerate():
             if thread is not threading.currentThread():
                 thread.join()
-    print("RAN FINE FOR " + str(th_nr * 80) + " THREADS")
-    print("STOPPED DUE TO EXCEPTION " + str(exception))
+    print(("RAN FINE FOR " + str(th_nr * 80) + " THREADS"))
+    print(("STOPPED DUE TO EXCEPTION " + str(exception)))
 
 
 def test_using_pytables(nr_of_threads):

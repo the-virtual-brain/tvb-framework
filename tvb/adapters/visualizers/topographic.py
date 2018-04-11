@@ -34,6 +34,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 import json
 from scipy.optimize import leastsq
@@ -42,6 +43,7 @@ from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.graph import ConnectivityMeasure
 from tvb.basic.filters.chain import FilterChain
+from six.moves import range
 
 
 class TopographyCalculations(object):

@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 import copy
 from tvb.tests.framework.core.base_testcase import BaseTestCase
@@ -42,6 +43,7 @@ from tvb.core.entities import model
 from tvb.core.entities.storage import dao, SA_SESSIONMAKER
 from tvb.core.services.flow_service import FlowService
 from tvb.tests.framework.core.factory import TestFactory
+from six.moves import range
 
 
 class MappedTestClass(MappedType):
@@ -109,7 +111,7 @@ class TestMapping(BaseTestCase):
         Test the filter function when retrieving dataTypes with a filter
         after a column from a class specific table (e.g. DATA_arraywrapper).
         """ 
-        test_array = numpy.array(range(16))
+        test_array = numpy.array(list(range(16)))
         shapes = [test_array.shape, (2, 8), (2, 2, 4), (2, 2, 2, 2)]
         storage_path = self.flow_service.file_helper.get_project_folder(self.operation.project, str(self.operation.id))
         for i in range(4):

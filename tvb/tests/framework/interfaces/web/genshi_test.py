@@ -33,6 +33,7 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import re
 import numpy
@@ -54,6 +55,7 @@ from tvb.interfaces.web.controllers.flow_controller import FlowController
 from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
 from tvb.tests.framework.adapters.ndimensionarrayadapter import NDimensionArrayAdapter
 from tvb.tests.framework.core.factory import TestFactory
+from six.moves import range
 
 
 

@@ -32,11 +32,13 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.datatypes.arrays import MappedArray
 from tvb.datatypes.mapped_values import ValueWrapper
 from tvb.core.adapters.abcadapter import ABCAdapter, ABCAsynchronous, ABCSynchronous
 from tvb.tests.framework.datatypes.datatype1 import Datatype1
 from tvb.tests.framework.datatypes.datatype2 import Datatype2
+from six.moves import range
 
 
 

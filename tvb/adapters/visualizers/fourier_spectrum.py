@@ -34,10 +34,12 @@
 .. moduleauthor:: Stuart A. Knock <stuart.knock@gmail.com>
 
 """
+from __future__ import absolute_import
 import json
 import numpy
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.spectral import FourierSpectrum
+from six.moves import range
 
 
 class FourierSpectrumDisplay(ABCDisplayer):
@@ -71,7 +73,7 @@ class FourierSpectrumDisplay(ABCDisplayer):
         input_data = kwargs['input_data']
         shape = list(input_data.read_data_shape())
         state_list = input_data.source.labels_dimensions.get(input_data.source.labels_ordering[1], [])
-        mode_list = range(shape[3])
+        mode_list = list(range(shape[3]))
         available_scales = ["Linear", "Logarithmic"]
 
         params = dict(matrix_shape=json.dumps([shape[0], shape[2]]),

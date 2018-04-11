@@ -34,6 +34,7 @@ This module contains methods for creating persisted data-types for tests.
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import numpy
 import time
@@ -59,6 +60,7 @@ from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.tests.framework.datatypes.datatype1 import Datatype1
 from tvb.tests.framework.datatypes.datatype2 import Datatype2
 from tvb.tests.framework.adapters.storeadapter import StoreAdapter
+from six.moves import range
 
 
 class DatatypesFactory(object):
@@ -270,7 +272,7 @@ class DatatypesFactory(object):
         """
         operation, _, storage_path = self.__create_operation()
         partial_corr = CrossCorrelation(array_data=numpy.random.random((10, 10, 10, 10, 10)), use_storage=False)
-        crossc = CrossCorrelation(source=time_series, storage_path=storage_path, time=range(10))
+        crossc = CrossCorrelation(source=time_series, storage_path=storage_path, time=list(range(10)))
         crossc.write_data_slice(partial_corr)
         crossc.close_file()
         adapter_instance = StoreAdapter([crossc])

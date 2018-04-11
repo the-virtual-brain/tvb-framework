@@ -33,6 +33,7 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import cherrypy
 
@@ -46,6 +47,7 @@ from tvb.interfaces.web.controllers.decorators import expose_fragment, expose_pa
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.transient.context_local_connectivity import ContextLocalConnectivity
+from six.moves import range
 
 
 NO_OF_CUTOFF_POINTS = 20

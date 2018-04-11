@@ -33,6 +33,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import json
 import copy
@@ -47,6 +48,7 @@ from tvb.basic.config import stored
 from tvb.core.utils import get_matlab_executable
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.settings_controller import SettingsController
+import six
 
 
 class TestSettingsController(BaseTransactionalControllerTest):
@@ -138,7 +140,7 @@ class TestSettingsController(BaseTransactionalControllerTest):
         Simulate submit of a given params (key:value) and check that they are found in the error response
         """
         submit_data = copy.copy(self.VALID_SETTINGS)
-        for key, value in params_dictionary.iteritems():
+        for key, value in six.iteritems(params_dictionary):
             submit_data[key] = value
 
         response = self.settings_c.settings(save_settings=True, **submit_data)

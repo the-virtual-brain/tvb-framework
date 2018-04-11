@@ -33,6 +33,7 @@ Decorators for Cherrypy exposed methods are defined here.
 
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import numpy
 import os
 import json

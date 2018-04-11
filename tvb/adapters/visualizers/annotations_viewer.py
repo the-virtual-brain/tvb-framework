@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 from tvb.basic.profile import TvbProfile
 from tvb.basic.traits.core import KWARG_FILTERS_UI

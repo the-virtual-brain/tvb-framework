@@ -31,6 +31,7 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import numpy
 import tvb_data.nifti as demo_data

@@ -31,6 +31,7 @@
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import json
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.model import BurstConfiguration
@@ -39,6 +40,7 @@ from tvb.simulator.integrators import HeunStochastic
 from tvb.simulator.models import Hopfield, Generic2dOscillator
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
+from six.moves import range
 
 
 class TestSerializationManager(TransactionalTestCase):

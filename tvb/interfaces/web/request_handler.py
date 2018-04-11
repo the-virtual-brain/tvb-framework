@@ -32,6 +32,7 @@
 .. moduleauthor:: calin.pavel <calin.pavel@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import six
 import shutil

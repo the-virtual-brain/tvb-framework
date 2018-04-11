@@ -32,6 +32,7 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import pytest
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase

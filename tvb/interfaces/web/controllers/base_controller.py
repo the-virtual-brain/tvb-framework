@@ -37,6 +37,7 @@ This is the main UI entry point.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import cherrypy
 
@@ -48,6 +49,7 @@ from tvb.core.services.user_service import UserService
 from tvb.core.services.flow_service import FlowService
 from tvb.interfaces.web.controllers.decorators import using_template
 from tvb.interfaces.web.structure import WebStructure
+from six.moves import range
 
 # Constants used be the mechanism that deletes files on disk
 FILES_TO_DELETE_ATTR = "files_to_delete"
@@ -330,7 +332,7 @@ class BaseController(object):
         if overlay_indexes is not None:
             template_dictionary[common.KEY_OVERLAY_INDEXES] = overlay_indexes
         else:
-            template_dictionary[common.KEY_OVERLAY_INDEXES] = range(len(tabs_horizontal)) \
+            template_dictionary[common.KEY_OVERLAY_INDEXES] = list(range(len(tabs_horizontal))) \
                 if tabs_horizontal is not None else []
         template_dictionary[common.KEY_OVERLAY_PAGINATION] = False
 

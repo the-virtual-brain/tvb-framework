@@ -34,6 +34,7 @@ Demo script on how to load a TVB DataType by Id and modify metadata
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 if __name__ == "__main__":
     from tvb.basic.profile import TvbProfile
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)

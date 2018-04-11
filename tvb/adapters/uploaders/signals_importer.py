@@ -36,9 +36,10 @@ time series and sensor data.
 
 """
 
+from __future__ import absolute_import
 import os
 import numpy
-import ConfigParser
+import six.moves.configparser
 from scipy.io import loadmat
 from StringIO import StringIO
 from tvb.adapters.uploaders.abcuploader import ABCUploader
@@ -149,7 +150,7 @@ class VHDR(ABCUploader):
         self.sio.write('\n'.join(self.srclines))
         self.sio.seek(0)
 
-        self.cp = ConfigParser.ConfigParser()
+        self.cp = six.moves.configparser.ConfigParser()
         self.cp.readfp(self.sio)
 
         for opt in self.cp.options('Common Infos'):

@@ -31,22 +31,23 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import sys
 from threading import Lock
 from abc import ABCMeta
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
+import six
 
 
 LOCK_CREATE_FIGURE = Lock()
 
 
-class ABCDisplayer(ABCSynchronous):
+class ABCDisplayer(six.with_metaclass(ABCMeta, ABCSynchronous)):
     """
     Abstract class, for marking Adapters used for UI display only.
     """
-    __metaclass__ = ABCMeta
     KEY_CONTENT_MODULE = "keyContentModule"
     KEY_CONTENT = "mainContent"
     KEY_IS_ADAPTER = "isAdapter"

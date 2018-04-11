@@ -36,6 +36,7 @@ Plot the power of a WaveletCoefficients object
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 """
 
+from __future__ import absolute_import
 import json
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.spectral import WaveletCoefficients

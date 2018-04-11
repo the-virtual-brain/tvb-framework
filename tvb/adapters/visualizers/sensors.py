@@ -33,6 +33,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 from tvb.adapters.visualizers.surface_view import prepare_shell_surface_urls
 from tvb.core.adapters.abcdisplayer import ABCDisplayer

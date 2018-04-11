@@ -34,6 +34,7 @@ Control code for Main-Burst Page.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import copy
 import cherrypy
@@ -60,6 +61,8 @@ from tvb.interfaces.web.controllers.burst.base_controller import BurstBaseContro
 from tvb.interfaces.web.controllers.decorators import context_selected, check_user, settings, handle_error
 from tvb.interfaces.web.controllers.decorators import expose_page, expose_fragment, expose_json
 from tvb.interfaces.web.controllers.flow_controller import KEY_CONTROLLS, SelectedAdapterContext
+import six
+from six.moves import range
 
 PORTLET_STEP_SEPARATOR = "____"
 BURST_NAME = 'burstName'
@@ -340,9 +343,9 @@ class BurstController(BurstBaseController):
         simulation_length = data['simulation_length']
         try:
             simulation_length = total_ms(simulation_length)
-        except ValueError, e:
+        except ValueError as e:
             return {'error': e.message}
-        data['simulation_length']=unicode(simulation_length)
+        data['simulation_length']=six.text_type(simulation_length)
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
 
         ## Validate new burst-name

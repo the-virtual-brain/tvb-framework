@@ -34,6 +34,7 @@ Backend-side for Visualizers that display measures on regions in the brain volum
 .. moduleauthor:: Andrei Mihai <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.arguments_serialisation import slice_str
@@ -44,6 +45,7 @@ from tvb.datatypes.arrays import MappedArray
 from tvb.datatypes.graph import ConnectivityMeasure
 from tvb.datatypes.region_mapping import RegionVolumeMapping
 from tvb.datatypes.structural import StructuralMRI
+from six.moves import range
 
 
 class _MappedArrayVolumeBase(ABCDisplayer):

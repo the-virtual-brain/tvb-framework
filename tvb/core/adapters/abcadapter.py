@@ -35,6 +35,7 @@ Root classes for adding custom functionality to the code.
 .. moduleauthor:: Yann Gordon <yann@tvb.invalid>
 """
 
+from __future__ import absolute_import
 import os
 import json
 import psutil
@@ -55,6 +56,7 @@ from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.adapters.exceptions import IntrospectionException, LaunchException, InvalidParameterException
 from tvb.core.adapters.exceptions import NoMemoryAvailableException
+import six
 
 
 ATT_METHOD = "python_method"
@@ -119,7 +121,7 @@ def nan_allowed():
 
 
 
-class ABCAdapter(object):
+class ABCAdapter(six.with_metaclass(ABCMeta, object)):
     """
     Root Abstract class for all TVB Adapters. 
     """
@@ -155,8 +157,6 @@ class ABCAdapter(object):
 
     # model.Algorithm instance that will be set for each adapter created by in build_adapter method
     stored_adapter = None
-
-    __metaclass__ = ABCMeta
 
 
     def __init__(self):
@@ -525,11 +525,10 @@ class ABCAdapter(object):
 
 
 
-class ABCAsynchronous(ABCAdapter):
+class ABCAsynchronous(six.with_metaclass(ABCMeta, ABCAdapter)):
     """
     Abstract class, for marking adapters that are prone to be executed  on Cluster.
     """
-    __metaclass__ = ABCMeta
 
     def array_size2kb(self, size):
         """
@@ -540,10 +539,9 @@ class ABCAsynchronous(ABCAdapter):
 
 
 
-class ABCSynchronous(ABCAdapter):
+class ABCSynchronous(six.with_metaclass(ABCMeta, ABCAdapter)):
     """
     Abstract class, for marking adapters that are prone to be NOT executed on Cluster.
     """
-    __metaclass__ = ABCMeta
 
 

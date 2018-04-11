@@ -39,6 +39,7 @@ Few supplementary steps are done here:
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 
 """
+from __future__ import absolute_import
 import numpy
 from tvb.simulator.simulator import Simulator
 from tvb.simulator.models import Model

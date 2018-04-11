@@ -35,6 +35,7 @@ A displayer for the cross coherence of a time series.
 
 """
 
+from __future__ import absolute_import
 import json
 from tvb.adapters.visualizers.matrix_viewer import MappedArraySVGVisualizerMixin
 from tvb.core.adapters.abcdisplayer import ABCDisplayer

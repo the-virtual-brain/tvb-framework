@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import pytest
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from hashlib import md5
@@ -41,6 +42,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.services.exceptions import UsernameException
 from tvb.core.services.user_service import UserService, USERS_PAGE_SIZE
 from tvb.core.services.project_service import ProjectService
+from six.moves import range
 
 
 class MainSenderDummy(object):
@@ -297,11 +299,11 @@ class TestUserService(TransactionalTestCase):
         Try to get the second page of users for a given project
         """
         for i in range(USERS_PAGE_SIZE + 3):
-            exec 'user_' + str(i) + '= model.User("test_user' + str(
-                i) + '", "test_pass", "test_mail@tvb.org", False, "user")'
-            exec "dao.store_entity(user_" + str(i) + ")"
+            exec('user_' + str(i) + '= model.User("test_user' + str(
+                i) + '", "test_pass", "test_mail@tvb.org", False, "user")')
+            exec("dao.store_entity(user_" + str(i) + ")")
         for i in range(USERS_PAGE_SIZE + 3):
-            exec 'member' + str(i) + '=dao.get_user_by_name("test_user' + str(i) + '")'
+            exec('member' + str(i) + '=dao.get_user_by_name("test_user' + str(i) + '")')
         admin = dao.get_user_by_name("test_user1")
         data = dict(name='test_proj', description='test_desc',
                     users=[eval('member' + str(i) + '.id') for i in range(USERS_PAGE_SIZE + 3)])
@@ -317,11 +319,11 @@ class TestUserService(TransactionalTestCase):
         Then delete that user.
         """
         for i in range(USERS_PAGE_SIZE + 1):
-            exec 'user_' + str(i) + '= model.User("test_user' + str(i) + \
-                 '", "test_pass", "test_mail@tvb.org", False, "user")'
-            exec "dao.store_entity(user_" + str(i) + ")"
+            exec('user_' + str(i) + '= model.User("test_user' + str(i) + \
+                 '", "test_pass", "test_mail@tvb.org", False, "user")')
+            exec("dao.store_entity(user_" + str(i) + ")")
         for i in range(USERS_PAGE_SIZE + 1):
-            exec 'member' + str(i) + '=dao.get_user_by_name("test_user' + str(i) + '")'
+            exec('member' + str(i) + '=dao.get_user_by_name("test_user' + str(i) + '")')
 
         admin = dao.get_user_by_name("test_user1")
         data = dict(name='test_proj', description='test_desc',

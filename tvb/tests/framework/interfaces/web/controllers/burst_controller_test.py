@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import copy
 import json
 import numpy
@@ -54,6 +55,7 @@ from tvb.core.services.operation_service import OperationService
 from tvb.core.services.flow_service import FlowService
 from tvb.tests.framework.adapters.storeadapter import StoreAdapter
 from tvb.tests.framework.adapters.simulator.simulator_adapter_test import SIMULATOR_PARAMETERS
+from six.moves import range
 
 
 

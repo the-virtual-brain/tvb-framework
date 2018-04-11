@@ -31,6 +31,7 @@
 """
 .. moduleauthor:: calin.pavel <calin.pavel@codemart.ro>
 """
+from __future__ import absolute_import
 import pytest
 import os.path
 import shutil

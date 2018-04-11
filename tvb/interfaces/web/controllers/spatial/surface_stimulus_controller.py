@@ -33,6 +33,7 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import numpy
 import copy
@@ -46,6 +47,7 @@ from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.decorators import expose_page, expose_json, expose_fragment
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import SpatioTemporalController
 from tvb.interfaces.web.controllers.spatial.base_spatio_temporal_controller import PARAM_SURFACE
+from six.moves import range
 
 
 SURFACE_STIMULUS_CREATOR_MODULE = "tvb.adapters.creators.stimulus_creator"

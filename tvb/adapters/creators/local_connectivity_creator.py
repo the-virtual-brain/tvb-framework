@@ -32,6 +32,7 @@
 .. Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.adapters.abcadapter import ABCAsynchronous
 from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.datatypes.equations import Equation

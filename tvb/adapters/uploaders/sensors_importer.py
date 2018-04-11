@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 import scipy.io
 import collections
@@ -154,7 +155,7 @@ class BrainstormSensorUploader(ABCUploader):
         if 'Channel' not in mat:
             raise LaunchException(please_verify)
         chans = mat['Channel']
-        chan_fields = chans.dtype.fields.keys()
+        chan_fields = list(chans.dtype.fields.keys())
         req_fields = 'Name Type Loc Orient'.split()
         if any(key not in chan_fields for key in req_fields):
             raise LaunchException(please_verify)

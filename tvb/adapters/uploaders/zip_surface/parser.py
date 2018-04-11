@@ -31,10 +31,12 @@
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import os
 import re
 import numpy
 from tvb.core.entities.file.files_helper import TvbZip
+from six.moves import zip
 
 
 class ZipSurfaceParser(object):

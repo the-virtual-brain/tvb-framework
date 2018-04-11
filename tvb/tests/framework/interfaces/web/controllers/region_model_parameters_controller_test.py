@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import pytest
 import cherrypy
@@ -45,6 +46,8 @@ from tvb.simulator.models import Generic2dOscillator, Kuramoto
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.tests.framework.adapters.simulator.simulator_adapter_test import SIMULATOR_PARAMETERS
 import tvb.interfaces.web.controllers.common as common
+import six
+from six.moves import range
 
 
 class TestRegionsModelParametersController(BaseTransactionalControllerTest):
@@ -62,7 +65,7 @@ class TestRegionsModelParametersController(BaseTransactionalControllerTest):
         stored_burst = cherrypy.session[common.KEY_BURST_CONFIG]
         _, self.connectivity = DatatypesFactory().create_connectivity()
         new_params = {}
-        for key, val in SIMULATOR_PARAMETERS.iteritems():
+        for key, val in six.iteritems(SIMULATOR_PARAMETERS):
             new_params[key] = {'value': val}
         new_params['connectivity'] = {'value': self.connectivity.gid}
         stored_burst.simulator_configuration = new_params

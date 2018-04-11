@@ -32,6 +32,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.local_connectivity import LocalConnectivity

@@ -36,6 +36,7 @@ It displays the mixing matrix of siae n_features x n_components
 
 """
 
+from __future__ import absolute_import
 from tvb.adapters.visualizers.matrix_viewer import MappedArraySVGVisualizerMixin
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.mode_decompositions import IndependentComponents

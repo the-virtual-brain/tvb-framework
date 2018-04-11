@@ -35,6 +35,7 @@ A displayer for covariance.
 
 """
 
+from __future__ import absolute_import
 from tvb.adapters.visualizers.matrix_viewer import MappedArrayVisualizer
 from tvb.datatypes.graph import Covariance
 
