@@ -34,6 +34,7 @@ Populate Surface fields after 1.2.2, in version 1.2.3.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.storage import dao
 from tvb.core.entities import model

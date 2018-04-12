@@ -34,6 +34,7 @@ Change of DB structure for TVB version 1.0.6.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.entities.model.db_update_scripts.helper import change_algorithm
 
 

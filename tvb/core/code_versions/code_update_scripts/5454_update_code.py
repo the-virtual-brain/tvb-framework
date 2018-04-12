@@ -35,10 +35,13 @@ In this version the location where ResultFigures are stored has changed.
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.project_versions.project_update_manager import ProjectUpdateManager
+import six
+from six.moves import range
 
 
 PAGE_SIZE = 20
@@ -48,7 +51,7 @@ def _figures_in_project(project_id):
     grouped_figures, _ = dao.get_previews(project_id)
     figures = []
 
-    for fv in grouped_figures.itervalues():
+    for fv in six.itervalues(grouped_figures):
         figures.extend(fv)
 
     return figures

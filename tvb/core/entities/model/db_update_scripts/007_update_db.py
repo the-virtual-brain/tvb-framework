@@ -34,6 +34,7 @@ Change of DB structure from TVB version 1.0.8 to 1.1.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy import Column, String
 from migrate.changeset.schema import create_column, drop_column
 from tvb.basic.logger.builder import get_logger

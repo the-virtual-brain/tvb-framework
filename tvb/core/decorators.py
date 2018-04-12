@@ -32,8 +32,10 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 from tvb.basic.config.environment import Environment
+from six.moves import range
 
 
 

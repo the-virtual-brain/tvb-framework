@@ -33,6 +33,7 @@ Entities to be used with an overlay on Operation or DataType, are defined here.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 import six
 from tvb.basic.config.utils import EnhancedDictionary
@@ -100,7 +101,7 @@ class CommonDetails(EnhancedDictionary):
         """
         A list with all attributes for a DataType which are expected to be submitted from UI.
         """
-        result = self.keys()
+        result = list(self.keys())
         result.remove('metadata')
         result.remove('scientific_details')
         return result

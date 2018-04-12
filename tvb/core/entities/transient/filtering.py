@@ -31,6 +31,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>    
 """
 
+from __future__ import absolute_import
 import json
 import six
 from tvb.core.entities import model
@@ -64,7 +65,7 @@ class StaticFiltersFactory():
             else:
                 ### We have some custom filter to build
                 return StaticFiltersFactory._build_custom_filter(single_filter)
-        return filters.values()
+        return list(filters.values())
 
 
     @staticmethod

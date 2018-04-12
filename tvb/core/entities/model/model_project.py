@@ -36,6 +36,7 @@ Here we define entities related to user and project.
 .. moduleauthor:: Yann Gordon <yann@tvb.invalid>
 """
 
+from __future__ import absolute_import
 import datetime
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.associationproxy import association_proxy

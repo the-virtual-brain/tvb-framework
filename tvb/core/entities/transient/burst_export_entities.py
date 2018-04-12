@@ -34,6 +34,7 @@ Entities transient and related to a Burst Configuration.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from copy import deepcopy
 from datetime import datetime
 from tvb.core.entities.storage import dao

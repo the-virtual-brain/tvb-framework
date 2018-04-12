@@ -35,6 +35,7 @@ Here we define entities related to workflows and portlets.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import datetime
 from sqlalchemy import Integer, String, Column, ForeignKey, DateTime
@@ -198,7 +199,7 @@ class _BaseWorkflowStep(Exportable):
     @property
     def dynamic_workflow_param_names(self):
         """Return list with strings, representing flatten names of the input dynamic parameters"""
-        return self.dynamic_param.keys()
+        return list(self.dynamic_param.keys())
 
 
     def _set_static_parameters(self, static_params):

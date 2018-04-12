@@ -36,6 +36,7 @@ Here we define entities for Operations and Algorithms.
 .. moduleauthor:: Yann Gordon <yann@tvb.invalid>
 """
 
+from __future__ import absolute_import
 import json
 import datetime
 from sqlalchemy.orm import relationship, backref

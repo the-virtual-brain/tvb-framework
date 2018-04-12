@@ -34,10 +34,12 @@ Change for TVB version 1.4.1.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.project_versions.project_update_manager import ProjectUpdateManager
+from six.moves import range
 
 
 PAGE_SIZE = 20

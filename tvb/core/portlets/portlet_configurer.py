@@ -32,6 +32,7 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.input_tree import InputTreeManager
 from tvb.core.entities.model import WorkflowStep, WorkflowStepView
@@ -40,6 +41,7 @@ from tvb.core.entities.transient.burst_configuration_entities import WorkflowSte
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.portlets.xml_reader import XMLPortletReader, KEY_STATIC, KEY_DYNAMIC, ATT_OVERWRITE
+from six.moves import range
 
 
 # The root of each prefix. The index in the adapter chain for each adapter will

@@ -33,10 +33,12 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import xml.dom.minidom
 from xml.dom.minidom import Node
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.constants import *
+from six.moves import range
 
 KEY_DYNAMIC = 'dynamic'
 KEY_STATIC = 'static'

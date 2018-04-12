@@ -34,6 +34,7 @@ Service for serianlizing a Burst (Simulator) configuration.
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import six
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.traits.parameters_factory import get_traited_instance_for_name

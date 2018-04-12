@@ -38,6 +38,7 @@ More specific: it contains XML Reader/Writer Utility, for GenericMetaData.
 
 """
 
+from __future__ import absolute_import
 import json
 import xml.dom.minidom
 from xml.dom.minidom import Node, Document
@@ -128,7 +129,7 @@ class XMLReader(object):
             if node.nodeType == Node.ELEMENT_NODE:
                 result[node.nodeName] = self.get_node_text(node)
                 result_meta = self._parse_xml_node_to_dict(node)
-                if result_meta.keys() is not None and len(result_meta.keys()) > 0:
+                if list(result_meta.keys()) is not None and len(list(result_meta.keys())) > 0:
                     result[node.nodeName] = result_meta
         return result
     

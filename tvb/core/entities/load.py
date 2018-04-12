@@ -32,11 +32,13 @@
 Higher level entity loading.
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.exceptions import FileVersioningException
 from tvb.core.entities.file.files_update_manager import FilesUpdateManager
 from tvb.core.entities.storage import dao
 from tvb.core.traits.types_mapped import MappedType
+import six
 
 LOGGER = get_logger(__name__)
 
@@ -74,7 +76,7 @@ def get_filtered_datatypes(project_id, data_type_cls, filters=None, page_size=50
     Return all dataTypes that match a given name and some filters.
     :param data_type_cls: either a fully qualified class name or a class object
     """
-    if isinstance(data_type_cls, basestring):
+    if isinstance(data_type_cls, six.string_types):
         data_type_cls = get_class_by_name(data_type_cls)
     LOGGER.debug('Filtering:' + str(data_type_cls))
     return dao.get_values_of_datatype(project_id, data_type_cls, filters, page_size)

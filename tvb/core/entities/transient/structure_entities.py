@@ -33,8 +33,10 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 from tvb.basic.config.utils import EnhancedDictionary
+import six
 
 
 
@@ -139,10 +141,10 @@ class StructureNode:
                     levels[level_one][level_two].append(meta)
 
         forest = []
-        for level in sorted(levels.iterkeys()):
+        for level in sorted(six.iterkeys(levels)):
             sublevels = levels[level]
             level_children = []
-            for sublevel in sorted(sublevels.iterkeys()):
+            for sublevel in sorted(six.iterkeys(sublevels)):
                 metas = sublevels[sublevel]
                 datas = []
                 for meta in metas:
@@ -272,7 +274,7 @@ class GenericMetaData(EnhancedDictionary):
         """
         :returns: current Global Identifier or None.
         """
-        if self.KEY_GID in self.keys():
+        if self.KEY_GID in list(self.keys()):
             return self[self.KEY_GID]
         return None
     
@@ -281,7 +283,7 @@ class GenericMetaData(EnhancedDictionary):
         """
         :returns: name of the file where to store current data, or None.
         """
-        if self.KEY_FILENAME in self.keys():
+        if self.KEY_FILENAME in list(self.keys()):
             return self[self.KEY_FILENAME]
         return None
 
@@ -338,7 +340,7 @@ class DataTypeMetaData(GenericMetaData):
         """
         Return the name of the Subject if defined, or Default "John Doe".
         """
-        if self.KEY_SUBJECT not in self.keys():
+        if self.KEY_SUBJECT not in list(self.keys()):
             return self.DEFAULT_SUBJECT
         return self[self.KEY_SUBJECT]
     
@@ -347,7 +349,7 @@ class DataTypeMetaData(GenericMetaData):
         """
         Return the create date of this entity, if stored, or None otherwise.
         """
-        if self.KEY_DATE in self.keys():
+        if self.KEY_DATE in list(self.keys()):
             return self[self.KEY_DATE]
         return None
     
@@ -356,7 +358,7 @@ class DataTypeMetaData(GenericMetaData):
         """
         Return the group tag in which the operation was launched
         """
-        if self.KEY_OPERATION_TAG in self.keys():
+        if self.KEY_OPERATION_TAG in list(self.keys()):
             return self[self.KEY_OPERATION_TAG]
         return None
     

@@ -34,6 +34,7 @@ Change of DB structure from TVB version 1.4.1 to TVB 1.5
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.sql import text
 from migrate.changeset.constraint import ForeignKeyConstraint

@@ -36,6 +36,7 @@ Service layer, for storing/retrieving Resulting Figures in TVB.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 from PIL import Image
 import base64

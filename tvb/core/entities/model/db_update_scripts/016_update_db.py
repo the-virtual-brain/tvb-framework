@@ -34,6 +34,7 @@ Change of DB structure from TVB version 1.4.1 to TVB 1.4.1b
 .. moduleauthor:: Andrei Mihai <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.entities.storage import SA_SESSIONMAKER
 from sqlalchemy.sql import text
 

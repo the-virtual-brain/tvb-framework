@@ -35,6 +35,7 @@ Change of DB structure from TVB version 1.0 to TVB 1.0.1.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.entities.model.db_update_scripts.helper import change_algorithm
 
 

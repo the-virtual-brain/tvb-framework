@@ -35,6 +35,7 @@ When executed on a project already stored, an update in DB references might also
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import shutil
 from tvb.core.entities.file.files_helper import FilesHelper

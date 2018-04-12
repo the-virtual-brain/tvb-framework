@@ -33,6 +33,7 @@ Python Triggers on DB operations.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import six
 from sqlalchemy import event
 from sqlalchemy.orm import mapper
@@ -102,7 +103,7 @@ def fill_before_insert(_, _ignored, target):
         # Fix String columns which are parsed as JSON
         if kwd.get('db', True) and isinstance(attr, MapAsJson) and hasattr(target, '_' + key):
             field_value = getattr(target, '_' + key)
-            if field_value is not None and not isinstance(field_value, (str, unicode)):
+            if field_value is not None and not isinstance(field_value, (str, six.text_type)):
                 setattr(target, '_' + key, attr.to_json(field_value))
 
     # Validate if the object can be stored before storing in DB

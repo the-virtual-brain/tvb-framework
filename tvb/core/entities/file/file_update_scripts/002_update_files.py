@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import sys
 import importlib
@@ -42,6 +43,8 @@ from datetime import datetime
 from tvb.basic.profile import TvbProfile
 from tvb.core.utils import string2date, date2string, string2bool
 from tvb.core.entities.file.exceptions import FileVersioningException
+import six
+from six.moves import range
 
 PYTHON_EXE_PATH = TvbProfile.current.PYTHON_INTERPRETER_PATH
 DATA_BUFFER_SIZE = 50000000 / 8  # 500 MB maximum read at once (just assume worst case float64)
@@ -74,7 +77,7 @@ def _serialize_value(value):
     if value is None:
         return ''
     # Force unicode strings to simple strings.
-    if isinstance(value, unicode):
+    if isinstance(value, six.text_type):
         return str(value)
     # Transform boolean to string and prefix it
     elif isinstance(value, bool):

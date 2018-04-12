@@ -34,6 +34,7 @@ Change of DB structure from TVB version 1.3.1 to 1.4
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy.sql import text
 from sqlalchemy import Column, String, Boolean
 from migrate.changeset.schema import create_column, drop_column

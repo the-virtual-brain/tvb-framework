@@ -35,8 +35,10 @@ Converts a color scheme texture image to json arrays
 """
 
 
+from __future__ import absolute_import
 import numpy
 from PIL import Image
+from six.moves import range
 
 def color_texture_to_list(img_pth, img_width, band_height):
     """

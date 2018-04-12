@@ -33,6 +33,7 @@ Change of DB structure from TVB version 1.0.1 to TVB 1.0.2.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import sqlalchemy
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.sql import text

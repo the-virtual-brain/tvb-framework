@@ -32,6 +32,7 @@
 DAO layer for WorkFlow and Burst entities.
 """
 
+from __future__ import absolute_import
 from sqlalchemy import func as func
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound

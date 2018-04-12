@@ -32,6 +32,7 @@
 Common parts for all classes in Model. 
 """
 
+from __future__ import absolute_import
 from tvb.basic.profile import TvbProfile
 
 if TvbProfile.current.TRAITS_CONFIGURATION.use_storage:

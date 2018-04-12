@@ -35,6 +35,7 @@ Persistence of data in HDF5 format.
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import copy
 import threading
@@ -47,6 +48,7 @@ from tvb.basic.profile import TvbProfile
 from tvb.core.entities.file.exceptions import FileStructureException, MissingDataSetException
 from tvb.core.entities.file.exceptions import IncompatibleFileManagerException, MissingDataFileException
 from tvb.core.entities.transient.structure_entities import GenericMetaData
+import six
 
 
 # Create logger for this module
@@ -323,7 +325,7 @@ class HDF5StorageManager(object):
         if value is None:
             return ''
         # Force unicode strings to simple strings.
-        if isinstance(value, unicode):
+        if isinstance(value, six.text_type):
             return str(value)
         # Transform boolean to string and prefix it
         elif isinstance(value, bool):

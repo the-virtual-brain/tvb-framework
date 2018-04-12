@@ -34,6 +34,8 @@ Created on Nov 1, 2011
 """
 
 ####### Default factory is empty
+from __future__ import absolute_import
+import six
 FACTORY_DICTIONARY = {}
 
 
@@ -41,7 +43,7 @@ def get_remover(datatype_name):
     """
     :param datatype_name: class-name; to search for a remover class for this. 
     """
-    if isinstance(datatype_name, str) or isinstance(datatype_name, unicode):
+    if isinstance(datatype_name, str) or isinstance(datatype_name, six.text_type):
         datatype_name = datatype_name.split('.')[-1]
     else:
         datatype_name = datatype_name.__name__
