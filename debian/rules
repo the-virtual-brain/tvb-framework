@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE = 1
+export PYBUILD_NAME = tvb-framework
+
+%:
+	dh $@ --with python2 --buildsystem=pybuild
+
+export PYBUILD_TEST_ARGS=--pyargs tvb.tests.framework.interfaces.web.controllers.help_controller_test
