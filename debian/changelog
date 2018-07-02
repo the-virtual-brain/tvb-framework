@@ -1,3 +1,15 @@
+tvb-framework (1.5.6-2) unstable; urgency=medium
+
+  * Fix package .deb name. Closes: #901868
+  * Added debian/source/lintian-overrides file
+  * Fix tvb-framework source a lot of files
+  * Fix tvb-framework embedded-javascript-library
+  * Fix tvb-framework duplicate-font-file
+  * Fix tvb-framework privacy-breach-generic
+  * Fix tvb-framework executable-not-elf-or-script
+
+ -- umar haruna abdullahi <umarbrowser20@gmail.com>  Mon, 02 Jul 2018 18:09:59 +0100
+
 tvb-framework (1.5.6-1) unstable; urgency=medium
 
   * Initial release. Closes: #901868

@@ -1,0 +1,5 @@
+# This is an override for the following lintian error:
+# E: tvb-framework source: a lot of files
+# The source is not missing, all tvb-framework source is included.
+# This is a lintian false-positive.
+tvb-framework source: source-is-missing
