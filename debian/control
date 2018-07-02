@@ -23,16 +23,13 @@ Build-Depends: debhelper (>=11),
                python-numpy,
                python-scipy,
                tvb-library,
-               tvb-data,
-               libjs-excanvas,
-               libjs-jquery,
-               libjs-jquery-mousewheel
+               tvb-data
 Standards-Version: 4.1.4
 Vcs-Browser: https://github.com/the-virtual-brain/tvb-framework
 Vcs-Git: https://github.com/the-virtual-brain/tvb-framework.git
 Homepage: http://www.thevirtualbrain.org
 
-Package: tvb-framwork
+Package: tvb-framework
 Architecture: all
 Depends: ${misc:Depends},
          ${python:Depends}
