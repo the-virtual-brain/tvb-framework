@@ -1,0 +1,39 @@
+Source: tvb-framework
+Maintainer: umar haruna abdullahi <umarbrowser20@gmail.com>
+Section: python
+Priority: optional
+Build-Depends: debhelper (>=11),
+               dh-python,
+               python-all,
+               python-setuptools,
+               python-bs4,
+               python-cfflib,
+               python-cherrypy,
+               python-formencode,
+               python-genshi,
+               python-h5py,
+               python-nibabel,
+               python-pil,
+               python-psutil,
+               python-simplejson,
+               python-sqlalchemy,
+               python-migrate,
+               python-networkx,
+               python-pytest,
+               python-numpy,
+               python-scipy,
+               tvb-library,
+               tvb-data
+Standards-Version: 4.1.4
+Vcs-Browser: https://github.com/the-virtual-brain/tvb-framework
+Vcs-Git: https://github.com/the-virtual-brain/tvb-framework.git
+Homepage: http://www.thevirtualbrain.org
+
+Package: tvb-framework
+Architecture: all
+Depends: ${misc:Depends},
+         ${python:Depends}
+Description: virtual brain framework is a complete framework
+ including a plugable workflow manager,a data persistence layer
+ (with a relational DB and File Storage),an HTML5 based user
+ interface, visualizers for neuro-science related entities
