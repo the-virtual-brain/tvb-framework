@@ -32,6 +32,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import networkx
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.networkx_connectivity.parser import NetworkxParser

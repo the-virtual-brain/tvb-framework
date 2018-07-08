@@ -33,6 +33,7 @@
 
 """
 
+from __future__ import absolute_import
 import json
 import numpy
 from tvb.basic.filters.chain import FilterChain
@@ -40,6 +41,7 @@ from tvb.basic.arguments_serialisation import parse_slice, slice_str
 from tvb.datatypes.arrays import MappedArray
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.time_series import TimeSeriesRegion
+from six.moves import range
 
 
 def compute_2d_view(matrix, slice_s):

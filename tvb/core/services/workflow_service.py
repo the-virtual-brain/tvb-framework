@@ -33,6 +33,7 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 from datetime import datetime
 from tvb.basic.logger.builder import get_logger
@@ -42,6 +43,7 @@ from tvb.core.entities import model
 from tvb.core.services.exceptions import WorkflowInterStepsException
 from tvb.core.entities.transient.burst_configuration_entities import WorkflowStepConfiguration
 from types import IntType
+import six
 
 
 DYNAMIC_PARAMS_KEY = "dynamic_params"
@@ -67,7 +69,7 @@ class WorkflowService:
         :param message: message in case of error
         :return: operation instance changed
         """
-        operation.mark_complete(operation_status, unicode(message))
+        operation.mark_complete(operation_status, six.text_type(message))
         dao.store_entity(operation)
         operation = dao.get_operation_by_id(operation.id)
         self.file_helper.write_operation_metadata(operation)

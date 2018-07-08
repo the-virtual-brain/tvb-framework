@@ -34,12 +34,14 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import pytest
 import datetime
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.utils import path2url_part, get_unique_file_name, string2date, date2string, string2bool
 from tvb.core.utils import string2array
+from six.moves import range
 
 
 class TestUtils(TransactionalTestCase):

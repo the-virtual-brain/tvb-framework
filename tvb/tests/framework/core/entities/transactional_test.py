@@ -31,6 +31,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import pytest
 import threading
 from tvb.tests.framework.core.base_testcase import BaseTestCase, transactional_test
@@ -40,6 +41,7 @@ from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.storage.session_maker import add_session, SessionMaker
 from tvb.core.entities.storage.exceptions import NestedTransactionUnsupported
 from tvb.tests.framework.core.factory import TestFactory
+from six.moves import range
 
 SESSIONMAKER = SessionMaker()
 

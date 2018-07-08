@@ -33,6 +33,7 @@ Testing linking datatypes between projects.
 
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.adapters.exporters.export_manager import ExportManager
 from tvb.core.entities.file.files_helper import TvbZip

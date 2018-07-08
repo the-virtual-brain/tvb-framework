@@ -37,6 +37,7 @@ Module in charge with Launching an operation (creating the Operation entity as w
 .. moduleauthor:: Yann Gordon <yann@tvb.invalid>
 """
 
+from __future__ import absolute_import
 import os
 import json
 import zipfile
@@ -398,11 +399,11 @@ class OperationService:
         """
         self.logger.exception(message)
         if operation is not None:
-            self.workflow_service.persist_operation_state(operation, model.STATUS_ERROR, unicode(exception))
+            self.workflow_service.persist_operation_state(operation, model.STATUS_ERROR, six.text_type(exception))
             self.workflow_service.update_executed_workflow_state(operation)
         self._remove_files(temp_files)
         exception.message = message
-        raise exception, None, sys.exc_info()[2]  # when rethrowing in python this is required to preserve the stack trace
+        six.reraise(exception, None, sys.exc_info()[2])  # when rethrowing in python this is required to preserve the stack trace
 
 
     def _remove_files(self, file_dictionary):
@@ -410,7 +411,7 @@ class OperationService:
         Remove any files that exist in the file_dictionary. 
         Currently used to delete temporary files created during an operation.
         """
-        for pth in file_dictionary.itervalues():
+        for pth in six.itervalues(file_dictionary):
             pth = str(pth)
             try:
                 if os.path.exists(pth) and os.path.isfile(pth):

@@ -34,6 +34,7 @@ Exceptions for Export mechanism.
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.traits.exceptions import TVBException
 
 

@@ -33,6 +33,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.core.entities.file.files_helper import FilesHelper

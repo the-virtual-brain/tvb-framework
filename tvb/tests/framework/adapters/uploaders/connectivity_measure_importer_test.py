@@ -33,6 +33,7 @@ module docstring
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import pytest
 import os.path
 import tvb_data

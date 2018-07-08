@@ -30,6 +30,7 @@
 """
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
+from __future__ import absolute_import
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.core.adapters.exceptions import LaunchException, ParseException
 from tvb.adapters.uploaders.gifti.parser import GIFTIParser

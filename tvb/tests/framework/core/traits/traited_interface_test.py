@@ -31,6 +31,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.simulator.simulator import Simulator
 from tvb.simulator.models import Model
 from tvb.basic.traits.core import TYPE_REGISTER

@@ -31,12 +31,14 @@
 """
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+from __future__ import absolute_import
 import os
 from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.storage import dao
 from tvb.core.services.flow_service import FlowService
 import tvb_data.sensors
+from six.moves import range
 
 DATA_FILE = os.path.join(os.path.dirname(tvb_data.sensors.__file__), "seeg_39.txt.bz2")
 

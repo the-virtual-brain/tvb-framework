@@ -34,6 +34,8 @@ Launch an operation from the command line
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 if __name__ == "__main__":
     from tvb.basic.profile import TvbProfile
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
@@ -57,7 +59,7 @@ def import_h5(file_path, project_id):
     ## Prepare the input algorithms as if they were coming from web UI submit:
     launch_args = {"data_file": file_path}
 
-    print("We will try to import file at path " + file_path)
+    print(("We will try to import file at path " + file_path))
     ## launch an operation and have the results stored both in DB and on disk
     launched_operations = flow_service.fire_operation(adapter_instance,
                                                       project.administrator,

@@ -29,10 +29,12 @@
 #
 
 
+from __future__ import absolute_import
 import json
 import numpy
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.graph import CorrelationCoefficients
+from six.moves import range
 
 
 class PearsonEdgeBundle(ABCDisplayer):
@@ -68,7 +70,7 @@ class PearsonEdgeBundle(ABCDisplayer):
         parent_ts = self.load_entity_by_gid(parent_ts.gid)
         labels = parent_ts.get_space_labels()
         state_list = parent_ts.labels_dimensions.get(parent_ts.labels_ordering[1], [])
-        mode_list = range(parent_ts._length_4d)
+        mode_list = list(range(parent_ts._length_4d))
         if not labels:
             labels = None
         pars = dict(matrix_labels=json.dumps(labels),

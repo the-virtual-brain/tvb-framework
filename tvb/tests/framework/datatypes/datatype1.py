@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.traits.types_basic import String
 from tvb.basic.traits.types_mapped import MappedType
 

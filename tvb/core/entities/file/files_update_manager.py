@@ -36,6 +36,7 @@ Manager for the file storage version updates.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import tvb.core.entities.file.file_update_scripts as file_update_scripts
 from datetime import datetime
@@ -47,6 +48,7 @@ from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.exceptions import MissingDataFileException, FileStructureException
 from tvb.core.entities.storage import dao
+from six.moves import range
 
 
 FILE_STORAGE_VALID = 'valid'

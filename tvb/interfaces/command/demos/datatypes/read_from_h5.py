@@ -34,6 +34,8 @@ Demo script on how to read a TVB H5 file
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 if __name__ == "__main__":
     from tvb.basic.profile import TvbProfile
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
@@ -59,7 +61,7 @@ def read_h5(full_paths):
         # The actual read of H5:
         datatype = service.load_datatype_from_file(folder, h5file, all_operations[0].id, move=False)
 
-        print("We've build DataType: [%s]" % datatype.__class__.__name__, datatype)
+        print(("We've build DataType: [%s]" % datatype.__class__.__name__, datatype))
         results.append(datatype)
 
     return results
@@ -76,7 +78,7 @@ if __name__ == '__main__':
         FILE_PATHS = [os.path.join(dir_name, "Connectivity_74.h5"),
                       os.path.join(dir_name, "TimeSeriesRegion.h5")]
 
-    print("We will try to read from H5: " + str(FILE_PATHS))
+    print(("We will try to read from H5: " + str(FILE_PATHS)))
 
     read_h5(FILE_PATHS)
 

@@ -34,6 +34,7 @@
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 
 """
+from __future__ import absolute_import
 import json
 import numpy
 from tvb.core.adapters.abcdisplayer import ABCDisplayer

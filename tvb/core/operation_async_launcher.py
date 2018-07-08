@@ -43,6 +43,7 @@ The results of the computation will be stored by the adapter itself.
 """
 
 
+from __future__ import absolute_import
 import sys
 from tvb.basic.profile import TvbProfile
 if __name__ == '__main__':

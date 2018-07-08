@@ -33,7 +33,8 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import urllib
+from __future__ import absolute_import
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 import cherrypy
 from tvb.config import DISCRETE_PSE_ADAPTER_MODULE, DISCRETE_PSE_ADAPTER_CLASS
 from tvb.config import ISOCLINE_PSE_ADAPTER_CLASS, ISOCLINE_PSE_ADAPTER_MODULE
@@ -120,11 +121,11 @@ class ParameterExplorationController(BaseController):
                 pse_context.prepare_individual_jsons()
                 return pse_context
             except LaunchException as ex:
-                error_msg = urllib.quote(ex.message)
+                error_msg = six.moves.urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote("Discrete PSE is incompatible (most probably due to result size being too large).")
+            error_msg = six.moves.urllib.parse.quote("Discrete PSE is incompatible (most probably due to result size being too large).")
 
-        name = urllib.quote(adapter._ui_name)
+        name = six.moves.urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
     @expose_json
@@ -146,12 +147,12 @@ class ParameterExplorationController(BaseController):
                 return dict(series_array=pse_context.series_array,
                             has_started_ops=pse_context.has_started_ops)
             except LaunchException as ex:
-                error_msg = urllib.quote(ex.message)
+                error_msg = six.moves.urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote(
+            error_msg = six.moves.urllib.parse.quote(
                 "Discrete PSE is incompatible (most probably due to result size being too large).")
 
-        name = urllib.quote(adapter._ui_name)
+        name = six.moves.urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
     @cherrypy.expose
@@ -168,11 +169,11 @@ class ParameterExplorationController(BaseController):
                 return adapter.burst_preview(datatype_group_gid)
             except LaunchException as ex:
                 self.logger.error(ex.message)
-                error_msg = urllib.quote(ex.message)
+                error_msg = six.moves.urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote("Isocline PSE requires a 2D range of floating point values.")
+            error_msg = six.moves.urllib.parse.quote("Isocline PSE requires a 2D range of floating point values.")
 
-        name = urllib.quote(adapter._ui_name)
+        name = six.moves.urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
     @expose_json
@@ -187,11 +188,11 @@ class ParameterExplorationController(BaseController):
                 return adapter.get_metric_matrix(datatype_group, metric_name)
             except LaunchException as ex:
                 self.logger.error(ex.message)
-                error_msg = urllib.quote(ex.message)
+                error_msg = six.moves.urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote("Isocline PSE requires a 2D range of floating point values.")
+            error_msg = six.moves.urllib.parse.quote("Isocline PSE requires a 2D range of floating point values.")
 
-        name = urllib.quote(adapter._ui_name)
+        name = six.moves.urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
     @expose_json
@@ -206,9 +207,9 @@ class ParameterExplorationController(BaseController):
                 return adapter.prepare_node_data(datatype_group)
             except LaunchException as ex:
                 self.logger.error(ex.message)
-                error_msg = urllib.quote(ex.message)
+                error_msg = six.moves.urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote("Isocline PSE requires a 2D range of floating point values.")
+            error_msg = six.moves.urllib.parse.quote("Isocline PSE requires a 2D range of floating point values.")
 
-        name = urllib.quote(adapter._ui_name)
+        name = six.moves.urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))

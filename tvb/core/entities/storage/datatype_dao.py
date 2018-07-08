@@ -35,6 +35,7 @@ DAO operations related to generic DataTypes are defined here.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy import func, or_, not_, and_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text

@@ -32,6 +32,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import numpy
 from tvb.basic.filters.chain import UIFilter, FilterChain

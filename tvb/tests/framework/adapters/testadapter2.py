@@ -34,6 +34,7 @@ Created on Jul 21, 2011
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from time import sleep
 from tvb.core.adapters.abcadapter import ABCAdapter
 

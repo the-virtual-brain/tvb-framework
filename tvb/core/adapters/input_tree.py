@@ -33,6 +33,7 @@ Preparation validation and manipulation of adapter input trees
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 from copy import copy
 import json
 import numpy
@@ -49,6 +50,8 @@ from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.portlets.xml_reader import KEY_DYNAMIC
 from tvb.core.utils import string2array
+import six
+from six.moves import range
 
 ATT_METHOD = "python_method"
 ATT_PARAMETERS = "parameters_prefix"
@@ -184,7 +187,7 @@ class InputTreeManager(object):
         :returns: key from 'submited_kwargs' which corresponds to 'flat_name'
         """
         if KEYWORD_PARAMS not in flat_name:
-            if flat_name in submited_kwargs.keys():
+            if flat_name in list(submited_kwargs.keys()):
                 return flat_name
             else:
                 return None
@@ -242,7 +245,7 @@ class InputTreeManager(object):
     @staticmethod
     def _compute_submit_option_select(submitted_option):
         """ """
-        if isinstance(submitted_option, basestring):
+        if isinstance(submitted_option, six.string_types):
             submitted_option = submitted_option.replace('[', '').replace(']', '').split(',')
         return submitted_option
 
@@ -380,7 +383,7 @@ class InputTreeManager(object):
                     if eq_datatype is not None:
                         inputs_datatypes.append(eq_datatype)
                         is_datatype = True
-                elif isinstance(field_dict[KEY_TYPE], basestring):
+                elif isinstance(field_dict[KEY_TYPE], six.string_types):
                     try:
                         class_entity = get_class_by_name(field_dict[KEY_TYPE])
                         if issubclass(class_entity, MappedType):
@@ -452,7 +455,7 @@ class InputTreeManager(object):
             return None
 
         expected_dt_class = row[KEY_TYPE]
-        if isinstance(expected_dt_class, basestring):
+        if isinstance(expected_dt_class, six.string_types):
             expected_dt_class = get_class_by_name(expected_dt_class)
         if not isinstance(entity, expected_dt_class):
             raise InvalidParameterException("Expected param %s [%s] of type %s but got type %s." % (
@@ -638,7 +641,7 @@ class InputTreeManager(object):
         to a {name: , value:} dict used to populate options in the input tree ui
         """
         # todo: normalize all itree[KEY_TYPE] to be a python type, not a str, not a None etc
-        if isinstance(type_name, basestring):
+        if isinstance(type_name, six.string_types):
             data_type_cls = get_class_by_name(type_name)
         else:
             data_type_cls = type_name

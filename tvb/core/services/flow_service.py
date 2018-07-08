@@ -36,6 +36,7 @@ Code related to launching/duplicating operations is placed here.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from inspect import getmro
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.traits.exceptions import TVBException
@@ -50,6 +51,7 @@ from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.exceptions import OperationException
 from tvb.core.services.operation_service import OperationService
+from six.moves import range
 
 
 

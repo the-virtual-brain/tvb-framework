@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import csv
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader
@@ -39,6 +40,7 @@ from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.files_helper import FilesHelper
+from six.moves import range
 
 
 class CSVConnectivityParser(object):
@@ -54,7 +56,7 @@ class CSVConnectivityParser(object):
         self.rows = list(csv.reader(csv_file, delimiter=str(delimiter)))
         self.connectivity_size = len(self.rows[0])
         self.line = 0
-        self.permutation = range(self.connectivity_size)
+        self.permutation = list(range(self.connectivity_size))
         """ A permutation represented as a list index -> new_index. Defaults to the identity permutation"""
         self.result_conn = [[] for _ in range(self.connectivity_size)]
 
@@ -80,7 +82,7 @@ class CSVConnectivityParser(object):
             raise LaunchException("Invalid ordinal in header %s" % self.rows[0])
 
         header_i = list(enumerate(ordinals))
-        header_i.sort(key=lambda (i_, ordinal): ordinal)  # sort by the column ordinal
+        header_i.sort(key=lambda i__ordinal: i__ordinal[1])  # sort by the column ordinal
         inverse_permutation = [i for i, ordinal_ in header_i]
 
         for i in range(len(self.permutation)):

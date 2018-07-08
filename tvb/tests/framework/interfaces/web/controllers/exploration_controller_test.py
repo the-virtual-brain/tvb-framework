@@ -32,10 +32,12 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.interfaces.web.controllers.burst.exploration_controller import ParameterExplorationController
+import six
 
 
 class TestExplorationController(BaseTransactionalControllerTest):
@@ -63,8 +65,8 @@ class TestExplorationController(BaseTransactionalControllerTest):
         Test that Discrete PSE is getting launched and correct fields are prepared.
         """
         result = self.controller.draw_discrete_exploration(self.dt_group.gid, 'burst', None, None)
-        assert result['available_metrics'] == DatatypesFactory.DATATYPE_MEASURE_METRIC.keys()
-        assert result['color_metric'] == DatatypesFactory.DATATYPE_MEASURE_METRIC.keys()[0]
+        assert result['available_metrics'] == list(DatatypesFactory.DATATYPE_MEASURE_METRIC.keys())
+        assert result['color_metric'] == list(DatatypesFactory.DATATYPE_MEASURE_METRIC.keys())[0]
         assert result['size_metric'] is None
         assert DatatypesFactory.RANGE_1[1] == json.loads(result['labels_x'])
         assert DatatypesFactory.RANGE_2[1] == json.loads(result['labels_y'])
@@ -83,7 +85,7 @@ class TestExplorationController(BaseTransactionalControllerTest):
         Test that isocline PSE gets launched.
         """
         result = self.controller.draw_isocline_exploration(self.dt_group.gid)
-        assert isinstance(result['canvasName'], (str, unicode))
-        assert isinstance(result['xAxisName'], (str, unicode))
-        assert isinstance(result['url_base'], (str, unicode))
-        assert DatatypesFactory.DATATYPE_MEASURE_METRIC.keys() == result['available_metrics']
+        assert isinstance(result['canvasName'], (str, six.text_type))
+        assert isinstance(result['xAxisName'], (str, six.text_type))
+        assert isinstance(result['url_base'], (str, six.text_type))
+        assert list(DatatypesFactory.DATATYPE_MEASURE_METRIC.keys()) == result['available_metrics']

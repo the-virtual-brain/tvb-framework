@@ -33,6 +33,8 @@ This module is used to measure simulation performance with the Command Profile.
 Some standardized simulations are run and a report is generated in the console output.
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 if __name__ == "__main__":
     from tvb.basic.profile import TvbProfile
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
@@ -130,8 +132,8 @@ class Bench(object):
                     for dt in self.int_dts:
                         for conduction in self.conductions:
                             timestr = str(self.running_times[i])[2:-5]
-                            print(self.FS % (model_kw['model'], length, conn.number_of_regions, conduction, dt, timestr))
-                            print(self.LINE)
+                            print((self.FS % (model_kw['model'], length, conn.number_of_regions, conduction, dt, timestr)))
+                            print((self.LINE))
                             i += 1
 
 

@@ -34,6 +34,7 @@ This modules holds helping function for DB update scripts
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy import text
 from tvb.core.entities.storage import SA_SESSIONMAKER
 from tvb.basic.logger.builder import get_logger

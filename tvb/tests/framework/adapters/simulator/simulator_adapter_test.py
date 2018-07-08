@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import pytest
 from copy import copy
@@ -45,6 +46,7 @@ from tvb.core.services.operation_service import OperationService
 from tvb.datatypes.time_series import TimeSeriesRegion
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
+from six.moves import range
 
 
 # Default values for simulator's input. These values can be replace with adapter.get_flatten_interface...

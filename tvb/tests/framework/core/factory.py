@@ -38,6 +38,7 @@ Project, User, Operation, basic imports (e.g. CFF).
 
 """
 
+from __future__ import absolute_import
 import os
 import json
 import random
@@ -53,6 +54,7 @@ from tvb.core.services.flow_service import FlowService
 from tvb.core.services.import_service import ImportService
 from tvb.core.services.operation_service import OperationService
 from tvb.core.adapters.abcadapter import ABCAdapter
+from six.moves import range
 
 
 class TestFactory(object):

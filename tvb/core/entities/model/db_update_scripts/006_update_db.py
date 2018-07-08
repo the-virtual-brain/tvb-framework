@@ -34,6 +34,7 @@ Change of DB structure from TVB version 1.0.6 to 1.0.8
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy.sql import text
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.storage import SA_SESSIONMAKER

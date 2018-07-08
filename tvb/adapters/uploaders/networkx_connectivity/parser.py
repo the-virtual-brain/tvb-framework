@@ -34,11 +34,13 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import re
 import numpy
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException
 from tvb.datatypes.connectivity import Connectivity
+from six.moves import range
 
 
 class NetworkxParser(object):
@@ -111,7 +113,7 @@ class NetworkxParser(object):
         labels_vector, positions, cortical, hemisphere = [], [], [], []
 
         try:
-            for node in xrange(1, graph_size + 1):
+            for node in range(1, graph_size + 1):
                 node_data = network.nodes[node]
 
                 pos = self._find_value(node_data, self.KEY_NODE_COORDINATES)

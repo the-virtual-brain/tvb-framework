@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import cherrypy
 import formencode
@@ -174,7 +175,7 @@ class DiskSpaceValidator(formencode.FancyValidator):
         :param value is user-specified value, in MB
         """
         try:
-            value = long(value)
+            value = int(value)
             return value
         except ValueError:
             raise formencode.Invalid('Invalid disk space %s. Should be number' % value, value, None)

@@ -32,6 +32,7 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import copy
 import pytest
 import numpy
@@ -65,6 +66,7 @@ from tvb.tests.framework.datatypes.datatype2 import Datatype2
 from tvb.tests.framework.datatypes import datatypes_factory
 from tvb.tests.framework.adapters.storeadapter import StoreAdapter
 from tvb.tests.framework.adapters.simulator.simulator_adapter_test import SIMULATOR_PARAMETERS
+from six.moves import range
 
 
 
@@ -802,7 +804,7 @@ class TestBurstService(BaseTestCase):
         launch_params = self.local_simulation_params
         launch_params['connectivity'] = connectivity.gid
         if is_range:
-            launch_params['simulation_length'] = str(range(length, length + no_ops))
+            launch_params['simulation_length'] = str(list(range(length, length + no_ops)))
             launch_params[model.RANGE_PARAMETER_1] = 'simulation_length'
         else:
             launch_params['simulation_length'] = str(length)

@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import cherrypy
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
 from tvb.interfaces.web.controllers.spatial.surface_model_parameters_controller import SurfaceModelParametersController
@@ -39,6 +40,7 @@ from tvb.interfaces.web.controllers.burst.burst_controller import BurstControlle
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.tests.framework.adapters.simulator.simulator_adapter_test import SIMULATOR_PARAMETERS
 import tvb.interfaces.web.controllers.common as common
+import six
 
 
 class TestSurfaceModelParametersController(BaseTransactionalControllerTest):
@@ -53,7 +55,7 @@ class TestSurfaceModelParametersController(BaseTransactionalControllerTest):
         _, self.connectivity = datatypes_factory.create_connectivity()
         _, self.surface = datatypes_factory.create_surface()
         new_params = {}
-        for key, val in SIMULATOR_PARAMETERS.iteritems():
+        for key, val in six.iteritems(SIMULATOR_PARAMETERS):
             new_params[key] = {'value': val}
         new_params['connectivity'] = {'value': self.connectivity.gid}
         new_params['surface'] = {'value': self.surface.gid}

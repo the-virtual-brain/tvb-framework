@@ -34,6 +34,7 @@ Basic Help functionality.
 .. moduleauthor:: Calin Pavel
 """
 
+from __future__ import absolute_import
 import cherrypy
 from tvb.interfaces.web.controllers.decorators import handle_error, using_template
 from tvb.interfaces.web.controllers.base_controller import BaseController

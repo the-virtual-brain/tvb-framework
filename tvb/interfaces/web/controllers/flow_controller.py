@@ -35,6 +35,7 @@ given action are described here.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import copy
 import json
 import cherrypy
@@ -58,6 +59,8 @@ from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.decorators import expose_page, settings, context_selected, expose_numpy_array
 from tvb.interfaces.web.controllers.decorators import expose_fragment, handle_error, check_user, expose_json
 from tvb.interfaces.web.entities.context_selected_adapter import SelectedAdapterContext
+from six.moves import range
+from six.moves import zip
 
 
 KEY_CONTENT = ABCDisplayer.KEY_CONTENT
@@ -769,7 +772,7 @@ class FlowController(BaseController):
     @expose_fragment('visualizers/commons/channel_selector_opts')
     def get_available_selections(self, **data):
         sel_names, sel_values = self._get_available_selections(data['datatype_gid'])
-        return dict(namedSelections=zip(sel_names, sel_values))
+        return dict(namedSelections=list(zip(sel_names, sel_values)))
 
 
     @expose_json

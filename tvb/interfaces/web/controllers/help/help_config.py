@@ -36,8 +36,10 @@ display correct online-help page for a given section/subsection/page.
 .. moduleauthor:: Calin Pavel <calin.pavel@cidemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.logger.builder import get_logger
 from tvb.interfaces.web.structure import WebStructure
+import six
 
 
 
@@ -86,7 +88,7 @@ class HelpConfig:
         self._add_mapping(WebStructure.SECTION_PROJECT, WebStructure.SUB_SECTION_LIST_PROJECTS, self.PROJECT_HELP_PAGE, "list-of-all-projects")
         self._add_mapping(WebStructure.SECTION_PROJECT, WebStructure.SUB_SECTION_PROPERTIES_PROJECT, self.PROJECT_HELP_PAGE, "basic-properties")
         self._add_mapping(WebStructure.SECTION_PROJECT, WebStructure.SUB_SECTION_FIGURES, self.PROJECT_HELP_PAGE, "image-archive")
-        for subsection, paragraph in WebStructure.VISUALIZERS_ONLINE_HELP_SHORTCUTS.iteritems():
+        for subsection, paragraph in six.iteritems(WebStructure.VISUALIZERS_ONLINE_HELP_SHORTCUTS):
             self._add_mapping(WebStructure.SECTION_PROJECT, subsection, self.PROJECT_HELP_PAGE, paragraph)
 
         # Add mappings for BURST subsections
@@ -95,11 +97,11 @@ class HelpConfig:
         self._add_mapping(WebStructure.SECTION_BURST, WebStructure.SUB_SECTION_MODEL_SURFACE, self.BURST_HELP_PAGE, "surface-based-simulations")
         self._add_mapping(WebStructure.SECTION_BURST, WebStructure.SUB_SECTION_PHASE_PLANE, self.BURST_HELP_PAGE, "the-phase-plane-page")
 
-        for subsection, paragraph in WebStructure.VISUALIZERS_ONLINE_HELP_SHORTCUTS.iteritems():
+        for subsection, paragraph in six.iteritems(WebStructure.VISUALIZERS_ONLINE_HELP_SHORTCUTS):
             self._add_mapping(WebStructure.SECTION_BURST, subsection, self.BURST_HELP_PAGE, paragraph)
 
         # Add mappings for ANALYZE subsections
-        for subsection, paragraph in WebStructure.ANALYZERS_ONLINE_HELP_SHORTCUTS.iteritems():
+        for subsection, paragraph in six.iteritems(WebStructure.ANALYZERS_ONLINE_HELP_SHORTCUTS):
             self._add_mapping(WebStructure.SECTION_ANALYZE, subsection, self.ANALYZE_HELP_PAGE, paragraph)
 
         # Add mappings for STIMULUS subsections

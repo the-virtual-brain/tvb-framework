@@ -32,6 +32,7 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import copy
 import six
@@ -44,6 +45,7 @@ from tvb.core.entities.model.model_base import Base
 from tvb.core.entities.model.model_project import Project
 from tvb.basic.traits.types_basic import MapAsJson
 from tvb.core.utils import parse_json_parameters, format_timedelta
+from six.moves import range
 
 
 NUMBER_OF_PORTLETS_PER_TAB = 4

@@ -33,6 +33,7 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import cherrypy
 from tvb.adapters.visualizers.connectivity import ConnectivityViewer

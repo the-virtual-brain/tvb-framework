@@ -35,6 +35,8 @@ Later on, this project will be available from the web-interface.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 if __name__ == "__main__":
     from tvb.basic.profile import TvbProfile
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
@@ -76,7 +78,7 @@ if __name__ == '__main__':
 
     PROJECT_PATH = str(argv[1])
 
-    print("We will try to import project at path " + PROJECT_PATH)
+    print(("We will try to import project at path " + PROJECT_PATH))
 
     run_import(PROJECT_PATH)
 

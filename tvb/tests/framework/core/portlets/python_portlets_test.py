@@ -32,6 +32,7 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao

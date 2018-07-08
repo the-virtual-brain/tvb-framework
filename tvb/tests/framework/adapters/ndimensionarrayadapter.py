@@ -33,9 +33,11 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 from tvb.datatypes.arrays import MappedArray
 from tvb.core.adapters.abcadapter import ABCSynchronous
+from six.moves import range
 
 
 
@@ -81,7 +83,7 @@ class NDimensionArrayAdapter(ABCSynchronous):
         self.launch_param = input_data
         array_inst = MappedArray()
         array_inst.storage_path = self.storage_path
-        array_inst.array_data = numpy.array(range(1, 46)).reshape((5, 3, 3))
+        array_inst.array_data = numpy.array(list(range(1, 46))).reshape((5, 3, 3))
         array_inst.type = "MappedArray"
         array_inst.module = "tvb.datatypes.arrays"
         array_inst.subject = "John Doe"

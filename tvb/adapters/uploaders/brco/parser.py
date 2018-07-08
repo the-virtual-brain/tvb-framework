@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import xml.dom.minidom
 from xml.dom.minidom import Node
 from tvb.basic.logger.builder import get_logger

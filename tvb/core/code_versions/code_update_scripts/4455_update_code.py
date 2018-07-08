@@ -31,6 +31,7 @@
 """
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+from __future__ import absolute_import
 import os
 from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporter
 from tvb.basic.logger.builder import get_logger
@@ -41,6 +42,7 @@ from tvb.core.utils import get_matlab_executable
 from tvb.core.entities.storage import dao
 from tvb.datatypes.surfaces import EEG_CAP, FACE
 import tvb_data.obj
+from six.moves import range
 
 DATA_FILE_EEG_CAP = os.path.join(os.path.dirname(tvb_data.obj.__file__), "eeg_cap.obj")
 DATA_FILE_FACE = os.path.join(os.path.dirname(tvb_data.obj.__file__), "face_surface.obj")

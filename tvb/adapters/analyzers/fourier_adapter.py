@@ -35,6 +35,7 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 
 """
+from __future__ import absolute_import
 import psutil
 import numpy
 import math
@@ -44,6 +45,7 @@ import tvb.basic.filters.chain as entities_filter
 import tvb.datatypes.time_series as datatypes_time_series
 import tvb.datatypes.spectral as spectral
 from tvb.basic.logger.builder import get_logger
+from six.moves import range
 
 LOG = get_logger(__name__)
 

@@ -35,6 +35,7 @@ Service Layer for the Project entity.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import six
 import json
@@ -210,15 +211,15 @@ class ProjectService:
                     result['datatype_group_gid'] = None
                 result["algorithm"] = dao.get_algorithm_by_id(one_op[4])
                 result["user"] = dao.get_user_by_id(one_op[5])
-                if type(one_op[6]) in (str, unicode):
+                if type(one_op[6]) in (str, six.text_type):
                     result["create"] = string2date(str(one_op[6]))
                 else:
                     result["create"] = one_op[6]
-                if type(one_op[7]) in (str, unicode):
+                if type(one_op[7]) in (str, six.text_type):
                     result["start"] = string2date(str(one_op[7]))
                 else:
                     result["start"] = one_op[7]
-                if type(one_op[8]) in (str, unicode):
+                if type(one_op[8]) in (str, six.text_type):
                     result["complete"] = string2date(str(one_op[8]))
                 else:
                     result["complete"] = one_op[8]
@@ -811,7 +812,7 @@ class ProjectService:
             op_inputs = self.get_datatype_and_datatypegroup_inputs_for_operation(gid[0], selected_filter)
             for datatype in op_inputs:
                 op_group_inputs[datatype.id] = datatype
-        return op_group_inputs.values()
+        return list(op_group_inputs.values())
 
 
     @staticmethod

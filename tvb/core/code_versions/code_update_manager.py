@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.profile import TvbProfile
 from tvb.basic.config import stored
 from tvb.core.code_versions.base_classes import UpdateManager

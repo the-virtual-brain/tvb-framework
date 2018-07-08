@@ -36,6 +36,7 @@ Adapter that uses the traits module to generate interfaces for FCD Analyzer.
 
 """
 
+from __future__ import absolute_import
 import numpy as np
 from tvb.analyzers.fcd_matrix import FcdCalculator
 from tvb.basic.traits.util import log_debug_array
@@ -44,6 +45,7 @@ from tvb.core.adapters.abcadapter import ABCAsynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.fcd import Fcd
 from tvb.datatypes.graph import ConnectivityMeasure
+from six.moves import range
 
 
 

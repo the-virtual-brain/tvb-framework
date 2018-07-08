@@ -34,6 +34,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import numpy
 from tvb.adapters.visualizers.eeg_monitor import EegMonitor
@@ -47,6 +48,7 @@ from tvb.datatypes.surfaces import EEGCap, CorticalSurface
 from tvb.datatypes.region_mapping import RegionMapping
 from tvb.datatypes.surfaces import Surface
 from tvb.datatypes.time_series import TimeSeries, TimeSeriesSurface, TimeSeriesSEEG, TimeSeriesEEG, TimeSeriesRegion
+from six.moves import range
 
 
 MAX_MEASURE_POINTS_LENGTH = 600
@@ -205,7 +207,7 @@ class BrainViewer(ABCDisplayer):
                            urlRegionMap=json.dumps(url_region_map), base_activity_url=base_activity_url,
                            time=json.dumps(time_urls), minActivity=min_val, maxActivity=max_val,
                            legendLabels=legend_labels, labelsStateVar=state_variables,
-                           labelsModes=range(data_shape[3]), extended_view=False,
+                           labelsModes=list(range(data_shape[3])), extended_view=False,
                            shelfObject=prepare_shell_surface_urls(self.current_project_id, shell_surface),
                            biHemispheric=self.surface.bi_hemispheric,
                            hemisphereChunkMask=json.dumps(hemisphere_chunk_mask),

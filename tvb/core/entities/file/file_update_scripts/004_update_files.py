@@ -34,6 +34,7 @@ Upgrade script from H5 version 3 to version 4 (for tvb release 1.4.1)
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import json
 from tvb.basic.profile import TvbProfile

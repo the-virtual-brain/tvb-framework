@@ -34,6 +34,7 @@ Upgrade script from H5 version 2 to version 3
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities.file.exceptions import FileVersioningException

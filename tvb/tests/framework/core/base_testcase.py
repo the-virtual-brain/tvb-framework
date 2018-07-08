@@ -34,12 +34,16 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import sys
 import shutil
 from functools import wraps
 from types import FunctionType
 from tvb.basic.profile import TvbProfile
+import six
+from six.moves import range
 
 
 def init_test_env():
@@ -54,7 +58,7 @@ def init_test_env():
                 if "--profile=" in sys.argv[i]:
                     profile = sys.argv[i].split("=")[1]
         TvbProfile.set_profile(profile)
-        print("Not expected to happen except from PyCharm: setting profile", TvbProfile.CURRENT_PROFILE_NAME)
+        print(("Not expected to happen except from PyCharm: setting profile", TvbProfile.CURRENT_PROFILE_NAME))
         db_file = TvbProfile.current.db.DB_URL.replace('sqlite:///', '')
         if os.path.exists(db_file):
             os.remove(db_file)
@@ -227,7 +231,7 @@ class BaseTestCase(object):
         Compare two dictionaries, especially as keys.
         When in expected_dictionary the value is not None, validate also to be found in found_dict.
         """
-        for key, value in expected.iteritems():
+        for key, value in six.iteritems(expected):
             assert key in found_dict, "%s not found in result" % key
             if value is not None:
                 assert value == found_dict[key]
@@ -296,7 +300,7 @@ class TransactionalTestMeta(type):
 
 
 
-class TransactionalTestCase(BaseTestCase):
+class TransactionalTestCase(six.with_metaclass(TransactionalTestMeta, BaseTestCase)):
     """
     This class makes sure that any test case it contains is ran in a transactional
     environment and a rollback is issued at the end of that transaction. This should
@@ -311,5 +315,4 @@ class TransactionalTestCase(BaseTestCase):
     WARNING! Do not use this is any test class that has uses multiple threads to do
     dao related operations since that might cause errors/leave some dangling sessions.
     """
-    __metaclass__ = TransactionalTestMeta
 

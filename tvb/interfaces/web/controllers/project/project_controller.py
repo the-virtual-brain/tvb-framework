@@ -36,6 +36,7 @@ This represents the Controller part (from MVC).
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import cherrypy
 import formencode
 from formencode import validators
@@ -59,6 +60,7 @@ from tvb.interfaces.web.controllers.decorators import settings, check_user, hand
 from tvb.interfaces.web.controllers.decorators import expose_page, expose_json, expose_fragment
 from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.flow_controller import FlowController
+import six
 
 
 class ProjectController(BaseController):
@@ -873,7 +875,7 @@ class ProjectController(BaseController):
                 group = self.project_service.get_operation_group_by_id(operation.fk_operation_group)
                 groups[group.id] = group.gid
         nodes = []
-        for _, group in groups.iteritems():
+        for _, group in six.iteritems(groups):
             node = graph_structures.NodeStructure.build_structure_for_operation_group(group)
             if group == selected_item_gid:
                 node.selected = True

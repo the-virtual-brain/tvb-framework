@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import pytest
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
@@ -43,6 +44,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.entities.file.exceptions import FileStructureException
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.tests.framework.core.factory import TestFactory
+import six
 
 
 root_storage = TvbProfile.current.TVB_STORAGE
@@ -149,7 +151,7 @@ class TestFilesHelper(TransactionalTestCase):
         loaded_operation.from_dict(operation_meta, dao, user_id=self.test_user.id)
         expected_dict = operation.to_dict()[1]
         found_dict = loaded_operation.to_dict()[1]
-        for key, value in expected_dict.iteritems():
+        for key, value in six.iteritems(expected_dict):
             assert str(value) == str(found_dict[key])
         # Now validate that operation metaData can be also updated
         assert "new_group_name" != found_dict['user_group']
@@ -255,7 +257,7 @@ class TestFilesHelper(TransactionalTestCase):
         """Checks whether actual is a superset of expected."""
         missing = []
         mismatched = []
-        for key, value in expected.iteritems():
+        for key, value in six.iteritems(expected):
             if key not in actual:
                 return False
             elif value != actual[key]:

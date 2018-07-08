@@ -28,6 +28,7 @@
 #
 #
 
+from __future__ import absolute_import
 from tvb.core.entities.model import AlgorithmTransientGroup
 from tvb.adapters.analyzers.bct_adapters import BaseBCT, BaseUndirected, bct_description, \
     LABEL_CONN_WEIGHTED_UNDIRECTED, LABEL_CONN_WEIGHTED_DIRECTED

@@ -32,6 +32,7 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import pytest
 import tvb_data
 from os import path
@@ -44,6 +45,7 @@ from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity
 from tvb.tests.framework.adapters.uploaders.connectivity_zip_importer_test import TestConnectivityZip
 from tvb.tests.framework.core.factory import TestFactory
+from six.moves import range
 
 TEST_SUBJECT_A = "TEST_SUBJECT_A"
 TEST_SUBJECT_B = "TEST_SUBJECT_B"

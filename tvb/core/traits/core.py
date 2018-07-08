@@ -34,6 +34,7 @@
 .. moduleauthor:: marmaduke <mw@eml.cc>
 """
 
+from __future__ import absolute_import
 import re
 import six
 import warnings
@@ -43,6 +44,7 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from tvb.core.traits.sql_mapping import get_sql_mapping
 from tvb.basic.traits.core import MetaType, Type, SPECIAL_KWDS, KWARS_USE_STORAGE
 from tvb.basic.logger.builder import get_logger
+from six.moves import filter
 
 
 LOG = get_logger(__name__)
@@ -104,7 +106,7 @@ class DeclarativeMetaType(DeclarativeMeta, MetaType):
         if newcls.__name__ in ('DataType', 'MappedType'):
             return newcls
 
-        mro_names = map(lambda cls: cls.__name__, newcls.mro())
+        mro_names = [cls.__name__ for cls in newcls.mro()]
         if Type in newcls.mro() and 'DataType' in mro_names:
             LOG.debug('new mapped, typed class %r', newcls)
         else:
@@ -115,16 +117,15 @@ class DeclarativeMetaType(DeclarativeMeta, MetaType):
         all_parents = []
         for b in bases:
             all_parents.extend(b.mro())
-        mapped_parent = filter(lambda cls: issubclass(cls, Type) and hasattr(cls, '__tablename__')
-                               and getattr(cls, '__tablename__') is not None, all_parents)
+        mapped_parent = [cls for cls in all_parents if issubclass(cls, Type) and hasattr(cls, '__tablename__')
+                               and getattr(cls, '__tablename__') is not None]
         # Identify DATA_TYPE class, to be used for specific references
-        datatype_class = filter(lambda cls: hasattr(cls, '__tablename__') and cls.__tablename__ == 'DATA_TYPES',
-                                all_parents)[0]
+        datatype_class = [cls for cls in all_parents if hasattr(cls, '__tablename__') and cls.__tablename__ == 'DATA_TYPES'][0]
 
         ###### Map Trait attributes to SQL Columns as necessary
         all_class_traits = getattr(newcls, 'trait', {})
         super_traits = dict()
-        for parent_class in filter(lambda cls: issubclass(cls, Type), all_parents):
+        for parent_class in [cls for cls in all_parents if issubclass(cls, Type)]:
             super_traits.update(getattr(parent_class, 'trait', {}))
         newclass_only_traits = dict([(key, all_class_traits[key])
                                      for key in all_class_traits if key not in super_traits])

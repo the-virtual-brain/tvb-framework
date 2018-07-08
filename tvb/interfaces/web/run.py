@@ -34,6 +34,7 @@ Launches the web server and configure the controllers for UI.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import time
 
 STARTUP_TIC = time.time()

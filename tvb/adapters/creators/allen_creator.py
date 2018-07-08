@@ -37,6 +37,7 @@ data using their SDK.
 
 """
 
+from __future__ import absolute_import
 import os.path
 import numpy as np
 from tvb.basic.logger.builder import get_logger
@@ -47,6 +48,8 @@ from tvb.datatypes.region_mapping import RegionVolumeMapping
 from tvb.datatypes.volumes import Volume
 from tvb.datatypes.structural import StructuralMRI
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
+from six.moves import range
+from six.moves import zip
 
 
 LOGGER = get_logger(__name__)
@@ -218,7 +221,7 @@ def download_an_construct_matrix(tvb_mcc, weighting, ist2e, transgenic_line):
         for isti, elist in ist2e.items():
             projmaps[isti] = tvb_mcc.get_projection_matrix(
                 experiment_ids=elist,
-                projection_structure_ids=ist2e.keys(),  # summary_structure_ids,
+                projection_structure_ids=list(ist2e.keys()),  # summary_structure_ids,
                 parameter='projection_energy')
             LOGGER.info('injection site id', isti, ' has ', len(elist), ' experiments with pm shape ',
                         projmaps[isti]['matrix'].shape)
@@ -226,7 +229,7 @@ def download_an_construct_matrix(tvb_mcc, weighting, ist2e, transgenic_line):
         for isti, elist in ist2e.items():
             projmaps[isti] = tvb_mcc.get_projection_matrix(
                 experiment_ids=elist,
-                projection_structure_ids=ist2e.keys(),  # summary_structure_ids,
+                projection_structure_ids=list(ist2e.keys()),  # summary_structure_ids,
                 parameter='projection_density')
             LOGGER.info('injection site id', isti, ' has ', len(elist), ' experiments with pm shape ',
                         projmaps[isti]['matrix'].shape)
@@ -240,10 +243,10 @@ def download_an_construct_matrix(tvb_mcc, weighting, ist2e, transgenic_line):
                 injdensity[exp_id] = (np.sum(inj_d[0]) / np.count_nonzero(inj_d[0]))
                 LOGGER.info('Experiment id', exp_id, ', the total injection density is ', injdensity[exp_id])
             # in this case projmaps will contain PD/ID
-            for inj_id in range(len(projmaps.values())):
+            for inj_id in range(len(list(projmaps.values()))):
                 index = 0
-                for exp_id in projmaps.values()[inj_id]['rows']:
-                    projmaps.values()[inj_id]['matrix'][index] = projmaps.values()[inj_id]['matrix'][index] / \
+                for exp_id in list(projmaps.values())[inj_id]['rows']:
+                    list(projmaps.values())[inj_id]['matrix'][index] = list(projmaps.values())[inj_id]['matrix'][index] / \
                                                                  injdensity[exp_id]
                     index += 1
     return projmaps
@@ -265,15 +268,15 @@ def pms_cleaner(projmaps):
         if inj_id not in sis0:
             del projmaps[inj_id]
     # 3) All the target sites are also injection sites? if not remove those targets from the columns and from the matrix
-    if len(sis0) != len(projmaps.keys()):
-        for inj_id in range(len(projmaps.values())):
+    if len(sis0) != len(list(projmaps.keys())):
+        for inj_id in range(len(list(projmaps.values()))):
             targ_id = -1
-            while len(projmaps.values()[inj_id]['columns']) != (3 * len(projmaps.keys())):
+            while len(list(projmaps.values())[inj_id]['columns']) != (3 * len(list(projmaps.keys()))):
                 # there is -3 since for each id-target I have 3 regions since I have 3 hemisphere to consider
                 targ_id += 1
-                if projmaps.values()[inj_id]['columns'][targ_id]['structure_id'] not in projmaps.keys():
-                    del projmaps.values()[inj_id]['columns'][targ_id]
-                    projmaps.values()[inj_id]['matrix'] = np.delete(projmaps.values()[inj_id]['matrix'], targ_id, 1)
+                if list(projmaps.values())[inj_id]['columns'][targ_id]['structure_id'] not in list(projmaps.keys()):
+                    del list(projmaps.values())[inj_id]['columns'][targ_id]
+                    list(projmaps.values())[inj_id]['matrix'] = np.delete(list(projmaps.values())[inj_id]['matrix'], targ_id, 1)
                     targ_id = -1
     # 4) Exclude the areas that have NaN values (in all the experiments)
     nan_id = {}
@@ -281,7 +284,7 @@ def pms_cleaner(projmaps):
         mat = projmaps[inj_id]['matrix']
         for targ_id in range(mat.shape[1]):
             if all([np.isnan(mat[exp, targ_id]) for exp in range(mat.shape[0])]):
-                if inj_id not in nan_id.keys():
+                if inj_id not in list(nan_id.keys()):
                     nan_id[inj_id] = []
                 nan_id[inj_id].append(projmaps[inj_id]['columns'][targ_id]['structure_id'])
     while bool(nan_id):
@@ -297,9 +300,9 @@ def pms_cleaner(projmaps):
         nan_id.pop(remove, None)
         projmaps.pop(remove, None)
         # Remove Nan areas from target list (columns+matrix)
-        for inj_id in range(len(projmaps.keys())):
+        for inj_id in range(len(list(projmaps.keys()))):
             targ_id = -1
-            curr_columns_arr = projmaps.values()[inj_id]['columns']
+            curr_columns_arr = list(projmaps.values())[inj_id]['columns']
             previous_size = len(curr_columns_arr)
             while len(curr_columns_arr) != (previous_size - 3 * len(nan_id)) and targ_id + 1 < len(curr_columns_arr):
                 # 3 hemispheres
@@ -307,7 +310,7 @@ def pms_cleaner(projmaps):
                 column = curr_columns_arr[targ_id]
                 if column and 'structure_id' in column and column['structure_id'] == remove:
                     del curr_columns_arr[targ_id]
-                    projmaps.values()[inj_id]['matrix'] = np.delete(projmaps.values()[inj_id]['matrix'], targ_id, 1)
+                    list(projmaps.values())[inj_id]['matrix'] = np.delete(list(projmaps.values())[inj_id]['matrix'], targ_id, 1)
                     targ_id = -1
         # evaluate if there are still Nan values in the matrices
         nan_id = {}
@@ -315,7 +318,7 @@ def pms_cleaner(projmaps):
             mat = projmaps[inj_id]['matrix']
             for targ_id in range(mat.shape[1]):
                 if all([np.isnan(mat[exp, targ_id]) for exp in range(mat.shape[0])]):
-                    if inj_id not in nan_id.keys():
+                    if inj_id not in list(nan_id.keys()):
                         nan_id[inj_id] = []
                     nan_id[inj_id].append(projmaps[inj_id]['columns'][targ_id]['structure_id'])
 
@@ -338,13 +341,13 @@ def areas_volume_threshold(tvb_mcc, projmaps, vol_thresh, resolution):
         if checkid not in id_ok:
             projmaps.pop(checkid, None)
     # Remove areas that are not in id_ok from target list (columns+matrix)
-    for inj_id in range(len(projmaps.values())):
+    for inj_id in range(len(list(projmaps.values()))):
         targ_id = -1
-        while len(projmaps.values()[inj_id]['columns']) != (len(id_ok) * 3):  # I have 3 hemispheres
+        while len(list(projmaps.values())[inj_id]['columns']) != (len(id_ok) * 3):  # I have 3 hemispheres
             targ_id += 1
-            if projmaps.values()[inj_id]['columns'][targ_id]['structure_id'] not in id_ok:
-                del projmaps.values()[inj_id]['columns'][targ_id]
-                projmaps.values()[inj_id]['matrix'] = np.delete(projmaps.values()[inj_id]['matrix'], targ_id, 1)
+            if list(projmaps.values())[inj_id]['columns'][targ_id]['structure_id'] not in id_ok:
+                del list(projmaps.values())[inj_id]['columns'][targ_id]
+                list(projmaps.values())[inj_id]['matrix'] = np.delete(list(projmaps.values())[inj_id]['matrix'], targ_id, 1)
                 targ_id = -1
     return projmaps
 
@@ -393,13 +396,13 @@ def areas_voxel_threshold(tvb_mcc, projmaps, inf_vox_thresh, vol, structure_tree
         if checkid not in id_ok:
             projmaps.pop(checkid, None)
     # Remove areas that are not in id_ok from target list (columns+matrix)
-    for indexinj in range(len(projmaps.values())):
+    for indexinj in range(len(list(projmaps.values()))):
         indextarg = -1
-        while len(projmaps.values()[indexinj]['columns']) != (len(id_ok) * 3):  # I have 3 hemispheres
+        while len(list(projmaps.values())[indexinj]['columns']) != (len(id_ok) * 3):  # I have 3 hemispheres
             indextarg += 1
-            if projmaps.values()[indexinj]['columns'][indextarg]['structure_id'] not in id_ok:
-                del projmaps.values()[indexinj]['columns'][indextarg]
-                projmaps.values()[indexinj]['matrix'] = np.delete(projmaps.values()[indexinj]['matrix'], indextarg, 1)
+            if list(projmaps.values())[indexinj]['columns'][indextarg]['structure_id'] not in id_ok:
+                del list(projmaps.values())[indexinj]['columns'][indextarg]
+                list(projmaps.values())[indexinj]['matrix'] = np.delete(list(projmaps.values())[indexinj]['matrix'], indextarg, 1)
                 indextarg = -1
     return projmaps
 
@@ -411,18 +414,18 @@ def create_file_order(projmaps, structure_tree):
     """
     order = {}
     for index in range(len(projmaps)):
-        target_id = projmaps.values()[0]['columns'][index]['structure_id']
+        target_id = list(projmaps.values())[0]['columns'][index]['structure_id']
         order[structure_tree.get_structures_by_id([target_id])[0]['graph_order']] = [target_id]
         order[structure_tree.get_structures_by_id([target_id])[0]['graph_order']].append(
             structure_tree.get_structures_by_id([target_id])[0]['name'])
-    key_ord = order.keys()
+    key_ord = list(order.keys())
     key_ord.sort()
     return order, key_ord
 
 
 # the method builds the Structural Connectivity (SC) matrix
 def construct_structural_conn(projmaps, order, key_ord):
-    len_right = len(projmaps.keys())
+    len_right = len(list(projmaps.keys()))
     structural_conn = np.zeros((len_right, 2 * len_right), dtype=float)
     row = -1
     for graph_ord_inj in key_ord:
@@ -554,7 +557,7 @@ def parents_and_grandparents_finder(tvb_mcc, order, key_ord, structure_tree):
     # of the region in parcellation which has that parent id
     for p in reversed(parents):
         k -= 1
-        if p not in unique_parents.keys():
+        if p not in list(unique_parents.keys()):
             unique_parents[p] = vec_index[k]
     k = len(grandparents)
     unique_gradparents = {}  # Unique parents will be a dictionary with keys the parent id and as value the index vec
@@ -562,7 +565,7 @@ def parents_and_grandparents_finder(tvb_mcc, order, key_ord, structure_tree):
     for p in reversed(grandparents):
         k -= 1
         if np.isnan(p) == 0:
-            if p not in unique_gradparents.keys():
+            if p not in list(unique_gradparents.keys()):
                 unique_gradparents[p] = vec_index[k]
     return unique_parents, unique_gradparents
 
@@ -594,7 +597,7 @@ def mouse_brain_visualizer(vol, order, key_ord, unique_parents, unique_grandpare
         for ii in range(len(structure_tree.children([node_id])[0])):
             child.append(structure_tree.children([node_id])[0][ii]['id'])
         while len(child) != 0:
-            if (child[0] in vol_r) and (child[0] not in projmaps.keys()):
+            if (child[0] in vol_r) and (child[0] not in list(projmaps.keys())):
                 vol_r[vol_r == child[0]] = indexed_vec[index_vec]
                 vol_l[vol_l == child[0]] = indexed_vec[index_vec + left]
             child.remove(child[0])
@@ -615,7 +618,7 @@ def mouse_brain_visualizer(vol, order, key_ord, unique_parents, unique_grandpare
         ancestor = structure_tree.get_structures_by_id([node_id])[0]['structure_id_path']
         while len(ancestor) > 0:
             pp = ancestor[-1]
-            if pp in unique_parents.keys():
+            if pp in list(unique_parents.keys()):
                 vol_r[vol_r == node_id] = indexed_vec[unique_parents[pp]]
                 vol_l[vol_l == node_id] = indexed_vec[unique_parents[pp] + left]
                 ancestor = []
@@ -635,7 +638,7 @@ def mouse_brain_visualizer(vol, order, key_ord, unique_parents, unique_grandpare
         ancestor = structure_tree.get_structures_by_id([node_id])[0]['structure_id_path']
         while len(ancestor) > 0:
             pp = ancestor[-1]
-            if pp in unique_grandparents.keys():
+            if pp in list(unique_grandparents.keys()):
                 vol_r[vol_r == node_id] = indexed_vec[unique_parents[pp]]
                 vol_l[vol_l == node_id] = indexed_vec[unique_parents[pp] + left]
                 ancestor = []

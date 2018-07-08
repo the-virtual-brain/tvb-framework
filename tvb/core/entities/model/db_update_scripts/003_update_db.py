@@ -34,10 +34,12 @@ Change of DB structure to TVB 1.0.3.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy.sql import text
 from sqlalchemy import Table, MetaData, Column, Integer, String
 from migrate.changeset.schema import create_column
 from tvb.core.entities.storage import SA_SESSIONMAKER
+import six
 
 
 COL_1 = Column('_number_of_values', Integer)
@@ -55,7 +57,7 @@ def _prepare_table(meta, table_name):
     """
     table = Table(table_name, meta, autoload=True)
     for constraint in table._sorted_constraints:
-        if not isinstance(constraint.name, (str, unicode)):
+        if not isinstance(constraint.name, (str, six.text_type)):
             constraint.name = None
     return table
 

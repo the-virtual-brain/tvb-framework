@@ -35,6 +35,7 @@ A Javascript displayer for connectivity, using hierarchical edge bundle diagrams
 
 """
 
+from __future__ import absolute_import
 import json
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.adapters.abcdisplayer import ABCDisplayer

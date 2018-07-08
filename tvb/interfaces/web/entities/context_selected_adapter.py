@@ -35,6 +35,7 @@ It will store in current user's session information about
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.interfaces.web.controllers import common
 
 

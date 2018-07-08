@@ -33,6 +33,7 @@ Service layer for saving/editing TVB settings.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
+from __future__ import absolute_import
 import os
 import sys
 import shutil
@@ -43,6 +44,7 @@ from tvb.basic.config import stored
 from tvb.basic.logger.builder import get_logger
 from tvb.core.utils import get_matlab_executable
 from tvb.core.services.exceptions import InvalidSettingsException
+import six
 
 
 class SettingsService(object):
@@ -145,7 +147,7 @@ class SettingsService(object):
         if sys.platform.startswith('win'):
             import ctypes
             storage_path = os.path.abspath(storage_path)
-            drive = unicode(storage_path.split(':')[0] + ':')
+            drive = six.text_type(storage_path.split(':')[0] + ':')
             freeuser = ctypes.c_int64()
             total = ctypes.c_int64()
             free = ctypes.c_int64()

@@ -33,6 +33,7 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.nifti.parser import NIFTIParser

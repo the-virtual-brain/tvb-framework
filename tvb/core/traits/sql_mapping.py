@@ -33,6 +33,7 @@ A mapping from traited datatypes to sql types.
 
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+from __future__ import absolute_import
 import sqlalchemy
 
 MAPPINGS = {

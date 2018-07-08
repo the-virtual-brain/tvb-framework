@@ -33,9 +33,11 @@ module docstring
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.traits.itree_model import TypeNode, SelectTypeNode, DictNode, EnumerateNode
 from tvb.simulator.simulator import Simulator
 from pprint import pprint
+from six.moves import zip
 
 
 class TestExperimentalInputTree():

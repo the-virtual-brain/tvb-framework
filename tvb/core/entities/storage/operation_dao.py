@@ -35,6 +35,7 @@ DAO operations related to Algorithms and User Operations are defined here.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy import or_, and_
 from sqlalchemy import func as func
 from sqlalchemy.exc import SQLAlchemyError
@@ -552,7 +553,7 @@ class OperationDAO(RootDAO):
         try:
             previews_info = self._get_previews_info(project_id, user_id)
             if selected_session_name == 'all_sessions':
-                session_names = previews_info.keys()
+                session_names = list(previews_info.keys())
                 session_names.sort()
             else:
                 session_names = [selected_session_name]

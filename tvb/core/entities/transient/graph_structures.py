@@ -33,6 +33,7 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.core.entities.storage import dao 
 
 MAX_SHAPE_SIZE = 50

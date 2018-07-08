@@ -35,6 +35,7 @@
 .. moduleauthor:: marmaduke <mw@eml.cc>
 """
 
+from __future__ import absolute_import
 import os
 import six
 import json
@@ -118,7 +119,7 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
         Add DB code for when an attribute of MappedType class is set on another entity.
         """
         instance_gid, full_instance = None, None
-        if value is None or isinstance(value, (str, unicode)):
+        if value is None or isinstance(value, (str, six.text_type)):
             #### We consider the string represents a GID
             instance_gid = value
             if value is not None:
@@ -403,7 +404,7 @@ class MappedType(model.DataType, mapped.MappedTypeLight):
     @staticmethod
     def _get_meta_value(meta_dictionary, meta_key):
         """Utility method. Get meta_key from meta_dictionary, if found key, or None."""
-        if meta_key in meta_dictionary.keys():
+        if meta_key in list(meta_dictionary.keys()):
             return meta_dictionary[meta_key]
         else:
             return None

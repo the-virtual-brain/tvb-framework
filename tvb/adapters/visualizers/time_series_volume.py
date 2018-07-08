@@ -37,6 +37,7 @@ Backend-side for TS Visualizer of TS Volume DataTypes.
 
 """
 
+from __future__ import absolute_import
 import json
 from tvb.adapters.visualizers.region_volume_mapping import _MappedArrayVolumeBase
 from tvb.basic.filters.chain import FilterChain
@@ -44,6 +45,7 @@ from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.storage import dao
 from tvb.datatypes.structural import StructuralMRI
 from tvb.datatypes.time_series import TimeSeries, TimeSeriesVolume
+from six.moves import range
 
 
 
@@ -82,7 +84,7 @@ class TimeSeriesVolumeVisualiser(ABCDisplayer):
         params = dict(title="Volumetric Time Series",
                       ts_title=time_series.title,
                       labelsStateVar=time_series.labels_dimensions.get(time_series.labels_ordering[1], []),
-                      labelsModes=range(time_series.read_data_shape()[3]),
+                      labelsModes=list(range(time_series.read_data_shape()[3])),
                       minValue=min_value, maxValue=max_value,
                       urlVolumeData=url_volume_data,
                       urlTimeSeriesData=url_timeseries_data,

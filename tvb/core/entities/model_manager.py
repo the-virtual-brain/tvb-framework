@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Yann Gordon <yann@invalid.tvb>
 """
+from __future__ import absolute_import
 import os
 import shutil
 import migrate.versioning.api as migratesqlapi

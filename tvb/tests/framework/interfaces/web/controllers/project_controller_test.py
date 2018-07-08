@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import pytest
 import cherrypy
 from sqlalchemy.orm.exc import NoResultFound

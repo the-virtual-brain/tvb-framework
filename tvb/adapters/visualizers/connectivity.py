@@ -33,6 +33,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import json
 import math
 import numpy
@@ -46,6 +47,8 @@ from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.graph import ConnectivityMeasure
 from tvb.datatypes.surfaces import CorticalSurface
+from six.moves import range
+from six.moves import zip
 
 
 

@@ -33,6 +33,7 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 """
 
+from __future__ import absolute_import
 import numpy
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.storage import dao

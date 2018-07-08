@@ -32,6 +32,7 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.adapters.visualizers.surface_view import SurfaceViewer, RegionMappingViewer
 from tvb.core.entities.file.files_helper import FilesHelper

@@ -37,6 +37,8 @@ After running this script, you should have a message in the console telling wher
 
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 if __name__ == "__main__":
     from tvb.basic.profile import TvbProfile
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
@@ -53,7 +55,7 @@ def run_export(project_id, loose_irrelevant=False):
 
     project = s.find_project(project_id)
     export_file = mng.export_project(project, loose_irrelevant)
-    print("Check the exported file: %s" % export_file)
+    print(("Check the exported file: %s" % export_file))
 
 
 if __name__ == '__main__':
@@ -61,6 +63,6 @@ if __name__ == '__main__':
     if len(argv) < 2:
         print("You should specify a project ID to be exported!")
 
-    print("We will try to export project with ID: " + str(argv[1]))
+    print(("We will try to export project with ID: " + str(argv[1])))
 
     run_export(argv[0])

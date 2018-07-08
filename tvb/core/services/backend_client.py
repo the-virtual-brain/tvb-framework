@@ -34,10 +34,11 @@
 .. moduleauthor:: Yann Gordon <yann@invalid.tvb>
 """
 
+from __future__ import absolute_import
 import os
 import sys
 import signal
-import Queue as queue
+import six.moves.queue as queue
 import threading
 from subprocess import Popen, PIPE
 from tvb.basic.profile import TvbProfile
@@ -46,6 +47,7 @@ from tvb.core.utils import parse_json_parameters
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.services.workflow_service import WorkflowService
+from six.moves import range
 
 
 LOGGER = get_logger(__name__)

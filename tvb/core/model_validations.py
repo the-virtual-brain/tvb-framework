@@ -34,6 +34,9 @@ This is intended to be a Benchmarking  and Validator script.
 .. moduleauthor:: bogdan.neacsa
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
+from six.moves import input
 if __name__ == '__main__':
     from tvb.basic.profile import TvbProfile
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
@@ -98,9 +101,9 @@ class ModelValidator(object):
                 range_values = self.operation_service.get_range_values(launch_args, key)
                 nr_of_operations *= len(range_values)
         do_launch = False
-        print("Warning! This will launch %s operations. Do you agree? (yes/no)" % nr_of_operations)
+        print(("Warning! This will launch %s operations. Do you agree? (yes/no)" % nr_of_operations))
         while 1:
-            accept = raw_input()
+            accept = input()
             if accept.lower() == 'yes':
                 do_launch = True
                 break
@@ -141,13 +144,13 @@ class ModelValidator(object):
 
 def main(settings_file):
     validator = ModelValidator(settings_file=settings_file)
-    print(validator.launch_validation())
+    print((validator.launch_validation()))
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         raise Exception("Usage should be 'python model_validations.py settings_file")
     validator = ModelValidator(settings_file=sys.argv[1])
-    print(validator.launch_validation())
+    print((validator.launch_validation()))
     exit(0)
 

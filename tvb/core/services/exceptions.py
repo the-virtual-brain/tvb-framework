@@ -33,6 +33,7 @@ Exceptions for services layer of the application.
    
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
+from __future__ import absolute_import
 from tvb.basic.traits.exceptions import TVBException
 
 

@@ -31,10 +31,13 @@
 .. moduleauthor:: Ionel Ortelecan <ionel.ortelecan@codemart.ro>
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import numpy
 import six
 from tvb.basic.logger.builder import get_logger
 from matplotlib import _cntr
+from six.moves import range
+from six.moves import zip
 
 # how much courser is the grid used to show the vectors
 GRID_SUBSAMPLE = 2
@@ -241,7 +244,7 @@ class PhasePlaneD3(PhasePlane):
 
         # signals for last trajectory
         signal_x = numpy.arange(n_steps + 1) * self.integrator.dt
-        signals = [zip(signal_x, traj[-1, :, i, self.mode].tolist()) for i in [self.svx_ind, self.svy_ind]]
+        signals = [list(zip(signal_x, traj[-1, :, i, self.mode].tolist())) for i in [self.svx_ind, self.svy_ind]]
 
         return trajectory.tolist(), signals
 

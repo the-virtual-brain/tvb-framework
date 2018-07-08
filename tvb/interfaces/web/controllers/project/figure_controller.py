@@ -35,6 +35,7 @@ Controller class for managing Figures saved in TVB.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import cherrypy
 import formencode
@@ -48,6 +49,7 @@ from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.decorators import context_selected, check_user, handle_error
 from tvb.interfaces.web.controllers.decorators import using_template, expose_page
 from tvb.interfaces.web.controllers.project.project_controller import ProjectController
+import six
 
 
 class FigureController(ProjectController):
@@ -119,7 +121,7 @@ class FigureController(ProjectController):
             successfully_updated = True
             if "old_session_name" in data and "new_session_name" in data:
                 figures_dict, _ = self.figure_service.retrieve_result_figures(project, user, data["old_session_name"])
-                for _key, value in figures_dict.iteritems():
+                for _key, value in six.iteritems(figures_dict):
                     for figure in value:
                         new_data = {"name": figure.name, "session_name": data["new_session_name"]}
                         success = self._update_figure(figure.id, **new_data)
@@ -134,7 +136,7 @@ class FigureController(ProjectController):
             successfully_removed = True
             if "old_session_name" in data:
                 figures_dict, _ = self.figure_service.retrieve_result_figures(project, user, data["old_session_name"])
-                for _key, value in figures_dict.iteritems():
+                for _key, value in six.iteritems(figures_dict):
                     for figure in value:
                         success = self.figure_service.remove_result_figure(figure.id)
                         if not success:
@@ -163,7 +165,7 @@ class FigureController(ProjectController):
             self.figure_service.edit_result_figure(figure_id, **data)
             common.set_info_message('Figure details updated successfully.')
             return True
-        except formencode.Invalid, excep:
+        except formencode.Invalid as excep:
             self.logger.debug(excep)
             common.set_error_message(excep.message)
             return False

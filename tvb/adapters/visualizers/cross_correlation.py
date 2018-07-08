@@ -35,6 +35,7 @@ A displayer for cross correlation.
 .. moduleauthor:: Marmaduke Woodman <mw@eml.cc>
 
 """
+from __future__ import absolute_import
 from tvb.adapters.visualizers.matrix_viewer import MappedArraySVGVisualizerMixin
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.temporal_correlations import CrossCorrelation

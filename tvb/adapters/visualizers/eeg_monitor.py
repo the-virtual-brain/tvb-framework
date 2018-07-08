@@ -32,11 +32,13 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
+from __future__ import absolute_import
 import json
 import numpy
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.time_series import TimeSeries
 from tvb.core.adapters.exceptions import LaunchException
+from six.moves import range
 
 
 
@@ -214,7 +216,7 @@ class EegMonitor(ABCDisplayer):
             if multiple_inputs:
                 # for multiple inputs the default selections might be too big: select the first few
                 # warn: assumes that the selection values are a range
-                initial_selections.append(range(4))
+                initial_selections.append(list(range(4)))
             else:
                 initial_selections.append(timeseries.get_default_selection())
 
@@ -222,7 +224,7 @@ class EegMonitor(ABCDisplayer):
             grouped_labels.append(timeseries.get_grouped_space_labels())
 
             state_vars[ts_name] = timeseries.labels_dimensions.get(timeseries.labels_ordering[1], [])
-            modes[ts_name] = range(shape[3])
+            modes[ts_name] = list(range(shape[3]))
 
         return no_of_lines, ts_names, grouped_labels, max_length, graph_labels, initial_selections, measure_points_selectionGIDs, modes, state_vars
 

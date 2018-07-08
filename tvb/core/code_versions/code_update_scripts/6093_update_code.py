@@ -33,6 +33,7 @@ Change Project structure for TVB version 1.1.5.
 
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import os
 from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporter
 
@@ -41,6 +42,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.surfaces import FACE
 import tvb_data.obj
+from six.moves import range
 
 DATA_FILE_FACE = os.path.join(os.path.dirname(tvb_data.obj.__file__), "face_surface.obj")
 

@@ -35,6 +35,7 @@ Provides facilities to import FieldTrip data sets into TVB as time series and se
 
 """
 
+from __future__ import absolute_import
 import numpy
 import scipy.io
 from tvb.adapters.uploaders.abcuploader import ABCUploader

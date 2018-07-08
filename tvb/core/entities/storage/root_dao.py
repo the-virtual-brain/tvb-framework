@@ -35,21 +35,21 @@ Base DAO behavior.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
 from tvb.core.entities.storage.session_maker import SESSION_META_CLASS
 from tvb.config import SIMULATION_DATATYPE_CLASS
+import six
 
 
 
-class RootDAO(object):
+class RootDAO(six.with_metaclass(SESSION_META_CLASS, object)):
     """
     GLOBAL METHODS
     """
-
-    __metaclass__ = SESSION_META_CLASS
     session = None
     logger = get_logger(__name__)
 
@@ -92,7 +92,7 @@ class RootDAO(object):
         """
         Retrieve an entity of entity_type, filtered by select_field = filter_value.
         """
-        if isinstance(entity_type, (str, unicode)):
+        if isinstance(entity_type, (str, six.text_type)):
             classname = entity_type[entity_type.rfind(".") + 1:]
             entity_class = __import__(entity_type[0: entity_type.rfind(".")], globals(), locals(), classname)
             entity_class = eval("entity_class." + classname)

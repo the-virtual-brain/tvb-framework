@@ -35,6 +35,7 @@ for release 1.5.1
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 from tvb.basic.logger.builder import get_logger
 

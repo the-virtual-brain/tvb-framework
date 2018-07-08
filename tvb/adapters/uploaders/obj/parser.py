@@ -34,6 +34,7 @@ Handlers for reading/writing from/into OBJ format Surfaces are defined in this m
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 from tvb.basic.logger.builder import get_logger
 
 

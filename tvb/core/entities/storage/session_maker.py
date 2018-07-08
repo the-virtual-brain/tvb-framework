@@ -32,6 +32,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+from __future__ import absolute_import
 import threading
 from functools import wraps
 from types import FunctionType
@@ -42,6 +43,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.storage.exceptions import NestedTransactionUnsupported, InvalidTransactionAccess
+from six.moves import range
 
 
 ###

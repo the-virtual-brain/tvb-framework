@@ -34,6 +34,7 @@ A displayer for the principal components analysis.
 .. moduleauthor:: Marmaduke Woodman <mw@eml.cc>
 
 """
+from __future__ import absolute_import
 import json
 from tvb.datatypes.mode_decompositions import PrincipalComponents
 from tvb.core.adapters.abcdisplayer import ABCDisplayer

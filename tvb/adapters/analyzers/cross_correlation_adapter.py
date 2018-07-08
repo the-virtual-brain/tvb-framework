@@ -36,6 +36,7 @@ Adapter that uses the traits module to generate interfaces for ... Analyzer.
 
 """
 
+from __future__ import absolute_import
 import numpy
 from tvb.core.adapters.abcadapter import ABCAsynchronous
 from tvb.core.adapters.exceptions import LaunchException
@@ -47,6 +48,7 @@ from tvb.datatypes.temporal_correlations import CrossCorrelation
 from tvb.datatypes.graph import CorrelationCoefficients
 from tvb.analyzers.cross_correlation import CrossCorrelate
 from tvb.analyzers.correlation_coefficient import CorrelationCoefficient
+from six.moves import range
 
 LOG = get_logger(__name__)
 

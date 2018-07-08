@@ -34,6 +34,7 @@ Unit-test for mat_timeseries_importer and mat_parser.
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
+from __future__ import absolute_import
 import os
 import tvb_data
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase

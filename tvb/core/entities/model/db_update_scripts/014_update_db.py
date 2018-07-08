@@ -35,6 +35,7 @@ Change of DB structure from TVB version 1.3 to 1.3.1
 
 """
 
+from __future__ import absolute_import
 from sqlalchemy import Column, Float, Integer
 from sqlalchemy.sql import text
 from migrate.changeset.schema import create_column, drop_column, alter_column

@@ -36,6 +36,7 @@ Entities for Generic DataTypes, Links and Groups of DataTypes are defined here.
 .. moduleauthor:: Yann Gordon <yann@tvb.invalid>
 """
 
+from __future__ import absolute_import
 from copy import copy
 from datetime import datetime
 from sqlalchemy.orm import relationship, backref

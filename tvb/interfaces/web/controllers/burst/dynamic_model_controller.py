@@ -31,6 +31,7 @@
 """
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from __future__ import absolute_import
 import json
 import numpy
 import threading
@@ -48,6 +49,8 @@ from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.burst.base_controller import BurstBaseController
 from tvb.interfaces.web.controllers.decorators import expose_page, expose_json, expose_fragment, using_template
 from tvb.simulator import models, integrators
+import six
+from six.moves import range
 
 
 class Dynamic(object):
@@ -142,7 +145,7 @@ class _LeftFragmentAdapter(ABCAdapter):
             'options': []
         }
 
-        for clz_name, clz in self.available_models.iteritems():
+        for clz_name, clz in six.iteritems(self.available_models):
             models_sub_tree['options'].append({
                 'name': clz._ui_name, # ui-name instaead
                 'value': clz_name,
@@ -325,7 +328,7 @@ class DynamicModelController(BurstBaseController):
             params = json.loads(params)
             dynamic = self.get_cached_dynamic(dynamic_gid)
             model = dynamic.model
-            for name, value in params.iteritems():
+            for name, value in six.iteritems(params):
                 setattr(model, name, numpy.array([float(value)]))
             model.configure()
             return dynamic.phase_plane.compute_phase_plane()
@@ -400,7 +403,7 @@ class DynamicModelController(BurstBaseController):
 
 
         ret = {
-            'modes': range(model.number_of_modes),
+            'modes': list(range(model.number_of_modes)),
             'state_variables': sv_model,
             'default_mode' : dynamic.phase_plane.mode
         }

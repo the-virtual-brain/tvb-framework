@@ -38,6 +38,7 @@ on scipy.io's loadmat and savemat function.
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 """
 
+from __future__ import absolute_import
 import os
 import time
 import random
