@@ -126,7 +126,7 @@ class DataSet(Accessor):
         return self.owner.storage_manager.get_data(self.field_name)
 
     def __getitem__(self, data_slice):
-        # type: (typing.Tuple[slice]) -> numpy.ndarray
+        # type: (typing.Tuple[slice, ...]) -> numpy.ndarray
         return self.owner.storage_manager.get_data(self.field_name, data_slice)
 
     @property
