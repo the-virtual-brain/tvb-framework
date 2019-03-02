@@ -1,4 +1,6 @@
 import numpy
+from tvb.basic.neotraits.api import NArray, Attr, HasTraits, Int
+
 from .data import FooDatatype, BarDatatype, BazDataType
 from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Reference
 
@@ -7,18 +9,20 @@ from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Reference
 class BazFile(H5File):
     def __init__(self, path):
         super(BazFile, self).__init__(path)
-        self.miu = DataSet(BazDataType.miu, self)
-        self.scalar_str = Scalar(BazDataType.scalar_str, self)
+        self.miu = DataSet(BazDataType.miu)
+        self.scalar_str = Scalar(BazDataType.scalar_str)
+        self._end_accessor_declarations()
 
 
 
 class FooFile(H5File):
     def __init__(self, path):
         super(FooFile, self).__init__(path)
-        self.array_float = DataSet(FooDatatype.array_float, self)
-        self.array_int = DataSet(FooDatatype.array_int, self)
-        self.scalar_int = Scalar(FooDatatype.scalar_int, self)
-        self.abaz = Reference(FooDatatype.abaz, self)
+        self.array_float = DataSet(FooDatatype.array_float)
+        self.array_int = DataSet(FooDatatype.array_int)
+        self.scalar_int = Scalar(FooDatatype.scalar_int)
+        self.abaz = Reference(FooDatatype.abaz)
+        self._end_accessor_declarations()
 
 
 
@@ -26,7 +30,29 @@ class BarFile(FooFile):
     # inheritance is flattened in the same file
     def __init__(self, path):
         super(BarFile, self).__init__(path)
-        self.array_str = DataSet(BarDatatype.array_str, self)
+        self.array_str = DataSet(BarDatatype.array_str)
+        self._end_accessor_declarations()
+
+
+class Independent(H5File):
+    def __init__(self, path):
+        super(Independent, self).__init__(path)
+        self.scalar_int = Scalar(Attr(int))
+        self.array_float = DataSet(NArray())
+        self._end_accessor_declarations()
+
+
+def test_independent_h5file(tmph5factory):
+    with Independent(tmph5factory()) as f:
+        f.scalar_int.store(3)
+        f.array_float.store(numpy.eye(4, dtype=float))
+
+        numpy.testing.assert_equal(f.array_float.load(), numpy.eye(4))
+
+        # note that this does nothing as the attributes in the
+        # Independent datasets have no field_name
+        # because they are not bound to a datatype
+        f.store(BazDataType())
 
 
 

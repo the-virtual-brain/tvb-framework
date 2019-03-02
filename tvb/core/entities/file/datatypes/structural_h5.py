@@ -6,6 +6,7 @@ class StructuralMRIH5(H5File):
 
     def __init__(self, path):
         super(StructuralMRIH5, self).__init__(path)
-        self.array_data = DataSet(StructuralMRI.array_data, self)
-        self.weighting = Scalar(StructuralMRI.weighting, self)
-        self.volume = Reference(StructuralMRI.volume, self)
+        self.array_data = DataSet(StructuralMRI.array_data)
+        self.weighting = Scalar(StructuralMRI.weighting)
+        self.volume = Reference(StructuralMRI.volume)
+        self._end_accessor_declarations()

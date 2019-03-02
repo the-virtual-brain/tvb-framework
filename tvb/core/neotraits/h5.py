@@ -21,13 +21,14 @@ def is_scalar_type(t):
 
 
 class Accessor(object):
-    def __init__(self, trait_attribute, h5file):
-        # type: (Attr, H5File) -> None
+    def __init__(self, trait_attribute):
+        # type: (Attr) -> None
         """
         :param trait_attribute: A traited attribute declared in a HasTraits class
         :param h5file: the parent h5 file
         """
-        self.owner = h5file
+        self.owner = None  # type: H5File
+        self.field_name = None  # type: str
         self.trait_attribute = trait_attribute
 
     @abc.abstractmethod
@@ -49,12 +50,12 @@ class Scalar(Accessor):
     def store(self, val):
         # type: (typing.Union[str, int, float]) -> None
         val = self.trait_attribute._validate_set(None, val)
-        self.owner.storage_manager.set_metadata({self.trait_attribute.field_name: val})
+        self.owner.storage_manager.set_metadata({self.field_name: val})
 
     def load(self):
         # type: () -> typing.Union[str, int, float]
         # assuming here that the h5 will return the type we stored. if paranoid do self.trait_attribute.field_type(value)
-        return self.owner.storage_manager.get_metadata()[self.trait_attribute.field_name]
+        return self.owner.storage_manager.get_metadata()[self.field_name]
 
 
 class DataSetMetaData(object):
@@ -87,20 +88,20 @@ class DataSet(Accessor):
     """
     A dataset in a h5 file that corresponds to a traited NArray.
     """
-    def __init__(self, trait_attribute, h5file, expand_dimension=None):
-        # type: (NArray, H5File, int) -> None
+    def __init__(self, trait_attribute, expand_dimension=None):
+        # type: (NArray, int) -> None
         """
         :param trait_attribute: A traited attribute declared in a HasTraits class
         :param h5file: the parent h5 file
         :param expand_dimension: An int designating a dimension of the array that may grow.
         """
-        super(DataSet, self).__init__(trait_attribute, h5file)
+        super(DataSet, self).__init__(trait_attribute)
         self.expand_dimension = expand_dimension
 
     def append(self, data, close_file=True):
         # type: (numpy.ndarray, bool) -> None
         self.owner.storage_manager.append_data(
-            self.trait_attribute.field_name,
+            self.field_name,
             data,
             grow_dimension=self.expand_dimension,
             close_file=close_file
@@ -113,25 +114,25 @@ class DataSet(Accessor):
         if data is None:
             return
 
-        self.owner.storage_manager.store_data(self.trait_attribute.field_name, data)
+        self.owner.storage_manager.store_data(self.field_name, data)
         # cache some array information
         self.owner.storage_manager.set_metadata(
             DataSetMetaData.from_array(data).to_dict(),
-            self.trait_attribute.field_name
+            self.field_name
         )
 
     def load(self):
         # type: () -> numpy.ndarray
-        return self.owner.storage_manager.get_data(self.trait_attribute.field_name)
+        return self.owner.storage_manager.get_data(self.field_name)
 
     def __getitem__(self, data_slice):
         # type: (typing.Tuple[slice]) -> numpy.ndarray
-        return self.owner.storage_manager.get_data(self.trait_attribute.field_name, data_slice)
+        return self.owner.storage_manager.get_data(self.field_name, data_slice)
 
     @property
     def shape(self):
         # type: () -> typing.Tuple[int]
-        return self.owner.storage_manager.get_data_shape(self.trait_attribute.field_name)
+        return self.owner.storage_manager.get_data_shape(self.field_name)
 
     def get_cached_metadata(self):
         """
@@ -139,7 +140,7 @@ class DataSet(Accessor):
         This cache is useful for large, expanding datasets,
         when we want to avoid loading the whole dataset just to compute a max.
         """
-        meta = self.owner.storage_manager.get_metadata(self.trait_attribute.field_name)
+        meta = self.owner.storage_manager.get_metadata(self.field_name)
         return DataSetMetaData.from_dict(meta)
 
 
@@ -211,25 +212,25 @@ class SparseMatrix(Accessor):
         self.owner.storage_manager.store_data(
             'data',
             mtx.data,
-            where=self.trait_attribute.field_name
+            where=self.field_name
         )
         self.owner.storage_manager.store_data(
             'indptr',
             mtx.indptr,
-            where=self.trait_attribute.field_name
+            where=self.field_name
         )
         self.owner.storage_manager.store_data(
             'indices',
             mtx.indices,
-            where=self.trait_attribute.field_name
+            where=self.field_name
         )
         self.owner.storage_manager.set_metadata(
             SparseMatrixMetaData.from_array(mtx).to_dict(),
-            where=self.trait_attribute.field_name
+            where=self.field_name
         )
 
     def get_metadata(self):
-        meta = self.owner.storage_manager.get_metadata(self.trait_attribute.field_name)
+        meta = self.owner.storage_manager.get_metadata(self.field_name)
         return SparseMatrixMetaData.from_dict(meta)
 
     def load(self):
@@ -239,15 +240,15 @@ class SparseMatrix(Accessor):
         constructor = self.constructors[meta.format]
         data = self.owner.storage_manager.get_data(
             'data',
-            where=self.trait_attribute.field_name,
+            where=self.field_name,
         )
         indptr = self.owner.storage_manager.get_data(
             'indptr',
-            where=self.trait_attribute.field_name,
+            where=self.field_name,
         )
         indices = self.owner.storage_manager.get_data(
             'indices',
-            where=self.trait_attribute.field_name,
+            where=self.field_name,
         )
         mtx = constructor((data, indices, indptr), shape=meta.shape, dtype=meta.dtype)
         mtx.sort_indices()
@@ -275,7 +276,7 @@ class Reference(Scalar):
         # urn is a standard encoding, that is obvious an uuid
         # str(gid) is more ambiguous
         val = val.gid.urn
-        self.owner.storage_manager.set_metadata({self.trait_attribute.field_name: val})
+        self.owner.storage_manager.set_metadata({self.field_name: val})
 
     def load(self):
         urngid = super(Reference, self).load()
@@ -293,10 +294,10 @@ class Json(Scalar):
         stores a json in the h5 metadata
         """
         val = json.dumps(val)
-        self.owner.storage_manager.set_metadata({self.trait_attribute.field_name: val})
+        self.owner.storage_manager.set_metadata({self.field_name: val})
 
     def load(self):
-        val = self.owner.storage_manager.get_metadata()[self.trait_attribute.field_name]
+        val = self.owner.storage_manager.get_metadata()[self.field_name]
         return json.loads(val)
 
 
@@ -313,6 +314,18 @@ class H5File(object):
         storage_path, file_name = os.path.split(path)
         self.storage_manager = HDF5StorageManager(storage_path, file_name)
         # would be nice to have an opened state for the chunked api instead of the close_file=False
+
+    def _end_accessor_declarations(self):
+        """
+        You should call this *once* after all accessors have been create in __init__
+        This sets the h5file and field_name attributes for all accessors
+        on this instance
+        """
+        for field_name, accessor in self.__dict__.iteritems():
+            if isinstance(accessor, Accessor):
+                accessor.field_name = field_name
+                accessor.owner = self
+
 
     def __enter__(self):
         return self

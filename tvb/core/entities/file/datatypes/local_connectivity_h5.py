@@ -7,22 +7,21 @@ from tvb.datatypes.local_connectivity import LocalConnectivity
 class LocalConnectivityH5(H5File):
     def __init__(self, path):
         super(LocalConnectivityH5, self).__init__(path)
-        self.surface = Reference(LocalConnectivity.surface, self)
+        self.surface = Reference(LocalConnectivity.surface)
         # this multidataset accessor works but something is off about it
         # this would be clearer
         # self.matrix, self.matrixindices, self.matrixindptr
-        self.matrix = SparseMatrix(LocalConnectivity.matrix, self)
+        self.matrix = SparseMatrix(LocalConnectivity.matrix)
         # equation is an inlined reference
         # should this be a special equation scalar field?
         # or this?
         # this is clear about the structure, but obviously breaks the default store/load
-        # self.equation_equation = Scalar(Equation.equation, self)
-        # self.equation_parameters = Scalar(Equation.parameters, self)
+        # self.equation_equation = Scalar(Equation.equation)
+        # self.equation_parameters = Scalar(Equation.parameters)
 
-        str_attr = Attr(str)
-        str_attr.field_name = 'equation'
-        self.equation = Scalar(str_attr, self)
-        self.cutoff = Scalar(LocalConnectivity.cutoff, self)
+        self.equation = Scalar(Attr(str))
+        self.cutoff = Scalar(LocalConnectivity.cutoff)
+        self._end_accessor_declarations()
 
     # equations are such a special case that we will have to implement custom load store
 
