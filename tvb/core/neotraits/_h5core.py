@@ -1,5 +1,3 @@
-import json
-import scipy.sparse
 import uuid
 
 import typing
@@ -25,7 +23,6 @@ class Accessor(object):
         # type: (Attr) -> None
         """
         :param trait_attribute: A traited attribute declared in a HasTraits class
-        :param h5file: the parent h5 file
         """
         self.owner = None  # type: H5File
         self.field_name = None  # type: str
@@ -49,13 +46,16 @@ class Scalar(Accessor):
 
     def store(self, val):
         # type: (typing.Union[str, int, float]) -> None
+        # noinspection PyProtectedMember
         val = self.trait_attribute._validate_set(None, val)
         self.owner.storage_manager.set_metadata({self.field_name: val})
 
     def load(self):
         # type: () -> typing.Union[str, int, float]
-        # assuming here that the h5 will return the type we stored. if paranoid do self.trait_attribute.field_type(value)
+        # assuming here that the h5 will return the type we stored.
+        # if paranoid do self.trait_attribute.field_type(value)
         return self.owner.storage_manager.get_metadata()[self.field_name]
+
 
 
 class DataSetMetaData(object):
@@ -64,6 +64,8 @@ class DataSetMetaData(object):
     Useful as a cache of global min max values.
     Viewers rely on these for colorbars.
     """
+
+    # noinspection PyShadowingBuiltins
     def __init__(self, min, max):
         self.min, self.max = min, max
 
@@ -92,7 +94,6 @@ class DataSet(Accessor):
         # type: (NArray, int) -> None
         """
         :param trait_attribute: A traited attribute declared in a HasTraits class
-        :param h5file: the parent h5 file
         :param expand_dimension: An int designating a dimension of the array that may grow.
         """
         super(DataSet, self).__init__(trait_attribute)
@@ -108,6 +109,7 @@ class DataSet(Accessor):
         )
         # todo update the cached array min max metadata values
 
+    # noinspection PyProtectedMember
     def store(self, data):
         # type: (numpy.ndarray) -> None
         data = self.trait_attribute._validate_set(None, data)
@@ -144,117 +146,6 @@ class DataSet(Accessor):
         return DataSetMetaData.from_dict(meta)
 
 
-class SparseMatrixMetaData(DataSetMetaData):
-    """
-    Essential metadata for interpreting a sparse matrix stored in h5
-    """
-    def __init__(self, minimum, maximum, format, dtype, shape):
-        super(SparseMatrixMetaData, self).__init__(minimum, maximum)
-        self.dtype = dtype
-        self.format = format
-        self.shape = shape
-
-    @staticmethod
-    def parse_shape(shapestr):
-        if not shapestr or shapestr[0] != '(' or shapestr[-1] != ')':
-            raise ValueError('can not parse shape "{}"'.format(shapestr))
-        frags = shapestr[1:-1].split(',')
-        return tuple(long(e) for e in frags)
-
-    @classmethod
-    def from_array(cls, mtx):
-        return cls(
-            minimum=mtx.data.min(),
-            maximum=mtx.data.max(),
-            format=mtx.format,
-            dtype=mtx.dtype,
-            shape=mtx.shape,
-        )
-
-    @classmethod
-    def from_dict(cls, dikt):
-        return cls(
-            minimum=dikt['Minimum'],
-            maximum=dikt['Maximum'],
-            format=dikt['format'],
-            dtype=numpy.dtype(dikt['dtype']),
-            shape=cls.parse_shape(dikt['Shape']),
-        )
-
-    def to_dict(self):
-        return {
-            'Minimum': self.min,
-            'Maximum': self.max,
-            'format': self.format,
-            'dtype': self.dtype.str,
-            'Shape': str(self.shape),
-        }
-
-
-
-class SparseMatrix(Accessor):
-    """
-    Stores and loads a scipy.sparse csc or csr matrix in h5.
-    """
-    constructors = {'csr': scipy.sparse.csr_matrix, 'csc': scipy.sparse.csc_matrix}
-
-    def store(self, mtx):
-        # type: (scipy.sparse.spmatrix) -> None
-        mtx = self.trait_attribute._validate_set(None, mtx)
-        if mtx is None:
-            return
-        if mtx.format not in self.constructors:
-            raise ValueError('sparse format {} not supported'.format(mtx.format))
-
-        if not isinstance(mtx, scipy.sparse.spmatrix):
-            raise TypeError("expected scipy.sparse.spmatrix, got {}".format(type(mtx)))
-
-        self.owner.storage_manager.store_data(
-            'data',
-            mtx.data,
-            where=self.field_name
-        )
-        self.owner.storage_manager.store_data(
-            'indptr',
-            mtx.indptr,
-            where=self.field_name
-        )
-        self.owner.storage_manager.store_data(
-            'indices',
-            mtx.indices,
-            where=self.field_name
-        )
-        self.owner.storage_manager.set_metadata(
-            SparseMatrixMetaData.from_array(mtx).to_dict(),
-            where=self.field_name
-        )
-
-    def get_metadata(self):
-        meta = self.owner.storage_manager.get_metadata(self.field_name)
-        return SparseMatrixMetaData.from_dict(meta)
-
-    def load(self):
-        meta = self.get_metadata()
-        if meta.format not in self.constructors:
-            raise ValueError('sparse format {} not supported'.format(meta.format))
-        constructor = self.constructors[meta.format]
-        data = self.owner.storage_manager.get_data(
-            'data',
-            where=self.field_name,
-        )
-        indptr = self.owner.storage_manager.get_data(
-            'indptr',
-            where=self.field_name,
-        )
-        indices = self.owner.storage_manager.get_data(
-            'indices',
-            where=self.field_name,
-        )
-        mtx = constructor((data, indices, indptr), shape=meta.shape, dtype=meta.dtype)
-        mtx.sort_indices()
-        return mtx
-
-
 
 class Reference(Scalar):
     """
@@ -281,24 +172,6 @@ class Reference(Scalar):
     def load(self):
         urngid = super(Reference, self).load()
         return uuid.UUID(urngid)
-
-
-
-class Json(Scalar):
-    """
-    A python json like data structure accessor
-    This works with simple Attr(list) Attr(dict) List(of=...)
-    """
-    def store(self, val):
-        """
-        stores a json in the h5 metadata
-        """
-        val = json.dumps(val)
-        self.owner.storage_manager.set_metadata({self.field_name: val})
-
-    def load(self):
-        val = self.owner.storage_manager.get_metadata()[self.field_name]
-        return json.loads(val)
 
 
 
