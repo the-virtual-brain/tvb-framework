@@ -9,20 +9,19 @@ from tvb.basic.arguments_serialisation import preprocess_time_parameters, prepro
 class TimeSeriesH5(H5File):
     def __init__(self, path):
         super(TimeSeriesH5, self).__init__(path)
-        self.title = Scalar(TimeSeries.title)
-        self.data = DataSet(TimeSeries.data, expand_dimension=0)
-        self.nr_dimensions = Scalar(TimeSeries.nr_dimensions)
+        self.title = Scalar(TimeSeries.title, self)
+        self.data = DataSet(TimeSeries.data, self, expand_dimension=0)
+        self.nr_dimensions = Scalar(TimeSeries.nr_dimensions, self)
 
         # omitted length_nd , these are indexing props, to be removed from datatype too
-        self.labels_ordering = Json(TimeSeries.labels_ordering)
-        self.labels_dimensions = Json(TimeSeries.labels_dimensions)
+        self.labels_ordering = Json(TimeSeries.labels_ordering, self)
+        self.labels_dimensions = Json(TimeSeries.labels_dimensions, self)
 
-        self.time = DataSet(TimeSeries.time, expand_dimension=0)
-        self.start_time = Scalar(TimeSeries.start_time)
-        self.sample_period = Scalar(TimeSeries.sample_period)
-        self.sample_period_unit = Scalar(TimeSeries.sample_period_unit)
-        self.sample_rate = Scalar(TimeSeries.sample_rate)
-        self._end_accessor_declarations()
+        self.time = DataSet(TimeSeries.time, self, expand_dimension=0)
+        self.start_time = Scalar(TimeSeries.start_time, self)
+        self.sample_period = Scalar(TimeSeries.sample_period, self)
+        self.sample_period_unit = Scalar(TimeSeries.sample_period_unit, self)
+        self.sample_rate = Scalar(TimeSeries.sample_rate, self)
 
         # omitted has_surface_mapping, has_volume_mapping, indexing props, to be removed fro datatype too
 
@@ -166,27 +165,24 @@ class TimeSeriesH5(H5File):
 class TimeSeriesRegionH5(TimeSeriesH5):
     def __init__(self, path):
         super(TimeSeriesRegionH5, self).__init__(path)
-        self.connectivity = Reference(TimeSeriesRegion.connectivity)
-        self.region_mapping_volume = Reference(TimeSeriesRegion.region_mapping_volume)
-        self.region_mapping = Reference(TimeSeriesRegion.region_mapping)
-        self.labels_ordering = Json(TimeSeriesRegion.labels_ordering)
-        self._end_accessor_declarations()
+        self.connectivity = Reference(TimeSeriesRegion.connectivity, self)
+        self.region_mapping_volume = Reference(TimeSeriesRegion.region_mapping_volume, self)
+        self.region_mapping = Reference(TimeSeriesRegion.region_mapping, self)
+        self.labels_ordering = Json(TimeSeriesRegion.labels_ordering, self)
 
 
 class TimeSeriesSurfaceH5(TimeSeriesH5):
     def __init__(self, path):
         super(TimeSeriesSurfaceH5, self).__init__(path)
-        self.surface = Reference(TimeSeriesSurface.surface)
-        self.labels_ordering = Json(TimeSeriesSurface.labels_ordering)
-        self._end_accessor_declarations()
+        self.surface = Reference(TimeSeriesSurface.surface, self)
+        self.labels_ordering = Json(TimeSeriesSurface.labels_ordering, self)
 
 
 class TimeSeriesVolumeH5(TimeSeriesH5):
     def __init__(self, path):
         super(TimeSeriesVolumeH5, self).__init__(path)
-        self.volume = Reference(TimeSeriesVolume.volume)
-        self.labels_ordering = Json(TimeSeriesVolume.labels_ordering)
-        self._end_accessor_declarations()
+        self.volume = Reference(TimeSeriesVolume.volume, self)
+        self.labels_ordering = Json(TimeSeriesVolume.labels_ordering, self)
 
 
     def get_volume_view(self, from_idx, to_idx, x_plane, y_plane, z_plane, **kwargs):

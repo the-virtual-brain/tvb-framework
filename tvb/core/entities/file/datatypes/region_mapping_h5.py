@@ -7,10 +7,9 @@ class RegionMappingH5(H5File):
 
     def __init__(self, path):
         super(RegionMappingH5, self).__init__(path)
-        self.array_data = DataSet(RegionMapping.array_data)
-        self.connectivity = Reference(RegionMapping.connectivity)
-        self.surface = Reference(RegionMapping.surface)
-        self._end_accessor_declarations()
+        self.array_data = DataSet(RegionMapping.array_data, self)
+        self.connectivity = Reference(RegionMapping.connectivity, self)
+        self.surface = Reference(RegionMapping.surface, self)
 
 
 
@@ -18,7 +17,6 @@ class RegionVolumeMappingH5(VolumetricDataMixin, H5File):
 
     def __init__(self, path):
         super(RegionVolumeMappingH5, self).__init__(path)
-        self.array_data = DataSet(RegionVolumeMapping.array_data)
-        self.connectivity = Reference(RegionVolumeMapping.connectivity)
-        self.volume = Reference(RegionVolumeMapping.volume)
-        self._end_accessor_declarations()
+        self.array_data = DataSet(RegionVolumeMapping.array_data, self)
+        self.connectivity = Reference(RegionVolumeMapping.connectivity, self)
+        self.volume = Reference(RegionVolumeMapping.volume, self)

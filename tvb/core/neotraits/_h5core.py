@@ -19,14 +19,26 @@ def is_scalar_type(t):
 
 
 class Accessor(object):
-    def __init__(self, trait_attribute):
-        # type: (Attr) -> None
+    def __init__(self, trait_attribute, h5file, name=None):
+        # type: (Attr, H5File, str) -> None
         """
-        :param trait_attribute: A traited attribute declared in a HasTraits class
+        :param trait_attribute: A traited attribute
+        :param h5file: The parent H5file that contains this Accessor
+        :param name: The name of the dataset or attribute in the h5 file.
+                     It defaults to the name of the associated traited attribute.
+                     If the traited attribute is not a member of a HasTraits then
+                     it has no name and you have to provide this parameter
         """
-        self.owner = None  # type: H5File
-        self.field_name = None  # type: str
+        self.owner = h5file
         self.trait_attribute = trait_attribute
+
+        if name is None:
+            name = trait_attribute.field_name
+
+        self.field_name = name
+
+        if self.field_name is None:
+            raise ValueError('Accessor {} needs a name'.format(self))
 
     @abc.abstractmethod
     def load(self):
@@ -90,13 +102,18 @@ class DataSet(Accessor):
     """
     A dataset in a h5 file that corresponds to a traited NArray.
     """
-    def __init__(self, trait_attribute, expand_dimension=None):
-        # type: (NArray, int) -> None
+    def __init__(self, trait_attribute, h5file, name=None, expand_dimension=None):
+        # type: (NArray, H5File, str, int) -> None
         """
-        :param trait_attribute: A traited attribute declared in a HasTraits class
+        :param trait_attribute: A traited attribute
+        :param h5file: The parent H5file that contains this Accessor
+        :param name: The name of the dataset in the h5 file.
+                     It defaults to the name of the associated traited attribute.
+                     If the traited attribute is not a member of a HasTraits then
+                     it has no name and you have to provide this parameter
         :param expand_dimension: An int designating a dimension of the array that may grow.
         """
-        super(DataSet, self).__init__(trait_attribute)
+        super(DataSet, self).__init__(trait_attribute, h5file, name)
         self.expand_dimension = expand_dimension
 
     def append(self, data, close_file=True):
@@ -189,20 +206,10 @@ class H5File(object):
         # would be nice to have an opened state for the chunked api instead of the close_file=False
 
     def iter_accessors(self):
-        for field_name, accessor in self.__dict__.iteritems():
+        # type: () -> typing.Generator[Accessor]
+        for accessor in self.__dict__.itervalues():
             if isinstance(accessor, Accessor):
-                yield field_name, accessor
-
-
-    def _end_accessor_declarations(self):
-        """
-        You should call this *once* after all accessors have been create in __init__
-        This sets the h5file and field_name attributes for all accessors
-        on this instance
-        """
-        for field_name, accessor in self.iter_accessors():
-            accessor.field_name = field_name
-            accessor.owner = self
+                yield accessor
 
 
     def __enter__(self):
@@ -221,7 +228,7 @@ class H5File(object):
 
     def store(self, datatype, scalars_only=False):
         # type: (HasTraits, bool) -> None
-        for name, accessor in self.iter_accessors():
+        for accessor in self.iter_accessors():
             f_name = accessor.trait_attribute.field_name
             if f_name is None:
                 # skipp attribute that does not seem to belong to a traited type
@@ -240,8 +247,9 @@ class H5File(object):
 
     def load_into(self, datatype):
         # type: (HasTraits) -> None
-        for name, accessor in self.iter_accessors():
+        for accessor in self.iter_accessors():
             if isinstance(accessor, Reference):
+                # we do not load references recursively
                 continue
             f_name = accessor.trait_attribute.field_name
             if f_name is None:
@@ -257,6 +265,12 @@ class H5File(object):
                 else:
                     value = None
 
-            setattr(datatype,
-                    accessor.trait_attribute.field_name,
-                    value)
+            setattr(datatype, f_name, value)
+
+
+    def gather_references(self):
+        ret = []
+        for accessor in self.iter_accessors():
+            if isinstance(accessor, Reference):
+                ret.append((accessor.trait_attribute.field_name, accessor.load()))
+        return ret

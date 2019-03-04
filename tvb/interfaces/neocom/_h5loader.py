@@ -5,7 +5,6 @@ import uuid
 import typing
 from tvb.basic.neotraits.api import HasTraits
 from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
-from tvb.core.neotraits.h5 import Reference
 
 if typing.TYPE_CHECKING:
     from tvb.core.neotraits.h5 import H5File
@@ -90,15 +89,6 @@ class DirLoader(Loader):
         raise IOError('could not locate h5 with gid {}'.format(gid))
 
 
-    @staticmethod
-    def _gather_references(h5file):
-        ret = []
-        for _, accessor in h5file.iter_accessors():
-            if isinstance(accessor, Reference):
-                ret.append((accessor.trait_attribute.field_name, accessor.load()))
-        return ret
-
-
     def load(self, gid):
         # type: (typing.Union[uuid.UUID, str]) -> HasTraits
         if isinstance(gid, basestring):
@@ -116,7 +106,7 @@ class DirLoader(Loader):
             f.load_into(datatype)
 
             if self.recursive:
-                sub_dt_refs = self._gather_references(f)
+                sub_dt_refs = f.gather_references()
 
         for fname, sub_gid in sub_dt_refs:
             subdt = self.load(sub_gid)
