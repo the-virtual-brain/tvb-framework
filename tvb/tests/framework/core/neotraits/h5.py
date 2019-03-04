@@ -1,5 +1,5 @@
 import numpy
-from tvb.basic.neotraits.api import NArray, Attr, HasTraits, Int
+from tvb.basic.neotraits.api import Attr, NArray
 
 from .data import FooDatatype, BarDatatype, BazDataType
 from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Reference
@@ -9,20 +9,18 @@ from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Reference
 class BazFile(H5File):
     def __init__(self, path):
         super(BazFile, self).__init__(path)
-        self.miu = DataSet(BazDataType.miu)
-        self.scalar_str = Scalar(BazDataType.scalar_str)
-        self._end_accessor_declarations()
+        self.miu = DataSet(BazDataType.miu, self)
+        self.scalar_str = Scalar(BazDataType.scalar_str, self)
 
 
 
 class FooFile(H5File):
     def __init__(self, path):
         super(FooFile, self).__init__(path)
-        self.array_float = DataSet(FooDatatype.array_float)
-        self.array_int = DataSet(FooDatatype.array_int)
-        self.scalar_int = Scalar(FooDatatype.scalar_int)
-        self.abaz = Reference(FooDatatype.abaz)
-        self._end_accessor_declarations()
+        self.array_float = DataSet(FooDatatype.array_float, self)
+        self.array_int = DataSet(FooDatatype.array_int, self)
+        self.scalar_int = Scalar(FooDatatype.scalar_int, self)
+        self.abaz = Reference(FooDatatype.abaz, self)
 
 
 
@@ -30,16 +28,14 @@ class BarFile(FooFile):
     # inheritance is flattened in the same file
     def __init__(self, path):
         super(BarFile, self).__init__(path)
-        self.array_str = DataSet(BarDatatype.array_str)
-        self._end_accessor_declarations()
+        self.array_str = DataSet(BarDatatype.array_str, self)
 
 
 class Independent(H5File):
     def __init__(self, path):
         super(Independent, self).__init__(path)
-        self.scalar_int = Scalar(Attr(int))
-        self.array_float = DataSet(NArray())
-        self._end_accessor_declarations()
+        self.scalar_int = Scalar(Attr(int), self, name='scalar_int')
+        self.array_float = DataSet(NArray(), self, name='floating_leaves')
 
 
 def test_independent_h5file(tmph5factory):
@@ -53,7 +49,6 @@ def test_independent_h5file(tmph5factory):
         # Independent datasets have no field_name
         # because they are not bound to a datatype
         f.store(BazDataType())
-
 
 
 def test_accessors_created_for_all_declarative_attributes(tmph5factory):
