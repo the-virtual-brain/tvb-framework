@@ -188,16 +188,21 @@ class H5File(object):
         self.storage_manager = HDF5StorageManager(storage_path, file_name)
         # would be nice to have an opened state for the chunked api instead of the close_file=False
 
+    def iter_accessors(self):
+        for field_name, accessor in self.__dict__.iteritems():
+            if isinstance(accessor, Accessor):
+                yield field_name, accessor
+
+
     def _end_accessor_declarations(self):
         """
         You should call this *once* after all accessors have been create in __init__
         This sets the h5file and field_name attributes for all accessors
         on this instance
         """
-        for field_name, accessor in self.__dict__.iteritems():
-            if isinstance(accessor, Accessor):
-                accessor.field_name = field_name
-                accessor.owner = self
+        for field_name, accessor in self.iter_accessors():
+            accessor.field_name = field_name
+            accessor.owner = self
 
 
     def __enter__(self):
@@ -216,44 +221,42 @@ class H5File(object):
 
     def store(self, datatype, scalars_only=False):
         # type: (HasTraits, bool) -> None
-        for name, accessor in self.__dict__.iteritems():
-            if isinstance(accessor, Accessor):
-                f_name = accessor.trait_attribute.field_name
-                if f_name is None:
-                    # skipp attribute that does not seem to belong to a traited type
-                    continue
-                if not hasattr(datatype, f_name):
-                    raise AttributeError(
-                        '{} has not attribute "{}". You tried to store a {!r}. '
-                        'Is that datatype compatible with the field declarations in {}?'.format(
-                            accessor.trait_attribute, f_name, datatype, self.__class__
-                        )
+        for name, accessor in self.iter_accessors():
+            f_name = accessor.trait_attribute.field_name
+            if f_name is None:
+                # skipp attribute that does not seem to belong to a traited type
+                continue
+            if not hasattr(datatype, f_name):
+                raise AttributeError(
+                    '{} has not attribute "{}". You tried to store a {!r}. '
+                    'Is that datatype compatible with the field declarations in {}?'.format(
+                        accessor.trait_attribute, f_name, datatype, self.__class__
                     )
-                if scalars_only and not isinstance(accessor, Scalar):
-                    continue
-                accessor.store(getattr(datatype, f_name))
+                )
+            if scalars_only and not isinstance(accessor, Scalar):
+                continue
+            accessor.store(getattr(datatype, f_name))
 
 
     def load_into(self, datatype):
         # type: (HasTraits) -> None
-        for name, accessor in self.__dict__.iteritems():
+        for name, accessor in self.iter_accessors():
             if isinstance(accessor, Reference):
-                pass
-            elif isinstance(accessor, Accessor):
-                f_name = accessor.trait_attribute.field_name
-                if f_name is None:
-                    # skipp attribute that does not seem to belong to a traited type
-                    continue
+                continue
+            f_name = accessor.trait_attribute.field_name
+            if f_name is None:
+                # skipp attribute that does not seem to belong to a traited type
+                continue
 
-                # handle optional data, that will be missing from the h5 files
-                try:
-                    value = accessor.load()
-                except MissingDataSetException:
-                    if accessor.trait_attribute.required:
-                        raise
-                    else:
-                        value = None
+            # handle optional data, that will be missing from the h5 files
+            try:
+                value = accessor.load()
+            except MissingDataSetException:
+                if accessor.trait_attribute.required:
+                    raise
+                else:
+                    value = None
 
-                setattr(datatype,
-                        accessor.trait_attribute.field_name,
-                        value)
+            setattr(datatype,
+                    accessor.trait_attribute.field_name,
+                    value)
