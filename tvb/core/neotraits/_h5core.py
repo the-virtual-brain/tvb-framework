@@ -48,6 +48,11 @@ class Accessor(object):
     def store(self, val):
         pass
 
+    def __repr__(self):
+        cls = type(self)
+        return '<{}.{}({}, name="{}")>'.format(
+            cls.__module__, cls.__name__, self.trait_attribute, self.field_name
+        )
 
 
 class Scalar(Accessor):
@@ -173,18 +178,18 @@ class Reference(Scalar):
         # type: (HasTraits) -> None
         """
         The reference is stored as a gid in the metadata.
-        :param val: a datatype
-        todo: This is not consistent with load. Load will just return the gid.
+        :param val: a datatype or a uuid.UUID gid
         """
         if val is None and not self.trait_attribute.required:
             # this is an optional reference and it is missing
             return
-        if not isinstance(val, HasTraits):
-            raise TypeError("expected HasTraits, got {}".format(type(val)))
+        if isinstance(val, HasTraits):
+            val = val.gid
+        if not isinstance(val, uuid.UUID):
+            raise TypeError("expected uuid.UUId or HasTraits, got {}".format(type(val)))
         # urn is a standard encoding, that is obvious an uuid
         # str(gid) is more ambiguous
-        val = val.gid.urn
-        self.owner.storage_manager.set_metadata({self.field_name: val})
+        self.owner.storage_manager.set_metadata({self.field_name: val.urn})
 
     def load(self):
         urngid = super(Reference, self).load()
@@ -201,6 +206,7 @@ class H5File(object):
 
     def __init__(self, path):
         # type: (str) -> None
+        self.path = path
         storage_path, file_name = os.path.split(path)
         self.storage_manager = HDF5StorageManager(storage_path, file_name)
         # would be nice to have an opened state for the chunked api instead of the close_file=False
@@ -274,3 +280,7 @@ class H5File(object):
             if isinstance(accessor, Reference):
                 ret.append((accessor.trait_attribute.field_name, accessor.load()))
         return ret
+
+    def __repr__(self):
+        return '<{}("{}")>'.format(type(self).__name__, self.path)
+
