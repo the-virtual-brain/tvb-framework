@@ -75,6 +75,17 @@ class Scalar(Accessor):
         return self.owner.storage_manager.get_metadata()[self.field_name]
 
 
+class Uuid(Scalar):
+    def store(self, val):
+        # type: (uuid.UUID) -> None
+        # noinspection PyProtectedMember
+        val = self.trait_attribute._validate_set(None, val)
+        self.owner.storage_manager.set_metadata({self.field_name: val.hex})
+
+    def load(self):
+        # type: () -> uuid.UUID
+        return uuid.UUID(self.owner.storage_manager.get_metadata()[self.field_name])
+
 
 class DataSetMetaData(object):
     """
@@ -212,6 +223,10 @@ class H5File(object):
         self.storage_manager = HDF5StorageManager(storage_path, file_name)
         # would be nice to have an opened state for the chunked api instead of the close_file=False
 
+        # common scalar headers
+        self.gid = Uuid(HasTraits.gid, self)
+        self.written_by = Scalar(Attr(str), self, name='written_by')
+
     def iter_accessors(self):
         # type: () -> typing.Generator[Accessor]
         for accessor in self.__dict__.itervalues():
@@ -227,9 +242,7 @@ class H5File(object):
 
     def close(self):
         # write_metadata  creation time, serializer class name, etc
-        self.storage_manager.set_metadata({
-            'written_by': self.__class__.__module__ + '.' + self.__class__.__name__,
-        })
+        self.written_by.store(self.__class__.__module__ + '.' + self.__class__.__name__)
         self.storage_manager.close_file()
 
 

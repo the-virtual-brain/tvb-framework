@@ -99,3 +99,11 @@ def test_store_load_inheritance(tmph5factory, barFactory):
         barfile.load_into(ret)
         assert ret.scalar_int == bar.scalar_int
 
+
+def test_store_load_preserves_gid(tmph5factory, barFactory):
+    bar = barFactory()
+    with BarFile(tmph5factory()) as barfile:
+        barfile.store(bar)
+        ret = BarDatatype()
+        barfile.load_into(ret)
+        assert ret.gid == bar.gid
