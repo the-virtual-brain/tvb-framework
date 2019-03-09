@@ -78,9 +78,15 @@ class Scalar(Accessor):
 class Uuid(Scalar):
     def store(self, val):
         # type: (uuid.UUID) -> None
+        if val is None and not self.trait_attribute.required:
+            # this is an optional reference and it is missing
+            return
         # noinspection PyProtectedMember
-        val = self.trait_attribute._validate_set(None, val)
-        self.owner.storage_manager.set_metadata({self.field_name: val.hex})
+        if not isinstance(val, uuid.UUID):
+            raise TypeError("expected uuid.UUID got {}".format(type(val)))
+        # urn is a standard encoding, that is obvious an uuid
+        # str(gid) is more ambiguous
+        self.owner.storage_manager.set_metadata({self.field_name: val.urn})
 
     def load(self):
         # type: () -> uuid.UUID
@@ -181,7 +187,7 @@ class DataSet(Accessor):
 
 
 
-class Reference(Scalar):
+class Reference(Uuid):
     """
     A reference to another h5 file
     Corresponds to a contained datatype
@@ -199,13 +205,7 @@ class Reference(Scalar):
             val = val.gid
         if not isinstance(val, uuid.UUID):
             raise TypeError("expected uuid.UUId or HasTraits, got {}".format(type(val)))
-        # urn is a standard encoding, that is obvious an uuid
-        # str(gid) is more ambiguous
-        self.owner.storage_manager.set_metadata({self.field_name: val.urn})
-
-    def load(self):
-        urngid = super(Reference, self).load()
-        return uuid.UUID(urngid)
+        super(Reference, self).store(val)
 
 
 
