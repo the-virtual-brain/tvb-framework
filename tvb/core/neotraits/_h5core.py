@@ -1,3 +1,4 @@
+import importlib
 import uuid
 
 import typing
@@ -280,6 +281,20 @@ class H5File(object):
             if isinstance(accessor, Reference):
                 ret.append((accessor.trait_attribute.field_name, accessor.load()))
         return ret
+
+
+    @staticmethod
+    def from_file(path):
+        # type: (str) -> typing.Type[H5File]
+        base_dir, fname = os.path.split(path)
+        storage_manager = HDF5StorageManager(base_dir, fname)
+        meta = storage_manager.get_metadata()
+        h5file_class_fqn = meta.get('written_by')
+        package, cls_name = h5file_class_fqn.rsplit('.', 1)
+        module = importlib.import_module(package)
+        cls = getattr(module, cls_name)
+        return cls(path)
+
 
     def __repr__(self):
         return '<{}("{}")>'.format(type(self).__name__, self.path)

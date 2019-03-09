@@ -1,23 +1,11 @@
 import os
-import importlib
 import uuid
 
 import typing
 from tvb.basic.neotraits.api import HasTraits
-from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
 from .config import registry
+from tvb.core.neotraits.h5 import H5File
 
-if typing.TYPE_CHECKING:
-    from tvb.core.neotraits.h5 import H5File
-
-
-def get_h5file_class(storage_manager):
-    # type: (HDF5StorageManager) -> typing.Type[H5File]
-    meta = storage_manager.get_metadata()
-    h5file_class_fqn = meta.get('written_by')
-    package, cls_name = h5file_class_fqn.rsplit('.', 1)
-    module = importlib.import_module(package)
-    return getattr(module, cls_name)
 
 
 class Loader(object):
@@ -27,12 +15,9 @@ class Loader(object):
 
     def load(self, source):
         # type: (str) -> HasTraits
-        base_dir, fname = os.path.split(source)
-        storage_manager = HDF5StorageManager(base_dir, fname)
-        h5file_cls = get_h5file_class(storage_manager)
 
-        with h5file_cls(os.path.join(base_dir, fname)) as f:
-            datatype_cls = registry.get_datatype_for_h5file(h5file_cls)
+        with H5File.from_file(source) as f:
+            datatype_cls = registry.get_datatype_for_h5file(type(f))
             datatype = datatype_cls()
             f.load_into(datatype)
             return datatype
@@ -74,13 +59,11 @@ class DirLoader(object):
             gid = uuid.UUID(gid)
 
         fname = self._locate(gid)
-        storage_manager = HDF5StorageManager(self.base_dir, fname)
-        h5file_cls = get_h5file_class(storage_manager)
 
         sub_dt_refs = []
 
-        with h5file_cls(os.path.join(self.base_dir, fname)) as f:
-            datatype_cls = registry.get_datatype_for_h5file(h5file_cls)
+        with H5File.from_file(os.path.join(self.base_dir, fname)) as f:
+            datatype_cls = registry.get_datatype_for_h5file(type(f))
             datatype = datatype_cls()
             f.load_into(datatype)
 
