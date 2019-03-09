@@ -48,7 +48,7 @@ class DirLoader(object):
     def _locate(self, gid):
         # type: (uuid.UUID) -> str
         for fname in os.listdir(self.base_dir):
-            if fname.endswith(str(gid) + '.h5'):
+            if fname.endswith(gid.hex + '.h5'):
                 return fname
         raise IOError('could not locate h5 with gid {}'.format(gid))
 
@@ -80,11 +80,11 @@ class DirLoader(object):
     def store(self, datatype):
         # type: (HasTraits) -> None
         h5file_cls = registry.get_h5file_for_datatype(type(datatype))
-        fname = '{}_{}.h5'.format(type(datatype).__name__, datatype.gid)
+        path = self.path_for(h5file_cls, datatype.gid)
 
         sub_dt_refs = []
 
-        with h5file_cls(os.path.join(self.base_dir, fname)) as f:
+        with h5file_cls(path) as f:
             f.store(datatype)
 
             if self.recursive:
@@ -93,3 +93,15 @@ class DirLoader(object):
         for fname, sub_gid in sub_dt_refs:
             subdt = getattr(datatype, fname)
             self.store(subdt)
+
+
+    def path_for(self, h5_file_class, gid):
+        """
+        where will this Loader expect to find a file of this format and with this gid
+        """
+        if isinstance(gid, basestring):
+            gid = uuid.UUID(gid)
+        datatype_cls = registry.get_datatype_for_h5file(h5_file_class)
+        fname = '{}_{}.h5'.format(datatype_cls.__name__, gid.hex)
+        return os.path.join(self.base_dir, fname)
+
