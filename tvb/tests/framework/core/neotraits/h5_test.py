@@ -107,3 +107,17 @@ def test_store_load_preserves_gid(tmph5factory, barFactory):
         ret = BarDatatype()
         barfile.load_into(ret)
         assert ret.gid == bar.gid
+
+
+def test_append(tmph5factory):
+    pth = tmph5factory()
+
+    with BazFile(pth) as f:
+        for i in range(4):
+            f.miu.append(i * numpy.eye(2))
+
+        meta = f.miu.get_cached_metadata()
+        assert meta.min == 0
+        assert meta.max == 3
+
+
