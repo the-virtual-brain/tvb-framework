@@ -11,13 +11,6 @@ from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
 from tvb.basic.neotraits.api import HasTraits, Attr, NArray
 
 
-def is_scalar_type(t):
-    return (
-        t in [bool, ] or
-        issubclass(t, basestring) or
-        numpy.issubdtype(t, numpy.number)
-    )
-
 
 class Accessor(object):
     def __init__(self, trait_attribute, h5file, name=None):
@@ -119,13 +112,17 @@ class DataSetMetaData(object):
     def to_dict(self):
         return {'Minimum': self.min, 'Maximum': self.max}
 
+    def merge(self, other):
+        self.min = min(self.min, other.min)
+        self.max = max(self.max, other.max)
+
 
 
 class DataSet(Accessor):
     """
     A dataset in a h5 file that corresponds to a traited NArray.
     """
-    def __init__(self, trait_attribute, h5file, name=None, expand_dimension=None):
+    def __init__(self, trait_attribute, h5file, name=None, expand_dimension=-1):
         # type: (NArray, H5File, str, int) -> None
         """
         :param trait_attribute: A traited attribute
@@ -147,11 +144,21 @@ class DataSet(Accessor):
             grow_dimension=self.expand_dimension,
             close_file=close_file
         )
-        # todo update the cached array min max metadata values
+        # update the cached array min max metadata values
+        new_meta = DataSetMetaData.from_array(data)
+        meta_dict = self.owner.storage_manager.get_metadata(self.field_name)
+        if meta_dict:
+            meta = DataSetMetaData.from_dict(meta_dict)
+            meta.merge(new_meta)
+        else:
+            # this must be a new file, nothing to merge, set the new meta
+            meta = new_meta
+        self.owner.storage_manager.set_metadata(meta.to_dict(), self.field_name)
 
-    # noinspection PyProtectedMember
+
     def store(self, data):
         # type: (numpy.ndarray) -> None
+        # noinspection PyProtectedMember
         data = self.trait_attribute._validate_set(None, data)
         if data is None:
             return
