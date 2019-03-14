@@ -32,7 +32,7 @@ class Accessor(object):
         self.field_name = name
 
         if self.field_name is None:
-            raise ValueError('Accessor {} needs a name'.format(self))
+            raise ValueError('Independent Accessor {} needs a name'.format(self))
 
     @abc.abstractmethod
     def load(self):
@@ -259,6 +259,7 @@ class H5File(object):
             f_name = accessor.trait_attribute.field_name
             if f_name is None:
                 # skipp attribute that does not seem to belong to a traited type
+                # accessor is an independent Accessor
                 continue
             if not hasattr(datatype, f_name):
                 raise AttributeError(
