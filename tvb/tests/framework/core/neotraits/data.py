@@ -1,3 +1,4 @@
+from tvb.basic.neotraits._attr import Dim
 from tvb.basic.neotraits.api import HasTraits, Attr, NArray, Int, trait_property, cached_trait_property
 from tvb.basic.neotraits.ex import TraitValueError
 
@@ -5,19 +6,19 @@ from tvb.basic.neotraits.ex import TraitValueError
 
 class BazDataType(HasTraits):
     miu = NArray()
-    scalar_str = Attr(str)
+    scalar_str = Attr(str, required=False)
 
 
 class FooDatatype(HasTraits):
     array_float = NArray()
-    array_int = NArray(dtype=int, ndim=2)
+    array_int = NArray(dtype=int, shape=(Dim.any, Dim.any))
     scalar_int = Attr(int)
     abaz = Attr(field_type=BazDataType)
-    some_transient = NArray(ndim=3, required=False)
+    some_transient = NArray(shape=(Dim.any, Dim.any, Dim.any ), required=False)
 
 
 class BarDatatype(FooDatatype):
-    array_str = NArray(dtype='S32', ndim=1)
+    array_str = NArray(dtype='S32', shape=(Dim.any,))
 
 
 class PropsDataType(HasTraits):
@@ -27,7 +28,7 @@ class PropsDataType(HasTraits):
         super(PropsDataType, self).__init__(**kwargs)
         self._weights = None
 
-    @trait_property(NArray(ndim=2))
+    @trait_property(NArray(shape=(Dim.any, Dim.any)))
     def weights(self):
         return self._weights
 
