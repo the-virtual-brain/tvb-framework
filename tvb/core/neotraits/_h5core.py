@@ -261,13 +261,6 @@ class H5File(object):
                 # skipp attribute that does not seem to belong to a traited type
                 # accessor is an independent Accessor
                 continue
-            if not hasattr(datatype, f_name):
-                raise AttributeError(
-                    '{} has not attribute "{}". You tried to store a {!r}. '
-                    'Is that datatype compatible with the field declarations in {}?'.format(
-                        accessor.trait_attribute, f_name, datatype, self.__class__
-                    )
-                )
             if scalars_only and not isinstance(accessor, Scalar):
                 continue
             accessor.store(getattr(datatype, f_name))
