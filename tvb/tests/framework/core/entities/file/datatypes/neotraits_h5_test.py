@@ -1,5 +1,7 @@
 import numpy
+import pytest
 import tvb
+from tvb.basic.neotraits.ex import TraitAttributeError
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
 from tvb.datatypes.simulation_state import SimulationState
 from tvb.datatypes.structural import StructuralMRI
@@ -27,7 +29,8 @@ def test_store_load_region_mapping(tmph5factory):
     rm_h5.close()
 
     rm_stored = RegionMapping()
-    assert rm_stored.array_data is None
+    with pytest.raises(TraitAttributeError):
+        rm_stored.array_data
     rm_h5.load_into(rm_stored)  # loads connectivity/surface as None inside rm_stored
     assert rm_stored.array_data.shape == (5,)
 
@@ -53,8 +56,12 @@ def test_store_load_complete_region_mapping(tmph5factory):
     conn_h5.load_into(conn_stored)
     surf_h5.load_into(surf_stored)
     rm_h5.load_into(rm_stored)
-    assert rm_stored.connectivity is None
-    assert rm_stored.surface is None
+    # load_into will not load dependent datatypes. connectivity and surface are undefined
+    with pytest.raises(TraitAttributeError):
+        rm_stored.connectivity
+    with pytest.raises(TraitAttributeError):
+        rm_stored.surface
+
     rm_stored.connectivity = conn_stored
     rm_stored.surface = surf_stored
     assert rm_stored.connectivity is not None
@@ -67,7 +74,9 @@ def test_store_load_sensors(tmph5factory):
         f.store(testdatatypes.sensors)
 
     sensors_stored = Sensors()
-    assert sensors_stored.labels is None
+    with pytest.raises(TraitAttributeError):
+        sensors_stored.labels
+
     with SensorsH5(tmp_file) as f:
         f.load_into(sensors_stored)
         assert sensors_stored.labels is not None
@@ -86,7 +95,8 @@ def test_store_load_partial_sensors(tmph5factory):
         f.store(sensors)
 
     sensors_stored = Sensors()
-    assert sensors_stored.labels is None
+    with pytest.raises(TraitAttributeError):
+        sensors_stored.labels
     with SensorsH5(tmp_file) as f:
         f.load_into(sensors_stored)
     assert sensors_stored.labels is not None
@@ -99,7 +109,9 @@ def test_store_load_volume(tmph5factory):
         f.store(testdatatypes.volume)
 
     volume_stored = Volume()
-    assert volume_stored.origin is None
+    with pytest.raises(TraitAttributeError):
+        volume_stored.origin
+
     with VolumeH5(tmp_file) as f:
         f.load_into(volume_stored)
     assert volume_stored.origin is not None
@@ -118,12 +130,17 @@ def test_store_load_structuralMRI(tmph5factory):
         f.store(structural_mri)
 
     structural_mri_stored = StructuralMRI()
-    assert structural_mri_stored.array_data is None
-    assert structural_mri_stored.volume is None
+    with pytest.raises(TraitAttributeError):
+        structural_mri_stored.array_data
+    with pytest.raises(TraitAttributeError):
+        structural_mri_stored.volume
+
     with StructuralMRIH5(tmp_file) as f:
         f.load_into(structural_mri_stored)
     assert structural_mri_stored.array_data.shape == (3, 3)
-    assert structural_mri_stored.volume is None
+    # referenced datatype is not loaded
+    with pytest.raises(TraitAttributeError):
+        structural_mri_stored.volume
 
 
 def test_store_load_simulation_state(tmph5factory):
