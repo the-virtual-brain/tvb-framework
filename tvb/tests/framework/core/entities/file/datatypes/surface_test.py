@@ -1,4 +1,5 @@
 import numpy
+import pytest
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.datatypes.surfaces import Surface
 from .import testdatatypes
@@ -60,7 +61,8 @@ def test_store_load_surface(tmph5factory):
     surf_h5.close()
 
     surf_stored = Surface()
-    assert surf_stored.vertices is None
+    with pytest.raises(AttributeError):
+        surf_stored.vertices
     # with pytest.raises(TypeError):
     surf_h5.load_into(surf_stored)
     assert surf_stored.vertices.shape[0] == 5
