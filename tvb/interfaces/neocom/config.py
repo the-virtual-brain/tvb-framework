@@ -1,5 +1,6 @@
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.local_connectivity import LocalConnectivity
+from tvb.datatypes.mode_decompositions import PrincipalComponents, IndependentComponents
 from tvb.datatypes.projections import ProjectionMatrix
 from tvb.datatypes.region_mapping import RegionVolumeMapping, RegionMapping
 from tvb.datatypes.sensors import Sensors
@@ -17,6 +18,7 @@ from tvb.datatypes.volumes import Volume
 
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
+from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5, IndependentComponentsH5
 from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5, RegionVolumeMappingH5
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
@@ -60,4 +62,6 @@ registry.register_h5file_datatype(TimeSeriesSurfaceH5, TimeSeriesSurface)
 registry.register_h5file_datatype(TimeSeriesVolumeH5, TimeSeriesVolume)
 registry.register_h5file_datatype(TractsH5, Tracts)
 registry.register_h5file_datatype(VolumeH5, Volume)
+registry.register_h5file_datatype(PrincipalComponentsH5, PrincipalComponents)
+registry.register_h5file_datatype(IndependentComponentsH5, IndependentComponents)
 
