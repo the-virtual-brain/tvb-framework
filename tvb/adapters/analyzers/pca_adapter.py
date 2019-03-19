@@ -36,25 +36,29 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 
 """
 
+import uuid
 import numpy
 from tvb.analyzers.pca import PCA
 from tvb.core.adapters.abcadapter import ABCAsynchronous
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.mode_decompositions import PrincipalComponents
-from tvb.basic.traits.util import log_debug_array
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
+
+from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5
+from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
+from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex
+from tvb.interfaces.neocom._h5loader import DirLoader
 
 LOG = get_logger(__name__)
 
 
 class PCAAdapter(ABCAsynchronous):
     """ TVB adapter for calling the PCA algorithm. """
-    
+
     _ui_name = "Principal Component Analysis"
     _ui_description = "PCA for a TimeSeries input DataType."
     _ui_subsection = "components"
-
 
     def get_input_tree(self):
         """
@@ -67,62 +71,73 @@ class PCAAdapter(ABCAsynchronous):
         tree[0]['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
                                             operations=["=="], values=[4])
         return tree
-    
-    
+
     def get_output(self):
         return [PrincipalComponents]
-
 
     def configure(self, time_series):
         """
         Store the input shape to be later used to estimate memory usage. Also
         create the algorithm instance.
         """
-        self.input_shape = time_series.read_data_shape()
-        log_debug_array(LOG, time_series, "time_series")
+        self.input_time_series_index = time_series
+        self.input_shape = (self.input_time_series_index.data.length_1d,
+                            self.input_time_series_index.data.length_2d,
+                            self.input_time_series_index.data.length_3d,
+                            self.input_time_series_index.data.length_4d)
+        LOG.debug("Time series shape is %s" % str(self.input_shape))
         ##-------------------- Fill Algorithm for Analysis -------------------##
         self.algorithm = PCA()
 
-
-    def get_required_memory_size(self, **kwargs):
+    def get_required_memory_size(self):
         """
         Return the required memory to run this algorithm.
         """
         used_shape = (self.input_shape[0], 1, self.input_shape[2], self.input_shape[3])
         input_size = numpy.prod(used_shape) * 8.0
         output_size = self.algorithm.result_size(used_shape)
-        return input_size + output_size  
+        return input_size + output_size
 
-
-    def get_required_disk_size(self, **kwargs):
+    def get_required_disk_size(self):
         """
         Returns the required disk size to be able to run the adapter (in kB).
         """
         used_shape = (self.input_shape[0], 1, self.input_shape[2], self.input_shape[3])
         return self.array_size2kb(self.algorithm.result_size(used_shape))
 
-
-    def launch(self, time_series):
+    def launch(self):
         """ 
         Launch algorithm and build results.
 
         :returns: the `PrincipalComponents` object built with the given timeseries as source
         """
         ##--------- Prepare a PrincipalComponents object for result ----------##
-        pca_result = PrincipalComponents(source=time_series, storage_path=self.storage_path)
-        
+        principal_components_index = PrincipalComponentsIndex()
+        gid = uuid.uuid4()
+        principal_components_index.gid = gid
+
+        loader = DirLoader(self.storage_path)
+        input_path = loader.path_for(TimeSeriesH5, self.input_time_series_index.gid)
+        time_series_h5 = TimeSeriesH5(input_path)
+
+        dest_path = loader.path_for(PrincipalComponentsH5, gid)
+        pca_h5 = PrincipalComponentsH5(path=dest_path)
+        pca_h5.source.store(time_series_h5.gid.load())
+
         ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
-        node_slice = [slice(self.input_shape[0]), None, slice(self.input_shape[2]), slice(self.input_shape[3])]
-        
+        input_shape = time_series_h5.data.shape
+        node_slice = [slice(input_shape[0]), None, slice(input_shape[2]), slice(input_shape[3])]
+
         ##---------- Iterate over slices and compose final result ------------##
-        small_ts = TimeSeries(use_storage=False)
-        for var in range(self.input_shape[1]):
+        small_ts = TimeSeries()
+        for var in range(input_shape[1]):
             node_slice[1] = slice(var, var + 1)
-            small_ts.data = time_series.read_data_slice(tuple(node_slice))
-            self.algorithm.time_series = small_ts 
+            small_ts.data = time_series_h5.read_data_slice(tuple(node_slice))
+            self.algorithm.time_series = small_ts
             partial_pca = self.algorithm.evaluate()
-            pca_result.write_data_slice(partial_pca)
-        pca_result.close_file()
-        return pca_result
+            pca_h5.write_data_slice(partial_pca)
+        pca_h5.close()
 
+        principal_components_index.source = self.input_time_series_index
 
+        return principal_components_index
