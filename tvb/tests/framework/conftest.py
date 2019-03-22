@@ -27,12 +27,17 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-
+import numpy
 import pytest
 import os.path
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from tvb.datatypes.connectivity import Connectivity
+from tvb.datatypes.region_mapping import RegionMapping
+from tvb.datatypes.sensors import Sensors
+from tvb.datatypes.surfaces import Surface, CorticalSurface
+
 from tvb.core.neotraits.db import Base
 
 
@@ -53,6 +58,7 @@ def tmph5factory(tmpdir):
         if os.path.exists(path):
             os.remove(path)
         return path
+
     return build
 
 
@@ -80,3 +86,99 @@ def session(db_engine):
     s.close()
     Base.metadata.drop_all(db_engine)
 
+
+@pytest.fixture()
+def connectivityFactory():
+    def build(nr_regions=4):
+        return Connectivity(
+            region_labels=numpy.array(["a"] * nr_regions),
+            weights=numpy.zeros((nr_regions, nr_regions)),
+            undirected=True,
+            tract_lengths=numpy.zeros((nr_regions, nr_regions)),
+            centres=numpy.zeros((nr_regions, nr_regions)),
+            cortical=numpy.array([True] * nr_regions),
+            hemispheres=numpy.array([True] * nr_regions),
+            orientations=numpy.zeros((nr_regions, nr_regions)),
+            areas=numpy.zeros((nr_regions * nr_regions,)),
+            number_of_regions=nr_regions,
+            number_of_connections=nr_regions * nr_regions,
+            saved_selection=["a", "b", "C"]
+        )
+
+    return build
+
+
+@pytest.fixture()
+def surfaceFactory():
+    def build(nr_vertices=10, valid_for_simulation=True, cortical=False):
+        if cortical:
+            return CorticalSurface(
+                vertices=numpy.zeros((nr_vertices, 3)),
+                triangles=numpy.zeros((3, 3), dtype=int),
+                vertex_normals=numpy.zeros((nr_vertices, 3)),
+                triangle_normals=numpy.zeros((3, 3)),
+                number_of_vertices=nr_vertices,
+                number_of_triangles=3,
+                edge_mean_length=1.0,
+                edge_min_length=0.0,
+                edge_max_length=2.0,
+                zero_based_triangles=False,
+                split_triangles=numpy.arange(0),
+                number_of_split_slices=1,
+                split_slices=dict(),
+                bi_hemispheric=False,
+                # surface_type="surface",
+                valid_for_simulations=True
+            )
+
+        return Surface(
+            vertices=numpy.zeros((nr_vertices, 3)),
+            triangles=numpy.zeros((3, 3), dtype=int),
+            vertex_normals=numpy.zeros((nr_vertices, 3)),
+            triangle_normals=numpy.zeros((3, 3)),
+            number_of_vertices=nr_vertices,
+            number_of_triangles=3,
+            edge_mean_length=1.0,
+            edge_min_length=0.0,
+            edge_max_length=2.0,
+            zero_based_triangles=False,
+            split_triangles=numpy.arange(0),
+            number_of_split_slices=1,
+            split_slices=dict(),
+            bi_hemispheric=False,
+            surface_type="surface_cortical",
+            valid_for_simulations=valid_for_simulation)
+
+    return build
+
+
+@pytest.fixture()
+def regionMappingFactory(surfaceFactory, connectivityFactory):
+    def build(surface=None, connectivity=None):
+        if not surface:
+            surface = surfaceFactory(5)
+        if not connectivity:
+            connectivity = connectivityFactory(2)
+        return RegionMapping(
+            array_data=numpy.arange(surface.number_of_vertices),
+            connectivity=connectivity,
+            surface=surface
+        )
+
+    return build
+
+
+@pytest.fixture()
+def sensorsFactory():
+    def build(type="EEG", nr_sensors=3):
+        return Sensors(
+            sensors_type=type,
+            labels=numpy.array(["s"] * nr_sensors),
+            locations=numpy.ones((nr_sensors, 3)),
+            number_of_sensors=nr_sensors,
+            has_orientation=True,
+            orientations=numpy.zeros((nr_sensors, 3)),
+            usable=numpy.array([True] * nr_sensors)
+        )
+
+    return build
