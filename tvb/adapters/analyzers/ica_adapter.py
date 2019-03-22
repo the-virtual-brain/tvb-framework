@@ -102,7 +102,8 @@ class ICAAdapter(ABCAsynchronous):
         """
         Return the required memory to run this algorithm.
         """
-        input_size = numpy.prod(self.input_shape) * 8.0
+        used_shape = (self.input_shape[0], 1, self.input_shape[2], self.input_shape[3])
+        input_size = numpy.prod(used_shape) * 8.0
         output_size = self.algorithm.result_size(self.input_shape)
         return input_size + output_size
 
@@ -110,7 +111,8 @@ class ICAAdapter(ABCAsynchronous):
         """
         Returns the required disk size to be able to run the adapter (in kB).
         """
-        return self.array_size2kb(self.algorithm.result_size(self.input_shape))
+        used_shape = (self.input_shape[0], 1, self.input_shape[2], self.input_shape[3])
+        return self.array_size2kb(self.algorithm.result_size(used_shape))
 
     def launch(self):
         """ 
