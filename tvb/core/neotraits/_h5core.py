@@ -174,6 +174,8 @@ class DataSet(Accessor):
 
     def load(self):
         # type: () -> numpy.ndarray
+        if not self.trait_attribute.required:
+            return self.owner.storage_manager.get_data(self.field_name, ignore_errors=True)
         return self.owner.storage_manager.get_data(self.field_name)
 
     def __getitem__(self, data_slice):
