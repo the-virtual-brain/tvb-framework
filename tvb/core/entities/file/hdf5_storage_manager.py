@@ -238,7 +238,7 @@ class HDF5StorageManager(object):
                     LOG.error("Trying to read data from a missing data set: %s" % dataset_name)
                     raise MissingDataSetException("Could not locate dataset: %s" % dataset_name)
                 else:
-                    return numpy.ndarray(0)
+                    return None
         finally:
             if close_file:
                 self.close_file()
