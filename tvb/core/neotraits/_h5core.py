@@ -13,6 +13,8 @@ from tvb.basic.neotraits.api import HasTraits, Attr, NArray
 
 
 class Accessor(object):
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, trait_attribute, h5file, name=None):
         # type: (Attr, H5File, str) -> None
         """
