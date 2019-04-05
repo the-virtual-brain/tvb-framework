@@ -1,8 +1,9 @@
 import numpy
+from tvb.basic.exceptions import ValidationException
 from tvb.core.entities.file.datatypes.structural_h5 import VolumetricDataMixin
 from tvb.core.neotraits.h5 import H5File, DataSet, Reference
 from tvb.datatypes.region_mapping import RegionMapping, RegionVolumeMapping
-from tvb.basic.arguments_serialisation import preprocess_time_parameters, preprocess_space_parameters, postprocess_voxel_ts, parse_slice
+from tvb.basic.arguments_serialisation import preprocess_space_parameters, parse_slice
 
 from tvb.basic.logger.builder import get_logger
 LOG = get_logger(__name__)
@@ -28,7 +29,7 @@ class RegionVolumeMappingH5(VolumetricDataMixin, H5File):
         self.volume = Reference(RegionVolumeMapping.volume, self)
 
     # fixme: these are broken!
-    def write_data_slice(self, data):
+    def write_data_slice(self, data, apply_corrections=False, mappings_file=None, conn_nr_regions=76):
         """
         We are using here the same signature as in TS, just to allow easier parsing code.
         This method will also validate the data range nd convert it to int, along with writing it is H5.
@@ -37,21 +38,21 @@ class RegionVolumeMappingH5(VolumetricDataMixin, H5File):
         """
 
         LOG.info("Writing RegionVolumeMapping with min=%d, mix=%d" % (data.min(), data.max()))
-        if self.apply_corrections:
+        if apply_corrections:
             data = numpy.array(data, dtype=numpy.int32)
-            data[data >= self.connectivity.number_of_regions] = -1
+            data[data >= conn_nr_regions] = -1
             data[data < -1] = -1
             LOG.debug("After corrections: RegionVolumeMapping min=%d, mix=%d" % (data.min(), data.max()))
 
-        if self.mappings_file:
+        if mappings_file:
             try:
-                mapping_data = numpy.loadtxt(self.mappings_file, dtype=numpy.str, usecols=(0, 2))
+                mapping_data = numpy.loadtxt(mappings_file, dtype=numpy.str, usecols=(0, 2))
                 mapping_data = {int(row[0]): int(row[1]) for row in mapping_data}
             except Exception:
-                raise exceptions.ValidationException("Invalid Mapping File. Expected 3 columns (int, string, int)")
+                raise ValidationException("Invalid Mapping File. Expected 3 columns (int, string, int)")
 
             if len(data.shape) != 3:
-                raise exceptions.ValidationException('Invalid RVM data. Expected 3D.')
+                raise ValidationException('Invalid RVM data. Expected 3D.')
 
             not_matched = set()
             for i in range(data.shape[0]):
@@ -66,10 +67,10 @@ class RegionVolumeMappingH5(VolumetricDataMixin, H5File):
             if not_matched:
                 LOG.warn("Not matched regions will be considered background: %s" % not_matched)
 
-        if data.min() < -1 or data.max() >= self.connectivity.number_of_regions:
-            raise exceptions.ValidationException("Invalid Mapping array: [%d ... %d]" % (data.min(), data.max()))
+        if data.min() < -1 or data.max() >= conn_nr_regions:
+            raise ValidationException("Invalid Mapping array: [%d ... %d]" % (data.min(), data.max()))
 
-        self.store_data("array_data", data)
+        self.array_data.store(data)
 
 
     def get_voxel_region(self, x_plane, y_plane, z_plane):
