@@ -147,7 +147,7 @@ class DataSet(Accessor):
             close_file=close_file
         )
         # update the cached array min max metadata values
-        new_meta = DataSetMetaData.from_array(data)
+        new_meta = DataSetMetaData.from_array(numpy.array(data))
         meta_dict = self.owner.storage_manager.get_metadata(self.field_name)
         if meta_dict:
             meta = DataSetMetaData.from_dict(meta_dict)
@@ -257,8 +257,8 @@ class H5File(object):
         self.storage_manager.close_file()
 
 
-    def store(self, datatype, scalars_only=False):
-        # type: (HasTraits, bool) -> None
+    def store(self, datatype, scalars_only=False, store_references=True):
+        # type: (HasTraits, bool, bool) -> None
         for accessor in self.iter_accessors():
             f_name = accessor.trait_attribute.field_name
             if f_name is None:
@@ -267,8 +267,9 @@ class H5File(object):
                 continue
             if scalars_only and not isinstance(accessor, Scalar):
                 continue
+            if not store_references and isinstance(accessor, Reference):
+                continue
             accessor.store(getattr(datatype, f_name))
-
 
     def load_into(self, datatype):
         # type: (HasTraits) -> None
