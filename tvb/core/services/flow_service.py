@@ -105,8 +105,11 @@ class FlowService:
 
     def prepare_adapter_form(self, adapter_instance, project_id):
         form = adapter_instance.get_form()(project_id=project_id)
-        dt = form.get_traited_datatype()
-        form.fill_from_trait(dt)
+        try:
+            dt = form.get_traited_datatype()
+            form.fill_from_trait(dt)
+        except NotImplementedError:
+            self.logger.info('This form does not take defaults from a datatype')
 
         return form
 

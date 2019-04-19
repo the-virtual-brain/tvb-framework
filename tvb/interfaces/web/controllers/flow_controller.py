@@ -35,6 +35,7 @@ given action are described here.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
+import os
 import copy
 import json
 import cherrypy
@@ -52,6 +53,8 @@ from tvb.core.services.exceptions import OperationException
 from tvb.core.services.operation_service import OperationService, RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.burst_service import BurstService
+from tvb.interfaces.neocom.h5 import DirLoader
+from tvb.interfaces.neocom.config import registry
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.decorators import expose_page, settings, context_selected, expose_numpy_array
@@ -461,15 +464,20 @@ class FlowController(BaseController):
         adapter_instance = ABCAdapter.build_adapter(algorithm)
 
         try:
-            form = adapter_instance.get_form()()
-            form.fill_from_post(data)
-            dt_dict = None
-            if form.validate():
-                dt_dict = form.get_dict()
-            if dt_dict is None:
-                raise ValueError("Could not build a dict out of this form!")
-            adapter_instance.set_form(form)
-            result = self.flow_service.fire_operation(adapter_instance, common.get_logged_user(), project_id, **dt_dict)
+            #TODO: this currently keeps both ways to display forms
+            if adapter_instance.get_input_tree() is None:
+                form = adapter_instance.get_form()()
+                form.fill_from_post(data)
+                dt_dict = None
+                if form.validate():
+                    dt_dict = form.get_dict()
+                if dt_dict is None:
+                    raise ValueError("Could not build a dict out of this form!")
+                adapter_instance.set_form(form)
+                result = self.flow_service.fire_operation(adapter_instance, common.get_logged_user(), project_id, **dt_dict)
+            else:
+                result = self.flow_service.fire_operation(adapter_instance, common.get_logged_user(), project_id,
+                                                          **data)
 
             # Store input data in session, for informing user of it.
             step = self.flow_service.get_category_by_id(step_key)
@@ -567,12 +575,25 @@ class FlowController(BaseController):
         self.logger.debug("Starting to read HDF5: " + entity_gid + "/" + dataset_name + "/" + str(kwargs))
         entity = ABCAdapter.load_entity_by_gid(entity_gid)
 
+        # TODO: Handle read methods that will be moved on a higher level
+        storage_path = self.files_helper.get_project_folder(entity.parent_operation.project, str(entity.fk_from_operation))
+        loader = DirLoader(storage_path)
+        entity_path = loader.find_file_name(entity.gid)
+        entity_datatype = loader.load(entity.gid)
+        entity_h5_cls = registry.get_h5file_for_datatype(type(entity_datatype))
+
+        entity_h5 = entity_h5_cls(os.path.join(storage_path, entity_path))
+
         datatype_kwargs = json.loads(datatype_kwargs)
         if datatype_kwargs:
             for key, value in six.iteritems(datatype_kwargs):
                 kwargs[key] = ABCAdapter.load_entity_by_gid(value)
 
-        result = getattr(entity, dataset_name)
+        if hasattr(entity_datatype, dataset_name):
+            result = getattr(entity_datatype, dataset_name)
+        else:
+            result = getattr(entity_h5, dataset_name)
+
         if callable(result):
             if kwargs:
                 result = result(**kwargs)

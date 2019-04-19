@@ -53,12 +53,17 @@ class DirLoader(object):
         raise IOError('could not locate h5 with gid {}'.format(gid))
 
 
-    def load(self, gid):
-        # type: (typing.Union[uuid.UUID, str]) -> HasTraits
+    def find_file_name(self, gid):
+        # type: (typing.Union[uuid.UUID, str]) -> str
         if isinstance(gid, basestring):
             gid = uuid.UUID(gid)
 
         fname = self._locate(gid)
+        return fname
+
+    def load(self, gid):
+        # type: (typing.Union[uuid.UUID, str]) -> HasTraits
+        fname = self.find_file_name(gid)
 
         sub_dt_refs = []
 

@@ -320,11 +320,15 @@ class OperationService:
             unique_id = None
             if self.ATT_UID in kwargs:
                 unique_id = kwargs[self.ATT_UID]
-            # filtered_kwargs = kwargs
-            # Replace this with a method to retrieve TSI by GID/Keep only GID on kwargs dict
-            # filtered_kwargs = adapter_instance.prepare_ui_inputs(kwargs)
-            # We might not need kwargs anymore
-            filtered_kwargs = adapter_instance.get_form().get_form_values()
+            #TODO: this currently keeps both ways to display forms
+            if adapter_instance.get_input_tree() is None:
+                filtered_kwargs = adapter_instance.get_form().get_form_values()
+            else:
+                # Replace this with a method to retrieve TSI by GID/Keep only GID on kwargs dict
+                # We might not need kwargs anymore
+                filtered_kwargs = kwargs
+                filtered_kwargs = adapter_instance.prepare_ui_inputs(kwargs)
+
             self.logger.debug("Launching operation " + str(operation.id) + " with " + str(filtered_kwargs))
             operation = dao.get_operation_by_id(operation.id)   # Load Lazy fields
 
