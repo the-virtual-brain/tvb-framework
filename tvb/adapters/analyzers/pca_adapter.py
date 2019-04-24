@@ -35,11 +35,11 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
-
+import os
 import uuid
 import numpy
 from tvb.analyzers.pca import PCA
-from tvb.core.adapters.abcadapter import ABCAsynchronous
+from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.mode_decompositions import PrincipalComponents
 from tvb.basic.filters.chain import FilterChain
@@ -48,9 +48,34 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex
+from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.core.neotraits._forms import TimeSeriesSelectField
 from tvb.interfaces.neocom._h5loader import DirLoader
 
 LOG = get_logger(__name__)
+
+
+class PCAAdapterForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(PCAAdapterForm, self).__init__(prefix)
+        self.time_series = TimeSeriesSelectField(PCA.time_series, self.get_required_datatype(), self)
+        self.project_id = project_id
+
+    @staticmethod
+    def get_required_datatype():
+        return TimeSeriesIndex
+
+    @staticmethod
+    def get_filters():
+        return FilterChain(fields=['NArrayIndex.ndim'], operations=["=="], values=[4])
+
+    @staticmethod
+    def get_input_name():
+        return "time_series"
+
+    def get_traited_datatype(self):
+        return PCA()
 
 
 class PCAAdapter(ABCAsynchronous):
@@ -60,17 +85,18 @@ class PCAAdapter(ABCAsynchronous):
     _ui_description = "PCA for a TimeSeries input DataType."
     _ui_subsection = "components"
 
+    form = None
+
     def get_input_tree(self):
-        """
-        Return a list of lists describing the interface to the analyzer. This
-        is used by the GUI to generate the menus and fields necessary for defining a simulation.
-        """
-        algorithm = PCA()
-        algorithm.trait.bound = self.INTERFACE_ATTRIBUTES_ONLY
-        tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
-        tree[0]['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                            operations=["=="], values=[4])
-        return tree
+        return None
+
+    def get_form(self):
+        if self.form is None:
+            return PCAAdapterForm
+        return self.form
+
+    def set_form(self, form):
+        self.form = form
 
     def get_output(self):
         return [PrincipalComponents]
@@ -89,7 +115,7 @@ class PCAAdapter(ABCAsynchronous):
         ##-------------------- Fill Algorithm for Analysis -------------------##
         self.algorithm = PCA()
 
-    def get_required_memory_size(self):
+    def get_required_memory_size(self, time_series):
         """
         Return the required memory to run this algorithm.
         """
@@ -98,14 +124,14 @@ class PCAAdapter(ABCAsynchronous):
         output_size = self.algorithm.result_size(used_shape)
         return input_size + output_size
 
-    def get_required_disk_size(self):
+    def get_required_disk_size(self, time_series):
         """
         Returns the required disk size to be able to run the adapter (in kB).
         """
         used_shape = (self.input_shape[0], 1, self.input_shape[2], self.input_shape[3])
         return self.array_size2kb(self.algorithm.result_size(used_shape))
 
-    def launch(self):
+    def launch(self, time_series):
         """ 
         Launch algorithm and build results.
 
@@ -113,16 +139,17 @@ class PCAAdapter(ABCAsynchronous):
         """
         ##--------- Prepare a PrincipalComponents object for result ----------##
         principal_components_index = PrincipalComponentsIndex()
-        gid = uuid.uuid4()
-        principal_components_index.gid = gid
+        principal_components_index.source = self.input_time_series_index
 
-        loader = DirLoader(self.storage_path)
+        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
         input_path = loader.path_for(TimeSeriesH5, self.input_time_series_index.gid)
         time_series_h5 = TimeSeriesH5(input_path)
 
-        dest_path = loader.path_for(PrincipalComponentsH5, gid)
+        loader = DirLoader(self.storage_path)
+        dest_path = loader.path_for(PrincipalComponentsH5, principal_components_index.gid)
         pca_h5 = PrincipalComponentsH5(path=dest_path)
         pca_h5.source.store(time_series_h5.gid.load())
+        pca_h5.gid.store(uuid.UUID(principal_components_index.gid))
 
         ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         input_shape = time_series_h5.data.shape
@@ -137,7 +164,6 @@ class PCAAdapter(ABCAsynchronous):
             partial_pca = self.algorithm.evaluate()
             pca_h5.write_data_slice(partial_pca)
         pca_h5.close()
-
-        principal_components_index.source = self.input_time_series_index
+        time_series_h5.close()
 
         return principal_components_index

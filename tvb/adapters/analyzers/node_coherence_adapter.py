@@ -35,11 +35,11 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
-
+import os
 import uuid
 import numpy
 from tvb.analyzers.node_coherence import NodeCoherence
-from tvb.core.adapters.abcadapter import ABCAsynchronous
+from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.spectral import CoherenceSpectrum
 from tvb.basic.filters.chain import FilterChain
@@ -48,9 +48,34 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex
+from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.core.neotraits._forms import TimeSeriesSelectField, ScalarField
 from tvb.interfaces.neocom._h5loader import DirLoader
 
 LOG = get_logger(__name__)
+
+class NodeCoherenceForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(NodeCoherenceForm, self).__init__(prefix)
+        self.time_series = TimeSeriesSelectField(NodeCoherence.time_series, self.get_required_datatype(), self)
+        self.nfft = ScalarField(NodeCoherence.nfft, self)
+        self.project_id = project_id
+
+    @staticmethod
+    def get_required_datatype():
+        return TimeSeriesIndex
+
+    @staticmethod
+    def get_filters():
+        return FilterChain(fields=['NArrayIndex.ndim'], operations=["=="], values=[4])
+
+    @staticmethod
+    def get_input_name():
+        return "time_series"
+
+    def get_traited_datatype(self):
+        return NodeCoherence()
 
 
 class NodeCoherenceAdapter(ABCAsynchronous):
@@ -60,22 +85,18 @@ class NodeCoherenceAdapter(ABCAsynchronous):
     _ui_description = "Compute Node Coherence for a TimeSeries input DataType."
     _ui_subsection = "coherence"
 
+    form = None
 
     def get_input_tree(self):
-        """
-        Return a list of lists describing the interface to the analyzer. This
-        is used by the GUI to generate the menus and fields necessary for
-        defining a simulation.
-        """
-        algorithm = NodeCoherence()
-        algorithm.trait.bound = self.INTERFACE_ATTRIBUTES_ONLY
-        tree = algorithm.interface[self.INTERFACE_ATTRIBUTES]
-        for node in tree:
-            if node['name'] == 'time_series':
-                node['conditions'] = FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                                 operations=["=="], values=[4])
-        return tree
+        return None
 
+    def get_form(self):
+        if self.form is None:
+            return NodeCoherenceForm
+        return self.form
+
+    def set_form(self, form):
+        self.form = form
 
     def get_output(self):
         return [CoherenceSpectrum]
@@ -98,7 +119,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
             self.algorithm.nfft = nfft
 
 
-    def get_required_memory_size(self, **kwargs):
+    def get_required_memory_size(self, time_series, nfft=None):
         """
         Return the required memory to run this algorithm.
         """
@@ -111,7 +132,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         return input_size + output_size
 
 
-    def get_required_disk_size(self, **kwargs):
+    def get_required_disk_size(self, time_series, nfft=None):
         """
         Returns the required disk size to be able to run the adapter (in kB).
         """
@@ -128,16 +149,15 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         """
         ##--------- Prepare a CoherenceSpectrum object for result ------------##
         coherence_spectrum_index = CoherenceSpectrumIndex()
-        gid = uuid.uuid4()
-        coherence_spectrum_index.gid = gid
 
-        loader = DirLoader(self.storage_path)
+        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
         input_path = loader.path_for(TimeSeriesH5, self.input_time_series_index.gid)
         time_series_h5 = TimeSeriesH5(path=input_path)
 
-        dest_path = loader.path_for(CoherenceSpectrumH5, gid)
+        loader = DirLoader(self.storage_path)
+        dest_path = loader.path_for(CoherenceSpectrumH5, coherence_spectrum_index.gid)
         coherence_h5 = CoherenceSpectrumH5(dest_path)
-
+        coherence_h5.gid.store(uuid.UUID(coherence_spectrum_index.gid))
         coherence_h5.source.store(time_series_h5.gid.load())
         coherence_h5.nfft.store(self.algorithm.nfft)
 
@@ -157,6 +177,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
             coherence_h5.write_data_slice(partial_coh)
         coherence_h5.frequency.store(partial_coh.frequency)
         coherence_h5.close()
+        time_series_h5.close()
 
         coherence_spectrum_index.source = self.input_time_series_index
         coherence_spectrum_index.nfft = partial_coh.nfft
