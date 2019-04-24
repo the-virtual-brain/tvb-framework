@@ -2,7 +2,7 @@ import logging
 import numpy
 from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Json
 from tvb.datatypes.surfaces import Surface, KEY_VERTICES, KEY_START, KEY_END, SPLIT_BUFFER_SIZE, KEY_TRIANGLES, \
-    KEY_HEMISPHERE, HEMISPHERE_LEFT, SPLIT_PICK_MAX_TRIANGLE
+    KEY_HEMISPHERE, HEMISPHERE_LEFT, SPLIT_PICK_MAX_TRIANGLE, paths2url
 
 log = logging.getLogger(__name__)
 
@@ -101,11 +101,11 @@ class SurfaceH5(H5File):
         """
         Read split-triangles slice, to be used by WebGL visualizer.
         """
-        if self.number_of_split_slices == 1:
-            return self.triangles
+        if self._number_of_split_slices == 1:
+            return self.triangles.load()
         slice_number = int(slice_number)
         start_idx, end_idx = self._get_slice_triangle_boundaries(slice_number)
-        return self.split_triangles[start_idx: end_idx: 1]
+        return self.triangles[start_idx: end_idx: 1]
 
 
     def get_lines_slice(self, slice_number=0):
@@ -228,6 +228,7 @@ class SurfaceH5(H5File):
 
     # fixme belongs to a higher level
 
+    # TODO: Move this to SurfaceViewer and make it accessible as a static method for other viewers?
     def get_urls_for_rendering(self, include_region_map=False, region_mapping=None):
         """
         Compose URLs for the JS code to retrieve a surface from the UI for rendering.
@@ -237,12 +238,13 @@ class SurfaceH5(H5File):
         url_normals = []
         url_lines = []
         url_region_map = []
-        for i in range(self.number_of_split_slices):
+        gid = self.gid.load().hex
+        for i in range(self.number_of_split_slices.load()):
             param = "slice_number=" + str(i)
-            url_vertices.append(paths2url(self, 'get_vertices_slice', parameter=param, flatten=True))
-            url_triangles.append(paths2url(self, 'get_triangles_slice', parameter=param, flatten=True))
-            url_lines.append(paths2url(self, 'get_lines_slice', parameter=param, flatten=True))
-            url_normals.append(paths2url(self, 'get_vertex_normals_slice', parameter=param, flatten=True))
+            url_vertices.append(paths2url(gid, 'get_vertices_slice', parameter=param, flatten=True))
+            url_triangles.append(paths2url(gid, 'get_triangles_slice', parameter=param, flatten=True))
+            url_lines.append(paths2url(gid, 'get_lines_slice', parameter=param, flatten=True))
+            url_normals.append(paths2url(gid, 'get_vertex_normals_slice', parameter=param, flatten=True))
             if not include_region_map or region_mapping is None:
                 continue
 
