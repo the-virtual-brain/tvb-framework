@@ -49,7 +49,7 @@ from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalCom
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neotraits._forms import TimeSeriesSelectField
+from tvb.core.neotraits._forms import DataTypeSelectField
 from tvb.interfaces.neocom._h5loader import DirLoader
 
 LOG = get_logger(__name__)
@@ -59,7 +59,8 @@ class PCAAdapterForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
         super(PCAAdapterForm, self).__init__(prefix)
-        self.time_series = TimeSeriesSelectField(PCA.time_series, self.get_required_datatype(), self)
+        self.time_series = DataTypeSelectField(PCA.time_series, self.get_required_datatype(), self,
+                                               conditions=self.get_filters())
         self.project_id = project_id
 
     @staticmethod
@@ -68,7 +69,7 @@ class PCAAdapterForm(ABCAdapterForm):
 
     @staticmethod
     def get_filters():
-        return FilterChain(fields=['NArrayIndex.ndim'], operations=["=="], values=[4])
+        return FilterChain(fields=[FilterChain.datatype + '.data_ndim'], operations=["=="], values=[4])
 
     @staticmethod
     def get_input_name():
@@ -107,10 +108,10 @@ class PCAAdapter(ABCAsynchronous):
         create the algorithm instance.
         """
         self.input_time_series_index = time_series
-        self.input_shape = (self.input_time_series_index.data.length_1d,
-                            self.input_time_series_index.data.length_2d,
-                            self.input_time_series_index.data.length_3d,
-                            self.input_time_series_index.data.length_4d)
+        self.input_shape = (self.input_time_series_index.data_length_1d,
+                            self.input_time_series_index.data_length_2d,
+                            self.input_time_series_index.data_length_3d,
+                            self.input_time_series_index.data_length_4d)
         LOG.debug("Time series shape is %s" % str(self.input_shape))
         ##-------------------- Fill Algorithm for Analysis -------------------##
         self.algorithm = PCA()
