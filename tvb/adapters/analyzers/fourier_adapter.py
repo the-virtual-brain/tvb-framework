@@ -42,7 +42,7 @@ import numpy
 import math
 import tvb.analyzers.fft as fft
 import tvb.core.adapters.abcadapter as abcadapter
-import tvb.basic.filters.chain as entities_filter
+from tvb.basic.filters.chain import FilterChain
 import tvb.datatypes.spectral as spectral
 from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.time_series import TimeSeries
@@ -51,7 +51,7 @@ from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neotraits._forms import ScalarField, TimeSeriesSelectField
+from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
 from tvb.interfaces.neocom.h5 import DirLoader
 
 LOG = get_logger(__name__)
@@ -60,7 +60,8 @@ class FFTAdapterForm(abcadapter.ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
         super(FFTAdapterForm, self).__init__(prefix)
-        self.time_series = TimeSeriesSelectField(fft.FFT.time_series, self.get_required_datatype(), self)
+        self.time_series = DataTypeSelectField(fft.FFT.time_series, self.get_required_datatype(), self,
+                                               conditions=self.get_filters())
         self.segment_length = ScalarField(fft.FFT.segment_length, self)
         self.window_function = ScalarField(fft.FFT.window_function, self)
         self.detrend = ScalarField(fft.FFT.detrend, self)
@@ -72,7 +73,7 @@ class FFTAdapterForm(abcadapter.ABCAdapterForm):
 
     @staticmethod
     def get_filters():
-        return entities_filter.FilterChain(fields=["NArrayIndex.ndim"], operations=["=="], values=[4])
+        return FilterChain(fields=[FilterChain.datatype + '.data_ndim'], operations=["=="], values=[4])
 
     @staticmethod
     def get_input_name():
@@ -128,10 +129,10 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         :param detrend: None; specify if detrend is performed on the time series
         """
         self.input_time_series_index = time_series
-        self.input_shape = (self.input_time_series_index.data.length_1d,
-                            self.input_time_series_index.data.length_2d,
-                            self.input_time_series_index.data.length_3d,
-                            self.input_time_series_index.data.length_4d)
+        self.input_shape = (self.input_time_series_index.data_length_1d,
+                            self.input_time_series_index.data_length_2d,
+                            self.input_time_series_index.data_length_3d,
+                            self.input_time_series_index.data_length_4d)
 
         LOG.debug("time_series shape is %s" % str(self.input_shape))
         LOG.debug("Provided segment_length is %s" % segment_length)

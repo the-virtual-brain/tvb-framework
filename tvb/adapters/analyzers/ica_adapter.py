@@ -49,7 +49,7 @@ from tvb.core.entities.file.datatypes.mode_decompositions_h5 import IndependentC
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.mode_decompositions import IndependentComponentsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neotraits._forms import ScalarField, TimeSeriesSelectField
+from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
 from tvb.interfaces.neocom._h5loader import DirLoader
 
 LOG = get_logger(__name__)
@@ -59,7 +59,8 @@ class ICAAdapterForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
         super(ICAAdapterForm, self).__init__(prefix)
-        self.time_series = TimeSeriesSelectField(fastICA.time_series, self.get_required_datatype(), self)
+        self.time_series = DataTypeSelectField(fastICA.time_series, self.get_required_datatype(), self,
+                                               conditions=self.get_filters())
         self.n_components = ScalarField(fastICA.n_components, self)
         self.project_id = project_id
 
@@ -69,7 +70,7 @@ class ICAAdapterForm(ABCAdapterForm):
 
     @staticmethod
     def get_filters():
-        return FilterChain(fields=['NArrayIndex.ndim'], operations=["=="], values=[4])
+        return FilterChain(fields=[FilterChain.datatype + '.data_ndim'], operations=["=="], values=[4])
 
     @staticmethod
     def get_input_name():
@@ -108,10 +109,10 @@ class ICAAdapter(ABCAsynchronous):
         create the algorithm instance.
         """
         self.input_time_series_index = time_series
-        self.input_shape = (self.input_time_series_index.data.length_1d,
-                            self.input_time_series_index.data.length_2d,
-                            self.input_time_series_index.data.length_3d,
-                            self.input_time_series_index.data.length_4d)
+        self.input_shape = (self.input_time_series_index.data_length_1d,
+                            self.input_time_series_index.data_length_2d,
+                            self.input_time_series_index.data_length_3d,
+                            self.input_time_series_index.data_length_4d)
         LOG.debug("Time series shape is %s" % str(self.input_shape))
         LOG.debug("Provided number of components is %s" % n_components)
         ##-------------------- Fill Algorithm for Analysis -------------------##
@@ -121,7 +122,7 @@ class ICAAdapter(ABCAsynchronous):
             algorithm.n_components = n_components
         else:
             ## It will only work for Simulator results.
-            algorithm.n_components = self.input_time_series_index.data.length_3d
+            algorithm.n_components = self.input_time_series_index.data_length_3d
         self.algorithm = algorithm
 
     def get_required_memory_size(self, time_series, n_components=None):

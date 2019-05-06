@@ -11,27 +11,23 @@ from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex,
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.datatypes.volume import VolumeIndex
 from tvb.core.entities.model.model_datatype import DataType
-from tvb.core.neotraits.db import NArrayIndex
-
 
 
 class TimeSeriesIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    data_id = Column(Integer, ForeignKey('narrays.id'), nullable=False)
-    data = relationship(NArrayIndex, foreign_keys=data_id, primaryjoin=NArrayIndex.id == data_id)
-
-    time_id = Column(Integer, ForeignKey('narrays.id'))
-    time = relationship(NArrayIndex, foreign_keys=time_id, primaryjoin=NArrayIndex.id == time_id)
+    data_ndim = Column(Integer, nullable=False)
+    data_length_1d = Column(Integer)
+    data_length_2d = Column(Integer)
+    data_length_3d = Column(Integer)
+    data_length_4d = Column(Integer)
 
     sample_period_unit = Column(String, nullable=False)
     sample_period = Column(Float, nullable=False)
     sample_rate = Column(Float)
-    # length = Column(Float)
     labels_ordering = Column(String, nullable=False)
 
     def fill_from_has_traits(self, datatype):
-        self.gid = datatype.gid.hex
         self.title = datatype.title
 
         self.sample_period_unit = datatype.sample_period_unit
@@ -43,8 +39,11 @@ class TimeSeriesIndex(DataType):
         # In general constructing graphs here is a bad ideea
         # But these NArrayIndex-es can be treated as part of this entity
         # never to be referenced by any other row or table.
-        self.data = NArrayIndex.from_ndarray(datatype.data)
-        self.time = NArrayIndex.from_ndarray(datatype.time)
+        self.data_ndim = datatype.data.ndim
+        self.data_length_1d = datatype.data.shape[0]
+        self.data_length_2d = datatype.data.shape[1]
+        self.data_length_3d = datatype.data.shape[2]
+        self.data_length_4d = datatype.data.shape[3]
 
 
 class TimeSeriesEEGIndex(TimeSeriesIndex):
