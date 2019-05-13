@@ -466,7 +466,7 @@ class FlowController(BaseController):
         try:
             #TODO: this currently keeps both ways to display forms
             if adapter_instance.get_input_tree() is None:
-                form = adapter_instance.get_form()()
+                form = adapter_instance.get_form()(project_id=project_id)
                 form.fill_from_post(data)
                 dt_dict = None
                 if form.validate():
