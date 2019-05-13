@@ -38,9 +38,30 @@ from abc import abstractmethod
 from scipy import io as scipy_io
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities import model
-from tvb.core.adapters.abcadapter import ABCSynchronous
+from tvb.core.adapters.abcadapter import ABCSynchronous, ABCAdapterForm
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.storage import dao
+from tvb.core.neotraits._forms import SimpleStrField
+
+
+class ABCUploaderForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(ABCUploaderForm, self).__init__(prefix, project_id)
+        self.subject_field = SimpleStrField(self, name=DataTypeMetaData.KEY_SUBJECT, required=True, label='Subject',
+                                            default=DataTypeMetaData.DEFAULT_SUBJECT)
+
+    @staticmethod
+    def get_required_datatype():
+        return None
+
+    @staticmethod
+    def get_filters():
+        return None
+
+    @staticmethod
+    def get_input_name():
+        return None
 
 
 class ABCUploader(ABCSynchronous):
