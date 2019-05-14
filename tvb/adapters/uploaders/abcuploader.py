@@ -50,6 +50,7 @@ class ABCUploaderForm(ABCAdapterForm):
         super(ABCUploaderForm, self).__init__(prefix, project_id)
         self.subject_field = SimpleStrField(self, name=DataTypeMetaData.KEY_SUBJECT, required=True, label='Subject',
                                             default=DataTypeMetaData.DEFAULT_SUBJECT)
+        self.temporary_files = []
 
     @staticmethod
     def get_required_datatype():

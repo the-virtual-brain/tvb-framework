@@ -98,8 +98,7 @@ class OperationService:
     ######## Methods related to launching operations start here ##############################
     ##########################################################################################
 
-    def initiate_operation(self, current_user, project_id, adapter_instance,
-                           temporary_storage, visible=True, **kwargs):
+    def initiate_operation(self, current_user, project_id, adapter_instance, visible=True, **kwargs):
         """
         Gets the parameters of the computation from the previous inputs form,
         and launches a computation (on the cluster or locally).
@@ -111,35 +110,7 @@ class OperationService:
             self.logger.warning("Inconsistent Adapter Class:" + str(adapter_instance.__class__))
             raise LaunchException("Developer Exception!!")
 
-        # Prepare Files parameters
-        files = {}
-        kw2 = copy(kwargs)
-        for i, j in six.iteritems(kwargs):
-            if isinstance(j, FieldStorage) or isinstance(j, Part):
-                files[i] = j
-                del kw2[i]
-
-        temp_files = {}
-        try:
-            for i, j in six.iteritems(files):
-                if j.file is None:
-                    kw2[i] = None
-                    continue
-                uq_name = utils.date2string(datetime.now(), True) + '_' + str(i)
-                # We have to add original file name to end, in case file processing
-                # involves file extension reading
-                file_name = TEMPORARY_PREFIX + uq_name + '_' + j.filename
-                file_name = os.path.join(temporary_storage, file_name)
-                kw2[i] = file_name
-                temp_files[i] = file_name
-                with open(file_name, 'wb') as file_obj:
-                    file_obj.write(j.file.read())
-                self.logger.debug("Will store file:" + file_name)
-            kwargs = kw2
-        except Exception as excep:
-            self._handle_exception(excep, temp_files, "Could not launch operation: invalid input files!")
-
-        ### Store Operation entity. 
+        ### Store Operation entity.
         algo = adapter_instance.stored_adapter
         algo_category = dao.get_category_by_id(algo.fk_category)
 
@@ -152,7 +123,7 @@ class OperationService:
             if len(operations) < 1:
                 self.logger.warning("No operation was defined")
                 raise LaunchException("Invalid empty Operation!!!")
-            return self.initiate_prelaunch(operations[0], adapter_instance, temp_files, **kwargs)
+            return self.initiate_prelaunch(operations[0], adapter_instance, **kwargs)
         else:
             return self._send_to_cluster(operations, adapter_instance, current_user.username)
 
@@ -310,12 +281,13 @@ class OperationService:
                 dao.store_entity(datatype_group)
 
 
-    def initiate_prelaunch(self, operation, adapter_instance, temp_files, **kwargs):
+    def initiate_prelaunch(self, operation, adapter_instance, **kwargs):
         """
         Public method.
         This should be the common point in calling an adapter- method.
         """
         result_msg = ""
+        temp_files = []
         try:
             unique_id = None
             if self.ATT_UID in kwargs:
@@ -350,6 +322,12 @@ class OperationService:
                 #### Write operation meta-XML only if some result are returned
                 self.file_helper.write_operation_metadata(operation)
             dao.store_entity(operation)
+            adapter_form = adapter_instance.get_form()
+            try:
+                temp_files = adapter_form.temporary_files
+            except AttributeError:
+                pass
+
             self._remove_files(temp_files)
 
         except zipfile.BadZipfile as excep:
@@ -397,7 +375,7 @@ class OperationService:
             if send_to_cluster:
                 self._send_to_cluster([operation], adapter_instance, operation.user.username)
             else:
-                self.initiate_prelaunch(operation, adapter_instance, {}, **parsed_params)
+                self.initiate_prelaunch(operation, adapter_instance, **parsed_params)
 
 
     def _handle_exception(self, exception, temp_files, message, operation=None):
@@ -416,12 +394,12 @@ class OperationService:
         raise exception, None, sys.exc_info()[2]  # when rethrowing in python this is required to preserve the stack trace
 
 
-    def _remove_files(self, file_dictionary):
+    def _remove_files(self, file_list):
         """
         Remove any files that exist in the file_dictionary. 
         Currently used to delete temporary files created during an operation.
         """
-        for pth in file_dictionary.itervalues():
+        for pth in file_list:
             pth = str(pth)
             try:
                 if os.path.exists(pth) and os.path.isfile(pth):

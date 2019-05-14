@@ -242,7 +242,6 @@ class UploadField(Field):
             uq_name = utils.date2string(datetime.now(), True) + '_' + str(0)
             file_name = TEMPORARY_PREFIX + uq_name + '_' + self.data.filename
             file_name = os.path.join(temporary_storage, file_name)
-            temp_file = file_name
 
             with open(file_name, 'wb') as file_obj:
                 file_obj.write(self.data.file.read())
@@ -252,10 +251,9 @@ class UploadField(Field):
             excep.message = 'Could not continue: Invalid input files'
             raise excep
 
-        if file:
+        if file_name:
             self.data = file_name
-        if temp_file:
-            self.temp_file = temp_file
+            self.owner.temporary_files.append(file_name)
 
 
 class TraitField(Field):
