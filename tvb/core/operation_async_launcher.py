@@ -80,7 +80,7 @@ def do_operation_launch(operation_id):
         ## p = profiler.Profiler("/Users/lia.domide/TVB/profiler/")
         ## p.run(OperationService().initiate_prelaunch, curent_operation, adapter_instance, {}, **PARAMS)
 
-        OperationService().initiate_prelaunch(curent_operation, adapter_instance, {}, **PARAMS)
+        OperationService().initiate_prelaunch(curent_operation, adapter_instance, **PARAMS)
         LOGGER.debug("Successfully finished operation " + str(operation_id))
 
     except Exception as excep:

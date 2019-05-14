@@ -184,10 +184,8 @@ class FlowService:
         try:
             self.logger.info("Starting operation " + operation_name)
             project = dao.get_project_by_id(project_id)
-            tmp_folder = self.file_helper.get_project_folder(project, self.file_helper.TEMP_FOLDER)
-            
-            result = OperationService().initiate_operation(current_user, project.id, adapter_instance, 
-                                                           tmp_folder, visible, **data)
+
+            result = OperationService().initiate_operation(current_user, project.id, adapter_instance, visible, **data)
             self.logger.info("Finished operation launch:" + operation_name)
             return result
 
