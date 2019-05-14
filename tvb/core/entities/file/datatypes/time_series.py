@@ -2,7 +2,8 @@ import json
 import numpy
 
 from tvb.core.neotraits.h5 import H5File, Scalar, DataSet, Reference, Json
-from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, prepare_time_slice
+from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, \
+    prepare_time_slice, TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
 from tvb.basic.arguments_serialisation import preprocess_time_parameters, preprocess_space_parameters, postprocess_voxel_ts
 
 
@@ -339,3 +340,24 @@ class TimeSeriesVolumeH5(TimeSeriesH5):
 
         result = postprocess_voxel_ts(self, slices)
         return result
+
+
+class TimeSeriesEEGH5(TimeSeriesH5):
+    def __init__(self, path):
+        super(TimeSeriesEEGH5, self).__init__(path)
+        self.sensors = Reference(TimeSeriesEEG.sensors, self)
+        self.labels_order = Json(TimeSeriesEEG.labels_ordering, self)
+
+
+class TimeSeriesMEGH5(TimeSeriesH5):
+    def __init__(self, path):
+        super(TimeSeriesMEGH5, self).__init__(path)
+        self.sensors = Reference(TimeSeriesMEG.sensors, self)
+        self.labels_order = Json(TimeSeriesMEG.labels_ordering, self)
+
+
+class TimeSeriesSEEGH5(TimeSeriesH5):
+    def __init__(self, path):
+        super(TimeSeriesSEEGH5, self).__init__(path)
+        self.sensors = Reference(TimeSeriesSEEG.sensors, self)
+        self.labels_order = Json(TimeSeriesSEEG.labels_ordering, self)

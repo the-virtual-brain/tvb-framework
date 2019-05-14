@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -28,12 +28,28 @@
 #
 #
 
-"""
-Define a list with all Python modules in which the introspect mechanism should search for Import Adapters.
-"""
+from tvb.basic.filters.chain import FilterChain
+from tvb.datatypes.sensors import EEG_POLYMORPHIC_IDENTITY
+from tvb.adapters.uploaders.mat_timeseries_importer import MatTimeSeriesImporterForm, TS_EEG, MatTimeSeriesImporter
+from tvb.core.entities.model.datatypes.sensors import SensorsIndex
+from tvb.core.neotraits._forms import DataTypeSelectField
 
-__all__ = ["cff_importer", "brco_importer", "connectivity_measure_importer", "csv_connectivity_importer",
-           "gifti_surface_importer", "gifti_timeseries_importer", "mat_timeseries_importer",
-           "eeg_mat_timeseries_importer", "networkx_importer", "nifti_importer", "obj_importer",
-           "projection_matrix_importer", "region_mapping_importer", "sensors_importer", "tvb_importer",
-           "tract_importer", "zip_connectivity_importer", "zip_surface_importer"]
+
+class EEGMatTimeSeriesImporterForm(MatTimeSeriesImporterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(EEGMatTimeSeriesImporterForm, self).__init__(prefix, project_id)
+        eeg_conditions = FilterChain(fields=[FilterChain.datatype + '.sensors_type'], operations=['=='],
+                                     values=[EEG_POLYMORPHIC_IDENTITY])
+        self.eeg = DataTypeSelectField(SensorsIndex, self, name='tstype_parameters', required=True,
+                                       conditions=eeg_conditions, label='EEG Sensors')
+
+
+class EEGMatTimeSeriesImporter(MatTimeSeriesImporter):
+    _ui_name = "Timeseries EEG MAT"
+    tstype = TS_EEG
+
+    def get_form(self):
+        if self.form is None:
+            return EEGMatTimeSeriesImporterForm
+        return self.form
