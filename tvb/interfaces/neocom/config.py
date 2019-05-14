@@ -13,7 +13,8 @@ from tvb.datatypes.spectral import (
 from tvb.datatypes.structural import StructuralMRI
 from tvb.datatypes.surfaces import Surface
 from tvb.datatypes.temporal_correlations import CrossCorrelation
-from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume
+from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, TimeSeriesEEG, \
+    TimeSeriesMEG, TimeSeriesSEEG
 from tvb.datatypes.tracts import Tracts
 from tvb.datatypes.volumes import Volume
 
@@ -34,12 +35,11 @@ from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.file.datatypes.temporal_correlations_h5 import CrossCorrelationH5
 from tvb.core.entities.file.datatypes.time_series import (
     TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5,
-    TimeSeriesVolumeH5
-)
+    TimeSeriesVolumeH5,
+    TimeSeriesEEGH5, TimeSeriesMEGH5, TimeSeriesSEEGH5)
 from tvb.core.entities.file.datatypes.tracts_h5 import TractsH5
 from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5
 from tvb.interfaces.neocom._registry import Registry
-
 
 # an alternative approach is to make each h5file declare if it has a corresponding datatype
 # then in a metaclass hook each class creation and populate a map
@@ -62,9 +62,11 @@ registry.register_h5file_datatype(TimeSeriesH5, TimeSeries)
 registry.register_h5file_datatype(TimeSeriesRegionH5, TimeSeriesRegion)
 registry.register_h5file_datatype(TimeSeriesSurfaceH5, TimeSeriesSurface)
 registry.register_h5file_datatype(TimeSeriesVolumeH5, TimeSeriesVolume)
+registry.register_h5file_datatype(TimeSeriesEEGH5, TimeSeriesEEG)
+registry.register_h5file_datatype(TimeSeriesMEGH5, TimeSeriesMEG)
+registry.register_h5file_datatype(TimeSeriesSEEGH5, TimeSeriesSEEG)
 registry.register_h5file_datatype(TractsH5, Tracts)
 registry.register_h5file_datatype(VolumeH5, Volume)
 registry.register_h5file_datatype(PrincipalComponentsH5, PrincipalComponents)
 registry.register_h5file_datatype(IndependentComponentsH5, IndependentComponents)
 registry.register_h5file_datatype(ConnectivityMeasureH5, ConnectivityMeasure)
-
