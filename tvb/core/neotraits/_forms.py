@@ -7,6 +7,7 @@ from tvb.core import utils
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.model.model_datatype import DataType
 from tvb.core.entities.storage import dao
+from tvb.basic.filters.chain import FilterChain
 from tvb.basic.neotraits.ex import TraitError
 from tvb.basic.neotraits.api import List, Attr
 
@@ -153,15 +154,24 @@ class DataTypeSelectField(Field):
     missing_value = 'explicit-None-value'
 
     def __init__(self, datatype_index, form, name=None, disabled=False, required=False, label='', doc='',
-                 conditions=None):
+                 conditions=None, draw_dynamic_conditions_buttons=True, dynamic_conditions=None):
         super(DataTypeSelectField, self).__init__(form, name, disabled, required, label, doc)
         self.datatype_index = datatype_index
         self.conditions = conditions
+        self.draw_dynamic_conditions_buttons = draw_dynamic_conditions_buttons
+        self.dynamic_conditions = dynamic_conditions
+
+    @property
+    def get_dynamic_filters(self):
+        return FilterChain().get_filters_for_type(self.datatype_index)
 
     def _get_values_from_db(self):
+        all_conditions = FilterChain()
+        all_conditions += self.conditions
+        all_conditions += self.dynamic_conditions
         filtered_datatypes, count = dao.get_values_of_datatype(self.owner.project_id,
                                                                self.datatype_index,
-                                                               self.conditions)
+                                                               all_conditions)
         return filtered_datatypes
 
     def options(self):
