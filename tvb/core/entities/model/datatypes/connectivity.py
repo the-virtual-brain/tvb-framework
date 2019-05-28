@@ -41,3 +41,10 @@ class ConnectivityIndex(DataType):
         # self.weights_non_zero = NArrayIndex.from_ndarray(datatype.weights[datatype.weights.nonzero()])
         # self.tract_lengths_non_zero = NArrayIndex.from_ndarray(datatype.tract_lengths[datatype.tract_lengths.nonzero()])
         # self.tract_lengths_connections = NArrayIndex.from_ndarray(datatype.tract_lengths[datatype.weights.nonzero()])
+
+    @staticmethod
+    def accepted_filters():
+        filters = DataType.accepted_filters()
+        filters.update({'datatype_class.number_of_regions': {'type': 'int', 'display': 'No of Regions',
+                                                              'operations': ['==', '<', '>']}})
+        return filters

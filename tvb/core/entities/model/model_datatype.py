@@ -49,27 +49,27 @@ from tvb.basic.logger.builder import get_logger
 
 LOG = get_logger(__name__)
 
-FILTER_CATEGORIES = {'model.DataType.subject': {'display': 'Subject', 'type': 'string',
+FILTER_CATEGORIES = {'DataType.subject': {'display': 'Subject', 'type': 'string',
                                                 'operations': ['!=', '==', 'like', 'in', 'not in']},
-                     'model.DataType.state': {'display': 'State', 'type': 'string',
+                     'DataType.state': {'display': 'State', 'type': 'string',
                                               'operations': ['!=', '==', 'in', 'not in']},
-                     'model.DataType.disk_size': {'display': 'Disk Size (KB)', 'type': 'int',
+                     'DataType.disk_size': {'display': 'Disk Size (KB)', 'type': 'int',
                                                   'operations': ['<', '==', '>']},
-                     'model.DataType.user_tag_1': {'display': 'Tag 1', 'type': 'string',
+                     'DataType.user_tag_1': {'display': 'Tag 1', 'type': 'string',
                                                    'operations': ['!=', '==', 'like']},
-                     'model.DataType.user_tag_2': {'display': 'Tag 2', 'type': 'string',
+                     'DataType.user_tag_2': {'display': 'Tag 2', 'type': 'string',
                                                    'operations': ['!=', '==', 'like']},
-                     'model.DataType.user_tag_3': {'display': 'Tag 3', 'type': 'string',
+                     'DataType.user_tag_3': {'display': 'Tag 3', 'type': 'string',
                                                    'operations': ['!=', '==', 'like']},
-                     'model.DataType.user_tag_4': {'display': 'Tag 4', 'type': 'string',
+                     'DataType.user_tag_4': {'display': 'Tag 4', 'type': 'string',
                                                    'operations': ['!=', '==', 'like']},
-                     'model.DataType.user_tag_5': {'display': 'Tag 5', 'type': 'string',
+                     'DataType.user_tag_5': {'display': 'Tag 5', 'type': 'string',
                                                    'operations': ['!=', '==', 'like']},
-                     'model.Operation.start_date': {'display': 'Start date', 'type': 'date',
+                     'Operation.start_date': {'display': 'Start date', 'type': 'date',
                                                     'operations': ['!=', '<', '>']},
-                     'model.BurstConfiguration.name': {'display': 'Simulation name', 'type': 'string',
+                     'BurstConfiguration.name': {'display': 'Simulation name', 'type': 'string',
                                                        'operations': ['==', '!=', 'like']},
-                     'model.Operation.completion_date': {'display': 'Completion date', 'type': 'date',
+                     'Operation.completion_date': {'display': 'Completion date', 'type': 'date',
                                                          'operations': ['!=', '<', '>']}}
 
 

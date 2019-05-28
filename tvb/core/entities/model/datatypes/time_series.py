@@ -16,6 +16,7 @@ from tvb.core.entities.model.model_datatype import DataType
 class TimeSeriesIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
+    title = Column(String)
     data_ndim = Column(Integer, nullable=False)
     data_length_1d = Column(Integer)
     data_length_2d = Column(Integer)
@@ -44,6 +45,19 @@ class TimeSeriesIndex(DataType):
         self.data_length_2d = datatype.data.shape[1]
         self.data_length_3d = datatype.data.shape[2]
         self.data_length_4d = datatype.data.shape[3]
+
+    @staticmethod
+    def accepted_filters():
+        filters = DataType.accepted_filters()
+        filters.update(
+            {'datatype_class.data_ndim': {'type': 'int', 'display': 'No of Dimensions', 'operations': ['==', '<', '>']},
+             'datatype_class.sample_period': {'type': 'float', 'display': 'Sample Period',
+                                              'operations': ['==', '<', '>']},
+             'datatype_class.sample_rate': {'type': 'float', 'display': 'Sample Rate', 'operations': ['==', '<', '>']},
+             'datatype_class.title': {'type': 'string', 'display': 'Title', 'operations': ['==', '!=', 'like']}
+             })
+
+        return filters
 
 
 class TimeSeriesEEGIndex(TimeSeriesIndex):
