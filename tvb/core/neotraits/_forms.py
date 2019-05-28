@@ -154,12 +154,13 @@ class DataTypeSelectField(Field):
     missing_value = 'explicit-None-value'
 
     def __init__(self, datatype_index, form, name=None, disabled=False, required=False, label='', doc='',
-                 conditions=None, draw_dynamic_conditions_buttons=True, dynamic_conditions=None):
+                 conditions=None, draw_dynamic_conditions_buttons=True, dynamic_conditions=None, has_all_option=False):
         super(DataTypeSelectField, self).__init__(form, name, disabled, required, label, doc)
         self.datatype_index = datatype_index
         self.conditions = conditions
         self.draw_dynamic_conditions_buttons = draw_dynamic_conditions_buttons
         self.dynamic_conditions = dynamic_conditions
+        self.has_all_option = has_all_option
 
     @property
     def get_dynamic_filters(self):
@@ -189,13 +190,28 @@ class DataTypeSelectField(Field):
                 checked=self.data is None
             )
 
-        # TODO: Add "All" option
         for i, datatype in enumerate(filtered_datatypes):
             yield Option(
                 id='{}_{}'.format(self.name, i),
                 value=datatype[2],
                 label=self._prepare_display_name(datatype),
                 checked=self.data == datatype
+            )
+
+        if self.has_all_option:
+            if not self.owner.draw_ranges:
+                raise ValueError("The owner form should draw ranges inputs in order to support 'All' option")
+
+            all_values = ''
+            for fdt in filtered_datatypes:
+                all_values += str(fdt[2]) + ','
+
+            choice = "All"
+            yield Option(
+                id='{}_{}'.format(self.name, choice),
+                value=all_values[:-1],
+                label=choice,
+                checked=self.data is choice
             )
 
     def get_dt_from_db(self):
@@ -491,11 +507,17 @@ class FormField(Field):
 
 
 class Form(object):
-    def __init__(self, prefix='', project_id=None):
+    RANGE_1_NAME = 'range_1'
+    RANGE_2_NAME = 'range_2'
+    range_1 = None
+    range_2 = None
+
+    def __init__(self, prefix='', project_id=None, draw_ranges=True):
         # TODO: makes sense here?
         self.project_id = project_id
         self.prefix = prefix
         self.errors = []
+        self.draw_ranges = draw_ranges
 
     @property
     def fields(self):
@@ -553,3 +575,5 @@ class Form(object):
     def fill_from_post(self, form_data):
         for field in self.fields:
             field.fill_from_post(form_data)
+        self.range_1 = form_data.get(self.RANGE_1_NAME)
+        self.range_2 = form_data.get(self.RANGE_2_NAME)
