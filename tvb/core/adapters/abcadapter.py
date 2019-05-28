@@ -146,6 +146,8 @@ class ABCAdapterForm(Form):
         attrs_dict = {}
         for field in self.fields:
             attrs_dict.update({field.name: field.data})
+        attrs_dict.update({self.RANGE_1_NAME: self.range_1})
+        attrs_dict.update({self.RANGE_2_NAME: self.range_2})
         return attrs_dict
 
     def get_form_values(self):
@@ -161,7 +163,7 @@ class ABCAdapterForm(Form):
 
     def __str__(self):
         # TODO: Keep using Jinja2?
-        return jinja_env.get_template("form_field.jinja2").render(form=self)
+        return jinja_env.get_template("form.jinja2").render(form=self)
 
 
 
