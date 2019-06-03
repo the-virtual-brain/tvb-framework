@@ -3,12 +3,12 @@ from sqlalchemy.orm import relationship
 from tvb.datatypes.spectral import FourierSpectrum, WaveletCoefficients, CoherenceSpectrum, ComplexCoherenceSpectrum
 
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.entities.model.model_datatype import DataType
+from tvb.core.entities.model.model_datatype import DataTypeMatrix
 from tvb.core.neotraits.db import from_ndarray
 
 
-class FourierSpectrumIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class FourierSpectrumIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     segment_length = Column(Float, nullable=False)
     windowing_function = Column(String, nullable=True)
@@ -25,8 +25,8 @@ class FourierSpectrumIndex(DataType):
         self.max_frequency = datatype.max_frequency
 
 
-class WaveletCoefficientsIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class WaveletCoefficientsIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not WaveletCoefficients.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
@@ -49,8 +49,8 @@ class WaveletCoefficientsIndex(DataType):
         self.frequencies_min, self.frequencies_max, _ = from_ndarray(datatype.frequencies)
 
 
-class CoherenceSpectrumIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class CoherenceSpectrumIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not CoherenceSpectrum.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
@@ -64,8 +64,8 @@ class CoherenceSpectrumIndex(DataType):
         self.frequencies_min, self.frequencies_max, _ = from_ndarray(datatype.frequencies)
 
 
-class ComplexCoherenceSpectrumIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class ComplexCoherenceSpectrumIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not ComplexCoherenceSpectrum.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)

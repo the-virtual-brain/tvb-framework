@@ -3,12 +3,12 @@ from sqlalchemy.orm import relationship
 from tvb.datatypes.structural import StructuralMRI
 
 from tvb.core.entities.model.datatypes.volume import VolumeIndex
-from tvb.core.entities.model.model_datatype import DataType
+from tvb.core.entities.model.model_datatype import DataTypeMatrix
 from tvb.core.neotraits.db import from_ndarray
 
 
-class StructuralMRIIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class StructuralMRIIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     array_data_min = Column(Float)
     array_data_max = Column(Float)

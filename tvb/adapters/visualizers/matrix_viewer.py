@@ -33,15 +33,22 @@
 
 """
 
+import os
 import json
 import numpy
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.arguments_serialisation import parse_slice, slice_str
-from tvb.datatypes.arrays import MappedArray
+from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.time_series import TimeSeriesRegion
 
+from tvb.core.entities.model.datatypes.spectral import DataTypeMatrix
+from tvb.core.neotraits._forms import DataTypeSelectField, SimpleStrField
+from tvb.interfaces.neocom.h5 import DirLoader
+from tvb.interfaces.neocom.config import registry
 
+
+# TODO: rewrite, necessary to read whole matrix?
 def compute_2d_view(matrix, slice_s):
     """
     Create a 2d view of the matrix using the suggested slice
@@ -130,20 +137,49 @@ class MappedArraySVGVisualizerMixin(object):
             return [labels, labels]
 
 
+class MatrixVisualizerForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(MatrixVisualizerForm, self).__init__(prefix, project_id, False)
+        self.datatype = DataTypeSelectField(self.get_required_datatype(), self, name='datatype', required=True,
+                                            label='Array data type', conditions=self.get_filters())
+        self.slice = SimpleStrField(self, name='slice', label='slice indices in numpy syntax')
+
+    @staticmethod
+    def get_input_name():
+        return '_datatype'
+
+    @staticmethod
+    def get_filters():
+        return FilterChain(fields=[FilterChain.datatype + '.ndim'], operations=[">="], values=[2])
+
+    @staticmethod
+    def get_required_datatype():
+        return DataTypeMatrix
+
+
 class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     _ui_name = "Matrix Visualizer"
     _ui_subsection = "matrix"
+    form = None
 
-    def get_input_tree(self):
-        return [{'name': 'datatype', 'label': 'Array data type',
-                 'type': MappedArray, 'required': True,
-                 'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                           operations=[">="], values=[2])},
-                {'name': 'slice', 'label': 'slice indices in numpy syntax',
-                 'type': 'str', 'required': False}]
+    def get_input_tree(self): return None
+
+    def get_form(self):
+        if self.form is None:
+            return MatrixVisualizerForm
+        return self.form
+
+    def set_form(self, form):
+        self.form = form
 
     def launch(self, datatype, slice=''):
-        matrix = datatype.get_data('array_data')
+        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(datatype.fk_from_operation)))
+        h5_class = registry.get_h5file_for_index(type(datatype))
+        h5_path = loader.path_for(h5_class, datatype.gid)
+        with h5_class(h5_path) as h5_file:
+            matrix = h5_file.array_data.load()
+
         matrix2d, _, _ = compute_2d_view(matrix, slice)
         title = datatype.display_name + " matrix plot"
 
