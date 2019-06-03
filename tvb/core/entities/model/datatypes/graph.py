@@ -4,12 +4,12 @@ from tvb.datatypes.graph import Covariance, CorrelationCoefficients, Connectivit
 
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.entities.model.model_datatype import DataType
+from tvb.core.entities.model.model_datatype import DataTypeMatrix
 from tvb.core.neotraits.db import from_ndarray
 
 
-class CovarianceIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class CovarianceIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     array_data_min = Column(Float)
     array_data_max = Column(Float)
@@ -25,8 +25,8 @@ class CovarianceIndex(DataType):
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
 
 
-class CorrelationCoefficientsIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class CorrelationCoefficientsIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     array_data_min = Column(Float)
     array_data_max = Column(Float)
@@ -45,8 +45,8 @@ class CorrelationCoefficientsIndex(DataType):
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
 
 
-class ConnectivityMeasureIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class ConnectivityMeasureIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     type = Column(String)
 
@@ -62,4 +62,5 @@ class ConnectivityMeasureIndex(DataType):
 
     def fill_from_has_traits(self, datatype):
         self.type = datatype.__class__.__name__
+        self.array_data_ndim = datatype.data_array.ndim
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)

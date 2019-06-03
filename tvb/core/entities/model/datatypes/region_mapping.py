@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey, Float
 from sqlalchemy.orm import relationship
-from tvb.core.entities.model.model_datatype import DataType
+from tvb.core.entities.model.model_datatype import DataType, DataTypeMatrix
 from tvb.datatypes.region_mapping import RegionMapping, RegionVolumeMapping
 
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
@@ -27,8 +27,8 @@ class RegionMappingIndex(DataType):
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
 
 
-class RegionVolumeMappingIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class RegionVolumeMappingIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
     array_data_min = Column(Float)
     array_data_max = Column(Float)

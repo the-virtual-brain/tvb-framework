@@ -178,6 +178,10 @@ class DataType(HasTraitsIndex):
         pass
 
 
+class DataTypeMatrix(DataType):
+    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+    ndim = Column(Integer)
+
 
 class DataTypeGroup(DataType):
     """
