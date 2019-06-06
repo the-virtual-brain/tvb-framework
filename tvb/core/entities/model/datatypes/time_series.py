@@ -1,6 +1,6 @@
 import json
 
-from sqlalchemy import Column, Integer, ForeignKey, String, Float
+from sqlalchemy import Column, Integer, ForeignKey, String, Float, Boolean
 from sqlalchemy.orm import relationship
 from tvb.datatypes.time_series import TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, TimeSeriesEEG, \
     TimeSeriesMEG, TimeSeriesSEEG
@@ -27,6 +27,7 @@ class TimeSeriesIndex(DataType):
     sample_period = Column(Float, nullable=False)
     sample_rate = Column(Float)
     labels_ordering = Column(String, nullable=False)
+    has_volume_mapping = Column(Boolean, nullable=False, default=False)
 
     def fill_from_has_traits(self, datatype):
         self.title = datatype.title
