@@ -1,10 +1,10 @@
 import json
 import numpy
-
 from tvb.core.neotraits.h5 import H5File, Scalar, DataSet, Reference, Json
 from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, \
     prepare_time_slice, TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
-from tvb.basic.arguments_serialisation import preprocess_time_parameters, preprocess_space_parameters, postprocess_voxel_ts
+from tvb.basic.arguments_serialisation import preprocess_time_parameters, preprocess_space_parameters, \
+    postprocess_voxel_ts
 
 
 class TimeSeriesH5(H5File):
@@ -170,6 +170,38 @@ class TimeSeriesH5(H5File):
         """
         return self.read_data_page(from_idx, to_idx, step, specific_slices)
 
+    def get_space_labels(self):
+        """
+        It assumes that we want to select in the 3'rd dimension,
+        and generates labels for each point in that dimension.
+        Subclasses are more specific.
+        :return: An array of strings.
+        """
+        if self.nr_dimensions.load() > 2:
+            return ['signal-%d' % i for i in range(self.data.shape[2])]
+        else:
+            return []
+
+    def get_grouped_space_labels(self):
+        """
+        :return: A list of label groups. A label group is a tuple (name, [(label_idx, label)...]).
+                 Default all labels in a group named ''
+        """
+        return [('', list(enumerate(self.get_space_labels())))]
+
+    def get_default_selection(self):
+        """
+        :return: The measure point indices that have to be shown by default. By default show all.
+        """
+        return range(len(self.get_space_labels()))
+
+    def get_measure_points_selection_gid(self):
+        """
+        :return: a datatype gid with which to obtain al valid measure point selection for this time series
+                 We have to decide if the default should be all selections or none
+        """
+        return ''
+
 
 class TimeSeriesRegionH5(TimeSeriesH5):
     def __init__(self, path):
@@ -179,91 +211,23 @@ class TimeSeriesRegionH5(TimeSeriesH5):
         self.region_mapping = Reference(TimeSeriesRegion.region_mapping, self)
         self.labels_ordering = Json(TimeSeriesRegion.labels_ordering, self)
 
-    # fixme: move to higher level where dependent files like self.connectivity can be provided
-    #        or give up on the concept of one H5File has single responsibility of dealing with one file
-    #        and let Reference know about a locator strategy and let it load files
-    def get_volume_view(self, from_idx, to_idx, x_plane, y_plane, z_plane, var=0, mode=0):
+    @staticmethod
+    def out_of_range(min_value):
+        return round(min_value) - 1
+
+    def get_measure_points_selection_gid(self):
         """
-        Retrieve 3 slices through the Volume TS, at the given X, y and Z coordinates, and in time [from_idx .. to_idx].
-
-        :param from_idx: int This will be the limit on the first dimension (time)
-        :param to_idx: int Also limit on the first Dimension (time)
-        :param x_plane: int coordinate
-        :param y_plane: int coordinate
-        :param z_plane: int coordinate
-
-        :return: An array of 3 Matrices 2D, each containing the values to display in planes xy, yz and xy.
+        :return: the associated connectivity gid
         """
-
-        if self.region_mapping_volume is None:
-            raise Exception("Invalid method called for TS without Volume Mapping!")
-
-        volume_rm = self.region_mapping_volume
-
-        # Work with space inside Volume:
-        x_plane, y_plane, z_plane = preprocess_space_parameters(x_plane, y_plane, z_plane, volume_rm.length_1d,
-                                                                volume_rm.length_2d, volume_rm.length_3d)
-        var, mode = int(var), int(mode)
-        slice_x, slice_y, slice_z = self.region_mapping_volume.get_volume_slice(x_plane, y_plane, z_plane)
-
-        # Read from the current TS:
-        from_idx, to_idx, current_time_length = preprocess_time_parameters(from_idx, to_idx, self.read_data_shape()[0])
-        no_of_regions = self.read_data_shape()[2]
-        time_slices = slice(from_idx, to_idx), slice(var, var + 1), slice(no_of_regions), slice(mode, mode + 1)
-
-        min_signal = self.get_min_max_values()[0]
-        regions_ts = self.read_data_slice(time_slices)[:, 0, :, 0]
-        regions_ts = numpy.hstack((regions_ts, numpy.ones((current_time_length, 1)) * self.out_of_range(min_signal)))
-
-        # Index from TS with the space mapping:
-        result_x, result_y, result_z = [], [], []
-
-        for i in range(0, current_time_length):
-            result_x.append(regions_ts[i][slice_x].tolist())
-            result_y.append(regions_ts[i][slice_y].tolist())
-            result_z.append(regions_ts[i][slice_z].tolist())
-
-        return [result_x, result_y, result_z]
-
-    # TODO: move to higher level
-    def get_voxel_time_series(self, x, y, z, var=0, mode=0):
-        """
-        Retrieve for a given voxel (x,y,z) the entire timeline.
-
-        :param x: int coordinate
-        :param y: int coordinate
-        :param z: int coordinate
-
-        :return: A complex dictionary with information about current voxel.
-                The main part will be a vector with all the values over time from the x,y,z coordinates.
-        """
-
-        if self.region_mapping_volume is None:
-            raise Exception("Invalid method called for TS without Volume Mapping!")
-
-        volume_rm = self.region_mapping_volume
-        x, y, z = preprocess_space_parameters(x, y, z, volume_rm.length_1d, volume_rm.length_2d, volume_rm.length_3d)
-        idx_slices = slice(x, x + 1), slice(y, y + 1), slice(z, z + 1)
-
-        idx = int(volume_rm.get_data('array_data', idx_slices))
-
-        time_length = self.read_data_shape()[0]
-        var, mode = int(var), int(mode)
-        voxel_slices = prepare_time_slice(time_length), slice(var, var + 1), slice(idx, idx + 1), slice(mode, mode + 1)
-        label = volume_rm.connectivity.region_labels[idx]
-
-        background, back_min, back_max = None, None, None
-        if idx < 0:
-            back_min, back_max = self.get_min_max_values()
-            background = numpy.ones((time_length, 1)) * self.out_of_range(back_min)
-            label = 'background'
-
-        result = postprocess_voxel_ts(self, voxel_slices, background, back_min, back_max, label)
-        return result
-
+        connectivity_gid = self.connectivity.load()
+        if connectivity_gid is None:
+            return super(TimeSeriesRegionH5, self).get_measure_points_selection_gid()
+        return connectivity_gid
 
 
 class TimeSeriesSurfaceH5(TimeSeriesH5):
+    SELECTION_LIMIT = 100
+
     def __init__(self, path):
         super(TimeSeriesSurfaceH5, self).__init__(path)
         self.surface = Reference(TimeSeriesSurface.surface, self)
@@ -279,9 +243,15 @@ class TimeSeriesSurfaceH5(TimeSeriesH5):
         else:
             for slice_number in range(self.surface.number_of_split_slices):
                 start_idx, end_idx = self.surface._get_slice_vertex_boundaries(slice_number)
-                result.append(basic_result[:,start_idx:end_idx].tolist())
+                result.append(basic_result[:, start_idx:end_idx].tolist())
 
         return result
+
+    def get_space_labels(self):
+        """
+        Return only the first `SELECTION_LIMIT` vertices/channels
+        """
+        return ['signal-%d' % i for i in range(min(self.data.shape[2], self.SELECTION_LIMIT))]
 
 
 class TimeSeriesVolumeH5(TimeSeriesH5):
@@ -342,21 +312,36 @@ class TimeSeriesVolumeH5(TimeSeriesH5):
         return result
 
 
-class TimeSeriesEEGH5(TimeSeriesH5):
+class TimeSeriesSensorsH5(TimeSeriesH5):
+    def get_measure_points_selection_gid(self):
+        sensors_gid = self.sensors.load()
+        if sensors_gid is not None:
+            return sensors_gid
+        return ''
+
+    def get_default_selection(self):
+        sensors_gid = self.sensors.load()
+        if sensors_gid is not None:
+            # select only the first 8 channels
+            return range(min(8, len(self.get_space_labels())))
+        return []
+
+
+class TimeSeriesEEGH5(TimeSeriesSensorsH5):
     def __init__(self, path):
         super(TimeSeriesEEGH5, self).__init__(path)
         self.sensors = Reference(TimeSeriesEEG.sensors, self)
         self.labels_order = Json(TimeSeriesEEG.labels_ordering, self)
 
 
-class TimeSeriesMEGH5(TimeSeriesH5):
+class TimeSeriesMEGH5(TimeSeriesSensorsH5):
     def __init__(self, path):
         super(TimeSeriesMEGH5, self).__init__(path)
         self.sensors = Reference(TimeSeriesMEG.sensors, self)
         self.labels_order = Json(TimeSeriesMEG.labels_ordering, self)
 
 
-class TimeSeriesSEEGH5(TimeSeriesH5):
+class TimeSeriesSEEGH5(TimeSeriesSensorsH5):
     def __init__(self, path):
         super(TimeSeriesSEEGH5, self).__init__(path)
         self.sensors = Reference(TimeSeriesSEEG.sensors, self)

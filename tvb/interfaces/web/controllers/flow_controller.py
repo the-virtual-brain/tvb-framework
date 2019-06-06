@@ -603,6 +603,20 @@ class FlowController(BaseController):
 
 
     @expose_json
+    def invoke_adapter(self, algo_id, method_name, entity_gid, **kwargs):
+        algorithm = self.flow_service.get_algorithm_by_identifier(algo_id)
+        adapter_instance = ABCAdapter.build_adapter(algorithm)
+        entity = ABCAdapter.load_entity_by_gid(entity_gid)
+        storage_path = self.files_helper.get_project_folder(entity.parent_operation.project,
+                                                            str(entity.fk_from_operation))
+        adapter_instance.storage_path = storage_path
+        method = getattr(adapter_instance, method_name)
+        if kwargs:
+            return method(entity_gid, **kwargs)
+        return method(entity_gid)
+
+
+    @expose_json
     def read_datatype_attribute(self, entity_gid, dataset_name, flatten=False, datatype_kwargs='null', **kwargs):
         """
         Retrieve from a given DataType a property or a method result.
