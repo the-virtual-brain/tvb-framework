@@ -158,6 +158,13 @@ class MatTimeSeriesImporter(ABCUploader):
             data_shape = ts_h5.read_data_shape()
             ts_h5.nr_dimensions.store(len(data_shape))
             ts_h5.gid.store(uuid.UUID(ts_idx.gid))
+            ts_h5.sample_period.store(ts.sample_period)
+            ts_h5.sample_period_unit.store(ts.sample_period_unit)
+            ts_h5.sample_rate.store(sampling_rate)
+            ts_h5.start_time.store(ts.start_time)
+            ts_h5.labels_ordering.store(ts.labels_ordering)
+            ts_h5.labels_dimensions.store(ts.labels_dimensions)
+            ts_h5.title.store(ts.title)
             ts_h5.close()
 
             ts_idx.title = ts.title
