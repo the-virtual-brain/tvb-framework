@@ -58,9 +58,10 @@ LOG = get_logger(__name__)
 class ICAAdapterForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
-        super(ICAAdapterForm, self).__init__(prefix)
-        self.time_series = DataTypeSelectField(fastICA.time_series, self.get_required_datatype(), self,
-                                               conditions=self.get_filters())
+        super(ICAAdapterForm, self).__init__(prefix, project_id)
+        self.time_series = DataTypeSelectField(self.get_required_datatype(), self, name='time_series', required=True,
+                                               label=fastICA.time_series.label, doc=fastICA.time_series.doc,
+                                               conditions=self.get_filters(), has_all_option=True)
         self.n_components = ScalarField(fastICA.n_components, self)
         self.project_id = project_id
 

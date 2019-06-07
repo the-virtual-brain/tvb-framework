@@ -575,25 +575,21 @@ class FlowController(BaseController):
         self.logger.debug("Starting to read HDF5: " + entity_gid + "/" + dataset_name + "/" + str(kwargs))
         entity = ABCAdapter.load_entity_by_gid(entity_gid)
 
-        # TODO: Handle read methods that will be moved on a higher level
         storage_path = self.files_helper.get_project_folder(entity.parent_operation.project, str(entity.fk_from_operation))
         loader = DirLoader(storage_path)
         entity_path = loader.find_file_name(entity.gid)
-        entity_datatype = loader.load(entity.gid)
-        entity_h5_cls = registry.get_h5file_for_datatype(type(entity_datatype))
+        entity_h5_cls = registry.get_h5file_for_index(type(entity))
 
-        entity_h5 = entity_h5_cls(os.path.join(storage_path, entity_path))
+        entity_dt = registry.get_datatype_for_h5file(entity_h5_cls)()
+        with entity_h5_cls(os.path.join(storage_path, entity_path)) as entity_h5:
+            entity_h5.load_into(entity_dt)
 
         datatype_kwargs = json.loads(datatype_kwargs)
         if datatype_kwargs:
             for key, value in six.iteritems(datatype_kwargs):
                 kwargs[key] = ABCAdapter.load_entity_by_gid(value)
 
-        if hasattr(entity_datatype, dataset_name):
-            result = getattr(entity_datatype, dataset_name)
-        else:
-            result = getattr(entity_h5, dataset_name)
-
+        result = getattr(entity_dt, dataset_name)
         if callable(result):
             if kwargs:
                 result = result(**kwargs)
@@ -617,6 +613,34 @@ class FlowController(BaseController):
 
 
     @expose_json
+    def read_from_h5_file(self, entity_gid, method_name, flatten=False, datatype_kwargs='null', **kwargs):
+        self.logger.debug("Starting to read HDF5: " + entity_gid + "/" + method_name + "/" + str(kwargs))
+        entity = ABCAdapter.load_entity_by_gid(entity_gid)
+
+        storage_path = self.files_helper.get_project_folder(entity.parent_operation.project,
+                                                            str(entity.fk_from_operation))
+        loader = DirLoader(storage_path)
+        entity_path = loader.find_file_name(entity.gid)
+        entity_h5_class = registry.get_h5file_for_index(type(entity))
+
+        entity_h5 = entity_h5_class(os.path.join(storage_path, entity_path))
+
+        datatype_kwargs = json.loads(datatype_kwargs)
+        if datatype_kwargs:
+            for key, value in six.iteritems(datatype_kwargs):
+                kwargs[key] = ABCAdapter.load_entity_by_gid(value)
+
+        result = getattr(entity_h5, method_name)
+        if kwargs:
+            result = result(**kwargs)
+        else:
+            result = result()
+
+        entity_h5.close()
+        return self._prepare_result(result, flatten)
+
+
+    @expose_json
     def read_datatype_attribute(self, entity_gid, dataset_name, flatten=False, datatype_kwargs='null', **kwargs):
         """
         Retrieve from a given DataType a property or a method result.
@@ -632,7 +656,11 @@ class FlowController(BaseController):
 
         """
         result = self._read_datatype_attribute(entity_gid, dataset_name, datatype_kwargs, **kwargs)
+        return self._prepare_result(result, flatten)
 
+
+
+    def _prepare_result(self, result, flatten):
         if isinstance(result, numpy.ndarray):
             # for ndarrays honor the flatten kwarg and convert to lists as ndarrs are not json-able
             if flatten is True or flatten == "True":

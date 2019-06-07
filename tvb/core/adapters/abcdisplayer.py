@@ -159,6 +159,13 @@ class ABCDisplayer(ABCSynchronous):
 
         return url
 
+    def build_h5_url(self, entity_gid, method_name, parameter=None):
+        url = '/flow/read_from_h5_file/' + entity_gid + '/' + method_name
+
+        if parameter is not None:
+            url += "?" + str(parameter)
+
+        return url
 
     @staticmethod
     def paths2url(datatype_gid, attribute_name, flatten=False, parameter=None):
