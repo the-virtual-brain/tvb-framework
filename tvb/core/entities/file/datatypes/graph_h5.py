@@ -1,9 +1,10 @@
 from tvb.datatypes.graph import Covariance, CorrelationCoefficients, ConnectivityMeasure
 
-from tvb.core.neotraits.h5 import H5File, DataSet, Reference, Json
+from tvb.core.entities.file.datatypes.spectral_h5 import DataTypeMatrixH5
+from tvb.core.neotraits.h5 import DataSet, Reference, Json
 
 
-class CovarianceH5(H5File):
+class CovarianceH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(CovarianceH5, self).__init__(path)
@@ -18,7 +19,7 @@ class CovarianceH5(H5File):
         self.array_data.append(partial_result, close_file=False)
 
 
-class CorrelationCoefficientsH5(H5File):
+class CorrelationCoefficientsH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(CorrelationCoefficientsH5, self).__init__(path)
@@ -28,7 +29,7 @@ class CorrelationCoefficientsH5(H5File):
         self._end_accessor_declarations()
 
 
-class ConnectivityMeasureH5(H5File):
+class ConnectivityMeasureH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(ConnectivityMeasureH5, self).__init__(path)

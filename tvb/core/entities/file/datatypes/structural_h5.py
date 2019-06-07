@@ -1,5 +1,6 @@
 import numpy
-from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Reference
+from tvb.core.entities.file.datatypes.spectral_h5 import DataTypeMatrixH5
+from tvb.core.neotraits.h5 import DataSet, Scalar, Reference
 from tvb.datatypes.structural import StructuralMRI
 from tvb.basic.arguments_serialisation import preprocess_space_parameters
 
@@ -48,17 +49,8 @@ class VolumetricDataMixin(object):
         slice_x, slice_y, slice_z = self.get_volume_slice(x_plane, y_plane, z_plane)
         return [[slice_x.tolist()], [slice_y.tolist()], [slice_z.tolist()]]
 
-    def get_min_max_values(self):
-        """
-        Retrieve the minimum and maximum values from the metadata.
-        :returns: (minimum_value, maximum_value)
-        """
-        metadata = self.array_data.get_cached_metadata()
-        return metadata.min, metadata.max
 
-
-
-class StructuralMRIH5(VolumetricDataMixin, H5File):
+class StructuralMRIH5(VolumetricDataMixin, DataTypeMatrixH5):
 
     def __init__(self, path):
         super(StructuralMRIH5, self).__init__(path)

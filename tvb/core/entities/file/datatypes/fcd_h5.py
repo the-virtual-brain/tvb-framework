@@ -1,9 +1,10 @@
 from tvb.datatypes.fcd import Fcd
 
-from tvb.core.neotraits.h5 import H5File, DataSet, Reference, Scalar, Json
+from tvb.core.entities.file.datatypes.spectral_h5 import DataTypeMatrixH5
+from tvb.core.neotraits.h5 import DataSet, Reference, Scalar, Json
 
 
-class FcdH5(H5File):
+class FcdH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(FcdH5, self).__init__(path)
