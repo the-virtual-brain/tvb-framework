@@ -58,10 +58,10 @@ LOG = get_logger(__name__)
 class PCAAdapterForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
-        super(PCAAdapterForm, self).__init__(prefix)
-        self.time_series = DataTypeSelectField(PCA.time_series, self.get_required_datatype(), self,
-                                               conditions=self.get_filters())
-        self.project_id = project_id
+        super(PCAAdapterForm, self).__init__(prefix, project_id)
+        self.time_series = DataTypeSelectField(self.get_required_datatype(), self, name=self.get_input_name(),
+                                               required=True, label=PCA.time_series.label, doc=PCA.time_series.doc,
+                                               conditions=self.get_filters(), has_all_option=True)
 
     @staticmethod
     def get_required_datatype():
