@@ -1,9 +1,11 @@
 import numpy
 from tvb.basic.exceptions import ValidationException
+from tvb.core.entities.file.datatypes.spectral_h5 import DataTypeMatrixH5
 from tvb.core.entities.file.datatypes.structural_h5 import VolumetricDataMixin
+from tvb.core.entities.load import load_entity_by_gid
 from tvb.core.neotraits.h5 import H5File, DataSet, Reference
 from tvb.datatypes.region_mapping import RegionMapping, RegionVolumeMapping
-from tvb.basic.arguments_serialisation import preprocess_space_parameters, parse_slice
+from tvb.basic.arguments_serialisation import preprocess_space_parameters
 
 from tvb.basic.logger.builder import get_logger
 LOG = get_logger(__name__)
@@ -20,7 +22,7 @@ class RegionMappingH5(H5File):
 
 
 
-class RegionVolumeMappingH5(VolumetricDataMixin, H5File):
+class RegionVolumeMappingH5(VolumetricDataMixin, DataTypeMatrixH5):
 
     def __init__(self, path):
         super(RegionVolumeMappingH5, self).__init__(path)
@@ -74,41 +76,13 @@ class RegionVolumeMappingH5(VolumetricDataMixin, H5File):
 
 
     def get_voxel_region(self, x_plane, y_plane, z_plane):
-        x_plane, y_plane, z_plane = preprocess_space_parameters(x_plane, y_plane, z_plane, self.length_1d,
-                                                                self.length_2d, self.length_3d)
+        data_shape = self.array_data.shape
+        x_plane, y_plane, z_plane = preprocess_space_parameters(x_plane, y_plane, z_plane, data_shape[0],
+                                                                data_shape[1], data_shape[2])
         slices = slice(x_plane, x_plane + 1), slice(y_plane, y_plane + 1), slice(z_plane, z_plane + 1)
-        voxel = self.read_data_slice(slices)[0, 0, 0]
+        voxel = self.array_data[slices][0, 0, 0]
         if voxel != -1:
-            return self.connectivity.region_labels[int(voxel)]
+            conn_index = load_entity_by_gid(self.connectivity.load().hex)
+            return conn_index.region_labels[int(voxel)]
         else:
             return 'background'
-
-
-    def get_mapped_array_volume_view(self, mapped_array, x_plane, y_plane, z_plane, mapped_array_slice=None, **kwargs):
-        x_plane, y_plane, z_plane = preprocess_space_parameters(x_plane, y_plane, z_plane, self.length_1d,
-                                                                self.length_2d, self.length_3d)
-        slice_x, slice_y, slice_z = self.get_volume_slice(x_plane, y_plane, z_plane)
-
-        if mapped_array_slice:
-            matrix_slice = parse_slice(mapped_array_slice)
-            measure = mapped_array.get_data('array_data', matrix_slice)
-        else:
-            measure = mapped_array.get_data('array_data')
-
-        if measure.shape != (self.connectivity.number_of_regions, ):
-            raise ValueError('cannot project measure on the space')
-
-        result_x = measure[slice_x]
-        result_y = measure[slice_y]
-        result_z = measure[slice_z]
-        # Voxels outside the brain are -1. The indexing above is incorrect for those voxels as it
-        # associates the values of the last region measure[-1] to them.
-        # Here we replace those values with an out of scale value.
-        result_x[slice_x==-1] = measure.min() - 1
-        result_y[slice_y==-1] = measure.min() - 1
-        result_z[slice_z==-1] = measure.min() - 1
-
-        return [[result_x.tolist()],
-                [result_y.tolist()],
-                [result_z.tolist()]]
-
