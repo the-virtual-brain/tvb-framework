@@ -55,12 +55,10 @@ class ConnectivityMeasureIndex(DataTypeMatrix):
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_id,
                                 primaryjoin=ConnectivityIndex.id == connectivity_id)
 
-    array_data_ndim = Column(Integer, nullable=False)
     array_data_min = Column(Float)
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
     def fill_from_has_traits(self, datatype):
         self.type = datatype.__class__.__name__
-        self.array_data_ndim = datatype.data_array.ndim
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)

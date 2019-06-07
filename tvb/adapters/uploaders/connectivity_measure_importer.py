@@ -108,6 +108,7 @@ class ConnectivityMeasureImporter(ABCUploader):
 
                 cm_data = data[i, :]
                 cm_idx.array_data_ndim = cm_data.ndim
+                cm_idx.ndim = cm_data.ndim
                 cm_idx.array_data_min, cm_idx.array_data_max, cm_idx.array_data_mean = from_ndarray(cm_data)
 
                 cm_h5_path = loader.path_for(ConnectivityMeasureH5, cm_idx.gid)
