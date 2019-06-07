@@ -4,7 +4,17 @@ from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Reference
 from tvb.datatypes.spectral import FourierSpectrum, WaveletCoefficients, CoherenceSpectrum, ComplexCoherenceSpectrum
 
 
-class FourierSpectrumH5(H5File):
+class DataTypeMatrixH5(H5File):
+    def get_min_max_values(self):
+        """
+        Retrieve the minimum and maximum values from the metadata.
+        :returns: (minimum_value, maximum_value)
+        """
+        metadata = self.array_data.get_cached_metadata()
+        return metadata.min, metadata.max
+
+
+class FourierSpectrumH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(FourierSpectrumH5, self).__init__(path)
@@ -17,7 +27,6 @@ class FourierSpectrumH5(H5File):
         self.power = DataSet(FourierSpectrum.power, self, expand_dimension=2)
         self.average_power = DataSet(FourierSpectrum.average_power, self, expand_dimension=2)
         self.normalised_average_power = DataSet(FourierSpectrum.normalised_average_power, self, expand_dimension=2)
-
 
     def write_data_slice(self, partial_result):
         """
@@ -69,7 +78,7 @@ class FourierSpectrumH5(H5File):
 
 
 
-class WaveletCoefficientsH5(H5File):
+class WaveletCoefficientsH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(WaveletCoefficientsH5, self).__init__(path)
@@ -104,7 +113,7 @@ class WaveletCoefficientsH5(H5File):
 
 
 
-class CoherenceSpectrumH5(H5File):
+class CoherenceSpectrumH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(CoherenceSpectrumH5, self).__init__(path)
@@ -122,7 +131,7 @@ class CoherenceSpectrumH5(H5File):
 
 
 
-class ComplexCoherenceSpectrumH5(H5File):
+class ComplexCoherenceSpectrumH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(ComplexCoherenceSpectrumH5, self).__init__(path)
