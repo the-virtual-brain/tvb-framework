@@ -46,21 +46,21 @@ from tvb.basic.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 
 from tvb.core.entities.file.datatypes.spectral_h5 import ComplexCoherenceSpectrumH5
-from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.spectral import ComplexCoherenceSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
 from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.interfaces.neocom.config import registry
 
 LOG = get_logger(__name__)
 
 class NodeComplexCoherenceForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
-        super(NodeComplexCoherenceForm, self).__init__(prefix)
-        self.time_series = DataTypeSelectField(NodeComplexCoherence.time_series, self.get_required_datatype(), self,
-                                               conditions=self.get_filters())
-        self.project_id = project_id
+        super(NodeComplexCoherenceForm, self).__init__(prefix, project_id)
+        self.time_series = DataTypeSelectField(self.get_required_datatype(), self, name=self.get_input_name(),
+                                               required=True, label=NodeComplexCoherence.time_series.label,
+                                               doc=NodeComplexCoherence.time_series.doc, conditions=self.get_filters())
 
     @staticmethod
     def get_required_datatype():
@@ -157,8 +157,9 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
 
         ##------- Prepare a ComplexCoherenceSpectrum object for result -------##
         loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        input_path = loader.path_for(TimeSeriesH5, self.input_time_series_index.gid)
-        time_series_h5 = TimeSeriesH5(path=input_path)
+        time_series_h5_class = registry.get_h5file_for_index(type(time_series))
+        input_path = loader.path_for(time_series_h5_class, self.input_time_series_index.gid)
+        time_series_h5 = time_series_h5_class(path=input_path)
 
         loader = DirLoader(self.storage_path)
         dest_path = loader.path_for(ComplexCoherenceSpectrumH5, self.input_time_series_index.gid)

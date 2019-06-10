@@ -132,6 +132,7 @@ class CoherenceSpectrumH5(DataTypeMatrixH5):
 
 
 class ComplexCoherenceSpectrumH5(DataTypeMatrixH5):
+    spectrum_types = ["Imaginary", "Real", "Absolute"]
 
     def __init__(self, path):
         super(ComplexCoherenceSpectrumH5, self).__init__(path)
@@ -141,7 +142,6 @@ class ComplexCoherenceSpectrumH5(DataTypeMatrixH5):
         self.epoch_length = Scalar(ComplexCoherenceSpectrum.epoch_length, self)
         self.segment_length = Scalar(ComplexCoherenceSpectrum.segment_length, self)
         self.windowing_function = Scalar(ComplexCoherenceSpectrum.windowing_function, self)
-
 
     def write_data_slice(self, partial_result):
         """
@@ -155,12 +155,12 @@ class ComplexCoherenceSpectrumH5(DataTypeMatrixH5):
         shape = self.array_data.shape
         slices = (slice(shape[0]), slice(shape[1]), slice(shape[2]))
 
-        if selected_spectrum == ComplexCoherenceSpectrum.spectrum_types[0]:
+        if selected_spectrum == self.spectrum_types[0]:
             data_matrix = self.array_data[slices].imag
             indices = numpy.triu_indices(shape[0], 1)
             data_matrix = data_matrix[indices]
 
-        elif selected_spectrum == ComplexCoherenceSpectrum.spectrum_types[1]:
+        elif selected_spectrum == self.spectrum_types[1]:
             data_matrix = self.array_data[slices].real
             data_matrix = data_matrix.reshape(shape[0] * shape[0], shape[2])
 
