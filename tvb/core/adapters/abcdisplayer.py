@@ -30,7 +30,7 @@
 """
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-
+import json
 import os
 import sys
 from threading import Lock
@@ -48,6 +48,50 @@ from tvb.interfaces.neocom._h5loader import DirLoader
 from tvb.interfaces.neocom.config import registry
 
 LOCK_CREATE_FIGURE = Lock()
+
+
+class URLGenerator(object):
+    FLOW = 'flow'
+    INVOKE_ADAPTER = 'invoke_adapter'
+    H5_FILE = 'read_from_h5_file'
+    DATATYPE_ATTRIBUTE = 'read_datatype_attribute'
+
+    @staticmethod
+    def build_url(entity_gid, method_name, adapter_id, parameter=None):
+        url_regex = '/{}/{}/{}/{}/{}'
+        url = url_regex.format(URLGenerator.FLOW, URLGenerator.INVOKE_ADAPTER, adapter_id, method_name, entity_gid)
+
+        if parameter is not None:
+            url += "?" + str(parameter)
+
+        return url
+
+
+    @staticmethod
+    def build_h5_url(entity_gid, method_name, flatten=False, datatype_kwargs=None, parameter=None):
+        json_kwargs = json.dumps(datatype_kwargs)
+
+        url_regex = '/{}/{}/{}/{}/{}/{}'
+        url = url_regex.format(URLGenerator.FLOW, URLGenerator.H5_FILE, entity_gid, method_name, flatten, json_kwargs)
+
+        if parameter is not None:
+            url += "?" + str(parameter)
+
+        return url
+
+
+    @staticmethod
+    def paths2url(datatype_gid, attribute_name, flatten=False, parameter=None):
+        """
+        Prepare a File System Path for passing into an URL.
+        """
+        url_regex = '/{}/{}/{}/{}/{}'
+        url = url_regex.format(URLGenerator.FLOW, URLGenerator.DATATYPE_ATTRIBUTE, datatype_gid, attribute_name, flatten)
+
+        if parameter is not None:
+            url += "?" + str(parameter)
+
+        return url
 
 
 class ABCDisplayer(ABCSynchronous):
@@ -150,8 +194,8 @@ class ABCDisplayer(ABCSynchronous):
             return list_of_elements[:expected_size]
 
 
+    #TODO: remove methods that build urls
     def build_url(self, method_name, entity_gid, parameter=None):
-        #TODO: extract URL prefix
         url ='/flow/invoke_adapter/' + str(self.stored_adapter.id) + '/' + method_name + '/' + entity_gid
 
         if parameter is not None:

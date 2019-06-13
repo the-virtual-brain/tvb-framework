@@ -33,5 +33,8 @@ class ConnectivityMeasureH5(DataTypeMatrixH5):
 
     def __init__(self, path):
         super(ConnectivityMeasureH5, self).__init__(path)
-        self.connectivity = Reference(ConnectivityMeasure.connectivity)
-        self._end_accessor_declarations()
+        self.array_data = DataSet(ConnectivityMeasure.array_data, self)
+        self.connectivity = Reference(ConnectivityMeasure.connectivity, self)
+
+    def get_array_data(self):
+        return self.array_data[:]

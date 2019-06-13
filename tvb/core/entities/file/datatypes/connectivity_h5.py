@@ -20,6 +20,12 @@ class ConnectivityH5(H5File):
         self.parent_connectivity = Scalar(Connectivity.parent_connectivity, self)
         self.saved_selection = Json(Connectivity.saved_selection, self)
 
+    def get_centres(self):
+        return self.centres.load()
+
+    def get_region_labels(self):
+        return self.region_labels.load()
+
     def get_grouped_space_labels(self):
         """
         :return: A list [('left', [lh_labels)], ('right': [rh_labels])]
