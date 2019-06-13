@@ -34,3 +34,5 @@ class ConnectivityMeasureH5(DataTypeMatrixH5):
         self.array_data = DataSet(ConnectivityMeasure.array_data, self)
         self.connectivity = Reference(ConnectivityMeasure.connectivity, self)
 
+    def get_array_data(self):
+        return self.array_data[:]

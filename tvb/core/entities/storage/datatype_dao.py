@@ -42,6 +42,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import desc, cast
 from sqlalchemy.types import Text
 from sqlalchemy.orm.exc import NoResultFound
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.model_burst import BurstConfiguration
 from tvb.core.entities.model.model_datatype import DataType , DataTypeGroup, Links, MeasurePointsSelection, \
     StoredPSEFilter
@@ -477,6 +478,22 @@ class DatatypeDAO(RootDAO):
                     ).filter(or_(Operation.fk_launched_in == project_id,
                                  Links.fk_to_project == project_id))
         query = query.order_by(desc(datatype_class.id)).limit(1)
+        result = query.all()
+
+        if result is not None and len(result):
+            return result[0]
+        return None
+
+    #TODO: review whether this separate method for SurfaceIndex is necessary
+    def try_load_last_surface_of_type(self, project_id, surface_type):
+
+        query = self.session.query(SurfaceIndex
+                    ).join((Operation, SurfaceIndex.fk_from_operation == Operation.id)
+                    ).outerjoin(Links
+                    ).filter(or_(Operation.fk_launched_in == project_id,
+                                 Links.fk_to_project == project_id)
+                             ).filter(SurfaceIndex.surface_type == surface_type)
+        query = query.order_by(desc(SurfaceIndex.id)).limit(1)
         result = query.all()
 
         if result is not None and len(result):
