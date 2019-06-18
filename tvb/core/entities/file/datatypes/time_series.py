@@ -222,7 +222,7 @@ class TimeSeriesRegionH5(TimeSeriesH5):
         connectivity_gid = self.connectivity.load()
         if connectivity_gid is None:
             return super(TimeSeriesRegionH5, self).get_measure_points_selection_gid()
-        return connectivity_gid
+        return connectivity_gid.hex
 
 
 class TimeSeriesSurfaceH5(TimeSeriesH5):
