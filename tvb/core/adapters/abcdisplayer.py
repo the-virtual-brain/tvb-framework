@@ -57,6 +57,11 @@ class URLGenerator(object):
     DATATYPE_ATTRIBUTE = 'read_datatype_attribute'
 
     @staticmethod
+    def build_base_h5_url(entity_gid):
+        url_regex = '/{}/{}/{}'
+        return url_regex.format(URLGenerator.FLOW, URLGenerator.H5_FILE, entity_gid)
+
+    @staticmethod
     def build_url(entity_gid, method_name, adapter_id, parameter=None):
         url_regex = '/{}/{}/{}/{}/{}'
         url = url_regex.format(URLGenerator.FLOW, URLGenerator.INVOKE_ADAPTER, adapter_id, method_name, entity_gid)
