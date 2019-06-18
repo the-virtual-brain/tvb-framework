@@ -107,6 +107,7 @@ class MatTimeSeriesImporter(ABCUploader):
                                   % (data_shape[1], connectivity.number_of_regions))
         ts_idx = TimeSeriesRegionIndex()
         ts_idx.connectivity = connectivity
+        ts_idx.has_surface_mapping = True
 
         ts_h5_path = self.loader.path_for(TimeSeriesRegionH5, ts_idx.gid)
         ts_h5 = TimeSeriesRegionH5(ts_h5_path)
@@ -168,6 +169,7 @@ class MatTimeSeriesImporter(ABCUploader):
             ts_h5.close()
 
             ts_idx.title = ts.title
+            ts_idx.time_series_type = type(ts).__name__
             ts_idx.sample_period_unit = ts.sample_period_unit
             ts_idx.sample_period = ts.sample_period
             ts_idx.sample_rate = ts.sample_rate

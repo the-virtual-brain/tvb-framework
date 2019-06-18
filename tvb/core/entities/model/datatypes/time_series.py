@@ -17,6 +17,7 @@ class TimeSeriesIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
     title = Column(String)
+    time_series_type = Column(String, nullable=False)
     data_ndim = Column(Integer, nullable=False)
     data_length_1d = Column(Integer)
     data_length_2d = Column(Integer)
@@ -28,10 +29,11 @@ class TimeSeriesIndex(DataType):
     sample_rate = Column(Float)
     labels_ordering = Column(String, nullable=False)
     has_volume_mapping = Column(Boolean, nullable=False, default=False)
+    has_surface_mapping = Column(Boolean, nullable=False, default=False)
 
     def fill_from_has_traits(self, datatype):
         self.title = datatype.title
-
+        self.time_series_type = type(datatype).__name__
         self.sample_period_unit = datatype.sample_period_unit
         self.sample_period = datatype.sample_period
         self.sample_rate = datatype.sample_rate
