@@ -34,10 +34,38 @@
 """
 import json
 import numpy
-from tvb.core.adapters.abcdisplayer import ABCDisplayer
-from tvb.datatypes.time_series import TimeSeries
+import os
+from tvb.core.adapters.abcadapter import ABCAdapterForm
+from tvb.core.adapters.abcdisplayer import ABCDisplayer, URLGenerator
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.interfaces.neocom.config import registry
 
+
+class EegMonitorForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(EegMonitorForm, self).__init__(prefix, project_id)
+        self.input_data = DataTypeSelectField(self.get_required_datatype(), self, name='input_data', required=True,
+                                              label='Input Data', doc='Time series to display.')
+        self.data_2 = DataTypeSelectField(self.get_required_datatype(), self, name='data_2', label='Input Data 2',
+                                          doc='Time series to display.')
+        self.data_3 = DataTypeSelectField(self.get_required_datatype(), self, name='data_3', label='Input Data 3',
+                                          doc='Time series to display.')
+
+    @staticmethod
+    def get_required_datatype():
+        return TimeSeriesIndex
+
+    @staticmethod
+    def get_input_name():
+        return '_input_data'
+
+    @staticmethod
+    def get_filters():
+        return None
 
 
 class EegMonitor(ABCDisplayer):
@@ -50,21 +78,21 @@ class EegMonitor(ABCDisplayer):
     has_nan = False
     _ui_name = "Animated Time Series Visualizer"
     _ui_subsection = "animated_timeseries"
+    form = None
 
     page_size = 4000
     preview_page_size = 250
     current_page = 0
 
+    def get_input_tree(self): return None
 
-    def get_input_tree(self):
-        """ Accept as input Array of any size"""
-        return [{'name': 'input_data', 'label': 'Input Data', 'required': True,
-                 'type': TimeSeries, 'description': 'Time series to display.'},
-                {'name': 'data_2', 'label': 'Input Data 2',
-                 'type': TimeSeries, 'description': 'Time series to display.'},
-                {'name': 'data_3', 'label': 'Input Data 3',
-                 'type': TimeSeries, 'description': 'Time series to display.'}]
+    def get_form(self):
+        if not self.form:
+            return EegMonitorForm
+        return self.form
 
+    def set_form(self, form):
+        self.form = form
 
     def get_required_memory_size(self, time_series):
         """
@@ -121,6 +149,15 @@ class EegMonitor(ABCDisplayer):
             measurePointsSelectionGIDs=measure_points_selectionGIDs)
 
 
+    def _get_h5_from_index(self, entity_index):
+        if entity_index is None:
+            return None
+        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(entity_index.fk_from_operation)))
+        entity_h5_class = registry.get_h5file_for_index(type(entity_index))
+        entity_h5_path = loader.path_for(entity_h5_class, entity_index.gid)
+        return entity_h5_class(entity_h5_path)
+
+
     def compute_parameters(self, input_data, data_2=None, data_3=None, is_preview=False,
                            is_extended_view=False, selected_dimensions=None):
         """
@@ -140,16 +177,21 @@ class EegMonitor(ABCDisplayer):
         self.selected_dimensions = selected_dimensions or [0, 2]
 
         # Hardcoded now 1st dimension is time
+        h5_timeseries = []
+        for timeseries in original_timeseries:
+            ts_h5 = self._get_h5_from_index(timeseries)
+            h5_timeseries.append(ts_h5)
+
         if not is_preview:
-            max_chunck_length = max([timeseries.read_data_shape()[0] for timeseries in original_timeseries])
+            max_chunck_length = max([ts_h5.read_data_shape()[0] for ts_h5 in h5_timeseries])
         else:
-            max_chunck_length = min(self.preview_page_size, original_timeseries[0].read_data_shape()[0])
+            max_chunck_length = min(self.preview_page_size, h5_timeseries[0].read_data_shape()[0])
         # compute how many elements will be visible on the screen
         points_visible = min(max_chunck_length, 500)
 
         ( no_of_channels, ts_names, grouped_labels, total_time_length,
           graph_labels, initial_selections, measure_points_selectionGIDs,
-          modes, state_vars ) = self._pre_process(original_timeseries)
+          modes, state_vars ) = self._pre_process(h5_timeseries)
         # ts_names : a string representing the time series
         # labels, modes, state_vars are maps ts_name -> list(...)
         # The label values must reach the client in ascending ordered. ts_names preserves the
@@ -157,7 +199,7 @@ class EegMonitor(ABCDisplayer):
         if is_preview:
             total_time_length = max_chunck_length
 
-        ag_settings = self._compute_ag_settings(original_timeseries, is_preview, graph_labels, no_of_channels,
+        ag_settings = self._compute_ag_settings(h5_timeseries, is_preview, graph_labels, no_of_channels,
                                                total_time_length, points_visible, is_extended_view,
                                                measure_points_selectionGIDs)
 
@@ -168,12 +210,16 @@ class EegMonitor(ABCDisplayer):
                           tsStateVars=state_vars,
                           longestChannelLength=max_chunck_length,
                           label_x=self._get_label_x(original_timeseries[0]),
-                          entities=original_timeseries,
+                          entities=h5_timeseries,
                           page_size=min(self.page_size, max_chunck_length),
                           number_of_visible_points=points_visible,
                           extended_view=is_extended_view,
                           initialSelection=initial_selections,
                           ag_settings=json.dumps(ag_settings))
+
+        for ts_h5 in h5_timeseries:
+            ts_h5.close()
+
         return parameters
 
 
@@ -201,14 +247,14 @@ class EegMonitor(ABCDisplayer):
         initial_selections, measure_points_selectionGIDs = [], []
         ts_names, graph_labels, grouped_labels  = [], [], []
 
-        for timeseries in timeseries_list:
+        for idx, timeseries in enumerate(timeseries_list):
             shape = timeseries.read_data_shape()
             no_of_lines += shape[self.selected_dimensions[1]]
             max_length = max(max_length, shape[0])
 
-            self._fill_graph_labels(timeseries, graph_labels, multiple_inputs)
+            self._fill_graph_labels(timeseries, graph_labels, multiple_inputs, idx)
 
-            ts_name = timeseries.display_name + " [id:" + str(timeseries.id) + "]"
+            ts_name = timeseries.title.load()
             ts_names.append(ts_name)
 
             if multiple_inputs:
@@ -221,13 +267,13 @@ class EegMonitor(ABCDisplayer):
             measure_points_selectionGIDs.append(timeseries.get_measure_points_selection_gid())
             grouped_labels.append(timeseries.get_grouped_space_labels())
 
-            state_vars[ts_name] = timeseries.labels_dimensions.get(timeseries.labels_ordering[1], [])
+            state_vars[ts_name] = timeseries.labels_dimensions.load().get(timeseries.labels_ordering.load()[1], [])
             modes[ts_name] = range(shape[3])
 
         return no_of_lines, ts_names, grouped_labels, max_length, graph_labels, initial_selections, measure_points_selectionGIDs, modes, state_vars
 
 
-    def _fill_graph_labels(self, timeseries, graph_labels, mult_inp):
+    def _fill_graph_labels(self, timeseries, graph_labels, mult_inp, idx):
         """ Fill graph labels in the graph_labels parameter """
         shape = timeseries.read_data_shape()
         space_labels = timeseries.get_space_labels()
@@ -242,7 +288,7 @@ class EegMonitor(ABCDisplayer):
             else:
                 this_label = "channel_" + str(j)
             if mult_inp:
-                this_label = str(timeseries.id) + '.' + this_label
+                this_label = str(idx + 1) + '.' + this_label
             graph_labels.append(this_label)
 
 
@@ -317,21 +363,23 @@ class EegMonitor(ABCDisplayer):
                 if overall_shape[0] % self.page_size > 0:
                     total_pages += 1
                 timeline_urls = []
+                ts_gid = timeseries.gid.load().hex
                 for i in range(total_pages):
                     current_max_size = min((i + 1) * self.page_size, overall_shape[0]) - i * self.page_size
                     params = "current_page=" + str(i) + ";page_size=" + str(self.page_size) + \
                              ";max_size=" + str(current_max_size)
-                    timeline_urls.append(self.paths2url(timeseries, 'read_time_page', parameter=params))
-                base_urls.append(ABCDisplayer.VISUALIZERS_URL_PREFIX + timeseries.gid)
+                    timeline_urls.append(URLGenerator.build_h5_url(ts_gid, 'read_time_page', parameter=params))
+                base_urls.append(URLGenerator.build_base_h5_url(ts_gid))
                 time_set_urls.append(timeline_urls)
                 total_pages_set.append(total_pages)
         else:
-            base_urls.append(ABCDisplayer.VISUALIZERS_URL_PREFIX + list_of_timeseries[0].gid)
+            ts_gid = list_of_timeseries[0].gid.load().hex
+            base_urls.append(URLGenerator.build_base_h5_url(ts_gid))
             total_pages_set.append(1)
             page_size = self.preview_page_size
             params = "current_page=0;page_size=" + str(self.preview_page_size) + ";max_size=" + \
                      str(min(self.preview_page_size, list_of_timeseries[0].read_data_shape()[0]))
-            time_set_urls.append([self.paths2url(list_of_timeseries[0], 'read_time_page', parameter=params)])
+            time_set_urls.append([URLGenerator.build_h5_url(ts_gid, 'read_time_page', parameter=params)])
         return base_urls, page_size, total_pages_set, time_set_urls
 
     
