@@ -56,4 +56,4 @@ class ConnectivityH5(H5File):
         """
         :return: the associated connectivity gid
         """
-        return self.gid
+        return self.gid.load().hex
