@@ -150,11 +150,14 @@ class TimeSeriesH5(H5File):
         """
         self.time.append(partial_result)
 
-    def write_data_slice(self, partial_result, grow_dimension=0):
+    def write_data_slice(self, partial_result):
         """
         Append a chunk of time-series data to the ``data`` attribute.
         """
         self.data.append(partial_result)
+
+    def write_data_slice_on_grow_dimension(self, partial_result, grow_dimension=0):
+        self.data.append(partial_result, grow_dimension=grow_dimension)
 
     def get_min_max_values(self):
         """
