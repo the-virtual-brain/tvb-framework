@@ -85,7 +85,11 @@ class Uuid(Scalar):
 
     def load(self):
         # type: () -> uuid.UUID
-        return uuid.UUID(self.owner.storage_manager.get_metadata()[self.field_name])
+        #TODO: handle inexistent field?
+        metadata = self.owner.storage_manager.get_metadata()
+        if self.field_name in metadata:
+            return uuid.UUID(metadata[self.field_name])
+        return None
 
 
 class DataSetMetaData(object):
@@ -138,12 +142,14 @@ class DataSet(Accessor):
         super(DataSet, self).__init__(trait_attribute, h5file, name)
         self.expand_dimension = expand_dimension
 
-    def append(self, data, close_file=True):
+    def append(self, data, close_file=True, grow_dimension=None):
         # type: (numpy.ndarray, bool) -> None
+        if not grow_dimension:
+            grow_dimension = self.expand_dimension
         self.owner.storage_manager.append_data(
             self.field_name,
             data,
-            grow_dimension=self.expand_dimension,
+            grow_dimension=grow_dimension,
             close_file=close_file
         )
         # update the cached array min max metadata values
