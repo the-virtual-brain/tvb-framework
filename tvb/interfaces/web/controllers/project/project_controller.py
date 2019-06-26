@@ -43,7 +43,7 @@ from simplejson import JSONEncoder
 from cherrypy.lib.static import serve_file
 from tvb.adapters.exporters.export_manager import ExportManager
 from tvb.basic.profile import TvbProfile
-from tvb.config import SIMULATOR_CLASS, SIMULATOR_MODULE
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 import tvb.core.entities.model.model_operation as model
 from tvb.core.entities.transient import graph_structures
 from tvb.core.entities.transient.filtering import StaticFiltersFactory
@@ -304,7 +304,8 @@ class ProjectController(BaseController):
             return session_filtes
 
         else:
-            sim_group = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
+            sim_group = self.flow_service.get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                                            IntrospectionRegistry.SIMULATOR_CLASS)
             new_filters = StaticFiltersFactory.build_operations_filters(sim_group, common.get_logged_user().id)
             common.add2session(self.KEY_OPERATION_FILTERS, new_filters)
             return new_filters

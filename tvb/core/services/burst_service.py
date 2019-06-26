@@ -37,8 +37,7 @@ import json
 import threading
 from datetime import datetime
 from types import IntType
-from tvb.config import MEASURE_METRICS_MODULE, MEASURE_METRICS_CLASS, DEFAULT_PORTLETS
-from tvb.config import SIMULATION_DATATYPE_MODULE, SIMULATION_DATATYPE_CLASS
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.input_tree import KEY_TYPE, TYPE_SELECT, KEY_NAME, InputTreeManager
 from tvb.core.entities.model.model_burst import BurstConfiguration
@@ -147,7 +146,7 @@ class BurstService(object):
 
         # Now set the default portlets for the specified burst configuration.
         # The default portlets are specified in the __init__.py script from tvb root.
-        for tab_idx, value in DEFAULT_PORTLETS.items():
+        for tab_idx, value in IntrospectionRegistry.DEFAULT_PORTLETS.items():
             for sel_idx, portlet_identifier in value.items():
                 portlet = BurstService.get_portlet_by_identifier(portlet_identifier)
                 if portlet is not None:
@@ -323,7 +322,8 @@ class BurstService(object):
         else:
             ## Branch or Continue simulation
             burst_config = burst_configuration
-            simulation_state = dao.get_generic_entity(SIMULATION_DATATYPE_MODULE + "." + SIMULATION_DATATYPE_CLASS,
+            simulation_state = dao.get_generic_entity(IntrospectionRegistry.SIMULATION_DATATYPE_MODULE + "." +
+                                                      IntrospectionRegistry.SIMULATION_DATATYPE_CLASS,
                                                       burst_config.id, "fk_parent_burst")
             if simulation_state is None or len(simulation_state) < 1:
                 exc = BurstServiceException("Simulation State not found for %s, "
@@ -401,7 +401,8 @@ class BurstService(object):
         if group_launched:
             ###  For a group of operations, make sure the metric for PSE view 
             ### is also computed, immediately after the simulation.
-            metric_algo = FlowService().get_algorithm_by_module_and_class(MEASURE_METRICS_MODULE, MEASURE_METRICS_CLASS)
+            metric_algo = FlowService().get_algorithm_by_module_and_class(IntrospectionRegistry.MEASURE_METRICS_MODULE,
+                                                                          IntrospectionRegistry.MEASURE_METRICS_CLASS)
             metric_interface = FlowService().prepare_adapter(project_id, metric_algo)
             dynamics = {}
             for entry in metric_interface:

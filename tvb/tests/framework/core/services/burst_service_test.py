@@ -39,7 +39,7 @@ import json
 from time import sleep
 from tvb.tests.framework.core.base_testcase import BaseTestCase
 from tvb.core.adapters.input_tree import InputTreeManager
-from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.datatypes.time_series import TimeSeriesRegion
@@ -82,7 +82,8 @@ class TestBurstService(BaseTestCase):
     flow_service = FlowService()
     operation_service = OperationService()
     workflow_service = WorkflowService()
-    sim_algorithm = flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
+    sim_algorithm = flow_service.get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                                   IntrospectionRegistry.SIMULATOR_CLASS)
     local_simulation_params = copy.deepcopy(SIMULATOR_PARAMETERS)
 
 

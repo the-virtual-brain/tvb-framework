@@ -42,7 +42,7 @@ from datetime import datetime
 from cherrypy._cpreqbody import Part
 from sqlalchemy.orm.attributes import manager_of_class
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from tvb.config import ADAPTERS
+from tvb.adapters.uploaders.upload_algorithm_category_config import UploadAlgorithmCategoryConfig
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 
@@ -555,7 +555,7 @@ class ImportService(object):
                 # If no dataType group present for current op. group, create it.
                 operation_group = dao.get_operationgroup_by_id(operation_group_id)
                 datatype_group = DataTypeGroup(operation_group, operation_id=operation_entity.id)
-                datatype_group.state = ADAPTERS['Upload']['defaultdatastate']
+                datatype_group.state = UploadAlgorithmCategoryConfig.defaultdatastate
                 datatype_group = dao.store_entity(datatype_group)
 
         return operation_entity, datatype_group

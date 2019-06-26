@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
 import json
 from tvb.basic.logger.builder import get_logger
-from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.entities.storage import dao
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.import_service import ImportService
@@ -69,7 +69,8 @@ def launch_simulation_workflow(json_path, prj_id):
         LOG.info("Simulation Workflow configuration object loaded: \n  %s", simulation_config)
 
         flow_service = FlowService()
-        stored_adapter = flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
+        stored_adapter = flow_service.get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                                        IntrospectionRegistry.SIMULATOR_CLASS)
         LOG.info("Found Simulation algorithm in local DB: \n   %s", stored_adapter)
 
         burst_service = BurstService()

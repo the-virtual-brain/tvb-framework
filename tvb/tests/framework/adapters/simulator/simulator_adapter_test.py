@@ -36,7 +36,7 @@ import json
 import pytest
 from copy import copy
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.config import SIMULATOR_CLASS, SIMULATOR_MODULE
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
@@ -101,7 +101,8 @@ class TestSimulatorAdapter(TransactionalTestCase):
         self.test_project = self.datatypes_factory.get_project()
         self.connectivity = self.datatypes_factory.create_connectivity(self.CONNECTIVITY_NODES)[1]
 
-        algorithm = dao.get_algorithm_by_module(SIMULATOR_MODULE, SIMULATOR_CLASS)
+        algorithm = dao.get_algorithm_by_module(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                IntrospectionRegistry.SIMULATOR_CLASS)
         self.simulator_adapter = ABCAdapter.build_adapter(algorithm)
         self.operation = TestFactory.create_operation(algorithm, self.test_user, self.test_project,
                                                       model.STATUS_STARTED, json.dumps(SIMULATOR_PARAMETERS))
