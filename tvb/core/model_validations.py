@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
 import sys
 from time import sleep
-from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.operation_service import OperationService
@@ -76,7 +76,8 @@ class ModelValidator(object):
         Prepare the arguments to be submitted and launch actual operations group.
         TODO: Now get the results and check if any errors
         """
-        stored_adapter = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
+        stored_adapter = self.flow_service.get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE, 
+                                                                             IntrospectionRegistry.SIMULATOR_CLASS)
         simulator_adapter = ABCAdapter.build_adapter(stored_adapter)
         launch_args = {}
         flatten_interface = simulator_adapter.flaten_input_interface()

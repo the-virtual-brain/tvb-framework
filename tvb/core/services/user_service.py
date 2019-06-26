@@ -41,7 +41,7 @@ from random import randint
 from hashlib import md5
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
-from tvb.config import DEFAULT_PROJECT_GID
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.entities.model.model_project import User, ROLE_ADMINISTRATOR, USER_ROLES
 from tvb.core.entities.storage import dao
 from tvb.core.services import email_sender
@@ -129,11 +129,12 @@ class UserService:
                 ImportService().import_project_structure(to_upload, user.id)
             else:
                 try:
-                    default_prj_id = dao.get_project_by_gid(DEFAULT_PROJECT_GID).id
+                    default_prj_id = dao.get_project_by_gid(IntrospectionRegistry.DEFAULT_PROJECT_GID).id
                     dao.add_members_to_project(default_prj_id, [user.id])
                 except Exception:
                     self.logger.warning(
-                        "Could not link user_id: %d with project_gid: %s " % (user.id, DEFAULT_PROJECT_GID))
+                        "Could not link user_id: %d with project_gid: %s " % (user.id,
+                                                                              IntrospectionRegistry.DEFAULT_PROJECT_GID))
 
             return TEXT_DISPLAY
         except Exception as excep:

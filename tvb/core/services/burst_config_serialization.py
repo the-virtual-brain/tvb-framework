@@ -37,7 +37,7 @@ Service for serianlizing a Burst (Simulator) configuration.
 import six
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.traits.parameters_factory import get_traited_instance_for_name
-from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.model.model_burst import RANGE_PARAMETER_1, RANGE_PARAMETER_2, PARAMS_MODEL_PATTERN, \
     PARAM_MODEL, PARAM_INTEGRATOR, PARAM_CONNECTIVITY, PARAM_SURFACE
@@ -66,7 +66,8 @@ class SerializationManager(object):
 
 
     def _build_simulator_adapter(self):
-        stored_adapter = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
+        stored_adapter = self.flow_service.get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                                             IntrospectionRegistry.SIMULATOR_CLASS)
         return ABCAdapter.build_adapter(stored_adapter)
 
 

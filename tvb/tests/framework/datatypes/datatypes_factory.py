@@ -37,7 +37,7 @@ This module contains methods for creating persisted data-types for tests.
 import json
 import numpy
 import time
-from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -98,8 +98,10 @@ class DatatypesFactory(object):
         # Create algorithm
         alg_category = model.AlgorithmCategory('one', True)
         dao.store_entity(alg_category)
-        ad = model.Algorithm(SIMULATOR_MODULE, SIMULATOR_CLASS, alg_category.id)
-        self.algorithm = dao.get_algorithm_by_module(SIMULATOR_MODULE, SIMULATOR_CLASS)
+        ad = model.Algorithm(IntrospectionRegistry.SIMULATOR_MODULE, IntrospectionRegistry.SIMULATOR_CLASS,
+                             alg_category.id)
+        self.algorithm = dao.get_algorithm_by_module(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                     IntrospectionRegistry.SIMULATOR_CLASS)
         if self.algorithm is None:
             self.algorithm = dao.store_entity(ad)
 
@@ -181,7 +183,8 @@ class DatatypesFactory(object):
         Create a operation entity. Return the operation, algo_id and the storage path.
         """
         meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW_DATA"}
-        algorithm = FlowService().get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
+        algorithm = FlowService().get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                                    IntrospectionRegistry.SIMULATOR_CLASS)
         operation = model.Operation(self.user.id, self.project.id, algorithm.id, json.dumps(''), meta=json.dumps(meta),
                                     status=model.STATUS_STARTED)
         operation = dao.store_entity(operation)

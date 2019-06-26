@@ -35,11 +35,6 @@ Define in __all__ attribute, modules to be introspected for finding adapters.
 
 """
 
-__all__ = ["bct_adapters", "bct_centrality_adapters", "bct_clustering_adapters", "bct_degree_adapters",
-           "cross_correlation_adapter", "fcd_adapter", "fmri_balloon_adapter", "fourier_adapter", "ica_adapter",
-           "metrics_group_timeseries", "node_coherence_adapter", "node_complex_coherence_adapter", 
-           "node_covariance_adapter", "pca_adapter", "wavelet_adapter"]
-
 #Import metrics here, so that Traits will find them...
 import tvb.analyzers.metric_kuramoto_index
 import tvb.analyzers.metric_proxy_metastability

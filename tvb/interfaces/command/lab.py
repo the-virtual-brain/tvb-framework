@@ -33,8 +33,7 @@ A convenience module for the command interface
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
-
-from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
 
@@ -86,7 +85,8 @@ def fire_simulation(project_id=1, **kwargs):
     flow_service = FlowService()
 
     # below the holy procedure to launch with the correct parameters taken from the defaults
-    stored_adapter = flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
+    stored_adapter = flow_service.get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                                    IntrospectionRegistry.SIMULATOR_CLASS)
     simulator_adapter = ABCAdapter.build_adapter(stored_adapter)
     flatten_interface = simulator_adapter.flaten_input_interface()
     itree_mngr = flow_service.input_tree_manager

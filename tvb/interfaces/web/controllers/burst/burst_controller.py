@@ -45,7 +45,7 @@ from formencode import validators
 from cgi import FieldStorage
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.static import serve_fileobj
-from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS, MEASURE_METRICS_MODULE, MEASURE_METRICS_CLASS
+from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.basic.profile import TvbProfile
 from tvb.core.utils import generate_guid, string2bool
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -79,8 +79,8 @@ class BurstController(BurstBaseController):
         self.context = SelectedAdapterContext()
 
         ## Cache simulator Tree and Algorithm for performance issues.
-        self.cached_simulator_algorithm = self.flow_service.get_algorithm_by_module_and_class(SIMULATOR_MODULE,
-                                                                                              SIMULATOR_CLASS)
+        self.cached_simulator_algorithm = self.flow_service.get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                                                              IntrospectionRegistry.SIMULATOR_CLASS)
 
 
     @property
@@ -133,7 +133,8 @@ class BurstController(BurstBaseController):
         ### Prepare PSE available metrics
         ### We put here all available algorithms, because the metrics select area is a generic one, 
         ### and not loaded with every Burst Group change in history.
-        algorithm = self.flow_service.get_algorithm_by_module_and_class(MEASURE_METRICS_MODULE, MEASURE_METRICS_CLASS)
+        algorithm = self.flow_service.get_algorithm_by_module_and_class(IntrospectionRegistry.MEASURE_METRICS_MODULE,
+                                                                        IntrospectionRegistry.MEASURE_METRICS_CLASS)
         adapter_instance = ABCAdapter.build_adapter(algorithm)
         if adapter_instance is not None and hasattr(adapter_instance, 'available_algorithms'):
             template_specification['available_metrics'] = [metric_name for metric_name
