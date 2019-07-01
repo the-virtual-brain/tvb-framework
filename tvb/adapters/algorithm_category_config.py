@@ -44,3 +44,34 @@ class AlgorithmCategoryConfig(object):
     launchable = False
     defaultdatastate = DEFAULTDATASTATE_INTERMEDIATE
     order_nr = 999
+
+
+class AnalyzeAlgorithmCategoryConfig(AlgorithmCategoryConfig):
+    category_name = 'Analyze'
+    launchable = True
+    order_nr = 1
+
+
+class CreateAlgorithmCategoryConfig(AlgorithmCategoryConfig):
+    category_name = 'Create'
+    defaultdatastate = DEFAULTDATASTATE_RAW_DATA
+    order_nr = 0
+
+
+class SimulateAlgorithmCategoryConfig(AlgorithmCategoryConfig):
+    category_name = 'Simulate'
+    order_nr = 0
+
+
+class UploadAlgorithmCategoryConfig(AlgorithmCategoryConfig):
+    category_name = 'Upload'
+    rawinput = True
+    defaultdatastate = DEFAULTDATASTATE_RAW_DATA
+    order_nr = 999
+
+
+class ViewAlgorithmCategoryConfig(AlgorithmCategoryConfig):
+    category_name = 'View'
+    display = True
+    launchable = True
+    order_nr = 3

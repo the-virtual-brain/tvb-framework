@@ -30,7 +30,8 @@
 from tvb.basic.profile import TvbProfile
 from tvb.datatypes.simulation_state import SimulationState
 
-from tvb.adapters.analyzers.analyze_algorithm_category_config import AnalyzeAlgorithmCategoryConfig
+from tvb.adapters.algorithm_category_config import AnalyzeAlgorithmCategoryConfig, CreateAlgorithmCategoryConfig, \
+    SimulateAlgorithmCategoryConfig, UploadAlgorithmCategoryConfig, ViewAlgorithmCategoryConfig
 from tvb.adapters.analyzers.cross_correlation_adapter import CrossCorrelateAdapter, PearsonCorrelationCoefficientAdapter
 from tvb.adapters.analyzers.fcd_adapter import FunctionalConnectivityDynamicsAdapter
 from tvb.adapters.analyzers.fmri_balloon_adapter import BalloonModelAdapter
@@ -44,10 +45,8 @@ from tvb.adapters.analyzers.pca_adapter import PCAAdapter
 from tvb.adapters.analyzers.wavelet_adapter import ContinuousWaveletTransformAdapter
 from tvb.adapters.creators.allen_creator import AllenConnectomeBuilder
 from tvb.adapters.creators.connectivity_creator import ConnectivityCreator
-from tvb.adapters.creators.create_algorithm_category_config import CreateAlgorithmCategoryConfig
 from tvb.adapters.creators.local_connectivity_creator import LocalConnectivityCreator
 from tvb.adapters.creators.stimulus_creator import RegionStimulusCreator, SurfaceStimulusCreator
-from tvb.adapters.simulator.simulate_algorithm_category_config import SimulateAlgorithmCategoryConfig
 from tvb.adapters.simulator.simulator_adapter import SimulatorAdapter
 from tvb.adapters.uploaders.brco_importer import BRCOImporter
 from tvb.adapters.uploaders.cff_importer import CFF_Importer
@@ -65,7 +64,6 @@ from tvb.adapters.uploaders.region_mapping_importer import RegionMapping_Importe
 from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
 from tvb.adapters.uploaders.tract_importer import TrackvizTractsImporter, ZipTxtTractsImporter
 from tvb.adapters.uploaders.tvb_importer import TVBImporter
-from tvb.adapters.uploaders.upload_algorithm_category_config import UploadAlgorithmCategoryConfig
 from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporter
 from tvb.adapters.uploaders.zip_surface_importer import ZIPSurfaceImporter
 from tvb.adapters.visualizers.annotations_viewer import ConnectivityAnnotationsView
@@ -95,7 +93,6 @@ from tvb.adapters.visualizers.time_series import TimeSeries
 from tvb.adapters.visualizers.time_series_volume import TimeSeriesVolumeVisualiser
 from tvb.adapters.visualizers.topographic import TopographicViewer
 from tvb.adapters.visualizers.tract import TractViewer
-from tvb.adapters.visualizers.view_algorithm_category_config import ViewAlgorithmCategoryConfig
 from tvb.adapters.visualizers.wavelet_spectrogram import WaveletSpectrogramVisualizer
 import tvb.adapters.portlets as portlets_module
 
