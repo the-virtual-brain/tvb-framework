@@ -42,7 +42,7 @@ from datetime import datetime
 from cherrypy._cpreqbody import Part
 from sqlalchemy.orm.attributes import manager_of_class
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from tvb.adapters.uploaders.upload_algorithm_category_config import UploadAlgorithmCategoryConfig
+from tvb.adapters.algorithm_category_config import UploadAlgorithmCategoryConfig
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 
