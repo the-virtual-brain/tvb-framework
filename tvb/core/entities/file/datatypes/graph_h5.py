@@ -26,6 +26,10 @@ class CorrelationCoefficientsH5(DataTypeMatrixH5):
         self.source = Reference(CorrelationCoefficients.source, self)
         self.labels_ordering = Json(CorrelationCoefficients.labels_ordering, self)
 
+    def get_correlation_data(self, selected_state, selected_mode):
+        matrix_to_display = self.array_data[:, :, int(selected_state)-1, int(selected_mode)]
+        return list(matrix_to_display.flat)
+
 
 class ConnectivityMeasureH5(DataTypeMatrixH5):
 
