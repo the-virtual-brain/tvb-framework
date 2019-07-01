@@ -1,5 +1,6 @@
 from tvb.datatypes.connectivity import Connectivity
-from tvb.datatypes.graph import ConnectivityMeasure
+from tvb.datatypes.fcd import Fcd
+from tvb.datatypes.graph import ConnectivityMeasure, CorrelationCoefficients, Covariance
 from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.datatypes.mode_decompositions import PrincipalComponents, IndependentComponents
 from tvb.datatypes.projections import ProjectionMatrix
@@ -19,7 +20,8 @@ from tvb.datatypes.tracts import Tracts
 from tvb.datatypes.volumes import Volume
 
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
-from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5
+from tvb.core.entities.file.datatypes.fcd_h5 import FcdH5
+from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5, CorrelationCoefficientsH5, CovarianceH5
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5, IndependentComponentsH5
 from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
@@ -40,7 +42,9 @@ from tvb.core.entities.file.datatypes.time_series import (
 from tvb.core.entities.file.datatypes.tracts_h5 import TractsH5
 from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
-from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
+from tvb.core.entities.model.datatypes.fcd import FcdIndex
+from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex, CorrelationCoefficientsIndex, \
+    CovarianceIndex
 from tvb.core.entities.model.datatypes.local_connectivity import LocalConnectivityIndex
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex, IndependentComponentsIndex
 from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
@@ -86,3 +90,6 @@ registry.register_h5file_datatype(VolumeH5, Volume, VolumeIndex)
 registry.register_h5file_datatype(PrincipalComponentsH5, PrincipalComponents, PrincipalComponentsIndex)
 registry.register_h5file_datatype(IndependentComponentsH5, IndependentComponents, IndependentComponentsIndex)
 registry.register_h5file_datatype(ConnectivityMeasureH5, ConnectivityMeasure, ConnectivityMeasureIndex)
+registry.register_h5file_datatype(CorrelationCoefficientsH5, CorrelationCoefficients, CorrelationCoefficientsIndex)
+registry.register_h5file_datatype(CovarianceH5, Covariance, CovarianceIndex)
+registry.register_h5file_datatype(FcdH5, Fcd, FcdIndex)
