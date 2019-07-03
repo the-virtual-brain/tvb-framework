@@ -266,7 +266,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
             self._populate_fcd_index(result_fcd_segmented_index, time_series.id, fcd_segmented, fcd_segmented_metadata)
             result.append(result_fcd_segmented_index)
 
-        connectivity_entity = self.load_entity_by_gid(connectivity_gid)
+        connectivity_entity = self.load_entity_by_gid(connectivity_gid.hex)
         for mode in eigvect_dict.keys():
             for var in eigvect_dict[mode].keys():
                 for ep in eigvect_dict[mode][var].keys():
@@ -274,7 +274,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
                         cm_index = ConnectivityMeasureIndex()
                         result_eig_h5_class, result_eig_h5_path = self._get_h5_for_index(cm_index)
                         with result_eig_h5_class(result_eig_h5_path) as cm_h5:
-                            cm_h5.connectivity.store(uuid.UUID(connectivity_gid))
+                            cm_h5.connectivity.store(connectivity_gid)
                             cm_data = eigvect_dict[mode][var][ep][eig]
                             cm_h5.array_data.store(cm_data)
                             cm_h5.title = "Epoch # %d, \n eigenvalue = %s,\n variable = %s,\n " \
