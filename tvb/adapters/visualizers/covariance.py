@@ -73,11 +73,9 @@ class CovarianceVisualizer(MappedArrayVisualizer):
     def get_input_tree(self): return None
 
 
-    #TODO: migrate to neotraits
     def launch(self, datatype):
         """Construct data for visualization and launch it."""
         # get data from corr datatype
-        labels = self._get_associated_connectivity_labeling(datatype)
-        matrix = datatype.get_data('array_data')
+        labels, matrix = self._extract_labels_and_data_matrix(datatype)
         pars = self.compute_params(matrix, 'Covariance matrix plot', labels=labels)
         return self.build_display_result("matrix/svg_view", pars)
