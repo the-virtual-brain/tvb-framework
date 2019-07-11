@@ -52,8 +52,8 @@ class VolumetricDataMixin(object):
 
 class StructuralMRIH5(VolumetricDataMixin, DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(StructuralMRIH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(StructuralMRIH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(StructuralMRI.array_data, self)
         self.weighting = Scalar(StructuralMRI.weighting, self)
         self.volume = Reference(StructuralMRI.volume, self)

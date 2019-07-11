@@ -14,8 +14,8 @@ LOG = get_logger(__name__)
 
 class RegionMappingH5(H5File):
 
-    def __init__(self, path):
-        super(RegionMappingH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(RegionMappingH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(RegionMapping.array_data, self)
         self.connectivity = Reference(RegionMapping.connectivity, self)
         self.surface = Reference(RegionMapping.surface, self)
@@ -24,8 +24,8 @@ class RegionMappingH5(H5File):
 
 class RegionVolumeMappingH5(VolumetricDataMixin, DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(RegionVolumeMappingH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(RegionVolumeMappingH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(RegionVolumeMapping.array_data, self)
         self.connectivity = Reference(RegionVolumeMapping.connectivity, self)
         self.volume = Reference(RegionVolumeMapping.volume, self)

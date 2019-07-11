@@ -9,8 +9,8 @@ log = logging.getLogger(__name__)
 
 class SurfaceH5(H5File):
 
-    def __init__(self, path):
-        super(SurfaceH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(SurfaceH5, self).__init__(path, generic_attributes)
         self.vertices = DataSet(Surface.vertices, self)
         self.triangles = DataSet(Surface.triangles, self)
         self.vertex_normals = DataSet(Surface.vertex_normals, self)

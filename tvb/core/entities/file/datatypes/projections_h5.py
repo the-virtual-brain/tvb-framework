@@ -5,8 +5,8 @@ from tvb.datatypes.projections import ProjectionMatrix
 
 class ProjectionMatrixH5(H5File):
 
-    def __init__(self, path):
-        super(ProjectionMatrixH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(ProjectionMatrixH5, self).__init__(path, generic_attributes)
         self.projection_type = Scalar(ProjectionMatrix.projection_type, self)
         self.brain_skull = Reference(ProjectionMatrix.brain_skull, self)
         self.skull_skin = Reference(ProjectionMatrix.skull_skin, self)

@@ -48,6 +48,7 @@ from tvb.basic.logger.builder import get_logger
 import tvb.basic.traits.traited_interface as interface
 from tvb.core.adapters import input_tree
 from tvb.core.adapters.input_tree import InputTreeManager
+from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.entities.load import load_entity_by_gid
 from tvb.core.utils import date2string, LESS_COMPLEX_TIME_FORMAT
 from tvb.core.entities.storage import dao
@@ -321,6 +322,23 @@ class ABCAdapter(object):
         current_op.additional_info = message
         dao.store_entity(current_op)
 
+    def _prepare_generic_attributes(self, user_tag=None):
+        # All entities will have the same subject and state
+        subject = self.meta_data.get(DataTypeMetaData.KEY_SUBJECT)
+        state = self.meta_data.get(DataTypeMetaData.KEY_STATE)
+
+        self.generic_attributes = GenericAttributes()
+
+        perpetuated_identifier = self.generic_attributes.user_tag_1
+        if DataTypeMetaData.KEY_TAG_1 in self.meta_data:
+            perpetuated_identifier = self.meta_data.get(DataTypeMetaData.KEY_TAG_1)
+
+        self.generic_attributes.subject = str(subject)
+        self.generic_attributes.state = state
+        if not self.generic_attributes.user_tag_1:
+            self.generic_attributes.user_tag_1 = user_tag if user_tag is not None else perpetuated_identifier
+        else:
+            self.generic_attributes.user_tag_2 = user_tag if user_tag is not None else perpetuated_identifier
 
     @nan_not_allowed()
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
@@ -363,6 +381,8 @@ class ABCAdapter(object):
         operation.estimated_disk_size = required_disk_space
         dao.store_entity(operation)
 
+        self._prepare_generic_attributes(uid)
+
         result = self.launch(**kwargs)
 
         if not isinstance(result, (list, tuple)):
@@ -370,7 +390,7 @@ class ABCAdapter(object):
         # TODO: Fix this
         # self.__check_integrity(result)
 
-        return self._capture_operation_results(result, uid)
+        return self._capture_operation_results(result)
 
 
     def _capture_operation_results(self, result, user_tag=None):
@@ -386,28 +406,19 @@ class ABCAdapter(object):
             operation = dao.store_entity(operation)
         if self._is_group_launch():
             data_type_group_id = dao.get_datatypegroup_by_op_group_id(operation.fk_operation_group).id
-        # All entities will have the same subject and state
-        subject = self.meta_data[DataTypeMetaData.KEY_SUBJECT]
-        state = self.meta_data[DataTypeMetaData.KEY_STATE]
         burst_reference = None
         if DataTypeMetaData.KEY_BURST in self.meta_data:
             burst_reference = self.meta_data[DataTypeMetaData.KEY_BURST]
-        perpetuated_identifier = None
-        if DataTypeMetaData.KEY_TAG_1 in self.meta_data:
-            perpetuated_identifier = self.meta_data[DataTypeMetaData.KEY_TAG_1]
-
         for res in result:
             if res is None:
                 continue
-            res.subject = str(subject)
-            res.state = state
+            res.subject = self.generic_attributes.subject
+            res.state = self.generic_attributes.state
             res.fk_parent_burst = burst_reference
             res.fk_from_operation = self.operation_id
             res.framework_metadata = self.meta_data
-            if not res.user_tag_1:
-                res.user_tag_1 = user_tag if user_tag is not None else perpetuated_identifier
-            else:
-                res.user_tag_2 = user_tag if user_tag is not None else perpetuated_identifier
+            res.user_tag_1 = self.generic_attributes.user_tag_1
+            res.user_tag_2 = self.generic_attributes.user_tag_2
             res.fk_datatype_group = data_type_group_id
             ## Compute size-on disk, in case file-storage is used
             if hasattr(res, 'storage_path') and hasattr(res, 'get_storage_file_name'):
@@ -416,8 +427,6 @@ class ABCAdapter(object):
                 res.disk_size = self.file_handler.compute_size_on_disk(associated_file)
             res = dao.store_entity(res)
             # Write metaData
-            # TODO: persistance should be done inisde launch()
-            # res.persist_full_metadata()
             results_to_store.append(res)
         del result[0:len(result)]
         result.extend(results_to_store)

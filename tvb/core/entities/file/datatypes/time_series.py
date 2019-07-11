@@ -8,8 +8,8 @@ from tvb.basic.arguments_serialisation import preprocess_time_parameters, prepro
 
 
 class TimeSeriesH5(H5File):
-    def __init__(self, path):
-        super(TimeSeriesH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(TimeSeriesH5, self).__init__(path, generic_attributes)
         self.title = Scalar(TimeSeries.title, self)
         self.data = DataSet(TimeSeries.data, self, expand_dimension=0)
         self.nr_dimensions = Scalar(TimeSeries.nr_dimensions, self)
@@ -207,8 +207,8 @@ class TimeSeriesH5(H5File):
 
 
 class TimeSeriesRegionH5(TimeSeriesH5):
-    def __init__(self, path):
-        super(TimeSeriesRegionH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(TimeSeriesRegionH5, self).__init__(path, generic_attributes)
         self.connectivity = Reference(TimeSeriesRegion.connectivity, self)
         self.region_mapping_volume = Reference(TimeSeriesRegion.region_mapping_volume, self)
         self.region_mapping = Reference(TimeSeriesRegion.region_mapping, self)
@@ -231,8 +231,8 @@ class TimeSeriesRegionH5(TimeSeriesH5):
 class TimeSeriesSurfaceH5(TimeSeriesH5):
     SELECTION_LIMIT = 100
 
-    def __init__(self, path):
-        super(TimeSeriesSurfaceH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(TimeSeriesSurfaceH5, self).__init__(path, generic_attributes)
         self.surface = Reference(TimeSeriesSurface.surface, self)
         self.labels_ordering = Json(TimeSeriesSurface.labels_ordering, self)
 
@@ -258,8 +258,8 @@ class TimeSeriesSurfaceH5(TimeSeriesH5):
 
 
 class TimeSeriesVolumeH5(TimeSeriesH5):
-    def __init__(self, path):
-        super(TimeSeriesVolumeH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(TimeSeriesVolumeH5, self).__init__(path, generic_attributes)
         self.volume = Reference(TimeSeriesVolume.volume, self)
         self.labels_ordering = Json(TimeSeriesVolume.labels_ordering, self)
 
@@ -331,21 +331,21 @@ class TimeSeriesSensorsH5(TimeSeriesH5):
 
 
 class TimeSeriesEEGH5(TimeSeriesSensorsH5):
-    def __init__(self, path):
-        super(TimeSeriesEEGH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(TimeSeriesEEGH5, self).__init__(path, generic_attributes)
         self.sensors = Reference(TimeSeriesEEG.sensors, self)
         self.labels_order = Json(TimeSeriesEEG.labels_ordering, self)
 
 
 class TimeSeriesMEGH5(TimeSeriesSensorsH5):
-    def __init__(self, path):
-        super(TimeSeriesMEGH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(TimeSeriesMEGH5, self).__init__(path, generic_attributes)
         self.sensors = Reference(TimeSeriesMEG.sensors, self)
         self.labels_order = Json(TimeSeriesMEG.labels_ordering, self)
 
 
 class TimeSeriesSEEGH5(TimeSeriesSensorsH5):
-    def __init__(self, path):
-        super(TimeSeriesSEEGH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(TimeSeriesSEEGH5, self).__init__(path, generic_attributes)
         self.sensors = Reference(TimeSeriesSEEG.sensors, self)
         self.labels_order = Json(TimeSeriesSEEG.labels_ordering, self)

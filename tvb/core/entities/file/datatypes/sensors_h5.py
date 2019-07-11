@@ -3,8 +3,8 @@ from tvb.datatypes.sensors import Sensors
 
 
 class SensorsH5(H5File):
-    def __init__(self, path):
-        super(SensorsH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(SensorsH5, self).__init__(path, generic_attributes)
         self.sensors_type = Scalar(Sensors.sensors_type, self)
         self.labels = DataSet(Sensors.labels, self)
         self.locations = DataSet(Sensors.locations, self)
