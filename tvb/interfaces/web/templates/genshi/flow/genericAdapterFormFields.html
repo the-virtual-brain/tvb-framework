@@ -1,12 +1,27 @@
-<div xmlns:py="http://genshi.edgewall.org/" class="adaptersDiv" xmlns:xi="http://www.w3.org/2001/XInclude">
-    <py:if test="not defined('includeGenericAdapterTemplateFunctions') or includeGenericAdapterTemplateFunctions == True">
-        <xi:include href="genericAdapterTemplateFunctions.html"/>
-    </py:if>
+<div class="adaptersDiv">
 
-    <py:with vars="drawHiddenRanges = draw_hidden_ranges if defined('draw_hidden_ranges') else False;
-                   tree_session_key = treeSessionKey if defined('treeSessionKey') else 'defaultTree'">
-        ${generateDisplay(inputList, False, "", tree_session_key, draw_hidden_ranges=drawHiddenRanges)}
-    </py:with>
+    {% if (includeGenericAdapterTemplateFunctions is not defined) or (includeGenericAdapterTemplateFunctions == true) %}
+        {% include 'flow/genericAdapterTemplateFunctions.html' %}
+    {% endif %}
+
+    {% with %}
+
+        {% if draw_hidden_ranges is defined %}
+            {% set drawHiddenRanges =  draw_hidden_ranges %}
+        {% else %}
+            {% set drawHiddenRanges = false %}
+        {% endif %}
+
+        {% if treeSessionKey is defined %}
+            {% set tree_session_key = treeSessionKey %}
+        {% else %}
+            {% set tree_session_key = 'defaultTree' %}
+        {% endif %}
+
+        {% import 'flow/genericAdapterTemplateFunctions.html' as gatf with context %}
+        {{ gatf.generateDisplay(inputList, false, "", tree_session_key, draw_hidden_ranges=drawHiddenRanges) }}
+
+    {% endwith %}
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -21,4 +36,5 @@
             });
         });
     </script>
+
 </div>

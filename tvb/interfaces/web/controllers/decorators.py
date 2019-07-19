@@ -34,28 +34,36 @@ Decorators for Cherrypy exposed methods are defined here.
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 import numpy
-import os
 import json
 import cherrypy
 import cProfile
 from datetime import datetime
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from functools import wraps
-from genshi.template import TemplateLoader
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 from tvb.core.utils import TVBJSONEncoder
 from tvb.interfaces.web.controllers import common
 
+env = Environment(loader=FileSystemLoader(TvbProfile.current.web.TEMPLATE_ROOT),
+                  autoescape=select_autoescape(
+                  enabled_extensions=('html', 'xml', 'js'),
+                  default_for_string=True),
+                  lstrip_blocks=True,
+                  trim_blocks=True)
+env.filters['isinstance'] = isinstance
+env.filters['type'] = type
+env.filters['xrange'] = xrange
+
 # some of these decorators could be cherrypy tools
 
 _LOGGER_NAME = "tvb.interface.web.controllers.decorators"
-
 
 def using_template(template_name):
     """
     Decorator that renders a template
     """
-    template_path = os.path.join(TvbProfile.current.web.TEMPLATE_ROOT, template_name + '.html')
+    template_path = template_name + '.html'
 
     def dec(func):
 
@@ -65,15 +73,11 @@ def using_template(template_name):
             if not TvbProfile.current.web.RENDER_HTML:
                 return template_dict
 
-            ### Generate HTML given the path to the template and the data dictionary.
-            loader = TemplateLoader()
-            template = loader.load(template_path)
-            stream = template.generate(**template_dict)
-            return stream.render('xhtml')
+            template = env.get_template(template_path)
+            return template.render(**template_dict)
 
         return deco
     return dec
-
 
 def jsonify(func):
     """
@@ -118,7 +122,7 @@ def ndarray_to_http_binary(func):
 
 def handle_error(redirect):
     """
-    If `redirect` is true(default) all errors will generate redirects.
+    If `redirect` is True(default) all errors will generate redirects.
     Generic errors will redirect to the error page. Authentication errors to login pages.
     If `redirect` is false redirect will be converted to errors http 500
     All errors are logged

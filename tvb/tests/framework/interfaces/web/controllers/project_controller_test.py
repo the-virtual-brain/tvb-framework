@@ -75,7 +75,7 @@ class TestProjectController(BaseTransactionalControllerTest):
         Verifies that result dictionary has the expected keys / values
         """
         result = self.project_c.index()
-        assert result['mainContent'] == "project_submenu"
+        assert result['mainContent'] == "project/project_submenu"
         assert result[common.KEY_PROJECT].id == self.test_project.id
         assert result['subsection_name'] == 'project'
         assert result[common.KEY_USER].id == self.test_user.id
@@ -163,7 +163,7 @@ class TestProjectController(BaseTransactionalControllerTest):
 
     def test_set_visibility_datatype(self):
         """
-        Set datatype visibility to true and false and check results are updated.
+        Set datatype visibility to True and false and check results are updated.
         """
         datatype = DatatypesFactory().create_datatype_with_storage()
         assert datatype.visible
