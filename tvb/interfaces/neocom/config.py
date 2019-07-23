@@ -3,6 +3,7 @@ from tvb.datatypes.fcd import Fcd
 from tvb.datatypes.graph import ConnectivityMeasure, CorrelationCoefficients, Covariance
 from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.datatypes.mode_decompositions import PrincipalComponents, IndependentComponents
+from tvb.datatypes.patterns import StimuliRegion, StimuliSurface
 from tvb.datatypes.projections import ProjectionMatrix
 from tvb.datatypes.region_mapping import RegionVolumeMapping, RegionMapping
 from tvb.datatypes.sensors import Sensors
@@ -24,6 +25,7 @@ from tvb.core.entities.file.datatypes.fcd_h5 import FcdH5
 from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5, CorrelationCoefficientsH5, CovarianceH5
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5, IndependentComponentsH5
+from tvb.core.entities.file.datatypes.patterns_h5 import StimuliRegionH5, StimuliSurfaceH5
 from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5, RegionVolumeMappingH5
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
@@ -47,6 +49,7 @@ from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex, Co
     CovarianceIndex
 from tvb.core.entities.model.datatypes.local_connectivity import LocalConnectivityIndex
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex, IndependentComponentsIndex
+from tvb.core.entities.model.datatypes.patterns import StimuliRegionIndex, StimuliSurfaceIndex
 from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex, RegionMappingIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
@@ -93,3 +96,5 @@ registry.register_h5file_datatype(ConnectivityMeasureH5, ConnectivityMeasure, Co
 registry.register_h5file_datatype(CorrelationCoefficientsH5, CorrelationCoefficients, CorrelationCoefficientsIndex)
 registry.register_h5file_datatype(CovarianceH5, Covariance, CovarianceIndex)
 registry.register_h5file_datatype(FcdH5, Fcd, FcdIndex)
+registry.register_h5file_datatype(StimuliRegionH5, StimuliRegion, StimuliRegionIndex)
+registry.register_h5file_datatype(StimuliSurfaceH5, StimuliSurface, StimuliSurfaceIndex)
