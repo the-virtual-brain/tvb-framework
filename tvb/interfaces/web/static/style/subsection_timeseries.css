@@ -26,6 +26,32 @@
 }
 
 /* !------------------------------------------------------- */
+/* ! COMPONENT: New dual brain viewer                       */
+/* !------------------------------------------------------- */
+
+/*overlay changed in d3v5 for new dual brain viewer*/
+rect.overlay{
+    visibility: hidden;
+}
+
+/*universal html font styling not working while using d3v5 in the new dual brain viewer*/
+text{
+    font-size:small;
+}
+
+/*d3v5 extent=>selection*/
+rect.selection {
+    stroke: red;
+
+}
+
+/*remove the styling for the left and right handle*/
+rect.handle  {
+    stroke:none;
+}
+
+
+/* !------------------------------------------------------- */
 /* ! COMPONENT: Volume Time Series Visualizer LEFT COLUMN   */
 /* !------------------------------------------------------- */
 

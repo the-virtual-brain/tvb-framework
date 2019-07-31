@@ -145,6 +145,8 @@ SHADING_Context.region_progam_init = function(shader, measure_point_nr, legendGr
     for (let i = 0; i <= measure_point_nr + 1 + legendGranularity; i++) {
         shader.activityUniform[i] = gl.getUniformLocation(shader, "uActivity[" + i + "]");
     }
+    //for alpha channel in the new dual brain viewer
+    shader.alphaUniform = gl.getUniformLocation(shader, "uAlpha");
 };
 
 /** Init the program that uses both a vertex activity and a vertex color */

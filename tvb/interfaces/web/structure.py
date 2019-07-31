@@ -122,6 +122,8 @@ class WebStructure(object):
     SUB_SECTION_VIEW_23 = "view_wavelet"
     SUB_SECTION_VIEW_24 = "view_annotations"
     SUB_SECTION_VIEW_25 = "view_matrix"
+    SUB_SECTION_VIEW_26 = "view_new_brain_dual"
+
 
 
     ### Texts to appear in HTML page headers as section-title.
@@ -209,7 +211,8 @@ class WebStructure(object):
         SUB_SECTION_VIEW_22: "Topography Visualizer",
         SUB_SECTION_VIEW_23: "Wavelet Visualizer",
         SUB_SECTION_VIEW_24: "Annotations Visualizer",
-        SUB_SECTION_VIEW_25: "Matrix Visualizer"
+        SUB_SECTION_VIEW_25: "Matrix Visualizer",
+        SUB_SECTION_VIEW_26: "(work in progress)New Brain Dual Activity Visualizer (3D and 2D)"
     }
 
 
@@ -242,7 +245,8 @@ class WebStructure(object):
         SUB_SECTION_VIEW_22: "topographic-visualizer",
         SUB_SECTION_VIEW_23: "wavelet-spectrogram-visualizer",
         SUB_SECTION_VIEW_24: "annotations-visualizer",
-        SUB_SECTION_VIEW_25: "matrix-visualizer"
+        SUB_SECTION_VIEW_25: "matrix-visualizer",
+        SUB_SECTION_VIEW_26: "new-brain-dual-visualiser"
     }
 
 

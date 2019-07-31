@@ -42,6 +42,12 @@ function readDataChannelURL(baseDatatypeMethodURL, fromIdx, toIdx, stateVariable
     return baseURL.replace('read_data_page', 'read_channels_page') + ';channels_list=' + channels;
 }
 
+function readDataEnergyURL(baseDatatypeMethodURL, fromIdx, toIdx, stateVariable, mode, step, channels,timeselectionlLength) {
+    const baseURL = readDataPageURL(baseDatatypeMethodURL, fromIdx, toIdx, stateVariable, mode, step);
+    return baseURL.replace('read_data_page', 'read_time_selection_energy') + ';channels_list=' + channels+
+        ';interval_length=' + timeselectionlLength ;
+}
+
 // ------ Datatype methods mappings end here
 
 

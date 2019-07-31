@@ -1,0 +1,82 @@
+<div xmlns:xi="http://www.w3.org/2001/XInclude">
+    <fieldset xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+
+        <dl>
+            <div id="divForSliderSpeed">
+                <dt>
+                    <label for="sliderStep">Speed</label>
+                </dt>
+                <dd>
+                    <div class="sliderStepDiv" ondblclick="resetSpeedSlider();">
+                        <div id="sliderStep" class="shadow"></div>
+                    </div>
+
+                    <span class="slider-value" id="slider-value">0</span>
+                    <span class="slider-value"> timesteps per Frame.</span>
+                </dd>
+            </div>
+
+            <xi:include href='../../flow/color_scheme.html'/>
+
+            <!--no transparency input field for SEEG, MEG and EEG signals-->
+            <py:if test="withTransparency">
+                <dt>
+                    <label for="surfaceTransparencyInput">Surface Transparency</label>
+                </dt>
+                <dd>
+                    <input id="surfaceTransparencyInput" type="text" onchange="changeSurfaceTransparency(this);"
+                           value="0.3"
+                           tabindex="1"
+                           title="Value between 0 and 1, saying how opaque the surface around the connectivity is. 0= surface invisible, 1=surface fully opaque."/>
+                </dd>
+            </py:if>
+
+            <!--SEEG controls-->
+            <py:if test="not defined('isSEEG')">
+                <!--no measurepoints toggle control for the dual viewer-->
+                <xi:include href='../commons/brain_toggle_controls.html' py:with="hasRegionMap=isOneToOneMapping"/>
+
+                <py:if test="not extended_view">
+                    <dt></dt>
+                    <dd><input id="inTimeRefreshChkId" type="checkbox"
+                               onchange="VB_BrainNavigator.setInTimeRefresh(this);"
+                               autocomplete="off" tabindex="1"/>
+                        <label for="w">In time refresh</label>
+                    </dd>
+                </py:if>
+            </py:if>
+        </dl>
+
+    </fieldset>
+
+    <!--sclaing-->
+    <fieldset class="slider" xmlns:py="http://genshi.edgewall.org/">
+
+        <dl>
+            <py:if test="not extended_view">
+                <dt>
+                    <label for="ctrl-input-speed">Speed</label>
+                    <span class="slider-value" id="display-speed">3</span>
+                </dt>
+                <dd>
+                    <div class="sliderDiv sliderLabels">
+                        <div id="ctrl-input-speed" class="shadow sliderPosition"></div>
+                    </div>
+                </dd>
+            </py:if>
+
+
+            <dt>
+                <label for="ctrl-input-scale">Scaling</label>
+                <span class="slider-value" id="display-scale" title="signal amplitude multiplier">1</span>
+            </dt>
+            <dd>
+                <div class="sliderDiv sliderLabels">
+                    <div id="ctrl-input-scale" class="shadow sliderPosition"></div>
+                </div>
+            </dd>
+
+
+        </dl>
+    </fieldset>
+</div>

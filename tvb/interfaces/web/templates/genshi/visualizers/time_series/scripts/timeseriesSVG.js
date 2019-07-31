@@ -129,6 +129,8 @@ function initTimeseriesViewer(baseURL, isPreview, dataShape, t0, dt, channelLabe
     ts.shape(dataShape).t0(t0).dt(dt);
     ts.labels(_compute_labels_for_current_selection());
     ts.channels(TS_SVG_selectedChannels);
+    //used in tvbviz to render context lines
+    ts.viewer_type('svg');
     // run
     resizeToFillParent(ts);
     ts(d3.select("#time-series-viewer"));
@@ -187,6 +189,7 @@ function refreshChannels() {
     new_ts.baseURL(tsView.baseURL()).preview(tsView.preview()).mode(tsView.mode()).state_var(tsView.state_var());
     new_ts.shape(shape).t0(tsView.t0()).dt(tsView.dt());
     new_ts.labels(selectedLabels);
+    new_ts.viewer_type('svg');
     // Usually the svg component shows the channels stored in TS_SVG_selectedChannels
     // and that variable is in sync with the selection component.
     // But if the selection is empty and we show a timeSeriesSurface

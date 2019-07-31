@@ -1,5 +1,5 @@
 /**
- * TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+ * TheVirtualBrain-Framework Package. This package holds all Data Management, and
  * Web-UI helpful to run brain-simulations. To use it, you also need do download
  * TheVirtualBrain-Scientific Package (for simulators). See content of the
  * documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -24,6 +24,29 @@ function _VSI_bufferAtPoint(p, idx) {
     const bufferTriangles = result[2];
     const vertexRegionBuffer = VSI_createColorBufferForSphere(idx, bufferVertices.numItems * 3);
     return [bufferVertices, bufferNormals, bufferTriangles, vertexRegionBuffer];
+}
+
+function VSI_change_energySphericalMeasurePoints() {
+    let energyIndex = 0;
+    for (let i = 0; i < NO_OF_MEASURE_POINTS; i++) {
+        if (tsView.channels().includes(i)) {
+            const result = HLPR_sphereBufferAtPoint(gl, measurePoints[i], timeselection_energy[energyIndex][currentTimeValue], 12, 12);
+            energyIndex++;
+            const bufferVertices = result[0];
+            const bufferNormals = result[1];
+            const bufferTriangles = result[2];
+            const vertexRegionBuffer = VSI_createColorBufferForSphere(i, bufferVertices.numItems * 3);
+            measurePointsBuffers[i] = [bufferVertices, bufferNormals, bufferTriangles, vertexRegionBuffer];
+        }
+        else {
+            const result = HLPR_sphereBufferAtPoint(gl, measurePoints[i], 3, 12, 12);
+            const bufferVertices = result[0];
+            const bufferNormals = result[1];
+            const bufferTriangles = result[2];
+            const vertexRegionBuffer = VSI_createColorBufferForSphere(i, bufferVertices.numItems * 3);
+            measurePointsBuffers[i] = [bufferVertices, bufferNormals, bufferTriangles, vertexRegionBuffer];
+        }
+    }
 }
 
 /**
@@ -73,4 +96,7 @@ function VSI_StartInternalActivityViewer(baseDatatypeURL, onePageSize, urlTimeLi
     isFaceToDisplay = true;
 
     _VSI_init_sphericalMeasurePoints();
+
+    //pause by default
+    AG_isStopped = true;
 }

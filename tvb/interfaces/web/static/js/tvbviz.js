@@ -33,6 +33,18 @@
 
 /* global tv, d3 */
 
+//add globals for time selection in the new dual brain viewer for time series data
+var timeselection_interval_length = 0;//integer
+var timeselection_interval = 0;
+var timeselection = [];
+
+// identify the initiator of the change of the time selection: brushing or movie timeline
+var triggered_by_timeselection = true;
+var triggered_by_changeinput=false;
+
+//store the energy calculated from the time selection
+var timeselection_energy = [];
+
 tv = {};
 
 tv.util = {
@@ -90,7 +102,16 @@ tv.util = {
         //NOTE: If we need to add slices for the other dimensions pass them as the 'specific_slices' parameter.
         //      Method called is from time_series.py.
         $.getJSON(readDataURL, callback);
+    },
+
+    get_time_selection_energy: function (baseURL, slices, callback, channels, currentMode, currentStateVar, timeselectionlLength) {
+        var readDataURL = readDataEnergyURL(baseURL, slices[0].lo, slices[0].hi,
+            currentStateVar, currentMode, slices[0].di, JSON.stringify(channels), timeselectionlLength);
+        //NOTE: If we need to add slices for the other dimensions pass them as the 'specific_slices' parameter.
+        //      Method called is from time_series.py.
+        $.getJSON(readDataURL, callback)
     }
+
 };
 
 tv.ndar = function (data) {
@@ -529,8 +550,8 @@ tv.plot = {
         return f;
     },
 
+    //time sereis uses d3v5
     time_series: function () {
-
         var f = function (root) {
 
             f.p(f.p() || 0.1); // pad
@@ -562,9 +583,30 @@ tv.plot = {
             f.render();
         }; // end function f()
 
+        f.update_energy=function(){
+            var all_slice = f.current_slice();
+                all_slice[0].di = f.shape()[1];
+                all_slice[0].hi = f.shape()[0];
+                all_slice[0].lo = 0;
+            tv.util.get_time_selection_energy(f.baseURL(), all_slice, f.energy_callback, f.channels(), f.mode(), f.state_var(), timeselection_interval_length);
+
+        };
+
+        f.channel_lasttime=null;
+
+        f.energy_callback = function (data) {
+            timeselection_energy = data;
+            if (isInternalSensorView) {
+                VSI_change_energySphericalMeasurePoints()
+            }
+            else {
+                changeSphereMeasurePoints_energy();
+            }
+            closeBlockerOverlay();
+        };
+
         f.render = function () {
             f.status_line.text("waiting for data from server...");
-            //console.log(f.baseURL(), f.current_slice())
             tv.util.get_array_slice(f.baseURL(), f.current_slice(), f.render_callback, f.channels(), f.mode(), f.state_var());
         };
 
@@ -599,11 +641,9 @@ tv.plot = {
             f.prepare_data();
             f.status_line.text("rendering data...");
             f.render_focus();
-
             if (!f.we_are_setup) {
                 f.render_contexts();
                 f.add_brushes();
-                f.br_fcs_endfn(true); // no_render=true
                 f.we_are_setup = true;
             }
 
@@ -633,8 +673,15 @@ tv.plot = {
             f.pad = {x: (0 ? f.w() : f.h()) * f.p(), y: f.h() * f.p()};
             f.ul_ctx_y = {x: f.pad.x, y: f.pad.y};
             f.sz_ctx_y = {x: f.pad.x * 0.8, y: f.h() - 3 * f.pad.y - f.pad.y};
-            f.ul_ctx_x = {x: 2 * f.pad.x + f.sz_ctx_y.x, y: 2 * f.pad.y + f.sz_ctx_y.y};
-            f.sz_ctx_x = {x: f.w() - 3 * f.pad.x - f.sz_ctx_y.x, y: f.pad.y};
+            if(f.viewer_type()==='svg'){
+                f.ul_ctx_x = {x: 2 * f.pad.x + f.sz_ctx_y.x, y: 2 * f.pad.y + f.sz_ctx_y.y};
+                f.sz_ctx_x = {x: f.w() - 3 * f.pad.x- f.sz_ctx_y.x, y: f.pad.y};
+            }
+            else{
+                f.ul_ctx_x = {x: f.pad.x, y: 2 * f.pad.y + f.sz_ctx_y.y};
+                f.sz_ctx_x = {x: f.w() - 2 * f.pad.x, y: f.pad.y / 2};
+            }
+
             f.ul_fcs = {x: f.ul_ctx_x.x, y: f.ul_ctx_y.y};
             f.sz_fcs = {x: f.sz_ctx_x.x, y: f.sz_ctx_y.y};
 
@@ -655,13 +702,13 @@ tv.plot = {
                 })
                 .attr("x", f.w() - f.pad.x / 2).attr("y", f.h() - f.pad.y / 2)
                 .attr("width", f.pad.x / 2).attr("height", f.pad.y / 2)
-                .call(d3.behavior.drag().on("drag", function () {
+                .call(d3.drag().on("drag", function () {
                     var p1 = d3.mouse(svg.node())
                         , p2 = resize_start
                         , scl = {x: p1[0] / p2[0], y: p1[1] / p2[1]};
                     rgp.attr("transform", "scale(" + scl.x + ", " + scl.y + ")");
                     svg.attr("width", scl.x * f.w()).attr("height", scl.y * f.h());
-                }).on("dragstart", function () {
+                }).on("start", function () {
                     resize_start = d3.mouse(rgp.node());
                 }));
         };
@@ -677,20 +724,48 @@ tv.plot = {
                 , sh = ev.shiftKey
                 , dr = !!(da > 0);
 
-            //console.log(ev)
             if (sh) {
                 f.magic_fcs_amp_scl *= dr ? 1.2 : 1 / 1.2;
                 // TODO scale transform instead via direct access...
                 f.prepare_data();
                 f.render_focus();
             } else {
-                if (!(f.br_ctx_y.empty())) {
-                    var ext = f.br_ctx_y.extent();
+                if (!(f.gp_br_fcs.node().__brush === null)) {
                     var dx = dr ? 1 : -1;
-                    f.br_ctx_y.extent([ext[0] + dx, ext[1] + dx]);
-                    f.br_ctx_y_fn();
+                    // stop scrolling if it is the end of the signals' list
+                    if (f.dom_y[0] >= -1 && f.dom_y[1] <= f.channels().length) {
+                        f.dom_y[0] += dx;
+                        f.dom_y[1] += dx;
+                    }
+                    //lower bound
+                    else if (f.dom_y[0] < -1) {
+                        var delta = Math.abs(f.dom_y[0] - (-1));
+                        f.dom_y[0] += delta;
+                        f.dom_y[1] += delta;
+                    }
+                    //upper bound
+                    else if (f.dom_y[1] > f.channels().length) {
+                        var delta = Math.abs(f.channels().length - f.dom_y[1]);
+                        f.dom_y[0] -= delta;
+                        f.dom_y[1] -= delta;
+                    }
+
+                    //redraw the lines
+                    var dom = f.dom_y;
+                    var yscl = f.sz_fcs.y / (dom[1] - dom[0]) / 5;
+                    f.sc_fcs_y.domain(dom).range([f.sz_ctx_y.y, 0]);
+                    f.gp_ax_fcs_y.call(f.ax_fcs_y);
+                    f.gp_lines.selectAll("g").attr("transform", function (d, i) {
+                        return "translate(0, " + f.sc_fcs_y(i) + ")" + "scale (1, " + yscl + ")"
+                    }).selectAll("path").attr("stroke-width", "" + (3 / yscl));
+                    f.scale_focus_stroke();
+
+
                 }
+
+
             }
+
 
         };
 
@@ -701,44 +776,58 @@ tv.plot = {
         // setup groups, scales and axes for context and focus areas
         f.do_scaffolding = function (rgp) {
 
-            // main groups for vertical and horizontal context areas and focus area
-            f.gp_ctx_y = rgp.append("g").attr("transform", "translate(" + f.ul_ctx_y.x + ", " + f.ul_ctx_y.y + ")");
             f.gp_ctx_x = rgp.append("g").attr("transform", "translate(" + f.ul_ctx_x.x + ", " + f.ul_ctx_x.y + ")");
+            f.gp_ctx_x.append("rect").attr("width", f.sz_ctx_x.x).attr("height", f.sz_ctx_x.y).classed("tv-data-bg", true);
+
             f.gp_fcs = rgp.append("g").attr("transform", "translate(" + f.ul_fcs.x + ", " + f.ul_fcs.y + ")");
             f.gp_fcs.on("mousewheel", f.mouse_scroll);
             f.gp_fcs.append("rect").attr("width", f.sz_fcs.x).attr("height", f.sz_fcs.y).classed("tv-data-bg", true);
-            f.gp_ctx_x.append("rect").attr("width", f.sz_ctx_x.x).attr("height", f.sz_ctx_x.y).classed("tv-data-bg", true);
-            f.gp_ctx_y.append("rect").attr("width", f.sz_ctx_y.x).attr("height", f.sz_ctx_y.y).classed("tv-data-bg", true);
+
 
             // the plotted time series in the focus and x ctx area are subject to a clipping region
             new_clip_path(rgp, "fig-lines-clip").append("rect").attr("width", f.sz_fcs.x).attr("height", f.sz_fcs.y);
-            new_clip_path(rgp, "fig-ctx-x-clip").append("rect").attr("width", f.sz_ctx_x.x).attr("height", f.sz_ctx_x.y);
 
             // group with clip path applied for the focus lines
             f.gp_lines = f.gp_fcs.append("g").attr("style", "clip-path: url(#fig-lines-clip)")
                 .append("g").classed("line-plot", true);
 
             // scales for vertical and horizontal context, and the x and y axis of the focus area
-            f.sc_ctx_y = d3.scale.linear().domain([-1, f.shape()[2]]).range([f.sz_ctx_y.y, 0]);
-            f.sc_ctx_x = d3.scale.linear().domain([f.t0(), f.t0() + f.dt() * f.shape()[0]]).range([0, f.sz_ctx_x.x]);
-            f.sc_fcs_x = d3.scale.linear().domain([f.t0(), f.t0() + f.dt() * f.shape()[0]]).range([0, f.sz_fcs.x]);
-            f.sc_fcs_y = d3.scale.linear().domain([-1, f.shape()[2] + 1]).range([f.sz_fcs.y, 0]);
+            f.sc_ctx_y = d3.scaleLinear().domain([-1, f.shape()[2]]).range([f.sz_ctx_y.y, 0]);
+            f.sc_ctx_x = d3.scaleLinear().domain([f.t0(), f.t0() + f.dt() * (f.shape()[0]-1)]).range([0, f.sz_ctx_x.x]);
+            f.sc_fcs_x = d3.scaleLinear().domain([f.t0(), f.t0() + f.dt() * (f.shape()[0]-1)]).range([0, f.sz_fcs.x]);
+            f.sc_fcs_y = d3.scaleLinear().domain([-1, f.shape()[2] + 1]).range([f.sz_fcs.y, 0]);
+
+
+            f.dom_x = f.sc_ctx_x.domain();
+            f.dom_y = f.sc_ctx_y.domain();
 
             // axes for each of the above scales
-            f.ax_ctx_y = d3.svg.axis().orient("left").scale(f.sc_ctx_y);
-            f.ax_ctx_x = d3.svg.axis().orient("bottom").scale(f.sc_ctx_x);
-            f.ax_fcs_x = d3.svg.axis().orient("top").scale(f.sc_fcs_x);
-            f.ax_fcs_y = d3.svg.axis().orient("left").scale(f.sc_fcs_y);
+            f.ax_ctx_x = d3.axisBottom(f.sc_ctx_x);
+            f.ax_fcs_x = d3.axisTop(f.sc_fcs_x);
+            f.ax_fcs_y = d3.axisLeft(f.sc_fcs_y);
 
             f.ax_fcs_y.tickFormat(f.signal_tick_labeler);
-            f.ax_ctx_y.tickFormat(f.signal_tick_labeler);
 
             // groups for each of the above axes
-            f.gp_ax_ctx_y = f.gp_ctx_y.append("g").classed("axis", true).call(f.ax_ctx_y);
             f.gp_ax_ctx_x = f.gp_ctx_x.append("g").classed("axis", true).call(f.ax_ctx_x)
                 .attr("transform", "translate(0, " + f.sz_ctx_x.y + ")");
             f.gp_ax_fcs_x = f.gp_fcs.append("g").classed("axis", true).call(f.ax_fcs_x);
             f.gp_ax_fcs_y = f.gp_fcs.append("g").classed("axis", true).call(f.ax_fcs_y);
+
+
+            if(f.viewer_type()==='svg'){
+                // main groups for vertical and horizontal context areas and focus area
+            f.gp_ctx_y = rgp.append("g").attr("transform", "translate(" + f.ul_ctx_y.x + ", " + f.ul_ctx_y.y + ")");
+            f.gp_ctx_y.append("rect").attr("width", f.sz_ctx_y.x).attr("height", f.sz_ctx_y.y).classed("tv-data-bg", true);
+
+            new_clip_path(rgp, "fig-ctx-x-clip").append("rect").attr("width", f.sz_ctx_x.x).attr("height", f.sz_ctx_x.y);
+
+            // vertical context groups
+            f.ax_ctx_y = d3.axisLeft(f.sc_ctx_y);
+            f.ax_ctx_y.tickFormat(f.signal_tick_labeler);
+            f.gp_ax_ctx_y = f.gp_ctx_y.append("g").classed("axis", true).call(f.ax_ctx_y);
+            }
+
 
         };
 
@@ -767,6 +856,7 @@ tv.plot = {
                     // multiply by -1 because the y axis points down
                     da_lines[sig_idx][tt_idx] *= -1;
                 }
+
 
                 da_lines[sig_idx] = {sig: da_lines[sig_idx], id: sig_idx};
             }
@@ -799,7 +889,7 @@ tv.plot = {
                 }
             }
 
-            // scale average siganl by ptp
+            // scale average signal by ptp
             var _dar = new tv.ndar(da_x);
             var da_max = _dar.max()
                 , da_min = _dar.min()
@@ -838,11 +928,11 @@ tv.plot = {
         };
 
         f.render_focus = function () {
-
             var ts = f.ts()
                 , g = f.gp_lines.selectAll("g").data(f.da_lines, function (d) {
                 return d.id;
             });
+
 
             if (!f.we_are_setup) {
                 f.line_paths = g.enter()
@@ -854,22 +944,25 @@ tv.plot = {
                     .attr("vector-effect", "non-scaling-stroke");
             }
 
-            g.select("path").attr("d", function (d) {
-                return d3.svg.line()
-                    .x(function (dd, i) {
+
+            f.line_paths.attr("d", function (d) {
+                return d3.line()
+                    .x(function (d, i) {
                         return f.sc_ctx_x(ts.data[i]);
                     })
-                    .y(function (dd) {
-                        return dd;
+                    .y(function (d) {
+                        //use the scale variable directly
+                        return d*f.magic_fcs_amp_scl;
                     })
                     (d.sig);
             });
+
+
         };
 
         f.render_contexts = function () {
-
-            var ts = f.ts();
-
+            // draw context lines and average
+            if(f.viewer_type()==='svg'){
             // horizontal context line
             var f1 = f.gp_ctx_x.append("g").attr("style", "clip-path: url(#fig-ctx-x-clip)");
             var f2 = f1.selectAll("g").data([f.da_x]).enter();
@@ -879,7 +972,7 @@ tv.plot = {
                 })
                 .classed("tv-ctx-line", true);
             var f4 = f3.append("path")
-                .attr("d", d3.svg.line()
+                .attr("d", d3.line()
                     .x(function (d, i) {
                         var time_start = f.sc_ctx_x.domain()[0];
                         return f.sc_ctx_x((time_start + i + 0.5) * f.da_x_dt);
@@ -899,7 +992,7 @@ tv.plot = {
                 .append("g").attr("transform", "translate(0, " + f.sz_ctx_x.y / 2 + ") scale(1, 0.5)")
                 .classed("tv-ctx-error", true)
                 .append("path")
-                .attr("d", d3.svg.line()
+                .attr("d", d3.line()
                     .x(function (d, i) {
                         var idx = (i < da_x_len) ? i : (2 * da_x_len - i);
                         var time_start = f.sc_ctx_x.domain()[0];
@@ -910,6 +1003,7 @@ tv.plot = {
                         return f.sz_ctx_x.y * (d + std);
                     }));
 
+
             // vertical context lines
             f.gp_ctx_y.append("g").selectAll("g").data(f.da_y)
                 .enter()
@@ -918,12 +1012,14 @@ tv.plot = {
             })
                 .classed("tv-ctx-line", true)
                 .append("path")
-                .attr("d", d3.svg.line().x(function (d, i) {
+                .attr("d", d3.line().x(function (d, i) {
                     return 2 + (f.sz_ctx_y.x - 2) * i / f.sz_ctx_y.x;
                 })
                     .y(function (d) {
                         return d;
                     }));
+
+            }
         };
 
         f.scale_focus_stroke = function () {
@@ -943,104 +1039,379 @@ tv.plot = {
             }
         };
 
+
         f.add_brushes = function () {
 
             // horizontal context brush
             var br_ctx_x_fn = function () {
-                    var dom = f.br_ctx_x.empty() ? f.sc_ctx_x.domain() : f.br_ctx_x.extent()
-                        , sc = f.sc_fcs_x
-                        , x_scaling = f.sc_ctx_x.domain()[1] / (dom[1] - dom[0]);
 
+                    var event_selection_x = [];
+                    // Different extent when it is:
+                    //1.from the brush of 2D Focus Brush
+                    if (d3.event.selection != null && d3.event.selection[0][0] != null) {
+                        event_selection_x[0] = d3.event.selection[0][0];
+                        event_selection_x[1] = d3.event.selection[1][0];
+                    }
+                    //2.from the end of focus brush
+                    else if (d3.event.selection == null) {
+                        event_selection_x = [f.sc_ctx_x.range()[0], f.sc_ctx_x.range()[1]];
+                        f.dom_x = [f.t0(), f.t0() + f.dt() * (f.shape()[0]-1)];
+                    }
+                    //3.from itself
+                    else {
+                        event_selection_x = d3.event.selection;
+                    }
+
+
+                    var scale_brushed = d3.scaleLinear().domain(f.dom_x).range(f.sc_ctx_x.range());
+
+
+                    //selection is now in coordinates and we have to map it using scales
+                    event_selection_x = event_selection_x.map(scale_brushed.invert, scale_brushed);
+
+
+                    dom = f.br_ctx_x === null ? f.sc_ctx_x.domain() : event_selection_x;
+
+                    f.dom_x = dom;
+
+                    sc = f.sc_fcs_x;
+                    x_scaling = scale_brushed.domain()[1] / (dom[1] - dom[0]);
                     sc.domain(dom);
                     f.gp_ax_fcs_x.call(f.ax_fcs_x);
+
+                    //keep the x context in the same range for the svg viewer
+                    if(f.viewer_type()!='svg'){
+                        f.sc_ctx_x.domain(dom);
+                        f.gp_ax_ctx_x.call(f.ax_ctx_x);
+                    }
+
+
                     // TODO: This seems to cause problems with negative values and commenting it out does not seem to
                     // cause any additional problems. This could do with some double checking.
                     f.gp_lines.attr("transform", "translate(" + sc(0) + ", 0) scale(" + x_scaling + ", 1)");
                 }
 
-                // vertical context brush
+                // vertical changes
                 , br_ctx_y_fn = function () {
-                    var dom = f.br_ctx_y.empty() ? f.sc_ctx_y.domain() : f.br_ctx_y.extent();
+
+                    var event_selection_y = [];
+
+                    if (d3.event == null || d3.event.selection == null) {
+                        event_selection_y = f.sc_ctx_y.range();
+                        f.dom_y = [-1, f.shape()[2]];
+                    }
+                    else if (d3.event.selection != null && d3.event.selection[0][0] != null) {
+                        event_selection_y[1] = d3.event.selection[0][1];
+                        event_selection_y[0] = d3.event.selection[1][1];
+                    }
+                    else {
+                        event_selection_y[0] = d3.event.selection[1];
+                        event_selection_y[1] = d3.event.selection[0];
+                    }
+
+                    var scale_brushed = d3.scaleLinear().domain(f.dom_y).range(f.sc_ctx_y.range());
+
+
+                    event_selection_y = event_selection_y.map(scale_brushed.invert, scale_brushed);
+                    var dom = f.br_ctx_y === null ? f.sc_ctx_y.domain() : event_selection_y;
+                    f.dom_y = dom;
                     var yscl = f.sz_fcs.y / (dom[1] - dom[0]) / 5;
-                    f.sc_fcs_y.domain(dom);
+                    f.sc_fcs_y.domain(dom).range([f.sz_ctx_y.y, 0]);
                     f.gp_ax_fcs_y.call(f.ax_fcs_y);
                     f.gp_lines.selectAll("g").attr("transform", function (d, i) {
                         return "translate(0, " + f.sc_fcs_y(i) + ")" + "scale (1, " + yscl + ")"
                     }).selectAll("path").attr("stroke-width", "" + (3 / yscl));
-                }
 
-                , br_ctx_end = function () {
-                    f.scale_focus_stroke();
-                    // TODO: This f.render() only makes another call to the server bringing back data that is already here.
-                    // Also when rerendering that data it is rendered from the 0 timeline, so if for example you
-                    // zoom on a block from 250-270, 20 points or data ar brought from the server and the plot is
-                    // redrawn with data from 0-20, but you being in the area 250-270 don't see any of it. This needs
-                    // to be tested further to see if it was really needed, and if so look into the problem of zooming
-                    // described above.
-
-                   // f.render();
                 };
 
             f.br_ctx_y_fn = br_ctx_y_fn;
+            //move the focus with the x context brush in the svg viewer, different from the fn that evokes from the focus brush
+            br_ctx_x_move=function(){
+                if(f.viewer_type()==='svg'){
+                    var event_selection = [];
+                    // Different extent when it is:
+                    //1.from the brush of 2D Focus Brush
+                    if (d3.event.selection != null && d3.event.selection[0][0] != null) {
+                        event_selection[0] = d3.event.selection[0][0];
+                        event_selection[1] = d3.event.selection[1][0];
+                    }
+                    //2.from the end of focus brush
+                    else if (d3.event.selection == null) {
+                        event_selection = [f.sc_ctx_x.range()[0], f.sc_ctx_x.range()[1]];
+
+                    }
+
+                    //3.from itself
+                    else {
+                        event_selection = d3.event.selection;
+                    }
+                    //selection is now in coordinates and we have to map it using scales
+                    event_selection = event_selection.map(f.sc_ctx_x.invert, f.sc_ctx_x);
+                    var dom = f.br_ctx_x === null ? f.sc_ctx_x.domain() : event_selection
+                        , sc = f.sc_fcs_x
+                        , x_scaling = f.sc_ctx_x.domain()[1] / (dom[1] - dom[0]);
+
+                    sc.domain(dom);
+
+
+                    f.gp_ax_fcs_x.call(f.ax_fcs_x);
+
+                    // TODO: This seems to cause problems with negative values and commenting it out does not seem to
+                    // cause any additional problems. This could do with some double checking.
+                    f.gp_lines.attr("transform", "translate(" + sc(0) + ", 0) scale(" + x_scaling + ", 1)");
+                }
+            }
+
+            br_ctx_y_move=function(){
+                    var event_selection = [];
+                    if (d3.event.selection != null && d3.event.selection[0][0] != null) {
+                        event_selection[0] = d3.event.selection[0][1];
+                        event_selection[1] = d3.event.selection[1][1];
+                    }
+                    else if (d3.event.selection == null) {
+                        event_selection = f.sc_ctx_y.range();
+                    }
+                    else {
+                        event_selection[0] = d3.event.selection[1];
+                        event_selection[1] = d3.event.selection[0];
+
+                    }
+                    event_selection = event_selection.map(f.sc_ctx_y.invert, f.sc_ctx_y);
+                    var dom = f.br_ctx_y === null ? f.sc_ctx_y.domain() : event_selection;
+                    var yscl = f.sz_fcs.y / (dom[1] - dom[0]) / 5;
+                    f.sc_fcs_y.domain(dom).range([f.sz_ctx_y.y, 0]);
+
+                    f.gp_ax_fcs_y.call(f.ax_fcs_y);
+                    f.gp_lines.selectAll("g").attr("transform", function (d, i) {
+                        return "translate(0, " + f.sc_fcs_y(i) + ")" + "scale (1, " + yscl + ")"
+                    }).selectAll("path").attr("stroke-width", "" + (3 / yscl));
+                    f.scale_focus_stroke();
+            }
+
+            br_ctx_end = function () {
+                if(f.viewer_type()==='svg'){}
+                else{
+                    //get the selected time range
+                var event_selection_x = [];
+                if (d3.event.selection != null) {
+                    event_selection_x[0] = d3.event.selection[0];
+                    event_selection_x[1] = d3.event.selection[1];
+                }
+                event_selection_x = event_selection_x.map(f.sc_ctx_x.invert);
+                timeselection = event_selection_x;
+
+                // remove the last time's selection
+                f.gp_ctx_x.selectAll(".selected-time").remove();
+
+                //change the actual time point in the slider
+                    if (f.viewer_type() === 'dualbrain' && d3.event.selection != null) {
+                        f.timeselection_update_fn()
+                    }
+                }
+
+            };
 
             // on end of focus brush
             // this is on f so that f can call it when everything else is done..
+            //this function can reset the status of the plot to the initial state
             f.br_fcs_endfn = function (no_render) {
-
+                if (!d3.event || !d3.event.sourceEvent) {
+                    br_ctx_y_fn();
+                    f.scale_focus_stroke();
+                    return;
+                }
                 br_ctx_x_fn();
                 br_ctx_y_fn();
+                f.gp_br_fcs.node().__brush.selection = null;
+                f.gp_br_fcs.call(f.br_fcs);
                 f.scale_focus_stroke();
-                f.gp_br_fcs.call(f.br_fcs.clear());
+            };
 
-                if (!no_render) {
-                    // TODO: This f.render() only makes another call to the server bringing back data that is already here.
-                    // Also when rerendering that data it is rendered from the 0 timeline, so if for example you
-                    // zoom on a block from 250-270, 20 points or data ar brought from the server and the plot is
-                    // redrawn with data from 0-20, but you being in the area 250-270 don't see any of it. This needs
-                    // to be tested further to see if it was really needed, and if so look into the problem of zooming
-                    // described above.
 
-                    //f.render();
+            f.br_fcs_startfn = function () {
+                //select a channel
+                var event_selection_y = [];
+                event_selection_y[1] = d3.event.selection[0][1];
+                event_selection_y = event_selection_y.map(f.sc_ctx_y.invert);
+
+                //choose the time point
+                var event_selection_x = [];
+                event_selection_x[1] = d3.event.selection[0][0];
+                event_selection_x = event_selection_x.map(f.sc_ctx_x.invert);
+                if (event_selection_x[1] < 0) {
+                    event_selection_x[1] = 0 + f.da_x;
+                }
+
+
+                timerange = f.sc_fcs_x.domain()[1];
+                channelID = parseInt(event_selection_y[1]);
+                timepoint_length = f.da_lines[channelID].sig.length;
+
+                timepoint = event_selection_x[1] / f.sc_fcs_x.domain()[1];
+                timepoint = timepoint * timepoint_length;
+                timepoint = parseInt(timepoint);
+
+                valuearray = f.ys().data;
+                channel_number = f.channels().length;
+                channel_index = f.channels().indexOf(channelID);
+
+                //print out the channel name(label) and value
+                $("#info-channel").html(' ' + f.labels()[parseInt(event_selection_y[1])]);
+                $("#info-time").html(" " + timepoint);
+                $("#info-value").html(" " + valuearray[channel_number * timepoint + channel_index]);
+
+            }
+
+            f.br_fcs_brush = function () {
+                if(f.viewer_type()==='svg'){
+                    var ex = d3.event.selection;
+                f.gp_br_ctx_x.call(f.br_ctx_x);
+                //assign directly because can't use brushSelection to set null brushes' extent
+                f.gp_br_ctx_x.node().__brush.selection = [[ex[0][0], 0], [ex[1][0], f.sz_ctx_x.y]];
+
+                f.gp_br_ctx_y.call(f.br_ctx_y);
+                f.gp_br_ctx_y.node().__brush.selection = [[0, ex[0][1]], [f.sz_ctx_y.x, ex[1][1]]];
                 }
             };
 
-            // focus brush
-            f.br_fcs_brush = function () {
-                var ex = f.br_fcs.extent();
-                f.br_ctx_x.extent([ex[0][0], ex[1][0]]);
-                f.br_ctx_y.extent([ex[0][1], ex[1][1]]);
-                f.gp_br_ctx_y.call(f.br_ctx_y);
-                f.gp_br_ctx_x.call(f.br_ctx_x);
-            };
-
             // create brushes
-            f.br_ctx_x = d3.svg.brush().x(f.sc_ctx_x).on("brush", br_ctx_x_fn)
-                .on("brushend", br_ctx_end);
+            if(f.viewer_type()==='svg'){
+                // y context brush
+            f.br_ctx_y = d3.brushY().extent([[0, 0], [f.sz_ctx_y.x, f.sz_ctx_y.y]]).on("brush", br_ctx_y_move);
+            f.gp_br_ctx_y = f.gp_ctx_y.append("g");
+            f.gp_br_ctx_y.append("g").classed("brush", true).call(f.br_ctx_y).selectAll("rect").attr("width", f.sz_ctx_y.x);
+            }
 
-            f.br_ctx_y = d3.svg.brush().y(f.sc_ctx_y).on("brush", br_ctx_y_fn)
-                .on("brushend", br_ctx_end);
-
-            f.br_fcs = d3.svg.brush().x(f.sc_fcs_x)
-                .y(f.sc_fcs_y).on("brushend", f.br_fcs_endfn)
+            f.br_ctx_x = d3.brushX().extent([[f.sc_ctx_x.range()[0], 0], [f.sc_ctx_x.range()[1], f.sz_ctx_x.y]]).on("end", br_ctx_end)
+                .on("brush", br_ctx_x_move);
+            f.br_fcs = d3.brush().extent([[f.sc_fcs_x.range()[0], 0], [f.sc_fcs_x.range()[1], f.sz_fcs.y]])
+                .on("end", f.br_fcs_endfn).on("start", f.br_fcs_startfn)
                 .on("brush", f.br_fcs_brush);
 
-            // add brush groups and add brushes to them
-            f.gp_br_ctx_y = f.gp_ctx_y.append("g");
+            // add time selection brush group
             f.gp_br_ctx_x = f.gp_ctx_x.append("g");
-            f.gp_br_fcs = f.gp_fcs.append("g").classed("brush", true).call(f.br_fcs);
+            //add title for the time selection area
+            f.timeselection_title = f.gp_br_ctx_x.append("text").text("Time Selection").attr("y", -10);
+            f.gp_br_ctx_x.classed("brush", true).attr("class", "time-selection-brush").call(f.br_ctx_x).selectAll("rect").attr("height", f.sz_ctx_x.y);
 
-            f.gp_br_ctx_y.append("g").classed("brush", true).call(f.br_ctx_y).selectAll("rect").attr("width", f.sz_ctx_y.x);
-            f.gp_br_ctx_x.append("g").classed("brush", true).call(f.br_ctx_x).selectAll("rect").attr("height", f.sz_ctx_x.y);
+            //add main focus brush group
+            f.gp_br_fcs = f.gp_fcs.append("g").classed("brush", true).call(f.br_fcs).call(f.br_fcs_endfn);
+
+            //default selection
+            if(f.viewer_type()==='dualbrain'){
+                f.timeselection_default();
+            }
+        };
+
+        //functions for the time selection window
+        f.timeselection_default = function () {
+            if (f.t0() + f.dt() * (f.shape()[0] - 1) > 100) {
+                d3.select(f.gp_br_ctx_x.node()).call(f.br_ctx_x.move, [f.t0(), 100].map(f.sc_ctx_x));
+            }
+            else {
+                d3.select(f.gp_br_ctx_x.node()).call(f.br_ctx_x.move, [f.t0(),f.t0() + f.dt() * (f.shape()[0] - 1)].map(f.sc_ctx_x));
+            }
+        }
+
+        f.timeselection_update_fn = function () {
+            //display the selected time range
+            d3.select("#SetIntervalStart").property('value', timeselection[0].toFixed(2));
+            d3.select("#SetIntervalEnd").property('value', timeselection[1].toFixed(2));
+            $("#info-interval").html((timeselection[1] - timeselection[0]).toFixed(2) + "ms");
+
+            if (triggered_by_timeselection) {
+                //update the time in the input tag
+                var time_index = parseInt((timeselection[0] - f.t0()) / f.dt());
+                triggered_by_changeinput = true;
+                $('#TimeNow').val(timeselection[0].toFixed(2));
+                $('#slider').slider('value', time_index);
+                triggered_by_changeinput = false;
+                //update 3D viewer's time
+                if (f.viewer_type() === 'dualbrain') {
+                    loadFromTimeStep(time_index);
+                }
+
+                var timeselection_lasttime = timeselection_interval_length;
+                timeselection_interval = timeselection[1] - timeselection[0];
+                timeselection_interval_length = parseInt(timeselection_interval / f.dt()) - 1;
+                //retrieve energy for the whole timeline rather than a slice
+                var all_slice = f.current_slice();
+                all_slice[0].di = f.shape()[1];
+                all_slice[0].hi = f.shape()[0];
+                all_slice[0].lo = 0;
+
+                //call the energy computation method and block until get the enery data if channel or time range is changed
+                if (timeselection_lasttime != timeselection_interval_length || f.channel_lasttime !== f.channels()) {
+                    showBlockerOverlay(50000);
+                    f.update_energy();
+                }
+                else if (timeselection_lasttime === timeselection_interval_length && timeselection_interval_length != 0) {
+                    if (isInternalSensorView) {
+                        VSI_change_energySphericalMeasurePoints()
+                    }
+                    else {
+                        changeSphereMeasurePoints_energy();
+                    }
+                }
+                f.channel_lasttime = f.channels();
+            }
+        };
+
+        //move the time selection window with the slider
+        f.timeselection_move_fn = function () {
+            //only change by movie playing
+            if (!triggered_by_changeinput) {
+                redrawSelection()
+            }
+        };
+
+        function redrawSelection() {
+            if (parseInt(timeselection[1]) == parseInt(f.sc_ctx_x.domain()[1])) {
+                f.jump_to_next_time_range()
+            }
+            else if (timeselection[0] >= f.sc_ctx_x.domain()[1] - f.dt()) {
+                dom = [0, f.t0() + f.dt() * (f.shape()[0] - 1)];
+                f.sc_ctx_x.domain(dom);
+                f.gp_ax_ctx_x.call(f.ax_ctx_x);
+                d3.select(f.gp_br_ctx_x.node()).call(f.br_ctx_x.move, [0, timeselection[1] - timeselection[0]].map(f.sc_ctx_x));
+            }
+
+            d3.select(f.gp_br_ctx_x.node()).call(f.br_ctx_x.move, [f.t0()+currentTimeValue*f.dt(),f.t0()+currentTimeValue*f.dt()+timeselection_interval].map(f.sc_ctx_x));
+        }
+
+        f.jump_to_next_time_range = function () {
+            var time_data_length = f.shape()[0];
+            var current_slice_length = f.current_slice()[0].hi - f.current_slice()[0].lo;
+            if (f.current_slice()[0].hi + current_slice_length < time_data_length) {
+                dom = f.sc_ctx_x.domain();
+                var slice_length = dom[1] - dom[0];
+                dom[0] = dom[1] - timeselection_interval;
+                dom[1] = dom[1] + slice_length;
+                f.sc_ctx_x.domain(dom);
+                f.gp_ax_ctx_x.call(f.ax_ctx_x);
+            }
+            else if (f.current_slice()[0].hi == current_slice_length) {
+            }
+            else {
+                dom = [timeselection[1], f.t0() + f.dt() * (f.shape()[0] - 1)];
+                f.sc_ctx_x.domain(dom);
+                f.gp_ax_ctx_x.call(f.ax_ctx_x);
+            }
+        };
+
+        f.timeselection_interval_set = function (start, end) {
+            d3.select(f.gp_br_ctx_x.node()).call(f.br_ctx_x.move, [start, end].map(f.sc_ctx_x));
         };
 
         f.parameters = ["w", "h", "p", "baseURL", "preview", "labels", "shape",
-            "t0", "dt", "ts", "ys", "point_limit", "channels", "mode", "state_var"];
+            "t0", "dt", "ts", "ys", "point_limit", "channels", "mode", "state_var","viewer_type"];
         f.parameters.map(function (name) {
             f[name] = tv.util.gen_access(f, name);
         });
 
         return f;
     },
+
 
     components: function () {
 
@@ -1086,7 +1457,7 @@ tv.plot = {
             for (var i = 0; i < nkeep; i++) {
                 vt_data[i] = [];
                 for (var j = 0; j < n; j++) {
-                    vt_data[i][j] = [j * w / 2.25 / n, ( 2 * h / 3 / nkeep / 2 / vt_scl) * cs.data[i * n + j]];
+                    vt_data[i][j] = [j * w / 2.25 / n, (2 * h / 3 / nkeep / 2 / vt_scl) * cs.data[i * n + j]];
                 }
             }
 
