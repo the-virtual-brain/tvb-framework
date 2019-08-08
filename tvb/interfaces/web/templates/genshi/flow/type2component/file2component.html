@@ -8,7 +8,7 @@
         <input type="file" tabindex='1' name="{{ inputRow.name }}" id="{{ inputRow.name }}"/>
     {% endif %}
 
-    {% import 'flow/genericAdapterTemplateFunctions.html' as gatf with context %}
+    {% import 'flow/genericAdapterTemplateFunctions.html' as gatf %}
     {{ gatf.add_checkbox_control(inputRow) }}
 
 {%- endmacro %}

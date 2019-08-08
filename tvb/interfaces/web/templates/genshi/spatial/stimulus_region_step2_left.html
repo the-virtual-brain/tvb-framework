@@ -2,7 +2,7 @@
 	
 	<h4><mark>Select</mark> Regions</h4>
 
-	{% import 'flow/genericAdapterTemplateFunctions.html' as gatf with context %}
+	{% import 'flow/genericAdapterTemplateFunctions.html' as gatf %}
 	
 	<fieldset>
 		<legend>Loaded stimulus</legend>
@@ -25,7 +25,7 @@
         	$("select[name='existentEntitiesSelect']").change(function () {
                 BS_loadEntity();
             });
-			main({{ node_weights | safe }}, "{{ measurePointsSelectionGID | safe }}");
+			main({{ node_weights }}, "{{ measurePointsSelectionGID }}");
         });
     </script>
     

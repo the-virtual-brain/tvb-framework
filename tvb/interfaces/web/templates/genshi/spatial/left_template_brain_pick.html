@@ -32,7 +32,7 @@
         </div>
 
         <div class="brainDiv">
-            {% import 'visualizers/commons/brain_component.html' as bc with context %}
+            {% import 'visualizers/commons/brain_component.html' as bc %}
             {{ bc.draw_brain_component("GLcanvas", none) }}
         </div>
 
@@ -47,7 +47,7 @@
         
     <script type="text/javascript">
         $(document).ready(function() {
-            BASE_PICK_webGLStart('{{ urlVerticesPick | safe }}', '{{ urlTrianglesPick | safe }}', '{{ urlNormalsPick | safe }}', '{{ urlVertices | safe }}',
+            BASE_PICK_webGLStart('{{ urlVerticesPick }}', '{{ urlTrianglesPick }}', '{{ urlNormalsPick | safe }}', '{{ urlVertices | safe }}',
                     '{{ urlTriangles | safe }}', '{{ urlNormals | safe }}', '{{ brainCenter }}', "{{ callback if callback is defined else '' }}");
         });
     </script>

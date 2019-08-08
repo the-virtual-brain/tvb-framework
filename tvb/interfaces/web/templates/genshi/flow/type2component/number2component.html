@@ -3,7 +3,7 @@
     <input type="text" tabindex='1' name="{{ inputRow.name }}" id="{{ inputRow.name }}"
            value="{{ inputRow.default if ('default' in inputRow and (inputRow.default | string) != 'None' ) else '' }}"
            {{ 'readonly' if 'locked' in inputRow and inputRow.locked }} {{ ("disabled='disabled'") | safe if disabled  }} />
-    {% import 'flow/genericAdapterTemplateFunctions.html' as gatf with context %}
+    {% import 'flow/genericAdapterTemplateFunctions.html' as gatf %}
     {{ gatf.add_checkbox_control(inputRow) }}
     {{ drawRangeComponent(inputRow, parentDivId) }}
 {%- endmacro %}

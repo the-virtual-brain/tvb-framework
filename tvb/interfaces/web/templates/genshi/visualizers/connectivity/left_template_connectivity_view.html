@@ -23,8 +23,8 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            prepareConnectivity('{{ urlWeights }}', '{{ urlTracts }}', '{{ urlPositions }}', '{{ urlVertices }}', '{{ urlTriangles }}',
-                                '{{ urlNormals }}', '{{ urlLabels }}', true, '{{ conductionSpeed }}');
+            prepareConnectivity('{{ urlWeights }}', '{{ urlTracts }}', '{{ urlPositions | safe }}', '{{ urlVertices | safe }}', '{{ urlTriangles | safe }}',
+                                '{{ urlNormals | safe }}', '{{ urlLabels }}', true, '{{ conductionSpeed }}');
         });
     </script>
 

@@ -11,7 +11,7 @@
         {% endif %}
 
         <input type="checkbox" tabindex='1' name="{{ inputRow.name }}" id="{{ inputRow.name }}" {{ add_attrs }}/>
-        {% import 'flow/genericAdapterTemplateFunctions.html' as gatf with context %}
+        {% import 'flow/genericAdapterTemplateFunctions.html' as gatf %}
         {{ gatf.add_checkbox_control(inputRow) }}
     {% endwith %}
 

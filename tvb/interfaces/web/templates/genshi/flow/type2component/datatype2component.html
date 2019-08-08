@@ -38,7 +38,7 @@
 {% macro draw_datatype_full(inputRow, disabled, parentDivId, treeSessionKey) -%}
 	<!--!     Draw full control for DataType select (filters and reduce dimention controls included).     -->
     {% include 'flow/type2component/datatype2select_simple.html' %}
-    {% import 'flow/genericAdapterTemplateFunctions.html' as gatf with context %}
+    {% import 'flow/genericAdapterTemplateFunctions.html' as gatf %}
     {{ gatf.add_checkbox_control(inputRow) }}
 
     {% if 'ui_method' in inputRow and inputRow.ui_method == 'reduceDimension' and 'parameters_prefix' in inputRow and 'parameters' in inputRow %}

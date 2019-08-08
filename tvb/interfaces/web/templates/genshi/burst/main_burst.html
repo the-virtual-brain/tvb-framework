@@ -13,7 +13,7 @@
 
 	<script type="text/javascript">
     	$(document).ready(function(){
-    		initBurstConfiguration({{ selectedPortlets | safe  }}, '{{ burstConfig.selected_tab | safe }}');
+    		initBurstConfiguration({{ selectedPortlets | safe }}, '{{ burstConfig.selected_tab }}');
 		});
     </script>
     
@@ -162,7 +162,7 @@
 		</div>
 
 		<div class="portlet-container portlet-edit visible-2-2" id="portlets-configure" style="display: none;">
-			{% import 'burst/portlets_select.html' as ps with context %}
+			{% import 'burst/portlets_select.html' as ps %}
 		    {{ ps.drawPortletConfiguration(portletList, 0) }}
 	        {{ ps.drawPortletConfiguration(portletList, 1) }}
 	        {{ ps.drawPortletConfiguration(portletList, 2) }}

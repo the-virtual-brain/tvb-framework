@@ -14,7 +14,7 @@
             </div>
         </div>
     </aside>
-	{% import "user/new_user.html" as nu with context %}
+	{% import "user/new_user.html" as nu %}
 	{{ nu.create_user_registration(data, errors, 'Registration Form', true) }}
   </div>
 </form>

@@ -17,8 +17,8 @@
         <input type="text" tabindex='1' name="{{ inputRow.name }}" id="{{ inputRow.name }}" value="{{ value }}" {{ add_attrs }}/>
     {% endwith %}
 
-    {% import 'flow/genericAdapterTemplateFunctions.html' as gatf with context %}
-    {% import 'flow/type2component/number2component.html' as n2c with context %}
+    {% import 'flow/genericAdapterTemplateFunctions.html' as gatf %}
+    {% import 'flow/type2component/number2component.html' as n2c %}
     {{ gatf.add_checkbox_control(inputRow) }}
     {{ n2c.drawRangeComponent(inputRow, parentDivId) }}
 

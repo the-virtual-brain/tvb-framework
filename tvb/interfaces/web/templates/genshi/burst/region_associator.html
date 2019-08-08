@@ -13,8 +13,8 @@
     <section class="configure-stimulus-shape view-column col-1">
 
         <h4><mark>Configure</mark> {{ section2title }}</h4>
-        {% import 'visualizers/commons/channel_selector.html' as cs with context %}
-        {% import 'visualizers/commons/channel_selector_quick.html' as csq with context %}
+        {% import 'visualizers/commons/channel_selector.html' as cs %}
+        {% import 'visualizers/commons/channel_selector_quick.html' as csq %}
 
         <ul class="toolbar-inline">
 
@@ -37,7 +37,7 @@
 
     </section>
 
-    <form id="base_spatio_temporal_form" action="{{ submit_parameters_url | safe }}" method="POST">
+    <form id="base_spatio_temporal_form" action="{{ submit_parameters_url }}" method="POST">
 	    <aside class="header-component toolbar can-extend auto-extends">
 	    	<h3>SpatioTemporal Entities</h3>
 		  <div class="extension">
