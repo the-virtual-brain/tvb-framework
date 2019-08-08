@@ -6,7 +6,7 @@
     <script type="text/javascript" src="/static_view/connectivity_edge_bundle/connectivity_edge_bundle.js?{{ currentVersionJS }}"></script>
     <script type="text/javascript">
         $('document').ready(function () {
-            CE_InitChord("{{ url_base | safe }}", {{ labels | safe }});
+            CE_InitChord("{{ url_base }}", {{ labels | safe}});
             $("#main").addClass("colscheme-1");
         })
     </script>

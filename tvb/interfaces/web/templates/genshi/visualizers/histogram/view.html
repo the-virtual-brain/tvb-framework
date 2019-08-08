@@ -14,20 +14,20 @@
         function launchViewer(width, height) {
         	document.getElementById('histogramCanvasId').style.width = (width * 0.9) + 'px';
         	document.getElementById('histogramCanvasId').style.height = (height * 0.7) + 'px';
-        	drawHistogram('histogramCanvasId', {{ data | safe }}, {{ labels | safe }}, {{ colors }}, '{{ xposition | safe }}');
+        	drawHistogram('histogramCanvasId', {{ data }}, {{ labels | safe }}, {{ colors }}, '{{ xposition }}');
         }
     </script>
 
     <div class="histogramParentDiv view-column">
-        <div id="histogramCanvasId"/>
+        <div id="histogramCanvasId"></div>
         <div id="histogramLegend">
-            <canvas id="histogramLegendCanvas" width="20px"/>
-            <table id="histogramLegendLabels" />
+            <canvas id="histogramLegendCanvas" width="20px"></canvas>
+            <table id="histogramLegendLabels" ></table>
         </div>
     </div>
 
-    <input type="hidden" id="colorMinId" value="{{ minColor | safe }}"/>
-    <input type="hidden" id="colorMaxId" value="{{ maxColor | safe }}"/>
+    <input type="hidden" id="colorMinId" value="{{ minColor }}"/>
+    <input type="hidden" id="colorMaxId" value="{{ maxColor }}"/>
     <input type="hidden" id="originalColors" value="{{ colors }}"/>
 
 </div>

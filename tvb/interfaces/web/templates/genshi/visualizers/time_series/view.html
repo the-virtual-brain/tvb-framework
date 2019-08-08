@@ -14,7 +14,7 @@
 		    <ul class="toolbar-inline">
                 {% if preview == false %}
 			        <li class="channel-selector">
-                        {% import 'visualizers/commons/timeseries_selector_button.html' as tsb with context %}
+                        {% import 'visualizers/commons/timeseries_selector_button.html' as tsb  %}
                         {{ tsb.drawTimeseriesSelectorButton(ts_title,labelsStateVar, labelsModes, groupedLabels, initialSelection) }}
 			        </li>
                 {% endif %}

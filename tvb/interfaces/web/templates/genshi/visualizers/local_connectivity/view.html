@@ -3,7 +3,7 @@
     {% include 'visualizers/commons/gl_view_header.html' %}
     {% include 'visualizers/commons/fragment_shader.html' %}
     {% include 'visualizers/commons/surface_pick_vertex_shader.html' %}
-    {% import 'visualizers/commons/brain_component.html' as bc with context %}
+    {% import 'visualizers/commons/brain_component.html' as bc  %}
 
     {{ bc.draw_brain_component("GLcanvas", none) }}
 
@@ -14,9 +14,9 @@
         $(document).ready(function () {
 
             BASE_PICK_webGLStart('{{ urlVerticesPick | safe }}', '{{ urlTrianglesPick | safe }}', '{{ urlNormalsPick | safe }}', '{{ urlVertices | safe }}',
-                    '{{ urlTriangles | safe }}', '{{ urlNormals | safe }}', '{{ brainCenter | safe }}', "");
+                    '{{ urlTriangles | safe }}', '{{ urlNormals | safe }}', '{{ brainCenter }}', "");
 
-            LCON_viewer_init({{ minValue | safe }}, {{ maxValue | safe }}, '{{ local_connectivity_gid | safe }}');
+            LCON_viewer_init({{ minValue }}, {{ maxValue }}, '{{ local_connectivity_gid }}');
         });
     </script>
 

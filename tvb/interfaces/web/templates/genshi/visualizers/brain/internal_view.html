@@ -10,8 +10,8 @@
     <script type="text/javascript">
         $(document).ready(function() {
             VSI_StartInternalActivityViewer('{{ base_activity_url }}', {{ pageSize }}, '{{ time }}', '{{ urlVertices }}',
-                    '{{urlLines }}', '{{ urlTriangles }}', '{{ urlNormals }}', '{{ urlMeasurePoints }}', {{ noOfMeasurePoints }},
-                    '{{ urlRegionMap }}', '{{ minActivity }}', '{{ maxActivity }}', '{{ isOneToOneMapping }}',
+                    '{{urlLines | safe }}', '{{ urlTriangles | safe }}', '{{ urlNormals | safe }}', '{{ urlMeasurePoints }}', {{ noOfMeasurePoints }},
+                    '{{ urlRegionMap | safe }}', '{{ minActivity }}', '{{ maxActivity }}', '{{ isOneToOneMapping }}',
                      {{ 'true' if extended_view else 'false' }}, {{ "'" ~ shelfObject ~ "'" if shelfObject else 'null' }},
                     '{{ urlMeasurePointsLabels }}', '{{ urlRegionBoundaries }}');
         });

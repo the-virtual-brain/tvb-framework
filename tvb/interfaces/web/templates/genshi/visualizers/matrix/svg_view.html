@@ -34,7 +34,7 @@
 
         function initMatrixViewer(width, height) {
             $("#main").addClass("colscheme-1");
-            matrix_view_init_svg('{{ matrix_data | safe }}', '{{ matrix_shape | safe }}', "{{ viewer_title }}", '{{ matrix_labels | safe }}',
+            matrix_view_init_svg('{{ matrix_data }}', '{{ matrix_shape }}', "{{ viewer_title }}", '{{ matrix_labels | safe }}',
                 ["Place mouse over matrix elements to inspect their values",
                     "Drag in colorbar to select and show entries in a range of values"], width, height);
         }

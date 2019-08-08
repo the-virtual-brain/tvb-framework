@@ -196,8 +196,8 @@
 
         $(document).ready(function () {
             // the line below this is just to keep certain things in this genshi from being run multiple times
-            PSEDiscreet_Initialize('{{ labels_x | safe }}', '{{ labels_y | safe }}', '{{ values_x | safe }}', '{{ values_y | safe }}', '{{ d3_data | safe }}', '{{ pse_back_page }}',
-                {{ has_started_ops | safe }}, '{{ min_color | safe }}', '{{ max_color | safe }}', '{{ min_shape_size | safe }}', '{{ max_shape_size | safe }}');
+            PSEDiscreet_Initialize('{{ labels_x | safe }}', '{{ labels_y | safe }}', '{{ values_x }}', '{{ values_y }}', '{{ d3_data | safe }}', '{{ pse_back_page }}',
+                {{ has_started_ops }}, '{{ min_color }}', '{{ max_color }}', '{{ min_shape_size }}', '{{ max_shape_size }}');
 
             window.onresize = function () {
                 PSEDiscreet_RedrawResize();

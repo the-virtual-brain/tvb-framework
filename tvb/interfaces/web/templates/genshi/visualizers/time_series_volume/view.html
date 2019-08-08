@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="/static/style/subsection_timeseries.css?{{ currentVersionJS }}"/>
     <link rel="stylesheet" type="text/css" href="/static/style/subsection_svg.css?{{ currentVersionJS }}"/>
 
-    {% import 'visualizers/time_series_volume/drawSliderForAxis.html' as dsfa with context %}
+    {% import 'visualizers/time_series_volume/drawSliderForAxis.html' as dsfa  %}
 
     <section class="view-column">
 
@@ -90,7 +90,7 @@
             </li>
 
             <li class="channel-selector">
-                {% import 'visualizers/commons/timeseries_selector_button.html' as tsb with context %}
+                {% import 'visualizers/commons/timeseries_selector_button.html' as tsb  %}
                 {{ tsb.drawTimeseriesSelectorButton(ts_title, labelsStateVar, labelsModes, none) }}
 			</li>
 
