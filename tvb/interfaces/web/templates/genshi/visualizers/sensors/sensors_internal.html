@@ -12,7 +12,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            VSI_StartInternalSensorViewer('{{ urlMeasurePoints }}', '{{ noOfMeasurePoints }}',
+            VSI_StartInternalSensorViewer('{{ urlMeasurePoints | safe }}', '{{ noOfMeasurePoints }}',
                     '{{ urlMeasurePointsLabels }}', '{{ shelfObject | safe }}',
                     '{{ minMeasure }}', '{{ maxMeasure }}', '{{ urlMeasure }}');
         });
