@@ -1,0 +1,21 @@
+<div xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:py="http://genshi.edgewall.org/">
+
+	<py:def function="drawmymatrix()">	
+		<div id="matrix-plot-id" class="matrix-container">
+			<script id="shader-mymatrix-fs" type="x-shader/x-fragment">
+				<xi:include href="../commons/shading/fragment_connectivity_plot.glsl" parse="text" />
+			</script>
+			
+			<script id="shader-mymatrix-vs" type="x-shader/x-vertex">
+				<xi:include href="../commons/shading/vertex_connectivity_plot.glsl" parse="text" />
+            </script>
+            		
+		    
+			<div class="specialviewer" id="acanvasDiv">
+			<canvas id="GLcanvas_MATRIX" width="600px" height="600px" ></canvas>
+		       
+			</div>
+		</div>
+	</py:def>
+	
+</div>

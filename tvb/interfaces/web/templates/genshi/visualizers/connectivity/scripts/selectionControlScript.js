@@ -102,6 +102,7 @@ function doGroupOperation() {
     var quantity = getOperationArguments();
 
     document.getElementById('con-op-arguments').value = '';
+    console.log(quantity);
     if (isNaN(quantity)) {
         displayMessage("Operation failed. Be sure you provided the correct arguments.", "errorMessage");
         return false;
@@ -138,9 +139,9 @@ function doGroupOperation() {
             }
         }
         GFUNC_recomputeMinMaxW();
-        MATRIX_colorTable();
         displayMessage("Operation finished successfully.", "infoMessage");
-    } catch(err) {
+    } 
+    catch(err) {
         displayMessage("Operation failed. Be sure you provided the correct arguments.", "errorMessage");
     }
 }

@@ -126,13 +126,12 @@ function createConnectivityMatrix() {
     // The size of a matrix element
     var elementSize = plotSize / nrElems;
     // Create arrays from start for performance reasons 
+    var ext = gl.getExtension('OES_element_index_uint');
     var vertices = new Float32Array(nrElems * nrElems * 4 * 3);
     var normals = new Float32Array(nrElems * nrElems * 4 * 3);
-    var indices = new Uint16Array(nrElems * nrElems * 2 * 3);
-    var linesIndices = new Uint16Array(nrElems * nrElems * 2 * 4);
-
+    var indices = new Uint32Array(nrElems * nrElems * 2 * 3);
+    var linesIndices = new Uint32Array(nrElems * nrElems * 2 * 4);
     var linearIndex = -1;
-
     for (var i = 0; i < nrElems; i++) {
         for (var j = 0; j < nrElems; j++) {
             linearIndex += 1;
@@ -227,7 +226,6 @@ function generateColors(tractValue, intervalLength) {
     var nrElems = matrixWeightsValues.length;
     var colors = new Float32Array(nrElems * nrElems * 3 * 4);
     var linearIndex = -1;
-
     for (var i = 0; i < nrElems; i++) {
         for (var j = 0; j < nrElems; j++) {
             linearIndex += 1;
@@ -404,17 +402,18 @@ function drawFullMatrix(doPick, idx) {
         var currentPickColor = colorsForPicking[idx];
         gl.uniform3f(GL_shaderProgram.pickingColor, currentPickColor[0], currentPickColor[1], currentPickColor[2]);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-    } else {
-        gl.bindBuffer(gl.ARRAY_BUFFER, plotColorBuffers[idx]);
+        gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_INT, 0);
+    }
+     else {
+       gl.bindBuffer(gl.ARRAY_BUFFER, plotColorBuffers[idx]);
         gl.vertexAttribPointer(GL_shaderProgram.vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, indexBuffer.numItems, gl.UNSIGNED_INT, 0);
         gl.uniform3f(GL_shaderProgram.lineColor, theme.lineColor[0], theme.lineColor[1], theme.lineColor[2]);
         gl.uniform1i(GL_shaderProgram.drawLines, true);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesIndexBuffer);
         gl.lineWidth(1.0);
-        gl.drawElements(gl.LINES, linesIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+       gl.drawElements(gl.LINES, linesIndexBuffer.numItems, gl.UNSIGNED_INT, 0);
         gl.uniform1i(GL_shaderProgram.drawLines, false);
         
         // Now draw the square outline
@@ -422,19 +421,19 @@ function drawFullMatrix(doPick, idx) {
             gl.uniform3f(GL_shaderProgram.lineColor, theme.selectedOutlineColor[0], theme.selectedOutlineColor[1], theme.selectedOutlineColor[2]);
             gl.lineWidth(3.0);
         } else {
-            gl.uniform3f(GL_shaderProgram.lineColor, theme.outlineColor[0], theme.outlineColor[1], theme.outlineColor[2]);
+           gl.uniform3f(GL_shaderProgram.lineColor, theme.outlineColor[0], theme.outlineColor[1], theme.outlineColor[2]);
             gl.lineWidth(2.0);
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, outlineVerticeBuffer);
         gl.vertexAttribPointer(GL_shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-//        gl.bindBuffer(gl.ARRAY_BUFFER, outlineNormalsBuffer);
-//        gl.vertexAttribPointer(GL_shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+       gl.bindBuffer(gl.ARRAY_BUFFER, outlineNormalsBuffer);
+       gl.vertexAttribPointer(GL_shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
         gl.uniform1i(GL_shaderProgram.drawLines, true);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, outlineLinesBuffer);
-        gl.drawElements(gl.LINES, outlineLinesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.LINES, outlineLinesBuffer.numItems, gl.UNSIGNED_INT, 0);
         gl.lineWidth(2.0);
-        gl.uniform1i(GL_shaderProgram.drawLines, false);
-    }
+       gl.uniform1i(GL_shaderProgram.drawLines, false);
+   }
 
     mvPopMatrix();
 }
@@ -535,6 +534,7 @@ function doZoomOutAnimation() {
 /*
  * Draw the entire space plot matrices.
  */
+
 function drawSceneSpaceTime() {
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     // View angle is 45, we want to see object from 0.1 up to 800 distance from viewer
@@ -543,17 +543,17 @@ function drawSceneSpaceTime() {
     loadIdentity();
     // Translate to get a good view.
     mvTranslate([0.0, 0.0, -600]);
-
+     
     if (!doPick) {
         gl.uniform1f(GL_shaderProgram.alphaValue, alphaValueSpaceTime);
         gl.uniform1f(GL_shaderProgram.isPicking, 0);
         gl.uniform3f(GL_shaderProgram.pickingColor, 1, 1, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
         for (var ii = 0; ii < plotColorBuffers.length; ii++) {
             drawFullMatrix(false, ii);
         }
-    } else {
+    }
+     else {
         gl.bindFramebuffer(gl.FRAMEBUFFER, GL_colorPickerBuffer);
            gl.disable(gl.BLEND);
         gl.disable(gl.DITHER);
@@ -570,7 +570,7 @@ function drawSceneSpaceTime() {
         if (clickedMatrix >= 0) {
             doZoomInAnimation();
         }
-    }
+   }
     
 }
 

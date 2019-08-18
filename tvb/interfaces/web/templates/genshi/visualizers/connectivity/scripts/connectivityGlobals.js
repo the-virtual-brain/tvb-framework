@@ -251,6 +251,7 @@ function patchContextMenu() {
             cmenu.showShadow(pos.x,pos.y,e);
             // Resize the iframe if needed
             if (cmenu.useIframe) {
+                
                 $c.find('iframe').css({width:$c.width()+cmenu.shadowOffsetX+cmenu.shadowWidthAdjust,height:$c.height()+cmenu.shadowOffsetY+cmenu.shadowHeightAdjust});
             }
             $c.css( {top:pos.y+"px", left:pos.x+"px", position:"fixed",zIndex:9999} )[cmenu.showTransition](cmenu.showSpeed,((cmenu.showCallback)?function(){cmenu.showCallback.call(cmenu);}:null));
@@ -395,6 +396,7 @@ function showTractsTable() {
 /*
  * ------------------------------Left side tab functions below------------------------------------
  */
+var CONNECTIVITY_MATRIX_TAB = 5; //  my work...
 var CONNECTIVITY_TAB = 1;
 var CONNECTIVITY_2D_TAB = 2;
 var CONNECTIVITY_SPACE_TIME_TAB = 4;
@@ -492,11 +494,34 @@ function start2DConnectivity(idx) {
 function startSpaceTimeConnectivity() {
     SELECTED_TAB = CONNECTIVITY_SPACE_TIME_TAB;
     $("#monitor-plot-id").show();
+    
     document.getElementById(CONNECTIVITY_SPACE_TIME_CANVAS_ID).redrawFunctionRef = drawSceneSpaceTime;   // interface-like function used in HiRes image exporting
+    
     connectivitySpaceTime_startGL();
+    
     GFUNC_bind_gl_resize_handler();
     // Sync size to parent. While the other tabs had been active the window might have resized.
     updateGLCanvasSize(CONNECTIVITY_SPACE_TIME_CANVAS_ID);
+    
     drawSceneSpaceTime();
+}
+
+
+/*
+
+My work for connectivity .....
+..........................................................
+...........................................................
+
+*/
+
+
+
+function startConnectivityMatrix() {
+    
+    connectivityMatrix_startGL();
+   
+    updateGLCanvasSize(CONNECTIVITY_MATRIX_ID);
+   draw();
 }
 

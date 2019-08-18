@@ -19,58 +19,101 @@
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivity2DScript.js?$currentVersionJS"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityStepPlot.js?$currentVersionJS"></script>
     <script type="text/javascript" src="/static_view/connectivity/scripts/connectivityGlobals.js?$currentVersionJS" ></script>
-    <script type="text/javascript" src="/static_view/connectivity/scripts/selectionControlScript.js?$currentVersionJS"></script>
+	<script type="text/javascript" src="/static_view/connectivity/scripts/selectionControlScript.js?$currentVersionJS"></script>
+	<script type="text/javascript" src="/static_view/connectivity/scripts/myconnectivityMatrix.js?$currentVersionJS" ></script>
+	<script type="text/javascript" src="/static_view/connectivity/scripts/myconnectivitytractmatrix.js?$currentVersionJS" ></script>
+
     <script type="text/javascript" src="/static_view/commons/scripts/regionSelector.js?$currentVersionJS"></script>
     <script type="text/javascript" src="/static/coloring/colorpicker.js?$currentVersionJS"></script>
     <link rel="stylesheet" type="text/css" href="/static/coloring/colorpicker.css?$currentVersionJS"/>
 	<link rel="stylesheet" type="text/css" href="/static/style/section_connectivity.css?$currentVersionJS"/>
-	
+
+       <style>
+	  #mydiv1,#mydiv2,#mydiv3,#mydiv4,#mydiv5 {
+  position: relative;
+  z-index: 9;
+}
+
+#mydivheader1,#mydivheader2,#mydivheader3,#mydivheader4,#mydivheader1 {
+  cursor: move;
+  z-index: 10;
+}  
+	  </style> 
+
+
+
 	<py:def function="drawMatrixLegendArea(canvasContainerID)">
 		<div class="matrix-legend" id="$canvasContainerID"></div>
-		
-		<div class="matrix-legend"> 
+		<div class="matrix-legend">
 			<table id="table-${canvasContainerID}" class="table-legend-labels">
 		    	<py:for each='label in range(7)'>
 		    		<py:if test='label != 0'>
-			    		<tr height="${str(100/8) + '%'}" style='vertical-align: bottom;'> <td>${label}</td> </tr>
+						<tr height="${str(100/8) + '%'}" style='vertical-align: bottom;'> <td>${label}</td> </tr>
 		    		</py:if>
 		    		<py:if test='label == 0'>
 			    		<tr height="20px"> <td>${label}</td> </tr>
 		    		</py:if>
 		    	</py:for>
 		    </table>
-		</div> 
+		</div>
 	</py:def>
-	
+
+
 	<!--! Connectivity viewer -->
 	<section class="view-column connectivity-viewer col-1">
+		<!-- toool
 	<h4><mark>View</mark> Large Scale Connectivity</h4>
 	<a id="showConnectivityDetailsBtn" href="#" onclick='displayNodeDetails("${connectivity_entity.gid}", "${connectivity_entity.type}", null, "Visualizers");'
-       class="column-control action action-big-analyze" title="Overlay info for current connectivity entity.">Open Overlay</a>
-	
+	   class="column-control action action-big-analyze" title="Overlay info for current connectivity entity.">Open Overlay</a>
+	   
+		endstool-->
+
 	<div class="monitor" id="monitorDiv">
-		
+
+			<!-- <div id="mydiv">
+					<div id="mydivheader">Click here to move</div>
+					<p>Move</p>
+					<p>this</p>
+					<p>DIV</p>
+			</div> -->
+
+
+
+
+
+
 		<ul class="view-switcher tabswitcher">
-			<li class="active"><a id="leftSideDefaultSelectedTabId" href="#" onclick="hideLeftSideTabs(this); startConnectivity();">3D Edges</a></li>
-			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(0);">Hemisphere 1</a></li>
-			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(1);">Transverse</a></li>
-			<li><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(2);">Hemisphere 2</a></li>
-			<li><a href="#" onclick="hideLeftSideTabs(this); startSpaceTimeConnectivity()">Space Time</a></li>
+          <div id="mydiv1">
+			<li class="active" id="mydivheader1"><a id="leftSideDefaultSelectedTabId" href="#" onclick="hideLeftSideTabs(this); startConnectivity();">3D Edges</a></li>
+		</div> 
+		<div id="mydiv2">
+			<li id="mydivheader2"><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(0);">Hemisphere 1</a></li>
+		</div>
+		<div id="mydiv3">
+			<li id="mydivheader3"><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(1);">Transverse</a></li>
+		</div>
+		<div id="mydiv4">
+			<li id="mydivheader4"><a href="#" onclick="hideLeftSideTabs(this); start2DConnectivity(2);">Hemisphere 2</a></li>
+		</div>
+		<div id="mydiv5">
+			<li id="mydivheader5"><a href="#" onclick="hideLeftSideTabs(this); startSpaceTimeConnectivity()">Space Time</a></li>
+		</div>
 		</ul>
-		
+
 		<xi:include href="connectivity_view.html"/>
 		${drawConnectivityViewer(True)}
 		<xi:include href="connectivity_2D_view.html"/>
 		<xi:include href="connectivity_plot_view.html"/>
 		${drawConnectivityPlotViewer()}
-		
-	</div>	        
+
+	</div>
 	</section>
-		
+
 	<!--! Matrix viewer and controls -->
 	<section id="scrollable-matrix-section" class="view-column matrix-controller col-2"
             py:with="nodeCount=len(pointsLabels);halfNodeCount=int(nodeCount / 2)">
 
+			<!--toools
         <hgroup>
             <h4><mark>Control</mark> Large Scale Matrices</h4>
             <input type="text" id="newConnectivityNameTag" value="" title="User name for the new Connectivity to be generated"/>
@@ -83,94 +126,62 @@
 
         <a href="#" tabindex='-1' onclick='saveSubConnectivity("$submitURL", "$originalConnectivity", true);'
            class="action action-big-branch action-branch-connectivity column-control"
-           title="Clone the connectivity cutting the unselected edges. Check the '* Select *' buttons bellow to see what it is included">Branch</a>
+		   title="Clone the connectivity cutting the unselected edges. Check the '* Select *' buttons bellow to see what it is included">Branch</a>
+		   
+	tools end -->
 
     <div id="chkList" class="matrix">
+
     	<ul class="matrix-switcher tabswitcher">
-			<li class="active"><a href="#" id="rightSideDefaultSelectedTabId" onclick="hideRightSideTabs(this); showWeightsTable();">Weights Matrix</a></li>
-			<li><a href="#" onclick="hideRightSideTabs(this); showTractsTable();">Tracts Matrix</a></li>
-		</ul>
-
-		<!--! Toolbar -->
-    	<ul class="toolbar-inline matrix-control">
-
-    		<li>Selection</li>
-    		
-			<!--! Node/Edge operations -->
-			<li class="selection-ops">
-				<nav class="inline-menu">
-					<button class="action action-menu">Edge Operations</button>
-
-					<div class="extension">
-		    			<div class="dropdown-pane">
-		    				<ul>
-		    					<li class="selectors">
-		    						<label for="con-op-operation"><mark>Operation</mark></label>
-		    						<select id='con-op-operation'></select>
-		    					</li>
-		    					
-		    					<li class="selectors">
-		    						<label for="con-op-edges-type"><mark>Edges type</mark></label>
-		    						<select id='con-op-edges-type'></select>
-		    					</li>
-		    					
-		    					<li class="operators">
-		    						<label for="con-op-arguments"><mark>Weight change</mark></label>
-		    						<input id='con-op-arguments' type='text' value='' placeholder="numeric value"/>
-		    					</li>
-		    					
-		    					<li class="actors">
-		    						<button class="action action-analyze" onclick='doGroupOperation()' value='Apply weight change to selected nodes'>Apply weight change</button>
-		    					</li>
-		    				</ul>
-		    			</div>
-		    		</div>
-				</nav>
+			<li class="active">
+				<a href="#" id="rightSideDefaultSelectedTabId" onclick="hideRightSideTabs(this); startConnectivityMatrix();">Weights Matrix</a>
 			</li>
-
-            <li class="selector-storage">
-                <xi:include href="../commons/channel_selector_button.html" />
-                ${drawRegionSelectorButton(connectivity_entity.display_name, groupedLabels, initialSelection, buttonTitle="Select Nodes")}
-            </li>
-
-            <li class="selector-storage">
-                <xi:include href="../commons/channel_selector_quick.html"/>
-                ${drawQuickSelector("selection-text-area", "loadSelectionFromTextBtn")}
-            </li>
+			<li><a href="#" onclick="hideRightSideTabs(this);startConnectivitytractMatrix();">Tracts Matrix</a></li>
 		</ul>
+		<!-- startConnectivitytractMatrix(); -->
 
-		<xi:include href="matrix_with_quadrants.html"/>
+		<!-- <xi:include href="matrix_with_quadrants.html"/> -->
+
+		<xi:include href="myconnectivity_matrix.html"/>
+		           ${drawmymatrix()}
+
+		<xi:include href="mytract_matrix.html"/> 
+				   ${drawmytractmatrix()}
+				   
+
 		<!--! Matrices: Weights -->
-		<div id="div-matrix-weights" class="matrix-viewer">
+
+		<!-- <div class="matrix-viewer1" id="div-matrix-weights">
 			<div class="matrix-table">
-	        	${draw2DConnectivityMatrix('leftHemisphere', 0, pointsLabels, 0, halfNodeCount, 0, halfNodeCount, 'w')}
-	        	${draw2DConnectivityMatrix('leftRightQuarter', 2, pointsLabels, 0, halfNodeCount, halfNodeCount, nodeCount, 'w')}
-	        	${draw2DConnectivityMatrix('rightLeftQuarter', 1, pointsLabels, halfNodeCount, nodeCount, 0, halfNodeCount, 'w')}
-	    		${draw2DConnectivityMatrix('rightHemisphere', 3, pointsLabels, halfNodeCount, nodeCount, halfNodeCount, nodeCount, 'w')}
+				${drawmymatrix()}
 			</div>
+			
 
-			${drawMatrixLegendArea('weights-legend')}
-	    </div>
-		<!--! Matrices: Tracts -->
-	    <div id="div-matrix-tracts" class="matrix-viewer">
-	    	<div class="matrix-table">
-	        	${draw2DConnectivityMatrix('leftHemisphereTracts', 0, pointsLabels, 0, halfNodeCount, 0, halfNodeCount, 't')}
-	        	${draw2DConnectivityMatrix('leftRightQuarterTracts', 2, pointsLabels, 0, halfNodeCount, halfNodeCount, nodeCount, 't')}
-	        	${draw2DConnectivityMatrix('rightLeftQuarterTracts', 1, pointsLabels, halfNodeCount, nodeCount, 0, halfNodeCount, 't')}
-	    		${draw2DConnectivityMatrix('rightHemisphereTracts', 3, pointsLabels, halfNodeCount, nodeCount, halfNodeCount, nodeCount, 't')}
-			</div>
+		</div> -->
+		
+ 
+		<!--! Matrices: tracts  -->
+		<!-- this div reduces the size of the canvas due to css properties written on it -->
+		<!-- <div class="matrix-viewer2" id="div-matrix-tracts">
+			<div class="matrix-table">   
+				${drawmytractmatrix()}
 
-			${drawMatrixLegendArea('tracts-legend')}
-	    </div>
+				</div>
+				 
+ 
+		</div> -->
+		 
+		 
+		
 
     </div>
-    
+
     <py:with vars="start_points_x= str([0, halfNodeCount, 0, halfNodeCount]);
 	               end_points_x= str([halfNodeCount, nodeCount, halfNodeCount, nodeCount]);
 	               start_points_y= str([0, halfNodeCount, halfNodeCount, 0]);
 	               end_points_y= str([halfNodeCount, nodeCount, nodeCount, halfNodeCount]) ">
 
-    <script type="text/javascript">    	
+    <script type="text/javascript">
         $(document).ready(function() {
             // todo: warning the jsons below are huge, practically the whole connectivity in json
             prepareConnectivity2D(${leftHemisphereJson}, ${bothHemisphereJson}, ${rightHemisphereJson});
@@ -190,8 +201,173 @@
 
 	<input type="hidden" id="currentlyEditedNode"/>
 
-    <xi:include href="context_menu_table.html"/>
-    
+	<xi:include href="context_menu_table.html"/>
+
 	</section>
+
+
+<!--! Toolbar -->
+
+	<section class="view-column view-matrix-tools col-3" style="overflow: visible">
+
+
+			<hgroup>
+					<h4><mark>Control</mark></h4>
+					<input 
+					type="text"
+					 id="newConnectivityNameTag"
+					  value="Large Scale matrix" 
+					  title="User name for the new Connectivity to be generated"
+					  size="10"
+					  style="margin: 5px 35px 5px 35px"
+					  />
+					  <label style="float:right;margin-right: 50px;color: aliceblue"> all nodes selected </label>
+			</hgroup>
+		
+				<a href="#" tabindex='-1' onclick='saveSubConnectivity("$submitURL", "$originalConnectivity", false);'
+				   class="action action-big-new action-new-connectivity column-control"
+				   title="Create a new connectivity from the selected nodes. Check the '* Select *' buttons bellow to see what it is included">Create new</a>
+		
+				<a href="#" tabindex='-1' onclick='saveSubConnectivity("$submitURL", "$originalConnectivity", true);'
+				   class="action action-big-branch action-branch-connectivity column-control"
+				   title="Clone the connectivity cutting the unselected edges. Check the '* Select *' buttons bellow to see what it is included">Branch</a>
+
+		     
+
+
+			<div style="margin: 50px 5px 5px 5px;">
+					<h4 style="text-align:center; margin:40px 5px 5px 5px"><mark></mark> selection</h4>
+					<!-- <ul class="matrix-switcher tabswitcher" style="margin: 5%">
+						<li class="active">
+							<a
+							 href="#" 
+							 id="rightSideDefaultSelectedTabId"
+							 onclick="hideRightSideTabs(this); startConnectivityMatrix();">Weights Matrix</a>
+						</li>
+					</ul>
+					<ul class="matrix-switcher tabswitcher" style="margin: 5%">
+						<li class="active">
+							<a 
+							href="#" 
+							onclick="hideRightSideTabs(this); startConnectivitytractMatrix();">Tracts Matrix</a></li>
+					</ul> -->
+			
+					<!--! Toolbar -->
+					
+			
+						<!--! Node/Edge operations -->
+						<li class="selection-ops">
+							<nav class="inline-menu">
+								<button class="action action-menu">Edge Operations</button>
+			
+								<div class="extension">
+									<div class="dropdown-pane">
+										<ul>
+											<li class="selectors">
+												<label for="con-op-operation"><mark>Operation</mark></label>
+												<select id='con-op-operation'></select>
+											</li>
+			
+											<li class="selectors">
+												<label for="con-op-edges-type"><mark>Edges type</mark></label>
+												<select id='con-op-edges-type'></select>
+											</li>
+			
+											<li class="operators">
+												<label for="con-op-arguments"><mark>Weight change</mark></label>
+												<input id='con-op-arguments' type='text' value='' placeholder="numeric value"/>
+											</li>
+			
+											<li class="actors">
+												<button class="action action-analyze" onclick='doGroupOperation()' value='Apply weight change to selected nodes'>Apply weight change</button>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</nav>
+						</li>
+			
+						<li class="selector-storage" style="margin: 5px 5px 5px 5px">
+							<xi:include href="../commons/channel_selector_button.html" />
+							${drawRegionSelectorButton(connectivity_entity.display_name, groupedLabels, initialSelection, buttonTitle="Select Nodes")}
+						</li>
+			
+						<li class="selector-storage" >
+							<xi:include href="../commons/channel_selector_quick.html"/>
+							${drawQuickSelector("selection-text-area", "loadSelectionFromTextBtn")}
+						</li>
+					
+			
+				</div>
+
+
+                <div style="margin: 50px 5px 5px 5px;">
+
+				     <h4><mark>View</mark></h4>
+	                 <a id="showConnectivityDetailsBtn" href="#" onclick='displayNodeDetails("${connectivity_entity.gid}", "${connectivity_entity.type}", null, "Visualizers");'
+	                 class="action action-big-analyze"
+	                 style="left: 160px;top: -45px;"
+	                  title="Overlay info for current connectivity entity.">Open Overlay</a>
+				   
+				</div>
+
+				
+			
+	</section>
+
+	<script>
+			// Make the DIV element draggable:
+			const ids = [1, 2, 3 , 4 , 5];
+			ids.forEach(function(id){
+		
+				var tempid = "mydiv" + id.toString();
+  dragElement(document.getElementById(tempid));
+  
+  function dragElement(elmnt) {
+	var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+	if (document.getElementById(elmnt.id + "header")) {
+	  // if present, the header is where you move the DIV from:
+	  document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+	} else {
+	  // otherwise, move the DIV from anywhere inside the DIV: 
+	  elmnt.onmousedown = dragMouseDown;
+	}
+  
+	function dragMouseDown(e) {
+	  e = e || window.event;
+	  e.preventDefault();
+	  // get the mouse cursor position at startup:
+	  pos3 = e.clientX;
+	  pos4 = e.clientY;
+	  document.onmouseup = closeDragElement;
+	  // call a function whenever the cursor moves:
+	  document.onmousemove = elementDrag;
+	}
+  
+	function elementDrag(e) {
+	  e = e || window.event;
+	  e.preventDefault();
+	  // calculate the new cursor position:
+	  pos1 = pos3 - e.clientX;
+	  pos2 = pos4 - e.clientY;
+	  pos3 = e.clientX;
+	  pos4 = e.clientY;
+	  // set the element's new position:
+	  elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	  elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	}
+  
+	function closeDragElement() {
+	  // stop moving when mouse button is released:
+	  document.onmouseup = null;
+	  document.onmousemove = null;
+	}
+  }
+
+			
+			});
+		
+</script>
+
 </div>
 
