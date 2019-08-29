@@ -123,15 +123,22 @@ class Json(Scalar):
     A python json like data structure accessor
     This works with simple Attr(list) Attr(dict) List(of=...)
     """
+    def __init__(self, trait_attribute, h5file, name=None, json_encoder=None, json_decoder=None):
+        super(Json, self).__init__(trait_attribute, h5file, name)
+        self.json_encoder = json_encoder
+        self.json_decoder = json_decoder
+
     def store(self, val):
         """
         stores a json in the h5 metadata
         """
-        val = json.dumps(val)
+        val = json.dumps(val, cls=self.json_encoder)
         self.owner.storage_manager.set_metadata({self.field_name: val})
 
     def load(self):
         val = self.owner.storage_manager.get_metadata()[self.field_name]
+        if self.json_decoder:
+            return self.json_decoder().decode(val)
         return json.loads(val)
 
 
