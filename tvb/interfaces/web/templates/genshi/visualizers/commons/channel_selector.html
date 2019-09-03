@@ -32,7 +32,7 @@
                                 <input type="{{ 'checkbox' if not radio else 'radio' }}" autocomplete="off"
                                     name="{{ radio }}"
                                     value="{{ value }}"
-                                    checked="{{ 'checked' if selected else None }}"/>
+                                    {{ ("checked='checked'") | safe if selected else None }}"/>
                                     {{ label }}
                             </label>
 

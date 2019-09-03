@@ -122,7 +122,7 @@ class SurfaceViewer(ABCDisplayer):
             url_measure_points_labels = self.paths2url(region_map.connectivity, 'region_labels')
             boundary_url = surface.get_url_for_region_boundaries(region_map)
         return dict(noOfMeasurePoints=measure_points_no, urlMeasurePoints=url_measure_points,
-                    urlMeasurePointsLabels=url_measure_points_labels, boundaryURL=boundary_url)
+                    urlMeasurePointsLabels=url_measure_points_labels,urlRegionBoundaries=boundary_url, boundaryURL=boundary_url)
 
 
     def _compute_measure_param(self, connectivity_measure, measure_points_no):

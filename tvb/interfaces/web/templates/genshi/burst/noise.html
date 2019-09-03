@@ -11,6 +11,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             noiseParam.main({{ stateVarsJson | safe }}, {{ initialNoiseValues | safe }}, "{{ measurePointsSelectionGID }}");
+            GFUN_initSelectionComponent("{{ measurePointsSelectionGID }}", "{{ hemisphereOrderUrl }}");
         });
     </script>
 {%- endmacro %}

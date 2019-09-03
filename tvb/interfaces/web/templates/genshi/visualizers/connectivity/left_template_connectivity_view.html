@@ -16,13 +16,15 @@
     <script type="text/javascript" src="/static_view/commons/scripts/regionSelector.js?{{ currentVersionJS }}"></script>
     <script type="text/javascript" src="/static/coloring/colorSchemeComponent.js?{{ currentVersionJS }}"></script>
 
+
     {% include 'visualizers/connectivity/connectivity_view.html' %}
-    {% import 'visualizers/connectivity/connectivity_view.html' as cv %}
+    {% import 'visualizers/connectivity/connectivity_view.html' as cv with context %}
 	{{ cv.drawConnectivityViewer(false) }}
     <br/>
 
     <script type="text/javascript">
         $(document).ready(function() {
+            GFUN_initSelectionComponent("{{ measurePointsSelectionGID }}", "{{ hemisphereOrderUrl }}");
             prepareConnectivity('{{ urlWeights }}', '{{ urlTracts }}', '{{ urlPositions | safe }}', '{{ urlVertices | safe }}', '{{ urlTriangles | safe }}',
                                 '{{ urlNormals | safe }}', '{{ urlLabels }}', true, '{{ conductionSpeed }}');
         });
