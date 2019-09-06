@@ -9,10 +9,6 @@
 
 		<li class="value-below">Value below <mark style="background-color:{{ secondColor }}">{{ (stepValue | round(2)) if (stepValue | abs) > 1 else (stepValue | round(4)) }}</mark></li>
 
-		<li>Min color <mark>{{ (minRay | round(2)) if (minRay | abs) > 1 else (minRay | round(4)) }}</mark></li>
-
-		<li>Max color <mark>{{ (maxRay | round(2)) if (maxRay | abs) > 1 else (maxRay | round(4)) }}</mark></li>
-
 		<li><a href="#" id="change2DViewBtn" class="action action-plus" title="Display associated color and shape size for nodes" onclick="change2DView();">Show All</a></li>
 	</ul>
 
