@@ -1,6 +1,9 @@
 {% macro draw_simple_select(inputRow, disabled, parentDivId, treeSessionKey) -%}
     <!--! Model/Monitor/ enumerates - a select that optionally has a subtree with attributes for each option-->
+
+    <!--! The file needed to also be included because of the stepsUpdate.js file which is needed for Simulator-Phase plane-->
     {% import 'flow/genericAdapterTemplateFunctions.html' as gatf with context %}
+    {% include 'flow/genericAdapterTemplateFunctions.html' %}
 
     {% if (inputRow.options | length) > 4 %}
 
