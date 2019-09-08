@@ -7,7 +7,7 @@ from tvb.core.neotraits.h5 import Scalar, DataSet, Reference
 class MonitorH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(MonitorH5, self).__init__(path, None)
+        super(MonitorH5, self).__init__(path)
         self.period = Scalar(Monitor.period, self)
         self.variables_of_interest = DataSet(Monitor.variables_of_interest, self)
 
@@ -49,8 +49,8 @@ class ProjectionH5(MonitorH5):
 
     def store(self, datatype, scalars_only=False, store_references=False):
         # type: (Projection) -> None
-        # TODO: handle references in this case
         super(ProjectionH5, self).store(datatype, scalars_only, store_references)
+        self.region_mapping.store(datatype.region_mapping.gid)
 
 
 class EEGH5(ProjectionH5):
@@ -62,6 +62,12 @@ class EEGH5(ProjectionH5):
         self.reference = Scalar(EEG.reference, self)
         self.sigma = Scalar(EEG.sigma, self)
 
+    def store(self, datatype, scalars_only=False, store_references=False):
+        # type: (Projection) -> None
+        super(EEGH5, self).store(datatype, scalars_only, store_references)
+        self.projection.store(datatype.projection.gid)
+        self.sensors.store(datatype.sensors.gid)
+
 
 class MEGH5(ProjectionH5):
 
@@ -69,6 +75,12 @@ class MEGH5(ProjectionH5):
         super(MEGH5, self).__init__(path)
         self.projection = Reference(MEG.projection, self)
         self.sensors = Reference(MEG.sensors, self)
+
+    def store(self, datatype, scalars_only=False, store_references=False):
+        # type: (Projection) -> None
+        super(MEGH5, self).store(datatype, scalars_only, store_references)
+        self.projection.store(datatype.projection.gid)
+        self.sensors.store(datatype.sensors.gid)
 
 
 class iEEGH5(ProjectionH5):
@@ -78,6 +90,12 @@ class iEEGH5(ProjectionH5):
         self.projection = Reference(iEEG.projection, self)
         self.sensors = Reference(iEEG.sensors, self)
         self.sigma = Scalar(iEEG.sigma, self)
+
+    def store(self, datatype, scalars_only=False, store_references=False):
+        # type: (Projection) -> None
+        super(iEEGH5, self).store(datatype, scalars_only, store_references)
+        self.projection.store(datatype.projection.gid)
+        self.sensors.store(datatype.sensors.gid)
 
 
 class BoldH5(MonitorH5):

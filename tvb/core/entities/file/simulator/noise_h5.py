@@ -6,7 +6,7 @@ from tvb.core.neotraits.h5 import Scalar, DataSet, Reference
 class NoiseH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(NoiseH5, self).__init__(path, None)
+        super(NoiseH5, self).__init__(path)
         self.ntau = Scalar(Noise.ntau, self)
         # TODO: serialize random_stream?
         self.noise_seed = Scalar(Noise.noise_seed, self)

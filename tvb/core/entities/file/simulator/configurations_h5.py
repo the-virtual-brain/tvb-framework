@@ -21,8 +21,8 @@ class SimulatorConfigurationH5(H5File):
 
         with config_h5_class(config_path) as config_h5:
             config_h5.gid.store(gid)
-            config_h5.generic_attributes.type = self.get_full_class_name(type(config))
             config_h5.store(config)
+            config_h5.generic_attributes.type = self.get_full_class_name(type(config))
 
         return gid
 

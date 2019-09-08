@@ -6,7 +6,7 @@ from tvb.core.neotraits.h5 import Reference, Scalar, Json, DataSet
 class SimulatorH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(SimulatorH5, self).__init__(path, None)
+        super(SimulatorH5, self).__init__(path)
         self.connectivity = Reference(Simulator.connectivity, self)
         self.conduction_speed = Scalar(Simulator.conduction_speed, self)
         self.coupling = Reference(Simulator.coupling, self)
@@ -25,7 +25,6 @@ class SimulatorH5(SimulatorConfigurationH5):
         self.conduction_speed.store(datatype.conduction_speed)
         self.initial_conditions.store(datatype.initial_conditions)
         self.simulation_length.store(datatype.simulation_length)
-        self.generic_attributes.type = self.get_full_class_name(type(datatype))
 
         integrator_gid = self.store_config_as_reference(datatype.integrator)
         self.integrator.store(integrator_gid)
@@ -40,10 +39,11 @@ class SimulatorH5(SimulatorConfigurationH5):
         monitor_gid = self.store_config_as_reference(datatype.monitors[0])
         self.monitors.store([monitor_gid.hex])
 
+        self.generic_attributes.type = self.get_full_class_name(type(datatype))
+
+
     def load_into(self, datatype):
         # type: (Simulator) -> None
-        # TODO: handle load conn here
-        # datatype.connectivity = ...(self.connectivity.load())
         datatype.conduction_speed = self.conduction_speed.load()
         datatype.initial_conditions = self.initial_conditions.load()
         datatype.simulation_length = self.simulation_length.load()

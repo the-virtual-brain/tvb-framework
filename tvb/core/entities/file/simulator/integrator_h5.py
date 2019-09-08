@@ -7,7 +7,7 @@ from tvb.core.neotraits.h5 import Scalar, Reference
 class IntegratorH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(IntegratorH5, self).__init__(path, None)
+        super(IntegratorH5, self).__init__(path)
         self.dt = Scalar(Integrator.dt, self)
         # TODO: store these?
         # self.clamped_state_variable_indices = DataSet(Integrator.clamped_state_variable_indices, self)

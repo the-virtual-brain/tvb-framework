@@ -7,7 +7,7 @@ from tvb.core.neotraits.h5 import H5File, Scalar, Json
 class EquationH5(H5File):
 
     def __init__(self, path):
-        super(EquationH5, self).__init__(path, None)
+        super(EquationH5, self).__init__(path)
 
         self.equation = Scalar(Equation.equation, self)
         self.parameters = Json(Equation.parameters, self)

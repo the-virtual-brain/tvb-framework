@@ -117,6 +117,7 @@ class SimulatorController(BurstBaseController):
         project = common.get_current_project()
 
         burst_config = BurstConfiguration2(project.id)
+        burst_config.project_id = project.id
         common.add2session(common.KEY_BURST_CONFIG, burst_config)
         template_specification['burstConfig'] = burst_config
         template_specification['burst_list'] = self.burst_service.get_available_bursts(common.get_current_project().id)
@@ -472,7 +473,7 @@ class SimulatorController(BurstBaseController):
         dict_to_render[self.FORM_KEY] = next_form
         dict_to_render[self.ACTION_KEY] = '/burst/set_simulation_length'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_monitor_params'
-        dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
+        # dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
         return dict_to_render
 
     @cherrypy.expose
@@ -492,7 +493,7 @@ class SimulatorController(BurstBaseController):
         dict_to_render[self.FORM_KEY] = next_form
         dict_to_render[self.ACTION_KEY] = '/burst/set_simulation_length'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_monitor_equation'
-        dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
+        # dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
         return dict_to_render
 
     @cherrypy.expose
@@ -520,6 +521,7 @@ class SimulatorController(BurstBaseController):
         simulator_index = dao.store_entity(simulator_index)
 
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
+        burst_config.simulator_id = simulator_index.id
         burst_config.start_time = datetime.datetime.now()
         if burst_name != 'none_undefined':
             burst_config.name = burst_name
@@ -575,7 +577,7 @@ class SimulatorController(BurstBaseController):
         storage_path = self.files_helper.get_project_folder(project, str(simulator_index.fk_from_operation))
 
         simulator_service = SimulatorService()
-        simulator, = simulator_service.deserialize_simulator(simulator_gid, storage_path)
+        simulator, _ = simulator_service.deserialize_simulator(simulator_gid, storage_path)
 
         session_stored_burst = simulator
         common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_burst)

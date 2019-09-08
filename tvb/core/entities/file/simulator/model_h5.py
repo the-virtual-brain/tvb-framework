@@ -33,7 +33,7 @@ class StateVariablesDecoder(json.JSONDecoder):
 class EpileptorH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(EpileptorH5, self).__init__(path, None)
+        super(EpileptorH5, self).__init__(path)
 
         self.a = DataSet(Epileptor.a, self)
         self.b = DataSet(Epileptor.b, self)
@@ -63,7 +63,7 @@ class EpileptorH5(SimulatorConfigurationH5):
 class Epileptor2DH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(Epileptor2DH5, self).__init__(path, None)
+        super(Epileptor2DH5, self).__init__(path)
 
         self.a = DataSet(Epileptor2D.a, self)
         self.b = DataSet(Epileptor2D.b, self)
@@ -85,7 +85,7 @@ class Epileptor2DH5(SimulatorConfigurationH5):
 class EpileptorCodim3H5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(EpileptorCodim3H5, self).__init__(path, None)
+        super(EpileptorCodim3H5, self).__init__(path)
         self.mu1_start = DataSet(EpileptorCodim3.mu1_start, self)
         self.mu2_start = DataSet(EpileptorCodim3.mu2_start, self)
         self.nu_start = DataSet(EpileptorCodim3.nu_start, self)
@@ -107,7 +107,7 @@ class EpileptorCodim3H5(SimulatorConfigurationH5):
 class EpileptorCodim3SlowModH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(EpileptorCodim3SlowModH5, self).__init__(path, None)
+        super(EpileptorCodim3SlowModH5, self).__init__(path)
         self.mu1_Ain = DataSet(EpileptorCodim3SlowMod.mu1_Ain, self)
         self.mu2_Ain = DataSet(EpileptorCodim3SlowMod.mu2_Ain, self)
         self.nu_Ain = DataSet(EpileptorCodim3SlowMod.nu_Ain, self)
@@ -138,7 +138,7 @@ class EpileptorCodim3SlowModH5(SimulatorConfigurationH5):
 class HopfieldH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(HopfieldH5, self).__init__(path, None)
+        super(HopfieldH5, self).__init__(path)
         self.taux = DataSet(Hopfield.taux, self)
         self.tauT = DataSet(Hopfield.tauT, self)
         self.dynamic = DataSet(Hopfield.dynamic, self)
@@ -150,7 +150,7 @@ class HopfieldH5(SimulatorConfigurationH5):
 class JansenRitH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(JansenRitH5, self).__init__(path, None)
+        super(JansenRitH5, self).__init__(path)
         self.A = DataSet(JansenRit.A, self)
         self.B = DataSet(JansenRit.B, self)
         self.a = DataSet(JansenRit.a, self)
@@ -174,7 +174,7 @@ class JansenRitH5(SimulatorConfigurationH5):
 class ZetterbergJansenH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(ZetterbergJansenH5, self).__init__(path, None)
+        super(ZetterbergJansenH5, self).__init__(path)
         self.He = DataSet(ZetterbergJansen.He, self)
         self.Hi = DataSet(ZetterbergJansen.Hi, self)
         self.ke = DataSet(ZetterbergJansen.ke, self)
@@ -202,7 +202,7 @@ class ZetterbergJansenH5(SimulatorConfigurationH5):
 class JC_EpileptorH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(JC_EpileptorH5, self).__init__(path, None)
+        super(JC_EpileptorH5, self).__init__(path)
         self.a = DataSet(JC_Epileptor.a, self)
         self.b = DataSet(JC_Epileptor.b, self)
         self.c = DataSet(JC_Epileptor.c, self)
@@ -240,7 +240,7 @@ class JC_EpileptorH5(SimulatorConfigurationH5):
 class LarterBreakspearH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(LarterBreakspearH5, self).__init__(path, None)
+        super(LarterBreakspearH5, self).__init__(path)
         self.gCa = DataSet(LarterBreakspear.gCa, self)
         self.gK = DataSet(LarterBreakspear.gK, self)
         self.gL = DataSet(LarterBreakspear.gL, self)
@@ -282,7 +282,7 @@ class LarterBreakspearH5(SimulatorConfigurationH5):
 class LinearH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(LinearH5, self).__init__(path, None)
+        super(LinearH5, self).__init__(path)
         self.gamma = DataSet(Linear.gamma, self)
         self.state_variable_range = Json(Linear.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                          json_decoder=StateVariablesDecoder)
@@ -292,7 +292,7 @@ class LinearH5(SimulatorConfigurationH5):
 class Generic2dOscillatorH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(Generic2dOscillatorH5, self).__init__(path, None)
+        super(Generic2dOscillatorH5, self).__init__(path)
         self.tau = DataSet(Generic2dOscillator.tau, self)
         self.I = DataSet(Generic2dOscillator.I, self)
         self.a = DataSet(Generic2dOscillator.a, self)
@@ -316,7 +316,7 @@ class Generic2dOscillatorH5(SimulatorConfigurationH5):
 class KuramotoH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(KuramotoH5, self).__init__(path, None)
+        super(KuramotoH5, self).__init__(path)
         self.omega = DataSet(Kuramoto.omega, self)
         self.state_variable_range = Json(Kuramoto.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                          json_decoder=StateVariablesDecoder)
@@ -326,7 +326,7 @@ class KuramotoH5(SimulatorConfigurationH5):
 class supHopfH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(supHopfH5, self).__init__(path, None)
+        super(supHopfH5, self).__init__(path)
         self.a = DataSet(supHopf.a, self)
         self.omega = DataSet(supHopf.omega, self)
         self.state_variable_range = Json(supHopf.state_variable_range, self, json_encoder=StateVariablesEncoder,
@@ -337,7 +337,7 @@ class supHopfH5(SimulatorConfigurationH5):
 class ReducedSetFitzHughNagumoH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(ReducedSetFitzHughNagumoH5, self).__init__(path, None)
+        super(ReducedSetFitzHughNagumoH5, self).__init__(path)
         self.tau = DataSet(ReducedSetFitzHughNagumo.tau, self)
         self.a = DataSet(ReducedSetFitzHughNagumo.a, self)
         self.b = DataSet(ReducedSetFitzHughNagumo.b, self)
@@ -354,7 +354,7 @@ class ReducedSetFitzHughNagumoH5(SimulatorConfigurationH5):
 class ReducedSetHindmarshRoseH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(ReducedSetHindmarshRoseH5, self).__init__(path, None)
+        super(ReducedSetHindmarshRoseH5, self).__init__(path)
         self.r = DataSet(ReducedSetHindmarshRose.r, self)
         self.a = DataSet(ReducedSetHindmarshRose.a, self)
         self.b = DataSet(ReducedSetHindmarshRose.b, self)
@@ -376,7 +376,7 @@ class ReducedSetHindmarshRoseH5(SimulatorConfigurationH5):
 class WilsonCowanH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(WilsonCowanH5, self).__init__(path, None)
+        super(WilsonCowanH5, self).__init__(path)
         self.c_ee = DataSet(WilsonCowan.c_ee, self)
         self.c_ie = DataSet(WilsonCowan.c_ie, self)
         self.c_ei = DataSet(WilsonCowan.c_ei, self)
@@ -407,7 +407,7 @@ class WilsonCowanH5(SimulatorConfigurationH5):
 class ReducedWongWangH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(ReducedWongWangH5, self).__init__(path, None)
+        super(ReducedWongWangH5, self).__init__(path)
         self.a = DataSet(ReducedWongWang.a, self)
         self.b = DataSet(ReducedWongWang.b, self)
         self.d = DataSet(ReducedWongWang.d, self)
@@ -425,7 +425,7 @@ class ReducedWongWangH5(SimulatorConfigurationH5):
 class ReducedWongWangExcIOInhIH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(ReducedWongWangExcIOInhIH5, self).__init__(path, None)
+        super(ReducedWongWangExcIOInhIH5, self).__init__(path)
         self.a_e = DataSet(ReducedWongWangExcIOInhI.a_e, self)
         self.b_e = DataSet(ReducedWongWangExcIOInhI.b_e, self)
         self.d_e = DataSet(ReducedWongWangExcIOInhI.d_e, self)
@@ -452,7 +452,7 @@ class ReducedWongWangExcIOInhIH5(SimulatorConfigurationH5):
 class Zerlaut_adaptation_first_orderH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(Zerlaut_adaptation_first_orderH5, self).__init__(path, None)
+        super(Zerlaut_adaptation_first_orderH5, self).__init__(path)
         self.g_L = DataSet(Zerlaut_adaptation_first_order.g_L, self)
         self.E_L_e = DataSet(Zerlaut_adaptation_first_order.E_L_e, self)
         self.E_L_i = DataSet(Zerlaut_adaptation_first_order.E_L_i, self)
@@ -480,7 +480,7 @@ class Zerlaut_adaptation_first_orderH5(SimulatorConfigurationH5):
 class Zerlaut_adaptation_second_orderH5(Zerlaut_adaptation_first_orderH5):
 
     def __init__(self, path):
-        super(Zerlaut_adaptation_second_orderH5, self).__init__(path, None)
+        super(Zerlaut_adaptation_second_orderH5, self).__init__(path)
         self.state_variable_range = Json(Zerlaut_adaptation_second_order.state_variable_range, self,
                                          json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
         # self.variables_of_interest = Json(Zerlaut_adaptation_second_order.variables_of_interest, self)
