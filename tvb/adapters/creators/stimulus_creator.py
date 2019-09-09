@@ -35,7 +35,6 @@
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.datatypes.patterns import StimuliSurface, StimuliRegion
 from tvb.datatypes.equations import Equation
-import tvb.basic.traits.traited_interface as interface
 
 
 
@@ -46,6 +45,8 @@ class SurfaceStimulusCreator(ABCSynchronous):
 
 
     def get_input_tree(self):
+        import tvb.basic.traits.traited_interface as interface
+
         """
         Returns the input interface for this adapter.
         """
@@ -119,6 +120,8 @@ class RegionStimulusCreator(ABCSynchronous):
 
 
     def get_input_tree(self):
+        import tvb.basic.traits.traited_interface as interface
+
         """
         Returns the input interface for this adapter.
         """

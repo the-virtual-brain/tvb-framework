@@ -38,8 +38,7 @@ import json
 import numpy
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
-from tvb.basic.traits.exceptions import TVBException
-from tvb.basic.traits.parameters_factory import collapse_params
+from tvb.basic.exceptions import TVBException
 from tvb.core import utils
 from tvb.core.adapters.exceptions import InvalidParameterException
 from tvb.core.entities.model.model_burst import KEY_PARAMETER_CHECKED, KEY_SAVED_VALUE
@@ -511,6 +510,8 @@ class InputTreeManager(object):
         """
         Convert HTTP POST parameters into Python parameters.
         """
+        from tvb.basic.traits.parameters_factory import collapse_params
+
         kwa = {}
         simple_select_list, to_skip_dict_subargs = [], []
         for row in flat_input_interface:
