@@ -2,7 +2,7 @@ import logging
 import numpy
 from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Json
 from tvb.datatypes.surfaces import Surface, KEY_VERTICES, KEY_START, KEY_END, SPLIT_BUFFER_SIZE, KEY_TRIANGLES, \
-    KEY_HEMISPHERE, HEMISPHERE_LEFT, SPLIT_PICK_MAX_TRIANGLE, paths2url
+    KEY_HEMISPHERE, HEMISPHERE_LEFT, SPLIT_PICK_MAX_TRIANGLE
 
 log = logging.getLogger(__name__)
 
