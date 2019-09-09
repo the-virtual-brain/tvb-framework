@@ -47,7 +47,6 @@ class WebSettingsProfile(BaseSettingsProfile):
     """
     LOGGER_CONFIG_FILE_NAME = "logger_config.conf"
 
-
     def initialize_profile(self, change_logger_in_dev=True):
         """
         Specific initialization when functioning with storage
@@ -56,11 +55,6 @@ class WebSettingsProfile(BaseSettingsProfile):
 
         if change_logger_in_dev and not self.env.is_distribution():
             self.LOGGER_CONFIG_FILE_NAME = "dev_logger_config.conf"
-
-        ## Make sure DB events are linked.
-        from tvb.core.traits import db_events
-        db_events.attach_db_events()
-
 
     def initialize_for_deployment(self):
         """

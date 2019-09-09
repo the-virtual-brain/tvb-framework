@@ -36,23 +36,25 @@ Demo script on how to load a TVB DataType by Id and modify metadata
 
 if __name__ == "__main__":
     from tvb.basic.profile import TvbProfile
+
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
 
 import datetime
 from tvb.core.entities.storage import dao
-from tvb.core.traits.types_mapped import SparseMatrix
 from tvb.datatypes.local_connectivity import LocalConnectivity
 
 
 def update_localconnectivity_metadata(dt_id):
     dt = dao.get_generic_entity(LocalConnectivity, dt_id)[0]
 
-    mtx = dt.matrix
-    info_dict = SparseMatrix.extract_sparse_matrix_metadata(mtx)
-
-    data_group_path = SparseMatrix.ROOT_PATH + 'matrix'
+    info_dict = {"dtype": dt.matrix.dtype.str,
+                 "format": dt.matrix.format,
+                 "Shape": str(dt.matrix.shape),
+                 "Maximum": dt.matrix.data.max(),
+                 "Minimum": dt.matrix.data.min(),
+                 "Mean": dt.matrix.mean()}
+    data_group_path = '/matrix'
     dt.set_metadata(info_dict, '', True, data_group_path)
-
 
 
 def update_dt(dt_id, new_create_date):
@@ -62,7 +64,6 @@ def update_dt(dt_id, new_create_date):
     # Update MetaData in H5 as well.
     dt = dao.get_datatype_by_gid(dt.gid)
     dt.persist_full_metadata()
-
 
 
 if __name__ == "__main__":
