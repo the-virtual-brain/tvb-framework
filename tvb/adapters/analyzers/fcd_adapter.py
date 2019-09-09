@@ -47,7 +47,6 @@ from sklearn.manifold import SpectralEmbedding
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.neotraits.api import HasTraits, Attr, Float
 from tvb.basic.neotraits.info import narray_describe
-from tvb.basic.traits.util import log_debug_array
 from tvb.basic.filters.chain import FilterChain
 from tvb.datatypes.time_series import TimeSeriesRegion
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
@@ -57,7 +56,6 @@ from tvb.core.entities.model.datatypes.fcd import FcdIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
-from tvb.core.neotraits.db import from_ndarray
 from tvb.interfaces.neocom._h5loader import DirLoader
 from tvb.interfaces.neocom.config import registry
 
@@ -185,7 +183,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
                             self.input_time_series_index.data_length_2d,
                             self.input_time_series_index.data_length_3d,
                             self.input_time_series_index.data_length_4d)
-        log_debug_array(self.log, time_series, "time_series")
+        LOG.debug("time_series shape is %s" % str(self.input_shape))
         self.actual_sp = float(sp) / time_series.sample_period
         self.actual_sw = float(sw) / time_series.sample_period
         actual_ts_length = self.input_shape[0]
