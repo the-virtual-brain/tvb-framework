@@ -46,11 +46,11 @@ from tvb.basic.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import IndependentComponentsH5
-from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.mode_decompositions import IndependentComponentsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
 from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.interfaces.neocom.config import registry
 
 LOG = get_logger(__name__)
 
@@ -151,12 +151,13 @@ class ICAAdapter(ABCAsynchronous):
         ica_index.source = self.input_time_series_index
 
         loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        input_path = loader.path_for(TimeSeriesH5, self.input_time_series_index.gid)
-        time_series_h5 = TimeSeriesH5(path=input_path)
+        time_series_h5_class = registry.get_h5file_for_index(type(time_series))
+        input_path = loader.path_for(time_series_h5_class, self.input_time_series_index.gid)
+        time_series_h5 = time_series_h5_class(path=input_path)
 
         loader = DirLoader(os.path.join(self.storage_path))
         result_path = loader.path_for(IndependentComponentsH5, ica_index.gid)
-        ica_h5 = IndependentComponentsH5(path=result_path)
+        ica_h5 = IndependentComponentsH5(path=result_path, generic_attributes=self.generic_attributes)
         ica_h5.gid.store(uuid.UUID(ica_index.gid))
         ica_h5.source.store(time_series_h5.gid.load())
         ica_h5.n_components.store(self.algorithm.n_components)

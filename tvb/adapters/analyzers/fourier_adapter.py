@@ -46,12 +46,11 @@ from tvb.basic.filters.chain import FilterChain
 import tvb.datatypes.spectral as spectral
 from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.time_series import TimeSeries
-
 from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5
-from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
+from tvb.interfaces.neocom.config import registry
 from tvb.interfaces.neocom.h5 import DirLoader
 
 LOG = get_logger(__name__)
@@ -193,14 +192,15 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         block_size = int(math.floor(self.input_shape[2] / self.memory_factor))
         blocks = int(math.ceil(self.input_shape[2] / block_size))
 
-        # TODO: handle this in generic manner
-        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        input_path = loader.path_for(TimeSeriesH5, self.input_time_series_index.gid)
-        input_time_series_h5 = TimeSeriesH5(input_path)
+        ts_h5_class = registry.get_h5file_for_index(type(self.input_time_series_index))
+        dir_loader = DirLoader(
+            os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
+        ts_h5_path = dir_loader.path_for(ts_h5_class, self.input_time_series_index.gid)
+        input_time_series_h5 = ts_h5_class(ts_h5_path)
 
         loader = DirLoader(self.storage_path)
         dest_path = loader.path_for(FourierSpectrumH5, fft_index.gid)
-        spectra_file = FourierSpectrumH5(dest_path)
+        spectra_file = FourierSpectrumH5(dest_path, self.generic_attributes)
         spectra_file.gid.store(uuid.UUID(fft_index.gid))
         spectra_file.source.store(uuid.UUID(self.input_time_series_index.gid))
 

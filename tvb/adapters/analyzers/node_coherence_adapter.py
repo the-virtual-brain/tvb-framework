@@ -46,22 +46,23 @@ from tvb.basic.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 
 from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5
-from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
 from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.interfaces.neocom.config import registry
 
 LOG = get_logger(__name__)
 
 class NodeCoherenceForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
-        super(NodeCoherenceForm, self).__init__(prefix)
-        self.time_series = DataTypeSelectField(NodeCoherence.time_series, self.get_required_datatype(), self,
-                                               conditions=self.get_filters())
+        super(NodeCoherenceForm, self).__init__(prefix, project_id)
+        self.time_series = DataTypeSelectField(self.get_required_datatype(), self, name=self.get_input_name(),
+                                               required=True, label=NodeCoherence.time_series.label,
+                                               doc=NodeCoherence.time_series.doc,
+                                               conditions=self.get_filters(), has_all_option=True)
         self.nfft = ScalarField(NodeCoherence.nfft, self)
-        self.project_id = project_id
 
     @staticmethod
     def get_required_datatype():
@@ -152,12 +153,13 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         coherence_spectrum_index = CoherenceSpectrumIndex()
 
         loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        input_path = loader.path_for(TimeSeriesH5, self.input_time_series_index.gid)
-        time_series_h5 = TimeSeriesH5(path=input_path)
+        time_series_h5_class = registry.get_h5file_for_index(type(time_series))
+        input_path = loader.path_for(time_series_h5_class, self.input_time_series_index.gid)
+        time_series_h5 = time_series_h5_class(path=input_path)
 
         loader = DirLoader(self.storage_path)
         dest_path = loader.path_for(CoherenceSpectrumH5, coherence_spectrum_index.gid)
-        coherence_h5 = CoherenceSpectrumH5(dest_path)
+        coherence_h5 = CoherenceSpectrumH5(dest_path, self.generic_attributes)
         coherence_h5.gid.store(uuid.UUID(coherence_spectrum_index.gid))
         coherence_h5.source.store(time_series_h5.gid.load())
         coherence_h5.nfft.store(self.algorithm.nfft)
@@ -178,6 +180,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
             coherence_h5.write_data_slice(partial_coh)
         coherence_h5.frequency.store(partial_coh.frequency)
         coherence_h5.close()
+        coherence_spectrum_index.ndim = len(coherence_h5.array_data.shape)
         time_series_h5.close()
 
         coherence_spectrum_index.source = self.input_time_series_index
