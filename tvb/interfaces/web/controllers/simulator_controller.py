@@ -105,9 +105,8 @@ class SimulatorController(BurstBaseController):
 
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
         if session_stored_simulator is None:
-            if session_stored_simulator is None:
-                session_stored_simulator = Simulator()  # self.burst_service.new_burst_configuration(common.get_current_project().id)
-                common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_simulator)
+            session_stored_simulator = Simulator()  # self.burst_service.new_burst_configuration(common.get_current_project().id)
+            common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_simulator)
 
         adapter_instance = ABCAdapter.build_adapter(self.cached_simulator_algorithm)
         form = adapter_instance.get_form()('', common.get_current_project().id)
@@ -536,7 +535,8 @@ class SimulatorController(BurstBaseController):
         simulator_service = SimulatorService()
 
         simulator_id = self.cached_simulator_algorithm.id
-        operation = simulator_service._prepare_operation(project.id, user.id, simulator_id, simulator_index)
+        algo_category = self.cached_simulator_algorithm.algorithm_category
+        operation = simulator_service._prepare_operation(project.id, user.id, simulator_id, simulator_index, algo_category)
 
         simulator_index.fk_from_operation = operation.id
         dao.store_entity(simulator_index)
