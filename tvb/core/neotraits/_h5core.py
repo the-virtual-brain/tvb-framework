@@ -1,15 +1,15 @@
 import importlib
 import uuid
-
 import typing
 import os.path
 import abc
 import numpy
+from datetime import datetime
 from tvb.core.entities.file.exceptions import MissingDataSetException
-
 from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
 from tvb.basic.neotraits.api import HasTraits, Attr, NArray
-
+from tvb.core.entities.generic_attributes import GenericAttributes
+from tvb.core.utils import date2string
 
 
 class Accessor(object):
@@ -85,7 +85,7 @@ class Uuid(Scalar):
 
     def load(self):
         # type: () -> uuid.UUID
-        #TODO: handle inexistent field?
+        # TODO: handle inexistent field?
         metadata = self.owner.storage_manager.get_metadata()
         if self.field_name in metadata:
             return uuid.UUID(metadata[self.field_name])
@@ -100,28 +100,28 @@ class DataSetMetaData(object):
     """
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, min, max):
-        self.min, self.max = min, max
+    def __init__(self, min, max, mean):
+        self.min, self.max, self.mean = min, max, mean
 
     @classmethod
     def from_array(cls, array):
         try:
-            return cls(min=array.min(), max=array.max())
+            return cls(min=array.min(), max=array.max(), mean=array.mean())
         except (TypeError, ValueError):
             # likely a string array
-            return cls(min=None, max=None)
+            return cls(min=None, max=None, mean=None)
 
     @classmethod
     def from_dict(cls, dikt):
-        return cls(min=dikt['Minimum'], max=dikt['Maximum'])
+        return cls(min=dikt['Minimum'], max=dikt['Maximum'], mean=dikt['Mean'])
 
     def to_dict(self):
-        return {'Minimum': self.min, 'Maximum': self.max}
+        return {'Minimum': self.min, 'Maximum': self.max, 'Mean': self.mean}
 
     def merge(self, other):
         self.min = min(self.min, other.min)
         self.max = max(self.max, other.max)
-
+        self.mean = (self.mean + other.mean) / 2
 
 
 class DataSet(Accessor):
@@ -232,17 +232,34 @@ class H5File(object):
     This class implements reading and writing to a *specific* h5 based file format.
     A subclass of this defines a new file format.
     """
+    is_new_file = True
 
-    def __init__(self, path):
+    def __init__(self, path, generic_attributes=GenericAttributes()):
         # type: (str) -> None
         self.path = path
         storage_path, file_name = os.path.split(path)
         self.storage_manager = HDF5StorageManager(storage_path, file_name)
+        if self.storage_manager.is_valid_hdf5_file():
+            self.is_new_file = False
+        self.generic_attributes = generic_attributes
         # would be nice to have an opened state for the chunked api instead of the close_file=False
 
         # common scalar headers
         self.gid = Uuid(Attr(field_type=uuid.UUID), self, name='gid')
         self.written_by = Scalar(Attr(str), self, name='written_by')
+        self.create_date = Scalar(Attr(str), self, name='create_date')
+
+        self.invalid = Scalar(Attr(bool), self, name='invalid')
+        self.is_nan = Scalar(Attr(bool), self, name='is_nan')
+        self.subject = Scalar(Attr(basestring), self, name='subject')
+        self.state = Scalar(Attr(basestring), self, name='state')
+        self.type = Scalar(Attr(basestring), self, name='type')
+        self.user_tag_1 = Scalar(Attr(basestring), self, name='user_tag_1')
+        self.user_tag_2 = Scalar(Attr(basestring), self, name='user_tag_2')
+        self.user_tag_3 = Scalar(Attr(basestring), self, name='user_tag_3')
+        self.user_tag_4 = Scalar(Attr(basestring), self, name='user_tag_4')
+        self.user_tag_5 = Scalar(Attr(basestring), self, name='user_tag_5')
+        self.visible = Scalar(Attr(bool), self, name='visible')
 
     def iter_accessors(self):
         # type: () -> typing.Generator[Accessor]
@@ -250,6 +267,10 @@ class H5File(object):
             if isinstance(accessor, Accessor):
                 yield accessor
 
+    def iter_datasets(self):
+        for dataset in self.__dict__.itervalues():
+            if isinstance(dataset, DataSet):
+                yield dataset
 
     def __enter__(self):
         return self
@@ -260,8 +281,22 @@ class H5File(object):
     def close(self):
         # write_metadata  creation time, serializer class name, etc
         self.written_by.store(self.__class__.__module__ + '.' + self.__class__.__name__)
-        self.storage_manager.close_file()
+        self.create_date.store(date2string(datetime.now()))
 
+        if self.is_new_file:
+            self.invalid.store(self.generic_attributes.invalid)
+            self.is_nan.store(self.generic_attributes.is_nan)
+            self.subject.store(self.generic_attributes.subject)
+            self.state.store(self.generic_attributes.state)
+            self.type.store(self.generic_attributes.type)
+            self.user_tag_1.store(self.generic_attributes.user_tag_1)
+            self.user_tag_2.store(self.generic_attributes.user_tag_2)
+            self.user_tag_3.store(self.generic_attributes.user_tag_3)
+            self.user_tag_4.store(self.generic_attributes.user_tag_4)
+            self.user_tag_5.store(self.generic_attributes.user_tag_5)
+            self.visible.store(self.generic_attributes.visible)
+
+        self.storage_manager.close_file()
 
     def store(self, datatype, scalars_only=False, store_references=True):
         # type: (HasTraits, bool, bool) -> None
@@ -279,6 +314,8 @@ class H5File(object):
 
     def load_into(self, datatype):
         # type: (HasTraits) -> None
+        self._load_generic_attributes()
+
         for accessor in self.iter_accessors():
             if isinstance(accessor, Reference):
                 # we do not load references recursively
@@ -298,6 +335,20 @@ class H5File(object):
                     value = None
 
             setattr(datatype, f_name, value)
+
+
+    def _load_generic_attributes(self):
+        self.generic_attributes.invalid = self.invalid.load()
+        self.generic_attributes.is_nan = self.is_nan.load()
+        self.generic_attributes.subject = self.subject.load()
+        self.generic_attributes.state = self.state.load()
+        self.generic_attributes.type = self.type.load()
+        self.generic_attributes.user_tag_1 = self.user_tag_1.load()
+        self.generic_attributes.user_tag_2 = self.user_tag_2.load()
+        self.generic_attributes.user_tag_3 = self.user_tag_3.load()
+        self.generic_attributes.user_tag_4 = self.user_tag_4.load()
+        self.generic_attributes.user_tag_5 = self.user_tag_5.load()
+        self.generic_attributes.visible = self.visible.load()
 
 
     def gather_references(self):

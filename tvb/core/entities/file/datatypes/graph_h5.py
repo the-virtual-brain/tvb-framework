@@ -6,8 +6,8 @@ from tvb.core.neotraits.h5 import DataSet, Reference, Json
 
 class CovarianceH5(DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(CovarianceH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(CovarianceH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(Covariance.array_data, self, expand_dimension=2)
         self.source = Reference(Covariance.source, self)
 
@@ -20,8 +20,8 @@ class CovarianceH5(DataTypeMatrixH5):
 
 class CorrelationCoefficientsH5(DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(CorrelationCoefficientsH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(CorrelationCoefficientsH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(CorrelationCoefficients.array_data, self)
         self.source = Reference(CorrelationCoefficients.source, self)
         self.labels_ordering = Json(CorrelationCoefficients.labels_ordering, self)
@@ -33,8 +33,8 @@ class CorrelationCoefficientsH5(DataTypeMatrixH5):
 
 class ConnectivityMeasureH5(DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(ConnectivityMeasureH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(ConnectivityMeasureH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(ConnectivityMeasure.array_data, self)
         self.connectivity = Reference(ConnectivityMeasure.connectivity, self)
 

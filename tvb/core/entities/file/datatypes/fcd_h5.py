@@ -6,8 +6,8 @@ from tvb.core.neotraits.h5 import DataSet, Reference, Scalar, Json
 
 class FcdH5(DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(FcdH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(FcdH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(Fcd.array_data, self)
         self.source = Reference(Fcd.source, self)
         self.sw = Scalar(Fcd.sw, self)

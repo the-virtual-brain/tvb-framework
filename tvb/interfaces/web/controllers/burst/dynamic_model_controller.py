@@ -36,9 +36,6 @@ import numpy
 import threading
 from tvb.basic.neotraits.api import HasTraits, Attr
 from tvb.adapters.visualizers.phase_plane_interactive import phase_space_d3
-from tvb.basic.traits import traited_interface
-from tvb.basic.traits.parameters_factory import get_traited_subclasses
-from tvb.basic.traits.util import multiline_math_directives_to_matjax
 from tvb.core import utils
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.input_tree import InputTreeManager
@@ -133,6 +130,8 @@ class _LeftFragmentAdapter(ABCAdapter):
         return 0
 
     def get_input_tree(self):
+        from tvb.basic.traits import traited_interface
+
         models_sub_tree = {
             'name': 'model_type', 'type': 'select', 'required': True, 'label': 'model',
             'default' : 'Generic2dOscillator',
@@ -163,7 +162,7 @@ class _LeftFragmentAdapter(ABCAdapter):
         It converts them in html text that will be interpreted by mathjax
         The parsing is simplistic, not a full rst parser.
         """
-
+        from tvb.basic.traits.util import multiline_math_directives_to_matjax
         def format_doc(doc):
             return multiline_math_directives_to_matjax(doc).replace('&', '&amp;').replace('.. math::','')
 
@@ -211,8 +210,8 @@ class DynamicModelController(BurstBaseController):
 
     def __init__(self):
         BurstBaseController.__init__(self)
-        self.available_models = get_traited_subclasses(models.Model)
-        self.available_integrators = get_traited_subclasses(integrators.Integrator)
+        self.available_models = models.Model.get_known_subclasses()
+        self.available_integrators = integrators.Integrator.get_known_subclasses()
         self.cache = SessionCache()
         # Work around a numexpr thread safety issue. See TVB-1639.
         self.traj_lock = threading.Lock()

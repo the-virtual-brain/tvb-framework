@@ -6,8 +6,8 @@ from tvb.core.neotraits.h5 import H5File, Reference, DataSet, Scalar
 
 class StimuliRegionH5(H5File):
 
-    def __init__(self, path):
-        super(StimuliRegionH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(StimuliRegionH5, self).__init__(path, generic_attributes)
         self.spatial = Scalar(Attr(str), self, name='spatial')
         self.temporal = Scalar(Attr(str), self, name='temporal')
         self.connectivity = Reference(StimuliRegion.connectivity, self)
@@ -32,8 +32,8 @@ class StimuliRegionH5(H5File):
 
 class StimuliSurfaceH5(H5File):
 
-    def __init__(self, path):
-        super(StimuliSurfaceH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(StimuliSurfaceH5, self).__init__(path, generic_attributes)
         self.spatial = Scalar(Attr(str), self, name='spatial')
         self.temporal = Scalar(Attr(str), self, name='temporal')
         self.surface = Reference(StimuliSurface.surface, self)

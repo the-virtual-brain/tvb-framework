@@ -41,7 +41,6 @@ import numpy
 from tvb.analyzers.fmri_balloon import BalloonModel
 from tvb.datatypes.time_series import TimeSeries
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
-from tvb.basic.traits.util import log_debug_array
 from tvb.basic.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 
@@ -118,7 +117,7 @@ class BalloonModelAdapter(ABCAsynchronous):
                             self.input_time_series_index.data_length_3d,
                             self.input_time_series_index.data_length_4d)
 
-        log_debug_array(LOG, time_series, "time_series")
+        LOG.debug("time_series shape is %s" % str(self.input_shape))
         ##-------------------- Fill Algorithm for Analysis -------------------##
         algorithm = BalloonModel()
 

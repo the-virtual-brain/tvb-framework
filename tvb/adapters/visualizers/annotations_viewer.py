@@ -34,7 +34,6 @@
 
 import json
 from tvb.basic.profile import TvbProfile
-from tvb.basic.traits.core import KWARG_FILTERS_UI
 from tvb.basic.filters.chain import FilterChain, UIFilter
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
@@ -54,6 +53,8 @@ class ConnectivityAnnotationsView(ABCDisplayer):
 
 
     def get_input_tree(self):
+        from tvb.basic.traits.core import KWARG_FILTERS_UI
+
         """
         Take as Input a Connectivity Object.
         """

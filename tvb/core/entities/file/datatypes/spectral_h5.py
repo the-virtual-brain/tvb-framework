@@ -16,8 +16,8 @@ class DataTypeMatrixH5(H5File):
 
 class FourierSpectrumH5(DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(FourierSpectrumH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(FourierSpectrumH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(FourierSpectrum.array_data, self, expand_dimension=2)
         self.source = Reference(FourierSpectrum.source, self)
         self.segment_length = Scalar(FourierSpectrum.segment_length, self)
@@ -80,8 +80,8 @@ class FourierSpectrumH5(DataTypeMatrixH5):
 
 class WaveletCoefficientsH5(DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(WaveletCoefficientsH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(WaveletCoefficientsH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(WaveletCoefficients.array_data, self, expand_dimension=2)
         self.source = Reference(WaveletCoefficients.source, self)
         self.mother = Scalar(WaveletCoefficients.mother, self)
@@ -115,8 +115,8 @@ class WaveletCoefficientsH5(DataTypeMatrixH5):
 
 class CoherenceSpectrumH5(DataTypeMatrixH5):
 
-    def __init__(self, path):
-        super(CoherenceSpectrumH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(CoherenceSpectrumH5, self).__init__(path, generic_attributes)
         self.array_data = DataSet(CoherenceSpectrum.array_data, self, expand_dimension=3)
         self.source = Reference(CoherenceSpectrum.source, self)
         self.nfft = Scalar(CoherenceSpectrum.nfft, self)
@@ -134,8 +134,8 @@ class CoherenceSpectrumH5(DataTypeMatrixH5):
 class ComplexCoherenceSpectrumH5(DataTypeMatrixH5):
     spectrum_types = ["Imaginary", "Real", "Absolute"]
 
-    def __init__(self, path):
-        super(ComplexCoherenceSpectrumH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(ComplexCoherenceSpectrumH5, self).__init__(path, generic_attributes)
         self.cross_spectrum = DataSet(ComplexCoherenceSpectrum.cross_spectrum, self, expand_dimension=2)
         self.array_data = DataSet(ComplexCoherenceSpectrum.array_data, self, expand_dimension=2)
         self.source = Reference(ComplexCoherenceSpectrum.source, self)

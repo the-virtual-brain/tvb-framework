@@ -2,15 +2,15 @@ import logging
 import numpy
 from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Json
 from tvb.datatypes.surfaces import Surface, KEY_VERTICES, KEY_START, KEY_END, SPLIT_BUFFER_SIZE, KEY_TRIANGLES, \
-    KEY_HEMISPHERE, HEMISPHERE_LEFT, SPLIT_PICK_MAX_TRIANGLE, paths2url
+    KEY_HEMISPHERE, HEMISPHERE_LEFT, SPLIT_PICK_MAX_TRIANGLE
 
 log = logging.getLogger(__name__)
 
 
 class SurfaceH5(H5File):
 
-    def __init__(self, path):
-        super(SurfaceH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(SurfaceH5, self).__init__(path, generic_attributes)
         self.vertices = DataSet(Surface.vertices, self)
         self.triangles = DataSet(Surface.triangles, self)
         self.vertex_normals = DataSet(Surface.vertex_normals, self)

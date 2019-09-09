@@ -7,8 +7,8 @@ from tvb.simulator.simulator import Simulator
 
 class SimulationStateH5(H5File):
 
-    def __init__(self, path):
-        super(SimulationStateH5, self).__init__(path)
+    def __init__(self, path, generic_attributes=None):
+        super(SimulationStateH5, self).__init__(path, generic_attributes)
         self.history = DataSet(NArray(), self, name='history')
         self.current_state = DataSet(NArray(), self, name='current_state')
         self.current_step = Scalar(Int(), self, name='current_step')

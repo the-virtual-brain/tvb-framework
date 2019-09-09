@@ -104,9 +104,13 @@ class DirLoader(object):
         """
         where will this Loader expect to find a file of this format and with this gid
         """
+        datatype_cls = registry.get_datatype_for_h5file(h5_file_class)
+        return self.path_for_has_traits(datatype_cls, gid)
+
+    def path_for_has_traits(self, has_traits_class, gid):
+
         if isinstance(gid, basestring):
             gid = uuid.UUID(gid)
-        datatype_cls = registry.get_datatype_for_h5file(h5_file_class)
-        fname = '{}_{}.h5'.format(datatype_cls.__name__, gid.hex)
+        fname = '{}_{}.h5'.format(has_traits_class.__name__, gid.hex)
         return os.path.join(self.base_dir, fname)
 
