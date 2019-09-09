@@ -45,7 +45,6 @@ from datetime import datetime
 from abc import ABCMeta, abstractmethod
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
-import tvb.basic.traits.traited_interface as interface
 from tvb.core.adapters import input_tree
 from tvb.core.adapters.input_tree import InputTreeManager
 from tvb.core.entities.generic_attributes import GenericAttributes
@@ -199,8 +198,8 @@ class ABCAdapter(object):
     KEYWORD_SEPARATOR = input_tree.KEYWORD_SEPARATOR
     KEYWORD_OPTION = input_tree.KEYWORD_OPTION
 
-    INTERFACE_ATTRIBUTES_ONLY = interface.INTERFACE_ATTRIBUTES_ONLY
-    INTERFACE_ATTRIBUTES = interface.INTERFACE_ATTRIBUTES
+    INTERFACE_ATTRIBUTES_ONLY = "attributes-only"
+    INTERFACE_ATTRIBUTES = "attributes"
 
     # model.Algorithm instance that will be set for each adapter created by in build_adapter method
     stored_adapter = None
@@ -529,10 +528,6 @@ class ABCAdapter(object):
         try:
             ad_module = importlib.import_module(stored_adapter.module)
             # This does no work for all adapters, so let it for manually choosing by developer
-            if TvbProfile.env.IS_WORK_IN_PROGRESS:
-                importlib.reload(ad_module)
-                LOGGER.info("Reloaded %r", ad_module)
-
             adapter_class = getattr(ad_module, stored_adapter.classname)
             adapter_instance = adapter_class()
             adapter_instance.stored_adapter = stored_adapter
