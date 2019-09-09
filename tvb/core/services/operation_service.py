@@ -46,7 +46,8 @@ from copy import copy
 from cgi import FieldStorage
 from datetime import datetime
 from tvb.basic.exceptions import TVBException
-from tvb.basic.traits.types_basic import MapAsJson, Range
+from tvb.basic.neotraits._attr import Range
+from tvb.basic.neotraits.map_as_json import MapAsJson
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 from tvb.core import utils
@@ -293,20 +294,33 @@ class OperationService:
             if self.ATT_UID in kwargs:
                 unique_id = kwargs[self.ATT_UID]
             #TODO: this currently keeps both ways to display forms
-            if adapter_instance.get_input_tree() is None:
-                filtered_kwargs = adapter_instance.get_form().get_form_values()
+            if not 'SimulatorAdapter' in adapter_instance.__class__.__name__:
+                if adapter_instance.get_input_tree() is None:
+                    # form = adapter_instance.get_form()('', project_id=operation.fk_launched_in)
+                    # form.fill_from_post(kwargs)
+                    # dt_dict = None
+                    # if form.validate():
+                    #     dt_dict = form.get_dict()
+                    # if dt_dict is None:
+                    #     raise ValueError("Could not build a dict out of this form!")
+                    # adapter_instance.set_form(form)
+                    filtered_kwargs = adapter_instance.get_form().get_form_values()
+                else:
+                    # Replace this with a method to retrieve TSI by GID/Keep only GID on kwargs dict
+                    # We might not need kwargs anymore
+                    filtered_kwargs = kwargs
+                    filtered_kwargs = adapter_instance.prepare_ui_inputs(kwargs)
+
+                params = dict()
+                for k, value_ in filtered_kwargs.items():
+                    params[str(k)] = value_
+                self.logger.debug("Launching operation " + str(operation.id) + " with " + str(filtered_kwargs))
             else:
-                # Replace this with a method to retrieve TSI by GID/Keep only GID on kwargs dict
-                # We might not need kwargs anymore
-                filtered_kwargs = kwargs
-                filtered_kwargs = adapter_instance.prepare_ui_inputs(kwargs)
+                params = kwargs
+                self.logger.debug("Launching operation " + str(operation.id) + " with " + str(kwargs))
 
-            self.logger.debug("Launching operation " + str(operation.id) + " with " + str(filtered_kwargs))
+
             operation = dao.get_operation_by_id(operation.id)   # Load Lazy fields
-
-            params = dict()
-            for k, value_ in filtered_kwargs.items():
-                params[str(k)] = value_
 
             disk_space_per_user = TvbProfile.current.MAX_DISK_SPACE
             pending_op_disk_space = dao.compute_disk_size_for_started_ops(operation.fk_launched_by)
@@ -481,7 +495,7 @@ class OperationService:
             lo_val = float(range_data[constants.ATT_MINVALUE])
             hi_val = float(range_data[constants.ATT_MAXVALUE])
             step = float(range_data[constants.ATT_STEP])
-            range_values = list(Range(lo=lo_val, hi=hi_val, step=step, mode=Range.MODE_INCLUDE_BOTH))
+            range_values = list(Range(lo=lo_val, hi=hi_val, step=step).to_array()) #, mode=Range.MODE_INCLUDE_BOTH))
 
         else:
             for possible_value in range_data:
