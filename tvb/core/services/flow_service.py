@@ -37,7 +37,7 @@ Code related to launching/duplicating operations is placed here.
 """
 
 from inspect import getmro
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.exceptions import TVBException
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.input_tree import InputTreeManager

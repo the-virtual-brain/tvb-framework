@@ -37,9 +37,8 @@ import json
 import math
 import numpy
 from copy import copy
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.datatypes.graph import ConnectivityMeasure
-
 from tvb.adapters.visualizers.surface_view import SurfaceURLGenerator
 from tvb.config import CONNECTIVITY_CREATOR_MODULE, CONNECTIVITY_CREATOR_CLASS
 from tvb.core.adapters.abcadapter import ABCAdapterForm

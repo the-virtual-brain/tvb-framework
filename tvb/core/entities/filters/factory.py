@@ -34,16 +34,15 @@
 import json
 import six
 import tvb.core.entities.model.model_operation as model
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 
 
-class StaticFiltersFactory():
+class StaticFiltersFactory(object):
     """
     Factory class to build lists with static used filters through the application.
     """
     RELEVANT_VIEW = "Relevant view"
     FULL_VIEW = "Full view"
-
 
     @staticmethod
     def build_datatype_filters(selected=RELEVANT_VIEW, single_filter=None):
@@ -62,16 +61,15 @@ class StaticFiltersFactory():
             if single_filter in filters:
                 return filters[single_filter]
             else:
-                ### We have some custom filter to build
+                # We have some custom filter to build
                 return StaticFiltersFactory._build_custom_filter(single_filter)
         return filters.values()
-
 
     @staticmethod
     def _build_custom_filter(filter_data):
         """
         Param filter_data should be at this point a dictionary of the form:
-        {'type' : 'fitler_type', 'value' : 'fitler_value'}
+        {'type' : 'filter_type', 'value' : 'filter_value'}
         If 'filter_type' is not handled just return None.
         """
         filter_data = json.loads(filter_data)
@@ -83,7 +81,6 @@ class StaticFiltersFactory():
                                [filter_data['value']], operations=["like"])
         return None
 
-
     @staticmethod
     def build_operations_filters(simulation_algorithm, logged_user_id):
         """
@@ -91,7 +88,7 @@ class StaticFiltersFactory():
         """
         new_filters = []
 
-        ### Filter by algorithm / categories 
+        # Filter by algorithm / categories
         new_filter = FilterChain("Omit Views", [FilterChain.algorithm_category + '.display'],
                                  [False], operations=["=="])
         new_filters.append(new_filter)
@@ -104,7 +101,7 @@ class StaticFiltersFactory():
                                      [simulation_algorithm.id], operations=["=="])
             new_filters.append(new_filter)
 
-        ### Filter by operation status
+        # Filter by operation status
         filtered_statuses = {model.STATUS_STARTED: "Only Running",
                              model.STATUS_ERROR: "Only with Errors",
                              model.STATUS_CANCELED: "Only Canceled",
@@ -114,12 +111,12 @@ class StaticFiltersFactory():
             new_filter = FilterChain(title, [FilterChain.operation + '.status'], [status], operations=["=="])
             new_filters.append(new_filter)
 
-        ### Filter by author
+        # Filter by author
         new_filter = FilterChain("Only mine", [FilterChain.operation + '.fk_launched_by'],
                                  [logged_user_id], operations=["=="])
         new_filters.append(new_filter)
 
-        ### Filter by other flags
+        # Filter by other flags
         new_filter = FilterChain("Only relevant", [FilterChain.operation + '.visible'], [True], operations=["=="])
         new_filter.selected = True
         new_filters.append(new_filter)

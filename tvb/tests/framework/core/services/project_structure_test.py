@@ -40,7 +40,7 @@ from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.entities.transient.filtering import StaticFiltersFactory
+from tvb.core.entities.filters.factory import StaticFiltersFactory
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.flow_service import FlowService
 from tvb.tests.framework.core.factory import TestFactory

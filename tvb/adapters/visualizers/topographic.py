@@ -38,13 +38,11 @@ import numpy
 import json
 from scipy.optimize import leastsq
 from scipy.interpolate import griddata
-
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.graph import ConnectivityMeasure
-from tvb.basic.filters.chain import FilterChain
-
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex

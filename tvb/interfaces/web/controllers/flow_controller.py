@@ -42,7 +42,7 @@ import cherrypy
 import formencode
 import numpy
 import six
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.adapters import constants
 from tvb.core.adapters.input_tree import InputTreeManager, MAXIMUM_DATA_TYPES_DISPLAYED, KEY_WARNING, WARNING_OVERFLOW
 from tvb.core.utils import url2path, parse_json_parameters, string2date, string2bool

@@ -33,7 +33,7 @@
 
 import json
 import uuid
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.adapters.exceptions import LaunchException, ParseException
 from tvb.adapters.uploaders.gifti.parser import GIFTIParser

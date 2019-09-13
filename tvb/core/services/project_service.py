@@ -49,7 +49,7 @@ from tvb.core.utils import string2date, date2string, format_timedelta, format_by
 from tvb.core.removers_factory import get_remover
 from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.transient.context_overlay import CommonDetails, DataTypeOverlayDetails, OperationOverlayDetails
-from tvb.core.entities.transient.filtering import StaticFiltersFactory
+from tvb.core.entities.filters.factory import StaticFiltersFactory
 from tvb.core.entities.transient.structure_entities import StructureNode, DataTypeMetaData
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.exceptions import FileStructureException

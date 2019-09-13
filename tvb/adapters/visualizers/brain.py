@@ -41,8 +41,7 @@ from tvb.adapters.visualizers.eeg_monitor import EegMonitor
 from tvb.adapters.visualizers.surface_view import ensure_shell_surface, SurfaceURLGenerator
 from tvb.adapters.visualizers.sensors import prepare_sensors_as_measure_points_params
 from tvb.adapters.visualizers.sensors import prepare_mapped_sensors_as_measure_points_params
-from tvb.basic.filters.chain import FilterChain
-
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
@@ -51,7 +50,6 @@ from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeS
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.surfaces import CORTICAL, EEG_CAP
-
 from tvb.core.neotraits._forms import DataTypeSelectField
 from tvb.interfaces.neocom._h5loader import DirLoader
 from tvb.interfaces.neocom.config import registry

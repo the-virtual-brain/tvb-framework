@@ -46,7 +46,7 @@ from tvb.basic.profile import TvbProfile
 from tvb.core.services.introspector_registry import IntrospectionRegistry
 import tvb.core.entities.model.model_operation as model
 from tvb.core.entities.transient import graph_structures
-from tvb.core.entities.transient.filtering import StaticFiltersFactory
+from tvb.core.entities.filters.factory import StaticFiltersFactory
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.import_service import ImportService

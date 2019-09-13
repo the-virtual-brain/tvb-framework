@@ -42,9 +42,8 @@ from tvb.analyzers.node_coherence import NodeCoherence
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.spectral import CoherenceSpectrum
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
-
 from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
@@ -53,6 +52,7 @@ from tvb.interfaces.neocom._h5loader import DirLoader
 from tvb.interfaces.neocom.config import registry
 
 LOG = get_logger(__name__)
+
 
 class NodeCoherenceForm(ABCAdapterForm):
 

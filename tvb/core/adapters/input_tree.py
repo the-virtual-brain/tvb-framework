@@ -36,7 +36,7 @@ Preparation validation and manipulation of adapter input trees
 from copy import copy
 import json
 import numpy
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.exceptions import TVBException
 from tvb.core import utils

@@ -40,7 +40,7 @@ import zipfile
 import tempfile
 from tvb.datatypes.surfaces import CORTICAL
 from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.profile import TvbProfile
 from tvb.core.adapters.exceptions import LaunchException

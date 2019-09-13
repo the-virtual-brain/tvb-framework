@@ -40,7 +40,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.services.project_service import ProjectService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.core.entities.transient.filtering import FilterChain
+from tvb.core.entities.filters.factory import FilterChain
 from tvb.interfaces.web.controllers.decorators import handle_error, expose_fragment, check_user
 from tvb.interfaces.web.controllers.decorators import using_template, expose_json
 from tvb.interfaces.web.controllers.base_controller import BaseController

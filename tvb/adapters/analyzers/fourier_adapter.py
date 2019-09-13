@@ -42,7 +42,7 @@ import numpy
 import math
 import tvb.analyzers.fft as fft
 import tvb.core.adapters.abcadapter as abcadapter
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 import tvb.datatypes.spectral as spectral
 from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.time_series import TimeSeries
@@ -54,6 +54,7 @@ from tvb.interfaces.neocom.config import registry
 from tvb.interfaces.neocom.h5 import DirLoader
 
 LOG = get_logger(__name__)
+
 
 class FFTAdapterForm(abcadapter.ABCAdapterForm):
 

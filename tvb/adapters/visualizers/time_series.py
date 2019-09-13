@@ -37,7 +37,7 @@ A Javascript displayer for time series, using SVG.
 
 import os
 import json
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer, URLGenerator
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex

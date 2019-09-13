@@ -46,7 +46,7 @@ from tvb.basic.neotraits.info import narray_describe
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.basic.logger.builder import get_logger
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.temporal_correlations import CrossCorrelation
 from tvb.datatypes.graph import CorrelationCoefficients
@@ -57,7 +57,6 @@ from tvb.core.entities.model.datatypes.temporal_correlations import CrossCorrela
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesEEGIndex, TimeSeriesMEGIndex, \
     TimeSeriesSEEGIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
-from tvb.core.neotraits.db import from_ndarray
 from tvb.interfaces.neocom._h5loader import DirLoader
 from tvb.interfaces.neocom.config import registry
 

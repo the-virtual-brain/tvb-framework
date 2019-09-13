@@ -43,7 +43,7 @@ from tvb.basic.neotraits.info import narray_describe
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.graph import Covariance
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.graph_h5 import CovarianceH5
 from tvb.core.entities.model.datatypes.graph import CovarianceIndex

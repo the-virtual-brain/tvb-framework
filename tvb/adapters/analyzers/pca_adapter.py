@@ -42,9 +42,8 @@ from tvb.analyzers.pca import PCA
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.mode_decompositions import PrincipalComponents
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
-
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex

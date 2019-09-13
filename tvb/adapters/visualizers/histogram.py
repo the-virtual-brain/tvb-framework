@@ -38,7 +38,7 @@ import json
 import numpy
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
 

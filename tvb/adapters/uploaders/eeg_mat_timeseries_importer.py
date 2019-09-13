@@ -28,7 +28,7 @@
 #
 #
 
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.datatypes.sensors import EEG_POLYMORPHIC_IDENTITY
 from tvb.adapters.uploaders.mat_timeseries_importer import MatTimeSeriesImporterForm, TS_EEG, MatTimeSeriesImporter
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex

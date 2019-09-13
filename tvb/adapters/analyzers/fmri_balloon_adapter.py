@@ -36,14 +36,12 @@ Adapter that uses the traits module to generate interfaces for BalloonModel Anal
 """
 import os
 import uuid
-
 import numpy
 from tvb.analyzers.fmri_balloon import BalloonModel
 from tvb.datatypes.time_series import TimeSeries
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
-
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesRegionH5
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesRegionIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField

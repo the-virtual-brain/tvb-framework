@@ -44,9 +44,8 @@ from tvb.analyzers.wavelet import ContinuousWaveletTransform
 from tvb.basic.neotraits.api import Range
 from tvb.datatypes.time_series import TimeSeries
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
-
 from tvb.core.entities.file.datatypes.spectral_h5 import WaveletCoefficientsH5
 from tvb.core.entities.model.datatypes.spectral import WaveletCoefficientsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex

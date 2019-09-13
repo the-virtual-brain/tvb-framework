@@ -38,7 +38,7 @@ Backend-side for TS Visualizer of TS Volume DataTypes.
 """
 
 import json
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.adapters.visualizers.region_volume_mapping import _MappedArrayVolumeBase
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
@@ -46,7 +46,6 @@ from tvb.core.entities.file.datatypes.time_series import TimeSeriesVolumeH5
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.entities.storage import dao
-
 from tvb.core.neotraits._forms import DataTypeSelectField
 
 

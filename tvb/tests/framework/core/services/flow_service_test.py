@@ -41,7 +41,7 @@ from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.exceptions import IntrospectionException
 from tvb.datatypes.arrays import MappedArray
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
