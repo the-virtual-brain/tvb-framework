@@ -38,7 +38,7 @@ Adapter that uses the traits module to generate interfaces for ICA Analyzer.
 import uuid
 import os
 import numpy
-from tvb.analyzers.ica import fastICA
+from tvb.analyzers.ica import FastICA
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.mode_decompositions import IndependentComponents
@@ -59,9 +59,9 @@ class ICAAdapterForm(ABCAdapterForm):
     def __init__(self, prefix='', project_id=None):
         super(ICAAdapterForm, self).__init__(prefix, project_id)
         self.time_series = DataTypeSelectField(self.get_required_datatype(), self, name='time_series', required=True,
-                                               label=fastICA.time_series.label, doc=fastICA.time_series.doc,
+                                               label=FastICA.time_series.label, doc=FastICA.time_series.doc,
                                                conditions=self.get_filters(), has_all_option=True)
-        self.n_components = ScalarField(fastICA.n_components, self)
+        self.n_components = ScalarField(FastICA.n_components, self)
         self.project_id = project_id
 
     @staticmethod
@@ -77,7 +77,7 @@ class ICAAdapterForm(ABCAdapterForm):
         return "time_series"
 
     def get_traited_datatype(self):
-        return fastICA()
+        return FastICA()
 
 
 class ICAAdapter(ABCAsynchronous):
@@ -115,13 +115,13 @@ class ICAAdapter(ABCAsynchronous):
                             self.input_time_series_index.data_length_4d)
         LOG.debug("Time series shape is %s" % str(self.input_shape))
         LOG.debug("Provided number of components is %s" % n_components)
-        ##-------------------- Fill Algorithm for Analysis -------------------##
+        # -------------------- Fill Algorithm for Analysis -------------------##
 
-        algorithm = fastICA()
+        algorithm = FastICA()
         if n_components is not None:
             algorithm.n_components = n_components
         else:
-            ## It will only work for Simulator results.
+            # It will only work for Simulator results.
             algorithm.n_components = self.input_time_series_index.data_length_3d
         self.algorithm = algorithm
 
@@ -145,11 +145,12 @@ class ICAAdapter(ABCAsynchronous):
         """ 
         Launch algorithm and build results. 
         """
-        ##--------- Prepare a IndependentComponents object for result ----------##
+        # --------- Prepare a IndependentComponents object for result ----------##
         ica_index = IndependentComponentsIndex()
         ica_index.source = self.input_time_series_index
 
-        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
+        loader = DirLoader(
+            os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
         time_series_h5_class = registry.get_h5file_for_index(type(time_series))
         input_path = loader.path_for(time_series_h5_class, self.input_time_series_index.gid)
         time_series_h5 = time_series_h5_class(path=input_path)
@@ -161,11 +162,11 @@ class ICAAdapter(ABCAsynchronous):
         ica_h5.source.store(time_series_h5.gid.load())
         ica_h5.n_components.store(self.algorithm.n_components)
 
-        ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
+        # ------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         input_shape = time_series_h5.data.shape
         node_slice = [slice(input_shape[0]), None, slice(input_shape[2]), slice(input_shape[3])]
 
-        ##---------- Iterate over slices and compose final result ------------##
+        # ---------- Iterate over slices and compose final result ------------##
         small_ts = TimeSeries()
         for var in range(input_shape[1]):
             node_slice[1] = slice(var, var + 1)
