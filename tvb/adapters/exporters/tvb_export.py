@@ -37,8 +37,8 @@ from tvb.adapters.exporters.abcexporter import ABCExporter
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.exporters.exceptions import ExportException
 from tvb.core.entities.model.model_datatype import DataType
-from tvb.interfaces.neocom._h5loader import DirLoader
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.config import registry
 
 
 class TVBExporter(ABCExporter):

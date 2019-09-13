@@ -55,7 +55,7 @@ from tvb.core.entities.storage import dao, transactional
 from tvb.datatypes.connectivity import Connectivity
 import tvb.datatypes.surfaces as surfaces
 from tvb.core.neotraits._forms import UploadField, SimpleBoolField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class CFFImporterForm(NetworkxCFFCommonImporterForm):

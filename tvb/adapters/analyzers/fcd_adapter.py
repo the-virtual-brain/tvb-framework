@@ -56,8 +56,8 @@ from tvb.core.entities.model.datatypes.fcd import FcdIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
-from tvb.interfaces.neocom._h5loader import DirLoader
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.config import registry
 
 LOG = get_logger(__name__)
 

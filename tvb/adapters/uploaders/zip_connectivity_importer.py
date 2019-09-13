@@ -42,7 +42,7 @@ from tvb.datatypes.connectivity import Connectivity
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 NORMALIZATION_OPTIONS = {'Region (node)':'region', 'Absolute (max weight)':'tract'}
 

@@ -35,16 +35,15 @@
 import os
 import uuid
 import numpy
-from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm, ABCSynchronous
+from tvb.core.adapters.abcadapter import ABCAdapterForm, ABCSynchronous
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.storage import dao
 from tvb.datatypes.connectivity import Connectivity
-
 from tvb.core.neotraits._forms import DataTypeSelectField, SimpleBoolField, SimpleArrayField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class ConnectivityCreatorForm(ABCAdapterForm):
@@ -75,14 +74,15 @@ class ConnectivityCreatorForm(ABCAdapterForm):
         return '_original_connectivity'
 
 
-#TODO: make this work asynchronously (form fill issue)
+# TODO: make this work asynchronously (form fill issue)
 class ConnectivityCreator(ABCSynchronous):
     """
     This adapter creates a Connectivity.
     """
     form = None
 
-    def get_input_tree(self): return None
+    def get_input_tree(self):
+        return None
 
     def get_form(self):
         if self.form is None:
@@ -141,7 +141,7 @@ class ConnectivityCreator(ABCSynchronous):
             result_rm_index.array_data_max = mapping.array_data_max
             result_rm_index.array_data_mean = mapping.array_data_mean
             result_rm_index.surface_id = mapping.surface_id
-            #TODO: add connectivity_id fk for new RMs
+            # TODO: add connectivity_id fk for new RMs
             result_rm_index.connectivity = new_connectivity_index
 
             result.append(result_rm_index)
@@ -171,7 +171,8 @@ class ConnectivityCreator(ABCSynchronous):
         else:
             result = []
             result_connectivity_dt = original_conn_dt.branch_connectivity_from_ordered_arrays(numpy.array(new_weights),
-                                                                                              numpy.array(interest_area_indexes),
+                                                                                              numpy.array(
+                                                                                                  interest_area_indexes),
                                                                                               numpy.array(new_tracts))
             new_conn_index = self._store_connectivity_datatype(result_connectivity_dt,
                                                                original_connectivity.gid)

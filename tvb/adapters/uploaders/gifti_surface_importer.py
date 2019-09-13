@@ -41,7 +41,7 @@ from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.datatypes.surfaces import ALL_SURFACES_SELECTION
 from tvb.core.neotraits._forms import UploadField, SimpleBoolField, SimpleSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class GIFTISurfaceImporterForm(ABCUploaderForm):

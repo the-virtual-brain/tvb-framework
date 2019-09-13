@@ -5,7 +5,7 @@ from tvb.adapters.analyzers.wavelet_adapter import ContinuousWaveletTransformAda
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5, IndependentComponentsH5
 from tvb.core.entities.file.datatypes.spectral_h5 import WaveletCoefficientsH5
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 from tvb.tests.framework.adapters.analyzers.fft_test import make_ts
 
 

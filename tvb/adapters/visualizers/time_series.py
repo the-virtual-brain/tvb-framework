@@ -42,8 +42,8 @@ from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer, URLGenerator
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.config import registry
 
 
 class TimeSeriesForm(ABCAdapterForm):

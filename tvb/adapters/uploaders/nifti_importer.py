@@ -57,7 +57,7 @@ from tvb.core.entities.model.datatypes.volume import VolumeIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.neotraits._forms import UploadField, SimpleBoolField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class NIFTIImporterForm(ABCUploaderForm):

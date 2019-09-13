@@ -1,3 +1,33 @@
+# -*- coding: utf-8 -*-
+#
+#
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
+# Web-UI helpful to run brain-simulations. To use it, you also need do download
+# TheVirtualBrain-Scientific Package (for simulators). See content of the
+# documentation-folder for more details. See also http://www.thevirtualbrain.org
+#
+# (c) 2012-2017, Baycrest Centre for Geriatric Care ("Baycrest") and others
+#
+# This program is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+# either version 3 of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with this
+# program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#   CITATION:
+# When using The Virtual Brain for scientific publications, please cite it as follows:
+#
+#   Paula Sanz Leon, Stuart A. Knock, M. Marmaduke Woodman, Lia Domide,
+#   Jochen Mersmann, Anthony R. McIntosh, Viktor Jirsa (2013)
+#       The Virtual Brain: a simulator of primate brain network dynamics.
+#   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
+#
+#
+
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.fcd import Fcd
 from tvb.datatypes.graph import ConnectivityMeasure, CorrelationCoefficients, Covariance
@@ -8,15 +38,12 @@ from tvb.datatypes.projections import ProjectionMatrix
 from tvb.datatypes.region_mapping import RegionVolumeMapping, RegionMapping
 from tvb.datatypes.sensors import Sensors
 from tvb.datatypes.simulation_state import SimulationState
-from tvb.datatypes.spectral import (
-    CoherenceSpectrum, ComplexCoherenceSpectrum,
-    FourierSpectrum, WaveletCoefficients
-)
+from tvb.datatypes.spectral import CoherenceSpectrum, ComplexCoherenceSpectrum, FourierSpectrum, WaveletCoefficients
 from tvb.datatypes.structural import StructuralMRI
 from tvb.datatypes.surfaces import Surface
 from tvb.datatypes.temporal_correlations import CrossCorrelation
-from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, TimeSeriesEEG, \
-    TimeSeriesMEG, TimeSeriesSEEG
+from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume
+from tvb.datatypes.time_series import TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
 from tvb.datatypes.tracts import Tracts
 from tvb.datatypes.volumes import Volume
 
@@ -30,10 +57,8 @@ from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5, RegionVolumeMappingH5
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
 from tvb.core.entities.file.datatypes.simulation_state_h5 import SimulationStateH5
-from tvb.core.entities.file.datatypes.spectral_h5 import (
-    CoherenceSpectrumH5, ComplexCoherenceSpectrumH5,
-    FourierSpectrumH5, WaveletCoefficientsH5
-)
+from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5, ComplexCoherenceSpectrumH5
+from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5, WaveletCoefficientsH5
 from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.file.datatypes.temporal_correlations_h5 import CrossCorrelationH5
@@ -62,7 +87,7 @@ from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeS
     TimeSeriesSurfaceIndex, TimeSeriesVolumeIndex, TimeSeriesEEGIndex, TimeSeriesMEGIndex, TimeSeriesSEEGIndex
 from tvb.core.entities.model.datatypes.tracts import TractsIndex
 from tvb.core.entities.model.datatypes.volume import VolumeIndex
-from tvb.interfaces.neocom._registry import Registry
+from tvb.core.neocom._registry import Registry
 
 # an alternative approach is to make each h5file declare if it has a corresponding datatype
 # then in a metaclass hook each class creation and populate a map

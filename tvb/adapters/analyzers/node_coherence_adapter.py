@@ -48,8 +48,8 @@ from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.config import registry
 
 LOG = get_logger(__name__)
 

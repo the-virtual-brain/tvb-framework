@@ -45,8 +45,8 @@ from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesRegionH5, TimeSeriesSensorsH5
-from tvb.interfaces.neocom._h5loader import DirLoader
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.config import registry
 
 LOCK_CREATE_FIGURE = Lock()
 

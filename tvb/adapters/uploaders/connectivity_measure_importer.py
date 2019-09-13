@@ -42,7 +42,7 @@ from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.neotraits._forms import UploadField, SimpleStrField, DataTypeSelectField
 from tvb.core.neotraits.db import from_ndarray
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class ConnectivityMeasureImporterForm(ABCUploaderForm):

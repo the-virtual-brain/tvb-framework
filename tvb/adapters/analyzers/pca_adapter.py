@@ -49,7 +49,7 @@ from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 LOG = get_logger(__name__)
 

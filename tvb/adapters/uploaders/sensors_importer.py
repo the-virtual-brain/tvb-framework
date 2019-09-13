@@ -41,7 +41,7 @@ from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class SensorsImporterForm(ABCUploaderForm):

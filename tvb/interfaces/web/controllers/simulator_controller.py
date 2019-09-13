@@ -61,7 +61,7 @@ from tvb.core.services.burst_service import BurstService
 from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.simulator_service import SimulatorService
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.burst.base_controller import BurstBaseController
 from tvb.interfaces.web.controllers.decorators import expose_page, settings, context_selected, handle_error, check_user, \

@@ -51,7 +51,7 @@ from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
 from tvb.core.neotraits.db import from_ndarray
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class RegionMappingImporterForm(ABCUploaderForm):

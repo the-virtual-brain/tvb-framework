@@ -51,8 +51,8 @@ from tvb.core.entities.model.datatypes.spectral import WaveletCoefficientsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField, FormField, Form, SimpleFloatField
 from tvb.core.neotraits.db import from_ndarray
-from tvb.interfaces.neocom._h5loader import DirLoader
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.config import registry
 
 LOG = get_logger(__name__)
 

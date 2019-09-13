@@ -41,7 +41,7 @@ from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.storage import transactional
 from tvb.datatypes.surfaces import make_surface, center_vertices, ALL_SURFACES_SELECTION
 from tvb.core.neotraits._forms import SimpleSelectField, UploadField, SimpleBoolField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class ObjSurfaceImporterForm(ABCUploaderForm):

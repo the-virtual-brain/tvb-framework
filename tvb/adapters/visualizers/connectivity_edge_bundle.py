@@ -43,7 +43,7 @@ from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class ConnectivityEdgeBundleForm(ABCAdapterForm):

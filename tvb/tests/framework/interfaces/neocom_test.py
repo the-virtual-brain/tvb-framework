@@ -1,6 +1,6 @@
 import os
 import numpy
-from tvb.interfaces.neocom.h5 import load, store, load_from_dir, store_to_dir
+from tvb.core.neocom.h5 import load, store, load_from_dir, store_to_dir
 
 
 def test_store_load(tmpdir, connectivityFactory):

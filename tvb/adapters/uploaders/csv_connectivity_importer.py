@@ -43,7 +43,7 @@ from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField, SimpleSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class CSVConnectivityParser(object):

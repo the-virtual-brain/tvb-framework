@@ -46,8 +46,8 @@ from tvb.core.entities.file.datatypes.time_series import TimeSeriesRegionH5
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesRegionIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
 from tvb.core.neotraits.db import prepare_array_shape_meta
-from tvb.interfaces.neocom._h5loader import DirLoader
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.config import registry
 
 LOG = get_logger(__name__)
 

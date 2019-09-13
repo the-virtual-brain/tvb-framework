@@ -37,13 +37,11 @@ Plot the power of a WaveletCoefficients object
 """
 
 import json
-
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
-
 from tvb.core.entities.model.datatypes.spectral import WaveletCoefficientsIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.config import registry
 
 
 class WaveletSpectrogramVisualizerForm(ABCAdapterForm):

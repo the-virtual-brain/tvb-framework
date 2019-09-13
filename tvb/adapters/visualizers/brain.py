@@ -51,8 +51,8 @@ from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.datatypes.surfaces import CORTICAL, EEG_CAP
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.config import registry
 
 MAX_MEASURE_POINTS_LENGTH = 600
 

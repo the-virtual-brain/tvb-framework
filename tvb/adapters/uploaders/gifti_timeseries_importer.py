@@ -43,7 +43,7 @@ from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesSurfaceIndex
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class GIFTITimeSeriesImporterForm(ABCUploaderForm):

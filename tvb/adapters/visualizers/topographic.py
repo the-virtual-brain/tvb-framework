@@ -47,7 +47,7 @@ from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class TopographyCalculations(object):

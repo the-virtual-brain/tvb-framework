@@ -1,10 +1,9 @@
 import importlib
 import os
 import uuid
-
 from tvb.core.entities.file.simulator.h5_factory import config_h5_factory
 from tvb.core.neotraits.h5 import H5File
-from tvb.interfaces.neocom._h5loader import DirLoader
+from tvb.core.neocom.h5 import DirLoader
 
 
 class SimulatorConfigurationH5(H5File):
