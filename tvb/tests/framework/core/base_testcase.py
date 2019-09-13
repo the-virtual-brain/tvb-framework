@@ -50,7 +50,7 @@ def init_test_env():
     if TvbProfile.CURRENT_PROFILE_NAME is None:
         profile = TvbProfile.TEST_SQLITE_PROFILE
         if len(sys.argv) > 1:
-            for i in range(1,len(sys.argv)-1):
+            for i in range(1, len(sys.argv) - 1):
                 if "--profile=" in sys.argv[i]:
                     profile = sys.argv[i].split("=")[1]
         TvbProfile.set_profile(profile)
@@ -63,7 +63,7 @@ def init_test_env():
     from tvb.core.services.initializer import initialize
 
     reset_database()
-    initialize(["tvb.config", "tvb.tests.framework"], skip_import=True)
+    initialize(skip_import=True)
 
 
 # Following code is executed once / tests execution to reduce time spent in tests.
@@ -72,12 +72,12 @@ if "TEST_INITIALIZATION_DONE" not in globals():
     TEST_INITIALIZATION_DONE = True
 
 from tvb.adapters.exporters.export_manager import ExportManager
-from tvb.basic.logger.builder import get_logger
 from tvb.core.services.operation_service import OperationService
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 from tvb.core.entities.storage.session_maker import SessionMaker
-from tvb.core.entities import model
+from tvb.core.entities.model.model_project import *
+from tvb.core.entities.model.model_datatype import *
 
 LOGGER = get_logger(__name__)
 
@@ -89,10 +89,8 @@ class BaseTestCase(object):
     EXCLUDE_TABLES = ["ALGORITHMS", "ALGORITHM_CATEGORIES", "PORTLETS",
                       "MAPPED_INTERNAL__CLASS", "MAPPED_MAPPED_TEST_CLASS"]
 
-
     def assertEqual(self, expected, actual, message=""):
-        assert expected == actual,message + " Expected %s but got %s." % (expected, actual)
-
+        assert expected == actual, message + " Expected %s but got %s." % (expected, actual)
 
     def clean_database(self, delete_folders=True):
         """
@@ -102,7 +100,7 @@ class BaseTestCase(object):
         LOGGER.warning("Your Database content will be deleted.")
         try:
             session = SessionMaker()
-            for table in reversed(model.Base.metadata.sorted_tables):
+            for table in reversed(Base.metadata.sorted_tables):
                 # We don't delete data from some tables, because those are 
                 # imported only during introspection which is done one time
                 if table.name not in self.EXCLUDE_TABLES:
@@ -127,8 +125,7 @@ class BaseTestCase(object):
         # Now if the database is clean we can delete also project folders on disk
         if delete_folders:
             self.delete_project_folders()
-        dao.store_entity(model.User(TvbProfile.current.web.admin.SYSTEM_USER_NAME, None, None, True, None))
-
+        dao.store_entity(User(TvbProfile.current.web.admin.SYSTEM_USER_NAME, None, None, True, None))
 
     def cancel_all_operations(self):
         """
@@ -137,10 +134,9 @@ class BaseTestCase(object):
         """
         LOGGER.info("Stopping all operations.")
         op_service = OperationService()
-        operations = self.get_all_entities(model.Operation)
+        operations = self.get_all_entities(Operation)
         for operation in operations:
             op_service.stop_operation(operation.id)
-
 
     def delete_project_folders(self):
         """
@@ -160,7 +156,6 @@ class BaseTestCase(object):
                 shutil.rmtree(folder, ignore_errors=True)
             os.makedirs(folder)
 
-
     @staticmethod
     def compute_recursive_h5_disk_usage(start_path='.'):
         """
@@ -177,7 +172,6 @@ class BaseTestCase(object):
                     total_size += os.path.getsize(fp)
                     n_files += 1
         return int(round(total_size / 1024.)), n_files
-
 
     def count_all_entities(self, entity_type):
         """
@@ -196,7 +190,6 @@ class BaseTestCase(object):
                 session.close_session()
         return result
 
-
     def get_all_entities(self, entity_type):
         """
         Retrieve all entities of a given type.
@@ -214,13 +207,11 @@ class BaseTestCase(object):
                 session.close_session()
         return result
 
-
     def get_all_datatypes(self):
         """
         Return all DataType entities in DB or [].
         """
-        return self.get_all_entities(model.DataType)
-
+        return self.get_all_entities(DataType)
 
     def assert_compliant_dictionary(self, expected, found_dict):
         """
@@ -295,7 +286,6 @@ class TransactionalTestMeta(type):
         return type.__new__(mcs, classname, bases, new_class_dict)
 
 
-
 class TransactionalTestCase(BaseTestCase):
     """
     This class makes sure that any test case it contains is ran in a transactional
@@ -312,4 +302,3 @@ class TransactionalTestCase(BaseTestCase):
     dao related operations since that might cause errors/leave some dangling sessions.
     """
     __metaclass__ = TransactionalTestMeta
-
