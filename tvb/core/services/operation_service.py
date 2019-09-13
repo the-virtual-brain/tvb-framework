@@ -41,13 +41,11 @@ import os
 import json
 import zipfile
 import sys
-import six
 from copy import copy
 from cgi import FieldStorage
-from datetime import datetime
 from tvb.basic.exceptions import TVBException
 from tvb.basic.neotraits._attr import Range
-from tvb.basic.neotraits.map_as_json import MapAsJson
+#from tvb.basic.neotraits.map_as_json import MapAsJson
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 from tvb.core import utils
