@@ -24,7 +24,7 @@ class RegionMappingIndex(DataType):
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_id, primaryjoin=ConnectivityIndex.id == connectivity_id, cascade='none')
 
     def fill_from_has_traits(self, datatype):
-        self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
+        self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.array_data)
 
 
 class RegionVolumeMappingIndex(DataTypeMatrix):

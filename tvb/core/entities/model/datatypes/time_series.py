@@ -45,9 +45,12 @@ class TimeSeriesIndex(DataType):
         # never to be referenced by any other row or table.
         self.data_ndim = datatype.data.ndim
         self.data_length_1d = datatype.data.shape[0]
-        self.data_length_2d = datatype.data.shape[1]
-        self.data_length_3d = datatype.data.shape[2]
-        self.data_length_4d = datatype.data.shape[3]
+        if self.data_ndim > 1:
+            self.data_length_2d = datatype.data.shape[1]
+            if self.data_ndim > 2:
+                self.data_length_3d = datatype.data.shape[2]
+                if self.data_ndim > 3:
+                    self.data_length_4d = datatype.data.shape[3]
 
     @staticmethod
     def accepted_filters():
