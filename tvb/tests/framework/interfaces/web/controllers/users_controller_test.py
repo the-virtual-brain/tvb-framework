@@ -43,7 +43,7 @@ from tvb.interfaces.web.controllers.users_controller import UserController
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
-from tvb.core.entities.model import UserPreferences
+from tvb.core.entities.model.model_project import UserPreferences
 
 
 class TestUsersController(BaseTransactionalControllerTest):

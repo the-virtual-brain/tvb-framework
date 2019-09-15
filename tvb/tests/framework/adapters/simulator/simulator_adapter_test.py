@@ -38,7 +38,8 @@ from copy import copy
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.entities import model
+from tvb.core.entities.model.model_burst import RANGE_PARAMETER_1, RANGE_PARAMETER_2
+from tvb.core.entities.model.model_operation import STATUS_STARTED
 from tvb.core.entities.storage import dao
 from tvb.core.services.project_service import initialize_storage
 from tvb.core.services.operation_service import OperationService
@@ -73,8 +74,8 @@ SIMULATOR_PARAMETERS = {
     "surface": "",
     "stimulus": "",
     "currentAlgoId": "10",
-    model.RANGE_PARAMETER_1: "0",
-    model.RANGE_PARAMETER_2: "0",
+    RANGE_PARAMETER_1: "0",
+    RANGE_PARAMETER_2: "0",
     "integrator": "HeunDeterministic",
     "integrator_parameters_option_HeunDeterministic_dt": "0.01220703125",
     "monitors": "TemporalAverage",
@@ -105,7 +106,7 @@ class TestSimulatorAdapter(TransactionalTestCase):
                                                 IntrospectionRegistry.SIMULATOR_CLASS)
         self.simulator_adapter = ABCAdapter.build_adapter(algorithm)
         self.operation = TestFactory.create_operation(algorithm, self.test_user, self.test_project,
-                                                      model.STATUS_STARTED, json.dumps(SIMULATOR_PARAMETERS))
+                                                      STATUS_STARTED, json.dumps(SIMULATOR_PARAMETERS))
 
         SIMULATOR_PARAMETERS['connectivity'] = self.connectivity.gid
 

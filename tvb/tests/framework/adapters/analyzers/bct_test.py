@@ -36,9 +36,9 @@ import numpy
 import pytest
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.entities.model import STATUS_FINISHED
+from tvb.core.entities.model.model_operation import *
+from tvb.core.entities.model.model_datatype import *
 from tvb.core.utils import get_matlab_executable
-from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.services.operation_service import OperationService
 from tvb.core.adapters.exceptions import InvalidParameterException
@@ -64,7 +64,7 @@ class TestBCT(TransactionalTestCase):
         """
         self.test_user = TestFactory.create_user("BCT_User")
         self.test_project = TestFactory.create_project(self.test_user, "BCT-Project")
-        ### Make sure Connectivity is in DB
+        # Make sure Connectivity is in DB
         TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
         self.connectivity = dao.get_generic_entity(Connectivity, 'John Doe', 'subject')[0]
 
@@ -72,7 +72,7 @@ class TestBCT(TransactionalTestCase):
         w = self.connectivity.weights
         self.connectivity.weights = w + w.T - numpy.diag(w.diagonal())
 
-        algorithms = dao.get_generic_entity(model.Algorithm, 'Brain Connectivity Toolbox', 'group_description')
+        algorithms = dao.get_generic_entity(Algorithm, 'Brain Connectivity Toolbox', 'group_description')
         assert algorithms is not None
         assert len(algorithms) > 5
 
@@ -95,9 +95,9 @@ class TestBCT(TransactionalTestCase):
             algorithm = adapter_instance.stored_adapter
             operation = TestFactory.create_operation(algorithm=algorithm, test_user=self.test_user,
                                                      test_project=self.test_project,
-                                                     operation_status=model.STATUS_STARTED)
-            assert model.STATUS_STARTED == operation.status
-            ### Launch BCT algorithm
+                                                     operation_status=STATUS_STARTED)
+            assert STATUS_STARTED == operation.status
+            # Launch BCT algorithm
             submit_data = {algorithm.parameter_name: self.connectivity.gid}
             try:
                 OperationService().initiate_prelaunch(operation, adapter_instance, {}, **submit_data)
@@ -106,14 +106,14 @@ class TestBCT(TransactionalTestCase):
                                     "exception, but did not!" % (algorithm.classname,))
 
                 operation = dao.get_operation_by_id(operation.id)
-                ### Check that operation status after execution is success.
+                # Check that operation status after execution is success.
                 assert STATUS_FINISHED == operation.status
-                ### Make sure at least one result exists for each BCT algorithm
-                results = dao.get_generic_entity(model.DataType, operation.id, 'fk_from_operation')
+                # Make sure at least one result exists for each BCT algorithm
+                results = dao.get_generic_entity(DataType, operation.id, 'fk_from_operation')
                 assert len(results) > 0
 
             except InvalidParameterException as excep:
-                ## Some algorithms are expected to throw validation exception.
+                # Some algorithms are expected to throw validation exception.
                 if algorithm.classname not in TestBCT.EXPECTED_TO_FAIL_VALIDATION:
                     raise excep
 

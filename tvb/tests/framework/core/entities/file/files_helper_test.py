@@ -36,7 +36,6 @@ import os
 import pytest
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.basic.profile import TvbProfile
-from tvb.basic.traits.types_mapped import MappedType
 from tvb.core.entities.file.xml_metadata_handlers import XMLReader
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao

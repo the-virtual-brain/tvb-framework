@@ -36,7 +36,7 @@ import json
 import pytest
 import cherrypy
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
-from tvb.core.entities.model import Dynamic
+from tvb.core.entities.model.model_burst import Dynamic
 from tvb.core.entities.storage import dao
 from tvb.interfaces.web.controllers.burst.region_model_parameters_controller import RegionsModelParametersController
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController

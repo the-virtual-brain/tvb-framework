@@ -37,7 +37,7 @@ import cherrypy
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
 from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.tests.framework.adapters.simulator.simulator_adapter_test import SIMULATOR_PARAMETERS
-from tvb.core.entities.model import PARAM_INTEGRATOR, PARAM_MODEL
+from tvb.core.entities.model.model_burst import PARAM_INTEGRATOR, PARAM_MODEL
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
 from tvb.interfaces.web.controllers.burst.noise_configuration_controller import NoiseConfigurationController

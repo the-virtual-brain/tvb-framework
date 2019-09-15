@@ -34,7 +34,7 @@
 """
 
 import numpy
-from tvb.datatypes.arrays import MappedArray
+#from tvb.datatypes.arrays import MappedArray
 from tvb.core.adapters.abcadapter import ABCSynchronous
 
 

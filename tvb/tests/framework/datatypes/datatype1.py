@@ -32,14 +32,15 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 from tvb.core.entities.model.model_datatype import DataType
-from sqlalchemy import String, Column
+from sqlalchemy import String, Column, Integer, ForeignKey
 
 
 # TODO review all usages and replace with conftest fixture
 class Datatype1(DataType):
     """
-        This class is used for testing purposes only.
+    This class is used for testing purposes only.
     """
+    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
     row1 = Column(String)
     row2 = Column(String)
 
