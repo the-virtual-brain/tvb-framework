@@ -33,11 +33,11 @@ import os.path
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from tvb.tests.framework.core.base_testcase import TvbProfile
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.region_mapping import RegionMapping
 from tvb.datatypes.sensors import Sensors
 from tvb.datatypes.surfaces import Surface, CorticalSurface
-
 from tvb.core.neotraits.db import Base
 
 
@@ -48,7 +48,9 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope='session')
 def profile(request):
-    return request.config.getoption("--profile")
+    profile = request.config.getoption("--profile")
+    TvbProfile.set_profile(profile)
+    return profile
 
 
 @pytest.fixture
