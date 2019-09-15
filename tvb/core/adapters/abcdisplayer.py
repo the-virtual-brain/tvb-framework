@@ -39,7 +39,7 @@ import numpy
 from tvb.basic.arguments_serialisation import preprocess_space_parameters, postprocess_voxel_ts, \
     preprocess_time_parameters
 from tvb.datatypes.surfaces import Surface, KEY_VERTICES, KEY_START
-from tvb.datatypes.time_series import prepare_time_slice
+from tvb.core.utils import prepare_time_slice
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5

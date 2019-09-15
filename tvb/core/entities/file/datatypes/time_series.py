@@ -1,10 +1,10 @@
 import json
 import numpy
-
+from tvb.core.utils import prepare_time_slice
 from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.neotraits.h5 import H5File, Scalar, DataSet, Reference, Json
 from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, \
-    prepare_time_slice, TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
+    TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
 from tvb.basic.arguments_serialisation import preprocess_time_parameters, preprocess_space_parameters, \
     postprocess_voxel_ts
 

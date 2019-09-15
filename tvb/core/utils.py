@@ -457,3 +457,20 @@ def format_bytes_human(size, si=False):
         size /= base
         exp += 1
     return "%.1f %s" % (size, m[exp])
+
+
+def prepare_time_slice(total_time_length, max_length=10 ** 4):
+    """
+    Limit the time dimension when retrieving from TS.
+    If total time length is greater than MAX, then retrieve only the last part of the TS
+
+    :param total_time_length: TS time dimension
+    :param max_length: limiting number of TS steps
+
+    :return: python slice
+    """
+
+    if total_time_length < max_length:
+        return slice(total_time_length)
+
+    return slice(total_time_length - max_length, total_time_length)
