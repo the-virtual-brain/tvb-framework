@@ -46,7 +46,7 @@ from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSu
 from tvb.datatypes.time_series import TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
 from tvb.datatypes.tracts import Tracts
 from tvb.datatypes.volumes import Volume
-
+from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotationsH5
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.fcd_h5 import FcdH5
 from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5, CorrelationCoefficientsH5, CovarianceH5
@@ -62,12 +62,11 @@ from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5, Wave
 from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.file.datatypes.temporal_correlations_h5 import CrossCorrelationH5
-from tvb.core.entities.file.datatypes.time_series import (
-    TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5,
-    TimeSeriesVolumeH5,
-    TimeSeriesEEGH5, TimeSeriesMEGH5, TimeSeriesSEEGH5)
+from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5, \
+    TimeSeriesVolumeH5, TimeSeriesEEGH5, TimeSeriesMEGH5, TimeSeriesSEEGH5
 from tvb.core.entities.file.datatypes.tracts_h5 import TractsH5
 from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5
+from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.fcd import FcdIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex, CorrelationCoefficientsIndex, \
@@ -93,6 +92,7 @@ from tvb.core.neocom._registry import Registry
 # then in a metaclass hook each class creation and populate a map
 registry = Registry()
 registry.register_h5file_datatype(ConnectivityH5, Connectivity, ConnectivityIndex)
+registry.register_h5file_datatype(ConnectivityAnnotationsH5, None, ConnectivityAnnotationsIndex)
 registry.register_h5file_datatype(LocalConnectivityH5, LocalConnectivity, LocalConnectivityIndex)
 registry.register_h5file_datatype(ProjectionMatrixH5, ProjectionMatrix, ProjectionMatrixIndex)
 registry.register_h5file_datatype(RegionVolumeMappingH5, RegionVolumeMapping, RegionVolumeMappingIndex)

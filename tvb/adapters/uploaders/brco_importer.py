@@ -31,14 +31,17 @@
 """
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-
+import uuid
+import os
 from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.adapters.uploaders.brco.parser import XMLParser
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotationsH5
+from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
-from tvb.datatypes.annotations import ConnectivityAnnotations
-
+from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
+from tvb.core.neocom.h5 import DirLoader
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
 
 
@@ -63,9 +66,11 @@ class BRCOImporter(ABCUploader):
 
     form = None
 
-    def get_input_tree(self): return None
+    def get_input_tree(self):
+        return None
 
-    def get_upload_input_tree(self): return None
+    def get_upload_input_tree(self):
+        return None
 
     def get_form(self):
         if self.form is None:
@@ -75,18 +80,30 @@ class BRCOImporter(ABCUploader):
     def set_form(self, form):
         self.form = form
 
-    #TODO: Following should be adjusted once annotations in tvb-library are migrated to neotraits
     def get_output(self):
-        return [ConnectivityAnnotations]
-
+        return [ConnectivityAnnotationsIndex]
 
     @transactional
     def launch(self, data_file, connectivity):
         try:
-            result = ConnectivityAnnotations(connectivity=connectivity, storage_path=self.storage_path)
-            parser = XMLParser(data_file, connectivity)
+            loader = DirLoader(os.path.dirname(self.storage_path))
+            original_conn_path = loader.path_for_datatype_index(connectivity)
+            with ConnectivityH5(original_conn_path) as original_conn_h5:
+                region_labels = original_conn_h5.region_labels.load()
+
+            result = ConnectivityAnnotationsIndex()
+            result.connectivity_id = connectivity.id
+            parser = XMLParser(data_file, region_labels)
             annotations = parser.read_annotation_terms()
-            result.set_annotations(annotations)
+            result.annotations_length = len(annotations)
+
+            loader = DirLoader(self.storage_path)
+            conn_path = loader.path_for(ConnectivityAnnotationsH5, result.gid)
+            with ConnectivityAnnotationsH5(conn_path) as region_mapping_h5:
+                region_mapping_h5.connectivity.store(uuid.UUID(connectivity.gid))
+                region_mapping_h5.gid.store(uuid.UUID(result.gid))
+                region_mapping_h5.store_annotations(annotations)
+
             return result
         except Exception as excep:
             self.log.exception("Could not process Connectivity Annotations")
