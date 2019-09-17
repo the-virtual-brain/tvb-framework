@@ -2,8 +2,9 @@
 import numpy
 from tvb.analyzers.fft import FFT
 from tvb.datatypes.time_series import TimeSeries
+from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neocom.h5 import TimeSeriesH5, DirLoader
+from tvb.core.neocom.h5 import DirLoader
 from tvb.adapters.analyzers.fourier_adapter import FourierAdapter
 
 
