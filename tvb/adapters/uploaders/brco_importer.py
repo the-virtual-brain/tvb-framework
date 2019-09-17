@@ -32,7 +32,6 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 import uuid
-import os
 from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.adapters.uploaders.brco.parser import XMLParser
 from tvb.core.adapters.exceptions import LaunchException
@@ -41,7 +40,7 @@ from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
 
 
@@ -86,23 +85,23 @@ class BRCOImporter(ABCUploader):
     @transactional
     def launch(self, data_file, connectivity):
         try:
-            loader = DirLoader(os.path.dirname(self.storage_path))
-            original_conn_path = loader.path_for_datatype_index(connectivity)
-            with ConnectivityH5(original_conn_path) as original_conn_h5:
+            loader = TVBLoader()
+            conn_h5_path = loader.path_for_stored_index(connectivity)
+            with ConnectivityH5(conn_h5_path) as original_conn_h5:
                 region_labels = original_conn_h5.region_labels.load()
+
+            parser = XMLParser(data_file, region_labels)
+            annotations = parser.read_annotation_terms()
 
             result = ConnectivityAnnotationsIndex()
             result.connectivity_id = connectivity.id
-            parser = XMLParser(data_file, region_labels)
-            annotations = parser.read_annotation_terms()
             result.annotations_length = len(annotations)
 
-            loader = DirLoader(self.storage_path)
-            conn_path = loader.path_for(ConnectivityAnnotationsH5, result.gid)
-            with ConnectivityAnnotationsH5(conn_path) as region_mapping_h5:
-                region_mapping_h5.connectivity.store(uuid.UUID(connectivity.gid))
-                region_mapping_h5.gid.store(uuid.UUID(result.gid))
-                region_mapping_h5.store_annotations(annotations)
+            result_path = loader.path_for(self.storage_path, ConnectivityAnnotationsH5, result.gid)
+            with ConnectivityAnnotationsH5(result_path) as result_h5:
+                result_h5.connectivity.store(uuid.UUID(connectivity.gid))
+                result_h5.gid.store(uuid.UUID(result.gid))
+                result_h5.store_annotations(annotations)
 
             return result
         except Exception as excep:
