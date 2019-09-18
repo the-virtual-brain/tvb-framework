@@ -52,8 +52,8 @@ class TimeSeriesForm(ABCAdapterForm):
         super(TimeSeriesForm, self).__init__(prefix, project_id, False)
 
         self.time_series = DataTypeSelectField(self.get_required_datatype(), self, name='time_series', required=True,
-                                          label="Time series to be displayed in a 2D form.",
-                                          conditions=self.get_filters())
+                                               label="Time series to be displayed in a 2D form.",
+                                               conditions=self.get_filters())
 
     @staticmethod
     def get_required_datatype():
@@ -76,22 +76,12 @@ class TimeSeries(ABCDisplayer):
 
     MAX_PREVIEW_DATA_LENGTH = 200
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return TimeSeriesForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return TimeSeriesForm
 
     def get_required_memory_size(self, **kwargs):
         """Return required memory."""
         return -1
-
 
     def launch(self, time_series, preview=False, figsize=None):
         """Construct data for visualization and launch it."""
@@ -127,7 +117,5 @@ class TimeSeries(ABCDisplayer):
 
         return self.build_display_result("time_series/view", pars, pages=dict(controlPage="time_series/control"))
 
-
     def generate_preview(self, time_series, figure_size):
         return self.launch(time_series, preview=True, figsize=figure_size)
-

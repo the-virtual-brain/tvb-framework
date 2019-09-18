@@ -127,18 +127,9 @@ class SensorsViewer(ABCDisplayer):
 
     _ui_name = "Sensor Visualizer"
     _ui_subsection = "sensors"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return SensorsViewerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self):
-        return None
+    def get_form_class(self):
+        return SensorsViewerForm
 
     def launch(self, sensors, projection_surface=None, shell_surface=None):
         """
@@ -212,7 +203,7 @@ class SensorsViewer(ABCDisplayer):
         shell_surface = ensure_shell_surface(self.current_project_id, shell_surface)
 
         params.update({
-            'shelfObject':self._prepare_shell_surface_params(shell_surface),
+            'shelfObject': self._prepare_shell_surface_params(shell_surface),
             'urlVertices': '', 'urlTriangles': '', 'urlLines': '[]', 'urlNormals': '',
             'boundaryURL': '', 'urlRegionMap': ''})
 

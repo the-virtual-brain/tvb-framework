@@ -67,7 +67,8 @@ class NetworkxConnectivityImporterForm(NetworkxCFFCommonImporterForm):
 
     def __init__(self, prefix='', project_id=None):
         super(NetworkxConnectivityImporterForm, self).__init__(prefix, project_id)
-        self.data_file = UploadField('.gpickle', self, name='data_file', required=True, label='Please select file to import')
+        self.data_file = UploadField('.gpickle', self, name='data_file', required=True,
+                                     label='Please select file to import')
 
 
 class NetworkxConnectivityImporter(ABCUploader):
@@ -78,19 +79,8 @@ class NetworkxConnectivityImporter(ABCUploader):
     _ui_subsection = "networkx_importer"
     _ui_description = "Import connectivity data stored in the networkx gpickle format"
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return NetworkxConnectivityImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return NetworkxConnectivityImporterForm
 
     def get_output(self):
         return [ConnectivityIndex]
@@ -116,4 +106,3 @@ class NetworkxConnectivityImporter(ABCUploader):
         except ParseException as excep:
             self.log.exception("Could not process Connectivity")
             raise LaunchException(excep)
-

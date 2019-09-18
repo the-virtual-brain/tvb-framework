@@ -101,18 +101,9 @@ class CrossCorrelateAdapter(ABCAsynchronous):
     _ui_name = "Cross-correlation of nodes"
     _ui_description = "Cross-correlate two one-dimensional arrays."
     _ui_subsection = "crosscorr"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return CrossCorrelateAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self):
-        return None
+    def get_form_class(self):
+        return CrossCorrelateAdapterForm
 
     def get_output(self):
         return [CrossCorrelationIndex]
@@ -307,18 +298,9 @@ class PearsonCorrelationCoefficientAdapter(ABCAsynchronous):
     _ui_name = "Pearson correlation coefficients"
     _ui_description = "Cross Correlation"
     _ui_subsection = "ccpearson"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return PearsonCorrelationCoefficientAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self):
-        return None
+    def get_form_class(self):
+        return PearsonCorrelationCoefficientAdapterForm
 
     def get_output(self):
         return [CorrelationCoefficientsIndex]

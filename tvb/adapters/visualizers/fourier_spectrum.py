@@ -76,17 +76,9 @@ class FourierSpectrumDisplay(ABCDisplayer):
 
     _ui_name = "Fourier Visualizer"
     _ui_subsection = "fourier"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return FourierSpectrumForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return FourierSpectrumForm
 
     def get_required_memory_size(self, **kwargs):
         """

@@ -168,17 +168,9 @@ class MatrixVisualizerForm(ABCAdapterForm):
 class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     _ui_name = "Matrix Visualizer"
     _ui_subsection = "matrix"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return MatrixVisualizerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return MatrixVisualizerForm
 
     def launch(self, datatype, slice=''):
         loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(datatype.fk_from_operation)))

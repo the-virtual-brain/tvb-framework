@@ -89,17 +89,9 @@ class BalloonModelAdapter(ABCAsynchronous):
     _ui_name = "Balloon Model "
     _ui_description = "Compute BOLD signals for a TimeSeries input DataType."
     _ui_subsection = "balloon"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if not self.form:
-            return BalloonModelAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return BalloonModelAdapterForm
 
     def get_output(self):
         return [TimeSeriesRegionIndex]
@@ -116,7 +108,7 @@ class BalloonModelAdapter(ABCAsynchronous):
                             self.input_time_series_index.data_length_4d)
 
         LOG.debug("time_series shape is %s" % str(self.input_shape))
-        ##-------------------- Fill Algorithm for Analysis -------------------##
+        # -------------------- Fill Algorithm for Analysis -------------------##
         algorithm = BalloonModel()
 
         if dt is not None:

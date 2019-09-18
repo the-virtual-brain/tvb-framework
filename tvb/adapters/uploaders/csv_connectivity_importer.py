@@ -55,6 +55,7 @@ class CSVConnectivityParser(object):
     If a header is present the matrices columns and rows are permuted
     so that the header ordinals would be in ascending order
     """
+
     def __init__(self, csv_file, delimiter=','):
         self.rows = list(csv.reader(csv_file, delimiter=str(delimiter)))
         self.connectivity_size = len(self.rows[0])
@@ -98,7 +99,8 @@ class CSVConnectivityParser(object):
         for row_idx, row in enumerate(self.rows):
             self.line += 1
             if len(row) != self.connectivity_size:
-                msg = "Invalid Connectivity Row size! %d != %d at row %d" % (len(row), self.connectivity_size, self.line)
+                msg = "Invalid Connectivity Row size! %d != %d at row %d" % (
+                len(row), self.connectivity_size, self.line)
                 raise LaunchException(msg)
 
             new_row = [0] * self.connectivity_size
@@ -110,6 +112,7 @@ class CSVConnectivityParser(object):
 
 
 DELIMITER_OPTIONS = {'comma': ',', 'semicolon': ';', 'tab': '\t', 'space': ' ', 'colon': ':'}
+
 
 class CSVConnectivityImporterForm(ABCUploaderForm):
 
@@ -136,23 +139,12 @@ class CSVConnectivityImporter(ABCUploader):
     WEIGHTS_FILE = "weights.txt"
     TRACT_FILE = "tract_lengths.txt"
 
-    form = None
-
-    def get_form(self):
-        if self.form is None:
-            return CSVConnectivityImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
     def __init__(self):
         ABCUploader.__init__(self)
         self.logger = get_logger(self.__class__.__module__)
 
-    def get_upload_input_tree(self): return None
-
-    def get_input_tree(self): return None
+    def get_form_class(self):
+        return CSVConnectivityImporterForm
 
     def get_output(self):
         return [ConnectivityIndex]

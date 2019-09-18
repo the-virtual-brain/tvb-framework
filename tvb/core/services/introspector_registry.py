@@ -61,7 +61,7 @@ from tvb.adapters.uploaders.nifti_importer import NIFTIImporter
 from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporter
 from tvb.adapters.uploaders.projection_matrix_importer import ProjectionMatrixSurfaceEEGImporter
 from tvb.adapters.uploaders.region_mapping_importer import RegionMapping_Importer
-from tvb.adapters.uploaders.sensors_importer import Sensors_Importer
+from tvb.adapters.uploaders.sensors_importer import SensorsImporter
 from tvb.adapters.uploaders.tract_importer import TrackvizTractsImporter, ZipTxtTractsImporter
 from tvb.adapters.uploaders.tvb_importer import TVBImporter
 from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporter
@@ -174,7 +174,7 @@ class IntrospectionRegistry(object):
             ObjSurfaceImporter,
             ProjectionMatrixSurfaceEEGImporter,
             RegionMapping_Importer,
-            Sensors_Importer,
+            SensorsImporter,
             TVBImporter,
             TrackvizTractsImporter,
             ZipTxtTractsImporter,

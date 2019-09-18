@@ -71,14 +71,9 @@ class PearsonCorrelationCoefficientVisualizer(MappedArrayVisualizer):
     """
     _ui_name = "Pearson Correlation Coefficients"
     _ui_subsection = "correlation_pearson"
-    form =None
 
-    def get_form(self):
-        if not self.form:
-            return PearsonCorrelationCoefficientVisualizerForm
-        return self.form
-
-    def get_input_tree(self): return None
+    def get_form_class(self):
+        return PearsonCorrelationCoefficientVisualizerForm
 
     def get_required_memory_size(self, datatype):
         """Return required memory."""
@@ -107,7 +102,7 @@ class PearsonCorrelationCoefficientVisualizer(MappedArrayVisualizer):
                     matrix_shape=json.dumps(matrix_shape),
                     viewer_title='Cross Corelation Matrix plot',
                     url_base=URLGenerator.build_h5_url(datatype.gid, 'get_correlation_data', parameter=''),
-                    state_variable= state_list[0],
+                    state_variable=state_list[0],
                     mode=mode_list[0],
                     state_list=state_list,
                     mode_list=mode_list,

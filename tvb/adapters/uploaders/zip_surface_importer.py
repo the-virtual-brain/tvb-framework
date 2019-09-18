@@ -70,23 +70,11 @@ class ZIPSurfaceImporter(ABCUploader):
     _ui_description = "Import a Surface from ZIP"
     logger = get_logger(__name__)
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return ZIPSurfaceImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ZIPSurfaceImporterForm
 
     def get_output(self):
         return [SurfaceIndex]
-
 
     @staticmethod
     def _make_surface(surface_type):
@@ -98,7 +86,6 @@ class ZIPSurfaceImporter(ABCUploader):
 
         exception_str = "Could not determine surface type (selected option %s)" % surface_type
         raise LaunchException(exception_str)
-
 
     def launch(self, uploaded, surface_type, zero_based_triangles=False, should_center=False):
         """

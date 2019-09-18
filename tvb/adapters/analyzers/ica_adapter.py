@@ -87,18 +87,8 @@ class ICAAdapter(ABCAsynchronous):
     _ui_description = "ICA for a TimeSeries input DataType."
     _ui_subsection = "ica"
 
-    form = None
-
-    def get_input_tree(self):
-        return None
-
-    def get_form(self):
-        if self.form is None:
-            return ICAAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ICAAdapterForm
 
     def get_output(self):
         return [IndependentComponents]

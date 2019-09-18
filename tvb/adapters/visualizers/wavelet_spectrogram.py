@@ -45,7 +45,7 @@ from tvb.core.neocom.config import registry
 
 
 class WaveletSpectrogramVisualizerForm(ABCAdapterForm):
-    #TODO: add all fields here
+    # TODO: add all fields here
     def __init__(self, prefix='', project_id=None):
         super(WaveletSpectrogramVisualizerForm, self).__init__(prefix, project_id)
         self.input_data = DataTypeSelectField(self.get_required_datatype(), self, name='input_data', required=True,
@@ -71,17 +71,9 @@ class WaveletSpectrogramVisualizer(ABCDisplayer):
     """
     _ui_name = "Spectrogram of Wavelet Power"
     _ui_subsection = "wavelet"
-    form = None
 
-    def get_form(self):
-        if self.form is None:
-            return WaveletSpectrogramVisualizerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self): return None
+    def get_form_class(self):
+        return WaveletSpectrogramVisualizerForm
 
     def get_required_memory_size(self, **kwargs):
         """
@@ -93,10 +85,8 @@ class WaveletSpectrogramVisualizer(ABCDisplayer):
             shape = input_h5.data.shape
         return shape[0] * shape[1] * 8
 
-
     def generate_preview(self, input_data, **kwargs):
         return self.launch(input_data)
-
 
     def launch(self, input_data, **kwarg):
         input_h5_class, input_h5_path = self._load_h5_of_gid(input_data.gid)

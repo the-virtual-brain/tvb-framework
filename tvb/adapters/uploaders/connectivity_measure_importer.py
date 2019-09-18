@@ -68,19 +68,8 @@ class ConnectivityMeasureImporter(ABCUploader):
     _ui_subsection = "connectivity_measure"
     _ui_description = "Import a searies of connectivity measures from a .mat file"
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return ConnectivityMeasureImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ConnectivityMeasureImporterForm
 
     def get_output(self):
         return [ConnectivityMeasureIndex]

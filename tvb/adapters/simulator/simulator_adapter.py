@@ -42,7 +42,6 @@ Few supplementary steps are done here:
 import json
 import os
 import uuid
-
 import numpy
 from tvb.datatypes.connectivity import Connectivity
 from tvb.simulator.simulator import Simulator
@@ -108,41 +107,12 @@ class SimulatorAdapter(ABCAsynchronous):
     # We exclude from this for example EEG, MEG or Bold which return 
     HAVE_STATE_VARIABLES = ["GlobalAverage", "SpatialAverage", "Raw", "SubSample", "TemporalAverage"]
 
-    form = None
-
-    def get_form(self):
-        if not self.form:
-            return SimulatorAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
     def __init__(self):
         super(SimulatorAdapter, self).__init__()
         self.log.debug("%s: Initialized..." % str(self))
 
-    def get_input_tree2(self):
-        return None
-        # sim = Simulator()
-        # sim.trait.bound = self.INTERFACE_ATTRIBUTES_ONLY
-        # result = sim.interface_experimental
-        # return result
-
-    def get_input_tree(self):
-        """
-        Return a list of lists describing the interface to the simulator. This
-        is used by the GUI to generate the menus and fields necessary for
-        defining a simulation.
-        """
-        # sim = Simulator()
-        # sim.trait.bound = self.INTERFACE_ATTRIBUTES_ONLY
-        # result = sim.interface[self.INTERFACE_ATTRIBUTES]
-        # #We should add as hidden the Simulator State attribute.
-        # result.append({self.KEY_NAME: 'simulation_state',
-        #                self.KEY_TYPE: 'tvb.datatypes.simulation_state.SimulationState',
-        #                self.KEY_LABEL: "Continuation of", self.KEY_REQUIRED: False, self.KEY_UI_HIDE: True})
-        return None
+    def get_form_class(self):
+        return SimulatorAdapterForm
 
     def get_output(self):
         """

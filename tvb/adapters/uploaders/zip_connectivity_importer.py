@@ -33,7 +33,6 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 import uuid
-
 import numpy
 from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -44,7 +43,8 @@ from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField
 from tvb.core.neocom.h5 import DirLoader
 
-NORMALIZATION_OPTIONS = {'Region (node)':'region', 'Absolute (max weight)':'tract'}
+NORMALIZATION_OPTIONS = {'Region (node)': 'region', 'Absolute (max weight)': 'tract'}
+
 
 class ZIPConnectivityImporterForm(ABCUploaderForm):
 
@@ -76,25 +76,11 @@ class ZIPConnectivityImporter(ABCUploader):
     CORTICAL_INFO = "cortical"
     HEMISPHERE_INFO = "hemisphere"
 
-    form = None
-
-    def get_input_tree(self):
-        return None
-
-    def get_upload_input_tree(self):
-        return None
-
-    def get_form(self):
-        if self.form is None:
-            return ZIPConnectivityImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ZIPConnectivityImporterForm
 
     def get_output(self):
         return [ConnectivityIndex]
-
 
     def launch(self, uploaded, normalization=None):
         """

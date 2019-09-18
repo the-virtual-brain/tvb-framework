@@ -68,7 +68,7 @@ class ConnectivityViewerForm(ABCAdapterForm):
         self.connectivity = DataTypeSelectField(self.get_required_datatype(), self, name='input_data', required=True,
                                                 label='Connectivity Matrix', conditions=self.get_filters())
         surface_conditions = FilterChain(fields=[FilterChain.datatype + '.surface_type'], operations=["=="],
-                                          values=['Cortical Surface'])
+                                         values=['Cortical Surface'])
         self.surface_data = DataTypeSelectField(SurfaceIndex, self, name='surface_data', label='Brain Surface',
                                                 doc='The Brain Surface is used to give you an idea of the connectivity '
                                                     'position relative to the full brain cortical surface.  This surface '
@@ -89,9 +89,10 @@ class ConnectivityViewerForm(ABCAdapterForm):
 
         rays_conditions = FilterChain(fields=[FilterChain.datatype + '.ndim'], operations=["=="], values=[1])
         self.rays = DataTypeSelectField(ConnectivityMeasureIndex, self, name='rays', conditions=rays_conditions,
-                                        label='Shapes Dimensions', doc='A ConnectivityMeasure datatype used to establish '
-                                                                       'the size of the spheres representing each node. '
-                                                                       '(It only applies to 3D Nodes tab).')
+                                        label='Shapes Dimensions',
+                                        doc='A ConnectivityMeasure datatype used to establish '
+                                            'the size of the spheres representing each node. '
+                                            '(It only applies to 3D Nodes tab).')
 
     @staticmethod
     def get_required_datatype():
@@ -113,17 +114,9 @@ class ConnectivityViewer(ABCDisplayer):
     """
 
     _ui_name = "Connectivity Visualizer"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return ConnectivityViewerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ConnectivityViewerForm
 
     def get_required_memory_size(self, input_data, surface_data, **kwargs):
         """
@@ -310,6 +303,7 @@ class ConnectivityViewer(ABCDisplayer):
         global_params.update(global_pages)
         global_params['selectedConnectivityGid'] = input_connectivity.gid
         return global_params
+
 
 #
 # -------------------- Connectivity 3D code starting -------------------

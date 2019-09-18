@@ -195,7 +195,8 @@ class TopographicViewerForm(ABCAdapterForm):
 
     @staticmethod
     def get_filters():
-        return None #FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'], operations=["=="], values=[1])
+        return None  # FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'], operations=["=="], values=[1])
+
 
 class TopographicViewer(ABCDisplayer):
     """
@@ -204,17 +205,9 @@ class TopographicViewer(ABCDisplayer):
 
     _ui_name = "Topographic Visualizer"
     _ui_subsection = "topography"
-    form = None
 
-    def get_form(self):
-        if self.form is None:
-            return TopographicViewerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self): return None
+    def get_form_class(self):
+        return TopographicViewerForm
 
     def get_required_memory_size(self, **kwargs):
         """
@@ -222,14 +215,12 @@ class TopographicViewer(ABCDisplayer):
         """
         return -1
 
-
     def generate_preview(self, data_0, data_1=None, data_2=None, figure_size=None):
         return self.launch(data_0, data_1, data_2)
 
-
     def launch(self, data_0, data_1=None, data_2=None):
         import os
-        #TODO: load by ID
+        # TODO: load by ID
         connectivities_h5 = []
         measures_h5 = []
 

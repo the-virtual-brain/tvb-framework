@@ -90,23 +90,11 @@ class ProjectionMatrixSurfaceEEGImporter(ABCUploader):
     _ui_description = "Upload a Projection Matrix between a Brain Cortical Surface and EEG/MEG Sensors."
     logger = get_logger(__name__)
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return ProjectionMatrixImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ProjectionMatrixImporterForm
 
     def get_output(self):
         return [ProjectionSurfaceEEG, ProjectionSurfaceMEG, ProjectionSurfaceSEEG]
-
 
     def launch(self, projection_file, surface, sensors, dataset_name=DEFAULT_DATASET_NAME):
         """

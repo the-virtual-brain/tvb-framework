@@ -86,19 +86,8 @@ class NIFTIImporter(ABCUploader):
     _ui_subsection = "nifti_importer"
     _ui_description = "Import TimeSeries Volume from NIFTI"
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return NIFTIImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return NIFTIImporterForm
 
     def get_output(self):
         return [VolumeIndex, StructuralMRIIndex, TimeSeriesVolumeIndex, RegionVolumeMappingIndex]

@@ -151,18 +151,9 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
     _ui_name = "FCD matrix"
     _ui_description = "Functional Connectivity Dynamics metric"
     _ui_subsection = "fcd_calculator"
-    form = None
 
-    def get_input_tree(self):
-        return None
-
-    def get_form(self):
-        if not self.form:
-            return FCDAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return FCDAdapterForm
 
     def get_output(self):
         return [FcdIndex, ConnectivityMeasureIndex]

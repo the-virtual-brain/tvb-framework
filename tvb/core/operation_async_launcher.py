@@ -42,10 +42,8 @@ The results of the computation will be stored by the adapter itself.
 
 """
 
-
 import sys
 from tvb.basic.profile import TvbProfile
-from tvb.adapters.simulator.simulator_adapter import SimulatorAdapter
 
 if __name__ == '__main__':
     TvbProfile.set_profile(sys.argv[2], True)
@@ -56,49 +54,45 @@ from tvb.core.entities.storage import dao
 from tvb.core.utils import parse_json_parameters
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.workflow_service import WorkflowService
-
+from tvb.adapters.simulator.simulator_adapter import SimulatorAdapter
 
 
 def do_operation_launch(operation_id):
     """
     Event attached to the local queue for executing an operation, when we will have resources available.
     """
-    LOGGER = get_logger('tvb.core.operation_async_launcher')
+    log = get_logger('tvb.core.operation_async_launcher')
 
     try:
-        LOGGER.debug("Loading operation with id=%s" % operation_id)
+        log.debug("Loading operation with id=%s" % operation_id)
         curent_operation = dao.get_operation_by_id(operation_id)
         stored_adapter = curent_operation.algorithm
-        LOGGER.debug("Importing Algorithm: " + str(stored_adapter.classname) +
-                     " for Operation:" + str(curent_operation.id))
-        PARAMS = parse_json_parameters(curent_operation.parameters)
+        log.debug("Importing Algorithm: " + str(stored_adapter.classname) +
+                  " for Operation:" + str(curent_operation.id))
+        params = parse_json_parameters(curent_operation.parameters)
         adapter_instance = ABCAdapter.build_adapter(stored_adapter)
-        #These should go once we have a common place for it
+        # These should go once we have a common place for it
         if not isinstance(adapter_instance, SimulatorAdapter):
             adapter_form = adapter_instance.get_form()(project_id=curent_operation.fk_launched_in)
-            adapter_form.fill_from_post(PARAMS)
-            adapter_instance.set_form(adapter_form)
+            adapter_form.fill_from_post(params)
+            adapter_instance.submit_form(adapter_form)
 
-        ## Un-comment bellow for profiling an operation:
-        ## import cherrypy.lib.profiler as profiler
-        ## p = profiler.Profiler("/Users/lia.domide/TVB/profiler/")
-        ## p.run(OperationService().initiate_prelaunch, curent_operation, adapter_instance, {}, **PARAMS)
+        # Un-comment bellow for profiling an operation:
+        # import cherrypy.lib.profiler as profiler
+        # p = profiler.Profiler("/Users/lia.domide/TVB/profiler/")
+        # p.run(OperationService().initiate_prelaunch, curent_operation, adapter_instance, {}, **PARAMS)
 
-        OperationService().initiate_prelaunch(curent_operation, adapter_instance, **PARAMS)
-        LOGGER.debug("Successfully finished operation " + str(operation_id))
+        OperationService().initiate_prelaunch(curent_operation, adapter_instance, **params)
+        log.debug("Successfully finished operation " + str(operation_id))
 
     except Exception as excep:
-        LOGGER.error("Could not execute operation " + str(sys.argv[1]))
-        LOGGER.exception(excep)
+        log.error("Could not execute operation " + str(sys.argv[1]))
+        log.exception(excep)
         parent_burst = dao.get_burst_for_operation_id(operation_id)
         if parent_burst is not None:
             WorkflowService().mark_burst_finished(parent_burst, error_message=str(excep))
 
 
-
 if __name__ == '__main__':
-
     OPERATION_ID = sys.argv[1]
     do_operation_launch(OPERATION_ID)
-    
-

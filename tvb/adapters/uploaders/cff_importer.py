@@ -78,19 +78,8 @@ class CFF_Importer(ABCUploader):
     _ui_description = "Import from CFF archive one or multiple datatypes."
     logger = get_logger(__name__)
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return CFFImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return CFFImporterForm
 
     def get_output(self):
         return [Connectivity, surfaces.Surface]
@@ -305,7 +294,7 @@ class CFF_Importer(ABCUploader):
                 full_path = ele.tmpsrc
                 while os.path.split(full_path)[0] != root_folder and os.path.split(full_path)[0] != os.sep:
                     full_path = os.path.split(full_path)[0]
-                #Get the root parent from the $gettempdir()$
+                # Get the root parent from the $gettempdir()$
                 temp_files.append(full_path)
 
         conn_obj.close_all()

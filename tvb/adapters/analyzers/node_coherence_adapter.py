@@ -87,18 +87,8 @@ class NodeCoherenceAdapter(ABCAsynchronous):
     _ui_description = "Compute Node Coherence for a TimeSeries input DataType."
     _ui_subsection = "coherence"
 
-    form = None
-
-    def get_input_tree(self):
-        return None
-
-    def get_form(self):
-        if self.form is None:
-            return NodeCoherenceForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return NodeCoherenceForm
 
     def get_output(self):
         return [CoherenceSpectrum]
@@ -115,7 +105,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
                             self.input_time_series_index.data_length_3d,
                             self.input_time_series_index.data_length_4d)
         LOG.debug("Time series shape is %s" % str(self.input_shape))
-        ##-------------------- Fill Algorithm for Analysis -------------------##
+        # -------------------- Fill Algorithm for Analysis -------------------##
         self.algorithm = NodeCoherence()
         if nfft is not None:
             self.algorithm.nfft = nfft
@@ -188,5 +178,3 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         coherence_spectrum_index.frequencies = partial_coh.frequency
 
         return coherence_spectrum_index
-
-

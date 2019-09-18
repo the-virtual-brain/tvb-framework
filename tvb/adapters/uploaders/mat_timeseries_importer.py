@@ -50,6 +50,7 @@ from tvb.core.neocom.h5 import DirLoader
 TS_REGION = "Region"
 TS_EEG = "EEG"
 
+
 class MatTimeSeriesImporterForm(ABCUploaderForm):
 
     def __init__(self, prefix='', project_id=None):
@@ -85,18 +86,8 @@ class MatTimeSeriesImporter(ABCUploader):
     _ui_description = "Import time series from a .mat file."
     tstype = TS_REGION
 
-    def get_form(self):
-        if self.form is None:
-            return RegionMatTimeSeriesImporterForm
-        return self.form
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return RegionMatTimeSeriesImporterForm
 
     def get_output(self):
         return [TimeSeriesRegionIndex, TimeSeriesEEGIndex]

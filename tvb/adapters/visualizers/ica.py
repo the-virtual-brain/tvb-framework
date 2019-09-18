@@ -53,7 +53,7 @@ class ICAForm(ABCAdapterForm):
         self.datatype = DataTypeSelectField(self.get_required_datatype(), self, name='datatype', required=True,
                                             label='Independent component analysis:', conditions=self.get_filters())
         self.i_svar = SimpleIntField(self, name='i_svar', default=0,
-                                    label='Index of state variable (defaults to first state variable)')
+                                     label='Index of state variable (defaults to first state variable)')
         self.i_mode = SimpleIntField(self, name='i_mode', default=0, label='Index of mode (defaults to first mode)')
 
     @staticmethod
@@ -71,17 +71,9 @@ class ICAForm(ABCAdapterForm):
 
 class ICA(MappedArraySVGVisualizerMixin, ABCDisplayer):
     _ui_name = "Independent Components Analysis Visualizer"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return ICAForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ICAForm
 
     def launch(self, datatype, i_svar=0, i_mode=0):
         """Construct data for visualization and launch it."""

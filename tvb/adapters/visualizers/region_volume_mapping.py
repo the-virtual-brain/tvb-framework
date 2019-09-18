@@ -92,7 +92,8 @@ class _MappedArrayVolumeBase(ABCDisplayer):
             conn_index = dao.get_datatype_by_gid(region_mapping_volume.connectivity.load().hex)
             data_slice = self.get_default_slice(measure_shape, conn_index.number_of_regions)
             data_slice = slice_str(data_slice)
-        url_volume_data = self.build_url('get_mapped_array_volume_view', region_mapping_volume.gid.load().hex, parameter='')
+        url_volume_data = self.build_url('get_mapped_array_volume_view', region_mapping_volume.gid.load().hex,
+                                         parameter='')
         url_volume_data += 'mapped_array_gid=' + measure.gid + ';mapped_array_slice=' + data_slice + ';'
 
         return dict(minValue=min_value, maxValue=max_value,
@@ -226,17 +227,9 @@ class MappedArrayVolumeVisualizer(_MappedArrayVolumeBase):
     To view a multidimensional array one has to give this viewer a slice.
     """
     _ui_name = "Array Volume Visualizer"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if not self.form:
-            return VolumeVisualizerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return VolumeVisualizerForm
 
     def launch(self, measure, region_mapping_volume=None, data_slice='', background=None):
         params = self.compute_params(region_mapping_volume, measure, data_slice, background=background)
@@ -270,17 +263,9 @@ class ConnectivityMeasureVolumeVisualizerForm(BaseVolumeVisualizerForm):
 
 class ConnectivityMeasureVolumeVisualizer(_MappedArrayVolumeBase):
     _ui_name = "Connectivity Measure Volume Visualizer"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if not self.form:
-            return ConnectivityMeasureVolumeVisualizerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ConnectivityMeasureVolumeVisualizerForm
 
     def launch(self, connectivity_measure, region_mapping_volume=None, background=None):
         params = self.compute_params(region_mapping_volume, connectivity_measure, background=background)
@@ -320,17 +305,9 @@ class RegionVolumeMappingVisualiserForm(BaseVolumeVisualizerForm):
 
 class RegionVolumeMappingVisualiser(_MappedArrayVolumeBase):
     _ui_name = "Region Volume Mapping Visualizer"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if not self.form:
-            return RegionVolumeMappingVisualiserForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return RegionVolumeMappingVisualiserForm
 
     def launch(self, region_mapping_volume, connectivity_measure=None, background=None):
         params = self.compute_params(region_mapping_volume, connectivity_measure, background=background)
@@ -361,17 +338,9 @@ class MriVolumeVisualizerForm(BaseVolumeVisualizerForm):
 class MriVolumeVisualizer(ABCDisplayer):
     _ui_name = "MRI Volume Visualizer"
     _ui_subsection = "volume"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if not self.form:
-            return MriVolumeVisualizerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return MriVolumeVisualizerForm
 
     def get_required_memory_size(self, **kwargs):
         return -1

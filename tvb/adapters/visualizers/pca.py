@@ -63,22 +63,13 @@ class PCAForm(ABCAdapterForm):
 
 class PCA(ABCDisplayer):
     _ui_name = "Principal Components Analysis Visualizer"
-    form = None
 
-    def get_form(self):
-        if self.form is None:
-            return PCAForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self): return None
+    def get_form_class(self):
+        return PCAForm
 
     def get_required_memory_size(self, **kwargs):
         """Return required memory. Here, it's unknown/insignificant."""
         return -1
-
 
     def launch(self, pca):
         """Construct data for visualization and launch it."""
@@ -96,7 +87,5 @@ class PCA(ABCDisplayer):
                                                           fractions_update_url=fractions_update_url,
                                                           weights_update_url=weights_update_url))
 
-
     def generate_preview(self, pca, figure_size=None):
         return self.launch(pca)
-

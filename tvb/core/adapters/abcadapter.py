@@ -135,10 +135,12 @@ class ABCAdapterForm(Form):
     def get_input_name():
         raise NotImplementedError
 
-    # TODO: This is used to fill in defaults for GET requests. Makes sense only for analyzers?
-    @abstractmethod
     def get_traited_datatype(self):
-        """"""
+        """
+        This is used to fill in defaults for GET requests.
+        Makes sense for analyzers, because for each form, we have an algorithm to relate to.
+        """
+        return None
 
     def _get_original_field_name(self, field):
         return field.name[len(self.prefix) + 1:]
@@ -164,7 +166,6 @@ class ABCAdapterForm(Form):
         return attrs_dict
 
     def __str__(self):
-        # TODO: Keep using Jinja2?
         return jinja_env.get_template("form.jinja2").render(form=self)
 
 
@@ -221,6 +222,7 @@ class ABCAdapter(object):
         self.user_id = None
         self.log = get_logger(self.__class__.__module__)
         self.tree_manager = InputTreeManager()
+        self.submitted_form = None
 
     @classmethod
     def get_group_name(cls):
@@ -263,12 +265,23 @@ class ABCAdapter(object):
         """
         return True
 
-    @abstractmethod
     def get_input_tree(self):
         """
         Describes inputs and outputs of the launch method.
         """
+        return None
 
+    def submit_form(self, form):
+        self.submitted_form = form
+
+    def get_form(self):
+        if self.submitted_form is not None:
+            return self.submitted_form
+        return self.get_form_class()
+
+    @abstractmethod
+    def get_form_class(self):
+        return None
 
     @abstractmethod
     def get_output(self):

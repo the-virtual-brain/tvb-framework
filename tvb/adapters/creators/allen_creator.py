@@ -73,7 +73,7 @@ class AllenConnectomeBuilder(ABCAsynchronous):
     _ui_name = "Allen connectivity builder"
     _ui_description = "Import mouse connectivity from Allen database (tracer experiments)"
 
-    def get_form(self):
+    def get_form_class(self):
         return AllenConnectomeBuilderForm
 
     # TRANSGENIC_OPTIONS = [

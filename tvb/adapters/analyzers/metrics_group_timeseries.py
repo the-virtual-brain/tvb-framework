@@ -84,7 +84,7 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
     _ui_subsection = "timeseries"
     available_algorithms = BaseTimeseriesMetricAlgorithm.get_known_subclasses()
 
-    def get_form(self):
+    def get_form_class(self):
         return TimeseriesMetricsAdapterForm
 
     def get_input_tree(self):

@@ -53,39 +53,27 @@ class SensorsImporterForm(ABCUploaderForm):
         super(SensorsImporterForm, self).__init__(prefix, project_id)
 
         self.sensors_file = UploadField('text/plain, .bz2', self, name='sensors_file', required=True,
-                                  label='Please upload sensors file (txt or bz2 format)',
-                                  doc='Expected a text/bz2 file containing sensor measurements.')
+                                        label='Please upload sensors file (txt or bz2 format)',
+                                        doc='Expected a text/bz2 file containing sensor measurements.')
         self.sensors_type = SimpleSelectField(self.options, self, name='sensors_type', required=True,
                                               label='Sensors type: ')
 
 
-class Sensors_Importer(ABCUploader):
+class SensorsImporter(ABCUploader):
     """
     Upload Sensors from a TXT file.
-    """ 
+    """
     _ui_name = "Sensors"
     _ui_subsection = "sensors_importer"
     _ui_description = "Import Sensor locations from TXT or BZ2"
 
     logger = get_logger(__name__)
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return SensorsImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return SensorsImporterForm
 
     def get_output(self):
         return [SensorsIndex]
-
 
     def launch(self, sensors_file, sensors_type):
         """
@@ -114,7 +102,7 @@ class Sensors_Importer(ABCUploader):
         else:
             exception_str = "Could not determine sensors type (selected option %s)" % sensors_type
             raise LaunchException(exception_str)
-            
+
         locations = self.read_list_data(sensors_file, usecols=[1, 2, 3])
 
         # NOTE: TVB has the nose pointing -y and left ear pointing +x

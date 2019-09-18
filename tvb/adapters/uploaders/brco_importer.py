@@ -63,21 +63,8 @@ class BRCOImporter(ABCUploader):
     _ui_subsection = "brco_importer"
     _ui_description = "Import connectivity annotations from BRCO Ontology"
 
-    form = None
-
-    def get_input_tree(self):
-        return None
-
-    def get_upload_input_tree(self):
-        return None
-
-    def get_form(self):
-        if self.form is None:
-            return BRCOImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return BRCOImporterForm
 
     def get_output(self):
         return [ConnectivityAnnotationsIndex]

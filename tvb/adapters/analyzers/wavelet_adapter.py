@@ -61,13 +61,14 @@ class RangeForm(Form):
     def __init__(self, prefix=''):
         super(RangeForm, self).__init__(prefix)
         self.lo = SimpleFloatField(self, name='lo', required=True, label='Lo', doc='start of range')
-                                   #default=ContinuousWaveletTransform.frequencies.lo)
+        # default=ContinuousWaveletTransform.frequencies.lo)
         self.step = SimpleFloatField(self, name='step', required=True, label='Step', doc='step of range')
-                                     #default=ContinuousWaveletTransform.frequencies.step)
+        # default=ContinuousWaveletTransform.frequencies.step)
         self.hi = SimpleFloatField(self, name='hi', required=True, label='Hi', doc='end of range')
-                                   #default=ContinuousWaveletTransform.frequencies.hi)
+        # default=ContinuousWaveletTransform.frequencies.hi)
 
-#TODO: add all fields
+
+# TODO: add all fields
 class ContinuousWaveletTransformAdapterForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
@@ -108,21 +109,12 @@ class ContinuousWaveletTransformAdapter(ABCAsynchronous):
     _ui_name = "Continuous Wavelet Transform"
     _ui_description = "Compute Wavelet Tranformation for a TimeSeries input DataType."
     _ui_subsection = "wavelet"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return ContinuousWaveletTransformAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self): return None
+    def get_form_class(self):
+        return ContinuousWaveletTransformAdapterForm
 
     def get_output(self):
         return [WaveletCoefficientsIndex]
-
 
     def configure(self, time_series, mother=None, sample_period=None, normalisation=None, q_ratio=None,
                   frequencies='Range', frequencies_parameters=None):

@@ -51,7 +51,8 @@ class ObjSurfaceImporterForm(ABCUploaderForm):
 
         self.surface_type = SimpleSelectField(ALL_SURFACES_SELECTION, self, name='surface_type', required=True,
                                               label='Specify file type :')
-        self.data_file = UploadField('.obj', self, name='data_file', required=True, label='Please select file to import')
+        self.data_file = UploadField('.obj', self, name='data_file', required=True,
+                                     label='Please select file to import')
         self.should_center = SimpleBoolField(self, name='should_center', default=False,
                                              label='Center surface using vertex means along axes')
 
@@ -64,23 +65,11 @@ class ObjSurfaceImporter(ABCUploader):
     _ui_subsection = "obj_importer"
     _ui_description = "Import geometry data stored in wavefront obj format"
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return ObjSurfaceImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ObjSurfaceImporterForm
 
     def get_output(self):
         return [SurfaceIndex]
-
 
     @transactional
     def launch(self, surface_type, data_file, should_center=False):

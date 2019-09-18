@@ -92,18 +92,9 @@ class NodeCovarianceAdapter(ABCAsynchronous):
     _ui_name = "Temporal covariance of nodes"
     _ui_description = "Compute Temporal Node Covariance for a TimeSeries input DataType."
     _ui_subsection = "covariance"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return NodeCovarianceAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self):
-        return None
+    def get_form_class(self):
+        return NodeCovarianceAdapterForm
 
     def get_output(self):
         return [CovarianceIndex]
@@ -164,7 +155,6 @@ class NodeCovarianceAdapter(ABCAsynchronous):
                     partial_cov = self._compute_node_covariance(small_ts, ts_h5)
                     covariance_h5.write_data_slice(partial_cov.array_data)
             ts_array_metadata = covariance_h5.array_data.get_cached_metadata()
-
 
         covariance_index.source_id = time_series.id
         covariance_index.type = type(covariance_index).__name__

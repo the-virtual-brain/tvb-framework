@@ -79,18 +79,9 @@ class ConnectivityCreator(ABCSynchronous):
     """
     This adapter creates a Connectivity.
     """
-    form = None
 
-    def get_input_tree(self):
-        return None
-
-    def get_form(self):
-        if self.form is None:
-            return ConnectivityCreatorForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ConnectivityCreatorForm
 
     def get_output(self):
         return [ConnectivityIndex, RegionMappingIndex]

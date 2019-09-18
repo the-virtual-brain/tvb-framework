@@ -68,18 +68,9 @@ class TractViewer(ABCDisplayer):
     """
     _ui_name = "Tract Visualizer"
     _ui_subsection = "surface"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return TractViewerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self):
-        return None
+    def get_form_class(self):
+        return TractViewerForm
 
     # TODO: migrate to neotraits
     def launch(self, tracts, shell_surface=None):

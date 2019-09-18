@@ -63,19 +63,8 @@ class TVBImporter(ABCUploader):
     _ui_subsection = "tvb_datatype_importer"
     _ui_description = "Upload H5 file with TVB generic entity"
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return TVBImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return TVBImporterForm
 
     def get_output(self):
         return []

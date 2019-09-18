@@ -85,18 +85,8 @@ class PCAAdapter(ABCAsynchronous):
     _ui_description = "PCA for a TimeSeries input DataType."
     _ui_subsection = "components"
 
-    form = None
-
-    def get_input_tree(self):
-        return None
-
-    def get_form(self):
-        if self.form is None:
-            return PCAAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return PCAAdapterForm
 
     def get_output(self):
         return [PrincipalComponents]
@@ -112,7 +102,7 @@ class PCAAdapter(ABCAsynchronous):
                             self.input_time_series_index.data_length_3d,
                             self.input_time_series_index.data_length_4d)
         LOG.debug("Time series shape is %s" % str(self.input_shape))
-        ##-------------------- Fill Algorithm for Analysis -------------------##
+        # -------------------- Fill Algorithm for Analysis -------------------##
         self.algorithm = PCA()
 
     def get_required_memory_size(self, time_series):

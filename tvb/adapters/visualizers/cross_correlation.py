@@ -65,18 +65,9 @@ class CrossCorrelationVisualizerForm(ABCAdapterForm):
 class CrossCorrelationVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     _ui_name = "Cross Correlation Visualizer"
     _ui_subsection = "correlation"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return CrossCorrelationVisualizerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self): return None
-
+    def get_form_class(self):
+        return CrossCorrelationVisualizerForm
 
     def launch(self, datatype):
         """Construct data for visualization and launch it."""

@@ -167,18 +167,9 @@ class SurfaceViewer(ABCDisplayer):
     """
     _ui_name = "Surface Visualizer"
     _ui_subsection = "surface"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return SurfaceViewerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self):
-        return None
+    def get_form_class(self):
+        return SurfaceViewerForm
 
     def _compute_surface_params(self, surface_h5, region_map=None):
         rendering_urls = []
@@ -310,12 +301,9 @@ class RegionMappingViewer(SurfaceViewer):
     """
     _ui_name = "Region Mapping Visualizer"
     _ui_subsection = "surface"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return RegionMappingViewerForm
-        return self.form
+    def get_form_class(self):
+        return RegionMappingViewerForm
 
     def launch(self, region_map, connectivity_measure=None, shell_surface=None):
         region_map_h5 = self._determine_h5_file_for_inputs(region_map)
@@ -349,12 +337,9 @@ class ConnectivityMeasureOnSurfaceViewer(SurfaceViewer):
     """
     _ui_name = "Connectivity Measure Surface Visualizer"
     _ui_subsection = "surface"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return ConnectivityMeasureOnSurfaceViewerForm
-        return self.form
+    def get_form_class(self):
+        return ConnectivityMeasureOnSurfaceViewerForm
 
     def launch(self, connectivity_measure, region_map=None, shell_surface=None):
         connectivity_measure_h5 = self._determine_h5_file_for_inputs(connectivity_measure)

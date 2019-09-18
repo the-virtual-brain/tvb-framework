@@ -242,7 +242,7 @@ class Introspector(object):
                                     continue
 
                                 adapter_form = adapter_instance.get_form()
-                                adapter_instance.set_form(adapter_form())
+                                adapter_instance.submit_form(adapter_form())
                                 adapter_form_field_names = adapter_instance.flaten_input_interface()
                                 for input_entry in portlet_inputs.values():
                                     if input_entry[ATT_OVERWRITE] == adapter[ABCAdapter.KEY_NAME]:

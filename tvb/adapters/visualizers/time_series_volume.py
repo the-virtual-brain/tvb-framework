@@ -72,25 +72,15 @@ class TimeSeriesVolumeVisualiserForm(ABCAdapterForm):
 
 
 class TimeSeriesVolumeVisualiser(ABCDisplayer):
-
     _ui_name = "Time Series Volume Visualizer"
     _ui_subsection = "volume"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return TimeSeriesVolumeVisualiserForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return TimeSeriesVolumeVisualiserForm
 
     def get_required_memory_size(self, **kwargs):
         """Return required memory."""
         return -1
-
 
     def launch(self, time_series, background=None):
 

@@ -73,17 +73,9 @@ class ImaginaryCoherenceDisplay(ABCDisplayer):
 
     _ui_name = "Complex (Imaginary) Coherence Visualizer"
     _ui_subsection = "complex_coherence"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if not self.form:
-            return ImaginaryCoherenceDisplayForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ImaginaryCoherenceDisplayForm
 
     def get_required_memory_size(self, **kwargs):
         """

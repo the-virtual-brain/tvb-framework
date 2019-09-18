@@ -71,25 +71,6 @@ class ABCUploader(ABCSynchronous):
     """
     LOGGER = get_logger(__name__)
 
-    def get_input_tree(self):
-        """
-        :return: the result of get_upload_input_tree concatenated with "subject" input field.
-        """
-        subject_node = [{'name': DataTypeMetaData.KEY_SUBJECT, 'type': 'str', 'required': True,
-                         'label': 'Subject', 'default': DataTypeMetaData.DEFAULT_SUBJECT}]
-
-        return subject_node + self.get_upload_input_tree()
-
-
-    @abstractmethod
-    def get_upload_input_tree(self):
-        """
-        Build the list of dictionaries describing the input required for this uploader.
-        :return: The input tree specific for this uploader
-        """
-        return []
-
-
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
         """
         Before going with the usual prelaunch, get from input parameters the 'subject'.

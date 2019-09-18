@@ -63,15 +63,9 @@ class CovarianceVisualizerForm(ABCAdapterForm):
 
 class CovarianceVisualizer(MappedArrayVisualizer):
     _ui_name = "Covariance Visualizer"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return CovarianceVisualizerForm
-        return self.form
-
-    def get_input_tree(self): return None
-
+    def get_form_class(self):
+        return CovarianceVisualizerForm
 
     def launch(self, datatype):
         """Construct data for visualization and launch it."""

@@ -66,17 +66,9 @@ class CrossCoherenceVisualizerForm(ABCAdapterForm):
 class CrossCoherenceVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
     _ui_name = "Cross Coherence Visualizer"
     _ui_subsection = "coherence"
-    form = None
 
-    def get_input_tree(self): return None
-
-    def get_form(self):
-        if not self.form:
-            return CrossCoherenceVisualizerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return CrossCoherenceVisualizerForm
 
     def launch(self, datatype):
         """Construct data for visualization and launch it."""

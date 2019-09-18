@@ -81,23 +81,11 @@ class RegionMapping_Importer(ABCUploader):
 
     logger = get_logger(__name__)
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return RegionMappingImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return RegionMappingImporterForm
 
     def get_output(self):
         return [RegionMappingIndex]
-
 
     def launch(self, mapping_file, surface, connectivity):
         """

@@ -90,32 +90,16 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
     _ui_description = "Calculate the FFT of a TimeSeries entity."
     _ui_subsection = "fourier"
 
-    form = None
-
-    def get_input_tree(self):
-        return None
-
-    def get_form(self):
-        if self.form is None:
-            return FFTAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        # TODO: ensure correct form type
-        self.form = form
-
-    def get_algorithm(self):
-        return self.algorithm
-
-    def get_output(self):
-        return [spectral.FourierSpectrum]
-
-
     def __init__(self):
         super(FourierAdapter, self).__init__()
         self.algorithm = fft.FFT()
         self.memory_factor = 1
 
+    def get_form_class(self):
+        return FFTAdapterForm
+
+    def get_output(self):
+        return [spectral.FourierSpectrum]
 
     def configure(self, time_series, segment_length=None, window_function=None, detrend=None):
         """
@@ -213,7 +197,7 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         small_ts.sample_period = input_time_series_h5.sample_period.load()
 
         for block in xrange(blocks):
-            node_slice[2] = slice(block * block_size, min([(block+1) * block_size, self.input_shape[2]]), 1)
+            node_slice[2] = slice(block * block_size, min([(block + 1) * block_size, self.input_shape[2]]), 1)
             small_ts.data = input_time_series_h5.read_data_slice(tuple(node_slice))
             self.algorithm.time_series = small_ts
             partial_result = self.algorithm.evaluate()
@@ -239,4 +223,3 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         LOG.debug("partial segment_length is %s" % (str(partial_result.segment_length)))
 
         return fft_index
-

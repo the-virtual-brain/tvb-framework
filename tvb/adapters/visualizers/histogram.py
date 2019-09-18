@@ -69,20 +69,11 @@ class HistogramViewer(ABCDisplayer):
     The viewer takes as input a result DataType as computed by BCT analyzers.
     """
     _ui_name = "Connectivity Measure Visualizer"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return HistogramViewerForm
-        return self.form
+    def get_form_class(self):
+        return HistogramViewerForm
 
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self): return None
-
-
-    #TODO: migrate to neotraits
+    # TODO: migrate to neotraits
     def launch(self, input_data):
         """
         Prepare input data for display.
@@ -123,5 +114,3 @@ class HistogramViewer(ABCDisplayer):
                       xposition='center' if min(values_list) < 0 else 'bottom',
                       minColor=min(colors_list), maxColor=max(colors_list))
         return params
-    
-    

@@ -70,19 +70,8 @@ class GIFTISurfaceImporter(ABCUploader):
     _ui_subsection = "gifti_surface_importer"
     _ui_description = "Import a surface from GIFTI"
 
-    form = None
-
-    def get_input_tree(self): return None
-
-    def get_upload_input_tree(self): return None
-
-    def get_form(self):
-        if self.form is None:
-            return GIFTISurfaceImporterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return GIFTISurfaceImporterForm
 
     def get_output(self):
         return [SurfaceIndex]

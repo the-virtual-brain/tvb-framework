@@ -49,7 +49,5 @@ class EEGMatTimeSeriesImporter(MatTimeSeriesImporter):
     _ui_name = "Timeseries EEG MAT"
     tstype = TS_EEG
 
-    def get_form(self):
-        if self.form is None:
-            return EEGMatTimeSeriesImporterForm
-        return self.form
+    def get_form_class(self):
+        return EEGMatTimeSeriesImporterForm

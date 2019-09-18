@@ -76,8 +76,9 @@ class BrainViewerForm(ABCAdapterForm):
 
     @staticmethod
     def get_filters():
-        return FilterChain(fields=[FilterChain.datatype + '.time_series_type', FilterChain.datatype + '.has_surface_mapping'],
-                           operations=["in", "=="], values=[['TimeSeriesRegion', 'TimeSeriesSurface'], True])
+        return FilterChain(
+            fields=[FilterChain.datatype + '.time_series_type', FilterChain.datatype + '.has_surface_mapping'],
+            operations=["in", "=="], values=[['TimeSeriesRegion', 'TimeSeriesSurface'], True])
 
 
 class BrainViewer(ABCDisplayer):
@@ -88,18 +89,9 @@ class BrainViewer(ABCDisplayer):
     """
     _ui_name = "Brain Activity Visualizer"
     PAGE_SIZE = 500
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return BrainViewerForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
-
-    def get_input_tree(self): return None
-
+    def get_form_class(self):
+        return BrainViewerForm
 
     def get_required_memory_size(self, time_series, shell_surface=None):
         """
@@ -110,7 +102,6 @@ class BrainViewer(ABCDisplayer):
         overall_shape = ts_h5.data.shape
         used_shape = (overall_shape[0] / (self.PAGE_SIZE * 2.0), overall_shape[1], overall_shape[2], overall_shape[3])
         return numpy.prod(used_shape) * 8.0
-
 
     def generate_preview(self, time_series, shell_surface=None, figure_size=None):
         """
@@ -155,14 +146,12 @@ class BrainViewer(ABCDisplayer):
 
         return self.build_display_result("brain/portlet_preview", params)
 
-
     def launch(self, time_series, shell_surface=None):
         """
         Build visualizer's page.
         """
         params = self.compute_parameters(time_series, shell_surface)
         return self.build_display_result("brain/view", params, pages=dict(controlPage="brain/controls"))
-
 
     def _get_h5_from_index(self, entity_index):
         if entity_index is None:
@@ -171,7 +160,6 @@ class BrainViewer(ABCDisplayer):
         entity_h5_class = registry.get_h5file_for_index(type(entity_index))
         entity_h5_path = loader.path_for(entity_h5_class, entity_index.gid)
         return entity_h5_class(entity_h5_path)
-
 
     def populate_surface_fields(self, time_series_index):
         """
@@ -197,8 +185,9 @@ class BrainViewer(ABCDisplayer):
             if time_series_index.region_mapping_id:
                 region_map_index = dao.get_datatype_by_id(time_series_index.region_mapping_id)
             else:
-                #TODO: fix for no RM in DB
-                region_map_indexes = dao.get_generic_entity(RegionMappingIndex, connectivity_index.id, 'connectivity_id')
+                # TODO: fix for no RM in DB
+                region_map_indexes = dao.get_generic_entity(RegionMappingIndex, connectivity_index.id,
+                                                            'connectivity_id')
                 region_map_index = region_map_indexes[0]
 
             surface_index = dao.get_datatype_by_id(region_map_index.surface_id)
@@ -206,7 +195,6 @@ class BrainViewer(ABCDisplayer):
         self.connectivity_h5 = None if connectivity_index is None else self._get_h5_from_index(connectivity_index)
         self.region_map_h5 = None if region_map_index is None else self._get_h5_from_index(region_map_index)
         self.surface_h5 = None if surface_index is None else self._get_h5_from_index(surface_index)
-
 
     def retrieve_measure_points_prams(self, time_series):
         """
@@ -226,7 +214,6 @@ class BrainViewer(ABCDisplayer):
         return {'urlMeasurePoints': measure_points,
                 'urlMeasurePointsLabels': measure_points_labels,
                 'noOfMeasurePoints': self.measure_points_no}
-
 
     def compute_parameters(self, time_series, shell_surface=None):
         """
@@ -298,7 +285,6 @@ class BrainViewer(ABCDisplayer):
 
         return params
 
-
     @staticmethod
     def _prepare_mappings(mappings_dict):
         """
@@ -318,7 +304,6 @@ class BrainViewer(ABCDisplayer):
                         this_mappings.append(index)
             prepared_mappings.append(this_mappings)
         return prepared_mappings
-
 
     @staticmethod
     def _compute_legend_labels(min_val, max_val, nr_labels=5, min_nr_dec=3):
@@ -350,7 +335,6 @@ class BrainViewer(ABCDisplayer):
         inter_values = [round(processed_min_val + value_diff * i, idx) for i in range(nr_labels, 0, -1)]
         return [processed_max_val] + inter_values + [processed_min_val]
 
-
     def _prepare_data_slices(self, time_series_h5):
         """
         Prepare data URL for retrieval with slices of timeSeries activity and Time-Line.
@@ -362,9 +346,8 @@ class BrainViewer(ABCDisplayer):
         time_series_gid = time_series_h5.gid.load().hex
         activity_base_url = SurfaceURLGenerator.build_base_h5_url(time_series_gid)
         time_urls = [SurfaceURLGenerator.build_h5_url(time_series_gid, 'read_time_page',
-                                    parameter="current_page=0;page_size=" + str(overall_shape[0]))]
+                                                      parameter="current_page=0;page_size=" + str(overall_shape[0]))]
         return activity_base_url, time_urls
-
 
 
 class DualBrainViewerForm(ABCAdapterForm):
@@ -403,12 +386,9 @@ class DualBrainViewer(BrainViewer):
     """
     _ui_name = "Brain Activity Viewer in 3D and 2D"
     _ui_subsection = "brain_dual"
-    form = None
 
-    def get_form(self):
-        if not self.form:
-            return DualBrainViewerForm
-        return self.form
+    def get_form_class(self):
+        return DualBrainViewerForm
 
     def populate_surface_fields(self, time_series_index):
         """
@@ -430,7 +410,6 @@ class DualBrainViewer(BrainViewer):
             self.surface_index = eeg_cap[0]
 
         self.surface_h5 = self._get_h5_from_index(self.surface_index)
-
 
     def retrieve_measure_points_prams(self, time_series):
 
@@ -470,4 +449,3 @@ class DualBrainViewer(BrainViewer):
         return self.build_display_result("brain/extendedview", params,
                                          pages=dict(controlPage="brain/extendedcontrols",
                                                     channelsPage="commons/channel_selector.html"))
-

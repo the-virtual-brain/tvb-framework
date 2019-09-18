@@ -72,18 +72,8 @@ class ConnectivityEdgeBundle(ABCDisplayer):
     _ui_name = "Connectivity Edge Bundle View"
     _ui_subsection = "connectivity_edge"
 
-    form = None
-
-    def get_input_tree(self):
-        return None
-
-    def get_form(self):
-        if self.form is None:
-            return ConnectivityEdgeBundleForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
+    def get_form_class(self):
+        return ConnectivityEdgeBundleForm
 
     def get_required_memory_size(self, **kwargs):
         """Return required memory."""
