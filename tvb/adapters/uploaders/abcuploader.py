@@ -100,6 +100,7 @@ class ABCUploader(ABCSynchronous):
             subject = DataTypeMetaData.DEFAULT_SUBJECT
 
         self.meta_data.update({DataTypeMetaData.KEY_SUBJECT: subject})
+        self.generic_attributes.subject = subject
 
         return ABCSynchronous._prelaunch(self, operation, uid, available_disk_space, **kwargs)
 

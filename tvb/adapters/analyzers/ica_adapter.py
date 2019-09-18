@@ -157,7 +157,7 @@ class ICAAdapter(ABCAsynchronous):
 
         loader = DirLoader(os.path.join(self.storage_path))
         result_path = loader.path_for(IndependentComponentsH5, ica_index.gid)
-        ica_h5 = IndependentComponentsH5(path=result_path, generic_attributes=self.generic_attributes)
+        ica_h5 = IndependentComponentsH5(path=result_path)
         ica_h5.gid.store(uuid.UUID(ica_index.gid))
         ica_h5.source.store(time_series_h5.gid.load())
         ica_h5.n_components.store(self.algorithm.n_components)

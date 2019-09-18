@@ -49,6 +49,8 @@ from tvb.core.adapters import input_tree
 from tvb.core.adapters.input_tree import InputTreeManager
 from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.entities.load import load_entity_by_gid
+from tvb.core.neocom.api import TVBLoader
+from tvb.core.neotraits.h5 import H5File
 from tvb.core.utils import date2string, LESS_COMPLEX_TIME_FORMAT
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -210,6 +212,8 @@ class ABCAdapter(object):
     def __init__(self):
         # It will be populate with key from DataTypeMetaData
         self.meta_data = {DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
+        self.generic_attributes = GenericAttributes()
+        self.generic_attributes.subject = DataTypeMetaData.DEFAULT_SUBJECT
         self.file_handler = FilesHelper()
         self.storage_path = '.'
         # Will be populate with current running operation's identifier
@@ -322,18 +326,13 @@ class ABCAdapter(object):
         dao.store_entity(current_op)
 
     def _prepare_generic_attributes(self, user_tag=None):
-        # All entities will have the same subject and state
-        subject = self.meta_data.get(DataTypeMetaData.KEY_SUBJECT)
-        state = self.meta_data.get(DataTypeMetaData.KEY_STATE)
 
-        self.generic_attributes = GenericAttributes()
+        self.generic_attributes.subject = str(self.meta_data.get(DataTypeMetaData.KEY_SUBJECT))
+        self.generic_attributes.state = self.meta_data.get(DataTypeMetaData.KEY_STATE)
 
         perpetuated_identifier = self.generic_attributes.user_tag_1
         if DataTypeMetaData.KEY_TAG_1 in self.meta_data:
             perpetuated_identifier = self.meta_data.get(DataTypeMetaData.KEY_TAG_1)
-
-        self.generic_attributes.subject = str(subject)
-        self.generic_attributes.state = state
         if not self.generic_attributes.user_tag_1:
             self.generic_attributes.user_tag_1 = user_tag if user_tag is not None else perpetuated_identifier
         else:
@@ -381,23 +380,19 @@ class ABCAdapter(object):
         dao.store_entity(operation)
 
         self._prepare_generic_attributes(uid)
-
         result = self.launch(**kwargs)
 
         if not isinstance(result, (list, tuple)):
             result = [result, ]
-        # TODO: Fix this
-        # self.__check_integrity(result)
-
+        self.__check_integrity(result)
         return self._capture_operation_results(result)
 
 
-    def _capture_operation_results(self, result, user_tag=None):
+    def _capture_operation_results(self, result):
         """
         After an operation was finished, make sure the results are stored
         in DB storage and the correct meta-data,IDs are set.
         """
-        results_to_store = []
         data_type_group_id = None
         operation = dao.get_operation_by_id(self.operation_id)
         if operation.user_group is None or len(operation.user_group) == 0:
@@ -408,6 +403,9 @@ class ABCAdapter(object):
         burst_reference = None
         if DataTypeMetaData.KEY_BURST in self.meta_data:
             burst_reference = self.meta_data[DataTypeMetaData.KEY_BURST]
+
+        count_stored = 0
+        group_type = None   # In case of a group, the first not-none type is sufficient to memorize here
         for res in result:
             if res is None:
                 continue
@@ -419,70 +417,46 @@ class ABCAdapter(object):
             res.user_tag_1 = self.generic_attributes.user_tag_1
             res.user_tag_2 = self.generic_attributes.user_tag_2
             res.fk_datatype_group = data_type_group_id
-            ## Compute size-on disk, in case file-storage is used
-            if hasattr(res, 'storage_path') and hasattr(res, 'get_storage_file_name'):
-                associated_file = os.path.join(res.storage_path, res.get_storage_file_name())
-                res.close_file()
+            # Compute size-on disk, in case file-storage is used
+            associated_file = TVBLoader().path_for_stored_index(res)
+            if os.path.exists(associated_file):
                 res.disk_size = self.file_handler.compute_size_on_disk(associated_file)
-            res = dao.store_entity(res)
-            # Write metaData
-            results_to_store.append(res)
-        del result[0:len(result)]
-        result.extend(results_to_store)
+                with H5File.from_file(associated_file) as f:
+                    f.store_generic_attributes(self.generic_attributes)
+            dao.store_entity(res)
+            group_type = res.type
+            count_stored += 1
 
-        if len(result) and self._is_group_launch():
-            ## Update the operation group name
+        if count_stored > 0 and self._is_group_launch():
+            # Update the operation group name
             operation_group = dao.get_operationgroup_by_id(operation.fk_operation_group)
-            operation_group.fill_operationgroup_name(result[0].type)
+            operation_group.fill_operationgroup_name(group_type)
             dao.store_entity(operation_group)
 
-        return 'Operation ' + str(self.operation_id) + ' has finished.', len(results_to_store)
+        return 'Operation ' + str(self.operation_id) + ' has finished.', count_stored
 
 
     def __check_integrity(self, result):
         """
-         Check that the returned parameters for LAUNCH operation
+        Check that the returned parameters for LAUNCH operation
         are of the type specified in the adapter's interface.
         """
-        entity_id = self.__module__ + '.' + self.__class__.__name__
-
         for result_entity in result:
-            if type(result_entity) == list and len(result_entity) > 0:
-                #### Determine the first element not None
-                first_item = None
-                for res in result_entity:
-                    if res is not None:
-                        first_item = res
-                        break
-                if first_item is None:
-                    return
-                    #### All list items are None
-                #### Now check if the first item has a supported type
-                if not self.__is_data_in_supported_types(first_item):
-                    msg = "Unexpected DataType %s"
-                    raise InvalidParameterException(msg % type(first_item))
-
-                first_item_type = type(first_item)
-                for res in result_entity:
-                    if not isinstance(res, first_item_type):
-                        msg = '%s-Heterogeneous types (%s).Expected %s list.'
-                        raise InvalidParameterException(msg % (entity_id, type(res), first_item_type))
-            else:
-                if not self.__is_data_in_supported_types(result_entity):
-                    msg = "Unexpected DataType %s"
-                    raise InvalidParameterException(msg % type(result_entity))
+            if result_entity is None:
+                continue
+            if not self.__is_data_in_supported_types(result_entity):
+                msg = "Unexpected output DataType %s"
+                raise InvalidParameterException(msg % type(result_entity))
 
 
     def __is_data_in_supported_types(self, data):
-        """
-        This method checks if the provided data is one of the adapter supported return types 
-        """
+
         if data is None:
             return True
         for supported_type in self.get_output():
             if isinstance(data, supported_type):
                 return True
-        ##### Data can't be mapped on any supported type !!
+        # Data can't be mapped on any supported type !!
         return False
 
 

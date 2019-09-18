@@ -159,7 +159,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
 
         loader = DirLoader(self.storage_path)
         dest_path = loader.path_for(CoherenceSpectrumH5, coherence_spectrum_index.gid)
-        coherence_h5 = CoherenceSpectrumH5(dest_path, self.generic_attributes)
+        coherence_h5 = CoherenceSpectrumH5(dest_path)
         coherence_h5.gid.store(uuid.UUID(coherence_spectrum_index.gid))
         coherence_h5.source.store(time_series_h5.gid.load())
         coherence_h5.nfft.store(self.algorithm.nfft)

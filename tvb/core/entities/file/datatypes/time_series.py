@@ -1,7 +1,36 @@
+# -*- coding: utf-8 -*-
+#
+#
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
+# Web-UI helpful to run brain-simulations. To use it, you also need do download
+# TheVirtualBrain-Scientific Package (for simulators). See content of the
+# documentation-folder for more details. See also http://www.thevirtualbrain.org
+#
+# (c) 2012-2017, Baycrest Centre for Geriatric Care ("Baycrest") and others
+#
+# This program is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+# either version 3 of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with this
+# program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#   CITATION:
+# When using The Virtual Brain for scientific publications, please cite it as follows:
+#
+#   Paula Sanz Leon, Stuart A. Knock, M. Marmaduke Woodman, Lia Domide,
+#   Jochen Mersmann, Anthony R. McIntosh, Viktor Jirsa (2013)
+#       The Virtual Brain: a simulator of primate brain network dynamics.
+#   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
+#
+#
 import json
 import numpy
+from tvb.basic.neotraits.api import Float, Int
 from tvb.core.utils import prepare_time_slice
-from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.neotraits.h5 import H5File, Scalar, DataSet, Reference, Json
 from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, \
     TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
@@ -10,11 +39,11 @@ from tvb.basic.arguments_serialisation import preprocess_time_parameters, prepro
 
 
 class TimeSeriesH5(H5File):
-    def __init__(self, path, generic_attributes=GenericAttributes()):
-        super(TimeSeriesH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(TimeSeriesH5, self).__init__(path)
         self.title = Scalar(TimeSeries.title, self)
         self.data = DataSet(TimeSeries.data, self, expand_dimension=0)
-        self.nr_dimensions = Scalar(TimeSeries.nr_dimensions, self)
+        self.nr_dimensions = Scalar(Int(), self, name="nr_dimensions")
 
         # omitted length_nd , these are indexing props, to be removed from datatype too
         self.labels_ordering = Json(TimeSeries.labels_ordering, self)
@@ -24,7 +53,7 @@ class TimeSeriesH5(H5File):
         self.start_time = Scalar(TimeSeries.start_time, self)
         self.sample_period = Scalar(TimeSeries.sample_period, self)
         self.sample_period_unit = Scalar(TimeSeries.sample_period_unit, self)
-        self.sample_rate = Scalar(TimeSeries.sample_rate, self)
+        self.sample_rate = Scalar(Float(), self, name="sample_rate")
 
         # omitted has_surface_mapping, has_volume_mapping, indexing props, to be removed fro datatype too
 
@@ -36,13 +65,11 @@ class TimeSeriesH5(H5File):
             self._sample_period = self.sample_period.load()
             self._start_time = self.start_time.load()
 
-
     # experimental port of some of the data access apis from the datatype
     # NOTE: some methods can not be here as they load data from dependent data types
     #       or they assume that dependent data has been loaded
     #       Those belong to a higher level where dependent h5 files are handles and
     #       partially loaded datatypes are filled
-
 
     def read_data_shape(self):
         return self.data.shape
@@ -52,7 +79,6 @@ class TimeSeriesH5(H5File):
         Expose chunked-data access.
         """
         return self.data[data_slice]
-
 
     def read_time_page(self, current_page, page_size, max_size=None):
         """
@@ -73,7 +99,6 @@ class TimeSeriesH5(H5File):
         end_time = start_time + min(page_real_size, max_size * self._sample_period)
 
         return numpy.arange(start_time, end_time, self._sample_period)
-
 
     def read_channels_page(self, from_idx, to_idx, step=None, specific_slices=None, channels_list=None):
         """
@@ -102,7 +127,6 @@ class TimeSeriesH5(H5File):
             return data_page.reshape(data_page.shape[0], 1)
         else:
             return data_page[:, channel_slice]
-
 
     def read_data_page(self, from_idx, to_idx, step=None, specific_slices=None):
         """
@@ -144,7 +168,6 @@ class TimeSeriesH5(H5File):
             data = data.squeeze()
 
         return data
-
 
     def write_time_slice(self, partial_result):
         """
@@ -209,8 +232,8 @@ class TimeSeriesH5(H5File):
 
 
 class TimeSeriesRegionH5(TimeSeriesH5):
-    def __init__(self, path, generic_attributes=GenericAttributes()):
-        super(TimeSeriesRegionH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(TimeSeriesRegionH5, self).__init__(path)
         self.connectivity = Reference(TimeSeriesRegion.connectivity, self)
         self.region_mapping_volume = Reference(TimeSeriesRegion.region_mapping_volume, self)
         self.region_mapping = Reference(TimeSeriesRegion.region_mapping, self)
@@ -233,8 +256,8 @@ class TimeSeriesRegionH5(TimeSeriesH5):
 class TimeSeriesSurfaceH5(TimeSeriesH5):
     SELECTION_LIMIT = 100
 
-    def __init__(self, path, generic_attributes=GenericAttributes()):
-        super(TimeSeriesSurfaceH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(TimeSeriesSurfaceH5, self).__init__(path)
         self.surface = Reference(TimeSeriesSurface.surface, self)
         self.labels_ordering = Json(TimeSeriesSurface.labels_ordering, self)
 
@@ -260,11 +283,10 @@ class TimeSeriesSurfaceH5(TimeSeriesH5):
 
 
 class TimeSeriesVolumeH5(TimeSeriesH5):
-    def __init__(self, path, generic_attributes=GenericAttributes()):
-        super(TimeSeriesVolumeH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(TimeSeriesVolumeH5, self).__init__(path)
         self.volume = Reference(TimeSeriesVolume.volume, self)
         self.labels_ordering = Json(TimeSeriesVolume.labels_ordering, self)
-
 
     def get_volume_view(self, from_idx, to_idx, x_plane, y_plane, z_plane, **kwargs):
         """
@@ -294,7 +316,6 @@ class TimeSeriesVolumeH5(TimeSeriesH5):
         slicez = self.read_data_slice(slices)[:, :, 0, :][..., ::-1].tolist()
 
         return [slicex, slicey, slicez]
-
 
     def get_voxel_time_series(self, x, y, z, **kwargs):
         """
@@ -333,21 +354,21 @@ class TimeSeriesSensorsH5(TimeSeriesH5):
 
 
 class TimeSeriesEEGH5(TimeSeriesSensorsH5):
-    def __init__(self, path, generic_attributes=GenericAttributes()):
-        super(TimeSeriesEEGH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(TimeSeriesEEGH5, self).__init__(path)
         self.sensors = Reference(TimeSeriesEEG.sensors, self)
         self.labels_order = Json(TimeSeriesEEG.labels_ordering, self)
 
 
 class TimeSeriesMEGH5(TimeSeriesSensorsH5):
-    def __init__(self, path, generic_attributes=GenericAttributes()):
-        super(TimeSeriesMEGH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(TimeSeriesMEGH5, self).__init__(path)
         self.sensors = Reference(TimeSeriesMEG.sensors, self)
         self.labels_order = Json(TimeSeriesMEG.labels_ordering, self)
 
 
 class TimeSeriesSEEGH5(TimeSeriesSensorsH5):
-    def __init__(self, path, generic_attributes=GenericAttributes()):
-        super(TimeSeriesSEEGH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(TimeSeriesSEEGH5, self).__init__(path)
         self.sensors = Reference(TimeSeriesSEEG.sensors, self)
         self.labels_order = Json(TimeSeriesSEEG.labels_ordering, self)

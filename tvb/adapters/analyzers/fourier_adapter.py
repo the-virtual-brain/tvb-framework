@@ -201,7 +201,7 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
 
         loader = DirLoader(self.storage_path)
         dest_path = loader.path_for(FourierSpectrumH5, fft_index.gid)
-        spectra_file = FourierSpectrumH5(dest_path, self.generic_attributes)
+        spectra_file = FourierSpectrumH5(dest_path)
         spectra_file.gid.store(uuid.UUID(fft_index.gid))
         spectra_file.source.store(uuid.UUID(self.input_time_series_index.gid))
 

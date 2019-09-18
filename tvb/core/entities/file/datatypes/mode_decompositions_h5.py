@@ -5,8 +5,8 @@ from tvb.core.neotraits.h5 import H5File, Reference, DataSet, Scalar
 
 
 class PrincipalComponentsH5(H5File):
-    def __init__(self, path, generic_attributes=None):
-        super(PrincipalComponentsH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(PrincipalComponentsH5, self).__init__(path)
         self.source = Reference(PrincipalComponents.source, self)
         self.weights = DataSet(PrincipalComponents.weights, self, expand_dimension=2)
         self.fractions = DataSet(PrincipalComponents.fractions, self, expand_dimension=1)
@@ -63,8 +63,8 @@ class PrincipalComponentsH5(H5File):
 
 class IndependentComponentsH5(H5File):
 
-    def __init__(self, path, generic_attributes=None):
-        super(IndependentComponentsH5, self).__init__(path, generic_attributes)
+    def __init__(self, path):
+        super(IndependentComponentsH5, self).__init__(path)
         self.source = Reference(IndependentComponents.source, self)
         self.mixing_matrix = DataSet(IndependentComponents.mixing_matrix, self, expand_dimension=2)
         self.unmixing_matrix = DataSet(IndependentComponents.unmixing_matrix, self, expand_dimension=2)
