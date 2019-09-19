@@ -159,7 +159,7 @@ class Introspector(object):
         for adapter_class in self.introspection_registry.ADAPTERS[algo_category_class]:
             try:
                 if not Introspector._is_concrete_subclass(adapter_class, ABCAdapter):
-                    self.logger.warning("Adapter {} is not subclass of {}", adapter_class, ABCAdapter)
+                    self.logger.warning("Adapter %s is not subclass of %s" % (adapter_class, ABCAdapter))
                 if not adapter_class.can_be_active():
                     self.logger.warning("Skipped Adapter(probably because MATLAB not found):" + str(adapter_class))
 
