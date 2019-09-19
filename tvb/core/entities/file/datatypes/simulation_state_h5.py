@@ -54,14 +54,28 @@ class SimulationStateH5(H5File):
 
     def store(self, simulator, scalars_only=False):
         # type: (Simulator, bool) -> None
-        self.history.store(simulator.history.buffer.copy())
+        self.history.store(simulator.history.copy())
         self.current_step.store(simulator.current_step)
         self.current_state.store(simulator.current_state)
 
-        for i, monitor in enumerate(simulator.monitors):
+        for i in xrange(15):
             field_name = "monitor_stock_" + str(i + 1)
 
-            getattr(self, field_name).store(monitor._stock)
+        getattr(self, "monitor_stock_1").store(self.monitor_stock_1)
+        getattr(self, "monitor_stock_2").store(self.monitor_stock_2)
+        getattr(self, "monitor_stock_3").store(self.monitor_stock_3)
+        getattr(self, "monitor_stock_4").store(self.monitor_stock_4)
+        getattr(self, "monitor_stock_5").store(self.monitor_stock_5)
+        getattr(self, "monitor_stock_6").store(self.monitor_stock_6)
+        getattr(self, "monitor_stock_7").store(self.monitor_stock_7)
+        getattr(self, "monitor_stock_8").store(self.monitor_stock_8)
+        getattr(self, "monitor_stock_9").store(self.monitor_stock_9)
+        getattr(self, "monitor_stock_10").store(self.monitor_stock_10)
+        getattr(self, "monitor_stock_11").store(self.monitor_stock_11)
+        getattr(self, "monitor_stock_12").store(self.monitor_stock_12)
+        getattr(self, "monitor_stock_13").store(self.monitor_stock_13)
+        getattr(self, "monitor_stock_14").store(self.monitor_stock_14)
+        getattr(self, "monitor_stock_15").store(self.monitor_stock_15)
 
             # if hasattr(monitor, "_ui_name"):
             #     self.set_metadata({'monitor_name': monitor._ui_name}, field_name)
