@@ -26,4 +26,4 @@ RUN git clone --depth 1 https://github.com/the-virtual-brain/tvb-library.git;\
     /opt/conda/envs/tvb-run/bin/python setup.py develop
 
 # -v [local- tvb-framework - clone]:/root/tvb-framework
-CMD ["bash","-c","cd /root/tvb-framework && source activate tvb-run && pytest tvb/tests"]
+CMD ["bash","-c","source activate tvb-run && cd /root/tvb-library && python setup.py develop && cd /root/tvb-framework && pytest tvb/tests/framework/adapters/analyzers"]

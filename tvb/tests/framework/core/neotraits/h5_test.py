@@ -87,12 +87,13 @@ def test_accessors_created_for_all_declarative_attributes(tmph5factory):
 
 def test_simple_store_load(tmph5factory):
     baz = BazDataType(miu=numpy.array([0.0, 1.0, 2.0]), scalar_str='topol')
-    f = BazFile(tmph5factory())
+    f = BazFile(tmph5factory)
     f.store(baz)
     f.close()
 
     ret = BazDataType()
     assert ret.scalar_str is None
+    f = BazFile(tmph5factory)
     f.load_into(ret)
     assert ret.scalar_str == 'topol'
     assert numpy.all(ret.miu == [0.0, 1.0, 2.0])
@@ -124,6 +125,8 @@ def test_store_load_inheritance(tmph5factory, barFactory):
     bar = barFactory()
     with BarFile(tmph5factory()) as barfile:
         barfile.store(bar)
+
+    with BarFile(tmph5factory()) as barfile:
         ret = BarDatatype()
         barfile.load_into(ret)
         assert ret.scalar_int == bar.scalar_int
@@ -133,6 +136,8 @@ def test_store_load_preserves_gid(tmph5factory, barFactory):
     bar = barFactory()
     with BarFile(tmph5factory()) as barfile:
         barfile.store(bar)
+
+    with BarFile(tmph5factory()) as barfile:
         ret = BarDatatype()
         barfile.load_into(ret)
         assert ret.gid == bar.gid
@@ -197,4 +202,6 @@ def test_props_datatype_file(tmph5factory):
 
     with PropsDataTypeFile(tmph5factory()) as f:
         f.store(datatype)
+
+    with PropsDataTypeFile(tmph5factory()) as f:
         f.load_into(ret)

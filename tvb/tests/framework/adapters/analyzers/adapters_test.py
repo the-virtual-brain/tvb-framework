@@ -59,8 +59,8 @@ def test_wavelet_adapter(tmpdir, session, operationFactory):
     wavelet_adapter.storage_path = storage_folder
     wavelet_adapter.configure(ts_index)
 
-    diskq = wavelet_adapter.get_required_disk_size()
-    memq = wavelet_adapter.get_required_memory_size()
+    #diskq = wavelet_adapter.get_required_disk_size()
+    #memq = wavelet_adapter.get_required_memory_size()
 
     wavelet_idx = wavelet_adapter.launch(ts_index)
 
@@ -76,8 +76,8 @@ def test_pca_adapter(tmpdir, session, operationFactory):
     pca_adapter.storage_path = storage_folder
     pca_adapter.configure(ts_index)
 
-    disk = pca_adapter.get_required_disk_size(ts_index)
-    mem = pca_adapter.get_required_memory_size(ts_index)
+    #disk = pca_adapter.get_required_disk_size()
+    #mem = pca_adapter.get_required_memory_size()
 
     pca_idx = pca_adapter.launch(ts_index)
 
@@ -93,8 +93,8 @@ def test_ica_adapter(tmpdir, session, operationFactory):
     ica_adapter.storage_path = storage_folder
     ica_adapter.configure(ts_index)
 
-    disk = ica_adapter.get_required_disk_size(ts_index)
-    mem = ica_adapter.get_required_memory_size(ts_index)
+    #disk = ica_adapter.get_required_disk_size()
+    #mem = ica_adapter.get_required_memory_size()
 
     ica_idx = ica_adapter.launch(ts_index)
 
