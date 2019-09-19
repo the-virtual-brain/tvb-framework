@@ -464,20 +464,15 @@ class FlowController(BaseController):
         adapter_instance = ABCAdapter.build_adapter(algorithm)
 
         try:
-            #TODO: this currently keeps both ways to display forms
-            if adapter_instance.get_input_tree() is None:
-                form = adapter_instance.get_form()(project_id=project_id)
-                form.fill_from_post(data)
-                dt_dict = None
-                if form.validate():
-                    dt_dict = form.get_dict()
-                if dt_dict is None:
-                    raise ValueError("Could not build a dict out of this form!")
-                adapter_instance.set_form(form)
-                result = self.flow_service.fire_operation(adapter_instance, common.get_logged_user(), project_id, **dt_dict)
-            else:
-                result = self.flow_service.fire_operation(adapter_instance, common.get_logged_user(), project_id,
-                                                          **data)
+            form = adapter_instance.get_form()(project_id=project_id)
+            form.fill_from_post(data)
+            dt_dict = None
+            if form.validate():
+                dt_dict = form.get_dict()
+            if dt_dict is None:
+                raise ValueError("Could not build a dict out of this form!")
+            adapter_instance.submit_form(form)
+            result = self.flow_service.fire_operation(adapter_instance, common.get_logged_user(), project_id, **dt_dict)
 
             # Store input data in session, for informing user of it.
             step = self.flow_service.get_category_by_id(step_key)
