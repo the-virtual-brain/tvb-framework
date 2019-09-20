@@ -60,7 +60,7 @@ from tvb.core.neocom.config import registry
 
 class SimulatorAdapterForm(ABCAdapterForm):
 
-    def __init__(self, prefix='', project_id=None):
+    def __init__(self, prefix='', project_id=None, is_copy=False):
         super(SimulatorAdapterForm, self).__init__(prefix, project_id)
         self.connectivity = DataTypeSelectField(self.get_required_datatype(), self, name=self.get_input_name(),
                                                 required=True, label="Connectivity",
@@ -72,6 +72,14 @@ class SimulatorAdapterForm(ABCAdapterForm):
         self.coupling.template = 'select_field.jinja2'
         self.conduction_speed = FloatField(Simulator.conduction_speed, self)
         self.ordered_fields = (self.connectivity, self.conduction_speed, self.coupling)
+        self.is_copy = is_copy
+
+    def fill_from_trait(self, trait):
+        # type: (Simulator) -> None
+        if hasattr(trait, 'connectivity'):
+            self.connectivity.data = trait.connectivity.gid.hex
+        self.coupling.data = trait.coupling.__class__
+        self.conduction_speed.data = trait.conduction_speed
 
     @staticmethod
     def get_input_name():
@@ -91,7 +99,8 @@ class SimulatorAdapterForm(ABCAdapterForm):
     def __str__(self):
         #TODO: get rid of this
         return jinja_env.get_template('wizzard_form.jinja2').render(form=self, action="/burst/set_connectivity",
-                                                            is_first_fragment=True, is_last_fragment=False)
+                                                                    is_first_fragment=True, is_last_fragment=False,
+                                                                    is_copy=self.is_copy, is_load=False)
 
 
 

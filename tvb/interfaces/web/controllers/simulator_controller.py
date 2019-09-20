@@ -45,7 +45,7 @@ from tvb.adapters.simulator.noise_forms import get_form_for_noise
 from tvb.adapters.simulator.simulator_adapter import SimulatorAdapterForm
 from tvb.adapters.simulator.simulator_fragments import SimulatorSurfaceFragment, SimulatorStimulusFragment, \
     SimulatorModelFragment, SimulatorIntegratorFragment, SimulatorMonitorFragment, SimulatorLengthFragment, \
-    SimulatorRMFragment
+    SimulatorRMFragment, SimulatorFinalFragment
 from tvb.adapters.simulator.monitor_forms import get_form_for_monitor
 from tvb.adapters.simulator.integrator_forms import get_form_for_integrator
 from tvb.adapters.simulator.coupling_forms import get_form_for_coupling
@@ -76,6 +76,8 @@ class SimulatorController(BurstBaseController):
     IS_SURFACE_SIMULATION_KEY = 'is_surface_simulation'
     IS_FIRST_FRAGMENT_KEY = 'is_first_fragment'
     IS_LAST_FRAGMENT_KEY = 'is_last_fragment'
+    IS_COPY = 'sim_copy'
+    IS_LOAD = 'sim_load'
 
     dict_to_render = {
         ACTION_KEY: None,
@@ -84,7 +86,9 @@ class SimulatorController(BurstBaseController):
         IS_MODEL_FRAGMENT_KEY: False,
         IS_SURFACE_SIMULATION_KEY: False,
         IS_FIRST_FRAGMENT_KEY: False,
-        IS_LAST_FRAGMENT_KEY: False
+        IS_LAST_FRAGMENT_KEY: False,
+        IS_COPY: False,
+        IS_LOAD: False
     }
 
     def __init__(self):
@@ -102,17 +106,6 @@ class SimulatorController(BurstBaseController):
         template_specification = dict(mainContent="burst/main_burst", title="Simulation Cockpit",
                                       baseUrl=TvbProfile.current.web.BASE_URL,
                                       includedResources='project/included_resources')
-
-        session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        if session_stored_simulator is None:
-            session_stored_simulator = Simulator()  # self.burst_service.new_burst_configuration(common.get_current_project().id)
-            common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_simulator)
-
-        adapter_instance = ABCAdapter.build_adapter(self.cached_simulator_algorithm)
-        form = adapter_instance.get_form()('', common.get_current_project().id)
-        # TODO: does not handle DTselectFields. They do not have traited_attr
-        form.fill_from_trait(session_stored_simulator)
-
         project = common.get_current_project()
 
         burst_config = BurstConfiguration2(project.id)
@@ -125,6 +118,8 @@ class SimulatorController(BurstBaseController):
         template_specification['portletList'] = portlets_list
         template_specification['selectedPortlets'] = json.dumps(portlets_list)
 
+        form = self.prepare_first_fragment()
+
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.IS_FIRST_FRAGMENT_KEY] = True
         dict_to_render[self.FORM_KEY] = form
@@ -133,41 +128,62 @@ class SimulatorController(BurstBaseController):
 
         return self.fill_default_attributes(template_specification)
 
-    def get_first_fragment(self):
-        pass
+    def prepare_first_fragment(self):
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        if is_simulator_copy is None:
+            is_simulator_copy = False
+
+        adapter_instance = ABCAdapter.build_adapter(self.cached_simulator_algorithm)
+        form = adapter_instance.get_form()('', common.get_current_project().id, is_simulator_copy)
+
+        session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
+        if session_stored_simulator is None:
+            session_stored_simulator = Simulator()  # self.burst_service.new_burst_configuration(common.get_current_project().id)
+            common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_simulator)
+
+        form.fill_from_trait(session_stored_simulator)
+        return form
 
     @cherrypy.expose
     @using_jinja_template("wizzard_form")
     @handle_error(redirect=False)
     @check_user
     def set_connectivity(self, **data):
-        form = SimulatorAdapterForm()
-        form.fill_from_post(data)
-
-        connectivity_index_gid = form.connectivity.value
-        conduction_speed = form.conduction_speed.value
-        coupling = form.coupling.value
-
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        connectivity_index = ABCAdapter.load_entity_by_gid(connectivity_index_gid)
-        storage_path = self.files_helper.get_project_folder(connectivity_index.parent_operation.project,
-                                                            str(connectivity_index.fk_from_operation))
-        loader = DirLoader(storage_path)
-        conn_path = loader.path_for(ConnectivityH5, connectivity_index_gid)
-        connectivity = Connectivity()
-        with ConnectivityH5(conn_path) as conn_h5:
-            conn_h5.load_into(connectivity)
-        # TODO: handle this cases in a better manner
-        session_stored_simulator.connectivity = connectivity
-        session_stored_simulator.conduction_speed = conduction_speed
-        session_stored_simulator.coupling = coupling()
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
+        form = SimulatorAdapterForm()
 
-        form = get_form_for_coupling(type(session_stored_simulator.coupling))()
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form.fill_from_post(data)
+
+            connectivity_index_gid = form.connectivity.value
+            conduction_speed = form.conduction_speed.value
+            coupling = form.coupling.value
+
+            connectivity_index = ABCAdapter.load_entity_by_gid(connectivity_index_gid)
+            storage_path = self.files_helper.get_project_folder(connectivity_index.parent_operation.project,
+                                                                str(connectivity_index.fk_from_operation))
+            loader = DirLoader(storage_path)
+            conn_path = loader.path_for(ConnectivityH5, connectivity_index_gid)
+            connectivity = Connectivity()
+            with ConnectivityH5(conn_path) as conn_h5:
+                conn_h5.load_into(connectivity)
+            # TODO: handle this cases in a better manner
+            session_stored_simulator.connectivity = connectivity
+            session_stored_simulator.conduction_speed = conduction_speed
+            session_stored_simulator.coupling = coupling()
+
+        next_form = get_form_for_coupling(type(session_stored_simulator.coupling))()
+        next_form.fill_from_trait(session_stored_simulator.coupling)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
-        dict_to_render[self.FORM_KEY] = form
+        dict_to_render[self.FORM_KEY] = next_form
         dict_to_render[self.ACTION_KEY] = '/burst/set_coupling_params'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_connectivity'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -176,17 +192,24 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_coupling_params(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        form = get_form_for_coupling(type(session_stored_simulator.coupling))()
-        form.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        form.fill_trait(session_stored_simulator.coupling)
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = get_form_for_coupling(type(session_stored_simulator.coupling))()
+            form.fill_from_post(data)
+            form.fill_trait(session_stored_simulator.coupling)
 
         surface_fragment = SimulatorSurfaceFragment('', common.get_current_project().id)
+        # TODO: fill surface gid
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = surface_fragment
         dict_to_render[self.ACTION_KEY] = '/burst/set_surface'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_coupling_params'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -194,29 +217,47 @@ class SimulatorController(BurstBaseController):
     @handle_error(redirect=False)
     @check_user
     def set_surface(self, **data):
-        surface_index_gid = data['_surface']
+        session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
         dict_to_render = copy.deepcopy(self.dict_to_render)
 
-        if 'None' in surface_index_gid:
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = SimulatorSurfaceFragment()
+            form.fill_from_post(data)
+
+            surface_index_gid = form.surface.value
+            # surface_index_gid = data['_surface']
+            if surface_index_gid is None:
+                session_stored_simulator.surface = None
+            else:
+                # TODO: load surface in memory and assign it to session simulator
+                surface_index = ABCAdapter.load_entity_by_gid(surface_index_gid)
+                # TODO library: Correct Cortex usage in library
+                surface = Cortex()
+                session_stored_simulator.surface = surface
+                session_stored_simulator.is_surface_simulation = True
+
+        if session_stored_simulator.surface is None:
             stimuli_fragment = SimulatorStimulusFragment('', common.get_current_project().id, False)
+            stimuli_fragment.fill_from_trait(session_stored_simulator)
 
             dict_to_render[self.FORM_KEY] = stimuli_fragment
             dict_to_render[self.ACTION_KEY] = '/burst/set_stimulus'
             dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_surface'
+            dict_to_render[self.IS_COPY] = is_simulator_copy
+            dict_to_render[self.IS_LOAD] = is_simulator_load
             return dict_to_render
 
-        session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        session_stored_simulator.is_surface_simulation = True
-        surface_index = ABCAdapter.load_entity_by_gid(surface_index_gid)
-
-        # TODO library: Correct Cortex usage in library
-        surface = Cortex()
-        session_stored_simulator.surface = surface
-
+        # TODO: work-around this situation: surf_index filter
         rm_fragment = SimulatorRMFragment('', common.get_current_project().id, surface_index)
+        rm_fragment.fill_from_trait(session_stored_simulator)
         dict_to_render[self.FORM_KEY] = rm_fragment
         dict_to_render[self.ACTION_KEY] = '/burst/set_cortex'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_surface'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -254,6 +295,7 @@ class SimulatorController(BurstBaseController):
         session_stored_simulator.surface.region_mapping_data = rm
 
         model_fragment = SimulatorModelFragment('', common.get_current_project().id)
+        model_fragment.fill_from_trait(session_stored_simulator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = model_fragment
@@ -268,16 +310,23 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_stimulus(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
+
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
 
         # TODO: show surface stimulus if surface was prev chosen, otherwise, show region stimulus
         model_fragment = SimulatorModelFragment('', common.get_current_project().id)
+        model_fragment.fill_from_trait(session_stored_simulator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = model_fragment
         dict_to_render[self.ACTION_KEY] = '/burst/set_model'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_stimulus'
         dict_to_render[self.IS_MODEL_FRAGMENT_KEY] = True
-        # if session_stored_simulator.is_surface_simulation:
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         dict_to_render[self.IS_SURFACE_SIMULATION_KEY] = True
         return dict_to_render
 
@@ -287,17 +336,24 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_model(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        form = SimulatorModelFragment()
-        form.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        session_stored_simulator.model = form.model.value()
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = SimulatorModelFragment()
+            form.fill_from_post(data)
+            session_stored_simulator.model = form.model.value()
 
         form = get_form_for_model(type(session_stored_simulator.model))()
+        form.fill_from_trait(session_stored_simulator.model)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = form
         dict_to_render[self.ACTION_KEY] = '/burst/set_model_params'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_model'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -306,17 +362,24 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_model_params(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        form = get_form_for_model(type(session_stored_simulator.model))()
-        form.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        form.fill_trait(session_stored_simulator.model)
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = get_form_for_model(type(session_stored_simulator.model))()
+            form.fill_from_post(data)
+            form.fill_trait(session_stored_simulator.model)
 
         integrator_fragment = SimulatorIntegratorFragment('', common.get_current_project().id)
+        integrator_fragment.fill_from_trait(session_stored_simulator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = integrator_fragment
         dict_to_render[self.ACTION_KEY] = '/burst/set_integrator'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_model_params'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     # TODO: add state_variables selection step
@@ -342,17 +405,24 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_integrator(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        fragment = SimulatorIntegratorFragment()
-        fragment.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        session_stored_simulator.integrator = fragment.integrator.value()
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            fragment = SimulatorIntegratorFragment()
+            fragment.fill_from_post(data)
+            session_stored_simulator.integrator = fragment.integrator.value()
 
         form = get_form_for_integrator(type(session_stored_simulator.integrator))()
+        form.fill_from_trait(session_stored_simulator.integrator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = form
         dict_to_render[self.ACTION_KEY] = '/burst/set_integrator_params'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_integrator'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -361,17 +431,25 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_integrator_params(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        form = get_form_for_integrator(type(session_stored_simulator.integrator))()
-        form.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        form.fill_trait(session_stored_simulator.integrator)
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = get_form_for_integrator(type(session_stored_simulator.integrator))()
+            form.fill_from_post(data)
+            form.fill_trait(session_stored_simulator.integrator)
 
+        # TODO: Check whether integrator is stochastic
         integrator_noise_fragment = get_form_for_noise(type(session_stored_simulator.integrator.noise))()
+        integrator_noise_fragment.fill_from_trait(session_stored_simulator.integrator.noise)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = integrator_noise_fragment
         dict_to_render[self.ACTION_KEY] = '/burst/set_noise_params'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_integrator_params'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -380,26 +458,36 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_noise_params(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        form = get_form_for_noise(type(session_stored_simulator.integrator.noise))()
-        form.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        form.fill_trait(session_stored_simulator.integrator.noise)
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = get_form_for_noise(type(session_stored_simulator.integrator.noise))()
+            form.fill_from_post(data)
+            form.fill_trait(session_stored_simulator.integrator.noise)
 
         if isinstance(session_stored_simulator.integrator.noise, Additive):
             monitor_fragment = SimulatorMonitorFragment('', common.get_current_project().id)
+            monitor_fragment.fill_from_trait(session_stored_simulator)
 
             dict_to_render = copy.deepcopy(self.dict_to_render)
             dict_to_render[self.FORM_KEY] = monitor_fragment
             dict_to_render[self.ACTION_KEY] = '/burst/set_monitors'
             dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_noise_params'
+            dict_to_render[self.IS_COPY] = is_simulator_copy
+            dict_to_render[self.IS_LOAD] = is_simulator_load
             return dict_to_render
 
         equation_form = get_form_for_equation(type(session_stored_simulator.integrator.noise.b))()
+        equation_form.equation.data = session_stored_simulator.integrator.noise.b.__class__.__name__
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = equation_form
         dict_to_render[self.ACTION_KEY] = '/burst/set_noise_equation_params'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_noise_params'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -408,17 +496,24 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_noise_equation_params(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        form = get_form_for_equation(type(session_stored_simulator.integrator.noise.b))()
-        form.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        form.fill_trait(session_stored_simulator.integrator.noise.b)
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = get_form_for_equation(type(session_stored_simulator.integrator.noise.b))()
+            form.fill_from_post(data)
+            form.fill_trait(session_stored_simulator.integrator.noise.b)
 
         monitor_fragment = SimulatorMonitorFragment('', common.get_current_project().id)
+        monitor_fragment.fill_from_trait(session_stored_simulator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = monitor_fragment
         dict_to_render[self.ACTION_KEY] = '/burst/set_monitors'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_noise_equation_params'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -427,21 +522,27 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_monitors(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        # TODO: handle multiple monitors
-        fragment = SimulatorMonitorFragment()
-        fragment.fill_from_post(data)
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            # TODO: handle multiple monitors
+            fragment = SimulatorMonitorFragment()
+            fragment.fill_from_post(data)
 
-        session_stored_simulator.monitors = [fragment.monitor.value()]
+            session_stored_simulator.monitors = [fragment.monitor.value()]
+
         monitor = session_stored_simulator.monitors[0]
-
         form = get_form_for_monitor(type(monitor))('', common.get_current_project().id)
-        session_stored_simulator.monitors = [monitor]
+        form.fill_from_trait(monitor)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = form
         dict_to_render[self.ACTION_KEY] = '/burst/set_monitor_params'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_monitors'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -451,28 +552,40 @@ class SimulatorController(BurstBaseController):
     def set_monitor_params(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
         monitor = session_stored_simulator.monitors[0]
-        form = get_form_for_monitor(type(monitor))()
-        form.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        form.fill_trait(monitor)
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = get_form_for_monitor(type(monitor))()
+            form.fill_from_post(data)
+            form.fill_trait(monitor)
 
         if isinstance(monitor, Bold):
             next_form = get_form_for_equation(type(monitor.hrf_kernel))()
+            next_form.fill_from_trait(session_stored_simulator.monitors[0].hrf_kernel)
 
             dict_to_render = copy.deepcopy(self.dict_to_render)
             dict_to_render[self.FORM_KEY] = next_form
             dict_to_render[self.ACTION_KEY] = '/burst/set_monitor_equation'
             dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_monitor_params'
+            dict_to_render[self.IS_COPY] = is_simulator_copy
+            dict_to_render[self.IS_LOAD] = is_simulator_load
             return dict_to_render
         session_stored_simulator.monitors = [monitor]
 
         next_form = SimulatorLengthFragment()
+        next_form.fill_from_trait(session_stored_simulator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = next_form
         dict_to_render[self.ACTION_KEY] = '/burst/set_simulation_length'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_monitor_params'
-        # dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
+        if is_simulator_load:
+            dict_to_render[self.ACTION_KEY] = ''
+            dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
         return dict_to_render
 
     @cherrypy.expose
@@ -481,10 +594,14 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_monitor_equation(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        form = get_form_for_monitor(type(session_stored_simulator.monitor))()
-        form.fill_from_post(data)
-        form.fill_trait(session_stored_simulator.monitor.hrf_kernel)
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            form = get_form_for_monitor(type(session_stored_simulator.monitor))()
+            form.fill_from_post(data)
+            form.fill_trait(session_stored_simulator.monitor.hrf_kernel)
 
         next_form = SimulatorLengthFragment()
 
@@ -492,21 +609,41 @@ class SimulatorController(BurstBaseController):
         dict_to_render[self.FORM_KEY] = next_form
         dict_to_render[self.ACTION_KEY] = '/burst/set_simulation_length'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_monitor_equation'
-        # dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
+        if is_simulator_load:
+            dict_to_render[self.ACTION_KEY] = ''
+            dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
         return dict_to_render
 
     @cherrypy.expose
+    @using_jinja_template("wizzard_form")
     @handle_error(redirect=False)
     @check_user
     def set_simulation_length(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        fragment = SimulatorLengthFragment()
-        fragment.fill_from_post(data)
+        dict_to_render = copy.deepcopy(self.dict_to_render)
 
-        session_stored_simulator.simulation_length = fragment.length.value
+        if is_simulator_load:
+            common.add2session(common.KEY_IS_SIMULATOR_LOAD, False)
 
-        return 'Config is finished'
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            fragment = SimulatorLengthFragment()
+            fragment.fill_from_post(data)
+            session_stored_simulator.simulation_length = fragment.length.value
+
+        next_form = SimulatorFinalFragment()
+
+        dict_to_render[self.FORM_KEY] = next_form
+        dict_to_render[self.ACTION_KEY] = ''
+        dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_simulation_length'
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
+        return dict_to_render
 
     @expose_json
     def launch_simulation(self, launch_mode, burst_name):
@@ -536,7 +673,8 @@ class SimulatorController(BurstBaseController):
 
         simulator_id = self.cached_simulator_algorithm.id
         algo_category = self.cached_simulator_algorithm.algorithm_category
-        operation = simulator_service._prepare_operation(project.id, user.id, simulator_id, simulator_index, algo_category)
+        operation = simulator_service._prepare_operation(burst_config.id, project.id, user.id, simulator_id,
+                                                         simulator_index, algo_category, None)
 
         simulator_index.fk_from_operation = operation.id
         dao.store_entity(simulator_index)
@@ -558,17 +696,54 @@ class SimulatorController(BurstBaseController):
         bursts = self.burst_service.get_available_bursts(common.get_current_project().id)
         self.burst_service.populate_burst_disk_usage(bursts)
         return {'burst_list': bursts,
-                'selectedBurst': 1}
+                'selectedBurst': session_burst.id}
 
     @cherrypy.expose
+    @using_jinja_template("wizzard_form")
     @handle_error(redirect=False)
+    @check_user
+    def load_burst_read_only(self, burst_config_id):
+        try:
+            burst_config = dao.get_burst_by_id(burst_config_id)
+            common.add2session(common.KEY_BURST_CONFIG, burst_config)
+
+            simulator_index_id = burst_config.simulator_id
+            simulator_index = dao.get_datatype_by_id(simulator_index_id)
+            simulator_gid = simulator_index.gid
+
+            project = common.get_current_project()
+            storage_path = self.files_helper.get_project_folder(project, str(simulator_index.fk_from_operation))
+
+            simulator_service = SimulatorService()
+            simulator, conn_gid = simulator_service.deserialize_simulator(simulator_gid, storage_path)
+
+            session_stored_simulator = simulator
+            common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_simulator)
+            common.add2session(common.KEY_IS_SIMULATOR_LOAD, True)
+            common.add2session(common.KEY_IS_SIMULATOR_COPY, False)
+
+            form = self.prepare_first_fragment()
+            dict_to_render = copy.deepcopy(self.dict_to_render)
+            dict_to_render[self.IS_FIRST_FRAGMENT_KEY] = True
+            dict_to_render[self.FORM_KEY] = form
+            dict_to_render[self.ACTION_KEY] = "/burst/set_connectivity"
+            dict_to_render[self.IS_LOAD] = True
+            return dict_to_render
+        except Exception:
+            ### Most probably Burst was removed. Delete it from session, so that client
+            ### has a good chance to get a good response on refresh
+            self.logger.exception("Error loading burst")
+            common.remove_from_session(common.KEY_BURST_CONFIG)
+            raise
+
+    @cherrypy.expose
+    @using_jinja_template("wizzard_form")
+    @handle_error(redirect=False)
+    @check_user
     def copy_simulator_configuration(self, burst_config_id):
-        # TODO:
-        # 1. load burst by burst_config_id
-        # 2. load simulator index
-        # 3. deserialize simulator from H5
-        # 4. add simulator to session
         burst_config = dao.get_burst_by_id(burst_config_id)
+        common.add2session(common.KEY_BURST_CONFIG, burst_config)
+
         simulator_index_id = burst_config.simulator_id
         simulator_index = dao.get_datatype_by_id(simulator_index_id)
         simulator_gid = simulator_index.gid
@@ -577,16 +752,35 @@ class SimulatorController(BurstBaseController):
         storage_path = self.files_helper.get_project_folder(project, str(simulator_index.fk_from_operation))
 
         simulator_service = SimulatorService()
-        simulator, _ = simulator_service.deserialize_simulator(simulator_gid, storage_path)
+        simulator, conn_gid = simulator_service.deserialize_simulator(simulator_gid, storage_path)
 
-        session_stored_burst = simulator
-        common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_burst)
-        pass
+        session_stored_simulator = simulator
+        common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_simulator)
+        common.add2session(common.KEY_IS_SIMULATOR_COPY, True)
+        common.add2session(common.KEY_IS_SIMULATOR_LOAD, False)
+
+        form = self.prepare_first_fragment()
+        dict_to_render = copy.deepcopy(self.dict_to_render)
+        dict_to_render[self.IS_FIRST_FRAGMENT_KEY] = True
+        dict_to_render[self.FORM_KEY] = form
+        dict_to_render[self.ACTION_KEY] = "/burst/set_connectivity"
+        dict_to_render[self.IS_COPY] = True
+        return dict_to_render
 
     @cherrypy.expose
-    def generate_form_for_copied_simulator_configuratin(self):
-        # TODO for each simulator attribute:
-        # 1. find the corresponding form
-        # 2. fill it with proper values
-        # 3. make fields read-only
-        pass
+    @using_jinja_template("wizzard_form")
+    @handle_error(redirect=False)
+    @check_user
+    def reset_simulator_configuration(self):
+        common.add2session(common.KEY_SIMULATOR_CONFIG, None)
+        common.add2session(common.KEY_IS_SIMULATOR_COPY, False)
+        common.add2session(common.KEY_IS_SIMULATOR_LOAD, False)
+        common.add2session(common.KEY_BURST_CONFIG, None)
+
+        # TODO: prepare new burst config in session
+        form = self.prepare_first_fragment()
+        dict_to_render = copy.deepcopy(self.dict_to_render)
+        dict_to_render[self.IS_FIRST_FRAGMENT_KEY] = True
+        dict_to_render[self.FORM_KEY] = form
+        dict_to_render[self.ACTION_KEY] = "/burst/set_connectivity"
+        return dict_to_render

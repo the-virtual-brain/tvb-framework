@@ -29,6 +29,7 @@
 #
 
 from tvb.core.entities.filters.chain import FilterChain
+from tvb.basic.neotraits._attr import Attr
 from tvb.datatypes.cortex import Cortex
 from tvb.simulator.simulator import Simulator
 from tvb.adapters.simulator.integrator_forms import get_ui_name_to_integrator_dict
@@ -49,6 +50,14 @@ class SimulatorSurfaceFragment(ABCAdapterForm):
         self.surface = DataTypeSelectField(SurfaceIndex, self, name='surface', required=False,
                                            label=Simulator.surface.label, doc=Simulator.surface.doc)
 
+    def fill_from_trait(self, trait):
+        # type: (Simulator) -> None
+        if hasattr(trait, 'surface'):
+            # TODO: how to load all of these?
+            self.surface.data = trait.surface.region_mapping_data.surface.gid.hex
+        else:
+            self.surface.data = None
+
 
 class SimulatorRMFragment(ABCAdapterForm):
     def __init__(self, prefix='', project_id=None, surface_index=None):
@@ -65,6 +74,18 @@ class SimulatorRMFragment(ABCAdapterForm):
                                       conditions=conditions)
         self.coupling_strength = ArrayField(Cortex.coupling_strength, self)
 
+    def fill_from_trait(self, trait):
+        # type: (Simulator) -> None
+        self.coupling_strength.data = trait.surface.coupling_strength
+        if hasattr(trait.surface, 'region_mapping_data'):
+            self.rm.data = trait.surface.region_mapping_data
+        else:
+            self.rm.data = None
+        if hasattr(trait.surface, 'local_connectivity'):
+            self.lc.data = trait.surface.local_connectivity
+        else:
+            self.lc.data = None
+
 
 class SimulatorStimulusFragment(ABCAdapterForm):
     def __init__(self, prefix='', project_id=None, is_surface_simulation=False):
@@ -76,6 +97,13 @@ class SimulatorStimulusFragment(ABCAdapterForm):
         self.stimulus = DataTypeSelectField(stimuli_index_class, self, name='region_stimuli', required=False,
                                             label=Simulator.stimulus.label, doc=Simulator.stimulus.doc)
 
+    def fill_from_trait(self, trait):
+        # type: (Simulator) -> None
+        if hasattr(trait, 'stimulus') and trait.stimulus is not None:
+            self.stimulus.data = trait.stimulus.gid.hex
+        else:
+            self.stimulus.data = None
+
 
 class SimulatorModelFragment(ABCAdapterForm):
     def __init__(self, prefix='', project_id=None):
@@ -86,6 +114,10 @@ class SimulatorModelFragment(ABCAdapterForm):
         self.model = SimpleSelectField(choices=self.model_choices, form=self, name='model', required=True,
                                        label=Simulator.model.label, doc=Simulator.model.doc)
         self.model.template = "select_field.jinja2"
+
+    def fill_from_trait(self, trait):
+        # type: (Simulator) -> None
+        self.model.data = trait.model.__class__
 
 
 class SimulatorIntegratorFragment(ABCAdapterForm):
@@ -100,6 +132,10 @@ class SimulatorIntegratorFragment(ABCAdapterForm):
                                             label=Simulator.integrator.label, doc=Simulator.integrator.doc)
         self.integrator.template = "select_field.jinja2"
 
+    def fill_from_trait(self, trait):
+        # type: (Simulator) -> None
+        self.integrator.data = trait.integrator.__class__
+
 
 class SimulatorMonitorFragment(ABCAdapterForm):
 
@@ -112,11 +148,21 @@ class SimulatorMonitorFragment(ABCAdapterForm):
                                          label=Simulator.monitors.label, doc=Simulator.monitors.doc)
         self.monitor.template = "select_field.jinja2"
 
+    def fill_from_trait(self, trait):
+        # type: (Simulator) -> None
+        self.monitor.data = trait.monitors[0].__class__
+
 
 class SimulatorLengthFragment(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
         super(SimulatorLengthFragment, self).__init__(prefix, project_id)
         self.length = ScalarField(Simulator.simulation_length, self)
-        # TODO: name should be optional and auto-generated
-        # self.simulation_name = SimpleStrField(self, 'simuation_name', required=True)
+
+
+class SimulatorFinalFragment(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(SimulatorFinalFragment, self).__init__(prefix, project_id)
+        self.simulation_name = ScalarField(Attr(str, doc='Name for the current simulation configuration',
+                                                label='Simulation name'), self, name='input-simulation-name-id')

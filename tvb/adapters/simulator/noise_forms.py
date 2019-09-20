@@ -29,6 +29,11 @@ class NoiseForm(Form):
         # TODO: should we display something for random_stream?
         # self.random_stream = ScalarField(Noise.random_stream)
 
+    def fill_from_trait(self, trait):
+        # type: (Noise) -> None
+        # super(NoiseForm, self).fill_from_trait(trait)
+        self.ntau.unvalidated_data = trait.ntau
+        self.noise_seed.unvalidated_data = trait.noise_seed
 
 class AdditiveNoiseForm(NoiseForm):
 
