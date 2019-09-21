@@ -599,6 +599,13 @@ class Form(object):
                 valid = False
         return valid
 
+    def get_errors_dict(self):
+        result = {}
+        for field in self.fields:
+            if not field.validate():
+                result[field.name] = field.errors[0]
+        return result
+
     def fill_from_trait(self, trait):
         """
         Sets data for all traited fields from a trait instance.

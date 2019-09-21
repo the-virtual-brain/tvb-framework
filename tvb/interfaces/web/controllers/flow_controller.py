@@ -470,7 +470,8 @@ class FlowController(BaseController):
             if form.validate():
                 dt_dict = form.get_dict()
             if dt_dict is None:
-                raise ValueError("Could not build a dict out of this form!")
+                raise formencode.Invalid("Could not build a dict out of this form!", {}, None,
+                                         error_dict=form.get_errors_dict())
             adapter_instance.submit_form(form)
             result = self.flow_service.fire_operation(adapter_instance, common.get_logged_user(), project_id, **dt_dict)
 
@@ -491,6 +492,8 @@ class FlowController(BaseController):
                 common.set_important_message(str(result))
         except formencode.Invalid as excep:
             errors = excep.unpack_errors()
+            common.set_error_message("Invalid form inputs")
+            self.logger.warning("Invalid form inputs %s" % errors)
         except OperationException as excep1:
             self.logger.exception("Error while executing a Launch procedure:" + excep1.message)
             common.set_error_message(excep1.message)
