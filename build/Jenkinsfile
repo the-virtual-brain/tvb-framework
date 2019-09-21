@@ -18,7 +18,6 @@ pipeline {
             steps {
                 sh '''#!/bin/bash
                     source activate tvb-run
-                    pip install tvb-library==2.0a1
                     pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
                 '''
                 junit 'TEST_OUTPUT/TEST-RESULTS.xml'
@@ -52,7 +51,6 @@ pipeline {
             steps {
                 sh '''#!/bin/bash
                     source activate tvb-run
-                    pip install tvb-library==2.0a1
                     pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
                 '''
                 junit 'TEST_OUTPUT/TEST-RESULTS.xml'
