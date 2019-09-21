@@ -151,13 +151,15 @@ class SimpleSelectField(Field):
     template = 'radio_field.jinja2'
     missing_value = 'explicit-None-value'
 
-    def __init__(self, choices, form, name=None, disabled=False, required=False, label='', doc='', default=None):
+    def __init__(self, choices, form, name=None, disabled=False, required=False, label='', doc='', default=None,
+                 include_none=True):
         super(SimpleSelectField, self).__init__(form, name, disabled, required, label, doc, default)
         self.choices = choices
+        self.include_none = include_none
 
     def options(self):
         """ to be used from template, assumes self.data is set """
-        if not self.required:
+        if not self.required and self.include_none:
             choice = None
             yield Option(
                 id='{}_{}'.format(self.name, None),
@@ -177,6 +179,10 @@ class SimpleSelectField(Field):
     def fill_from_post(self, post_data):
         super(SimpleSelectField, self).fill_from_post(post_data)
         self.data = self.choices.get(self.data)
+
+
+class MultipleSelectField(SimpleSelectField):
+    template = 'checkbox_field.jinja2'
 
 
 class SimpleArrayField(Field):
@@ -298,6 +304,8 @@ class DataTypeSelectField(Field):
 
 
 TEMPORARY_PREFIX = ".tmp"
+
+
 class UploadField(Field):
     template = 'upload_field.jinja2'
 
