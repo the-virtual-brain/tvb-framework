@@ -91,6 +91,7 @@ class GIFTISurfaceImporter(ABCUploader):
 
             surface_idx = SurfaceIndex()
             surface_idx.fill_from_has_traits(surface)
+            self.generic_attributes.user_tag_1 = surface.surface_type
 
             loader = DirLoader(self.storage_path)
             surface_h5_path = loader.path_for(SurfaceH5, surface_idx.gid)

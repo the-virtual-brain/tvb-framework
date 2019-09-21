@@ -42,8 +42,8 @@ from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
 from tvb.datatypes.surfaces import make_surface, center_vertices
+from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField, SimpleBoolField
-from tvb.core.neocom.h5 import DirLoader
 
 
 class ZIPSurfaceImporterForm(ABCUploaderForm):
@@ -155,14 +155,14 @@ class ZIPSurfaceImporter(ABCUploader):
         if validation_result.warnings:
             self.add_operation_additional_info(validation_result.summary())
 
+        surface.configure()
         self.logger.debug("Surface ready to be stored")
 
         surf_idx = SurfaceIndex()
         surf_idx.fill_from_has_traits(surface)
-        surface.configure()
+        self.generic_attributes.user_tag_1 = surface.surface_type
 
-        loader = DirLoader(self.storage_path)
-        surf_path = loader.path_for(SurfaceH5, surf_idx.gid)
+        surf_path = TVBLoader().path_for(self.storage_path, SurfaceH5, surf_idx.gid)
 
         with SurfaceH5(surf_path) as surf_h5:
             surf_h5.store(surface)
