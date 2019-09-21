@@ -40,8 +40,8 @@ from tvb.adapters.uploaders.zip_surface.parser import ZipSurfaceParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.datatypes.surfaces import make_surface, center_vertices, ALL_SURFACES_SELECTION
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
+from tvb.datatypes.surfaces import make_surface, center_vertices
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField, SimpleBoolField
 from tvb.core.neocom.h5 import DirLoader
 
@@ -52,7 +52,7 @@ class ZIPSurfaceImporterForm(ABCUploaderForm):
         super(ZIPSurfaceImporterForm, self).__init__(prefix, project_id)
         self.uploaded = UploadField('application/zip', self, name='uploaded', required=True, label='Surface file (zip)')
         self.surface_type = SimpleSelectField(ALL_SURFACES_SELECTION, self, name='surface_type', required=True,
-                                              label='Surface type')
+                                              label='Surface type', default=ALL_SURFACES_SELECTION.keys()[0])
         self.zero_based_triangles = SimpleBoolField(self, name='zero_based_triangles', default=True,
                                                     label='Zero based triangles')
         self.should_center = SimpleBoolField(self, name='should_center',

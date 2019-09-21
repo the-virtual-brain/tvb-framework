@@ -52,7 +52,7 @@ class Field(object):
     template = None
 
     def __init__(self, form, name, disabled=False, required=False, label='', doc='', default=None):
-        # type: (Form, str, bool, bool, str, str) -> None
+        # type: (Form, str, bool, bool, str, str, object) -> None
         self.owner = form
         self.name = '{}_{}'.format(form.prefix, name)
         self.disabled = disabled

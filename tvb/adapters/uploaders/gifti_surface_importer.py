@@ -38,8 +38,7 @@ from tvb.adapters.uploaders.gifti.parser import GIFTIParser, OPTION_READ_METADAT
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException, ParseException
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.datatypes.surfaces import ALL_SURFACES_SELECTION
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
 from tvb.core.neotraits._forms import UploadField, SimpleBoolField, SimpleSelectField
 from tvb.core.neocom.h5 import DirLoader
 
@@ -48,11 +47,11 @@ class GIFTISurfaceImporterForm(ABCUploaderForm):
 
     def __init__(self, prefix='', project_id=None):
         super(GIFTISurfaceImporterForm, self).__init__(prefix, project_id)
-        surface_options = {'Specified in the file metadata': OPTION_READ_METADATA}
-        surface_options.update(ALL_SURFACES_SELECTION)
+        surface_types = ALL_SURFACES_SELECTION.copy()
+        surface_types['Specified in the file metadata'] = OPTION_READ_METADATA
 
-        self.file_type = SimpleSelectField(surface_options, self, name='file_type', required=True,
-                                           label='Specify file type : ')
+        self.file_type = SimpleSelectField(surface_types, self, name='file_type', required=True,
+                                           label='Specify file type : ', default=surface_types.keys()[0])
         self.data_file = UploadField('.gii', self, name='data_file', required=True,
                                      label='Please select a .gii (LH if cortex)')
         self.data_file_part2 = UploadField('.gii', self, name='data_file_part2',
@@ -75,7 +74,6 @@ class GIFTISurfaceImporter(ABCUploader):
 
     def get_output(self):
         return [SurfaceIndex]
-
 
     def launch(self, file_type, data_file, data_file_part2, should_center=False):
         """

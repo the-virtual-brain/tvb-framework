@@ -34,13 +34,11 @@
 
 import os
 import numpy
-from abc import abstractmethod
+from abc import ABCMeta
 from scipy import io as scipy_io
 from tvb.basic.logger.builder import get_logger
-from tvb.core.entities import model
 from tvb.core.adapters.abcadapter import ABCSynchronous, ABCAdapterForm
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.entities.storage import dao
 from tvb.core.neotraits._forms import SimpleStrField
 
 
@@ -69,6 +67,7 @@ class ABCUploader(ABCSynchronous):
     """
     Base class of the uploaders
     """
+    __metaclass__ = ABCMeta
     LOGGER = get_logger(__name__)
 
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):
@@ -99,20 +98,6 @@ class ABCUploader(ABCSynchronous):
         As it is an upload algorithm and we do not have information about data, we can not approximate this.
         """
         return 0
-
-
-    def ensure_db(self):
-        """
-        Ensure algorithm exists in DB and add it if not
-        """
-        cat = dao.get_uploader_categories()[0]
-        cls = self.__class__
-        cmd, cnm = cls.__module__, cls.__name__
-        gp = dao.get_algorithm_by_module(cmd, cnm)
-        if gp is None:
-            gp = model.Algorithm(cmd, cnm, cat.id)
-            gp = dao.store_entity(gp)
-        self.stored_adapter = gp
 
 
     @staticmethod
@@ -152,6 +137,6 @@ class ABCUploader(ABCSynchronous):
             def double__(n):
                 n = str(n)
                 return n.startswith('__') and n.endswith('__')
+
             available = [s for s in matlab_data if not double__(s)]
             raise KeyError("Could not find dataset named %s. Available datasets: %s" % (matlab_data_name, available))
-

@@ -37,9 +37,9 @@ from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.adapters.uploaders.obj.surface import ObjSurface
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
 from tvb.core.entities.storage import transactional
-from tvb.datatypes.surfaces import make_surface, center_vertices, ALL_SURFACES_SELECTION
+from tvb.datatypes.surfaces import make_surface, center_vertices
 from tvb.core.neotraits._forms import SimpleSelectField, UploadField, SimpleBoolField
 from tvb.core.neocom.h5 import DirLoader
 
@@ -50,7 +50,7 @@ class ObjSurfaceImporterForm(ABCUploaderForm):
         super(ObjSurfaceImporterForm, self).__init__(prefix, project_id)
 
         self.surface_type = SimpleSelectField(ALL_SURFACES_SELECTION, self, name='surface_type', required=True,
-                                              label='Specify file type :')
+                                              label='Specify file type :', default=ALL_SURFACES_SELECTION.keys()[0])
         self.data_file = UploadField('.obj', self, name='data_file', required=True,
                                      label='Please select file to import')
         self.should_center = SimpleBoolField(self, name='should_center', default=False,
