@@ -422,7 +422,7 @@ class ProjectService:
         if is_group:
             operation_group = self.get_operation_group_by_gid(operation_gid)
             operation = dao.get_operations_in_group(operation_group.id, False, True)
-            ## Reload, to make sure all attributes lazy are populated as well.
+            # Reload, to make sure all attributes lazy are populated as well.
             operation = dao.get_operation_by_gid(operation.gid)
             no_of_op_in_group = dao.get_operations_in_group(operation_group.id, is_count=True)
             datatype_group = self.get_datatypegroup_by_op_group_id(operation_group.id)
@@ -443,7 +443,7 @@ class ProjectService:
         op_details = OperationOverlayDetails(operation, username, len(datatypes_param),
                                              count_result, burst, no_of_op_in_group, op_pid)
 
-        ## Add all parameter which are set differently by the user on this Operation.
+        # Add all parameter which are set differently by the user on this Operation.
         if all_special_params is not None:
             op_details.add_scientific_fields(all_special_params)
         return op_details
@@ -792,10 +792,10 @@ class ProjectService:
             adapter = ABCAdapter.build_adapter(operation.algorithm)
             return adapter.review_operation_inputs(parameters)
 
-        except IntrospectionException:
-            self.logger.warning("Could not find adapter class for operation %s" % operation_gid)
+        except Exception:
+            self.logger.exception("Could not load details for operation %s" % operation_gid)
             inputs_datatypes = []
-            changed_parameters = dict(Warning="Algorithm was Removed. We can not offer more details")
+            changed_parameters = dict(Warning="Algorithm changed dramatically. We can not offer more details")
             for submit_param in parameters.values():
                 self.logger.debug("Searching DT by GID %s" % submit_param)
                 datatype = ABCAdapter.load_entity_by_gid(str(submit_param))

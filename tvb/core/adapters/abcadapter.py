@@ -274,6 +274,7 @@ class ABCAdapter(object):
     def submit_form(self, form):
         self.submitted_form = form
 
+    # TODO separate usage of get_form_class (returning a class) and return of a submitted instance
     def get_form(self):
         if self.submitted_form is not None:
             return self.submitted_form
@@ -561,7 +562,7 @@ class ABCAdapter(object):
 
     def flaten_input_interface(self):
         # TODO: temporary condition to pass introspection on neoforms
-        form = self.get_form()
+        form = self.get_form_class()()
         if form:
             return [form._get_original_field_name(form_field) for form_field in form.fields]
         return self.tree_manager.flatten(self.get_input_tree())
