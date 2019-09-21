@@ -42,8 +42,8 @@ from tvb.core.entities.model.model_datatype import DataTypeGroup
 from tvb.core.entities.model.model_operation import OperationGroup, STATUS_STARTED
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.datatypes.mapped_values import DatatypeMeasure
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.neotraits._forms import DataTypeSelectField
 
 
@@ -88,11 +88,11 @@ class PseIsoModel(object):
             op_results = dao.get_results_for_operation(operation.id)
             if len(op_results):
                 datatype = op_results[0]
-                if datatype.type == "DatatypeMeasure":
-                    ## Load proper entity class from DB.
-                    dt_measure = dao.get_generic_entity(DatatypeMeasure, datatype.id)[0]
+                if datatype.type == "DatatypeMeasureIndex":
+                    # Load proper entity class from DB.
+                    dt_measure = dao.get_generic_entity(DatatypeMeasureIndex, datatype.id)[0]
                 else:
-                    dt_measure = dao.get_generic_entity(DatatypeMeasure, datatype.gid, '_analyzed_datatype')
+                    dt_measure = dao.get_generic_entity(DatatypeMeasureIndex, datatype.gid, '_analyzed_datatype')
                     if dt_measure:
                         dt_measure = dt_measure[0]
                 break
@@ -125,10 +125,10 @@ class PseIsoModel(object):
                 datatype = operation_results[0]
                 self.datatypes_gids[index_x][index_y] = str(datatype.gid)
 
-                if datatype.type == "DatatypeMeasure":
-                    measures = dao.get_generic_entity(DatatypeMeasure, datatype.id)
+                if datatype.type == "DatatypeMeasureIndex":
+                    measures = dao.get_generic_entity(DatatypeMeasureIndex, datatype.id)
                 else:
-                    measures = dao.get_generic_entity(DatatypeMeasure, datatype.gid, '_analyzed_datatype')
+                    measures = dao.get_generic_entity(DatatypeMeasureIndex, datatype.id, 'source_id')
             else:
                 self.datatypes_gids[index_x][index_y] = None
                 measures = None
@@ -176,22 +176,15 @@ class IsoclinePSEAdapter(ABCDisplayer):
 
     _ui_name = "Isocline Parameter Space Exploration"
     _ui_subsection = "pse_iso"
-    form = None
-
-    def get_form(self):
-        if not self.form:
-            return IsoclinePSEAdapterForm
-        return self.form
-
-    def set_form(self, form):
-        self.form = form
 
     def __init__(self):
         ABCDisplayer.__init__(self)
         self.interp_models = {}
         self.nan_indices = {}
 
-    def get_input_tree(self): return None
+
+    def get_form_class(self):
+        return IsoclinePSEAdapterForm
 
 
     def get_required_memory_size(self, **kwargs):
@@ -201,15 +194,13 @@ class IsoclinePSEAdapter(ABCDisplayer):
         # Don't know how much memory is needed.
         return -1
 
-
-    #TODO: migrate to neotraits
+    # TODO: migrate to neotraits
     def burst_preview(self, datatype_group_gid):
         """
         Generate the preview for the burst page.
         """
         datatype_group = dao.get_datatype_group_by_gid(datatype_group_gid)
         return self.launch(datatype_group=datatype_group)
-
 
     def get_metric_matrix(self, datatype_group, selected_metric=None):
         self.model = PseIsoModel.from_db(datatype_group.fk_operation_group)
@@ -240,7 +231,6 @@ class IsoclinePSEAdapter(ABCDisplayer):
                     vmin=vmin,
                     vmax=vmax)
 
-
     @staticmethod
     def prepare_node_data(datatype_group):
         if datatype_group is None:
@@ -260,7 +250,6 @@ class IsoclinePSEAdapter(ABCDisplayer):
                                                     datatype_subject=datatype.subject,
                                                     datatype_invalid=datatype.invalid)
         return node_info_dict
-
 
     def launch(self, datatype_group, **kwargs):
         params = self.get_metric_matrix(datatype_group)
