@@ -40,8 +40,9 @@ from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
+from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neotraits.h5 import MEMORY_STRING
 
 
 class SensorsImporterForm(ABCUploaderForm):
@@ -56,7 +57,7 @@ class SensorsImporterForm(ABCUploaderForm):
                                         label='Please upload sensors file (txt or bz2 format)',
                                         doc='Expected a text/bz2 file containing sensor measurements.')
         self.sensors_type = SimpleSelectField(self.options, self, name='sensors_type', required=True,
-                                              label='Sensors type: ')
+                                              label='Sensors type: ', default=self.options.keys()[0])
 
 
 class SensorsImporter(ABCUploader):
@@ -110,7 +111,7 @@ class SensorsImporter(ABCUploader):
         # to rotate the sensors by -90 along z uncomment below
         # locations = numpy.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]]).dot(locations.T).T
         sensors_inst.locations = locations
-        sensors_inst.labels = self.read_list_data(sensors_file, dtype=numpy.str, usecols=[0])
+        sensors_inst.labels = self.read_list_data(sensors_file, dtype=MEMORY_STRING, usecols=[0])
         sensors_inst.number_of_sensors = sensors_inst.labels.size
 
         if isinstance(sensors_inst, SensorsMEG):
@@ -126,18 +127,11 @@ class SensorsImporter(ABCUploader):
         sensors_idx = SensorsIndex()
         sensors_idx.number_of_sensors = sensors_inst.number_of_sensors
         sensors_idx.sensors_type = sensors_inst.sensors_type
+        self.generic_attributes.user_tag_1 = sensors_inst.sensors_type
 
-        loader = DirLoader(self.storage_path)
-        sensors_path = loader.path_for(SensorsH5, sensors_idx.gid)
-        sensors_h5 = SensorsH5(sensors_path)
-
-        sensors_h5.gid.store(uuid.UUID(sensors_idx.gid))
-        sensors_h5.sensors_type.store(sensors_inst.sensors_type)
-        sensors_h5.labels.store(sensors_inst.labels)
-        sensors_h5.locations.store(sensors_inst.locations)
-        sensors_h5.has_orientation.store(sensors_inst.has_orientation)
-        sensors_h5.orientations.store(sensors_inst.orientations)
-        sensors_h5.number_of_sensors.store(sensors_inst.number_of_sensors)
-        sensors_h5.usable.store(sensors_inst.usable)
+        sensors_path = TVBLoader().path_for(self.storage_path, SensorsH5, sensors_idx.gid)
+        with SensorsH5(sensors_path) as sensors_h5:
+            sensors_h5.store(sensors_inst)
+            sensors_h5.gid.store(uuid.UUID(sensors_idx.gid))
 
         return sensors_idx

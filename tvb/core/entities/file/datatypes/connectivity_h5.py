@@ -28,14 +28,15 @@
 #
 #
 
-from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Json
+from tvb.basic.neotraits.api import NArray
+from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, Json, STORE_STRING, MEMORY_STRING
 from tvb.datatypes.connectivity import Connectivity
 
 
 class ConnectivityH5(H5File):
     def __init__(self, path):
         super(ConnectivityH5, self).__init__(path)
-        self.region_labels = DataSet(Connectivity.region_labels, self)
+        self.region_labels = DataSet(NArray(dtype=STORE_STRING), self, "region_labels")
         self.weights = DataSet(Connectivity.weights, self)
         self.undirected = Scalar(Connectivity.undirected, self)
         self.tract_lengths = DataSet(Connectivity.tract_lengths, self)
@@ -54,6 +55,16 @@ class ConnectivityH5(H5File):
 
     def get_region_labels(self):
         return self.region_labels.load()
+
+    def store(self, datatype, scalars_only=False, store_references=False):
+        # type: (Connectivity, bool, bool) -> None
+        super(ConnectivityH5, self).store(datatype, scalars_only, store_references)
+        self.region_labels.store(datatype.region_labels.astype(STORE_STRING))
+
+    def load_into(self, datatype):
+        # type: (Connectivity) -> None
+        super(ConnectivityH5, self).load_into(datatype)
+        datatype.region_labels = self.region_labels.load().astype(MEMORY_STRING)
 
     def get_grouped_space_labels(self):
         """

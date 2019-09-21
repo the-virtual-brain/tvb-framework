@@ -27,7 +27,8 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-from tvb.core.neotraits.h5 import H5File, DataSet, Scalar
+from tvb.basic.neotraits.api import NArray
+from tvb.core.neotraits.h5 import H5File, DataSet, Scalar, STORE_STRING, MEMORY_STRING
 from tvb.datatypes.sensors import Sensors
 
 
@@ -35,7 +36,7 @@ class SensorsH5(H5File):
     def __init__(self, path):
         super(SensorsH5, self).__init__(path)
         self.sensors_type = Scalar(Sensors.sensors_type, self)
-        self.labels = DataSet(Sensors.labels, self)
+        self.labels = DataSet(NArray(dtype=STORE_STRING), self, "labels")
         self.locations = DataSet(Sensors.locations, self)
         self.has_orientation = Scalar(Sensors.has_orientation, self)
         self.orientations = DataSet(Sensors.orientations, self)
@@ -47,3 +48,13 @@ class SensorsH5(H5File):
 
     def get_labels(self):
         return self.labels.load()
+
+    def store(self, datatype, scalars_only=False, store_references=False):
+        # type: (Sensors, bool, bool) -> None
+        super(SensorsH5, self).store(datatype, scalars_only, store_references)
+        self.labels.store(datatype.labels.astype(STORE_STRING))
+
+    def load_into(self, datatype):
+        # type: (Sensors) -> None
+        super(SensorsH5, self).load_into(datatype)
+        datatype.labels = self.labels.load().astype(MEMORY_STRING)

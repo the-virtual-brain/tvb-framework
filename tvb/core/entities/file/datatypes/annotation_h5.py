@@ -31,22 +31,21 @@
 """
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-import h5py
+
 import numpy
 from tvb.datatypes.connectivity import Connectivity
-from tvb.core.neotraits.h5 import H5File, DataSet, Reference
+from tvb.core.neotraits.h5 import H5File, DataSet, Reference, STORE_STRING
 from tvb.basic.neotraits.api import NArray, Attr
 
-_STR_DTYPE = h5py.string_dtype(encoding='utf-8')
 ANNOTATION_DTYPE = numpy.dtype([('id', 'i'),
                                 ('parent_id', 'i'),
                                 ('parent_left', 'i'),
                                 ('parent_right', 'i'),
-                                ('relation', _STR_DTYPE),  # S16
-                                ('label', _STR_DTYPE),  # S256
-                                ('definition', _STR_DTYPE),  # S1024
-                                ('synonym', _STR_DTYPE),  # S2048
-                                ('uri', _STR_DTYPE),  # S256
+                                ('relation', STORE_STRING),  # S16
+                                ('label', STORE_STRING),  # S256
+                                ('definition', STORE_STRING),  # S1024
+                                ('synonym', STORE_STRING),  # S2048
+                                ('uri', STORE_STRING),  # S256
                                 ('synonym_tvb_left', 'i'),
                                 ('synonym_tvb_right', 'i')
                                 ])
