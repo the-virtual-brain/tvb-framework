@@ -49,7 +49,6 @@ from tvb.adapters.creators.local_connectivity_creator import LocalConnectivityCr
 from tvb.adapters.creators.stimulus_creator import RegionStimulusCreator, SurfaceStimulusCreator
 from tvb.adapters.simulator.simulator_adapter import SimulatorAdapter
 from tvb.adapters.uploaders.brco_importer import BRCOImporter
-from tvb.adapters.uploaders.cff_importer import CFF_Importer
 from tvb.adapters.uploaders.connectivity_measure_importer import ConnectivityMeasureImporter
 from tvb.adapters.uploaders.csv_connectivity_importer import CSVConnectivityImporter
 from tvb.adapters.uploaders.eeg_mat_timeseries_importer import EEGMatTimeSeriesImporter

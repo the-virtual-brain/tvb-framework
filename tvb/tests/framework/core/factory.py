@@ -40,7 +40,7 @@ Project, User, Operation, basic imports (e.g. CFF).
 
 import os
 import random
-import tvb_data.cff as cff_dataset
+import tvb_data
 from hashlib import md5
 from tvb.core.entities.model.model_operation import *
 from tvb.core.entities.model.model_workflow import *
@@ -216,7 +216,7 @@ class TestFactory(object):
         if not admin_user:
             admin_user = TestFactory.create_user()
 
-        project_path = os.path.join(os.path.dirname(os.path.dirname(cff_dataset.__file__)), 'Default_Project.zip')
+        project_path = os.path.join(os.path.dirname(tvb_data.__file__), 'Default_Project.zip')
         import_service = ImportService()
         import_service.import_project_structure(project_path, admin_user.id)
         return import_service.created_projects[0]
@@ -229,20 +229,21 @@ class TestFactory(object):
         :param test_user: optional persisted User instance, to use as Operation->launcher
         :param test_project: optional persisted Project instance, to use for launching Operation in it. 
         """
+        # TODO import multiple different connectivities some other way
         # Prepare Data
-        if cff_path is None:
-            cff_path = os.path.join(os.path.dirname(cff_dataset.__file__), 'connectivities.cff')
-        if test_user is None:
-            test_user = TestFactory.create_user()
-        if test_project is None:
-            test_project = TestFactory.create_project(test_user)
-
-        # Retrieve Adapter instance
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.cff_importer', 'CFF_Importer')
-        args = {'cff': cff_path, DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
-
-        # Launch Operation
-        FlowService().fire_operation(importer, test_user, test_project.id, **args)
+        # if cff_path is None:
+        #     cff_path = os.path.join(os.path.dirname(cff_dataset.__file__), 'connectivities.cff')
+        # if test_user is None:
+        #     test_user = TestFactory.create_user()
+        # if test_project is None:
+        #     test_project = TestFactory.create_project(test_user)
+        #
+        # # Retrieve Adapter instance
+        # importer = TestFactory.create_adapter('tvb.adapters.uploaders.cff_importer', 'CFF_Importer')
+        # args = {'cff': cff_path, DataTypeMetaData.KEY_SUBJECT: DataTypeMetaData.DEFAULT_SUBJECT}
+        #
+        # # Launch Operation
+        # FlowService().fire_operation(importer, test_user, test_project.id, **args)
 
     @staticmethod
     def import_surface_zip(user, project, zip_path, surface_type, zero_based):
