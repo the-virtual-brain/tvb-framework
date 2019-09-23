@@ -52,7 +52,7 @@ class CovarianceIndex(DataTypeMatrix):
         # type: (Covariance)  -> None
         super(CovarianceIndex, self).fill_from_has_traits(datatype)
         self.subtype = datatype.__class__.__name__
-        self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
+        self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.array_data)
         self.source_gid = datatype.source.gid.hex
 
 

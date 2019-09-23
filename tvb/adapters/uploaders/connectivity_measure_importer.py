@@ -91,7 +91,7 @@ class ConnectivityMeasureImporter(ABCUploader):
             for i in range(measurement_count):
                 cm_idx = ConnectivityMeasureIndex()
                 cm_idx.type = ConnectivityMeasureIndex.__name__
-                cm_idx.connectivity_gid = connectivity.gid.hex
+                cm_idx.connectivity_gid = connectivity.gid
 
                 cm_data = data[i, :]
                 cm_idx.array_data_ndim = cm_data.ndim

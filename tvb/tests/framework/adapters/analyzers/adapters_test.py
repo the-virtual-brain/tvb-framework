@@ -59,9 +59,6 @@ def test_wavelet_adapter(tmpdir, session, operationFactory):
     wavelet_adapter.storage_path = storage_folder
     wavelet_adapter.configure(ts_index)
 
-    #diskq = wavelet_adapter.get_required_disk_size()
-    #memq = wavelet_adapter.get_required_memory_size()
-
     wavelet_idx = wavelet_adapter.launch(ts_index)
 
     result_h5 = h5.path_for(storage_folder, WaveletCoefficientsH5, wavelet_idx.gid)

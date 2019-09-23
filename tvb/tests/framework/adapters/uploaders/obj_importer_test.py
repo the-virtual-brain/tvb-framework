@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -33,15 +33,11 @@
 """
 
 import os
+from tvb.core.neocom.h5 import h5_file_for_index
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.services.flow_service import FlowService
-from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.datatypes.surfaces import FaceSurface, FACE
-
+from tvb.datatypes.surfaces import FaceSurface, Surface
 import tvb_data.obj
 
 
@@ -50,49 +46,42 @@ class TestObjSurfaceImporter(TransactionalTestCase):
     Unit-tests for Obj Surface importer.
     """
 
-    torus = os.path.join(os.path.dirname(tvb_data.obj.__file__), 'test_torus.obj')
+    torus = os.path.join(os.path.dirname(tvb_data.__file__), 'test_torus.obj')
     face = os.path.join(os.path.dirname(tvb_data.obj.__file__), 'face_surface.obj')
 
     def transactional_setup_method(self):
-        self.datatypeFactory = DatatypesFactory()
-        self.test_project = self.datatypeFactory.get_project()
-        self.test_user = self.datatypeFactory.get_user()
+        self.test_user = TestFactory.create_user('Obj_Importer_User')
+        self.test_project = TestFactory.create_project(self.test_user, "Obj_Importer_Project")
 
     def transactional_teardown_method(self):
         FilesHelper().remove_project_structure(self.test_project.name)
-
-    def _import_surface(self, import_file_path=None):
-        ### Retrieve Adapter instance
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.obj_importer', 'ObjSurfaceImporter')
-
-        args = {'data_file': import_file_path,
-                "surface_type": FACE,
-                DataTypeMetaData.KEY_SUBJECT: "John"}
-
-        ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
-
-        data_types = FlowService().get_available_datatypes(self.test_project.id, FaceSurface)[0]
-        assert 1, len(data_types) == "Project should contain only one data type."
-
-        surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
-        assert surface is not None, "Surface should not be None"
-        return surface
 
     def test_import_quads_no_normals(self):
         """
         Test that import works with a file which contains quads and no normals
         """
-        surface = self._import_surface(self.face)
-        assert 8614 == len(surface.vertices)
+        surface_index = TestFactory.import_surface_obj(self.test_user, self.test_project, self.face, FaceSurface)
+
+        surface_h5_file = h5_file_for_index(surface_index)
+        surface = Surface()
+        surface_h5_file.load_into(surface)
+        surface_h5_file.close()
+
         assert 8614 == len(surface.vertex_normals)
+        assert 8614 == len(surface.vertices)
         assert 17224 == len(surface.triangles)
 
     def test_import_simple_with_normals(self):
         """
-        Test that import works with an OBJ file which included normals
+        Test that import works with an OBJ file which includes normals
         """
-        surface = self._import_surface(self.torus)
-        assert 441 == surface.number_of_vertices
+        surface_index = TestFactory.import_surface_obj(self.test_user, self.test_project, self.torus, FaceSurface)
+        assert 441 == surface_index.number_of_vertices
+        assert 800 == surface_index.number_of_triangles
+
+        surface_h5_file = h5_file_for_index(surface_index)
+        surface = Surface()
+        surface_h5_file.load_into(surface)
+        surface_h5_file.close()
+
         assert 441 == len(surface.vertex_normals)
-        assert 800 == surface.number_of_triangles
