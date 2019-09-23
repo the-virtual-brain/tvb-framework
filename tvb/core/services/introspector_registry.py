@@ -161,7 +161,6 @@ class IntrospectionRegistry(object):
         SimulateAlgorithmCategoryConfig: [SimulatorAdapter],
         UploadAlgorithmCategoryConfig: [
             BRCOImporter,
-            CFF_Importer,
             ConnectivityMeasureImporter,
             GIFTISurfaceImporter,
             GIFTITimeSeriesImporter,
