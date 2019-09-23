@@ -39,7 +39,7 @@ import time
 from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.entities.model.model_operation import *
 from tvb.core.entities.model.model_datatype import *
-from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex, ValueWrapperIndex
+#from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex, ValueWrapperIndex
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
@@ -56,6 +56,7 @@ from tvb.datatypes.graph import Covariance, ConnectivityMeasure
 from tvb.datatypes.spectral import CoherenceSpectrum
 from tvb.datatypes.temporal_correlations import CrossCorrelation
 from tvb.datatypes.mode_decompositions import IndependentComponents
+from tvb.tests.framework.adapters.storeadapter import StoreAdapter
 
 
 class DatatypesFactory(object):
@@ -158,11 +159,12 @@ class DatatypesFactory(object):
         Create a connectivity that will be used in "non-dummy" burst launches (with the actual simulator).
         """
         operation, algo_id, storage_path = self.__create_operation()
-        connectivity = Connectivity(storage_path=storage_path)
+        connectivity = Connectivity()
         connectivity.weights = numpy.ones((nodes, nodes))
         connectivity.centres = numpy.ones((nodes, 3))
         adapter_instance = StoreAdapter([connectivity])
-        OperationService().initiate_prelaunch(operation, adapter_instance, {})
+        operation_service = OperationService()
+        operation_service.initiate_prelaunch(operation, adapter_instance)
         return algo_id, connectivity
 
     def create_timeseries(self, connectivity, ts_type=None, sensors=None):
