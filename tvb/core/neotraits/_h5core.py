@@ -40,7 +40,9 @@ from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
 from tvb.basic.neotraits.api import HasTraits, Attr, NArray
 from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.utils import date2string
+from tvb.basic.logger.builder import get_logger
 
+LOG = get_logger(__name__)
 
 class Accessor(object):
     __metaclass__ = abc.ABCMeta
@@ -97,7 +99,11 @@ class Scalar(Accessor):
         # type: () -> typing.Union[str, int, float]
         # assuming here that the h5 will return the type we stored.
         # if paranoid do self.trait_attribute.field_type(value)
-        return self.owner.storage_manager.get_metadata()[self.field_name]
+
+        try:
+            return self.owner.storage_manager.get_metadata()[self.field_name]
+        except KeyError as error:
+            LOG.debug(error)
 
 
 class Uuid(Scalar):
