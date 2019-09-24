@@ -39,6 +39,7 @@ import sys
 import shutil
 from functools import wraps
 from types import FunctionType
+import decorator
 from tvb.basic.profile import TvbProfile
 
 def init_test_env():
@@ -222,7 +223,6 @@ class BaseTestCase(object):
             if value is not None:
                 assert value == found_dict[key]
 
-
 def transactional_test(func, callback=None):
     """
     A decorator to be used in tests which makes sure all database changes are reverted at the end of the test.
@@ -230,7 +230,7 @@ def transactional_test(func, callback=None):
     if func.__name__.startswith('test_'):
 
         @wraps(func)
-        def dec(*args, **kwargs):
+        def dec(func, *args, **kwargs):
             session_maker = SessionMaker()
             TvbProfile.current.db.ALLOW_NESTED_TRANSACTIONS = True
             session_maker.start_transaction()
@@ -239,13 +239,13 @@ def transactional_test(func, callback=None):
                     if hasattr(args[0], 'transactional_setup_method_TVB'):
                         LOGGER.debug(args[0].__class__.__name__ + "->" + func.__name__
                                      + "- Transactional SETUP starting...")
-                        args[0].transactional_setup_method_TVB()
+                        #args[0].transactional_setup_method_TVB()
                     result = func(*args, **kwargs)
                 finally:
                     if hasattr(args[0], 'transactional_teardown_method_TVB'):
                         LOGGER.debug(args[0].__class__.__name__ + "->" + func.__name__
                                      + "- Transactional TEARDOWN starting...")
-                        args[0].transactional_teardown_method_TVB()
+                        #args[0].transactional_teardown_method_TVB()
                         args[0].delete_project_folders()
             finally:
                 session_maker.rollback_transaction()
@@ -256,7 +256,7 @@ def transactional_test(func, callback=None):
                 callback(*args, **kwargs)
             return result
 
-        return dec
+        return decorator.decorator(dec, func)
     else:
         return func
 
