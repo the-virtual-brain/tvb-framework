@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -29,11 +29,15 @@
 #
 
 """
+.. moduleauthor:: Gabriel Florea <gabriel.florea@codemart.ro>
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
 import os
 import shutil
+from cherrypy._cpreqbody import Part
+from cherrypy.lib.httputil import HeaderMap
+from tvb.adapters.uploaders.tvb_importer import TVBImporterForm
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.adapters.exporters.export_manager import ExportManager
 from tvb.basic.profile import TvbProfile
@@ -42,9 +46,6 @@ from tvb.core.services.exceptions import OperationException
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
-
-
 
 class TestTVBImporter(TransactionalTestCase):
     """
@@ -60,13 +61,13 @@ class TestTVBImporter(TransactionalTestCase):
         """
         export_manager = ExportManager()
 
-        self.datatypeFactory = DatatypesFactory()
-        self.test_project = self.datatypeFactory.get_project()
+        self.test_user = TestFactory.create_user()
+        self.test_project = TestFactory.create_project(self.test_user)
 
         # Generate simple data type and export it to H5 file
         self.datatype = self.datatypeFactory.create_datatype_with_storage()
         _, exported_h5_file, _ = export_manager.export_data(self.datatype, self.TVB_EXPORTER, self.test_project)
-        # Copy H5 file to another location since the original one / exported 
+        # Copy H5 file to another location since the original one / exported
         # will be deleted with the project
         _, h5_file_name = os.path.split(exported_h5_file)
         shutil.copy(exported_h5_file, TvbProfile.current.TVB_TEMP_FOLDER)
@@ -83,9 +84,9 @@ class TestTVBImporter(TransactionalTestCase):
         self.clean_database(delete_folders=False)
 
         # Recreate project, but a clean one where to import data
-        self.datatypeFactory = DatatypesFactory()
-        self.test_project = self.datatypeFactory.get_project()
-        self.test_user = self.datatypeFactory.get_user()
+
+        self.test_user = TestFactory.create_user()
+        self.test_project = TestFactory.create_project(self.test_user)
 
 
     def _import(self, import_file_path=None):
@@ -93,12 +94,18 @@ class TestTVBImporter(TransactionalTestCase):
         This method is used for importing data in TVB format
         :param import_file_path: absolute path of the file to be imported
         """
-        ### Retrieve Adapter instance 
+        ### Retrieve Adapter instance
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.tvb_importer', 'TVBImporter')
-        args = {'data_file': import_file_path}
+
+        form = TVBImporterForm()
+        form.fill_from_post({ '_data_file': Part(import_file_path, HeaderMap({}), ''),
+                              '_Data_Subject': 'John Doe'
+                            })
+        form.data_file.data = import_file_path
+        importer.set_form(form)
 
         ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
+        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
 
 
     def test_zip_import(self):

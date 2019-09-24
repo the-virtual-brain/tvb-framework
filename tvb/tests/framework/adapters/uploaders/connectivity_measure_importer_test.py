@@ -36,15 +36,17 @@ module docstring
 import pytest
 import os.path
 import tvb_data
+from cherrypy._cpreqbody import Part
+from cherrypy.lib.httputil import HeaderMap
+from tvb.adapters.uploaders.cff_importer import CFFImporterForm
+
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.exceptions import OperationException
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.graph import ConnectivityMeasure
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.flow_service import FlowService
-from tvb.tests.framework.adapters.uploaders import test_data
 
 
 class TestConnectivityMeasureImporter(TransactionalTestCase):
@@ -66,19 +68,21 @@ class TestConnectivityMeasureImporter(TransactionalTestCase):
 
     def _import(self, import_file_name):
         ### Retrieve Adapter instance
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.connectivity_measure_importer',
-                                              'ConnectivityMeasureImporter')
-        path = os.path.join(os.path.dirname(test_data.__file__), import_file_name)
+        importer = TestFactory.create_adapter('tvb.adapters.uploaders.cff_importer', 'CFF_Importer')
+        form = CFFImporterForm()
+        form.fill_from_post({'_cff': Part(self.VALID_CFF, HeaderMap({}), ''), '_Data_Subject': 'John Doe',
+                             '_key_edge_weight': 'adc_mean', '_key_edge_tract': 'fiber_length_mean',
+                             '_key_node_coordinates': 'dn_position', '_key_node_label': 'dn_name',
+                             '_key_node_region': 'dn_region', '_key_node_hemisphere': 'dn_hemisphere'
+                             })
+        form.cff.data = import_file_name
+        importer.set_form(form)
 
-        args = {'data_file': path,
-                'connectivity': self.connectivity.gid,
-                DataTypeMetaData.KEY_SUBJECT: "John"}
-
-        ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
+        # Launch Operation
+        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_dict())
 
 
-    def test_happy_flow(self):
+def test_happy_flow(self):
         assert 0 == TestFactory.get_entity_count(self.test_project, ConnectivityMeasure())
         self._import('mantini_networks.mat')
         assert 6 == TestFactory.get_entity_count(self.test_project, ConnectivityMeasure())

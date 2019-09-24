@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -28,13 +28,17 @@
 #
 #
 """
+.. moduleauthor:: Gabriel Florea <gabriel.florea@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
 from os import path
 import tvb_data
+from cherrypy._cpreqbody import Part
+from cherrypy.lib.httputil import HeaderMap
+from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporterForm
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.datatypes.connectivity import Connectivity
 from tvb.core.services.flow_service import FlowService
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.tests.framework.core.factory import TestFactory
@@ -62,16 +66,25 @@ class TestConnectivityZip(TransactionalTestCase):
 
         data_dir = path.abspath(path.dirname(tvb_data.__file__))
         zip_path = path.join(data_dir, 'connectivity', 'connectivity_96.zip')
+
+        form = ZIPConnectivityImporterForm()
+        form.fill_from_post({'_uploaded': Part(zip_path, HeaderMap({}), ''),
+                             '_project_id': {1},
+                             '_Data_Subject': subject
+                             })
+        form.uploaded.data = zip_path
+        importer.set_form(form)
+
         ### Launch Operation
-        FlowService().fire_operation(importer, test_user, test_project.id, uploaded=zip_path, Data_Subject=subject)
+        FlowService().fire_operation(importer, test_user, test_project.id, **form.get_form_values())
 
     def test_happy_flow_import(self):
         """
         Test that importing a CFF generates at least one DataType in DB.
         """
-        dt_count_before = TestFactory.get_entity_count(self.test_project, Connectivity())
+        dt_count_before = TestFactory.get_entity_count(self.test_project, ConnectivityIndex())
 
         TestConnectivityZip.import_test_connectivity96(self.test_user, self.test_project)
 
-        dt_count_after = TestFactory.get_entity_count(self.test_project, Connectivity())
+        dt_count_after = TestFactory.get_entity_count(self.test_project, ConnectivityIndex())
         assert dt_count_before + 1 == dt_count_after

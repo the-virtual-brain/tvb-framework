@@ -36,7 +36,6 @@ from StringIO import StringIO
 from tvb.adapters.uploaders.obj.parser import ObjWriter, ObjParser
 
 
-
 class TestObjFiles():
 
     def test_write_simple(self):
