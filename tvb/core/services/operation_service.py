@@ -48,14 +48,17 @@ from tvb.basic.neotraits._attr import Range
 #from tvb.basic.neotraits.map_as_json import MapAsJson
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
+from tvb.adapters.analyzers.metrics_group_timeseries import TimeseriesMetricsAdapter
 from tvb.core import utils
 from tvb.core.adapters import constants
 from tvb.core.adapters.abcadapter import ABCAdapter, ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.entities.model.model_burst import PARAM_RANGE_PREFIX, RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.core.entities.model.model_datatype import DataTypeGroup
 from tvb.core.entities.model.model_operation import STATUS_FINISHED, STATUS_ERROR, OperationGroup, Operation
 from tvb.core.entities.model.model_workflow import WorkflowStepView
+from tvb.core.entities.model.simulator.burst_configuration import BurstConfiguration2
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -175,6 +178,30 @@ class OperationService:
         for operation in ops:
             self.launch_operation(operation.id, True)
 
+    def _prepare_metric_operation(self, sim_operation):
+        # type: (Operation) -> None
+        metric_algo = dao.get_algorithm_by_module(TimeseriesMetricsAdapter.__module__,
+                                                  TimeseriesMetricsAdapter.__name__)
+
+        time_series_index = dao.get_generic_entity(TimeSeriesIndex, sim_operation.id, 'fk_from_operation')[0]
+        op_params = json.dumps({'timeseries: ': time_series_index.gid})
+        range_values = sim_operation.range_values
+        metadata = {DataTypeMetaData.KEY_BURST: time_series_index.fk_parent_burst}
+        metadata, user_group = self._prepare_metadata(metadata, metric_algo.algorithm_category, None, op_params)
+        meta_str = json.dumps(metadata)
+
+        parent_burst = dao.get_generic_entity(BurstConfiguration2, time_series_index.fk_parent_burst, 'id')[0]
+        metric_operation_group_id = parent_burst.metric_operation_group_id
+        metric_operation = Operation(sim_operation.fk_launched_by, sim_operation.fk_launched_in, metric_algo.id, op_params,
+                                     meta_str, op_group_id=metric_operation_group_id, range_values=range_values)
+        metric_operation.visible = False
+        operation = dao.store_entity(metric_operation)
+
+        metrics_datatype_group = dao.get_generic_entity(DataTypeGroup, metric_operation_group_id, 'fk_operation_group')[0]
+        if metrics_datatype_group.fk_from_operation is None:
+            metrics_datatype_group.fk_from_operation = metric_operation.id
+
+        return operation
 
     def prepare_operations(self, user_id, project_id, algorithm, category, metadata,
                            visible=True, existing_dt_group=None, **kwargs):
@@ -355,9 +382,9 @@ class OperationService:
             msg = "Could not launch Operation with the given input data!"
             self._handle_exception(excep1, temp_files, msg, operation)
 
-        ### Try to find next workflow Step. It might throw WorkflowException
-        next_op_id = self.workflow_service.prepare_next_step(operation.id)
-        self.launch_operation(next_op_id)
+        if operation.fk_operation_group and 'SimulatorAdapter' in operation.algorithm.classname:
+            next_op = self._prepare_metric_operation(operation)
+            self.launch_operation(next_op.id)
         return result_msg
 
 
@@ -383,6 +410,10 @@ class OperationService:
                 algorithm = operation.algorithm
                 adapter_instance = ABCAdapter.build_adapter(algorithm)
             parsed_params = utils.parse_json_parameters(operation.parameters)
+            if not 'SimulatorAdapter' in adapter_instance.__class__.__name__:
+                adapter_form = adapter_instance.get_form()()
+                adapter_form.fill_from_post(parsed_params)
+                adapter_instance.set_form(adapter_form)
 
             if send_to_cluster:
                 self._send_to_cluster([operation], adapter_instance, operation.user.username)

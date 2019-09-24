@@ -115,6 +115,10 @@ class SimpleStrField(Field):
         self.data = self.unvalidated_data
 
 
+class SimpleHiddenField(Field):
+    template = 'hidden_field.jinja2'
+
+
 class SimpleIntField(Field):
     template = 'number_field.jinja2'
     min = None
@@ -147,6 +151,29 @@ class SimpleFloatField(Field):
             self.data = float(self.unvalidated_data)
 
 
+class SimpleArrayField(Field):
+    template = 'str_field.jinja2'
+
+    def __init__(self, form, name, dtype, disabled=False, required=False, label='', doc='', default=None):
+        super(SimpleArrayField, self).__init__(form, name, disabled, required, label, doc, default)
+        self.dtype = dtype
+
+    def _from_post(self):
+        data = json.loads(self.unvalidated_data)
+        self.data = numpy.array(data, dtype=self.dtype).tolist()
+
+    @property
+    def value(self):
+        if self.data is None:
+            # todo: maybe we need to distinguish None from missing data
+            # this None means self.data is missing, either not set or unset cause of validation error
+            return self.unvalidated_data
+        try:
+            return json.dumps(self.data.tolist())
+        except (TypeError, ValueError):
+            return self.unvalidated_data
+
+
 class SimpleSelectField(Field):
     template = 'radio_field.jinja2'
     missing_value = 'explicit-None-value'
@@ -173,7 +200,7 @@ class SimpleSelectField(Field):
                 id='{}_{}'.format(self.name, i),
                 value=choice,
                 label=str(choice).title(),
-                checked=self.data == choice
+                checked=self.data == self.choices.get(choice)
             )
 
     def fill_from_post(self, post_data):
@@ -254,7 +281,7 @@ class DataTypeSelectField(Field):
                 id='{}_{}'.format(self.name, i),
                 value=datatype[2],
                 label=self._prepare_display_name(datatype),
-                checked=self.data == datatype
+                checked=self.data == datatype[2]
             )
 
         if self.has_all_option:
@@ -301,6 +328,16 @@ class DataTypeSelectField(Field):
         display_name += ' - ID:' + str(value[0])
 
         return display_name
+
+    def _from_post(self):
+        if self.unvalidated_data == self.missing_value:
+            self.unvalidated_data = None
+
+        if self.required and not self.unvalidated_data:
+            raise ValueError('Field required')
+
+        # TODO: ensure is in choices
+        self.data = self.unvalidated_data
 
 
 TEMPORARY_PREFIX = ".tmp"
@@ -358,7 +395,8 @@ class TraitField(Field):
             disabled,
             trait_attribute.required,
             label,
-            trait_attribute.doc
+            trait_attribute.doc,
+            trait_attribute.default
         )
 
 

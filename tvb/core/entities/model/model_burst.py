@@ -147,10 +147,6 @@ class BurstConfiguration(Base, Exportable):
         """
         From dictionary, compose JSON string for DB storage of burst configuration parameters.
         """
-        from tvb.basic.traits.types_basic import MapAsJson
-
-        self._simulator_configuration = json.dumps(self.simulator_configuration, cls=MapAsJson.MapAsJsonEncoder)
-        self._dynamic_ids = json.dumps(self.dynamic_ids)
         self.start_time = datetime.now()
 
 

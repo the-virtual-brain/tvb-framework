@@ -44,6 +44,7 @@ import os
 import uuid
 import numpy
 from tvb.datatypes.connectivity import Connectivity
+from tvb.simulator.monitors import Projection
 from tvb.simulator.simulator import Simulator
 from tvb.adapters.simulator.coupling_forms import get_ui_name_to_coupling_dict
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
@@ -72,6 +73,7 @@ class SimulatorAdapterForm(ABCAdapterForm):
         self.coupling.template = 'select_field.jinja2'
         self.conduction_speed = FloatField(Simulator.conduction_speed, self)
         self.ordered_fields = (self.connectivity, self.conduction_speed, self.coupling)
+        self.range_params = [Simulator.connectivity, Simulator.conduction_speed]
         self.is_copy = is_copy
 
     def fill_from_trait(self, trait):
@@ -137,6 +139,11 @@ class SimulatorAdapter(ABCAsynchronous):
 
         simulator_service = SimulatorService()
         self.algorithm, connectivity_gid = simulator_service.deserialize_simulator(simulator_gid, self.storage_path)
+
+        # for monitor in self.algorithm.monitors:
+        #     if issubclass(monitor, Projection):
+        #         # TODO: add a service that loads a RM with Surface and Connectivity
+        #         pass
 
         connectivity_index = dao.get_datatype_by_gid(connectivity_gid.hex)
         dir_loader = DirLoader(os.path.join(os.path.dirname(self.storage_path),
@@ -230,7 +237,7 @@ class SimulatorAdapter(ABCAsynchronous):
         start_time = self.algorithm.current_step * self.algorithm.integrator.dt
 
         self.algorithm.configure(full_configure=False)
-        # TODO: handle SimulationState
+        # TODO: check whether SimulationState GID exists in SimulatorConfig H5 and load it
         # if simulation_state is not None:
         #     simulation_state.fill_into(self.algorithm)
 
@@ -287,8 +294,16 @@ class SimulatorAdapter(ABCAsynchronous):
 
         self.log.debug("Completed simulation, starting to store simulation state ")
         ### Populate H5 file for simulator state. This step could also be done while running sim, in background.
+        # TODO: generate SimState and persist as H5 for each sim
         # if not self._is_group_launch():
+        #     simulation_state_index = SimulationStateIndex()
+        #     simulation_state = SimulationState()
+        #     simulation_state.gid = simulation_state_index.gid
         #     simulation_state.populate_from(self.algorithm)
+        #
+        #     simulation_state_path = dir_loader.path_for(SimulationStateH5, uuid.UUID(simulation_state_index.gid))
+        #     with SimulationStateH5(simulation_state_path) as simulation_state_h5:
+        #         simulation_state_h5.store(simulation_state)
         #     self._capture_operation_results([simulation_state])
 
         self.log.debug("Simulation state persisted, returning results ")

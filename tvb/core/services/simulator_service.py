@@ -1,3 +1,4 @@
+import copy
 import json
 import uuid
 import os
@@ -5,10 +6,14 @@ from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.connectivity import Connectivity
 from tvb.simulator.simulator import Simulator
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
+from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.simulator.simulator_h5 import SimulatorH5
+from tvb.core.entities.model.model_datatype import DataTypeGroup
 from tvb.core.entities.model.model_operation import Operation
+from tvb.core.entities.model.simulator.simulator import SimulatorIndex
 from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
+from tvb.core.services.burst_service2 import BurstService2
 from tvb.core.services.operation_service import OperationService
 from tvb.core.neocom.h5 import DirLoader
 
@@ -21,6 +26,7 @@ class SimulatorService(object):
     def __init__(self):
         self.logger = get_logger(self.__class__.__module__)
         self.operation_service = OperationService()
+        self.files_helper = FilesHelper()
 
     def serialize_simulator(self, simulator, simulator_gid, storage_path):
         dir_loader = DirLoader(storage_path)
@@ -78,3 +84,68 @@ class SimulatorService(object):
         # TODO: prepare portlets/handle operation groups/no workflows
 
         return operation
+
+
+    def _set_simulator_range_parameter(self, simulator, range_parameter_name, range_parameter_value):
+        range_param_name_list = range_parameter_name.split('.')
+        current_attr = simulator
+        for param_name in range_param_name_list[:len(range_param_name_list) - 1]:
+            current_attr = getattr(current_attr, param_name)
+        setattr(current_attr, range_param_name_list[-1], range_parameter_value)
+
+    def async_launch_and_prepare(self, burst_config, user, project, simulator_algo, range_param1, range_param2,
+                                 session_stored_simulator):
+        try:
+            simulator_id = simulator_algo.id
+            algo_category = simulator_algo.algorithm_category
+            simulator_index = burst_config.simulator
+            operation_group = burst_config.operation_group
+            metric_operation_group = burst_config.metric_operation_group
+            operations = []
+            range_param2_values = []
+            if range_param2:
+                range_param2_values = range_param2.get_range_values()
+            for param1_value in range_param1.get_range_values():
+                for param2_value in range_param2_values:
+                    simulator = copy.deepcopy(session_stored_simulator)
+                    self._set_simulator_range_parameter(simulator, range_param1.name, param1_value)
+                    self._set_simulator_range_parameter(simulator, range_param2.name, param2_value)
+
+                    operation = self._prepare_operation(burst_config.id, project.id, user.id, simulator_id,
+                                                        simulator_index, algo_category, operation_group)
+
+                    simulator_index.fk_from_operation = operation.id
+                    dao.store_entity(simulator_index)
+
+                    storage_path = self.files_helper.get_project_folder(project, str(operation.id))
+                    self.serialize_simulator(simulator, simulator_index.gid, storage_path)
+                    operations.append(operation)
+
+                    # TODO: will create an extra SimulatorIndex. Keep SimIndex?
+                    simulator_index = SimulatorIndex()
+                    simulator_index = dao.store_entity(simulator_index)
+
+            first_operation = operations[0]
+            datatype_group = DataTypeGroup(operation_group, operation_id=first_operation.id,
+                                           fk_parent_burst=burst_config.id,
+                                           state=json.loads(first_operation.meta_data)[DataTypeMetaData.KEY_STATE])
+            dao.store_entity(datatype_group)
+
+            metrics_datatype_group = DataTypeGroup(metric_operation_group, fk_parent_burst=burst_config.id)
+            dao.store_entity(metrics_datatype_group)
+
+            wf_errs = 0
+            for operation in operations:
+                try:
+                    OperationService().launch_operation(operation.id, True)
+                except Exception as excep:
+                    self.logger.error(excep)
+                    wf_errs += 1
+                    BurstService2().mark_burst_finished(burst_config, error_message=str(excep))
+
+            self.logger.debug("Finished launching workflows. " + str(len(operations) - wf_errs) +
+                              " were launched successfully, " + str(wf_errs) + " had error on pre-launch steps")
+
+        except Exception as excep:
+            self.logger.error(excep)
+            BurstService2().mark_burst_finished(burst_config, error_message=str(excep))

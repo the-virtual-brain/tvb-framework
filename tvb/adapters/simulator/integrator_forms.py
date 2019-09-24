@@ -70,6 +70,10 @@ class IntegratorStochasticForm(IntegratorForm):
         super(IntegratorStochasticForm, self).fill_trait(datatype)
         datatype.noise = self.noise.data()
 
+    def fill_from_trait(self, trait):
+        # type: (Integrator) -> None
+        self.noise.data = trait.noise.__class__
+
 class HeunDeterministicIntegratorForm(IntegratorForm):
 
     def __init__(self, prefix=''):

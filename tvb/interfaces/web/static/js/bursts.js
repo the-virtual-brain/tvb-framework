@@ -1157,21 +1157,10 @@ function fill_burst_name(burstName, isReadOnly, addPrefix) {
     user_edited_title = false;
 }
 
-/*
- * Get the data from the simulator and launch a new burst. On success add a new entry in the burst-history.
- * @param launchMode: 'new' 'branch' or 'continue'
- */
-function launchNewBurst(launchMode) {
-    let newBurstName = document.getElementById('_input-simulation-name-id').value;
-    if (newBurstName.length === 0) {
-        newBurstName = "none_undefined";
-    }
-    displayMessage("You've submitted parameters for simulation launch! Please wait for preprocessing steps...", 'warningMessage');
-    // const submitableData = getSubmitableData('div-simulator-parameters', false);
+function setupPSE() {
     doAjaxCall({
         type: "POST",
-        url: '/burst/launch_simulation/' + launchMode + '/' + newBurstName,
-        // data: {'simulator_parameters': JSON.stringify(submitableData)},
+        url: '/burst/setup_pse/',
         traditional: true,
         success: function (r) {
             // TODO: update history
@@ -1190,6 +1179,34 @@ function launchNewBurst(launchMode) {
     });
 }
 
+/*
+ * Get the data from the simulator and launch a new burst. On success add a new entry in the burst-history.
+ * @param launchMode: 'new' 'branch' or 'continue'
+ */
+function launchNewBurst(launchMode) {
+    let newBurstName = document.getElementById('_input-simulation-name-id').value;
+    if (newBurstName.length === 0) {
+        newBurstName = "none_undefined";
+    }
+    displayMessage("You've submitted parameters for simulation launch! Please wait for preprocessing steps...", 'warningMessage');
+    // const submitableData = getSubmitableData('div-simulator-parameters', false);
+    doAjaxCall({
+        type: "POST",
+        url: '/burst/launch_simulation/' + launchMode + '/' + newBurstName,
+        // data: {'simulator_parameters': JSON.stringify(submitableData)},
+        traditional: true,
+        success: function (response) {
+            fieldset.disabled = true;
+            var t = document.createRange().createContextualFragment(response);
+            document.getElementById('div-simulator-parameters').appendChild(t);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "div-simulator-parameters"]);
+        },
+        error: function () {
+            displayMessage("Error when launching simulation. Please check te logs or contact your administrator.", "errorMessage");
+        }
+    });
+}
+
 
 function previousWizzardStep(currentForm, previous_action) {
     document.getElementById('div-simulator-parameters').removeChild(currentForm);
@@ -1201,7 +1218,9 @@ function previousWizzardStep(currentForm, previous_action) {
     var config_surface_param_button = previous_form.elements.namedItem('configSurfaceModelParam');
     var fieldset = previous_form.elements[0];
 
-    next_button.style.visibility = 'visible';
+    if (next_button != null) {
+        next_button.style.visibility = 'visible';
+    }
     if (previous_button != null) {
         previous_button.style.visibility = 'visible';
     }
@@ -1230,7 +1249,9 @@ function wizzard_submit(currentForm) {
         type: request_method,
         data: form_data,
         success: function (response) {
-            next_button.style.visibility = 'hidden';
+            if (next_button != null) {
+                next_button.style.visibility = 'hidden';
+            }
             if (previous_button != null) {
                 previous_button.style.visibility = 'hidden';
             }

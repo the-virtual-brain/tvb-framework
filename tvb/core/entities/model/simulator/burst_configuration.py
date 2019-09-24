@@ -39,6 +39,10 @@ class BurstConfiguration2(HasTraitsIndex):
     operation_group = relationship(OperationGroup, foreign_keys=operation_group_id,
                                    primaryjoin=OperationGroup.id == operation_group_id, cascade='none')
 
+    metric_operation_group_id = Column(Integer, ForeignKey('OPERATION_GROUPS.id'), nullable=True)
+    metric_operation_group = relationship(OperationGroup, foreign_keys=metric_operation_group_id,
+                                   primaryjoin=OperationGroup.id == metric_operation_group_id, cascade='none')
+
     def __init__(self, project_id, simulator_id=None, status="running", name=None):
         self.fk_project = project_id
         self.simulator_id = simulator_id

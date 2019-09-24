@@ -44,6 +44,8 @@ The results of the computation will be stored by the adapter itself.
 
 import sys
 from tvb.basic.profile import TvbProfile
+from tvb.adapters.simulator.simulator_adapter import SimulatorAdapter
+from tvb.core.services.burst_service2 import BurstService2
 
 if __name__ == '__main__':
     TvbProfile.set_profile(sys.argv[2], True)
@@ -53,7 +55,6 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
 from tvb.core.utils import parse_json_parameters
 from tvb.core.services.operation_service import OperationService
-from tvb.core.services.workflow_service import WorkflowService
 from tvb.adapters.simulator.simulator_adapter import SimulatorAdapter
 
 
@@ -90,7 +91,7 @@ def do_operation_launch(operation_id):
         log.exception(excep)
         parent_burst = dao.get_burst_for_operation_id(operation_id)
         if parent_burst is not None:
-            WorkflowService().mark_burst_finished(parent_burst, error_message=str(excep))
+            BurstService2().mark_burst_finished(parent_burst, error_message=str(excep))
 
 
 if __name__ == '__main__':

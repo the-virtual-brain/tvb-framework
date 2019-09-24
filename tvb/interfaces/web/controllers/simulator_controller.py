@@ -29,6 +29,7 @@
 #
 import copy
 import json
+import threading
 import cherrypy
 import datetime
 from tvb.datatypes.cortex import Cortex
@@ -42,10 +43,11 @@ from tvb.simulator.simulator import Simulator
 from tvb.adapters.simulator.equation_forms import get_form_for_equation
 from tvb.adapters.simulator.model_forms import get_form_for_model
 from tvb.adapters.simulator.noise_forms import get_form_for_noise
+from tvb.adapters.simulator.range_parameter import SimulatorRangeParameters
 from tvb.adapters.simulator.simulator_adapter import SimulatorAdapterForm
 from tvb.adapters.simulator.simulator_fragments import SimulatorSurfaceFragment, SimulatorStimulusFragment, \
     SimulatorModelFragment, SimulatorIntegratorFragment, SimulatorMonitorFragment, SimulatorLengthFragment, \
-    SimulatorRMFragment, SimulatorFinalFragment
+    SimulatorRMFragment, SimulatorFinalFragment, SimulatorPSEConfigurationFragment, SimulatorPSEParamRangeFragment
 from tvb.adapters.simulator.monitor_forms import get_form_for_monitor
 from tvb.adapters.simulator.integrator_forms import get_form_for_integrator
 from tvb.adapters.simulator.coupling_forms import get_form_for_coupling
@@ -54,10 +56,12 @@ from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.model.model_operation import OperationGroup
 from tvb.core.entities.model.simulator.burst_configuration import BurstConfiguration2
 from tvb.core.entities.model.simulator.simulator import SimulatorIndex
 from tvb.core.entities.storage import dao
 from tvb.core.services.burst_service import BurstService
+from tvb.core.services.exceptions import BurstServiceException
 from tvb.core.services.introspector_registry import IntrospectionRegistry
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.simulator_service import SimulatorService
@@ -93,6 +97,7 @@ class SimulatorController(BurstBaseController):
 
     def __init__(self):
         BurstBaseController.__init__(self)
+        self.range_parameters = SimulatorRangeParameters()
         self.burst_service = BurstService()
         self.files_helper = FilesHelper()
         self.cached_simulator_algorithm = self.flow_service.get_algorithm_by_module_and_class(
@@ -176,6 +181,7 @@ class SimulatorController(BurstBaseController):
             session_stored_simulator.coupling = coupling()
 
         next_form = get_form_for_coupling(type(session_stored_simulator.coupling))()
+        self.range_parameters.coupling_parameters = next_form.get_range_parameters()
         next_form.fill_from_trait(session_stored_simulator.coupling)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
@@ -346,6 +352,7 @@ class SimulatorController(BurstBaseController):
             session_stored_simulator.model = form.model.value()
 
         form = get_form_for_model(type(session_stored_simulator.model))()
+        self.range_parameters.model_parameters = form.get_range_parameters()
         form.fill_from_trait(session_stored_simulator.model)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
@@ -442,6 +449,7 @@ class SimulatorController(BurstBaseController):
 
         # TODO: Check whether integrator is stochastic
         integrator_noise_fragment = get_form_for_noise(type(session_stored_simulator.integrator.noise))()
+        self.range_parameters.integrator_noise_parameters = integrator_noise_fragment.get_range_parameters()
         integrator_noise_fragment.fill_from_trait(session_stored_simulator.integrator.noise)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
@@ -639,11 +647,102 @@ class SimulatorController(BurstBaseController):
         next_form = SimulatorFinalFragment()
 
         dict_to_render[self.FORM_KEY] = next_form
-        dict_to_render[self.ACTION_KEY] = ''
+        dict_to_render[self.ACTION_KEY] = '/burst/setup_pse'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_simulation_length'
         dict_to_render[self.IS_COPY] = is_simulator_copy
         dict_to_render[self.IS_LAST_FRAGMENT_KEY] = True
         return dict_to_render
+
+    @cherrypy.expose
+    @using_jinja_template("wizzard_form")
+    @handle_error(redirect=False)
+    @check_user
+    def setup_pse(self, **data):
+        next_form = SimulatorPSEConfigurationFragment(self.range_parameters.get_all_range_parameters())
+
+        dict_to_render = copy.deepcopy(self.dict_to_render)
+        dict_to_render[self.FORM_KEY] = next_form
+        dict_to_render[self.ACTION_KEY] = '/burst/set_pse_params'
+        dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_simulation_length'
+        return dict_to_render
+
+    @cherrypy.expose
+    @using_jinja_template("wizzard_form")
+    @handle_error(redirect=False)
+    @check_user
+    def set_pse_params(self, **data):
+        form = SimulatorPSEConfigurationFragment(self.range_parameters.get_all_range_parameters())
+        form.fill_from_post(data)
+
+        param1 = form.pse_param1.value
+        param2 = None
+        if not form.pse_param2.value == form.pse_param2.missing_value:
+            param2 = form.pse_param2.value
+
+        project_id = common.get_current_project().id
+        next_form = SimulatorPSEParamRangeFragment(param1, param2, project_id=project_id)
+
+        dict_to_render = copy.deepcopy(self.dict_to_render)
+        dict_to_render[self.FORM_KEY] = next_form
+        dict_to_render[self.ACTION_KEY] = '/burst/launch_pse'
+        dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_pse_params'
+        return dict_to_render
+
+
+    @cherrypy.expose
+    @handle_error(redirect=False)
+    @check_user
+    def launch_pse(self, **data):
+        # TODO: Split into: set range values and Launch, show message with finished config and nr of simulations
+        all_range_parameters = self.range_parameters.get_all_range_parameters()
+        range_param1, range_param2 = SimulatorPSEParamRangeFragment.fill_from_post(all_range_parameters, **data)
+        session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
+
+        project = common.get_current_project()
+        user = common.get_logged_user()
+
+        simulator_index = SimulatorIndex()
+        simulator_index = dao.store_entity(simulator_index)
+
+        burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
+        burst_config.simulator_id = simulator_index.id
+        burst_config.simulator = simulator_index
+        burst_config.start_time = datetime.datetime.now()
+        # if burst_name != 'none_undefined':
+        #     burst_config.name = burst_name
+
+        # TODO: branch simulation name is different
+        if burst_config.name is None:
+            new_id = dao.get_max_burst_id() + 1
+            burst_config.name = 'simulation_' + str(new_id)
+
+
+        simulator_service = SimulatorService()
+        operation_group = OperationGroup(project.id, ranges=[range_param1.to_json(), range_param2.to_json()])
+        operation_group = dao.store_entity(operation_group)
+
+        metric_operation_group = OperationGroup(project.id, ranges=[range_param1.to_json(), range_param2.to_json()])
+        metric_operation_group = dao.store_entity(metric_operation_group)
+
+        burst_config.operation_group = operation_group
+        burst_config.operation_group_id = operation_group.id
+        burst_config.metric_operation_group = metric_operation_group
+        burst_config.metric_operation_group_id = metric_operation_group.id
+        dao.store_entity(burst_config)
+
+        try:
+            thread = threading.Thread(target=simulator_service.async_launch_and_prepare,
+                                  kwargs={'burst_config': burst_config,
+                                          'user': user,
+                                          'project': project,
+                                          'simulator_algo': self.cached_simulator_algorithm,
+                                          'range_param1': range_param1,
+                                          'range_param2': range_param2,
+                                          'session_stored_simulator': session_stored_simulator})
+            thread.start()
+        except BurstServiceException as e:
+            self.logger.exception("Could not launch burst!")
+            return {'error': e.message}
 
     @expose_json
     def launch_simulation(self, launch_mode, burst_name):
