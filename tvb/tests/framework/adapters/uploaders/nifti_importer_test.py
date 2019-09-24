@@ -96,12 +96,11 @@ class TestNIFTIImporter(TransactionalTestCase):
         assert result is not None, "Result should not be none"
         return result
 
-
-    def test_import_demo_ts(self, datatypesFactory):
+    def test_import_demo_ts(self, datatype_factory):
         """
         This method tests import of a NIFTI file.
         """
-        time_series = self._import(datatypesFactory['user'], datatypesFactory['project'], self.TIMESERIES_NII_FILE, TimeSeriesVolume)
+        time_series = self._import(datatype_factory['user'], datatype_factory['project'], self.TIMESERIES_NII_FILE, TimeSeriesVolume)
 
         # Since self.assertAlmostEquals is not available on all machine
         # We compare floats as following
@@ -123,12 +122,11 @@ class TestNIFTIImporter(TransactionalTestCase):
         assert numpy.equal(self.DEFAULT_ORIGIN, volume.origin).all()
         assert "mm" == volume.voxel_unit
 
-
-    def test_import_nii_without_time_dimension(self, datatypesFactory):
+    def test_import_nii_without_time_dimension(self, datatype_factory):
         """
         This method tests import of a NIFTI file.
         """
-        structure = self._import(datatypesFactory['user'], datatypesFactory['project'], self.NII_FILE)
+        structure = self._import(datatype_factory['user'], datatype_factory['project'], self.NII_FILE)
         assert "T1" == structure.weighting
 
         data_shape = structure.array_data.shape
@@ -143,23 +141,21 @@ class TestNIFTIImporter(TransactionalTestCase):
         assert numpy.equal([3.0, 3.0, 3.0], volume.voxel_size).all()
         assert self.UNKNOWN_STR == volume.voxel_unit
 
-
-    def test_import_nifti_compressed(self, datatypesFactory):
+    def test_import_nifti_compressed(self, datatype_factory):
         """
         This method tests import of a NIFTI file compressed in GZ format.
         """
-        structure = self._import(datatypesFactory['user'], datatypesFactory['project'], self.GZ_NII_FILE)
+        structure = self._import(datatype_factory['user'], datatype_factory['project'], self.GZ_NII_FILE)
         assert "T1" == structure.weighting
 
-
-    def test_import_region_mapping(self, connectivityFactory, datatypesFactory):
+    def test_import_region_mapping(self, connectivity_factory, datatype_factory):
         """
         This method tests import of a NIFTI file compressed in GZ format.
         """
-        to_link_conn = connectivityFactory[1]
+        to_link_conn = connectivity_factory[1]
         cidx = ConnectivityIndex()
         cidx.fill_from_has_traits(to_link_conn)
-        mapping = self._import(datatypesFactory['user'], datatypesFactory['project'], self.GZ_NII_FILE, RegionVolumeMapping, cidx)
+        mapping = self._import(datatype_factory['user'], datatype_factory['project'], self.GZ_NII_FILE, RegionVolumeMapping, cidx)
 
         assert -1 <= mapping.array_data.min()
         assert mapping.array_data.max() < to_link_conn.number_of_regions
@@ -174,13 +170,13 @@ class TestNIFTIImporter(TransactionalTestCase):
         assert numpy.equal([3.0, 3.0, 3.0], volume.voxel_size).all()
         assert self.UNKNOWN_STR == volume.voxel_unit
 
-    def test_import_wrong_nii_file(self, datatypesFactory):
+    def test_import_wrong_nii_file(self, datatype_factory):
 
         """ 
         This method tests import of a file in a wrong format
         """
         try:
-            self._import(datatypesFactory['user'], datatypesFactory['project'], self.WRONG_NII_FILE)
+            self._import(datatype_factory['user'], datatype_factory['project'], self.WRONG_NII_FILE)
             raise AssertionError("Import should fail in case of a wrong NIFTI format.")
         except OperationException:
             # Expected exception

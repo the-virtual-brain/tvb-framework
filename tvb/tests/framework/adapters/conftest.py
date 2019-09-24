@@ -60,7 +60,7 @@ from tvb.tests.framework.adapters.storeadapter import StoreAdapter
 
 
 @pytest.fixture(scope='session')
-def defineAttributes(request):
+def define_attributes():
 
     return dict(USER_FULL_NAME="Datatype Factory User", DATATYPE_STATE="RAW_DATA",
                 DATATYPE_DATA=["test", "for", "datatypes", "factory"], DATATYPE_MEASURE_METRIC={'v': 3},
@@ -68,7 +68,7 @@ def defineAttributes(request):
                 user=None, project=None, operation=None)
 
 @pytest.fixture(scope='session', autouse=True)
-def datatypesFactory(request, defineAttributes):
+def datatype_factory(request, define_attributes):
 
     def setup_method():
 
@@ -100,8 +100,8 @@ def datatypesFactory(request, defineAttributes):
             algorithm = dao.store_entity(ad)
 
         #Create an operation
-        meta = {DataTypeMetaData.KEY_SUBJECT: defineAttributes['USER_FULL_NAME'],
-                 DataTypeMetaData.KEY_STATE: defineAttributes['DATATYPE_STATE']}
+        meta = {DataTypeMetaData.KEY_SUBJECT: define_attributes['USER_FULL_NAME'],
+                 DataTypeMetaData.KEY_STATE: define_attributes['DATATYPE_STATE']}
         operation = dao.store_entity(Operation(user.id, project.id, algorithm.id, 'test parameters',
                                            meta=json.dumps(meta), status=STATUS_FINISHED))
 
@@ -111,12 +111,12 @@ def datatypesFactory(request, defineAttributes):
     return setup_method()
 
 # @pytest.fixture(scope='function')
-# def datatypeStoreFactory(inst=None, subject=defineAttributes.USER_FULL_NAME,
-#                          state=defineAttributes.DATATYPE_STATE, operation_id=None):
+# def datatypeStoreFactory(inst=None, subject=define_attributes.USER_FULL_NAME,
+#                          state=define_attributes.DATATYPE_STATE, operation_id=None):
 #     inst = inst or ValueWrapperIndex()
-#     inst.subject = subject or defineAttributes.USER_FULL_NAME
-#     inst.state = state or defineAttributes.DATATYPE_STATE
-#     inst.fk_from_operation = operation_id or defineAttributes.operation.id
+#     inst.subject = subject or define_attributes.USER_FULL_NAME
+#     inst.state = state or define_attributes.DATATYPE_STATE
+#     inst.fk_from_operation = operation_id or define_attributes.operation.id
 #     inst.type = inst.__class__.__name__
 #     inst.module = inst.__class__.__module__
 #     dao.store_entity(inst)
@@ -124,25 +124,25 @@ def datatypesFactory(request, defineAttributes):
 
 
 @pytest.fixture(scope='module')
-def operationFactory(datatypesFactory):
+def operation_factory(datatype_factory):
     """
     Create a operation entity. Return the operation, algo_id and the storage path.
     """
     meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW_DATA"}
     algorithm = FlowService().get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
                                                                 IntrospectionRegistry.SIMULATOR_CLASS)
-    operation = Operation(datatypesFactory['user'].id, datatypesFactory['project'].id, algorithm.id, json.dumps(''), meta=json.dumps(meta),
+    operation = Operation(datatype_factory['user'].id, datatype_factory['project'].id, algorithm.id, json.dumps(''), meta=json.dumps(meta),
                           status=STATUS_STARTED)
     operation = dao.store_entity(operation)
-    storage_path = FilesHelper().get_project_folder(datatypesFactory['project'], str(operation.id))
+    storage_path = FilesHelper().get_project_folder(datatype_factory['project'], str(operation.id))
     return operation, algorithm.id, storage_path
 
 @pytest.fixture(scope='module')
-def connectivityFactory(operationFactory, nodes=74):
+def connectivity_factory(operation_factory, nodes=74):
     """
     Create a connectivity that will be used in "non-dummy" burst launches (with the actual simulator).
     """
-    operation, algo_id, storage_path = operationFactory
+    operation, algo_id, storage_path = operation_factory
     connectivity = Connectivity()
     connectivity.weights = numpy.ones((nodes, nodes))
     connectivity.centres = numpy.ones((nodes, 3))
@@ -152,21 +152,21 @@ def connectivityFactory(operationFactory, nodes=74):
     return algo_id, connectivity
 
 @pytest.fixture(scope='module')
-def timeSeriesFactory(ts_type=None, sensors=None):
+def time_series_factory(ts_type=None, sensors=None):
     """
             Create a stored TimeSeries entity.
             """
-    operation, _, storage_path = operationFactory
+    operation, _, storage_path = operation_factory
 
     if ts_type == "EEG":
         time_series = TimeSeriesEEG(storage_path=storage_path, sensors=sensors)
     else:
-        rm = dao.get_generic_entity(RegionMapping, connectivityFactory.gid, '_connectivity')
+        rm = dao.get_generic_entity(RegionMapping, connectivity_factory.gid, '_connectivity')
         if len(rm) < 1:
             rm = None
         else:
             rm = rm[0]
-        time_series = TimeSeriesRegion(storage_path=storage_path, connectivity=connectivityFactory, region_mapping=rm)
+        time_series = TimeSeriesRegion(storage_path=storage_path, connectivity=connectivity_factory, region_mapping=rm)
 
     data = numpy.random.random((10, 10, 10, 10))
     time_series.write_data_slice(data)
@@ -183,10 +183,10 @@ def stimulusFactory():
     :return: persisted region Stimuli instance
     """
 
-    operation, _, storage_path = operationFactory
+    operation, _, storage_path = operation_factory
     stimuli_region = StimuliRegion(storage_path=storage_path)
-    stimuli_region.connectivity = connectivityFactory
-    stimuli_region.weight = numpy.random.random((connectivityFactory.number_of_region, 1)).tolist()
+    stimuli_region.connectivity = connectivity_factory
+    stimuli_region.weight = numpy.random.random((connectivity_factory.number_of_region, 1)).tolist()
     stimuli_region.temporal = PulseTrain()
 
     adapter_instance = StoreAdapter([stimuli_region])
@@ -198,8 +198,8 @@ def covarianceFactory():
     """
     :returns: a stored DataType Covariance.
     """
-    operation, _, storage_path = operationFactory
-    covariance = Covariance(storage_path=storage_path, source=timeSeriesFactory)
+    operation, _, storage_path = operation_factory
+    covariance = Covariance(storage_path=storage_path, source=time_series_factory)
     covariance.write_data_slice(numpy.random.random((10, 10, 10)))
     adapter_instance = StoreAdapter([covariance])
     OperationService().initiate_prelaunch(operation, adapter_instance)
@@ -210,9 +210,9 @@ def crossCoherenceFactory():
     """
     :returns: a stored entity of type CoherenceSpectrum
     """
-    operation, _, storage_path = operationFactory
+    operation, _, storage_path = operation_factory
     partial_coh = CoherenceSpectrum(array_data=numpy.random.random((10, 10, 10, 10)), use_storage=False)
-    coherence = CoherenceSpectrum(source=timeSeriesFactory, storage_path=storage_path, frequency=0.1, nfft=256)
+    coherence = CoherenceSpectrum(source=time_series_factory, storage_path=storage_path, frequency=0.1, nfft=256)
     coherence.write_data_slice(partial_coh)
     coherence.close_file()
     adapter_instance = StoreAdapter([coherence])
@@ -224,9 +224,9 @@ def crossCorrelationFactory():
     """
     :returns: `CrossCorrelation` stored entity.
     """
-    operation, _, storage_path = operationFactory
+    operation, _, storage_path = operation_factory
     partial_corr = CrossCorrelation(array_data=numpy.random.random((10, 10, 10, 10, 10)), use_storage=False)
-    crossc = CrossCorrelation(source=timeSeriesFactory, storage_path=storage_path, time=range(10))
+    crossc = CrossCorrelation(source=time_series_factory, storage_path=storage_path, time=range(10))
     crossc.write_data_slice(partial_corr)
     crossc.close_file()
     adapter_instance = StoreAdapter([crossc])
@@ -239,7 +239,7 @@ def surfaceFactory():
     Create a dummy surface entity.
     :returns: (Algorithm Identifier, stored Surface entity)
     """
-    operation, algo_id, storage_path = operationFactory
+    operation, algo_id, storage_path = operation_factory
     surface = CorticalSurface(storage_path=storage_path)
     surface.vertices = numpy.array([[-10, 0, 0],
                                     [0, 0, -10],
@@ -264,9 +264,9 @@ def connectivityMeasureFactory():
     """
     :returns: persisted entity ConnectivityMeasure
     """
-    operation, _, storage_path = operationFactory
+    operation, _, storage_path = operation_factory
     conn_measure = ConnectivityMeasure(storage_path=storage_path)
-    conn_measure.connectivity = connectivityFactory
+    conn_measure.connectivity = connectivity_factory
     adapter_instance = StoreAdapter([conn_measure])
     OperationService().initiate_prelaunch(operation, adapter_instance)
     return conn_measure
@@ -279,7 +279,7 @@ def connectivityMeasureFactory():
 #     if operation is None:
 #         operation, _, storage_path = operationFactory
 #     measure = DatatypeMeasureIndex()
-#     measure.metrics = defineAttributes.DATATYPE_MEASURE_METRIC
+#     measure.metrics = define_attributes.DATATYPE_MEASURE_METRIC
 #     measure.source = analyzed_entity
 #     adapter_instance = StoreAdapter([measure])
 #     OperationService().initiate_prelaunch(operation, adapter_instance, {})
@@ -290,7 +290,7 @@ def icaFactory():
     """
     :returns: persisted entity IndependentComponents
     """
-    operation, _, storage_path = operationFactory
+    operation, _, storage_path = operation_factory
     partial_ts = TimeSeries(use_storage=False)
     partial_ts.data = numpy.random.random((10, 10, 10, 10))
     partial_ica = IndependentComponents(source=partial_ts,
@@ -298,7 +298,7 @@ def icaFactory():
                                         prewhitening_matrix=numpy.random.random((10, 10, 10, 10)),
                                         unmixing_matrix=numpy.random.random((10, 10, 10, 10)),
                                         n_components=10, use_storage=False)
-    ica = IndependentComponents(source=timeSeriesFactory, n_components=10, storage_path=storage_path)
+    ica = IndependentComponents(source=time_series_factory, n_components=10, storage_path=storage_path)
     ica.write_data_slice(partial_ica)
     adapter_instance = StoreAdapter([ica])
     OperationService().initiate_prelaunch(operation, adapter_instance)
@@ -306,32 +306,32 @@ def icaFactory():
 
 #This method uses the create_datatype_with_storage which I have to find somewhere...
 # @pytest.fixture()
-#     def datatypeGroupFactory(datatypesFactory,subject=defineAttributes.USER_FULL_NAME, state=defineAttributes.DATATYPE_STATE, ):
+#     def datatypeGroupFactory(datatype_factory,subject=define_attributes.USER_FULL_NAME, state=define_attributes.DATATYPE_STATE, ):
 #         """
 #         This method creates, stores and returns a DataTypeGroup entity.
 #         """
-#         group = OperationGroup(datatypesFactory.project.id, ranges=[json.dumps(defineAttributes.RANGE_1), json.dumps(defineAttributes.RANGE_2)])
+#         group = OperationGroup(datatype_factory.project.id, ranges=[json.dumps(define_attributes.RANGE_1), json.dumps(define_attributes.RANGE_2)])
 #         group = dao.store_entity(group)
-#         group_ms = OperationGroup(datatypesFactory.project.id, ranges=[json.dumps(defineAttributes.RANGE_1), json.dumps(defineAttributes.RANGE_2)])
+#         group_ms = OperationGroup(datatype_factory.project.id, ranges=[json.dumps(define_attributes.RANGE_1), json.dumps(define_attributes.RANGE_2)])
 #         group_ms = dao.store_entity(group_ms)
 #
-#         datatype_group = DataTypeGroup(group, subject=subject, state=state, operation_id=datatypesFactory.operation.id)
+#         datatype_group = DataTypeGroup(group, subject=subject, state=state, operation_id=datatype_factory.operation.id)
 #         # Set storage path, before setting data
-#         datatype_group.storage_path = datatypesFactory.files_helper.get_project_folder(datatypesFactory.project, str(datatypesFactory.operation.id))
+#         datatype_group.storage_path = datatype_factory.files_helper.get_project_folder(datatype_factory.project, str(datatype_factory.operation.id))
 #         datatype_group = dao.store_entity(datatype_group)
 #
-#         dt_group_ms = DataTypeGroup(group_ms, subject=subject, state=state, operation_id=datatypesFactory.operation.id)
+#         dt_group_ms = DataTypeGroup(group_ms, subject=subject, state=state, operation_id=datatype_factory.operation.id)
 #         # Set storage path, before setting data
-#         dt_group_ms.storage_path = datatypesFactory.files_helper.get_project_folder(datatypesFactory.project, str(datatypesFactory.operation.id))
+#         dt_group_ms.storage_path = datatype_factory.files_helper.get_project_folder(datatype_factory.project, str(datatype_factory.operation.id))
 #         dao.store_entity(dt_group_ms)
 #
 #         # Now create some data types and add them to group
-#         for range_val1 in datatypesFactory.RANGE_1[1]:
-#             for range_val2 in datatypesFactory.RANGE_2[1]:
-#                 operation = Operation(datatypesFactory.user.id, datatypesFactory.project.id, datatypesFactory.algorithm.id, 'test parameters',
-#                                       meta=json.dumps(datatypesFactory.meta), status=STATUS_FINISHED,
-#                                       range_values=json.dumps({datatypesFactory.RANGE_1[0]: range_val1,
-#                                                                datatypesFactory.RANGE_2[0]: range_val2}))
+#         for range_val1 in datatype_factory.RANGE_1[1]:
+#             for range_val2 in datatype_factory.RANGE_2[1]:
+#                 operation = Operation(datatype_factory.user.id, datatype_factory.project.id, datatype_factory.algorithm.id, 'test parameters',
+#                                       meta=json.dumps(datatype_factory.meta), status=STATUS_FINISHED,
+#                                       range_values=json.dumps({datatype_factory.RANGE_1[0]: range_val1,
+#                                                                datatype_factory.RANGE_2[0]: range_val2}))
 #                 operation.fk_operation_group = group.id
 #                 operation = dao.store_entity(operation)
 #                 # datatype = create_datatype_with_storage(operation_id=operation.id)
