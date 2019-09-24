@@ -34,9 +34,14 @@
 import os
 import numpy
 import tvb_data.nifti as demo_data
+from cherrypy._cpreqbody import Part
+from cherrypy.lib.httputil import HeaderMap
+
+from tvb.adapters.uploaders.nifti_importer import NIFTIImporterForm
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
+
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
@@ -57,25 +62,12 @@ class TestNIFTIImporter(TransactionalTestCase):
     GZ_NII_FILE = os.path.join(os.path.dirname(demo_data.__file__), 'minimal.nii.gz')
     TIMESERIES_NII_FILE = os.path.join(os.path.dirname(demo_data.__file__), 'time_series_152.nii.gz')
     WRONG_NII_FILE = os.path.abspath(__file__)
+    TXT_FILE = os.path.join(os.path.dirname(demo_data.__file__), 'text_file.txt')
 
     DEFAULT_ORIGIN = [[0.0, 0.0, 0.0]]
     UNKNOWN_STR = "unknown"
 
-
-    def transactional_setup_method(self):
-        self.datatypeFactory = DatatypesFactory()
-        self.test_project = self.datatypeFactory.get_project()
-        self.test_user = self.datatypeFactory.get_user()
-
-
-    def transactional_teardown_method(self):
-        """
-        Clean-up tests data
-        """
-        FilesHelper().remove_project_structure(self.test_project.name)
-
-
-    def _import(self, import_file_path=None, expected_result_class=StructuralMRI, connectivity=None):
+    def _import(self, test_user, test_project, import_file_path=None, expected_result_class=StructuralMRI, connectivity=None):
         """
         This method is used for importing data in NIFIT format
         :param import_file_path: absolute path of the file to be imported
@@ -83,13 +75,21 @@ class TestNIFTIImporter(TransactionalTestCase):
 
         ### Retrieve Adapter instance 
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.nifti_importer', 'NIFTIImporter')
-        args = {'data_file': import_file_path, DataTypeMetaData.KEY_SUBJECT: "bla bla",
-                'apply_corrections': True, 'connectivity': connectivity}
 
+        form = NIFTIImporterForm()
+        form.fill_from_post({'_data_file': Part(import_file_path, HeaderMap({}), ''),
+                             '_apply_corrections': 'True',
+                             '_connectivity': connectivity,
+                             '_mappings_file': Part(self.TXT_FILE, HeaderMap({}), ''),
+                             '_Data_Subject': 'bla bla'
+                             })
+        form.data_file.data = import_file_path
+        form.mappings_file.data = self.TXT_FILE
+        importer.set_form(form)
         ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
+        FlowService().fire_operation(importer, test_user, test_project.id, **form.get_form_values())
 
-        dts, count = dao.get_values_of_datatype(self.test_project.id, expected_result_class, None)
+        dts, count = dao.get_values_of_datatype(test_project.id, expected_result_class, None)
         assert 1, count == "Project should contain only one data type."
 
         result = ABCAdapter.load_entity_by_gid(dts[0][2])
@@ -97,11 +97,11 @@ class TestNIFTIImporter(TransactionalTestCase):
         return result
 
 
-    def test_import_demo_ts(self):
+    def test_import_demo_ts(self, datatypesFactory):
         """
         This method tests import of a NIFTI file.
         """
-        time_series = self._import(self.TIMESERIES_NII_FILE, TimeSeriesVolume)
+        time_series = self._import(datatypesFactory['user'], datatypesFactory['project'], self.TIMESERIES_NII_FILE, TimeSeriesVolume)
 
         # Since self.assertAlmostEquals is not available on all machine
         # We compare floats as following
@@ -124,11 +124,11 @@ class TestNIFTIImporter(TransactionalTestCase):
         assert "mm" == volume.voxel_unit
 
 
-    def test_import_nii_without_time_dimension(self):
+    def test_import_nii_without_time_dimension(self, datatypesFactory):
         """
         This method tests import of a NIFTI file.
         """
-        structure = self._import(self.NII_FILE)
+        structure = self._import(datatypesFactory['user'], datatypesFactory['project'], self.NII_FILE)
         assert "T1" == structure.weighting
 
         data_shape = structure.array_data.shape
@@ -144,20 +144,22 @@ class TestNIFTIImporter(TransactionalTestCase):
         assert self.UNKNOWN_STR == volume.voxel_unit
 
 
-    def test_import_nifti_compressed(self):
+    def test_import_nifti_compressed(self, datatypesFactory):
         """
         This method tests import of a NIFTI file compressed in GZ format.
         """
-        structure = self._import(self.GZ_NII_FILE)
+        structure = self._import(datatypesFactory['user'], datatypesFactory['project'], self.GZ_NII_FILE)
         assert "T1" == structure.weighting
 
 
-    def test_import_region_mapping(self):
+    def test_import_region_mapping(self, connectivityFactory, datatypesFactory):
         """
         This method tests import of a NIFTI file compressed in GZ format.
         """
-        to_link_conn = self.datatypeFactory.create_connectivity()[1]
-        mapping = self._import(self.GZ_NII_FILE, RegionVolumeMapping, to_link_conn.gid)
+        to_link_conn = connectivityFactory[1]
+        cidx = ConnectivityIndex()
+        cidx.fill_from_has_traits(to_link_conn)
+        mapping = self._import(datatypesFactory['user'], datatypesFactory['project'], self.GZ_NII_FILE, RegionVolumeMapping, cidx)
 
         assert -1 <= mapping.array_data.min()
         assert mapping.array_data.max() < to_link_conn.number_of_regions
@@ -172,16 +174,14 @@ class TestNIFTIImporter(TransactionalTestCase):
         assert numpy.equal([3.0, 3.0, 3.0], volume.voxel_size).all()
         assert self.UNKNOWN_STR == volume.voxel_unit
 
+    def test_import_wrong_nii_file(self, datatypesFactory):
 
-
-    def test_import_wrong_nii_file(self):
         """ 
         This method tests import of a file in a wrong format
         """
         try:
-            self._import(self.WRONG_NII_FILE)
+            self._import(datatypesFactory['user'], datatypesFactory['project'], self.WRONG_NII_FILE)
             raise AssertionError("Import should fail in case of a wrong NIFTI format.")
         except OperationException:
             # Expected exception
             pass
-
