@@ -68,12 +68,9 @@ def define_attributes():
                 user=None, project=None, operation=None)
 
 @pytest.fixture(scope='session', autouse=True)
-def datatype_factory(request, define_attributes):
+def datatype_factory(define_attributes):
 
     def setup_method():
-
-        def teardown_method():
-            FilesHelper().remove_project_structure(project.name)
 
         micro_postfix = "_%d" % int(time.time() * 1000000)
 
@@ -105,7 +102,6 @@ def datatype_factory(request, define_attributes):
         operation = dao.store_entity(Operation(user.id, project.id, algorithm.id, 'test parameters',
                                            meta=json.dumps(meta), status=STATUS_FINISHED))
 
-        request.addfinalizer(teardown_method)
         return dict(project=project, operation=operation, user=user, files_helper=files_helper, algorithm=algorithm, meta=meta)
 
     return setup_method()

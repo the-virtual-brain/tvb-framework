@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -33,6 +33,9 @@
 """
 
 import os
+from cherrypy._cpreqbody import Part
+from cherrypy.lib.httputil import HeaderMap
+from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.exceptions import OperationException
@@ -41,7 +44,6 @@ from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.adapters.uploaders.sensors_importer import SensorsImporter
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 import tvb_data.sensors as demo_data
 
 
@@ -57,9 +59,8 @@ class TestSensorsImporter(TransactionalTestCase):
         Sets up the environment for running the tests;
         creates a test user, a test project and a `Sensors_Importer`
         """
-        self.datatypeFactory = DatatypesFactory()
-        self.test_project = self.datatypeFactory.get_project()
-        self.test_user = self.datatypeFactory.get_user()
+        self.test_user = TestFactory.create_user('Sensors_User')
+        self.test_project = TestFactory.create_project(self.test_user, "Sensors_Project")
         self.importer = SensorsImporter()
 
     def transactional_teardown_method(self):
@@ -74,13 +75,20 @@ class TestSensorsImporter(TransactionalTestCase):
         :param import_file_path: absolute path of the file to be imported
         """
 
-        ### Retrieve Adapter instance 
+        ### Retrieve Adapter instance
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.sensors_importer', 'Sensors_Importer')
 
-        args = {'sensors_file': import_file_path, 'sensors_type': sensors_type}
+        form = SensorsImporterForm()
+        form.fill_from_post({'_sensors_file': Part(import_file_path, HeaderMap({}), ''),
+                             '_sensors_type': sensors_type,
+                             '_Data_Subject': 'John Doe'
+                            })
+        form.sensors_file.data = import_file_path
+        importer.set_form(form)
+
 
         ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
+        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
 
         data_types = FlowService().get_available_datatypes(self.test_project.id,
                                                            expected_data.module + "." + expected_data.type)[0]
@@ -95,7 +103,7 @@ class TestSensorsImporter(TransactionalTestCase):
         """
         This method tests import of a file containing EEG sensors.
         """
-        eeg_sensors = self._import(self.EEG_FILE, self.importer.EEG_SENSORS, SensorsEEG())
+        eeg_sensors = self._import(self.EEG_FILE, SensorsEEG.sensors_type.default, SensorsIndex())
 
         expected_size = 62
         assert eeg_sensors.labels is not None
@@ -108,7 +116,7 @@ class TestSensorsImporter(TransactionalTestCase):
         """
         This method tests import of a file containing MEG sensors.
         """
-        meg_sensors = self._import(self.MEG_FILE, self.importer.MEG_SENSORS, SensorsMEG())
+        meg_sensors = self._import(self.MEG_FILE, SensorsMEG.sensors_type.default, SensorsIndex())
 
         expected_size = 151
         assert meg_sensors.labels is not None
@@ -125,7 +133,7 @@ class TestSensorsImporter(TransactionalTestCase):
         This method tests import of a file without orientation.
         """
         try:
-            self._import(self.EEG_FILE, self.importer.MEG_SENSORS, SensorsMEG())
+            self._import(self.EEG_FILE, SensorsMEG.sensors_type.default, SensorsIndex())
             raise AssertionError("Import should fail in case of a MEG import without orientation.")
         except OperationException:
             # Expected exception
@@ -135,7 +143,7 @@ class TestSensorsImporter(TransactionalTestCase):
         """
         This method tests import of a file containing internal sensors.
         """
-        internal_sensors = self._import(self.EEG_FILE, self.importer.INTERNAL_SENSORS, SensorsInternal())
+        internal_sensors = self._import(self.EEG_FILE, SensorsInternal.sensors_type.default, SensorsIndex())
 
         expected_size = 62
         assert internal_sensors.labels is not None

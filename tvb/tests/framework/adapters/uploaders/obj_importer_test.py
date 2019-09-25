@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -33,11 +33,12 @@
 """
 
 import os
+from cherrypy._cpreqbody import Part
+from cherrypy.lib.httputil import HeaderMap
+from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporterForm
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.surfaces import FaceSurface, FACE
@@ -54,9 +55,8 @@ class TestObjSurfaceImporter(TransactionalTestCase):
     face = os.path.join(os.path.dirname(tvb_data.obj.__file__), 'face_surface.obj')
 
     def transactional_setup_method(self):
-        self.datatypeFactory = DatatypesFactory()
-        self.test_project = self.datatypeFactory.get_project()
-        self.test_user = self.datatypeFactory.get_user()
+        self.test_user = TestFactory.create_user('Obj_Importer_User')
+        self.test_project = TestFactory.create_project(self.test_user, "Obj_Importer_Project")
 
     def transactional_teardown_method(self):
         FilesHelper().remove_project_structure(self.test_project.name)
@@ -65,12 +65,16 @@ class TestObjSurfaceImporter(TransactionalTestCase):
         ### Retrieve Adapter instance
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.obj_importer', 'ObjSurfaceImporter')
 
-        args = {'data_file': import_file_path,
-                "surface_type": FACE,
-                DataTypeMetaData.KEY_SUBJECT: "John"}
+        form = ObjSurfaceImporterForm()
+        form.fill_from_post({'_data_file': Part(import_file_path, HeaderMap({}), ''),
+                             '_surface_type': FACE,
+                             '_Data_Subject': 'John Doe'
+                            })
+        form.data_file.data = import_file_path
+        importer.set_form(form)
 
         ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
+        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
 
         data_types = FlowService().get_available_datatypes(self.test_project.id, FaceSurface)[0]
         assert 1, len(data_types) == "Project should contain only one data type."

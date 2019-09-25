@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and 
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
 # Web-UI helpful to run brain-simulations. To use it, you also need do download
 # TheVirtualBrain-Scientific Package (for simulators). See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
@@ -33,11 +33,13 @@
 """
 
 import os
+from cherrypy._cpreqbody import Part
+from cherrypy.lib.httputil import HeaderMap
+from tvb.adapters.uploaders.zip_surface_importer import ZIPSurfaceImporterForm
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.datatypes.surfaces import SkullSkin, OUTER_SKULL
@@ -54,9 +56,8 @@ class TestZIPSurfaceImporter(TransactionalTestCase):
 
 
     def transactional_setup_method(self):
-        self.datatypeFactory = DatatypesFactory()
-        self.test_project = self.datatypeFactory.get_project()
-        self.test_user = self.datatypeFactory.get_user()
+        self.test_user = TestFactory.create_user('Zip_Surface_User')
+        self.test_project = TestFactory.create_project(self.test_user, 'Zip_Surface_Project')
 
 
     def transactional_teardown_method(self):
@@ -66,26 +67,32 @@ class TestZIPSurfaceImporter(TransactionalTestCase):
     def _importSurface(self, import_file_path=None):
         ### Retrieve Adapter instance
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.zip_surface_importer', 'ZIPSurfaceImporter')
-        args = {'uploaded': import_file_path, 'surface_type': OUTER_SKULL,
-                'zero_based_triangles': True,
-                DataTypeMetaData.KEY_SUBJECT: "John"}
+
+        form = ZIPSurfaceImporterForm()
+        form.fill_from_post({'_uploaded': Part(import_file_path, HeaderMap({}), ''),
+                             '_zero_based_triangles': 'True',
+                             '_should_center': 'True',
+                             '_surface_type': OUTER_SKULL,
+                             '_Data_Subject': 'John Doe'
+                            })
+        form.uploaded.data=import_file_path
+        importer.set_form(form)
 
         ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **args)
+        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
 
-        data_types = FlowService().get_available_datatypes(self.test_project.id, SkullSkin)[0]
+        data_types = FlowService().get_available_datatypes(self.test_project.id, SurfaceIndex)[0]
         assert 1, len(data_types) == "Project should contain only one data type."
 
         surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
+        surface.user_tag_3 = ''
         assert surface is not None, "Surface should not be None"
         return surface
 
 
     def test_import_surf_zip(self):
         surface = self._importSurface(self.surf_skull)
-        assert 4096 == len(surface.vertices)
         assert 4096 == surface.number_of_vertices
-        assert 8188 == len(surface.triangles)
         assert 8188 == surface.number_of_triangles
         assert '' == surface.user_tag_3
         assert surface.valid_for_simulations

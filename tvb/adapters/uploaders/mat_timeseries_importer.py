@@ -137,7 +137,6 @@ class MatTimeSeriesImporter(ABCUploader):
             ts, ts_idx, ts_h5 = self.ts_builder[self.tstype](self, data.shape, tstype_parameters)
 
             ts.start_time = start_time
-            ts.sample_period = 1.0 / sampling_rate
             ts.sample_period_unit = 's'
 
             ts_h5.write_time_slice(numpy.r_[:data.shape[0]] * ts.sample_period)
@@ -150,7 +149,7 @@ class MatTimeSeriesImporter(ABCUploader):
             ts_h5.gid.store(uuid.UUID(ts_idx.gid))
             ts_h5.sample_period.store(ts.sample_period)
             ts_h5.sample_period_unit.store(ts.sample_period_unit)
-            ts_h5.sample_rate.store(sampling_rate)
+            ts_h5.sample_rate.store(ts.sample_rate)
             ts_h5.start_time.store(ts.start_time)
             ts_h5.labels_ordering.store(ts.labels_ordering)
             ts_h5.labels_dimensions.store(ts.labels_dimensions)

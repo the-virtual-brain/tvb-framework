@@ -239,13 +239,13 @@ def transactional_test(func, callback=None):
                     if hasattr(args[0], 'transactional_setup_method_TVB'):
                         LOGGER.debug(args[0].__class__.__name__ + "->" + func.__name__
                                      + "- Transactional SETUP starting...")
-                        #args[0].transactional_setup_method_TVB()
+                        args[0].transactional_setup_method_TVB()
                     result = func(*args, **kwargs)
                 finally:
                     if hasattr(args[0], 'transactional_teardown_method_TVB'):
                         LOGGER.debug(args[0].__class__.__name__ + "->" + func.__name__
                                      + "- Transactional TEARDOWN starting...")
-                        #args[0].transactional_teardown_method_TVB()
+                        args[0].transactional_teardown_method_TVB()
                         args[0].delete_project_folders()
             finally:
                 session_maker.rollback_transaction()
