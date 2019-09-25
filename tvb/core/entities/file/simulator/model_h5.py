@@ -1,12 +1,7 @@
 import json
 
 import numpy
-from tvb.simulator.models import Epileptor, Epileptor2D, EpileptorCodim3, EpileptorCodim3SlowMod, Hopfield, JansenRit, \
-    ZetterbergJansen, JC_Epileptor, LarterBreakspear, Linear, Generic2dOscillator, Kuramoto, ReducedSetFitzHughNagumo, \
-    ReducedSetHindmarshRose, WilsonCowan, ReducedWongWang, ReducedWongWangExcIOInhI, Zerlaut_adaptation_first_order, \
-    Zerlaut_adaptation_second_order
-from tvb.simulator.models.oscillator import supHopf
-
+from tvb.simulator.models import *
 from tvb.core.entities.file.simulator.configurations_h5 import SimulatorConfigurationH5
 from tvb.core.neotraits._h5accessors import Json
 from tvb.core.neotraits._h5core import DataSet
@@ -199,42 +194,42 @@ class ZetterbergJansenH5(SimulatorConfigurationH5):
         # self.variables_of_interest = Json(ZetterbergJansen.variables_of_interest, self)
 
 
-class JC_EpileptorH5(SimulatorConfigurationH5):
+class EpileptorRestingStateH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(JC_EpileptorH5, self).__init__(path)
-        self.a = DataSet(JC_Epileptor.a, self)
-        self.b = DataSet(JC_Epileptor.b, self)
-        self.c = DataSet(JC_Epileptor.c, self)
-        self.d = DataSet(JC_Epileptor.d, self)
-        self.r = DataSet(JC_Epileptor.r, self)
-        self.s = DataSet(JC_Epileptor.s, self)
-        self.x0 = DataSet(JC_Epileptor.x0, self)
-        self.Iext = DataSet(JC_Epileptor.Iext, self)
-        self.slope = DataSet(JC_Epileptor.slope, self)
-        self.Iext2 = DataSet(JC_Epileptor.Iext2, self)
-        self.tau = DataSet(JC_Epileptor.tau, self)
-        self.aa = DataSet(JC_Epileptor.aa, self)
-        self.bb = DataSet(JC_Epileptor.bb, self)
-        self.Kvf = DataSet(JC_Epileptor.Kvf, self)
-        self.Kf = DataSet(JC_Epileptor.Kf, self)
-        self.Ks = DataSet(JC_Epileptor.Ks, self)
-        self.tt = DataSet(JC_Epileptor.tt, self)
-        self.tau_rs = DataSet(JC_Epileptor.tau_rs, self)
-        self.I_rs = DataSet(JC_Epileptor.I_rs, self)
-        self.a_rs = DataSet(JC_Epileptor.a_rs, self)
-        self.b_rs = DataSet(JC_Epileptor.b_rs, self)
-        self.d_rs = DataSet(JC_Epileptor.d_rs, self)
-        self.e_rs = DataSet(JC_Epileptor.e_rs, self)
-        self.f_rs = DataSet(JC_Epileptor.f_rs, self)
-        self.alpha_rs = DataSet(JC_Epileptor.alpha_rs, self)
-        self.beta_rs = DataSet(JC_Epileptor.beta_rs, self)
-        self.gamma_rs = DataSet(JC_Epileptor.gamma_rs, self)
-        self.K_rs = DataSet(JC_Epileptor.K_rs, self)
-        self.p = DataSet(JC_Epileptor.p, self)
-        self.state_variable_range = Json(JC_Epileptor.state_variable_range, self, json_encoder=StateVariablesEncoder,
+        super(EpileptorRestingStateH5, self).__init__(path)
+        self.a = DataSet(EpileptorRestingState.a, self)
+        self.b = DataSet(EpileptorRestingState.b, self)
+        self.c = DataSet(EpileptorRestingState.c, self)
+        self.d = DataSet(EpileptorRestingState.d, self)
+        self.r = DataSet(EpileptorRestingState.r, self)
+        self.s = DataSet(EpileptorRestingState.s, self)
+        self.x0 = DataSet(EpileptorRestingState.x0, self)
+        self.Iext = DataSet(EpileptorRestingState.Iext, self)
+        self.slope = DataSet(EpileptorRestingState.slope, self)
+        self.Iext2 = DataSet(EpileptorRestingState.Iext2, self)
+        self.tau = DataSet(EpileptorRestingState.tau, self)
+        self.aa = DataSet(EpileptorRestingState.aa, self)
+        self.bb = DataSet(EpileptorRestingState.bb, self)
+        self.Kvf = DataSet(EpileptorRestingState.Kvf, self)
+        self.Kf = DataSet(EpileptorRestingState.Kf, self)
+        self.Ks = DataSet(EpileptorRestingState.Ks, self)
+        self.tt = DataSet(EpileptorRestingState.tt, self)
+        self.tau_rs = DataSet(EpileptorRestingState.tau_rs, self)
+        self.I_rs = DataSet(EpileptorRestingState.I_rs, self)
+        self.a_rs = DataSet(EpileptorRestingState.a_rs, self)
+        self.b_rs = DataSet(EpileptorRestingState.b_rs, self)
+        self.d_rs = DataSet(EpileptorRestingState.d_rs, self)
+        self.e_rs = DataSet(EpileptorRestingState.e_rs, self)
+        self.f_rs = DataSet(EpileptorRestingState.f_rs, self)
+        self.alpha_rs = DataSet(EpileptorRestingState.alpha_rs, self)
+        self.beta_rs = DataSet(EpileptorRestingState.beta_rs, self)
+        self.gamma_rs = DataSet(EpileptorRestingState.gamma_rs, self)
+        self.K_rs = DataSet(EpileptorRestingState.K_rs, self)
+        self.p = DataSet(EpileptorRestingState.p, self)
+        self.state_variable_range = Json(EpileptorRestingState.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                          json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(JC_Epileptor.variables_of_interest, self)
+        # self.variables_of_interest = Json(EpileptorRestingState.variables_of_interest, self)
 
 
 class LarterBreakspearH5(SimulatorConfigurationH5):
@@ -323,15 +318,15 @@ class KuramotoH5(SimulatorConfigurationH5):
         # self.variables_of_interest = Json(Kuramoto.variables_of_interest, self)
 
 
-class supHopfH5(SimulatorConfigurationH5):
+class SupHopfH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(supHopfH5, self).__init__(path)
-        self.a = DataSet(supHopf.a, self)
-        self.omega = DataSet(supHopf.omega, self)
-        self.state_variable_range = Json(supHopf.state_variable_range, self, json_encoder=StateVariablesEncoder,
+        super(SupHopfH5, self).__init__(path)
+        self.a = DataSet(SupHopf.a, self)
+        self.omega = DataSet(SupHopf.omega, self)
+        self.state_variable_range = Json(SupHopf.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                          json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(supHopf.variables_of_interest, self)
+        # self.variables_of_interest = Json(SupHopf.variables_of_interest, self)
 
 
 class ReducedSetFitzHughNagumoH5(SimulatorConfigurationH5):
@@ -422,65 +417,65 @@ class ReducedWongWangH5(SimulatorConfigurationH5):
         # self.variables_of_interest = Json(ReducedWongWang.variables_of_interest, self)
 
 
-class ReducedWongWangExcIOInhIH5(SimulatorConfigurationH5):
+class ReducedWongWangExcInhH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(ReducedWongWangExcIOInhIH5, self).__init__(path)
-        self.a_e = DataSet(ReducedWongWangExcIOInhI.a_e, self)
-        self.b_e = DataSet(ReducedWongWangExcIOInhI.b_e, self)
-        self.d_e = DataSet(ReducedWongWangExcIOInhI.d_e, self)
-        self.gamma_e = DataSet(ReducedWongWangExcIOInhI.gamma_e, self)
-        self.tau_e = DataSet(ReducedWongWangExcIOInhI.tau_e, self)
-        self.w_p = DataSet(ReducedWongWangExcIOInhI.w_p, self)
-        self.J_N = DataSet(ReducedWongWangExcIOInhI.J_N, self)
-        self.W_e = DataSet(ReducedWongWangExcIOInhI.W_e, self)
-        self.a_i = DataSet(ReducedWongWangExcIOInhI.a_i, self)
-        self.b_i = DataSet(ReducedWongWangExcIOInhI.b_i, self)
-        self.d_i = DataSet(ReducedWongWangExcIOInhI.d_i, self)
-        self.gamma_i = DataSet(ReducedWongWangExcIOInhI.gamma_i, self)
-        self.tau_i = DataSet(ReducedWongWangExcIOInhI.tau_i, self)
-        self.J_i = DataSet(ReducedWongWangExcIOInhI.J_i, self)
-        self.W_i = DataSet(ReducedWongWangExcIOInhI.W_i, self)
-        self.I_o = DataSet(ReducedWongWangExcIOInhI.I_o, self)
-        self.G = DataSet(ReducedWongWangExcIOInhI.G, self)
-        self.lamda = DataSet(ReducedWongWangExcIOInhI.lamda, self)
-        self.state_variable_range = Json(ReducedWongWangExcIOInhI.state_variable_range, self,
+        super(ReducedWongWangExcInhH5, self).__init__(path)
+        self.a_e = DataSet(ReducedWongWangExcInh.a_e, self)
+        self.b_e = DataSet(ReducedWongWangExcInh.b_e, self)
+        self.d_e = DataSet(ReducedWongWangExcInh.d_e, self)
+        self.gamma_e = DataSet(ReducedWongWangExcInh.gamma_e, self)
+        self.tau_e = DataSet(ReducedWongWangExcInh.tau_e, self)
+        self.w_p = DataSet(ReducedWongWangExcInh.w_p, self)
+        self.J_N = DataSet(ReducedWongWangExcInh.J_N, self)
+        self.W_e = DataSet(ReducedWongWangExcInh.W_e, self)
+        self.a_i = DataSet(ReducedWongWangExcInh.a_i, self)
+        self.b_i = DataSet(ReducedWongWangExcInh.b_i, self)
+        self.d_i = DataSet(ReducedWongWangExcInh.d_i, self)
+        self.gamma_i = DataSet(ReducedWongWangExcInh.gamma_i, self)
+        self.tau_i = DataSet(ReducedWongWangExcInh.tau_i, self)
+        self.J_i = DataSet(ReducedWongWangExcInh.J_i, self)
+        self.W_i = DataSet(ReducedWongWangExcInh.W_i, self)
+        self.I_o = DataSet(ReducedWongWangExcInh.I_o, self)
+        self.G = DataSet(ReducedWongWangExcInh.G, self)
+        self.lamda = DataSet(ReducedWongWangExcInh.lamda, self)
+        self.state_variable_range = Json(ReducedWongWangExcInh.state_variable_range, self,
                                          json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(ReducedWongWangExcIOInhI.variables_of_interest, self)
+        # self.variables_of_interest = Json(ReducedWongWangExcInh.variables_of_interest, self)
 
 
-class Zerlaut_adaptation_first_orderH5(SimulatorConfigurationH5):
+class ZerlautFirstOrderH5(SimulatorConfigurationH5):
 
     def __init__(self, path):
-        super(Zerlaut_adaptation_first_orderH5, self).__init__(path)
-        self.g_L = DataSet(Zerlaut_adaptation_first_order.g_L, self)
-        self.E_L_e = DataSet(Zerlaut_adaptation_first_order.E_L_e, self)
-        self.E_L_i = DataSet(Zerlaut_adaptation_first_order.E_L_i, self)
-        self.C_m = DataSet(Zerlaut_adaptation_first_order.C_m, self)
-        self.b = DataSet(Zerlaut_adaptation_first_order.b, self)
-        self.tau_w = DataSet(Zerlaut_adaptation_first_order.tau_w, self)
-        self.E_e = DataSet(Zerlaut_adaptation_first_order.E_e, self)
-        self.E_i = DataSet(Zerlaut_adaptation_first_order.E_i, self)
-        self.Q_e = DataSet(Zerlaut_adaptation_first_order.Q_e, self)
-        self.Q_i = DataSet(Zerlaut_adaptation_first_order.Q_i, self)
-        self.tau_e = DataSet(Zerlaut_adaptation_first_order.tau_e, self)
-        self.tau_i = DataSet(Zerlaut_adaptation_first_order.tau_i, self)
-        self.N_tot = DataSet(Zerlaut_adaptation_first_order.N_tot, self)
-        self.p_connect = DataSet(Zerlaut_adaptation_first_order.p_connect, self)
-        self.g = DataSet(Zerlaut_adaptation_first_order.g, self)
-        self.T = DataSet(Zerlaut_adaptation_first_order.T, self)
-        self.P_e = DataSet(Zerlaut_adaptation_first_order.P_e, self)
-        self.P_i = DataSet(Zerlaut_adaptation_first_order.P_i, self)
-        self.external_input = DataSet(Zerlaut_adaptation_first_order.external_input, self)
-        self.state_variable_range = Json(Zerlaut_adaptation_first_order.state_variable_range, self,
+        super(ZerlautFirstOrderH5, self).__init__(path)
+        self.g_L = DataSet(ZerlautFirstOrder.g_L, self)
+        self.E_L_e = DataSet(ZerlautFirstOrder.E_L_e, self)
+        self.E_L_i = DataSet(ZerlautFirstOrder.E_L_i, self)
+        self.C_m = DataSet(ZerlautFirstOrder.C_m, self)
+        self.b = DataSet(ZerlautFirstOrder.b, self)
+        self.tau_w = DataSet(ZerlautFirstOrder.tau_w, self)
+        self.E_e = DataSet(ZerlautFirstOrder.E_e, self)
+        self.E_i = DataSet(ZerlautFirstOrder.E_i, self)
+        self.Q_e = DataSet(ZerlautFirstOrder.Q_e, self)
+        self.Q_i = DataSet(ZerlautFirstOrder.Q_i, self)
+        self.tau_e = DataSet(ZerlautFirstOrder.tau_e, self)
+        self.tau_i = DataSet(ZerlautFirstOrder.tau_i, self)
+        self.N_tot = DataSet(ZerlautFirstOrder.N_tot, self)
+        self.p_connect = DataSet(ZerlautFirstOrder.p_connect, self)
+        self.g = DataSet(ZerlautFirstOrder.g, self)
+        self.T = DataSet(ZerlautFirstOrder.T, self)
+        self.P_e = DataSet(ZerlautFirstOrder.P_e, self)
+        self.P_i = DataSet(ZerlautFirstOrder.P_i, self)
+        self.external_input = DataSet(ZerlautFirstOrder.external_input, self)
+        self.state_variable_range = Json(ZerlautFirstOrder.state_variable_range, self,
                                          json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(Zerlaut_adaptation_first_order.variables_of_interest, self)
+        # self.variables_of_interest = Json(ZerlautFirstOrder.variables_of_interest, self)
 
 
-class Zerlaut_adaptation_second_orderH5(Zerlaut_adaptation_first_orderH5):
+class ZerlautSecondOrderH5(ZerlautFirstOrderH5):
 
     def __init__(self, path):
-        super(Zerlaut_adaptation_second_orderH5, self).__init__(path)
-        self.state_variable_range = Json(Zerlaut_adaptation_second_order.state_variable_range, self,
+        super(ZerlautSecondOrderH5, self).__init__(path)
+        self.state_variable_range = Json(ZerlautSecondOrder.state_variable_range, self,
                                          json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(Zerlaut_adaptation_second_order.variables_of_interest, self)
+        # self.variables_of_interest = Json(ZerlautSecondOrder.variables_of_interest, self)
