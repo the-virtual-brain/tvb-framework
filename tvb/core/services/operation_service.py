@@ -62,6 +62,7 @@ from tvb.core.entities.model.simulator.burst_configuration import BurstConfigura
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.services.burst_service2 import BurstService2
 from tvb.core.services.workflow_service import WorkflowService
 from tvb.core.services.backend_client import BACKEND_CLIENT
 
@@ -413,7 +414,7 @@ class OperationService:
             if not 'SimulatorAdapter' in adapter_instance.__class__.__name__:
                 adapter_form = adapter_instance.get_form()()
                 adapter_form.fill_from_post(parsed_params)
-                adapter_instance.set_form(adapter_form)
+                adapter_instance.submit_form(adapter_form)
 
             if send_to_cluster:
                 self._send_to_cluster([operation], adapter_instance, operation.user.username)
@@ -430,8 +431,7 @@ class OperationService:
         """
         self.logger.exception(message)
         if operation is not None:
-            self.workflow_service.persist_operation_state(operation, STATUS_ERROR, unicode(exception))
-            self.workflow_service.update_executed_workflow_state(operation)
+            BurstService2().persist_operation_state(operation, STATUS_ERROR, unicode(exception))
         self._remove_files(temp_files)
         exception.message = message
         raise exception, None, sys.exc_info()[2]  # when rethrowing in python this is required to preserve the stack trace
