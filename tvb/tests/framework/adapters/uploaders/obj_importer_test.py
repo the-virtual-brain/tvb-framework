@@ -67,7 +67,7 @@ class TestObjSurfaceImporter(TransactionalTestCase):
 
         form = ObjSurfaceImporterForm()
         form.fill_from_post({'_data_file': Part(import_file_path, HeaderMap({}), ''),
-                             '_surface_type': FACE,
+                             '_surface_type': "Face Surface",
                              '_Data_Subject': 'John Doe'
                             })
         form.data_file.data = import_file_path
