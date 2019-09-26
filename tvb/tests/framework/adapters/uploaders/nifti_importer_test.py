@@ -94,7 +94,7 @@ class TestNIFTIImporter(TransactionalTestCase):
                             })
         form.data_file.data = import_file_path
         form.mappings_file.data = self.TXT_FILE
-        importer.set_form(form)
+        importer.submit_form(form)
 
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())

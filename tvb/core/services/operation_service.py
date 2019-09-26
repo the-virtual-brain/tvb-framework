@@ -329,7 +329,7 @@ class OperationService:
                     #     dt_dict = form.get_dict()
                     # if dt_dict is None:
                     #     raise ValueError("Could not build a dict out of this form!")
-                    # adapter_instance.set_form(form)
+                    # adapter_instance.submit_form(form)
                     filtered_kwargs = adapter_instance.get_form().get_form_values()
                 else:
                     # Replace this with a method to retrieve TSI by GID/Keep only GID on kwargs dict

@@ -74,7 +74,7 @@ class TestMatTimeSeriesImporter(TransactionalTestCase):
                              '_Data_Subject': 'John Doe'
                              })
         form.uploaded.data = self.connectivity_path
-        importer.set_form(form)
+        importer.submit_form(form)
 
         ### Launch Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id,
@@ -97,7 +97,7 @@ class TestMatTimeSeriesImporter(TransactionalTestCase):
                               '_tstype_parameters': self.connectivity.gid
                             })
         form.data_file.data = self.bold_path
-        importer.set_form(form)
+        importer.submit_form(form)
 
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_dict())

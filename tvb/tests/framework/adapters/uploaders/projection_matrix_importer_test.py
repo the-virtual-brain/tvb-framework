@@ -98,7 +98,7 @@ class TestProjectionMatrix(TransactionalTestCase):
                              '_Data_Subject': 'John Doe'
                              })
         form.projection_file.data = file_path
-        self.importer.set_form(form)
+        self.importer.submit_form(form)
 
         try:
             FlowService().fire_operation(self.importer, self.test_user, self.test_project.id, **form.get_form_values())
@@ -121,7 +121,7 @@ class TestProjectionMatrix(TransactionalTestCase):
                              '_Data_Subject': 'John Doe'
                              })
         form.projection_file.data = file_path
-        self.importer.set_form(form)
+        self.importer.submit_form(form)
 
         FlowService().fire_operation(self.importer, self.test_user, self.test_project.id, **form.get_form_values())
         dt_count_after = TestFactory.get_entity_count(self.test_project, ProjectionSurfaceEEG())

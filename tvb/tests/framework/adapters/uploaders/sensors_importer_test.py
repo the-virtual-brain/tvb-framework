@@ -84,7 +84,7 @@ class TestSensorsImporter(TransactionalTestCase):
                              '_Data_Subject': 'John Doe'
                             })
         form.sensors_file.data = import_file_path
-        importer.set_form(form)
+        importer.submit_form(form)
 
 
         ### Launch import Operation

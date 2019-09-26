@@ -73,7 +73,7 @@ class TestConnectivityZip(TransactionalTestCase):
                              '_Data_Subject': subject
                              })
         form.uploaded.data = zip_path
-        importer.set_form(form)
+        importer.submit_form(form)
 
         ### Launch Operation
         FlowService().fire_operation(importer, test_user, test_project.id, **form.get_form_values())

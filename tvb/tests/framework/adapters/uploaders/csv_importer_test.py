@@ -108,7 +108,7 @@ class TestCSVConnectivityImporter(TransactionalTestCase):
 
         form.weights.data = weights_tmp
         form.tracts.data = tracts_tmp
-        importer.set_form(form)
+        importer.submit_form(form)
 
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
 
