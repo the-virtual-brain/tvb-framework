@@ -36,6 +36,7 @@ import os
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.adapters.uploaders.region_mapping_importer import RegionMappingImporterForm
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
@@ -43,7 +44,6 @@ from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 import tvb_data.regionMapping as demo_data
 import tvb.tests.framework.adapters.uploaders.test_data as test_data
 from tvb.tests.framework.core.factory import TestFactory
-#from tvb.basic.filters.chain import FilterChain
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.exceptions import OperationException
