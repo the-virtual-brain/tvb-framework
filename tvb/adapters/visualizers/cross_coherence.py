@@ -63,7 +63,7 @@ class CrossCoherenceVisualizerForm(ABCAdapterForm):
         return None
 
 
-class CrossCoherenceVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
+class CrossCoherenceVisualizer(MappedArraySVGVisualizerMixin):
     _ui_name = "Cross Coherence Visualizer"
     _ui_subsection = "coherence"
 

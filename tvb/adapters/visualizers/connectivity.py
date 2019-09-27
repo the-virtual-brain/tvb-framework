@@ -37,20 +37,21 @@ import json
 import math
 import numpy
 from copy import copy
-from tvb.core.entities.filters.chain import FilterChain
-from tvb.datatypes.graph import ConnectivityMeasure
+from tvb.adapters.visualizers.time_series import ABCSpaceDisplayer
 from tvb.adapters.visualizers.surface_view import SurfaceURLGenerator
 from tvb.config import CONNECTIVITY_CREATOR_MODULE, CONNECTIVITY_CREATOR_CLASS
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, SimpleFloatField
 from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity
+from tvb.datatypes.graph import ConnectivityMeasure
 
 
 class ConnectivityViewerForm(ABCAdapterForm):
@@ -107,7 +108,7 @@ class ConnectivityViewerForm(ABCAdapterForm):
         return "_input_data"
 
 
-class ConnectivityViewer(ABCDisplayer):
+class ConnectivityViewer(ABCSpaceDisplayer):
     """ 
     Given a Connectivity Matrix and a Surface data the viewer will display the matrix 'inside' the surface data. 
     The surface is only displayed as a shadow.

@@ -69,7 +69,7 @@ class ICAForm(ABCAdapterForm):
         return '_datatype'
 
 
-class ICA(MappedArraySVGVisualizerMixin, ABCDisplayer):
+class ICA(MappedArraySVGVisualizerMixin):
     _ui_name = "Independent Components Analysis Visualizer"
 
     def get_form_class(self):

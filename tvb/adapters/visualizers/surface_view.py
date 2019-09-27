@@ -33,11 +33,13 @@
 """
 
 import json
+from abc import ABCMeta
 import numpy
+from six import add_metaclass
+from tvb.adapters.visualizers.time_series import ABCSpaceDisplayer
 from tvb.basic.logger.builder import get_logger
-
 from tvb.core.adapters.abcadapter import ABCAdapterForm
-from tvb.core.adapters.abcdisplayer import ABCDisplayer, URLGenerator
+from tvb.core.adapters.abcdisplayer import URLGenerator
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
@@ -160,7 +162,65 @@ class SurfaceViewerForm(BaseSurfaceViewerForm):
         return '_surface'
 
 
-class SurfaceViewer(ABCDisplayer):
+@add_metaclass(ABCMeta)
+class ABCSurfaceDisplayer(ABCSpaceDisplayer):
+
+    def generate_region_boundaries(self, surface_gid, region_mapping_gid):
+        """
+        Return the full region boundaries, including: vertices, normals and lines indices.
+        """
+        boundary_vertices = []
+        boundary_lines = []
+        boundary_normals = []
+
+        surface_h5_class, surface_h5_path = self._load_h5_of_gid(surface_gid)
+        rm_h5_class, rm_h5_path = self._load_h5_of_gid(region_mapping_gid)
+
+        with rm_h5_class(rm_h5_path) as rm_h5:
+            array_data = rm_h5.array_data[:]
+
+        surface_h5 = surface_h5_class(surface_h5_path)
+        for slice_idx in range(surface_h5._number_of_split_slices):
+            # Generate the boundaries sliced for the off case where we might overflow the buffer capacity
+            slice_triangles = surface_h5.get_triangles_slice(slice_idx)
+            slice_vertices = surface_h5.get_vertices_slice(slice_idx)
+            slice_normals = surface_h5.get_vertex_normals_slice(slice_idx)
+            first_index_in_slice = surface_h5.split_slices.load()[str(slice_idx)][KEY_VERTICES][KEY_START]
+            # These will keep track of the vertices / triangles / normals for this slice that have
+            # been processed and were found as a part of the boundary
+            processed_vertices = []
+            processed_triangles = []
+            processed_normals = []
+            for triangle in slice_triangles:
+                triangle += first_index_in_slice
+                # Check if there are two points from a triangles that are in separate regions
+                # then send this to further processing that will generate the corresponding
+                # region separation lines depending on the 3rd point from the triangle
+                rt0, rt1, rt2 = array_data[triangle]
+                if rt0 - rt1:
+                    reg_idx1, reg_idx2, dangling_idx = 0, 1, 2
+                elif rt1 - rt2:
+                    reg_idx1, reg_idx2, dangling_idx = 1, 2, 0
+                elif rt2 - rt0:
+                    reg_idx1, reg_idx2, dangling_idx = 2, 0, 1
+                else:
+                    continue
+
+                lines_vert, lines_ind, lines_norm = Surface._process_triangle(triangle, reg_idx1, reg_idx2,
+                                                                              dangling_idx,
+                                                                              first_index_in_slice, array_data,
+                                                                              slice_vertices, slice_normals)
+                ind_offset = len(processed_vertices) / 3
+                processed_vertices.extend(lines_vert)
+                processed_normals.extend(lines_norm)
+                processed_triangles.extend([ind + ind_offset for ind in lines_ind])
+            boundary_vertices.append(processed_vertices)
+            boundary_lines.append(processed_triangles)
+            boundary_normals.append(processed_normals)
+        return numpy.array([boundary_vertices, boundary_lines, boundary_normals]).tolist()
+
+
+class SurfaceViewer(ABCSurfaceDisplayer):
     """
     Static SurfaceData visualizer - for visual inspecting imported surfaces in TVB.
     Optionally it can display associated RegionMapping entities.

@@ -38,15 +38,17 @@ Backend-side for TS Visualizer of TS Volume DataTypes.
 """
 
 import json
-from tvb.core.entities.filters.chain import FilterChain
+import numpy
 from tvb.adapters.visualizers.region_volume_mapping import _MappedArrayVolumeBase
 from tvb.core.adapters.abcadapter import ABCAdapterForm
-from tvb.core.adapters.abcdisplayer import ABCDisplayer
-from tvb.core.entities.file.datatypes.time_series import TimeSeriesVolumeH5
+from tvb.core.adapters.arguments_serialisation import preprocess_space_parameters, postprocess_voxel_ts
+from tvb.core.entities.filters.chain import FilterChain
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesVolumeH5, TimeSeriesRegionH5
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.entities.storage import dao
 from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.utils import prepare_time_slice
 
 
 class TimeSeriesVolumeVisualiserForm(ABCAdapterForm):
@@ -71,7 +73,7 @@ class TimeSeriesVolumeVisualiserForm(ABCAdapterForm):
         return TimeSeriesIndex
 
 
-class TimeSeriesVolumeVisualiser(ABCDisplayer):
+class TimeSeriesVolumeVisualiser(_MappedArrayVolumeBase):
     _ui_name = "Time Series Volume Visualizer"
     _ui_subsection = "volume"
 
@@ -141,3 +143,59 @@ class TimeSeriesVolumeVisualiser(ABCDisplayer):
 
         url_volume_data = self.build_url('get_volume_view', background_index.gid, '')
         return _MappedArrayVolumeBase.compute_background_params(min_value, max_value, url_volume_data)
+
+
+    def get_voxel_time_series(self, entity_gid, **kwargs):
+        """
+        Retrieve for a given voxel (x,y,z) the entire timeline.
+
+        :param x: int coordinate
+        :param y: int coordinate
+        :param z: int coordinate
+
+        :return: A complex dictionary with information about current voxel.
+                The main part will be a vector with all the values over time from the x,y,z coordinates.
+        """
+
+        ts_h5_class, ts_h5_path = self._load_h5_of_gid(entity_gid)
+
+        with ts_h5_class(ts_h5_path) as ts_h5:
+            if ts_h5_class is TimeSeriesRegionH5:
+                return self._get_voxel_time_series_region(ts_h5, **kwargs)
+
+            return ts_h5.get_voxel_time_series(**kwargs)
+
+    def _get_voxel_time_series_region(self, ts_h5, x, y, z, var=0, mode=0):
+        region_mapping_volume_gid = ts_h5.region_mapping_volume.load()
+        if region_mapping_volume_gid is None:
+            raise Exception("Invalid method called for TS without Volume Mapping!")
+
+        volume_rm_h5_class, volume_rm_h5_path = self._load_h5_of_gid(region_mapping_volume_gid.hex)
+        volume_rm_h5 = volume_rm_h5_class(volume_rm_h5_path)
+
+        volume_rm_shape = volume_rm_h5.array_data.shape
+        x, y, z = preprocess_space_parameters(x, y, z, volume_rm_shape[0], volume_rm_shape[1], volume_rm_shape[2])
+        idx_slices = slice(x, x + 1), slice(y, y + 1), slice(z, z + 1)
+
+        idx = int(volume_rm_h5.array_data[idx_slices])
+
+        time_length = ts_h5.data.shape[0]
+        var, mode = int(var), int(mode)
+        voxel_slices = prepare_time_slice(time_length), slice(var, var + 1), slice(idx, idx + 1), slice(mode, mode + 1)
+
+        connectivity_gid = volume_rm_h5.connectivity.load()
+        connectivity_h5_class, connectivity_h5_path = self._load_h5_of_gid(connectivity_gid.hex)
+        connectivity_h5 = connectivity_h5_class(connectivity_h5_path)
+        label = connectivity_h5.region_labels.load()[idx]
+
+        background, back_min, back_max = None, None, None
+        if idx < 0:
+            back_min, back_max = ts_h5.get_min_max_values()
+            background = numpy.ones((time_length, 1)) * ts_h5.out_of_range(back_min)
+            label = 'background'
+
+        volume_rm_h5.close()
+        connectivity_h5.close()
+
+        result = postprocess_voxel_ts(self, voxel_slices, background, back_min, back_max, label)
+        return result

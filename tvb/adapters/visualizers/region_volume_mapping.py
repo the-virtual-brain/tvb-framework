@@ -35,11 +35,14 @@ Backend-side for Visualizers that display measures on regions in the brain volum
 """
 
 import json
-from tvb.core.entities.filters.chain import FilterChain
-from tvb.core.adapters.arguments_serialisation import slice_str, preprocess_space_parameters, parse_slice
+from abc import ABCMeta
+from six import add_metaclass
+from tvb.core.adapters.arguments_serialisation import *
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesRegionH5
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
@@ -48,6 +51,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.neotraits._forms import DataTypeSelectField, SimpleStrField
 
 
+@add_metaclass(ABCMeta)
 class _MappedArrayVolumeBase(ABCDisplayer):
     """
     Base functionality for all non-temporal volume views.
@@ -188,7 +192,64 @@ class _MappedArrayVolumeBase(ABCDisplayer):
         params.update(self._compute_background(background))
         return params
 
+    def get_volume_view(self, entity_gid, **kwargs):
+        ts_h5_class, ts_h5_path = self._load_h5_of_gid(entity_gid)
+        with ts_h5_class(ts_h5_path) as ts_h5:
+            if ts_h5_class is TimeSeriesRegionH5:
+                return self._get_volume_view_region(ts_h5, **kwargs)
 
+            return ts_h5.get_volume_view(**kwargs)
+
+    def _get_volume_view_region(self, ts_h5, from_idx, to_idx, x_plane, y_plane, z_plane, var=0, mode=0):
+        """
+        Retrieve 3 slices through the Volume TS, at the given X, y and Z coordinates, and in time [from_idx .. to_idx].
+
+        :param from_idx: int This will be the limit on the first dimension (time)
+        :param to_idx: int Also limit on the first Dimension (time)
+        :param x_plane: int coordinate
+        :param y_plane: int coordinate
+        :param z_plane: int coordinate
+
+        :return: An array of 3 Matrices 2D, each containing the values to display in planes xy, yz and xy.
+        """
+        region_mapping_volume_gid = ts_h5.region_mapping_volume.load()
+
+        if region_mapping_volume_gid is None:
+            raise Exception("Invalid method called for TS without Volume Mapping!")
+
+        volume_rm_h5_class, volume_rm_h5_path = self._load_h5_of_gid(region_mapping_volume_gid.hex)
+        volume_rm_h5 = volume_rm_h5_class(volume_rm_h5_path)
+        volume_rm_shape = volume_rm_h5.array_data.shape
+
+        # Work with space inside Volume:
+        x_plane, y_plane, z_plane = preprocess_space_parameters(x_plane, y_plane, z_plane, volume_rm_shape[0],
+                                                                volume_rm_shape[1], volume_rm_shape[2])
+        var, mode = int(var), int(mode)
+        slice_x, slice_y, slice_z = volume_rm_h5.get_volume_slice(x_plane, y_plane, z_plane)
+
+        # Read from the current TS:
+        from_idx, to_idx, current_time_length = preprocess_time_parameters(from_idx, to_idx, ts_h5.data.shape[0])
+        no_of_regions = ts_h5.data.shape[2]
+        time_slices = slice(from_idx, to_idx), slice(var, var + 1), slice(no_of_regions), slice(mode, mode + 1)
+
+        min_signal = ts_h5.get_min_max_values()[0]
+        regions_ts = ts_h5.read_data_slice(time_slices)[:, 0, :, 0]
+        regions_ts = numpy.hstack((regions_ts, numpy.ones((current_time_length, 1)) * ts_h5.out_of_range(min_signal)))
+
+        volume_rm_h5.close()
+
+        # Index from TS with the space mapping:
+        result_x, result_y, result_z = [], [], []
+
+        for i in range(0, current_time_length):
+            result_x.append(regions_ts[i][slice_x].tolist())
+            result_y.append(regions_ts[i][slice_y].tolist())
+            result_z.append(regions_ts[i][slice_z].tolist())
+
+        return [result_x, result_y, result_z]
+
+
+@add_metaclass(ABCMeta)
 class BaseVolumeVisualizerForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
