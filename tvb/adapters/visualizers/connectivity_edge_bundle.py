@@ -36,23 +36,20 @@ A Javascript displayer for connectivity, using hierarchical edge bundle diagrams
 """
 
 import json
-import os
-from tvb.basic.neotraits.api import Attr
-from tvb.datatypes.connectivity import Connectivity
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
+from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.core.neocom.h5 import DirLoader
 
 
 class ConnectivityEdgeBundleForm(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
         super(ConnectivityEdgeBundleForm, self).__init__(prefix)
-        self.connectivity = DataTypeSelectField(Attr(field_type=Connectivity,
-                                                     label="Connectivity to be displayed in a hierarchical edge bundle"),
-                                                self.get_required_datatype(), self, name=self.get_input_name())
+        self.connectivity = DataTypeSelectField(self.get_required_datatype(), self, name="connectivity",
+                                                required=True, conditions=self.get_filters(), has_all_option=False,
+                                                label="Connectivity to be displayed in a hierarchical edge bundle")
         self.project_id = project_id
 
     @staticmethod
@@ -61,7 +58,7 @@ class ConnectivityEdgeBundleForm(ABCAdapterForm):
 
     @staticmethod
     def get_input_name():
-        return 'connectivity'
+        return '_connectivity'
 
     @staticmethod
     def get_filters():
@@ -82,8 +79,7 @@ class ConnectivityEdgeBundle(ABCDisplayer):
     def launch(self, connectivity):
         """Construct data for visualization and launch it."""
 
-        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(connectivity.fk_from_operation)))
-        connectivity_dt = loader.load(connectivity.gid)
+        connectivity_dt = TVBLoader().load_from_index(connectivity)
 
         pars = {"labels": json.dumps(connectivity_dt.region_labels.tolist()),
                 "url_base": ABCDisplayer.paths2url(connectivity.gid, attribute_name="weights", flatten="True")

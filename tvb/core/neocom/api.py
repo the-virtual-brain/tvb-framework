@@ -30,9 +30,11 @@
 
 import os
 import uuid
-from .config import registry
+from tvb.basic.neotraits.api import HasTraits
+from tvb.core.entities.model.model_datatype import DataType
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.neocom.config import registry
 
 
 class TVBLoader(object):
@@ -41,6 +43,7 @@ class TVBLoader(object):
         self.file_handler = FilesHelper()
 
     def path_for_stored_index(self, dt_index_instance):
+        # type: (DataType) -> str
         """ Given a Datatype(HasTraitsIndex) instance, build where the corresponding H5 should be or is stored"""
         operation = dao.get_operation_by_id(dt_index_instance.fk_from_operation)
         operation_folder = self.file_handler.get_project_folder(operation.project, str(operation.id))
@@ -56,3 +59,13 @@ class TVBLoader(object):
             gid = uuid.UUID(gid)
         fname = '{}_{}.h5'.format(h5_file_class.file_name_base(), gid.hex)
         return os.path.join(operation_dir, fname)
+
+    def load_from_index(self, dt_index):
+        # type: (DataType) -> HasTraits
+        h5_path = self.path_for_stored_index(dt_index)
+        h5_file_class = registry.get_h5file_for_index(dt_index.__class__)
+        traits_class = registry.get_datatype_for_index(dt_index.__class__)
+        with h5_file_class(h5_path) as f:
+            result_dt = traits_class()
+            f.load_into(result_dt)
+        return result_dt
