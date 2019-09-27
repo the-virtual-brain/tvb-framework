@@ -47,14 +47,14 @@ from tvb.core.entities.model.model_operation import Algorithm, AlgorithmCategory
 from tvb.core.entities.model.model_project import User, ROLE_ADMINISTRATOR
 from tvb.core.entities.model.model_workflow import Portlet
 from tvb.core.entities.storage import dao, SA_SESSIONMAKER
-from tvb.core.entities.model_manager import initialize_startup, reset_database
 from tvb.core.neotraits.db import Base
 from tvb.core.portlets.portlet_configurer import PortletConfigurer
 from tvb.core.portlets.xml_reader import XMLPortletReader, ATT_OVERWRITE
-from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.services.project_service import initialize_storage
 from tvb.core.services.user_service import UserService
 from tvb.core.services.settings_service import SettingsService
+from tvb.config.init.introspector_registry import IntrospectionRegistry
+from tvb.config.init.model_manager import initialize_startup, reset_database
 
 
 def reset():

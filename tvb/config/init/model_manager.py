@@ -38,10 +38,10 @@ import migrate.versioning.api as migratesqlapi
 from sqlalchemy.sql import text
 from sqlalchemy.engine import reflection
 from tvb.basic.profile import TvbProfile
-from tvb.core.entities.storage import SA_SESSIONMAKER
 from tvb.basic.logger.builder import get_logger
-import tvb.core.entities.model.db_update_scripts as scripts
+from tvb.core.entities.storage import SA_SESSIONMAKER
 from tvb.core.neotraits.db import Base
+import tvb.core.entities.model.db_update_scripts as scripts
 
 LOGGER = get_logger(__name__)
 
