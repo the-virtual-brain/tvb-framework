@@ -35,7 +35,6 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 
 """
-import os
 import uuid
 import psutil
 import numpy
@@ -49,9 +48,9 @@ from tvb.datatypes.time_series import TimeSeries
 from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
 from tvb.core.neocom.config import registry
-from tvb.core.neocom.h5 import DirLoader
 
 LOG = get_logger(__name__)
 
@@ -168,23 +167,21 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         :param window_function: windowing functions can be applied before the FFT is performed
         :type  window_function: None; ‘hamming’; ‘bartlett’; ‘blackman’; ‘hanning’
         :returns: the fourier spectrum for the specified time series
-        :rtype: `FourierSpectrum`
+        :rtype: `FourierSpectrumIndex`
 
         """
         fft_index = FourierSpectrumIndex()
-        fft_index.source = self.input_time_series_index
+        fft_index.source_id = self.input_time_series_index.id
 
         block_size = int(math.floor(self.input_shape[2] / self.memory_factor))
         blocks = int(math.ceil(self.input_shape[2] / block_size))
 
+        loader = TVBLoader()
+        ts_h5_path = loader.path_for_stored_index(self.input_time_series_index)
         ts_h5_class = registry.get_h5file_for_index(type(self.input_time_series_index))
-        dir_loader = DirLoader(
-            os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        ts_h5_path = dir_loader.path_for(ts_h5_class, self.input_time_series_index.gid)
         input_time_series_h5 = ts_h5_class(ts_h5_path)
 
-        loader = DirLoader(self.storage_path)
-        dest_path = loader.path_for(FourierSpectrumH5, fft_index.gid)
+        dest_path = loader.path_for(self.storage_path, FourierSpectrumH5, fft_index.gid)
         spectra_file = FourierSpectrumH5(dest_path)
         spectra_file.gid.store(uuid.UUID(fft_index.gid))
         spectra_file.source.store(uuid.UUID(self.input_time_series_index.gid))
