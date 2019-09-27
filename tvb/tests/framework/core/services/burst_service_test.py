@@ -41,7 +41,7 @@ from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.datatypes.connectivity import Connectivity
 #from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.datatypes.time_series import TimeSeriesRegion
-from tvb.datatypes.simulation_state import SimulationState
+from tvb.adapters.datatypes.simulation_state import SimulationState
 from tvb.core.entities.model.model_operation import *
 from tvb.core.entities.model.model_datatype import *
 from tvb.core.entities.model.model_burst import *

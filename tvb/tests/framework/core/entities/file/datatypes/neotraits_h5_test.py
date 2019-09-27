@@ -1,27 +1,55 @@
+# -*- coding: utf-8 -*-
+#
+#
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
+# Web-UI helpful to run brain-simulations. To use it, you also need do download
+# TheVirtualBrain-Scientific Package (for simulators). See content of the
+# documentation-folder for more details. See also http://www.thevirtualbrain.org
+#
+# (c) 2012-2017, Baycrest Centre for Geriatric Care ("Baycrest") and others
+#
+# This program is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+# either version 3 of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with this
+# program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#   CITATION:
+# When using The Virtual Brain for scientific publications, please cite it as follows:
+#
+#   Paula Sanz Leon, Stuart A. Knock, M. Marmaduke Woodman, Lia Domide,
+#   Jochen Mersmann, Anthony R. McIntosh, Viktor Jirsa (2013)
+#       The Virtual Brain: a simulator of primate brain network dynamics.
+#   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
+#
+#
 import numpy
 import pytest
 import scipy
 import tvb
+from tvb.adapters.datatypes.simulation_state import SimulationState
 from tvb.basic.neotraits.ex import TraitAttributeError
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
-from tvb.datatypes.simulation_state import SimulationState
-from tvb.datatypes.structural import StructuralMRI
-from tvb.datatypes.volumes import Volume
 from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
 from tvb.core.entities.file.datatypes.simulation_state_h5 import SimulationStateH5
 from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
 from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5
-from tvb.datatypes.region_mapping import RegionMapping
-from tvb.datatypes.sensors import Sensors
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
-from tvb.datatypes.connectivity import Connectivity
-from tvb.datatypes.surfaces import Surface
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.datatypes.projections import ProjectionMatrix
-
+from tvb.datatypes.connectivity import Connectivity
+from tvb.datatypes.region_mapping import RegionMapping
+from tvb.datatypes.sensors import Sensors
+from tvb.datatypes.surfaces import Surface
+from tvb.datatypes.structural import StructuralMRI
+from tvb.datatypes.volumes import Volume
 
 
 def test_store_load_region_mapping(tmph5factory, regionMappingFactory):
@@ -41,26 +69,22 @@ def test_store_load_complete_region_mapping(tmph5factory, connectivityFactory, s
     connectivity = connectivityFactory(2)
     surface = surfaceFactory(5)
     region_mapping = regionMappingFactory(surface, connectivity)
-    conn_h5 = ConnectivityH5(tmph5factory('Connectivity_{}.h5'.format(connectivity.gid)))
-    surf_h5 = SurfaceH5(tmph5factory('Surface_{}.h5'.format(surface.gid)))
-    rm_h5 = RegionMappingH5(tmph5factory('RegionMapping_{}.h5'.format(region_mapping.gid)))
 
-    conn_h5.store(connectivity)
-    conn_h5.close()  # use with
+    with ConnectivityH5(tmph5factory('Connectivity_{}.h5'.format(connectivity.gid))) as conn_h5:
+        conn_h5.store(connectivity)
+        conn_stored = Connectivity()
+        conn_h5.load_into(conn_stored)
 
-    surf_h5.store(surface)
-    surf_h5.close()
+    with SurfaceH5(tmph5factory('Surface_{}.h5'.format(surface.gid))) as surf_h5:
+        surf_h5.store(surface)
+        surf_stored = Surface()
+        surf_h5.load_into(surf_stored)
 
-    rm_h5.store(region_mapping)
-    rm_h5.close()
+    with RegionMappingH5(tmph5factory('RegionMapping_{}.h5'.format(region_mapping.gid))) as rm_h5:
+        rm_h5.store(region_mapping)
+        rm_stored = RegionMapping()
+        rm_h5.load_into(rm_stored)
 
-    conn_stored = Connectivity()
-    surf_stored = Surface()
-    rm_stored = RegionMapping()
-
-    conn_h5.load_into(conn_stored)
-    surf_h5.load_into(surf_stored)
-    rm_h5.load_into(rm_stored)
     # load_into will not load dependent datatypes. connectivity and surface are undefined
     with pytest.raises(TraitAttributeError):
         rm_stored.connectivity

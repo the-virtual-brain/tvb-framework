@@ -39,7 +39,7 @@ import sys
 import shutil
 from functools import wraps
 from types import FunctionType
-
+from tvb.basic.profile import TvbProfile
 
 def init_test_env():
     """

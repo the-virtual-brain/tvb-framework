@@ -33,6 +33,7 @@ import os.path
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from tvb.simulator.simulator import Simulator
 from tvb.tests.framework.core.base_testcase import TvbProfile
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.region_mapping import RegionMapping
@@ -182,5 +183,17 @@ def sensorsFactory():
             orientations=numpy.zeros((nr_sensors, 3)),
             usable=numpy.array([True] * nr_sensors)
         )
+
+    return build
+
+
+@pytest.fixture()
+def regionSimulationFactory(connectivityFactory):
+    def build(connectivity=None, simulation_length=100):
+        if not connectivity:
+            connectivity = connectivityFactory(2)
+        return Simulator(connectivity=connectivity,
+                         surface=None,
+                         simulation_length=simulation_length)
 
     return build

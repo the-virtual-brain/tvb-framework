@@ -38,7 +38,7 @@ import threading
 from datetime import datetime
 from types import IntType
 from tvb.config import DEFAULT_PORTLETS
-from tvb.datatypes.simulation_state import SimulationState
+# from tvb.datatypes.simulation_state import SimulationState
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.input_tree import KEY_TYPE, TYPE_SELECT, KEY_NAME, InputTreeManager
 from tvb.core.entities.model.model_burst import BurstConfiguration
