@@ -27,19 +27,25 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+import json
 import numpy
 import pytest
 import os.path
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from tvb.simulator.simulator import Simulator
-from tvb.tests.framework.core.base_testcase import TvbProfile
+from tvb.core.entities.model.model_operation import STATUS_FINISHED, Operation
+from tvb.core.entities.model.model_project import User
+from tvb.core.entities.storage import dao
+from tvb.core.entities.transient.structure_entities import DataTypeMetaData
+from tvb.core.services.project_service import ProjectService
+from tvb.core.neotraits.db import Base
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.region_mapping import RegionMapping
 from tvb.datatypes.sensors import Sensors
 from tvb.datatypes.surfaces import Surface, CorticalSurface
-from tvb.core.neotraits.db import Base
+from tvb.simulator.simulator import Simulator
+from tvb.tests.framework.core.base_testcase import TvbProfile
 
 
 def pytest_addoption(parser):
@@ -88,6 +94,62 @@ def session(db_engine):
     yield s
     s.close()
     Base.metadata.drop_all(db_engine)
+
+
+@pytest.fixture
+def userFactory():
+    def build(username='test_user', password='test_pass',
+              mail='test_mail@tvb.org', validated=True, role='test'):
+        """
+        Create persisted User entity.
+        :returns: User entity after persistence.
+        """
+        user = User(username, password, mail, validated, role)
+        return dao.store_entity(user)
+
+    return build
+
+
+@pytest.fixture
+def projectFactory():
+    def build(admin, name="TestProject", description='description', users=None):
+        """
+        Create persisted Project entity, with no linked DataTypes.
+        :returns: Project entity after persistence.
+        """
+        if users is None:
+            users = []
+        data = dict(name=name, description=description, users=users)
+        return ProjectService().store_project(admin, True, None, **data)
+
+    return build
+
+
+@pytest.fixture()
+def operationFactory(userFactory, projectFactory):
+    def build(algorithm=None, test_user=None, test_project=None,
+              operation_status=STATUS_FINISHED, parameters="test params"):
+        """
+        Create persisted operation.
+        :param algorithm: When not None, Simulator.
+        :return: Operation entity after persistence.
+        """
+        if algorithm is None:
+            algorithm = dao.get_algorithm_by_module('tvb.adapters.simulator.simulator_adapter', 'SimulatorAdapter')
+        if test_user is None:
+            test_user = userFactory()
+        if test_project is None:
+            test_project = projectFactory(test_user)
+
+        meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe",
+                DataTypeMetaData.KEY_STATE: "RAW_DATA"}
+        operation = Operation(test_user.id, test_project.id, algorithm.id, parameters, meta=json.dumps(meta),
+                              status=operation_status)
+        dao.store_entity(operation)
+        # Make sure lazy attributes are correctly loaded.
+        return dao.get_operation_by_id(operation.id)
+
+    return build
 
 
 @pytest.fixture()
