@@ -62,7 +62,7 @@ def bct_description(mat_file_name):
 class BaseBCTForm(ABCAdapterForm):
     def __init__(self, prefix='', project_id=None, draw_ranges=True):
         super(BaseBCTForm, self).__init__(prefix, project_id, draw_ranges)
-        self.connectivity = DataTypeSelectField(self.get_required_datatype(), self, name=self.get_input_name(),
+        self.connectivity = DataTypeSelectField(self.get_required_datatype(), self, name="connectivity",
                                                 required=True, label=self.get_connectivity_label(),
                                                 conditions=self.get_filters(), has_all_option=True)
 
@@ -87,7 +87,7 @@ class BaseUnidirectedBCTForm(BaseBCTForm):
 
     @staticmethod
     def get_filters():
-        return FilterChain(fields=[FilterChain.datatype + '._undirected'], operations=["=="], values=['1'])
+        return FilterChain(fields=[FilterChain.datatype + '.undirected'], operations=["=="], values=['1'])
 
     @staticmethod
     def get_connectivity_label():
