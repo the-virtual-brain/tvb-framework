@@ -1,3 +1,5 @@
+import uuid
+from tvb.basic.neotraits.api import Attr
 from tvb.simulator.simulator import Simulator
 from tvb.core.entities.file.simulator.configurations_h5 import SimulatorConfigurationH5
 from tvb.core.neotraits.h5 import Reference, Scalar, Json, DataSet
@@ -17,6 +19,7 @@ class SimulatorH5(SimulatorConfigurationH5):
         self.initial_conditions = DataSet(Simulator.initial_conditions, self)
         self.monitors = Json(Simulator.monitors, self)
         self.simulation_length = Scalar(Simulator.simulation_length, self)
+        self.simulation_state = Reference(Attr(field_type=uuid.UUID), self, name='simulation_state')
 
     def store(self, datatype, scalars_only=False, store_references=False):
         # type: (Simulator) -> None
@@ -39,7 +42,7 @@ class SimulatorH5(SimulatorConfigurationH5):
         monitor_gid = self.store_config_as_reference(datatype.monitors[0])
         self.monitors.store([monitor_gid.hex])
 
-        self.generic_attributes.type = self.get_full_class_name(type(datatype))
+        self.type.store(self.get_full_class_name(type(datatype)))
 
 
     def load_into(self, datatype):

@@ -77,6 +77,7 @@ from tvb.core.entities.model.datatypes.patterns import StimuliRegionIndex, Stimu
 from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex, RegionMappingIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
+from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex
 from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex, ComplexCoherenceSpectrumIndex, \
     FourierSpectrumIndex, WaveletCoefficientsIndex
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
@@ -98,7 +99,7 @@ registry.register_h5file_datatype(ProjectionMatrixH5, ProjectionMatrix, Projecti
 registry.register_h5file_datatype(RegionVolumeMappingH5, RegionVolumeMapping, RegionVolumeMappingIndex)
 registry.register_h5file_datatype(RegionMappingH5, RegionMapping, RegionMappingIndex)
 registry.register_h5file_datatype(SensorsH5, Sensors, SensorsIndex)
-registry.register_h5file_datatype(SimulationStateH5, SimulationState, None)
+registry.register_h5file_datatype(SimulationStateH5, SimulationState, SimulationStateIndex)
 registry.register_h5file_datatype(CoherenceSpectrumH5, CoherenceSpectrum, CoherenceSpectrumIndex)
 registry.register_h5file_datatype(ComplexCoherenceSpectrumH5, ComplexCoherenceSpectrum, ComplexCoherenceSpectrumIndex)
 registry.register_h5file_datatype(FourierSpectrumH5, FourierSpectrum, FourierSpectrumIndex)

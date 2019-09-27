@@ -28,7 +28,7 @@ class SimulatorService(object):
         self.operation_service = OperationService()
         self.files_helper = FilesHelper()
 
-    def serialize_simulator(self, simulator, simulator_gid, storage_path):
+    def serialize_simulator(self, simulator, simulator_gid, simulation_state_gid, storage_path):
         dir_loader = DirLoader(storage_path)
 
         simulator_path = dir_loader.path_for_has_traits(type(simulator), simulator_gid)
@@ -37,6 +37,8 @@ class SimulatorService(object):
             simulator_h5.gid.store(uuid.UUID(simulator_gid))
             simulator_h5.store(simulator)
             simulator_h5.connectivity.store(simulator.connectivity.gid)
+            if simulation_state_gid:
+                simulator_h5.simulation_state.store(uuid.UUID(simulation_state_gid))
 
         return simulator_gid
 
@@ -49,6 +51,7 @@ class SimulatorService(object):
         with SimulatorH5(simulator_in_path) as simulator_in_h5:
             simulator_in_h5.load_into(simulator_in)
             connectivity_gid = simulator_in_h5.connectivity.load()
+            simulation_state_gid = simulator_in_h5.simulation_state.load()
 
         conn_index = dao.get_datatype_by_gid(connectivity_gid.hex)
         dir_loader = DirLoader(os.path.join(os.path.dirname(storage_path), str(conn_index.fk_from_operation)))
@@ -57,9 +60,10 @@ class SimulatorService(object):
         conn = Connectivity()
         with ConnectivityH5(conn_path) as conn_h5:
             conn_h5.load_into(conn)
+            conn.gid = conn_h5.gid.load()
 
         simulator_in.connectivity = conn
-        return simulator_in, connectivity_gid
+        return simulator_in, connectivity_gid, simulation_state_gid
 
     @transactional
     def _prepare_operation(self, burst_id, project_id, user_id, simulator_id, simulator_index, algo_category, op_group):
@@ -118,7 +122,7 @@ class SimulatorService(object):
                     dao.store_entity(simulator_index)
 
                     storage_path = self.files_helper.get_project_folder(project, str(operation.id))
-                    self.serialize_simulator(simulator, simulator_index.gid, storage_path)
+                    self.serialize_simulator(simulator, simulator_index.gid, None, storage_path)
                     operations.append(operation)
 
                     # TODO: will create an extra SimulatorIndex. Keep SimIndex?

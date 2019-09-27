@@ -110,10 +110,10 @@ class WorkflowDAO(RootDAO):
         """
         count = 0
         try:
-            count = self.session.query(BurstConfiguration
-                                       ).filter_by(fk_project=project_id
-                                       ).filter(BurstConfiguration.name.like(burst_name + '%')
-                                       ).filter(not_(BurstConfiguration.name.like(burst_name + '/_%/_%',
+            count = self.session.query(BurstConfiguration2
+                                       ).filter_by(project_id=project_id
+                                       ).filter(BurstConfiguration2.name.like(burst_name + '%')
+                                       ).filter(not_(BurstConfiguration2.name.like(burst_name + '/_%/_%',
                                                                                         escape='/'))
                                        ).count()
         except SQLAlchemyError as excep:

@@ -44,7 +44,13 @@ class BurstConfiguration2(HasTraitsIndex):
                                    primaryjoin=OperationGroup.id == metric_operation_group_id, cascade='none')
 
     def __init__(self, project_id, simulator_id=None, status="running", name=None):
-        self.fk_project = project_id
+        self.project_id = project_id
         self.simulator_id = simulator_id
         self.name = name
         self.status = status
+
+    def clone(self):
+        new_burst = BurstConfiguration2(self.project_id)
+        new_burst.name = self.name
+        new_burst.status = self.BURST_RUNNING
+        return new_burst

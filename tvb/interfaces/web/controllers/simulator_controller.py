@@ -30,6 +30,7 @@
 import copy
 import json
 import threading
+import uuid
 import cherrypy
 import datetime
 from tvb.datatypes.cortex import Cortex
@@ -56,6 +57,7 @@ from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex
 from tvb.core.entities.model.model_operation import OperationGroup
 from tvb.core.entities.model.simulator.burst_configuration import BurstConfiguration2
 from tvb.core.entities.model.simulator.simulator import SimulatorIndex
@@ -99,6 +101,7 @@ class SimulatorController(BurstBaseController):
         BurstBaseController.__init__(self)
         self.range_parameters = SimulatorRangeParameters()
         self.burst_service = BurstService()
+        self.simulator_service = SimulatorService()
         self.files_helper = FilesHelper()
         self.cached_simulator_algorithm = self.flow_service.get_algorithm_by_module_and_class(
             IntrospectionRegistry.SIMULATOR_MODULE, IntrospectionRegistry.SIMULATOR_CLASS)
@@ -114,7 +117,6 @@ class SimulatorController(BurstBaseController):
         project = common.get_current_project()
 
         burst_config = BurstConfiguration2(project.id)
-        burst_config.project_id = project.id
         common.add2session(common.KEY_BURST_CONFIG, burst_config)
         template_specification['burstConfig'] = burst_config
         template_specification['burst_list'] = self.burst_service.get_available_bursts(common.get_current_project().id)
@@ -175,6 +177,7 @@ class SimulatorController(BurstBaseController):
             connectivity = Connectivity()
             with ConnectivityH5(conn_path) as conn_h5:
                 conn_h5.load_into(connectivity)
+            connectivity.gid = uuid.UUID(connectivity_index.gid)
             # TODO: handle this cases in a better manner
             session_stored_simulator.connectivity = connectivity
             session_stored_simulator.conduction_speed = conduction_speed
@@ -632,19 +635,26 @@ class SimulatorController(BurstBaseController):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
         is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
         is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
+        session_burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
 
         if is_simulator_load:
             common.add2session(common.KEY_IS_SIMULATOR_LOAD, False)
 
+        next_form = SimulatorFinalFragment()
+        if session_burst_config.name:
+            burst_name = session_burst_config.name
+            copy_prefix = 'Copy of '
+            if is_simulator_copy and burst_name.find(copy_prefix) < 0:
+                burst_name = copy_prefix + burst_name
+            next_form.simulation_name.data = burst_name
+
         if cherrypy.request.method == 'POST':
             is_simulator_copy = False
             fragment = SimulatorLengthFragment()
             fragment.fill_from_post(data)
             session_stored_simulator.simulation_length = fragment.length.value
-
-        next_form = SimulatorFinalFragment()
 
         dict_to_render[self.FORM_KEY] = next_form
         dict_to_render[self.ACTION_KEY] = '/burst/setup_pse'
@@ -688,7 +698,6 @@ class SimulatorController(BurstBaseController):
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_pse_params'
         return dict_to_render
 
-
     @cherrypy.expose
     @handle_error(redirect=False)
     @check_user
@@ -716,8 +725,6 @@ class SimulatorController(BurstBaseController):
             new_id = dao.get_max_burst_id() + 1
             burst_config.name = 'simulation_' + str(new_id)
 
-
-        simulator_service = SimulatorService()
         operation_group = OperationGroup(project.id, ranges=[range_param1.to_json(), range_param2.to_json()])
         operation_group = dao.store_entity(operation_group)
 
@@ -731,14 +738,14 @@ class SimulatorController(BurstBaseController):
         dao.store_entity(burst_config)
 
         try:
-            thread = threading.Thread(target=simulator_service.async_launch_and_prepare,
-                                  kwargs={'burst_config': burst_config,
-                                          'user': user,
-                                          'project': project,
-                                          'simulator_algo': self.cached_simulator_algorithm,
-                                          'range_param1': range_param1,
-                                          'range_param2': range_param2,
-                                          'session_stored_simulator': session_stored_simulator})
+            thread = threading.Thread(target=self.simulator_service.async_launch_and_prepare,
+                                      kwargs={'burst_config': burst_config,
+                                              'user': user,
+                                              'project': project,
+                                              'simulator_algo': self.cached_simulator_algorithm,
+                                              'range_param1': range_param1,
+                                              'range_param2': range_param2,
+                                              'session_stored_simulator': session_stored_simulator})
             thread.start()
         except BurstServiceException as e:
             self.logger.exception("Could not launch burst!")
@@ -747,32 +754,47 @@ class SimulatorController(BurstBaseController):
     @expose_json
     def launch_simulation(self, launch_mode, burst_name):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
 
         project = common.get_current_project()
         user = common.get_logged_user()
 
-        # TODO: handle operation - simulator H5 relation
         simulator_index = SimulatorIndex()
         simulator_index = dao.store_entity(simulator_index)
 
-        burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
-        burst_config.simulator_id = simulator_index.id
-        burst_config.start_time = datetime.datetime.now()
+        session_burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
         if burst_name != 'none_undefined':
-            burst_config.name = burst_name
+            session_burst_config.name = burst_name
 
-        # TODO: branch simulation name is different
-        if burst_config.name is None:
-            new_id = dao.get_max_burst_id() + 1
-            burst_config.name = 'simulation_' + str(new_id)
+        burst_config_to_store = session_burst_config
+        simulation_state_index_gid = None
+        if launch_mode == self.simulator_service.LAUNCH_NEW:
+            if session_burst_config.name is None:
+                new_id = dao.get_max_burst_id() + 1
+                session_burst_config.name = 'simulation_' + str(new_id)
+            if is_simulator_copy:
+                burst_config_to_store = session_burst_config.clone()
+        else:
+            burst_config_to_store = session_burst_config.clone()
+            count = dao.count_bursts_with_name(session_burst_config.name, session_burst_config.project_id)
+            session_burst_config.name = session_burst_config.name + "_" + launch_mode + str(count)
+            simulation_state_index = dao.get_generic_entity(
+                SimulationStateIndex.__module__ + "." + SimulationStateIndex.__name__,
+                session_burst_config.id, "fk_parent_burst")
+            if simulation_state_index is None or len(simulation_state_index) < 1:
+                exc = BurstServiceException("Simulation State not found for %s, thus we are unable to branch from "
+                                            "it!" % session_burst_config.name)
+                self.logger.error(exc)
+                raise exc
+            simulation_state_index_gid = simulation_state_index[0].gid
 
-        dao.store_entity(burst_config)
-
-        simulator_service = SimulatorService()
+        burst_config_to_store.simulator_id = simulator_index.id
+        burst_config_to_store.start_time = datetime.datetime.now()
+        burst_config_to_store = dao.store_entity(burst_config_to_store)
 
         simulator_id = self.cached_simulator_algorithm.id
         algo_category = self.cached_simulator_algorithm.algorithm_category
-        operation = simulator_service._prepare_operation(burst_config.id, project.id, user.id, simulator_id,
+        operation = self.simulator_service._prepare_operation(burst_config_to_store.id, project.id, user.id, simulator_id,
                                                          simulator_index, algo_category, None)
 
         simulator_index.fk_from_operation = operation.id
@@ -780,8 +802,8 @@ class SimulatorController(BurstBaseController):
 
         storage_path = self.files_helper.get_project_folder(project, str(operation.id))
 
-        simulator_gid = simulator_service.serialize_simulator(session_stored_simulator, simulator_index.gid,
-                                                              storage_path)
+        self.simulator_service.serialize_simulator(session_stored_simulator, simulator_index.gid, simulation_state_index_gid,
+                                              storage_path)
 
         OperationService().launch_operation(operation.id, True)
 
@@ -813,8 +835,7 @@ class SimulatorController(BurstBaseController):
             project = common.get_current_project()
             storage_path = self.files_helper.get_project_folder(project, str(simulator_index.fk_from_operation))
 
-            simulator_service = SimulatorService()
-            simulator, conn_gid = simulator_service.deserialize_simulator(simulator_gid, storage_path)
+            simulator, _, _ = self.simulator_service.deserialize_simulator(simulator_gid, storage_path)
 
             session_stored_simulator = simulator
             common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_simulator)
@@ -850,8 +871,7 @@ class SimulatorController(BurstBaseController):
         project = common.get_current_project()
         storage_path = self.files_helper.get_project_folder(project, str(simulator_index.fk_from_operation))
 
-        simulator_service = SimulatorService()
-        simulator, conn_gid = simulator_service.deserialize_simulator(simulator_gid, storage_path)
+        simulator, _, _ = self.simulator_service.deserialize_simulator(simulator_gid, storage_path)
 
         session_stored_simulator = simulator
         common.add2session(common.KEY_SIMULATOR_CONFIG, session_stored_simulator)
@@ -874,9 +894,10 @@ class SimulatorController(BurstBaseController):
         common.add2session(common.KEY_SIMULATOR_CONFIG, None)
         common.add2session(common.KEY_IS_SIMULATOR_COPY, False)
         common.add2session(common.KEY_IS_SIMULATOR_LOAD, False)
-        common.add2session(common.KEY_BURST_CONFIG, None)
 
-        # TODO: prepare new burst config in session
+        project = common.get_current_project()
+        common.add2session(common.KEY_BURST_CONFIG, BurstConfiguration2(project.id))
+
         form = self.prepare_first_fragment()
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.IS_FIRST_FRAGMENT_KEY] = True
