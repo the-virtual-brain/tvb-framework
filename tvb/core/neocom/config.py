@@ -62,7 +62,7 @@ from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5, Wave
 from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.file.datatypes.temporal_correlations_h5 import CrossCorrelationH5
-from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5, \
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5, \
     TimeSeriesVolumeH5, TimeSeriesEEGH5, TimeSeriesMEGH5, TimeSeriesSEEGH5
 from tvb.core.entities.file.datatypes.tracts_h5 import TractsH5
 from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5

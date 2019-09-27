@@ -46,7 +46,7 @@ from tvb.analyzers.metrics_base import BaseTimeseriesMetricAlgorithm
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.entities.file.datatypes.mapped_value_h5 import DatatypeMeasureH5
-from tvb.core.entities.file.datatypes.time_series import TimeSeriesH5
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex

@@ -47,7 +47,7 @@ from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionVolumeMappingH5
 from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
-from tvb.core.entities.file.datatypes.time_series import TimeSeriesVolumeH5
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesVolumeH5
 from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
