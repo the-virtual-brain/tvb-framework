@@ -271,7 +271,7 @@ class H5File(object):
         # would be nice to have an opened state for the chunked api instead of the close_file=False
 
         # common scalar headers
-        self.gid = Uuid(Attr(field_type=uuid.UUID), self, name='gid')
+        self.gid = Uuid(HasTraits.gid, self)
         self.written_by = Scalar(Attr(str), self, name='written_by')
         self.create_date = Scalar(Attr(str), self, name='create_date')
 
