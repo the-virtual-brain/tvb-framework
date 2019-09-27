@@ -30,6 +30,7 @@
 
 from sqlalchemy import Column, Integer, ForeignKey, String
 from tvb.core.entities.model.model_datatype import DataType
+from tvb.datatypes.sensors import Sensors
 
 
 class SensorsIndex(DataType):
@@ -38,5 +39,7 @@ class SensorsIndex(DataType):
     sensors_type = Column(String, nullable=False)
 
     def fill_from_has_traits(self, datatype):
+        # type: (Sensors)  -> None
+        super(SensorsIndex, self).fill_from_has_traits(datatype)
         self.number_of_sensors = datatype.number_of_sensors
         self.sensors_type = datatype.sensors_type

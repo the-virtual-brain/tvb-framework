@@ -28,7 +28,7 @@
 #
 #
 from collections import OrderedDict
-from tvb.datatypes.surfaces import CORTICAL, INNER_SKULL, OUTER_SKIN, OUTER_SKULL, EEG_CAP, FACE, WHITE_MATTER
+from tvb.datatypes.surfaces import CORTICAL, INNER_SKULL, OUTER_SKIN, OUTER_SKULL, EEG_CAP, FACE, WHITE_MATTER, Surface
 from sqlalchemy import Column, Integer, ForeignKey, String, Float, Boolean
 from tvb.core.entities.model.model_datatype import DataType
 
@@ -56,7 +56,8 @@ class SurfaceIndex(DataType):
     edge_length_max = Column(Float, nullable=False)
 
     def fill_from_has_traits(self, datatype):
-        # type (Surface)
+        # type: (Surface)  -> None
+        super(SurfaceIndex, self).fill_from_has_traits(datatype)
         self.surface_type = datatype.surface_type
         self.valid_for_simulations = datatype.valid_for_simulations
         self.number_of_vertices = datatype.number_of_vertices
