@@ -38,7 +38,7 @@ import numpy
 import pytest
 from datetime import datetime
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.exceptions import IntrospectionException
 #from tvb.datatypes.arrays import MappedArray
 from tvb.core.entities.filters.chain import FilterChain

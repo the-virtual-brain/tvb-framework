@@ -37,7 +37,8 @@ import json
 import threading
 from datetime import datetime
 from types import IntType
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config import DEFAULT_PORTLETS
+from tvb.datatypes.simulation_state import SimulationState
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.input_tree import KEY_TYPE, TYPE_SELECT, KEY_NAME, InputTreeManager
 from tvb.core.entities.model.model_burst import BurstConfiguration
@@ -146,7 +147,7 @@ class BurstService(object):
 
         # Now set the default portlets for the specified burst configuration.
         # The default portlets are specified in the __init__.py script from tvb root.
-        for tab_idx, value in IntrospectionRegistry.DEFAULT_PORTLETS.items():
+        for tab_idx, value in DEFAULT_PORTLETS.items():
             for sel_idx, portlet_identifier in value.items():
                 portlet = BurstService.get_portlet_by_identifier(portlet_identifier)
                 # if portlet is not None:
@@ -322,9 +323,7 @@ class BurstService(object):
         else:
             ## Branch or Continue simulation
             burst_config = burst_configuration
-            simulation_state = dao.get_generic_entity(IntrospectionRegistry.SIMULATION_DATATYPE_MODULE + "." +
-                                                      IntrospectionRegistry.SIMULATION_DATATYPE_CLASS,
-                                                      burst_config.id, "fk_parent_burst")
+            simulation_state = dao.get_generic_entity(SimulationState, burst_config.id, "fk_parent_burst")
             if simulation_state is None or len(simulation_state) < 1:
                 exc = BurstServiceException("Simulation State not found for %s, "
                                             "thus we are unable to branch from it!" % burst_config.name)

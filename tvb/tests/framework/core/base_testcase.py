@@ -39,7 +39,6 @@ import sys
 import shutil
 from functools import wraps
 from types import FunctionType
-from tvb.basic.profile import TvbProfile
 
 
 def init_test_env():
@@ -60,7 +59,7 @@ def init_test_env():
             os.remove(db_file)
 
     from tvb.core.entities.model_manager import reset_database
-    from tvb.core.services.initializer import initialize
+    from tvb.config.init.initializer import initialize
 
     reset_database()
     initialize(skip_import=True)

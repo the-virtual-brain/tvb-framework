@@ -58,7 +58,7 @@ from tvb.core.entities.model.simulator.burst_configuration import BurstConfigura
 from tvb.core.entities.model.simulator.simulator import SimulatorIndex
 from tvb.core.entities.storage import dao
 from tvb.core.services.burst_service import BurstService
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.simulator_service import SimulatorService
 from tvb.core.neocom.h5 import DirLoader

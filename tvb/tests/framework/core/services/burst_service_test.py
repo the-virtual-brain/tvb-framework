@@ -37,7 +37,7 @@ import numpy
 from time import sleep
 from tvb.tests.framework.core.base_testcase import BaseTestCase
 from tvb.core.adapters.input_tree import InputTreeManager
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.datatypes.connectivity import Connectivity
 #from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.datatypes.time_series import TimeSeriesRegion

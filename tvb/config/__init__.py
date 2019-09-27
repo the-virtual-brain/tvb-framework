@@ -34,11 +34,19 @@ TVB generic configurations are here.
 E.g. Scientific libraries modules are plugged, to avoid close dependencies.
 E.g. A list with all the modules where adapters are implemented.
 """
-#TODO: This is deprecated. All definitions will move to IntrospectorRegistry once circular dependencies are fixed.
+# There are kept here for being used inside tvb.core
+# We can not move all these in IntrospectovRegistry, due to circular dependencies
 SIMULATION_DATATYPE_CLASS = "SimulationState"
 
 TVB_IMPORTER_MODULE = "tvb.adapters.uploaders.tvb_importer"
 TVB_IMPORTER_CLASS = "TVBImporter"
 
+SIMULATOR_MODULE = "tvb.adapters.simulator.simulator_adapter"
+SIMULATOR_CLASS = "SimulatorAdapter"
+
 CONNECTIVITY_CREATOR_MODULE = 'tvb.adapters.creators.connectivity_creator'
 CONNECTIVITY_CREATOR_CLASS = 'ConnectivityCreator'
+
+DEFAULT_PROJECT_GID = '2cc58a73-25c1-11e5-a7af-14109fe3bf71'
+
+DEFAULT_PORTLETS = {0: {0: 'TimeSeries'}}

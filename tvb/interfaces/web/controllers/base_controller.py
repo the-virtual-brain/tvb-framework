@@ -39,9 +39,8 @@ This is the main UI entry point.
 
 import os
 import cherrypy
-
 from tvb.interfaces.web.controllers import common
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 from tvb.core.services.user_service import UserService
