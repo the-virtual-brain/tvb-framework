@@ -37,7 +37,7 @@ import os
 import json
 import numpy
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.basic.arguments_serialisation import parse_slice, slice_str
+from tvb.core.adapters.arguments_serialisation import parse_slice, slice_str
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.model.datatypes.spectral import DataTypeMatrix

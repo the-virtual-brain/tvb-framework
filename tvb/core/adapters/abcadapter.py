@@ -43,6 +43,7 @@ import importlib
 from functools import wraps
 from datetime import datetime
 from abc import ABCMeta, abstractmethod
+from six import add_metaclass
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters import input_tree
@@ -170,6 +171,7 @@ class ABCAdapterForm(Form):
 
 
 
+@add_metaclass(ABCMeta)
 class ABCAdapter(object):
     """
     Root Abstract class for all TVB Adapters. 
@@ -206,8 +208,6 @@ class ABCAdapter(object):
 
     # model.Algorithm instance that will be set for each adapter created by in build_adapter method
     stored_adapter = None
-
-    __metaclass__ = ABCMeta
 
 
     def __init__(self):
@@ -569,11 +569,11 @@ class ABCAdapter(object):
 
 
 
+@add_metaclass(ABCMeta)
 class ABCAsynchronous(ABCAdapter):
     """
     Abstract class, for marking adapters that are prone to be executed  on Cluster.
     """
-    __metaclass__ = ABCMeta
 
     def array_size2kb(self, size):
         """
@@ -583,11 +583,10 @@ class ABCAsynchronous(ABCAdapter):
         return size * TvbProfile.current.MAGIC_NUMBER / 8 / 2 ** 10
 
 
-
+@add_metaclass(ABCMeta)
 class ABCSynchronous(ABCAdapter):
     """
     Abstract class, for marking adapters that are prone to be NOT executed on Cluster.
     """
-    __metaclass__ = ABCMeta
 
 
