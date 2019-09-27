@@ -97,8 +97,39 @@ class SimulatorService(object):
             current_attr = getattr(current_attr, param_name)
         setattr(current_attr, range_param_name_list[-1], range_parameter_value)
 
-    def async_launch_and_prepare(self, burst_config, user, project, simulator_algo, range_param1, range_param2,
-                                 session_stored_simulator):
+    def async_launch_and_prepare_simulation(self, burst_config, user, project, simulator_algo,
+                                            session_stored_simulator, simulation_state_gid):
+        try:
+            simulator_index = burst_config.simulator
+            simulator_id = simulator_algo.id
+            algo_category = simulator_algo.algorithm_category
+            operation = self._prepare_operation(burst_config.id, project.id, user.id, simulator_id, simulator_index,
+                                                algo_category, None)
+
+            simulator_index.fk_from_operation = operation.id
+            dao.store_entity(simulator_index)
+
+            storage_path = self.files_helper.get_project_folder(project, str(operation.id))
+            self.serialize_simulator(session_stored_simulator, simulator_index.gid, simulation_state_gid, storage_path)
+
+            wf_errs = 0
+            try:
+                OperationService().launch_operation(operation.id, True)
+            except Exception as excep:
+                self.logger.error(excep)
+                wf_errs += 1
+                BurstService2().mark_burst_finished(burst_config, error_message=str(excep))
+
+            self.logger.debug("Finished launching workflow. The operation was launched successfully, " +
+                              str(wf_errs) + " had error on pre-launch steps")
+
+        except Exception as excep:
+            self.logger.error(excep)
+            BurstService2().mark_burst_finished(burst_config, error_message=str(excep))
+
+
+    def async_launch_and_prepare_pse(self, burst_config, user, project, simulator_algo, range_param1, range_param2,
+                                     session_stored_simulator):
         try:
             simulator_id = simulator_algo.id
             algo_category = simulator_algo.algorithm_category

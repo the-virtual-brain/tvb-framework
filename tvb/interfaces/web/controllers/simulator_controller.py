@@ -738,7 +738,7 @@ class SimulatorController(BurstBaseController):
         dao.store_entity(burst_config)
 
         try:
-            thread = threading.Thread(target=self.simulator_service.async_launch_and_prepare,
+            thread = threading.Thread(target=self.simulator_service.async_launch_and_prepare_pse,
                                       kwargs={'burst_config': burst_config,
                                               'user': user,
                                               'project': project,
@@ -789,23 +789,22 @@ class SimulatorController(BurstBaseController):
             simulation_state_index_gid = simulation_state_index[0].gid
 
         burst_config_to_store.simulator_id = simulator_index.id
+        burst_config_to_store.simulator = simulator_index
         burst_config_to_store.start_time = datetime.datetime.now()
-        burst_config_to_store = dao.store_entity(burst_config_to_store)
+        dao.store_entity(burst_config_to_store)
 
-        simulator_id = self.cached_simulator_algorithm.id
-        algo_category = self.cached_simulator_algorithm.algorithm_category
-        operation = self.simulator_service._prepare_operation(burst_config_to_store.id, project.id, user.id, simulator_id,
-                                                         simulator_index, algo_category, None)
-
-        simulator_index.fk_from_operation = operation.id
-        dao.store_entity(simulator_index)
-
-        storage_path = self.files_helper.get_project_folder(project, str(operation.id))
-
-        self.simulator_service.serialize_simulator(session_stored_simulator, simulator_index.gid, simulation_state_index_gid,
-                                              storage_path)
-
-        OperationService().launch_operation(operation.id, True)
+        try:
+            thread = threading.Thread(target=self.simulator_service.async_launch_and_prepare_simulation,
+                                  kwargs={'burst_config': burst_config_to_store,
+                                          'user': user,
+                                          'project': project,
+                                          'simulator_algo': self.cached_simulator_algorithm,
+                                          'session_stored_simulator': session_stored_simulator,
+                                          'simulation_state_gid': simulation_state_index_gid})
+            thread.start()
+        except BurstServiceException as e:
+            self.logger.exception('Could not launch burst!')
+            return {'error': e.message}
 
     @expose_fragment('burst/burst_history')
     def load_burst_history(self):
