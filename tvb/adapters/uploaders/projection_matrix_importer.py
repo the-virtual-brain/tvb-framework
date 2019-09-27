@@ -34,18 +34,18 @@
 """
 
 import uuid
-from tvb.core.entities.filters.chain import FilterChain
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.datatypes.sensors import SensorsEEG, SensorsMEG
-from tvb.datatypes.projections import ProjectionSurfaceEEG, ProjectionSurfaceMEG, ProjectionSurfaceSEEG
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import UploadField, SimpleStrField, DataTypeSelectField
 from tvb.core.neocom.h5 import DirLoader
+from tvb.datatypes.sensors import SensorsEEG, SensorsMEG
+from tvb.datatypes.projections import ProjectionSurfaceEEG, ProjectionSurfaceMEG, ProjectionSurfaceSEEG
 
 DEFAULT_DATASET_NAME = "ProjectionMatrix"
 

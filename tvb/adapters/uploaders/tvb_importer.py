@@ -35,7 +35,7 @@
 import os
 import shutil
 import zipfile
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.neotraits._forms import UploadField
 from tvb.core.services.import_service import ImportService

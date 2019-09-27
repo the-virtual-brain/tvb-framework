@@ -33,7 +33,7 @@
 """
 
 import uuid
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5

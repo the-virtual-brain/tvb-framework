@@ -35,15 +35,15 @@
 
 import uuid
 import numpy
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.adapters.uploaders.zip_surface.parser import ZipSurfaceParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
-from tvb.datatypes.surfaces import make_surface, center_vertices
 from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField, SimpleBoolField
+from tvb.datatypes.surfaces import make_surface, center_vertices
 
 
 class ZIPSurfaceImporterForm(ABCUploaderForm):

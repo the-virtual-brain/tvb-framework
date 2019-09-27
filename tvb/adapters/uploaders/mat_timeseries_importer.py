@@ -35,14 +35,14 @@ import json
 import uuid
 import numpy
 from tvb.datatypes.time_series import TimeSeriesRegion, TimeSeriesEEG
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.adapters.uploaders.mat.parser import read_nested_mat_file
 from tvb.core.adapters.exceptions import ParseException, LaunchException
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesRegionH5, TimeSeriesEEGH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex, TimeSeriesEEGIndex
 from tvb.core.entities.storage import transactional
-from tvb.basic.arguments_serialisation import parse_slice
+from tvb.core.adapters.arguments_serialisation import parse_slice
 from tvb.core.neotraits._forms import UploadField, SimpleStrField, SimpleBoolField, SimpleIntField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
 from tvb.core.neocom.h5 import DirLoader

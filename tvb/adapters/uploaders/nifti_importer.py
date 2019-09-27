@@ -41,10 +41,10 @@ from tvb.datatypes.region_mapping import RegionVolumeMapping
 from tvb.datatypes.structural import StructuralMRI
 from tvb.datatypes.time_series import TimeSeriesVolume
 from tvb.datatypes.volumes import Volume
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.adapters.uploaders.nifti.parser import NIFTIParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException, LaunchException
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionVolumeMappingH5
 from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
 from tvb.core.entities.file.datatypes.time_series import TimeSeriesVolumeH5

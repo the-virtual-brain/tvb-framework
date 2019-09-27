@@ -34,7 +34,7 @@
 import numpy
 from abc import ABCMeta
 from nibabel import trackvis
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.file.files_helper import TvbZip
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
