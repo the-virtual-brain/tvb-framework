@@ -35,9 +35,8 @@ import os
 import sys
 from threading import Lock
 from abc import ABCMeta
-import numpy
-from tvb.basic.arguments_serialisation import preprocess_space_parameters, postprocess_voxel_ts, \
-    preprocess_time_parameters
+from six import add_metaclass
+from tvb.core.adapters.arguments_serialisation import *
 from tvb.datatypes.surfaces import Surface, KEY_VERTICES, KEY_START
 from tvb.core.utils import prepare_time_slice
 from tvb.core.adapters.abcadapter import ABCSynchronous
@@ -100,6 +99,7 @@ class URLGenerator(object):
         return url
 
 
+@add_metaclass(ABCMeta)
 class ABCDisplayer(ABCSynchronous):
     """
     Abstract class, for marking Adapters used for UI display only.

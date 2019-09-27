@@ -28,10 +28,10 @@
 #
 #
 import numpy
+from tvb.core.adapters.arguments_serialisation import preprocess_space_parameters
 from tvb.core.entities.file.datatypes.spectral_h5 import DataTypeMatrixH5
 from tvb.core.neotraits.h5 import DataSet, Scalar, Reference
 from tvb.datatypes.structural import StructuralMRI
-from tvb.basic.arguments_serialisation import preprocess_space_parameters
 
 
 class VolumetricDataMixin(object):

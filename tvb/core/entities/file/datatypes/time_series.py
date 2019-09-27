@@ -28,14 +28,11 @@
 #
 #
 import json
-import numpy
-from tvb.basic.neotraits.api import Float, Int
+from tvb.basic.neotraits.api import Int
+from tvb.core.adapters.arguments_serialisation import *
 from tvb.core.utils import prepare_time_slice
 from tvb.core.neotraits.h5 import H5File, Scalar, DataSet, Reference, Json
-from tvb.datatypes.time_series import TimeSeries, TimeSeriesRegion, TimeSeriesSurface, TimeSeriesVolume, \
-    TimeSeriesEEG, TimeSeriesMEG, TimeSeriesSEEG
-from tvb.basic.arguments_serialisation import preprocess_time_parameters, preprocess_space_parameters, \
-    postprocess_voxel_ts
+from tvb.datatypes.time_series import *
 
 
 class TimeSeriesH5(H5File):

@@ -36,7 +36,7 @@ Backend-side for Visualizers that display measures on regions in the brain volum
 
 import json
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.basic.arguments_serialisation import slice_str, preprocess_space_parameters, parse_slice
+from tvb.core.adapters.arguments_serialisation import slice_str, preprocess_space_parameters, parse_slice
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
