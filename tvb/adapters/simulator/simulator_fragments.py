@@ -44,7 +44,7 @@ from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, SimpleSelectField, ScalarField, ArrayField, SimpleFloatField, \
     SimpleHiddenField
-from tvb.interfaces.neocom.config import registry
+from tvb.core.neocom.config import registry
 
 
 class SimulatorSurfaceFragment(ABCAdapterForm):
