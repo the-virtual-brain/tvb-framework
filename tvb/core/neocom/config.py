@@ -37,7 +37,7 @@ from tvb.datatypes.patterns import StimuliRegion, StimuliSurface
 from tvb.datatypes.projections import ProjectionMatrix
 from tvb.datatypes.region_mapping import RegionVolumeMapping, RegionMapping
 from tvb.datatypes.sensors import Sensors
-from tvb.datatypes.simulation_state import SimulationState
+from tvb.adapters.datatypes.simulation_state import SimulationState
 from tvb.datatypes.spectral import CoherenceSpectrum, ComplexCoherenceSpectrum, FourierSpectrum, WaveletCoefficients
 from tvb.datatypes.structural import StructuralMRI
 from tvb.datatypes.surfaces import Surface
