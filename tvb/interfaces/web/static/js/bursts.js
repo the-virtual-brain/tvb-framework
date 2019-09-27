@@ -1196,6 +1196,7 @@ function launchNewBurst(launchMode) {
         // data: {'simulator_parameters': JSON.stringify(submitableData)},
         traditional: true,
         success: function (response) {
+            loadBurstHistory();
             fieldset.disabled = true;
             var t = document.createRange().createContextualFragment(response);
             document.getElementById('div-simulator-parameters').appendChild(t);
