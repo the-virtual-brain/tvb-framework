@@ -39,8 +39,8 @@ Entities for Generic DataTypes, Links and Groups of DataTypes are defined here.
 from copy import copy
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, Integer, String, Float, Column, ForeignKey
+from tvb.basic.neotraits.api import HasTraits
 from tvb.core.neotraits.db import HasTraitsIndex, Base
-
 from tvb.core.entities.model.model_project import Project
 from tvb.core.entities.model.model_operation import Operation, OperationGroup
 from tvb.core.entities.model.model_burst import BurstConfiguration
@@ -180,6 +180,11 @@ class DataType(HasTraitsIndex):
         Do nothing here. We will implement this only in MappedType.
         """
         pass
+
+
+    def fill_from_has_traits(self, has_traits):
+        # type: (HasTraits) -> None
+        self.gid = has_traits.gid
 
 
 class DataTypeMatrix(DataType):
