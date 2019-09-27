@@ -58,7 +58,7 @@ def init_test_env():
         if os.path.exists(db_file):
             os.remove(db_file)
 
-    from tvb.core.entities.model_manager import reset_database
+    from tvb.config.init.model_manager import reset_database
     from tvb.config.init.initializer import initialize
 
     reset_database()
