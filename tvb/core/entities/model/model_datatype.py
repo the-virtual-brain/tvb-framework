@@ -184,7 +184,7 @@ class DataType(HasTraitsIndex):
 
     def fill_from_has_traits(self, has_traits):
         # type: (HasTraits) -> None
-        self.gid = has_traits.gid
+        self.gid = has_traits.gid.hex
 
 
 class DataTypeMatrix(DataType):
