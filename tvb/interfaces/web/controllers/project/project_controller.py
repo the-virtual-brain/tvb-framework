@@ -43,7 +43,7 @@ from simplejson import JSONEncoder
 from cherrypy.lib.static import serve_file
 from tvb.adapters.exporters.export_manager import ExportManager
 from tvb.basic.profile import TvbProfile
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 import tvb.core.entities.model.model_operation as model
 from tvb.core.entities.transient import graph_structures
 from tvb.core.entities.filters.factory import StaticFiltersFactory

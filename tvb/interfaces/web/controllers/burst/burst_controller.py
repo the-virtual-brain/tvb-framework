@@ -45,7 +45,7 @@ from formencode import validators
 from cgi import FieldStorage
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.static import serve_fileobj
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.basic.profile import TvbProfile
 from tvb.core.utils import generate_guid, string2bool
 from tvb.core.adapters.abcadapter import ABCAdapter

@@ -32,14 +32,12 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 import os
-import inspect
 import shutil
 import datetime
 import threading
 from types import ModuleType
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.profile import TvbProfile
-from tvb.core import removers_factory
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.constants import ELEM_INPUTS
 from tvb.core.adapters.exceptions import XmlParserException
@@ -53,7 +51,7 @@ from tvb.core.entities.model_manager import initialize_startup, reset_database
 from tvb.core.neotraits.db import Base
 from tvb.core.portlets.portlet_configurer import PortletConfigurer
 from tvb.core.portlets.xml_reader import XMLPortletReader, ATT_OVERWRITE
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.services.project_service import initialize_storage
 from tvb.core.services.user_service import UserService
 from tvb.core.services.settings_service import SettingsService
@@ -125,8 +123,8 @@ class Introspector(object):
         for algo_category_class in IntrospectionRegistry.ADAPTERS:
             algo_category_id = self._populate_algorithm_categories(algo_category_class)
             self._populate_algorithms(algo_category_class, algo_category_id)
-        self._get_portlets()
-        removers_factory.update_dictionary(IntrospectionRegistry.DATATYPE_REMOVERS)
+        # self._get_portlets()
+        # removers_factory.update_dictionary(IntrospectionRegistry.DATATYPE_REMOVERS)
 
     def _ensure_datatype_tables_are_created(self):
         session = SA_SESSIONMAKER()
@@ -151,15 +149,9 @@ class Introspector(object):
 
         return algo_category_instance.id
 
-    @staticmethod
-    def _is_concrete_subclass(clz, super_cls):
-        return inspect.isclass(clz) and not inspect.isabstract(clz) and issubclass(clz, super_cls)
-
     def _populate_algorithms(self, algo_category_class, algo_category_id):
         for adapter_class in self.introspection_registry.ADAPTERS[algo_category_class]:
             try:
-                if not Introspector._is_concrete_subclass(adapter_class, ABCAdapter):
-                    self.logger.warning("Adapter %s is not subclass of %s" % (adapter_class, ABCAdapter))
                 if not adapter_class.can_be_active():
                     self.logger.warning("Skipped Adapter(probably because MATLAB not found):" + str(adapter_class))
 

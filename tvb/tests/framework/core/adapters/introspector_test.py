@@ -33,7 +33,7 @@
 """
 
 import os
-from tvb.core.services.initializer import Introspector
+from tvb.config.init.initializer import Introspector
 from tvb.tests.framework.core.base_testcase import BaseTestCase
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities.storage import dao

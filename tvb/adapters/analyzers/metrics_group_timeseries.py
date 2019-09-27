@@ -53,6 +53,11 @@ from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField, MultipleSelectField
 from tvb.datatypes.time_series import TimeSeries
+# Import metrics here, so that Traits will find them and return them as known subclasses
+import tvb.analyzers.metric_kuramoto_index
+import tvb.analyzers.metric_proxy_metastability
+import tvb.analyzers.metric_variance_global
+import tvb.analyzers.metric_variance_of_node_variance
 
 LOG = get_logger(__name__)
 ALGORITHMS = BaseTimeseriesMetricAlgorithm.get_known_subclasses(include_itself=False)

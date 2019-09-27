@@ -39,7 +39,7 @@ import pytest
 import cherrypy
 from time import sleep
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseControllersTest
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
 from tvb.datatypes.connectivity import Connectivity

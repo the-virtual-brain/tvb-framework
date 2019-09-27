@@ -35,7 +35,7 @@
 import numpy
 import json
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper

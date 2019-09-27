@@ -36,7 +36,7 @@ import json
 import pytest
 from copy import copy
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.model.model_burst import RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.core.entities.model.model_operation import STATUS_STARTED

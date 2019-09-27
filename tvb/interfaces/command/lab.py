@@ -33,10 +33,9 @@ A convenience module for the command interface
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
-
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.user_service import UserService

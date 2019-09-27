@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
 import json
 from tvb.basic.logger.builder import get_logger
-from tvb.core.services.introspector_registry import IntrospectionRegistry
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.entities.storage import dao
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.import_service import ImportService
