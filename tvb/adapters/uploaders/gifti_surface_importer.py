@@ -33,10 +33,10 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.adapters.uploaders.gifti.parser import GIFTIParser, OPTION_READ_METADATA
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException, ParseException
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
 from tvb.core.neotraits._forms import UploadField, SimpleBoolField, SimpleSelectField

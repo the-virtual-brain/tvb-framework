@@ -34,7 +34,7 @@
 """
 import uuid
 import numpy
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.connectivity import Connectivity

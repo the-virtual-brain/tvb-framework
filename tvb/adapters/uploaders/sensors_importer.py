@@ -33,16 +33,15 @@
 """
 
 import uuid
-import numpy
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField
 from tvb.core.neotraits.h5 import MEMORY_STRING
+from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 
 
 class SensorsImporterForm(ABCUploaderForm):

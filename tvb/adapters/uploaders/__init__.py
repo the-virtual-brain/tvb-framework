@@ -33,7 +33,7 @@ Define a list with all Python modules in which the introspect mechanism should s
 """
 
 ALL_UPLOADERS = ["brco_importer", "connectivity_measure_importer", "csv_connectivity_importer",
-                 "eeg_mat_timeseries_importer", "gifti_surface_importer", "gifti_timeseries_importer",
+                 "gifti_surface_importer", "gifti_timeseries_importer", "mat_timeseries_eeg_importer",
                  "mat_timeseries_importer", "networkx_importer", "nifti_importer", "obj_importer",
                  "projection_matrix_importer", "region_mapping_importer", "sensors_importer", "tract_importer",
                  "tvb_importer", "zip_connectivity_importer", "zip_surface_importer"]

@@ -38,20 +38,20 @@ import numpy
 import shutil
 import zipfile
 import tempfile
-from tvb.datatypes.surfaces import CORTICAL
-from tvb.adapters.uploaders.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.profile import TvbProfile
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
 from tvb.core.neotraits.db import from_ndarray
 from tvb.core.neocom.h5 import DirLoader
+from tvb.datatypes.surfaces import CORTICAL
 
 
 class RegionMappingImporterForm(ABCUploaderForm):
