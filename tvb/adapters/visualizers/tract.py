@@ -32,12 +32,12 @@
 A tracts visualizer
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
+from tvb.adapters.visualizers.time_series import ABCSpaceDisplayer
 from tvb.core.adapters.abcadapter import ABCAdapterForm
-from tvb.core.adapters.abcdisplayer import ABCDisplayer
-from tvb.datatypes.surfaces import CorticalSurface
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.datatypes.tracts import TractsIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.datatypes.surfaces import CorticalSurface
 
 
 class TractViewerForm(ABCAdapterForm):
@@ -62,7 +62,7 @@ class TractViewerForm(ABCAdapterForm):
         return None
 
 
-class TractViewer(ABCDisplayer):
+class TractViewer(ABCSpaceDisplayer):
     """
     Tract visualizer
     """

@@ -37,6 +37,11 @@ A Javascript displayer for time series, using SVG.
 
 import os
 import json
+from abc import ABCMeta
+from six import add_metaclass
+from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
+from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesRegionH5, TimeSeriesSensorsH5
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer, URLGenerator
@@ -70,7 +75,77 @@ class TimeSeriesForm(ABCAdapterForm):
                            values=["TimeSeriesVolume"])
 
 
-class TimeSeries(ABCDisplayer):
+@add_metaclass(ABCMeta)
+class ABCSpaceDisplayer(ABCDisplayer):
+
+    def build_template_params_for_subselectable_datatype(self, sub_selectable):
+        """
+        creates a template dict with the initial selection to be
+        displayed in a time series viewer
+        """
+        return {'measurePointsSelectionGID': sub_selectable.gid.load().hex,
+                'initialSelection': self.get_default_selection(sub_selectable),
+                'groupedLabels': self.get_grouped_space_labels(sub_selectable)}
+
+    def get_space_labels(self, ts_h5):
+        """
+        :return: An array of strings with the connectivity node labels.
+        """
+
+        if type(ts_h5) is TimeSeriesRegionH5:
+            connectivity_gid = ts_h5.connectivity.load()
+            if connectivity_gid is None:
+                return []
+
+            connectivity_h5_class, connectivity_h5_path = self._load_h5_of_gid(connectivity_gid.hex)
+            connectivity_h5 = connectivity_h5_class(connectivity_h5_path)
+            return list(connectivity_h5.region_labels.load())
+
+        if type(ts_h5) is TimeSeriesSensorsH5:
+            sensors_gid = ts_h5.sensors.load()
+            if sensors_gid is None:
+                return []
+
+            sensors_h5_class, sensors_h5_path = self._load_h5_of_gid(sensors_gid.hex)
+            sensors_h5 = sensors_h5_class(sensors_h5_path)
+            return list(sensors_h5.labels.load())
+
+        return ts_h5.get_space_labels
+
+    def get_grouped_space_labels(self, h5_file):
+        """
+        :return: A structure of this form [('left', [(idx, lh_label)...]), ('right': [(idx, rh_label) ...])]
+        """
+
+        if type(h5_file) is ConnectivityH5:
+            return h5_file.get_grouped_space_labels()
+
+        connectivity_gid = h5_file.connectivity.load()
+        if connectivity_gid is None:
+            return super(type(h5_file), h5_file).get_grouped_space_labels()
+
+        connectivity_h5_class, connectivity_h5_path = self._load_h5_of_gid(connectivity_gid.hex)
+        connectivity_h5 = connectivity_h5_class(connectivity_h5_path)
+        return connectivity_h5.get_grouped_space_labels()
+
+    def get_default_selection(self, h5_file):
+        """
+        :return: If the connectivity of this time series is edited from another
+                 return the nodes of the parent that are present in the connectivity.
+        """
+        if type(h5_file) in [ConnectivityH5, SensorsH5]:
+            return h5_file.get_default_selection()
+
+        connectivity_gid = h5_file.connectivity.load()
+        if connectivity_gid is None:
+            return super(type(h5_file), h5_file).get_default_selection()
+
+        connectivity_h5_class, connectivity_h5_path = self._load_h5_of_gid(connectivity_gid.hex)
+        connectivity_h5 = connectivity_h5_class(connectivity_h5_path)
+        return connectivity_h5.get_default_selection()
+
+
+class TimeSeries(ABCSpaceDisplayer):
     _ui_name = "Time Series Visualizer (SVG/d3)"
     _ui_subsection = "timeseries"
 
@@ -95,7 +170,7 @@ class TimeSeries(ABCDisplayer):
         state_variables = h5_file.labels_dimensions.load().get(time_series.labels_ordering[1], [])
         labels = self.get_space_labels(h5_file)
 
-        ## Assume that the first dimension is the time since that is the case so far
+        # Assume that the first dimension is the time since that is the case so far
         if preview and shape[0] > self.MAX_PREVIEW_DATA_LENGTH:
             shape[0] = self.MAX_PREVIEW_DATA_LENGTH
 

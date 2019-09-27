@@ -36,6 +36,9 @@
 import os
 import json
 import numpy
+from six import add_metaclass
+from abc import ABCMeta
+from tvb.adapters.visualizers.time_series import ABCSpaceDisplayer
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.adapters.arguments_serialisation import parse_slice, slice_str
 from tvb.core.adapters.abcadapter import ABCAdapterForm
@@ -76,7 +79,8 @@ def compute_2d_view(matrix, slice_s):
     return matrix[matrix_slice].astype(float), slice_used, matrix_slice == default
 
 
-class MappedArraySVGVisualizerMixin(object):
+@add_metaclass(ABCMeta)
+class MappedArraySVGVisualizerMixin(ABCSpaceDisplayer):
     """
     To be mixed in a ABCDisplayer
     """
@@ -165,7 +169,7 @@ class MatrixVisualizerForm(ABCAdapterForm):
         return DataTypeMatrix
 
 
-class MappedArrayVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
+class MappedArrayVisualizer(MappedArraySVGVisualizerMixin):
     _ui_name = "Matrix Visualizer"
     _ui_subsection = "matrix"
 

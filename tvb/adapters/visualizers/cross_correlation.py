@@ -62,7 +62,7 @@ class CrossCorrelationVisualizerForm(ABCAdapterForm):
         return None
 
 
-class CrossCorrelationVisualizer(MappedArraySVGVisualizerMixin, ABCDisplayer):
+class CrossCorrelationVisualizer(MappedArraySVGVisualizerMixin):
     _ui_name = "Cross Correlation Visualizer"
     _ui_subsection = "correlation"
 

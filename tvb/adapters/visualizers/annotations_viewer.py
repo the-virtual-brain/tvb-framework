@@ -34,8 +34,8 @@
 
 import json
 from tvb.basic.profile import TvbProfile
+from tvb.adapters.visualizers.surface_view import ABCSurfaceDisplayer
 from tvb.core.adapters.abcadapter import ABCAdapterForm
-from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.storage import dao
@@ -81,7 +81,7 @@ class ConnectivityAnnotationsViewForm(ABCAdapterForm):
         return None
 
 
-class ConnectivityAnnotationsView(ABCDisplayer):
+class ConnectivityAnnotationsView(ABCSurfaceDisplayer):
     """
     Given a Connectivity Matrix and a Surface data the viewer will display the matrix 'inside' the surface data.
     The surface is only displayed as a shadow.
