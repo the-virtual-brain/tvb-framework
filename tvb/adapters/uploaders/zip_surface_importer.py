@@ -163,9 +163,7 @@ class ZIPSurfaceImporter(ABCUploader):
         self.generic_attributes.user_tag_1 = surface.surface_type
 
         surf_path = TVBLoader().path_for(self.storage_path, SurfaceH5, surf_idx.gid)
-
         with SurfaceH5(surf_path) as surf_h5:
             surf_h5.store(surface)
-            surf_h5.gid.store(uuid.UUID(surf_idx.gid))
 
         return surf_idx
