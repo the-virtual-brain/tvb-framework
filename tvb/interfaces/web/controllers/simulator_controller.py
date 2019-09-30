@@ -56,7 +56,7 @@ from tvb.core.entities.model.model_operation import OperationGroup
 from tvb.core.entities.model.simulator.burst_configuration import BurstConfiguration2
 from tvb.core.entities.model.simulator.simulator import SimulatorIndex
 from tvb.core.entities.storage import dao
-from tvb.core.services.burst_service import BurstService
+from tvb.core.services.burst_service2 import BurstService2
 from tvb.core.services.exceptions import BurstServiceException
 from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.services.simulator_service import SimulatorService
@@ -91,7 +91,7 @@ class SimulatorController(BurstBaseController):
     def __init__(self):
         BurstBaseController.__init__(self)
         self.range_parameters = SimulatorRangeParameters()
-        self.burst_service = BurstService()
+        self.burst_service2 = BurstService2()
         self.simulator_service = SimulatorService()
         self.files_helper = FilesHelper()
         self.cached_simulator_algorithm = self.flow_service.get_algorithm_by_module_and_class(
@@ -110,7 +110,7 @@ class SimulatorController(BurstBaseController):
         burst_config = BurstConfiguration2(project.id)
         common.add2session(common.KEY_BURST_CONFIG, burst_config)
         template_specification['burstConfig'] = burst_config
-        template_specification['burst_list'] = self.burst_service.get_available_bursts(common.get_current_project().id)
+        template_specification['burst_list'] = self.burst_service2.get_available_bursts(common.get_current_project().id)
 
         portlets_list = []  # self.burst_service.get_available_portlets()
         template_specification['portletList'] = portlets_list
@@ -720,7 +720,15 @@ class SimulatorController(BurstBaseController):
             return {'error': e.message}
 
     @expose_json
-    def launch_simulation(self, launch_mode, burst_name):
+    def launch_simulation(self, launch_mode, **data):
+        current_form = SimulatorFinalFragment()
+        try:
+            current_form.fill_from_post(data)
+        except Exception as exc:
+            self.logger.exception(exc)
+            return {'error': exc.message}
+
+        burst_name = current_form.simulation_name.value
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
         is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
 
@@ -758,13 +766,14 @@ class SimulatorController(BurstBaseController):
 
         try:
             thread = threading.Thread(target=self.simulator_service.async_launch_and_prepare_simulation,
-                                  kwargs={'burst_config': burst_config_to_store,
-                                          'user': user,
-                                          'project': project,
-                                          'simulator_algo': self.cached_simulator_algorithm,
-                                          'session_stored_simulator': session_stored_simulator,
-                                          'simulation_state_gid': simulation_state_index_gid})
+                                      kwargs={'burst_config': burst_config_to_store,
+                                              'user': user,
+                                              'project': project,
+                                              'simulator_algo': self.cached_simulator_algorithm,
+                                              'session_stored_simulator': session_stored_simulator,
+                                              'simulation_state_gid': simulation_state_index_gid})
             thread.start()
+            return {'id': burst_config_to_store.id}
         except BurstServiceException as e:
             self.logger.exception('Could not launch burst!')
             return {'error': e.message}
@@ -776,8 +785,8 @@ class SimulatorController(BurstBaseController):
         This is one alternative to 'chrome-back problem'.
         """
         session_burst = common.get_from_session(common.KEY_BURST_CONFIG)
-        bursts = self.burst_service.get_available_bursts(common.get_current_project().id)
-        self.burst_service.populate_burst_disk_usage(bursts)
+        bursts = self.burst_service2.get_available_bursts(common.get_current_project().id)
+        self.burst_service2.populate_burst_disk_usage(bursts)
         return {'burst_list': bursts,
                 'selectedBurst': session_burst.id}
 
@@ -790,8 +799,7 @@ class SimulatorController(BurstBaseController):
             burst_config = dao.get_burst_by_id(burst_config_id)
             common.add2session(common.KEY_BURST_CONFIG, burst_config)
 
-            simulator_index_id = burst_config.simulator_id
-            simulator_index = dao.get_datatype_by_id(simulator_index_id)
+            simulator_index = dao.get_generic_entity(SimulatorIndex, burst_config.id, 'fk_parent_burst')[0]
             simulator_gid = simulator_index.gid
 
             project = common.get_current_project()
@@ -826,8 +834,7 @@ class SimulatorController(BurstBaseController):
         burst_config = dao.get_burst_by_id(burst_config_id)
         common.add2session(common.KEY_BURST_CONFIG, burst_config)
 
-        simulator_index_id = burst_config.simulator_id
-        simulator_index = dao.get_datatype_by_id(simulator_index_id)
+        simulator_index = dao.get_generic_entity(SimulatorIndex, burst_config.id, 'fk_parent_burst')[0]
         simulator_gid = simulator_index.gid
 
         project = common.get_current_project()
@@ -866,3 +873,24 @@ class SimulatorController(BurstBaseController):
         dict_to_render[self.FORM_KEY] = form
         dict_to_render[self.ACTION_KEY] = "/burst/set_connectivity"
         return dict_to_render
+
+    @expose_json
+    def rename_burst(self, burst_id, burst_name):
+        """
+        Rename the burst given by burst_id, setting it's new name to
+        burst_name.
+        """
+        validation_result = SimulatorFinalFragment.is_burst_name_ok(burst_name)
+        if validation_result is True:
+            self.burst_service2.rename_burst(burst_id, burst_name)
+            return {'success': "Simulation successfully renamed!"}
+        else:
+            self.logger.exception(validation_result)
+            return {'error': validation_result}
+
+    @expose_json
+    def get_history_status(self, **data):
+        """
+        For each burst id received, get the status and return it.
+        """
+        return self.burst_service2.update_history_status(json.loads(data['burst_ids']))

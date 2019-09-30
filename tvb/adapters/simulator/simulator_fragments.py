@@ -29,6 +29,8 @@
 #
 
 import uuid
+import formencode
+from formencode import validators
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.neotraits.api import Attr, Range
 from tvb.datatypes.cortex import Cortex
@@ -170,6 +172,29 @@ class SimulatorFinalFragment(ABCAdapterForm):
         super(SimulatorFinalFragment, self).__init__(prefix, project_id)
         self.simulation_name = ScalarField(Attr(str, doc='Name for the current simulation configuration',
                                                 label='Simulation name'), self, name='input-simulation-name-id')
+
+    def fill_from_post(self, form_data):
+        super(SimulatorFinalFragment, self).fill_from_post(form_data)
+        valiadation_result = SimulatorFinalFragment.is_burst_name_ok(self.simulation_name.value)
+        if valiadation_result is not True:
+            raise ValueError(valiadation_result)
+
+    @staticmethod
+    def is_burst_name_ok(burst_name):
+        class BurstNameForm(formencode.Schema):
+            """
+            Validate Burst name string
+            """
+            burst_name = formencode.All(validators.UnicodeString(not_empty=True),
+                                        validators.Regex(regex=r"^[a-zA-Z\. _\-0-9]*$"))
+
+        try:
+            form = BurstNameForm()
+            form.to_python({'burst_name': burst_name})
+            return True
+        except formencode.Invalid:
+            validation_error = "Invalid simulation name %s. Please use only letters, numbers, or _ " % str(burst_name)
+            return validation_error
 
 
 class SimulatorPSEConfigurationFragment(ABCAdapterForm):

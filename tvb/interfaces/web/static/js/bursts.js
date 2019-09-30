@@ -288,7 +288,7 @@ function renameBurstEntry(burst_id, new_name_id) {
 /*
  * Load a given burst entry from history. 
  */
-function changeBurstHistory(burst_id) {
+function changeBurstHistory(burst_id, load_burst) {
     const clickedBurst = document.getElementById("burst_id_" + burst_id);
     // todo : do not store app state in css classes
     if (clickedBurst.className.indexOf(ACTIVE_BURST_CLASS) >= 0 &&
@@ -300,8 +300,10 @@ function changeBurstHistory(burst_id) {
         $(this).removeClass(ACTIVE_BURST_CLASS);
         $(this).removeClass(GROUP_BURST_CLASS);
     });
-    // Load the selected burst.
-    loadBurstReadOnly(burst_id);
+    if (load_burst) {
+        // Load the selected burst.
+        loadBurstReadOnly(burst_id);
+    }
 }
 
 /*************************************************************************************************************************
@@ -1183,24 +1185,24 @@ function setupPSE() {
  * Get the data from the simulator and launch a new burst. On success add a new entry in the burst-history.
  * @param launchMode: 'new' 'branch' or 'continue'
  */
-function launchNewBurst(launchMode) {
-    let newBurstName = document.getElementById('_input-simulation-name-id').value;
-    if (newBurstName.length === 0) {
-        newBurstName = "none_undefined";
-    }
+function launchNewBurst(currentForm, launchMode) {
+    var form_data = $(currentForm).serialize(); //Encode form elements for submission
+
     displayMessage("You've submitted parameters for simulation launch! Please wait for preprocessing steps...", 'warningMessage');
-    // const submitableData = getSubmitableData('div-simulator-parameters', false);
     doAjaxCall({
         type: "POST",
-        url: '/burst/launch_simulation/' + launchMode + '/' + newBurstName,
-        // data: {'simulator_parameters': JSON.stringify(submitableData)},
+        url: '/burst/launch_simulation/' + launchMode,
+        data: form_data,
         traditional: true,
         success: function (response) {
             loadBurstHistory();
-            fieldset.disabled = true;
-            var t = document.createRange().createContextualFragment(response);
-            document.getElementById('div-simulator-parameters').appendChild(t);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "div-simulator-parameters"]);
+            const result = $.parseJSON(response);
+            if ('id' in result) {
+                changeBurstHistory(result.id, false);
+            }
+            if ('error' in result) {
+                displayMessage(result.error, "errorMessage");
+            }
         },
         error: function () {
             displayMessage("Error when launching simulation. Please check te logs or contact your administrator.", "errorMessage");

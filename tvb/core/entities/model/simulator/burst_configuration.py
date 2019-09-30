@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, String, DateTime
 from sqlalchemy.orm import relationship, backref
 
+from tvb.core.utils import format_timedelta
 from tvb.core.entities.model.model_operation import OperationGroup
 from tvb.core.entities.model.model_project import Project
 from tvb.core.neotraits.db import HasTraitsIndex
@@ -17,6 +18,7 @@ class BurstConfiguration2(HasTraitsIndex):
     nr_of_tabs = 0
     selected_tab = -1
     is_group = False
+    datatypes_number = Column(Integer)
 
     id = Column(Integer, ForeignKey(HasTraitsIndex.id), primary_key=True)
 
@@ -49,3 +51,9 @@ class BurstConfiguration2(HasTraitsIndex):
         new_burst.name = self.name
         new_burst.status = self.BURST_RUNNING
         return new_burst
+
+    @property
+    def process_time(self):
+        if self.finish_time is not None and self.start_time is not None:
+            return format_timedelta(self.finish_time - self.start_time)
+        return ''

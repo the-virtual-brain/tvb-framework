@@ -693,18 +693,7 @@ class BurstController(BurstBaseController):
 
 
     def _is_burst_name_ok(self, burst_name):
-        """
-        Validate a new burst name, to have only plain text.
-        :returns: True, when validation succeeds, and an error message otherwise.
-        """
-        try:
-            form = BurstNameForm()
-            form.to_python({'burst_name': burst_name})
-            return True
-        except formencode.Invalid:
-            validation_error = "Invalid simulation name %s. Please use only letters, numbers, or _ " % str(burst_name)
-            self.logger.exception(validation_error)
-            return validation_error
+        pass
 
 
     @cherrypy.expose
@@ -754,12 +743,3 @@ class BurstController(BurstBaseController):
             common.set_error_message(excep.message)
 
         raise cherrypy.HTTPRedirect('/burst/')
-
-
-
-class BurstNameForm(formencode.Schema):
-    """
-    Validate Burst name string
-    """
-    burst_name = formencode.All(validators.UnicodeString(not_empty=True),
-                                validators.Regex(regex=r"^[a-zA-Z\. _\-0-9]*$"))

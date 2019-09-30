@@ -50,10 +50,10 @@
 
     {% if is_last_fragment and sim_load is sameas false %}
         <button id="launch_simulation" name="launch_simulation" type="button" class="btn btn-primary"
-        onclick="launchNewBurst('new')">Launch</button>
+        onclick="launchNewBurst(this.parentElement, 'new')">Launch</button>
         {% if sim_copy %}
         <button id="branch_simulation" name="branch_simulation" type="button" class="btn btn-primary"
-        onclick="launchNewBurst('branch')">Branch</button>
+        onclick="launchNewBurst(this.parentElement, 'branch')">Branch</button>
         {% endif %}
         <button id="setup_pse" name="setup_pse" type="button" class="btn btn-primary"
         onclick="wizzard_submit(this.parentElement)">Setup PSE</button>
