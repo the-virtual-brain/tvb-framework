@@ -54,26 +54,16 @@ class TestExplorationController(BaseTransactionalControllerTest):
     #     self.dt_group = DatatypesFactory().create_datatype_group()
     #     self.controller = ParameterExplorationController()
 
-    @pytest.fixture(scope='module')
-    def transactional_setup_method(self, datatype_group_factory):
-        """
-        Sets up the environment for testing;
-        creates a datatype group and a Parameter Exploration Controller
-        """
-        self.init()
-        self.dt_group = datatype_group_factory
-        self.controller = ParameterExplorationController()
-
-
     def transactional_teardown_method(self):
         """ Cleans the testing environment """
         self.cleanup()
 
-
-    def test_draw_discrete_exploration(self, transactional_setup_method, define_attributes):
+    def test_draw_discrete_exploration(self, datatype_group_factory, define_attributes):
         """
         Test that Discrete PSE is getting launched and correct fields are prepared.
         """
+        self.dt_group = datatype_group_factory()
+        self.controller = ParameterExplorationController()
         result = self.controller.draw_discrete_exploration(self.dt_group.gid, 'burst', None, None)
         assert result['available_metrics'] == define_attributes['DATATYPE_MEASURE_METRIC'].keys()
         assert result['color_metric'] == define_attributes['DATATYPE_MEASURE_METRIC'].keys()[0]
@@ -89,11 +79,12 @@ class TestExplorationController(BaseTransactionalControllerTest):
                 for key in ['Gid', 'color_weight', 'operationId', 'tooltip']:
                     assert key in entry
 
-
-    def test_draw_isocline_exploration(self, transactional_setup_method, define_attributes):
+    def test_draw_isocline_exploration(self, datatype_group_factory, define_attributes):
         """
         Test that isocline PSE gets launched.
         """
+        self.dt_group = datatype_group_factory()
+        self.controller = ParameterExplorationController()
         result = self.controller.draw_isocline_exploration(self.dt_group.gid)
         assert isinstance(result['canvasName'], (str, unicode))
         assert isinstance(result['xAxisName'], (str, unicode))
