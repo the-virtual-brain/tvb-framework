@@ -46,7 +46,6 @@ import sys
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities.model.model_operation import has_finished
 from tvb.core.entities.model.simulator.burst_configuration import BurstConfiguration2
-from tvb.core.services.burst_service2 import BurstService2
 
 if __name__ == '__main__':
     TvbProfile.set_profile(sys.argv[2], True)
@@ -90,14 +89,30 @@ def do_operation_launch(operation_id):
         # p.run(OperationService().initiate_prelaunch, curent_operation, adapter_instance, {}, **PARAMS)
 
         OperationService().initiate_prelaunch(curent_operation, adapter_instance, **params)
+        if curent_operation.fk_operation_group:
+            operations_in_group = dao.get_operations_in_group(curent_operation.fk_operation_group)
+            if curent_operation.fk_metrics_operation_group:
+                operations_in_group.append(dao.get_operations_in_group(curent_operation.fk_metrics_operation_group))
+            for operation in operations_in_group:
+                if not has_finished(operation.status):
+                    break
+                parent_burst = dao.get_generic_entity(BurstConfiguration2, curent_operation.fk_operation_group,
+                                                      'operation_group_id')
+                if parent_burst is not None:
+                    burst_service.mark_burst_finished(parent_burst)
+        else:
+            parent_burst = burst_service.get_burst_for_operation_id(operation_id)
+            if parent_burst is not None:
+                burst_service.mark_burst_finished(parent_burst)
+
         log.debug("Successfully finished operation " + str(operation_id))
 
     except Exception as excep:
         log.error("Could not execute operation " + str(sys.argv[1]))
         log.exception(excep)
-        parent_burst = dao.get_burst_for_operation_id(operation_id)
+        parent_burst = burst_service.get_burst_for_operation_id(operation_id)
         if parent_burst is not None:
-            BurstService2().mark_burst_finished(parent_burst, error_message=str(excep))
+            burst_service.mark_burst_finished(parent_burst, error_message=str(excep))
 
 
 if __name__ == '__main__':

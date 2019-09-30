@@ -120,7 +120,9 @@ class SimulatorService(object):
     def async_launch_and_prepare_simulation(self, burst_config, user, project, simulator_algo,
                                             session_stored_simulator, simulation_state_gid):
         try:
-            simulator_index = burst_config.simulator
+            simulator_index = SimulatorIndex()
+            simulator_index.fk_parent_burst = burst_config.id
+            dao.store_entity(simulator_index)
             simulator_id = simulator_algo.id
             algo_category = simulator_algo.algorithm_category
             operation = self._prepare_operation(burst_config.id, project.id, user.id, simulator_id, simulator_index,
@@ -152,7 +154,6 @@ class SimulatorService(object):
         try:
             simulator_id = simulator_algo.id
             algo_category = simulator_algo.algorithm_category
-            simulator_index = burst_config.simulator
             operation_group = burst_config.operation_group
             metric_operation_group = burst_config.metric_operation_group
             operations = []
@@ -165,6 +166,10 @@ class SimulatorService(object):
                     self._set_simulator_range_parameter(simulator, range_param1.name, param1_value)
                     self._set_simulator_range_parameter(simulator, range_param2.name, param2_value)
 
+                    simulator_index = SimulatorIndex()
+                    simulator_index.fk_parent_burst = burst_config.id
+                    simulator_index = dao.store_entity(simulator_index)
+
                     operation = self._prepare_operation(burst_config.id, project.id, user.id, simulator_id,
                                                         simulator_index, algo_category, operation_group)
 
@@ -174,10 +179,6 @@ class SimulatorService(object):
                     storage_path = self.files_helper.get_project_folder(project, str(operation.id))
                     self.serialize_simulator(simulator, simulator_index.gid, None, storage_path)
                     operations.append(operation)
-
-                    # TODO: will create an extra SimulatorIndex. Keep SimIndex?
-                    simulator_index = SimulatorIndex()
-                    simulator_index = dao.store_entity(simulator_index)
 
             first_operation = operations[0]
             datatype_group = DataTypeGroup(operation_group, operation_id=first_operation.id,

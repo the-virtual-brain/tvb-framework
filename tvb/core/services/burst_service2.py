@@ -61,3 +61,6 @@ class BurstService2(object):
         operation = dao.get_operation_by_id(operation.id)
         self.file_helper.write_operation_metadata(operation)
         return operation
+
+    def get_burst_for_operation_id(self, operation_id):
+        return dao.get_burst_for_operation_id(operation_id)

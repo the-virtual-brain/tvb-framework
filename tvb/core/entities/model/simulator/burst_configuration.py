@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship, backref
 
 from tvb.core.entities.model.model_operation import OperationGroup
 from tvb.core.entities.model.model_project import Project
-from tvb.core.entities.model.simulator.simulator import SimulatorIndex
 from tvb.core.neotraits.db import HasTraitsIndex
 
 
@@ -30,10 +29,6 @@ class BurstConfiguration2(HasTraitsIndex):
 
     start_time = Column(DateTime)
     finish_time = Column(DateTime)
-
-    simulator_id = Column(Integer, ForeignKey('SimulatorIndex.id'), nullable=False)
-    simulator = relationship(SimulatorIndex, foreign_keys=simulator_id, primaryjoin=SimulatorIndex.id == simulator_id,
-                             cascade='none')
 
     operation_group_id = Column(Integer, ForeignKey('OPERATION_GROUPS.id'), nullable=True)
     operation_group = relationship(OperationGroup, foreign_keys=operation_group_id,

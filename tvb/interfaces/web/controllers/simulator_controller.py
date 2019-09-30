@@ -683,12 +683,7 @@ class SimulatorController(BurstBaseController):
         project = common.get_current_project()
         user = common.get_logged_user()
 
-        simulator_index = SimulatorIndex()
-        simulator_index = dao.store_entity(simulator_index)
-
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
-        burst_config.simulator_id = simulator_index.id
-        burst_config.simulator = simulator_index
         burst_config.start_time = datetime.datetime.now()
         # if burst_name != 'none_undefined':
         #     burst_config.name = burst_name
@@ -732,9 +727,6 @@ class SimulatorController(BurstBaseController):
         project = common.get_current_project()
         user = common.get_logged_user()
 
-        simulator_index = SimulatorIndex()
-        simulator_index = dao.store_entity(simulator_index)
-
         session_burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
         if burst_name != 'none_undefined':
             session_burst_config.name = burst_name
@@ -761,8 +753,6 @@ class SimulatorController(BurstBaseController):
                 raise exc
             simulation_state_index_gid = simulation_state_index[0].gid
 
-        burst_config_to_store.simulator_id = simulator_index.id
-        burst_config_to_store.simulator = simulator_index
         burst_config_to_store.start_time = datetime.datetime.now()
         dao.store_entity(burst_config_to_store)
 
