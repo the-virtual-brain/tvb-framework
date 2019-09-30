@@ -33,8 +33,10 @@
 """
 
 import json
+
+import pytest
+
 from tvb.tests.framework.interfaces.web.controllers.base_controller_test import BaseTransactionalControllerTest
-from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 from tvb.interfaces.web.controllers.burst.exploration_controller import ParameterExplorationController
 
 
@@ -43,13 +45,23 @@ class TestExplorationController(BaseTransactionalControllerTest):
     Unit tests ParameterExplorationController
     """
 
-    def transactional_setup_method(self):
+    # def transactional_setup_method(self):
+    #     """
+    #     Sets up the environment for testing;
+    #     creates a datatype group and a Parameter Exploration Controller
+    #     """
+    #     self.init()
+    #     self.dt_group = DatatypesFactory().create_datatype_group()
+    #     self.controller = ParameterExplorationController()
+
+    @pytest.fixture(scope='module')
+    def transactional_setup_method(self, datatype_group_factory):
         """
         Sets up the environment for testing;
         creates a datatype group and a Parameter Exploration Controller
         """
         self.init()
-        self.dt_group = DatatypesFactory().create_datatype_group()
+        self.dt_group = datatype_group_factory
         self.controller = ParameterExplorationController()
 
 
@@ -58,27 +70,27 @@ class TestExplorationController(BaseTransactionalControllerTest):
         self.cleanup()
 
 
-    def test_draw_discrete_exploration(self):
+    def test_draw_discrete_exploration(self, transactional_setup_method, define_attributes):
         """
         Test that Discrete PSE is getting launched and correct fields are prepared.
         """
         result = self.controller.draw_discrete_exploration(self.dt_group.gid, 'burst', None, None)
-        assert result['available_metrics'] == DatatypesFactory.DATATYPE_MEASURE_METRIC.keys()
-        assert result['color_metric'] == DatatypesFactory.DATATYPE_MEASURE_METRIC.keys()[0]
+        assert result['available_metrics'] == define_attributes['DATATYPE_MEASURE_METRIC'].keys()
+        assert result['color_metric'] == define_attributes['DATATYPE_MEASURE_METRIC'].keys()[0]
         assert result['size_metric'] is None
-        assert DatatypesFactory.RANGE_1[1] == json.loads(result['labels_x'])
-        assert DatatypesFactory.RANGE_2[1] == json.loads(result['labels_y'])
+        assert define_attributes['RANGE_1'][1] == json.loads(result['labels_x'])
+        assert define_attributes['RANGE_2'][1] == json.loads(result['labels_y'])
         data = json.loads(result['d3_data'])
-        assert len(data) == len(DatatypesFactory.RANGE_1[1])
+        assert len(data) == len(define_attributes['RANGE_1'][1])
         for row in data.values():
-            assert len(row) == len(DatatypesFactory.RANGE_2[1])
+            assert len(row) == len(define_attributes['RANGE_2'][1])
             for entry in row.values():
                 assert entry['dataType'] == 'Datatype2'
                 for key in ['Gid', 'color_weight', 'operationId', 'tooltip']:
                     assert key in entry
 
 
-    def test_draw_isocline_exploration(self):
+    def test_draw_isocline_exploration(self, transactional_setup_method, define_attributes):
         """
         Test that isocline PSE gets launched.
         """
@@ -86,4 +98,4 @@ class TestExplorationController(BaseTransactionalControllerTest):
         assert isinstance(result['canvasName'], (str, unicode))
         assert isinstance(result['xAxisName'], (str, unicode))
         assert isinstance(result['url_base'], (str, unicode))
-        assert DatatypesFactory.DATATYPE_MEASURE_METRIC.keys() == result['available_metrics']
+        assert define_attributes['DATATYPE_MEASURE_METRIC'].keys() == result['available_metrics']
