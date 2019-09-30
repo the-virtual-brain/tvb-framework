@@ -265,5 +265,73 @@ def regionSimulationFactory(connectivityFactory):
         return Simulator(connectivity=connectivity,
                          surface=None,
                          simulation_length=simulation_length)
+def ica_factory(operation_factory, time_series_factory):
+    """
+    :returns: persisted entity IndependentComponents
+    """
+    operation, _, storage_path = operation_factory
+    partial_ts = TimeSeries(use_storage=False)
+    partial_ts.data = numpy.random.random((10, 10, 10, 10))
+    partial_ica = IndependentComponents(source=partial_ts,
+                                        component_time_series=numpy.random.random((10, 10, 10, 10)),
+                                        prewhitening_matrix=numpy.random.random((10, 10, 10, 10)),
+                                        unmixing_matrix=numpy.random.random((10, 10, 10, 10)),
+                                        n_components=10, use_storage=False)
+    ica = IndependentComponents(source=time_series_factory, n_components=10, storage_path=storage_path)
+    ica.write_data_slice(partial_ica)
+    adapter_instance = StoreAdapter([ica])
+    OperationService().initiate_prelaunch(operation, adapter_instance)
+    return ica
+
+
+@pytest.fixture(scope='module')
+def datatype_group_factory(datatype_factory, define_attributes, datatype_with_storage_factory):
+
+    def build(subject=define_attributes['USER_FULL_NAME'], state=define_attributes['DATATYPE_STATE'], ):
+
+        """
+        This method creates, stores and returns a DataTypeGroup entity.
+        """
+        group = OperationGroup(datatype_factory['project'].id, ranges=[json.dumps(define_attributes['RANGE_1']), json.dumps(define_attributes['RANGE_2'])])
+        group = dao.store_entity(group)
+        group_ms = OperationGroup(datatype_factory['project'].id, ranges=[json.dumps(define_attributes['RANGE_1']), json.dumps(define_attributes['RANGE_2'])])
+        group_ms = dao.store_entity(group_ms)
+
+        datatype_group = DataTypeGroup(group, subject=subject, state=state, operation_id=datatype_factory['operation'].id)
+        # Set storage path, before setting data
+        datatype_group.storage_path = datatype_factory['files_helper'].get_project_folder(datatype_factory['project'], str(datatype_factory['operation'].id))
+        datatype_group = dao.store_entity(datatype_group)
+
+        dt_group_ms = DataTypeGroup(group_ms, subject=subject, state=state, operation_id=datatype_factory['operation'].id)
+        # Set storage path, before setting data
+        dt_group_ms.storage_path = datatype_factory['files_helper'].get_project_folder(datatype_factory['project'], str(datatype_factory['operation'].id))
+        dao.store_entity(dt_group_ms)
+
+        # Now create some data types and add them to group
+        for range_val1 in define_attributes['RANGE_1'][1]:
+            for range_val2 in define_attributes['RANGE_2'][1]:
+                operation = Operation(datatype_factory['user'].id, datatype_factory['project'].id, datatype_factory['algorithm'].id, 'test parameters',
+                                    meta=json.dumps(datatype_factory['meta']), status=STATUS_FINISHED,
+                                    range_values=json.dumps({define_attributes['RANGE_1'][0]: range_val1,
+                                                            define_attributes['RANGE_2'][0]: range_val2}))
+                operation.fk_operation_group = group.id
+                operation = dao.store_entity(operation)
+                datatype = datatype_with_storage_factory(operation_id=operation.id)
+                datatype.number1 = range_val1
+                datatype.number2 = range_val2
+                datatype.fk_datatype_group = datatype_group.id
+                datatype.set_operation_id(operation.id)
+                dao.store_entity(datatype)
+
+                op_ms = Operation(datatype_factory['user'].id, datatype_factory['project'].id, datatype_factory['algorithm'].id, 'test parameters',
+                                meta=json.dumps(datatype_factory['meta']), status=STATUS_FINISHED,
+                                  range_values=json.dumps({define_attributes['RANGE_1'][0]: range_val1,
+                                                           define_attributes['RANGE_2'][0]: range_val2}))
+                op_ms.fk_operation_group = group_ms.id
+                op_ms = dao.store_entity(op_ms)
+                datatype_measure_factory(datatype, op_ms,
+                                             FilesHelper().get_project_folder(datatype_factory['project'], str(op_ms.id)))
+
+        return datatype_group
 
     return build
