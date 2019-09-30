@@ -265,12 +265,6 @@ class ABCAdapter(object):
         """
         return True
 
-    def get_input_tree(self):
-        """
-        Describes inputs and outputs of the launch method.
-        """
-        return None
-
     def submit_form(self, form):
         self.submitted_form = form
 

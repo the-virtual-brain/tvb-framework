@@ -55,10 +55,6 @@ class StoreAdapter(ABCAdapter):
 
         self.list_of_entities_to_store = list_of_entities_to_store
 
-
-    def get_input_tree(self):
-        return []
-
     def get_required_memory_size(self, **kwargs):
         """
         Return the required memory to run this algorithm.
