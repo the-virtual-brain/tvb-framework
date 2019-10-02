@@ -35,6 +35,7 @@ from tvb.basic.profile import TvbProfile
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.datatypes.region_mapping import RegionMapping
+from tvb.simulator.integrators import IntegratorStochastic
 from tvb.simulator.monitors import Bold
 from tvb.simulator.noise import Additive
 from tvb.adapters.simulator.equation_forms import get_form_for_equation
@@ -49,6 +50,7 @@ from tvb.adapters.simulator.coupling_forms import get_form_for_coupling
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
+from tvb.core.entities.file.datatypes.patterns_h5 import StimuliRegionH5, StimuliSurfaceH5
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex
@@ -226,7 +228,6 @@ class SimulatorController(BurstBaseController):
             if surface_index_gid is None:
                 session_stored_simulator.surface = None
             else:
-                # TODO: load surface in memory and assign it to session simulator
                 surface_index = ABCAdapter.load_entity_by_gid(surface_index_gid)
                 # TODO library: Correct Cortex usage in library
                 surface = Cortex()
@@ -260,10 +261,15 @@ class SimulatorController(BurstBaseController):
     @check_user
     def set_cortex(self, **data):
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
-        rm_fragment = SimulatorRMFragment()
-        rm_fragment.fill_from_post(data)
+        is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
+        is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
 
-        session_stored_simulator.surface.coupling_strength = rm_fragment.coupling_strength.data
+        if cherrypy.request.method == 'POST':
+            is_simulator_copy = False
+            rm_fragment = SimulatorRMFragment()
+            rm_fragment.fill_from_post(data)
+
+            session_stored_simulator.surface.coupling_strength = rm_fragment.coupling_strength.data
 
         lc_gid = rm_fragment.lc.value
         if lc_gid == 'None':
@@ -276,14 +282,15 @@ class SimulatorController(BurstBaseController):
         rm = h5.load_from_index(rm_index)
         session_stored_simulator.surface.region_mapping_data = rm
 
-        model_fragment = SimulatorModelFragment('', common.get_current_project().id)
-        model_fragment.fill_from_trait(session_stored_simulator)
+        stimuli_fragment = SimulatorStimulusFragment('', common.get_current_project().id, True)
+        stimuli_fragment.fill_from_trait(session_stored_simulator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
-        dict_to_render[self.FORM_KEY] = model_fragment
-        dict_to_render[self.ACTION_KEY] = '/burst/set_model'
+        dict_to_render[self.FORM_KEY] = stimuli_fragment
+        dict_to_render[self.ACTION_KEY] = '/burst/set_stimulus'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_cortex'
-        dict_to_render[self.IS_MODEL_FRAGMENT_KEY] = True
+        dict_to_render[self.IS_COPY] = is_simulator_copy
+        dict_to_render[self.IS_LOAD] = is_simulator_load
         return dict_to_render
 
     @cherrypy.expose
@@ -297,8 +304,15 @@ class SimulatorController(BurstBaseController):
 
         if cherrypy.request.method == 'POST':
             is_simulator_copy = False
+            stimuli_fragment = SimulatorStimulusFragment('', common.get_current_project().id,
+                                                         session_stored_simulator.is_surface_simulation)
+            stimuli_fragment.fill_from_post(data)
+            stimulus_gid = stimuli_fragment.stimulus.value
+            if stimulus_gid == 'None':
+                stimulus_index = ABCAdapter.load_entity_by_gid(stimulus_gid)
+                stimulus = h5.load_from_index(stimulus_index)
+                session_stored_simulator.stimulus = stimulus
 
-        # TODO: show surface stimulus if surface was prev chosen, otherwise, show region stimulus
         model_fragment = SimulatorModelFragment('', common.get_current_project().id)
         model_fragment.fill_from_trait(session_stored_simulator)
 
@@ -309,7 +323,7 @@ class SimulatorController(BurstBaseController):
         dict_to_render[self.IS_MODEL_FRAGMENT_KEY] = True
         dict_to_render[self.IS_COPY] = is_simulator_copy
         dict_to_render[self.IS_LOAD] = is_simulator_load
-        dict_to_render[self.IS_SURFACE_SIMULATION_KEY] = True
+        dict_to_render[self.IS_SURFACE_SIMULATION_KEY] = session_stored_simulator.is_surface_simulation
         return dict_to_render
 
     @cherrypy.expose
@@ -423,14 +437,25 @@ class SimulatorController(BurstBaseController):
             form.fill_from_post(data)
             form.fill_trait(session_stored_simulator.integrator)
 
-        # TODO: Check whether integrator is stochastic
-        integrator_noise_fragment = get_form_for_noise(type(session_stored_simulator.integrator.noise))()
-        self.range_parameters.integrator_noise_parameters = integrator_noise_fragment.get_range_parameters()
-        integrator_noise_fragment.fill_from_trait(session_stored_simulator.integrator.noise)
+        if isinstance(session_stored_simulator.integrator, IntegratorStochastic):
+            integrator_noise_fragment = get_form_for_noise(type(session_stored_simulator.integrator.noise))()
+            self.range_parameters.integrator_noise_parameters = integrator_noise_fragment.get_range_parameters()
+            integrator_noise_fragment.fill_from_trait(session_stored_simulator.integrator.noise)
+
+            dict_to_render = copy.deepcopy(self.dict_to_render)
+            dict_to_render[self.FORM_KEY] = integrator_noise_fragment
+            dict_to_render[self.ACTION_KEY] = '/burst/set_noise_params'
+            dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_integrator_params'
+            dict_to_render[self.IS_COPY] = is_simulator_copy
+            dict_to_render[self.IS_LOAD] = is_simulator_load
+            return dict_to_render
+
+        monitor_fragment = SimulatorMonitorFragment('', common.get_current_project().id)
+        monitor_fragment.fill_from_trait(session_stored_simulator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
-        dict_to_render[self.FORM_KEY] = integrator_noise_fragment
-        dict_to_render[self.ACTION_KEY] = '/burst/set_noise_params'
+        dict_to_render[self.FORM_KEY] = monitor_fragment
+        dict_to_render[self.ACTION_KEY] = '/burst/set_monitors'
         dict_to_render[self.PREVIOUS_ACTION_KEY] = '/burst/set_integrator_params'
         dict_to_render[self.IS_COPY] = is_simulator_copy
         dict_to_render[self.IS_LOAD] = is_simulator_load
@@ -583,7 +608,7 @@ class SimulatorController(BurstBaseController):
 
         if cherrypy.request.method == 'POST':
             is_simulator_copy = False
-            form = get_form_for_monitor(type(session_stored_simulator.monitor))()
+            form = get_form_for_monitor(type(session_stored_simulator.monitors[0]))()
             form.fill_from_post(data)
             form.fill_trait(session_stored_simulator.monitor.hrf_kernel)
 

@@ -62,6 +62,8 @@ class SimulatorService(object):
             simulator_h5.gid.store(uuid.UUID(simulator_gid))
             simulator_h5.store(simulator)
             simulator_h5.connectivity.store(simulator.connectivity.gid)
+            if simulator.stimulus:
+                simulator_h5.stimulus.store(uuid.UUID(simulator_h5.stimulus.gid))
             if simulation_state_gid:
                 simulator_h5.simulation_state.store(uuid.UUID(simulation_state_gid))
 
@@ -75,12 +77,19 @@ class SimulatorService(object):
         with SimulatorH5(simulator_in_path) as simulator_in_h5:
             simulator_in_h5.load_into(simulator_in)
             connectivity_gid = simulator_in_h5.connectivity.load()
+            stimulus_gid = simulator_in_h5.stimulus.load()
             simulation_state_gid = simulator_in_h5.simulation_state.load()
 
         conn_index = dao.get_datatype_by_gid(connectivity_gid.hex)
         conn = h5.load_from_index(conn_index)
 
         simulator_in.connectivity = conn
+
+        if stimulus_gid:
+            stimulus_index = dao.get_datatype_by_gid(stimulus_gid.hex)
+            stimulus = h5.load_from_index(stimulus_index)
+            simulator_in.stimulus = stimulus
+
         return simulator_in, connectivity_gid, simulation_state_gid
 
     @transactional

@@ -52,8 +52,6 @@ class IntegratorForm(Form):
     def __init__(self, prefix=''):
         super(IntegratorForm, self).__init__(prefix)
         self.dt = ScalarField(Integrator.dt, self)
-        self.clamped_state_variable_indices = ArrayField(Integrator.clamped_state_variable_indices, self)
-        self.clamped_state_variable_values = ArrayField(Integrator.clamped_state_variable_values, self)
 
 
 class IntegratorStochasticForm(IntegratorForm):
