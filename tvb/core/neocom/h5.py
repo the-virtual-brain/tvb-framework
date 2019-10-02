@@ -27,22 +27,66 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-
-from tvb.core.neocom._h5loader import Loader, DirLoader
+import uuid
 import typing
+from tvb.basic.neotraits.api import HasTraits
+from tvb.core.entities.model.model_datatype import DataType
+from tvb.core.neocom._h5loader import Loader, DirLoader, TVBLoader
+from tvb.core.neocom._registry import Registry
+from tvb.core.neotraits.h5 import H5File
 
-if typing.TYPE_CHECKING:
-    from tvb.basic.neotraits.api import HasTraits
-    import uuid
+REGISTRY = Registry()
 
 
-def load(source):
+def path_for_stored_index(dt_index_instance):
+    # type: (DataType) -> str
+    loader = TVBLoader(REGISTRY)
+    return loader.path_for_stored_index(dt_index_instance)
+
+
+def path_for(base_dir, h5_file_class, gid):
+    # type: (str, typing.Type[H5File], object) -> str
+    loader = TVBLoader(REGISTRY)
+    return loader.path_for(base_dir, h5_file_class, gid)
+
+
+def h5_file_for_index(dt_index_instance):
+    # type: (DataType) -> H5File
+    h5_path = path_for_stored_index(dt_index_instance)
+    h5_class = REGISTRY.get_h5file_for_index(type(dt_index_instance))
+    return h5_class(h5_path)
+
+
+def load_from_index(dt_index):
+    # type: (DataType) -> HasTraits
+    loader = TVBLoader(REGISTRY)
+    return loader.load_from_index(dt_index)
+
+
+def load(source_path):
     # type: (str) -> HasTraits
     """
     Load a datatype stored in the tvb h5 file found at the given path
     """
-    loader = Loader()
-    return loader.load(source)
+    loader = Loader(REGISTRY)
+    return loader.load(source_path)
+
+
+def store_complete(datatype, base_dir):
+    # type: (HasTraits, str) -> DataType
+    """
+    Stores the given HasTraits instance in a h5 file, and fill the Index entity for later storage in DB
+    """
+    index_class = REGISTRY.get_index_for_datatype(datatype.__class__)
+    index_inst = index_class()
+    index_inst.fill_from_has_traits(datatype)
+
+    h5_class = REGISTRY.get_h5file_for_datatype(datatype.__class__)
+    storage_path = path_for(base_dir, h5_class, datatype.gid)
+    with h5_class(storage_path) as f:
+        f.store(datatype)
+
+    return index_inst
 
 
 def store(datatype, destination):
@@ -50,7 +94,7 @@ def store(datatype, destination):
     """
     Stores the given datatype in a tvb h5 file at the given path
     """
-    loader = Loader()
+    loader = Loader(REGISTRY)
     return loader.store(datatype, destination)
 
 
@@ -64,7 +108,7 @@ def load_from_dir(base_dir, gid, recursive=False):
     :param gid: the gid of the to be loaded datatype
     :param recursive: if datatypes contained in this datatype should be loaded as well
     """
-    loader = DirLoader(base_dir, recursive)
+    loader = DirLoader(base_dir, REGISTRY, recursive)
     return loader.load(gid)
 
 
@@ -75,5 +119,5 @@ def store_to_dir(base_dir, datatype, recursive=False):
     The name and location of the stored file(s) is chosen for you by this function.
     If recursive is true than datatypes referenced by this one are stored as well.
     """
-    loader = DirLoader(base_dir, recursive)
+    loader = DirLoader(base_dir, REGISTRY, recursive)
     loader.store(datatype)

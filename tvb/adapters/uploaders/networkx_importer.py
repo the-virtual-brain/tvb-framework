@@ -36,11 +36,10 @@ import networkx
 from tvb.adapters.uploaders.networkx_connectivity.parser import NetworkxParser
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.neotraits._forms import UploadField, SimpleStrField
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 
 class NetworkxCFFCommonImporterForm(ABCUploaderForm):
@@ -85,24 +84,13 @@ class NetworkxConnectivityImporter(ABCUploader):
     def get_output(self):
         return [ConnectivityIndex]
 
-
     @transactional
     def launch(self, data_file, **kwargs):
         try:
             parser = NetworkxParser(**kwargs)
             net = networkx.read_gpickle(data_file)
             connectivity = parser.parse(net)
-
-            conn_idx = ConnectivityIndex()
-            conn_idx.fill_from_has_traits(connectivity)
-
-            loader = DirLoader(self.storage_path)
-            conn_h5_path = loader.path_for(ConnectivityH5, conn_idx.gid)
-
-            with ConnectivityH5(conn_h5_path) as conn_h5:
-                conn_h5.store(connectivity)
-
-            return [conn_idx]
+            return h5.store_complete(connectivity, self.storage_path)
         except ParseException as excep:
             self.log.exception("Could not process Connectivity")
             raise LaunchException(excep)

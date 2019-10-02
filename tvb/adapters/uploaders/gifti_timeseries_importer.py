@@ -43,7 +43,7 @@ from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesSurfaceIndex
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 
 class GIFTITimeSeriesImporterForm(ABCUploaderForm):
@@ -87,9 +87,7 @@ class GIFTITimeSeriesImporter(ABCUploader):
             partial_time_series, gifti_data_arrays = parser.parse(data_file)
 
             ts_idx = TimeSeriesSurfaceIndex()
-
-            loader = DirLoader(self.storage_path)
-            ts_h5_path = loader.path_for(TimeSeriesSurfaceH5, ts_idx.gid)
+            ts_h5_path = h5.path_for(self.storage_path, TimeSeriesSurfaceH5, ts_idx.gid)
 
             ts_h5 = TimeSeriesSurfaceH5(ts_h5_path)
             # todo : make sure that write_time_slice is not required here
@@ -106,8 +104,7 @@ class GIFTITimeSeriesImporter(ABCUploader):
                 raise LaunchException(msg)
             else:
                 ts_h5.surface.store(uuid.UUID(surface.gid))
-                ts_idx.surface = surface
-                ts_idx.surface_id = surface.id
+                ts_idx.surface_gid = surface.gid
             ts_h5.close()
 
             ts_idx.sample_period_unit = partial_time_series.sample_period_unit

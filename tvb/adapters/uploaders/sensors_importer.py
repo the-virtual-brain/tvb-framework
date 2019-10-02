@@ -32,13 +32,11 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import uuid
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
-from tvb.core.neocom.api import TVBLoader
+from tvb.core.neocom import h5
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField
 from tvb.core.neotraits.h5 import MEMORY_STRING
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
@@ -123,14 +121,6 @@ class SensorsImporter(ABCUploader):
         sensors_inst.configure()
         self.logger.debug("Sensors instance ready to be stored")
 
-        sensors_idx = SensorsIndex()
-        sensors_idx.number_of_sensors = sensors_inst.number_of_sensors
-        sensors_idx.sensors_type = sensors_inst.sensors_type
+        sensors_idx = h5.store_complete(sensors_inst, self.storage_path)
         self.generic_attributes.user_tag_1 = sensors_inst.sensors_type
-
-        sensors_path = TVBLoader().path_for(self.storage_path, SensorsH5, sensors_idx.gid)
-        with SensorsH5(sensors_path) as sensors_h5:
-            sensors_h5.store(sensors_inst)
-            sensors_h5.gid.store(uuid.UUID(sensors_idx.gid))
-
         return sensors_idx

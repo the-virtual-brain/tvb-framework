@@ -27,9 +27,10 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
+from tvb.basic.neotraits.api import Attr
 from tvb.datatypes.graph import Covariance, CorrelationCoefficients, ConnectivityMeasure
 from tvb.core.entities.file.datatypes.spectral_h5 import DataTypeMatrixH5
-from tvb.core.neotraits.h5 import DataSet, Reference, Json
+from tvb.core.neotraits.h5 import DataSet, Reference, Json, Scalar
 
 
 class CovarianceH5(DataTypeMatrixH5):
@@ -55,7 +56,7 @@ class CorrelationCoefficientsH5(DataTypeMatrixH5):
         self.labels_ordering = Json(CorrelationCoefficients.labels_ordering, self)
 
     def get_correlation_data(self, selected_state, selected_mode):
-        matrix_to_display = self.array_data[:, :, int(selected_state)-1, int(selected_mode)]
+        matrix_to_display = self.array_data[:, :, int(selected_state) - 1, int(selected_mode)]
         return list(matrix_to_display.flat)
 
 
@@ -65,6 +66,7 @@ class ConnectivityMeasureH5(DataTypeMatrixH5):
         super(ConnectivityMeasureH5, self).__init__(path)
         self.array_data = DataSet(ConnectivityMeasure.array_data, self)
         self.connectivity = Reference(ConnectivityMeasure.connectivity, self)
+        self.title = Scalar(Attr(basestring), self, name='title')
 
     def get_array_data(self):
         return self.array_data[:]

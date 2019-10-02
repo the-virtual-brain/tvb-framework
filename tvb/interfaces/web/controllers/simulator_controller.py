@@ -28,10 +28,7 @@
 #
 #
 import copy
-import json
 import threading
-import uuid
-import cherrypy
 import datetime
 from tvb.datatypes.cortex import Cortex
 from tvb.basic.profile import TvbProfile
@@ -40,15 +37,12 @@ from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.datatypes.region_mapping import RegionMapping
 from tvb.simulator.monitors import Bold
 from tvb.simulator.noise import Additive
-from tvb.simulator.simulator import Simulator
 from tvb.adapters.simulator.equation_forms import get_form_for_equation
 from tvb.adapters.simulator.model_forms import get_form_for_model
 from tvb.adapters.simulator.noise_forms import get_form_for_noise
 from tvb.adapters.simulator.range_parameter import SimulatorRangeParameters
 from tvb.adapters.simulator.simulator_adapter import SimulatorAdapterForm
-from tvb.adapters.simulator.simulator_fragments import SimulatorSurfaceFragment, SimulatorStimulusFragment, \
-    SimulatorModelFragment, SimulatorIntegratorFragment, SimulatorMonitorFragment, SimulatorLengthFragment, \
-    SimulatorRMFragment, SimulatorFinalFragment, SimulatorPSEConfigurationFragment, SimulatorPSEParamRangeFragment
+from tvb.adapters.simulator.simulator_fragments import *
 from tvb.adapters.simulator.monitor_forms import get_form_for_monitor
 from tvb.adapters.simulator.integrator_forms import get_form_for_integrator
 from tvb.adapters.simulator.coupling_forms import get_form_for_coupling
@@ -65,13 +59,10 @@ from tvb.core.entities.storage import dao
 from tvb.core.services.burst_service import BurstService
 from tvb.core.services.exceptions import BurstServiceException
 from tvb.config.init.introspector_registry import IntrospectionRegistry
-from tvb.core.services.operation_service import OperationService
 from tvb.core.services.simulator_service import SimulatorService
-from tvb.core.neocom.h5 import DirLoader
-from tvb.interfaces.web.controllers import common
+from tvb.core.neocom import h5
 from tvb.interfaces.web.controllers.burst.base_controller import BurstBaseController
-from tvb.interfaces.web.controllers.decorators import expose_page, settings, context_selected, handle_error, check_user, \
-    using_jinja_template, expose_json, expose_fragment
+from tvb.interfaces.web.controllers.decorators import *
 
 
 class SimulatorController(BurstBaseController):
@@ -170,14 +161,8 @@ class SimulatorController(BurstBaseController):
             coupling = form.coupling.value
 
             connectivity_index = ABCAdapter.load_entity_by_gid(connectivity_index_gid)
-            storage_path = self.files_helper.get_project_folder(connectivity_index.parent_operation.project,
-                                                                str(connectivity_index.fk_from_operation))
-            loader = DirLoader(storage_path)
-            conn_path = loader.path_for(ConnectivityH5, connectivity_index_gid)
-            connectivity = Connectivity()
-            with ConnectivityH5(conn_path) as conn_h5:
-                conn_h5.load_into(connectivity)
-            connectivity.gid = uuid.UUID(connectivity_index.gid)
+            connectivity = h5.load_from_index(connectivity_index)
+
             # TODO: handle this cases in a better manner
             session_stored_simulator.connectivity = connectivity
             session_stored_simulator.conduction_speed = conduction_speed
@@ -283,24 +268,12 @@ class SimulatorController(BurstBaseController):
         lc_gid = rm_fragment.lc.value
         if lc_gid == 'None':
             lc_index = ABCAdapter.load_entity_by_gid(lc_gid)
-            storage_path = self.files_helper.get_project_folder(lc_index.parent_operation.project,
-                                                                str(lc_index.fk_from_operation))
-            loader = DirLoader(storage_path)
-            lc_path = loader.path_for(LocalConnectivityH5, lc_gid)
-            lc = LocalConnectivity()
-            with LocalConnectivityH5(lc_path) as lc_h5:
-                lc_h5.load_into(lc)
+            lc = h5.load_from_index(lc_index)
             session_stored_simulator.surface.local_connectivity = lc
 
         rm_gid = rm_fragment.rm.value
         rm_index = ABCAdapter.load_entity_by_gid(rm_gid)
-        storage_path = self.files_helper.get_project_folder(rm_index.parent_operation.project,
-                                                            str(rm_index.fk_from_operation))
-        loader = DirLoader(storage_path)
-        rm_path = loader.path_for(RegionMappingH5, rm_gid)
-        rm = RegionMapping()
-        with RegionMappingH5(rm_path) as rm_h5:
-            rm_h5.load_into(rm)
+        rm = h5.load_from_index(rm_index)
         session_stored_simulator.surface.region_mapping_data = rm
 
         model_fragment = SimulatorModelFragment('', common.get_current_project().id)

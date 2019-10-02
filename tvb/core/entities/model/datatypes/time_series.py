@@ -100,6 +100,11 @@ class TimeSeriesEEGIndex(TimeSeriesIndex):
     sensors_gid = Column(Integer, ForeignKey(SensorsIndex.gid), nullable=not TimeSeriesEEG.sensors.required)
     sensors = relationship(SensorsIndex, foreign_keys=sensors_gid)
 
+    def fill_from_has_traits(self, datatype):
+        # type: (TimeSeriesEEG)  -> None
+        super(TimeSeriesEEGIndex, self).fill_from_has_traits(datatype)
+        self.sensors_gid = datatype.sensors.gid.hex
+
 
 class TimeSeriesMEGIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
@@ -107,12 +112,22 @@ class TimeSeriesMEGIndex(TimeSeriesIndex):
     sensors_gid = Column(Integer, ForeignKey(SensorsIndex.gid), nullable=not TimeSeriesMEG.sensors.required)
     sensors = relationship(SensorsIndex, foreign_keys=sensors_gid)
 
+    def fill_from_has_traits(self, datatype):
+        # type: (TimeSeriesMEG)  -> None
+        super(TimeSeriesMEGIndex, self).fill_from_has_traits(datatype)
+        self.sensors_gid = datatype.sensors.gid.hex
+
 
 class TimeSeriesSEEGIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
 
     sensors_gid = Column(Integer, ForeignKey(SensorsIndex.gid), nullable=not TimeSeriesSEEG.sensors.required)
     sensors = relationship(SensorsIndex, foreign_keys=sensors_gid)
+
+    def fill_from_has_traits(self, datatype):
+        # type: (TimeSeriesSEEG)  -> None
+        super(TimeSeriesSEEGIndex, self).fill_from_has_traits(datatype)
+        self.sensors_gid = datatype.sensors.gid.hex
 
 
 class TimeSeriesRegionIndex(TimeSeriesIndex):
@@ -129,6 +144,17 @@ class TimeSeriesRegionIndex(TimeSeriesIndex):
     region_mapping_gid = Column(Integer, ForeignKey(RegionMappingIndex.gid),
                                 nullable=not TimeSeriesRegion.region_mapping.required)
     region_mapping = relationship(RegionMappingIndex, foreign_keys=region_mapping_gid)
+
+    def fill_from_has_traits(self, datatype):
+        # type: (TimeSeriesRegion)  -> None
+        super(TimeSeriesRegionIndex, self).fill_from_has_traits(datatype)
+        self.connectivity_gid = datatype.connectivity.gid.hex
+        if datatype.region_mapping_volume is not None:
+            self.region_mapping_volume_gid = datatype.region_mapping_volume.gid.hex
+            self.has_volume_mapping = True
+        if datatype.region_mapping is not None:
+            self.region_mapping_gid = datatype.region_mapping.gid.hex
+            self.has_surface_mapping = True
 
 
 class TimeSeriesSurfaceIndex(TimeSeriesIndex):

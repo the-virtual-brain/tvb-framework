@@ -51,6 +51,7 @@ from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.fcd_h5 import FcdH5
 from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5, CorrelationCoefficientsH5, CovarianceH5
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
+from tvb.core.entities.file.datatypes.mapped_value_h5 import DatatypeMeasureH5, ValueWrapperH5
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5, IndependentComponentsH5
 from tvb.core.entities.file.datatypes.patterns_h5 import StimuliRegionH5, StimuliSurfaceH5
 from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
@@ -62,65 +63,72 @@ from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5, Wave
 from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
 from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.file.datatypes.temporal_correlations_h5 import CrossCorrelationH5
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5, \
-    TimeSeriesVolumeH5, TimeSeriesEEGH5, TimeSeriesMEGH5, TimeSeriesSEEGH5
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesVolumeH5, TimeSeriesEEGH5, TimeSeriesMEGH5
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesSEEGH5
 from tvb.core.entities.file.datatypes.tracts_h5 import TractsH5
 from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5
 from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.fcd import FcdIndex
-from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex, CorrelationCoefficientsIndex, \
-    CovarianceIndex
+from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex, CorrelationCoefficientsIndex
+from tvb.core.entities.model.datatypes.graph import CovarianceIndex
 from tvb.core.entities.model.datatypes.local_connectivity import LocalConnectivityIndex
+from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex, ValueWrapperIndex
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex, IndependentComponentsIndex
 from tvb.core.entities.model.datatypes.patterns import StimuliRegionIndex, StimuliSurfaceIndex
 from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex, RegionMappingIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex
-from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex, ComplexCoherenceSpectrumIndex, \
-    FourierSpectrumIndex, WaveletCoefficientsIndex
+from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex, ComplexCoherenceSpectrumIndex
+from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex, WaveletCoefficientsIndex
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.datatypes.temporal_correlations import CrossCorrelationIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesRegionIndex, \
-    TimeSeriesSurfaceIndex, TimeSeriesVolumeIndex, TimeSeriesEEGIndex, TimeSeriesMEGIndex, TimeSeriesSEEGIndex
+from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesRegionIndex, TimeSeriesSurfaceIndex
+from tvb.core.entities.model.datatypes.time_series import TimeSeriesVolumeIndex, TimeSeriesEEGIndex, TimeSeriesMEGIndex
+from tvb.core.entities.model.datatypes.time_series import TimeSeriesSEEGIndex
 from tvb.core.entities.model.datatypes.tracts import TractsIndex
 from tvb.core.entities.model.datatypes.volume import VolumeIndex
-from tvb.core.neocom._registry import Registry
+
+from tvb.core.neocom.h5 import REGISTRY
+
 
 # an alternative approach is to make each h5file declare if it has a corresponding datatype
 # then in a metaclass hook each class creation and populate a map
-registry = Registry()
-registry.register_h5file_datatype(ConnectivityH5, Connectivity, ConnectivityIndex)
-registry.register_h5file_datatype(ConnectivityAnnotationsH5, None, ConnectivityAnnotationsIndex)
-registry.register_h5file_datatype(LocalConnectivityH5, LocalConnectivity, LocalConnectivityIndex)
-registry.register_h5file_datatype(ProjectionMatrixH5, ProjectionMatrix, ProjectionMatrixIndex)
-registry.register_h5file_datatype(RegionVolumeMappingH5, RegionVolumeMapping, RegionVolumeMappingIndex)
-registry.register_h5file_datatype(RegionMappingH5, RegionMapping, RegionMappingIndex)
-registry.register_h5file_datatype(SensorsH5, Sensors, SensorsIndex)
-registry.register_h5file_datatype(SimulationStateH5, SimulationState, SimulationStateIndex)
-registry.register_h5file_datatype(CoherenceSpectrumH5, CoherenceSpectrum, CoherenceSpectrumIndex)
-registry.register_h5file_datatype(ComplexCoherenceSpectrumH5, ComplexCoherenceSpectrum, ComplexCoherenceSpectrumIndex)
-registry.register_h5file_datatype(FourierSpectrumH5, FourierSpectrum, FourierSpectrumIndex)
-registry.register_h5file_datatype(WaveletCoefficientsH5, WaveletCoefficients, WaveletCoefficientsIndex)
-registry.register_h5file_datatype(StructuralMRIH5, StructuralMRI, StructuralMRIIndex)
-registry.register_h5file_datatype(SurfaceH5, Surface, SurfaceIndex)
-registry.register_h5file_datatype(CrossCorrelationH5, CrossCorrelation, CrossCorrelationIndex)
-registry.register_h5file_datatype(TimeSeriesH5, TimeSeries, TimeSeriesIndex)
-registry.register_h5file_datatype(TimeSeriesRegionH5, TimeSeriesRegion, TimeSeriesRegionIndex)
-registry.register_h5file_datatype(TimeSeriesSurfaceH5, TimeSeriesSurface, TimeSeriesSurfaceIndex)
-registry.register_h5file_datatype(TimeSeriesVolumeH5, TimeSeriesVolume, TimeSeriesVolumeIndex)
-registry.register_h5file_datatype(TimeSeriesEEGH5, TimeSeriesEEG, TimeSeriesEEGIndex)
-registry.register_h5file_datatype(TimeSeriesMEGH5, TimeSeriesMEG, TimeSeriesMEGIndex)
-registry.register_h5file_datatype(TimeSeriesSEEGH5, TimeSeriesSEEG, TimeSeriesSEEGIndex)
-registry.register_h5file_datatype(TractsH5, Tracts, TractsIndex)
-registry.register_h5file_datatype(VolumeH5, Volume, VolumeIndex)
-registry.register_h5file_datatype(PrincipalComponentsH5, PrincipalComponents, PrincipalComponentsIndex)
-registry.register_h5file_datatype(IndependentComponentsH5, IndependentComponents, IndependentComponentsIndex)
-registry.register_h5file_datatype(ConnectivityMeasureH5, ConnectivityMeasure, ConnectivityMeasureIndex)
-registry.register_h5file_datatype(CorrelationCoefficientsH5, CorrelationCoefficients, CorrelationCoefficientsIndex)
-registry.register_h5file_datatype(CovarianceH5, Covariance, CovarianceIndex)
-registry.register_h5file_datatype(FcdH5, Fcd, FcdIndex)
-registry.register_h5file_datatype(StimuliRegionH5, StimuliRegion, StimuliRegionIndex)
-registry.register_h5file_datatype(StimuliSurfaceH5, StimuliSurface, StimuliSurfaceIndex)
+def populate_datatypes_registry():
+    REGISTRY.register_datatype(Connectivity, ConnectivityH5, ConnectivityIndex)
+    REGISTRY.register_datatype(LocalConnectivity, LocalConnectivityH5, LocalConnectivityIndex)
+    REGISTRY.register_datatype(ProjectionMatrix, ProjectionMatrixH5, ProjectionMatrixIndex)
+    REGISTRY.register_datatype(RegionVolumeMapping, RegionVolumeMappingH5, RegionVolumeMappingIndex)
+    REGISTRY.register_datatype(RegionMapping, RegionMappingH5, RegionMappingIndex)
+    REGISTRY.register_datatype(Sensors, SensorsH5, SensorsIndex)
+    REGISTRY.register_datatype(SimulationState, SimulationStateH5, SimulationStateIndex)
+    REGISTRY.register_datatype(CoherenceSpectrum, CoherenceSpectrumH5, CoherenceSpectrumIndex)
+    REGISTRY.register_datatype(ComplexCoherenceSpectrum, ComplexCoherenceSpectrumH5, ComplexCoherenceSpectrumIndex)
+    REGISTRY.register_datatype(FourierSpectrum, FourierSpectrumH5, FourierSpectrumIndex)
+    REGISTRY.register_datatype(WaveletCoefficients, WaveletCoefficientsH5, WaveletCoefficientsIndex)
+    REGISTRY.register_datatype(StructuralMRI, StructuralMRIH5, StructuralMRIIndex)
+    REGISTRY.register_datatype(Surface, SurfaceH5, SurfaceIndex)
+    REGISTRY.register_datatype(CrossCorrelation, CrossCorrelationH5, CrossCorrelationIndex)
+    REGISTRY.register_datatype(TimeSeries, TimeSeriesH5, TimeSeriesIndex)
+    REGISTRY.register_datatype(TimeSeriesRegion, TimeSeriesRegionH5, TimeSeriesRegionIndex)
+    REGISTRY.register_datatype(TimeSeriesSurface, TimeSeriesSurfaceH5, TimeSeriesSurfaceIndex)
+    REGISTRY.register_datatype(TimeSeriesVolume, TimeSeriesVolumeH5, TimeSeriesVolumeIndex)
+    REGISTRY.register_datatype(TimeSeriesEEG, TimeSeriesEEGH5, TimeSeriesEEGIndex)
+    REGISTRY.register_datatype(TimeSeriesMEG, TimeSeriesMEGH5, TimeSeriesMEGIndex)
+    REGISTRY.register_datatype(TimeSeriesSEEG, TimeSeriesSEEGH5, TimeSeriesSEEGIndex)
+    REGISTRY.register_datatype(Tracts, TractsH5, TractsIndex)
+    REGISTRY.register_datatype(Volume, VolumeH5, VolumeIndex)
+    REGISTRY.register_datatype(PrincipalComponents, PrincipalComponentsH5, PrincipalComponentsIndex)
+    REGISTRY.register_datatype(IndependentComponents, IndependentComponentsH5, IndependentComponentsIndex)
+    REGISTRY.register_datatype(ConnectivityMeasure, ConnectivityMeasureH5, ConnectivityMeasureIndex)
+    REGISTRY.register_datatype(CorrelationCoefficients, CorrelationCoefficientsH5, CorrelationCoefficientsIndex)
+    REGISTRY.register_datatype(Covariance, CovarianceH5, CovarianceIndex)
+    REGISTRY.register_datatype(Fcd, FcdH5, FcdIndex)
+    REGISTRY.register_datatype(StimuliRegion, StimuliRegionH5, StimuliRegionIndex)
+    REGISTRY.register_datatype(StimuliSurface, StimuliSurfaceH5, StimuliSurfaceIndex)
+    REGISTRY.register_datatype(None, DatatypeMeasureH5, DatatypeMeasureIndex)
+    REGISTRY.register_datatype(None, ConnectivityAnnotationsH5, ConnectivityAnnotationsIndex)
+    REGISTRY.register_datatype(None, ValueWrapperH5, ValueWrapperIndex)

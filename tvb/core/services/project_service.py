@@ -44,7 +44,7 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.model.model_datatype import Links, DataType, DataTypeGroup
 from tvb.core.entities.model.model_operation import Operation, OperationGroup
 from tvb.core.entities.model.model_project import Project
-from tvb.core.neocom.api import TVBLoader
+from tvb.core.neocom import h5
 from tvb.core.services.flow_service import FlowService
 from tvb.core.utils import string2date, date2string, format_timedelta, format_bytes_human
 from tvb.core.removers_factory import get_remover
@@ -58,7 +58,6 @@ from tvb.core.services.exceptions import StructureException, ProjectServiceExcep
 from tvb.core.services.exceptions import RemoveDataTypeException
 from tvb.core.services.user_service import UserService
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.adapters.exceptions import IntrospectionException
 
 
 def initialize_storage():
@@ -74,7 +73,7 @@ def initialize_storage():
         logger.exception("Could not make sure the root folder exists!")
 
 
-## TODO move this page sizes into User-Settings once we have a UI table to set it.
+# TODO move this page sizes into User-Settings once we have a UI table to set it.
 OPERATIONS_PAGE_SIZE = 20
 PROJECTS_PAGE_SIZE = 20
 KEY_VALUE = "value"
@@ -580,7 +579,7 @@ class ProjectService:
             else:
                 specific_remover = get_remover(datatype.type)(datatype)
                 specific_remover.remove_datatype(skip_validation)
-                h5_path = TVBLoader().path_for_stored_index(datatype)
+                h5_path = h5.path_for_stored_index(datatype)
                 self.structure_helper.remove_datatype_file(h5_path)
 
         except RemoveDataTypeException:

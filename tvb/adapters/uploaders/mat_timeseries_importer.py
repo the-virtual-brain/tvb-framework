@@ -45,7 +45,7 @@ from tvb.core.entities.storage import transactional
 from tvb.core.adapters.arguments_serialisation import parse_slice
 from tvb.core.neotraits._forms import UploadField, SimpleStrField, SimpleBoolField, SimpleIntField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 TS_REGION = "Region"
 TS_EEG = "EEG"
@@ -97,10 +97,10 @@ class MatTimeSeriesImporter(ABCUploader):
             raise LaunchException("Data has %d channels but the connectivity has %d nodes"
                                   % (data_shape[1], connectivity.number_of_regions))
         ts_idx = TimeSeriesRegionIndex()
-        ts_idx.connectivity = connectivity
+        ts_idx.connectivity_gid = connectivity.gid
         ts_idx.has_surface_mapping = True
 
-        ts_h5_path = self.loader.path_for(TimeSeriesRegionH5, ts_idx.gid)
+        ts_h5_path = h5.path_for(self.storage_path, TimeSeriesRegionH5, ts_idx.gid)
         ts_h5 = TimeSeriesRegionH5(ts_h5_path)
         ts_h5.connectivity.store(uuid.UUID(connectivity.gid))
 
@@ -112,9 +112,9 @@ class MatTimeSeriesImporter(ABCUploader):
                                   % (data_shape[1], sensors.number_of_sensors))
 
         ts_idx = TimeSeriesEEGIndex()
-        ts_idx.sensors = sensors
+        ts_idx.sensors_gid = sensors.gid
 
-        ts_h5_path = self.loader.path_for(TimeSeriesEEGH5, ts_idx.gid)
+        ts_h5_path = h5.path_for(self.storage_path, TimeSeriesEEGH5, ts_idx.gid)
         ts_h5 = TimeSeriesEEGH5(ts_h5_path)
         ts_h5.sensors.store(uuid.UUID(sensors.gid))
 
@@ -133,8 +133,6 @@ class MatTimeSeriesImporter(ABCUploader):
                 data = data.T
             if slice:
                 data = data[parse_slice(slice)]
-
-            self.loader = DirLoader(self.storage_path)
 
             ts, ts_idx, ts_h5 = self.ts_builder[self.tstype](self, data.shape, tstype_parameters)
 

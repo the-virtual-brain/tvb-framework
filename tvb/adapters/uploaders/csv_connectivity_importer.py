@@ -34,16 +34,14 @@
 """
 import csv
 import numpy
-import os
 from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.connectivity import Connectivity
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField, SimpleSelectField
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 
 class CSVConnectivityParser(object):
@@ -100,7 +98,7 @@ class CSVConnectivityParser(object):
             self.line += 1
             if len(row) != self.connectivity_size:
                 msg = "Invalid Connectivity Row size! %d != %d at row %d" % (
-                len(row), self.connectivity_size, self.line)
+                    len(row), self.connectivity_size, self.line)
                 raise LaunchException(msg)
 
             new_row = [0] * self.connectivity_size
@@ -174,37 +172,22 @@ class CSVConnectivityImporter(ABCUploader):
         """
         weights_matrix = self._read_csv_file(weights, weights_delimiter)
         tract_matrix = self._read_csv_file(tracts, tracts_delimiter)
-
         FilesHelper.remove_files([weights, tracts])
-
         if weights_matrix.shape[0] != input_data.number_of_regions:
             raise LaunchException("The csv files define %s nodes but the connectivity you selected as reference "
                                   "has only %s nodes." % (weights_matrix.shape[0], input_data.number_of_regions))
+
+        input_connectivity = h5.load_from_index(input_data)
+
         result = Connectivity()
-
-        conn_idx = ConnectivityIndex()
-
-        loader = DirLoader(self.storage_path)
-        conn_path = loader.path_for(ConnectivityH5, conn_idx.gid)
-
-        input_data_loader_path = os.path.join(os.path.dirname(self.storage_path), str(input_data.fk_from_operation))
-        input_data_loader = DirLoader(input_data_loader_path)
-        input_data_h5_path = input_data_loader.path_for(ConnectivityH5, input_data.gid)
-        input_data_h5 = ConnectivityH5(input_data_h5_path)
-
-        result.centres = input_data_h5.centres.load()
-        result.region_labels = input_data_h5.region_labels.load()
+        result.centres = input_connectivity.centres
+        result.region_labels = input_connectivity.region_labels
         result.weights = weights_matrix
         result.tract_lengths = tract_matrix
-        result.orientations = input_data_h5.orientations.load()
-        result.areas = input_data_h5.areas.load()
-        result.cortical = input_data_h5.cortical.load()
-        result.hemispheres = input_data_h5.hemispheres.load()
+        result.orientations = input_connectivity.orientations
+        result.areas = input_connectivity.areas
+        result.cortical = input_connectivity.cortical
+        result.hemispheres = input_connectivity.hemispheres
         result.configure()
 
-        with ConnectivityH5(conn_path) as conn_h5:
-            conn_h5.store(result)
-
-        conn_idx.fill_from_has_traits(result)
-
-        return conn_idx
+        return h5.store_complete(result, self.storage_path)

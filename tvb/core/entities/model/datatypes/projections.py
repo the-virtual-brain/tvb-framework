@@ -65,8 +65,11 @@ class ProjectionMatrixIndex(DataType):
         # type: (ProjectionMatrix)  -> None
         super(ProjectionMatrixIndex, self).fill_from_has_traits(datatype)
         self.projection_type = datatype.projection_type
-        self.brain_skull_gid = datatype.brain_skull.gid.hex
-        self.skull_skin_gid = datatype.skull_skin.gid.hex
-        self.skin_air_gid = datatype.skin_air.gid.hex
+        if datatype.brain_skull is not None:
+            self.brain_skull_gid = datatype.brain_skull.gid.hex
+        if datatype.skull_skin is not None:
+            self.skull_skin_gid = datatype.skull_skin.gid.hex
+        if datatype.skin_air is not None:
+            self.skin_air_gid = datatype.skin_air.gid.hex
         self.sensors_gid = datatype.sensors.gid.hex
         self.source_gid = datatype.sources.gid.hex

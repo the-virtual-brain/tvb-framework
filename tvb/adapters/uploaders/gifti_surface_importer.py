@@ -37,10 +37,9 @@ from tvb.adapters.uploaders.gifti.parser import GIFTIParser, OPTION_READ_METADAT
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException, ParseException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
 from tvb.core.neotraits._forms import UploadField, SimpleBoolField, SimpleSelectField
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 
 class GIFTISurfaceImporterForm(ABCUploaderForm):
@@ -88,16 +87,8 @@ class GIFTISurfaceImporter(ABCUploader):
 
             if validation_result.warnings:
                 self.add_operation_additional_info(validation_result.summary())
-
-            surface_idx = SurfaceIndex()
-            surface_idx.fill_from_has_traits(surface)
             self.generic_attributes.user_tag_1 = surface.surface_type
-
-            loader = DirLoader(self.storage_path)
-            surface_h5_path = loader.path_for(SurfaceH5, surface_idx.gid)
-            with SurfaceH5(surface_h5_path) as surface_h5:
-                surface_h5.store(surface)
-
+            surface_idx = h5.store_complete(surface, self.storage_path)
             return [surface_idx]
         except ParseException as excep:
             logger = get_logger(__name__)

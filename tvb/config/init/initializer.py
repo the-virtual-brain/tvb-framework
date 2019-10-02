@@ -54,6 +54,7 @@ from tvb.core.services.project_service import initialize_storage
 from tvb.core.services.user_service import UserService
 from tvb.core.services.settings_service import SettingsService
 from tvb.config.init.introspector_registry import IntrospectionRegistry
+from tvb.config.init.datatypes_registry import populate_datatypes_registry
 from tvb.config.init.model_manager import initialize_startup, reset_database
 
 
@@ -120,19 +121,22 @@ class Introspector(object):
 
     def introspect(self):
         self._ensure_datatype_tables_are_created()
+        populate_datatypes_registry()
         for algo_category_class in IntrospectionRegistry.ADAPTERS:
             algo_category_id = self._populate_algorithm_categories(algo_category_class)
             self._populate_algorithms(algo_category_class, algo_category_id)
         # self._get_portlets()
         # removers_factory.update_dictionary(IntrospectionRegistry.DATATYPE_REMOVERS)
 
-    def _ensure_datatype_tables_are_created(self):
+    @staticmethod
+    def _ensure_datatype_tables_are_created():
         session = SA_SESSIONMAKER()
         Base.metadata.create_all(bind=session.connection())
         session.commit()
         session.close()
 
-    def _populate_algorithm_categories(self, algo_category):
+    @staticmethod
+    def _populate_algorithm_categories(algo_category):
         algo_category_instance = dao.filter_category(algo_category.category_name, algo_category.rawinput,
                                                      algo_category.display, algo_category.launchable,
                                                      algo_category.order_nr)
@@ -255,7 +259,8 @@ class Introspector(object):
                 self.logger.exception(excep)
                 self.logger.error("Invalid Portlet description File " + file_n + " will continue without it!!")
 
-    def _update_old_portlets_from_db(self, portlets_list):
+    @staticmethod
+    def _update_old_portlets_from_db(portlets_list):
         stored_portlets = dao.get_available_portlets()
         # First update old portlets from DB
         for stored_portlet in stored_portlets:

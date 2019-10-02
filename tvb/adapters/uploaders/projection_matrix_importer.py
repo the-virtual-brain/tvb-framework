@@ -33,27 +33,25 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-import uuid
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import UploadField, SimpleStrField, DataTypeSelectField
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG
-from tvb.datatypes.projections import ProjectionSurfaceEEG, ProjectionSurfaceMEG, ProjectionSurfaceSEEG
+from tvb.datatypes.projections import *
 
 DEFAULT_DATASET_NAME = "ProjectionMatrix"
 
 
-def determine_projection_type(sensors):
-    if sensors.sensors_type == SensorsEEG.sensors_type.default:
+def determine_projection_type(sensors_idx):
+    # type: (SensorsIndex) -> str
+    if sensors_idx.sensors_type == SensorsEEG.sensors_type.default:
         projection_matrix_type = ProjectionSurfaceEEG.projection_type.default
-    elif sensors.sensors_type == SensorsMEG.sensors_type.default:
+    elif sensors_idx.sensors_type == SensorsMEG.sensors_type.default:
         projection_matrix_type = ProjectionSurfaceMEG.projection_type.default
     else:
         projection_matrix_type = ProjectionSurfaceSEEG.projection_type.default
@@ -71,7 +69,8 @@ class ProjectionMatrixImporterForm(ABCUploaderForm):
                                                'number of surface vertices nd values in the sensors range).')
         self.dataset_name = SimpleStrField(self, name='dataset_name', default=DEFAULT_DATASET_NAME,
                                            label='Matlab dataset name',
-                                           doc='Name of the MATLAB dataset where data is stored. Required only for .mat files')
+                                           doc='Name of the MATLAB dataset where data is stored. '
+                                               'Required only for .mat files')
         surface_conditions = FilterChain(fields=[FilterChain.datatype + '.surface_type'], operations=['=='],
                                          values=['Cortical Surface'])
         self.surface = DataTypeSelectField(SurfaceIndex, self, name='surface', required=True,
@@ -113,6 +112,7 @@ class ProjectionMatrixSurfaceEEGImporter(ABCUploader):
 
         if surface is None:
             raise LaunchException("No source selected. Please initiate upload again and select a source.")
+
         expected_shape = surface.number_of_vertices
 
         self.logger.debug("Reading projection matrix from uploaded file...")
@@ -133,21 +133,9 @@ class ProjectionMatrixSurfaceEEGImporter(ABCUploader):
                                                                                            expected_shape))
 
         projection_matrix_type = determine_projection_type(sensors)
-        projection_matrix_idx = ProjectionMatrixIndex()
-        projection_matrix_idx.source = surface
-        projection_matrix_idx.source_id = surface.id
-        projection_matrix_idx.sensors = sensors
-        projection_matrix_idx.sensors_id = sensors.id
-        projection_matrix_idx.projection_type = projection_matrix_type
-
-        loader = DirLoader(self.storage_path)
-        projection_matrix_path = loader.path_for(ProjectionMatrixH5, projection_matrix_idx.gid)
-
-        with ProjectionMatrixH5(projection_matrix_path) as projection_matrix_h5:
-            projection_matrix_h5.projection_type.store(projection_matrix_type)
-            projection_matrix_h5.projection_data.store(eeg_projection_data)
-            projection_matrix_h5.sources.store(uuid.UUID(surface.gid))
-            projection_matrix_h5.sensors.store(uuid.UUID(sensors.gid))
-            projection_matrix_h5.gid.store(uuid.UUID(projection_matrix_idx.gid))
-
-        return [projection_matrix_idx]
+        surface_ht = h5.load_from_index(surface)
+        sensors_ht = h5.load_from_index(sensors)
+        projection_matrix = ProjectionMatrix(surface=surface_ht, sensors=sensors_ht,
+                                             projection_type=projection_matrix_type,
+                                             eeg_projection_data=eeg_projection_data)
+        return h5.store_complete(projection_matrix, self.storage_path)

@@ -36,11 +36,10 @@ from tvb.adapters.uploaders.brco.parser import XMLParser
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotationsH5
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
-from tvb.core.neocom.api import TVBLoader
+from tvb.core.neocom import h5
 from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
 
 
@@ -72,19 +71,17 @@ class BRCOImporter(ABCUploader):
     @transactional
     def launch(self, data_file, connectivity):
         try:
-            loader = TVBLoader()
-            conn_h5_path = loader.path_for_stored_index(connectivity)
-            with ConnectivityH5(conn_h5_path) as original_conn_h5:
+            with h5.h5_file_for_index(connectivity) as original_conn_h5:
                 region_labels = original_conn_h5.region_labels.load()
 
             parser = XMLParser(data_file, region_labels)
             annotations = parser.read_annotation_terms()
 
             result = ConnectivityAnnotationsIndex()
-            result.connectivity_id = connectivity.id
+            result.connectivity_gid = connectivity.gid
             result.annotations_length = len(annotations)
 
-            result_path = loader.path_for(self.storage_path, ConnectivityAnnotationsH5, result.gid)
+            result_path = h5.path_for(self.storage_path, ConnectivityAnnotationsH5, result.gid)
             with ConnectivityAnnotationsH5(result_path) as result_h5:
                 result_h5.connectivity.store(uuid.UUID(connectivity.gid))
                 result_h5.gid.store(uuid.UUID(result.gid))

@@ -33,15 +33,13 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import uuid
 import numpy
 from tvb.adapters.uploaders.zip_surface.parser import ZipSurfaceParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
-from tvb.core.neocom.api import TVBLoader
+from tvb.core.neocom import h5
 from tvb.core.neotraits._forms import UploadField, SimpleSelectField, SimpleBoolField
 from tvb.datatypes.surfaces import make_surface, center_vertices
 
@@ -92,8 +90,8 @@ class ZIPSurfaceImporter(ABCUploader):
         Execute import operations: unpack ZIP and build Surface object as result.
 
         :param uploaded: an archive containing the Surface data to be imported
-        :param surface_type: a string from the following\: \
-                            "Skin Air", "Skull Skin", "Brain Skull", "Cortical Surface", "EEG Cap", "Face"
+        :param surface_type: a string from the following:
+        "Skin Air", "Skull Skin", "Brain Skull", "Cortical Surface", "EEG Cap", "Face"
 
         :returns: a subclass of `Surface` DataType
         :raises LaunchException: when
@@ -158,12 +156,6 @@ class ZIPSurfaceImporter(ABCUploader):
         surface.configure()
         self.logger.debug("Surface ready to be stored")
 
-        surf_idx = SurfaceIndex()
-        surf_idx.fill_from_has_traits(surface)
+        surf_idx = h5.store_complete(surface, self.storage_path)
         self.generic_attributes.user_tag_1 = surface.surface_type
-
-        surf_path = TVBLoader().path_for(self.storage_path, SurfaceH5, surf_idx.gid)
-        with SurfaceH5(surf_path) as surf_h5:
-            surf_h5.store(surface)
-
         return surf_idx

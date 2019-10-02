@@ -32,16 +32,14 @@
 .. moduleauthor:: Mihai Andrei <mihai.andrei@codemart.ro>
 """
 
-import uuid
 from tvb.adapters.uploaders.obj.surface import ObjSurface
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
 from tvb.core.entities.storage import transactional
 from tvb.datatypes.surfaces import make_surface, center_vertices
 from tvb.core.neotraits._forms import SimpleSelectField, UploadField, SimpleBoolField
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 
 class ObjSurfaceImporterForm(ABCUploaderForm):
@@ -106,22 +104,11 @@ class ObjSurfaceImporter(ABCUploader):
             surface.compute_vertex_normals()
 
             validation_result = surface.validate()
-
             if validation_result.warnings:
                 self.add_operation_additional_info(validation_result.summary())
 
-            surface_idx = SurfaceIndex()
-            surface_idx.fill_from_has_traits(surface)
             self.generic_attributes.user_tag_1 = surface.surface_type
-
-            loader = DirLoader(self.storage_path)
-            surface_h5_path = loader.path_for(SurfaceH5, surface_idx.gid)
-
-            with SurfaceH5(surface_h5_path) as surface_h5:
-                surface_h5.store(surface)
-                surface_h5.gid.store(uuid.UUID(surface_idx.gid))
-
-            return [surface_idx]
+            return h5.store_complete(surface, self.storage_path)
 
         except ParseException as excep:
             self.log.exception(excep)

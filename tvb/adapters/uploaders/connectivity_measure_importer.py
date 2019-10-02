@@ -42,7 +42,7 @@ from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.neotraits._forms import UploadField, SimpleStrField, DataTypeSelectField
 from tvb.core.neotraits.db import from_ndarray
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 
 class ConnectivityMeasureImporterForm(ABCUploaderForm):
@@ -87,20 +87,18 @@ class ConnectivityMeasureImporter(ABCUploader):
                 raise LaunchException('The measurements are for %s nodes but the selected connectivity'
                                       ' contains %s nodes' % (node_count, connectivity.number_of_regions))
 
-            loader = DirLoader(self.storage_path)
             measures = []
             for i in range(measurement_count):
                 cm_idx = ConnectivityMeasureIndex()
                 cm_idx.type = ConnectivityMeasureIndex.__name__
-                cm_idx.connectivity_id = connectivity.id
-                cm_idx.connectivity = connectivity
+                cm_idx.connectivity_gid = connectivity.gid.hex
 
                 cm_data = data[i, :]
                 cm_idx.array_data_ndim = cm_data.ndim
                 cm_idx.ndim = cm_data.ndim
                 cm_idx.array_data_min, cm_idx.array_data_max, cm_idx.array_data_mean = from_ndarray(cm_data)
 
-                cm_h5_path = loader.path_for(ConnectivityMeasureH5, cm_idx.gid)
+                cm_h5_path = h5.path_for(self.storage_path, ConnectivityMeasureH5, cm_idx.gid)
                 with ConnectivityMeasureH5(cm_h5_path) as cm_h5:
                     cm_h5.array_data.store(data[i, :])
                     cm_h5.connectivity.store(uuid.UUID(connectivity.gid))

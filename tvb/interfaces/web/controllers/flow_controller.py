@@ -35,7 +35,6 @@ given action are described here.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-import os
 import copy
 import json
 import cherrypy
@@ -53,8 +52,7 @@ from tvb.core.services.exceptions import OperationException
 from tvb.core.services.operation_service import OperationService, RANGE_PARAMETER_1, RANGE_PARAMETER_2
 from tvb.core.services.project_service import ProjectService
 from tvb.core.services.burst_service import BurstService
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.base_controller import BaseController
 from tvb.interfaces.web.controllers.decorators import expose_page, settings, context_selected, expose_numpy_array
@@ -136,7 +134,7 @@ class FlowController(BaseController):
         Based on a simple indicator, compute URL for anchor BACK.
         """
         if back_indicator is None:
-            ## This applies to Connectivity and other visualizers when RELAUNCH button is used from Operation page.
+            # This applies to Connectivity and other visualizers when RELAUNCH button is used from Operation page.
             back_page_link = None
         elif back_indicator == 'burst':
             back_page_link = "/burst"
@@ -321,7 +319,7 @@ class FlowController(BaseController):
                         labels_set.append("Undefined")
                 if (hasattr(actual_entity, 'aggregation_functions') and actual_entity.aggregation_functions is not None
                         and len(actual_entity.aggregation_functions) == len(array_shape)):
-                    #will be a list of lists of aggregation functions
+                    # will be a list of lists of aggregation functions
                     defined_functions = actual_entity.aggregation_functions
                     for function in defined_functions:
                         if not len(function):
@@ -570,17 +568,10 @@ class FlowController(BaseController):
 
 
     def _read_datatype_attribute(self, entity_gid, dataset_name, datatype_kwargs='null', **kwargs):
+
         self.logger.debug("Starting to read HDF5: " + entity_gid + "/" + dataset_name + "/" + str(kwargs))
         entity = ABCAdapter.load_entity_by_gid(entity_gid)
-
-        storage_path = self.files_helper.get_project_folder(entity.parent_operation.project, str(entity.fk_from_operation))
-        loader = DirLoader(storage_path)
-        entity_path = loader.find_file_name(entity.gid)
-        entity_h5_cls = registry.get_h5file_for_index(type(entity))
-
-        entity_dt = registry.get_datatype_for_h5file(entity_h5_cls)()
-        with entity_h5_cls(os.path.join(storage_path, entity_path)) as entity_h5:
-            entity_h5.load_into(entity_dt)
+        entity_dt = h5.load_from_index(entity)
 
         datatype_kwargs = json.loads(datatype_kwargs)
         if datatype_kwargs:
@@ -614,14 +605,7 @@ class FlowController(BaseController):
     def read_from_h5_file(self, entity_gid, method_name, flatten=False, datatype_kwargs='null', **kwargs):
         self.logger.debug("Starting to read HDF5: " + entity_gid + "/" + method_name + "/" + str(kwargs))
         entity = ABCAdapter.load_entity_by_gid(entity_gid)
-
-        storage_path = self.files_helper.get_project_folder(entity.parent_operation.project,
-                                                            str(entity.fk_from_operation))
-        loader = DirLoader(storage_path)
-        entity_path = loader.find_file_name(entity.gid)
-        entity_h5_class = registry.get_h5file_for_index(type(entity))
-
-        entity_h5 = entity_h5_class(os.path.join(storage_path, entity_path))
+        entity_h5 = h5.h5_file_for_index(entity)
 
         datatype_kwargs = json.loads(datatype_kwargs)
         if datatype_kwargs:
