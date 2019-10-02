@@ -43,8 +43,8 @@ class FourierSpectrumIndex(DataTypeMatrix):
     frequency_step = Column(Float, nullable=False)
     max_frequency = Column(Float, nullable=False)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not FourierSpectrum.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not FourierSpectrum.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     def fill_from_has_traits(self, datatype):
         # type: (FourierSpectrum)  -> None
@@ -53,13 +53,14 @@ class FourierSpectrumIndex(DataTypeMatrix):
         self.windowing_function = datatype.windowing_function
         self.frequency_step = datatype.frequency_step
         self.max_frequency = datatype.max_frequency
+        self.source_gid = datatype.source.gid.hex
 
 
 class WaveletCoefficientsIndex(DataTypeMatrix):
     id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not WaveletCoefficients.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not WaveletCoefficients.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     mother = Column(String, nullable=False)
     normalisation = Column(String, nullable=False)
@@ -79,13 +80,14 @@ class WaveletCoefficientsIndex(DataTypeMatrix):
         self.sample_period = datatype.sample_period
         self.number_of_scales = datatype.frequencies.shape[0]
         self.frequencies_min, self.frequencies_max, _ = from_ndarray(datatype.frequencies)
+        self.source_gid = datatype.source.gid.hex
 
 
 class CoherenceSpectrumIndex(DataTypeMatrix):
     id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not CoherenceSpectrum.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not CoherenceSpectrum.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     nfft = Column(Integer, nullable=False)
     frequencies_min = Column(Float)
@@ -96,13 +98,14 @@ class CoherenceSpectrumIndex(DataTypeMatrix):
         super(CoherenceSpectrumIndex, self).fill_from_has_traits(datatype)
         self.nfft = datatype.nfft
         self.frequencies_min, self.frequencies_max, _ = from_ndarray(datatype.frequencies)
+        self.source_gid = datatype.source.gid
 
 
 class ComplexCoherenceSpectrumIndex(DataTypeMatrix):
     id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not ComplexCoherenceSpectrum.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not ComplexCoherenceSpectrum.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     epoch_length = Column(Float, nullable=False)
     segment_length = Column(Float, nullable=False)
@@ -118,3 +121,4 @@ class ComplexCoherenceSpectrumIndex(DataTypeMatrix):
         self.windowing_function = datatype.windowing_function
         self.frequency_step = datatype.freq_step
         self.max_frequency = datatype.max_freq
+        self.source_gid = datatype.source.gid.hex

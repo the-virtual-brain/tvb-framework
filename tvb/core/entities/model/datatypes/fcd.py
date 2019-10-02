@@ -42,8 +42,8 @@ class FcdIndex(DataTypeMatrix):
     array_data_min = Column(Float)
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not Fcd.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not Fcd.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     labels_ordering = Column(String)
 
@@ -52,3 +52,4 @@ class FcdIndex(DataTypeMatrix):
         super(FcdIndex, self).fill_from_has_traits(datatype)
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.array_data)
         self.labels_ordering = json.dumps(datatype.labels_ordering)
+        self.source_gid = datatype.source.gid.hex

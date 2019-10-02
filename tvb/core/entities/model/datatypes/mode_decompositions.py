@@ -37,8 +37,8 @@ from tvb.core.entities.model.model_datatype import DataType
 class PrincipalComponentsIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not PrincipalComponents.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     type = Column(String)
 
@@ -46,13 +46,14 @@ class PrincipalComponentsIndex(DataType):
         # type: (PrincipalComponents)  -> None
         super(PrincipalComponentsIndex, self).fill_from_has_traits(datatype)
         self.type = datatype.__class__.__name__
+        self.source_gid = datatype.source.gid
 
 
 class IndependentComponentsIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not PrincipalComponents.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     type = Column(String)
 
@@ -60,3 +61,4 @@ class IndependentComponentsIndex(DataType):
         # type: (IndependentComponents)  -> None
         super(IndependentComponentsIndex, self).fill_from_has_traits(datatype)
         self.type = datatype.__class__.__name__
+        self.source_gid = datatype.source.gid.hex

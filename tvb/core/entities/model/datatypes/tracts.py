@@ -37,11 +37,12 @@ from tvb.core.entities.model.model_datatype import DataType
 class TractsIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    region_volume_map_id = Column(Integer, ForeignKey(RegionVolumeMappingIndex.id),
-                                  nullable=not Tracts.region_volume_map.required)
-    region_volume_map = relationship(RegionVolumeMappingIndex, foreign_keys=region_volume_map_id,
-                                     primaryjoin=RegionVolumeMappingIndex.id == region_volume_map_id)
+    region_volume_map_gid = Column(Integer, ForeignKey(RegionVolumeMappingIndex.gid),
+                                   nullable=not Tracts.region_volume_map.required)
+    region_volume_map = relationship(RegionVolumeMappingIndex, foreign_keys=region_volume_map_gid,
+                                     primaryjoin=RegionVolumeMappingIndex.gid == region_volume_map_gid)
 
     def fill_from_has_traits(self, datatype):
         # type: (Tracts)  -> None
         super(TractsIndex, self).fill_from_has_traits(datatype)
+        self.region_volume_map_gid = datatype.region_volume_map.gid.hex

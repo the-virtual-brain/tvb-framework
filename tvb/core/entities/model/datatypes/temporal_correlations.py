@@ -43,8 +43,8 @@ class CrossCorrelationIndex(DataType):
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not CrossCorrelation.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not CrossCorrelation.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     labels_ordering = Column(String, nullable=False)
     type = Column(String)
@@ -55,3 +55,4 @@ class CrossCorrelationIndex(DataType):
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
         self.labels_ordering = json.dumps(datatype.labels_ordering)
         self.type = datatype.__class__.__name__
+        self.source_gid = datatype.source.gid.hex

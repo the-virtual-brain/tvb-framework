@@ -97,49 +97,61 @@ class TimeSeriesIndex(DataType):
 class TimeSeriesEEGIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
 
-    sensors_id = Column(Integer, ForeignKey(SensorsIndex.id), nullable=not TimeSeriesEEG.sensors.required)
-    sensors = relationship(SensorsIndex, foreign_keys=sensors_id)
+    sensors_gid = Column(Integer, ForeignKey(SensorsIndex.gid), nullable=not TimeSeriesEEG.sensors.required)
+    sensors = relationship(SensorsIndex, foreign_keys=sensors_gid)
 
 
 class TimeSeriesMEGIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
 
-    sensors_id = Column(Integer, ForeignKey(SensorsIndex.id), nullable=not TimeSeriesMEG.sensors.required)
-    sensors = relationship(SensorsIndex, foreign_keys=sensors_id)
+    sensors_gid = Column(Integer, ForeignKey(SensorsIndex.gid), nullable=not TimeSeriesMEG.sensors.required)
+    sensors = relationship(SensorsIndex, foreign_keys=sensors_gid)
 
 
 class TimeSeriesSEEGIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
 
-    sensors_id = Column(Integer, ForeignKey(SensorsIndex.id), nullable=not TimeSeriesSEEG.sensors.required)
-    sensors = relationship(SensorsIndex, foreign_keys=sensors_id)
+    sensors_gid = Column(Integer, ForeignKey(SensorsIndex.gid), nullable=not TimeSeriesSEEG.sensors.required)
+    sensors = relationship(SensorsIndex, foreign_keys=sensors_gid)
 
 
 class TimeSeriesRegionIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
 
-    connectivity_id = Column(Integer, ForeignKey(ConnectivityIndex.id),
-                             nullable=not TimeSeriesRegion.connectivity.required)
-    connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_id)
+    connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
+                              nullable=not TimeSeriesRegion.connectivity.required)
+    connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid)
 
-    region_mapping_volume_id = Column(Integer, ForeignKey(RegionVolumeMappingIndex.id),
-                                      nullable=not TimeSeriesRegion.region_mapping_volume.required)
-    region_mapping_volume = relationship(RegionVolumeMappingIndex, foreign_keys=region_mapping_volume_id)
+    region_mapping_volume_gid = Column(Integer, ForeignKey(RegionVolumeMappingIndex.gid),
+                                       nullable=not TimeSeriesRegion.region_mapping_volume.required)
+    region_mapping_volume = relationship(RegionVolumeMappingIndex, foreign_keys=region_mapping_volume_gid)
 
-    region_mapping_id = Column(Integer, ForeignKey(RegionMappingIndex.id),
-                               nullable=not TimeSeriesRegion.region_mapping.required)
-    region_mapping = relationship(RegionMappingIndex, foreign_keys=region_mapping_id)
+    region_mapping_gid = Column(Integer, ForeignKey(RegionMappingIndex.gid),
+                                nullable=not TimeSeriesRegion.region_mapping.required)
+    region_mapping = relationship(RegionMappingIndex, foreign_keys=region_mapping_gid)
 
 
 class TimeSeriesSurfaceIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
 
-    surface_id = Column(Integer, ForeignKey(SurfaceIndex.id), nullable=not TimeSeriesSurface.surface.required)
-    surface = relationship(SurfaceIndex, foreign_keys=surface_id)
+    surface_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not TimeSeriesSurface.surface.required)
+    surface = relationship(SurfaceIndex, foreign_keys=surface_gid)
+
+    def fill_from_has_traits(self, datatype):
+        # type: (TimeSeriesSurface)  -> None
+        super(TimeSeriesSurfaceIndex, self).fill_from_has_traits(datatype)
+        self.surface_gid = datatype.surface.gid.hex
+        self.has_surface_mapping = True
 
 
 class TimeSeriesVolumeIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
 
-    volume_id = Column(Integer, ForeignKey(VolumeIndex.id), nullable=not TimeSeriesVolume.volume.required)
-    volume = relationship(VolumeIndex, foreign_keys=volume_id)
+    volume_gid = Column(Integer, ForeignKey(VolumeIndex.gid), nullable=not TimeSeriesVolume.volume.required)
+    volume = relationship(VolumeIndex, foreign_keys=volume_gid)
+
+    def fill_from_has_traits(self, datatype):
+        # type: (TimeSeriesVolume)  -> None
+        super(TimeSeriesVolumeIndex, self).fill_from_has_traits(datatype)
+        self.has_volume_mapping = True
+        self.volume_gid = datatype.volume.gid.hex

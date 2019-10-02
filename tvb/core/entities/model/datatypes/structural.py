@@ -44,11 +44,12 @@ class StructuralMRIIndex(DataTypeMatrix):
 
     weighting = Column(String, nullable=False)
 
-    volume_id = Column(Integer, ForeignKey(VolumeIndex.id), nullable=not StructuralMRI.volume.required)
-    volume = relationship(VolumeIndex, foreign_keys=volume_id, primaryjoin=VolumeIndex.id == volume_id)
+    volume_gid = Column(Integer, ForeignKey(VolumeIndex.gid), nullable=not StructuralMRI.volume.required)
+    volume = relationship(VolumeIndex, foreign_keys=volume_gid, primaryjoin=VolumeIndex.gid == volume_gid)
 
     def fill_from_has_traits(self, datatype):
         # type: (StructuralMRI)  -> None
         super(StructuralMRIIndex, self).fill_from_has_traits(datatype)
         self.weighting = datatype.weighting
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.array_data)
+        self.volume_gid = datatype.volume.gid.hex

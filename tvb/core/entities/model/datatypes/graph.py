@@ -43,8 +43,8 @@ class CovarianceIndex(DataTypeMatrix):
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not Covariance.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not Covariance.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     type = Column(String)
 
@@ -53,6 +53,7 @@ class CovarianceIndex(DataTypeMatrix):
         super(CovarianceIndex, self).fill_from_has_traits(datatype)
         self.type = datatype.__class__.__name__
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
+        self.source_gid = datatype.source.gid.hex
 
 
 class CorrelationCoefficientsIndex(DataTypeMatrix):
@@ -62,8 +63,8 @@ class CorrelationCoefficientsIndex(DataTypeMatrix):
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
-    source_id = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not CorrelationCoefficients.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_id, primaryjoin=TimeSeriesIndex.id == source_id)
+    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not CorrelationCoefficients.source.required)
+    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     type = Column(String)
 
@@ -75,6 +76,7 @@ class CorrelationCoefficientsIndex(DataTypeMatrix):
         self.type = datatype.__class__.__name__
         self.labels_ordering = datatype.labels_ordering
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
+        self.source_gid = datatype.source.gid.hex
 
 
 class ConnectivityMeasureIndex(DataTypeMatrix):
@@ -82,10 +84,10 @@ class ConnectivityMeasureIndex(DataTypeMatrix):
 
     type = Column(String)
 
-    connectivity_id = Column(Integer, ForeignKey(ConnectivityIndex.id),
-                             nullable=ConnectivityMeasure.connectivity.required)
-    connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_id,
-                                primaryjoin=ConnectivityIndex.id == connectivity_id)
+    connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
+                              nullable=ConnectivityMeasure.connectivity.required)
+    connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
+                                primaryjoin=ConnectivityIndex.gid == connectivity_gid)
 
     array_data_min = Column(Float)
     array_data_max = Column(Float)
@@ -96,3 +98,4 @@ class ConnectivityMeasureIndex(DataTypeMatrix):
         super(ConnectivityMeasureIndex, self).fill_from_has_traits(datatype)
         self.type = datatype.__class__.__name__
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
+        self.connectivity_gid = datatype.connectivity.gid.hex
