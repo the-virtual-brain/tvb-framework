@@ -50,7 +50,7 @@ from tvb.core.adapters import input_tree
 from tvb.core.adapters.input_tree import InputTreeManager
 from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.entities.load import load_entity_by_gid
-from tvb.core.neocom.api import TVBLoader
+from tvb.core.neocom import h5
 from tvb.core.neotraits.h5 import H5File
 from tvb.core.utils import date2string, LESS_COMPLEX_TIME_FORMAT
 from tvb.core.entities.storage import dao
@@ -432,7 +432,7 @@ class ABCAdapter(object):
             res.user_tag_2 = self.generic_attributes.user_tag_2
             res.fk_datatype_group = data_type_group_id
             # Compute size-on disk, in case file-storage is used
-            associated_file = TVBLoader().path_for_stored_index(res)
+            associated_file = h5.path_for_stored_index(res)
             if os.path.exists(associated_file):
                 res.disk_size = self.file_handler.compute_size_on_disk(associated_file)
                 with H5File.from_file(associated_file) as f:
@@ -526,7 +526,7 @@ class ABCAdapter(object):
             raise IntrospectionException(msg)
 
 
-    ####### METHODS for PROCESSING PARAMETERS start here #############################
+    # METHODS for PROCESSING PARAMETERS start here #############################
 
     def review_operation_inputs(self, parameters):
         """

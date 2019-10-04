@@ -103,7 +103,9 @@ class SimpleBoolField(Field):
     template = 'bool_field.jinja2'
 
     def _from_post(self):
-        self.data = self.unvalidated_data is not None
+        if self.unvalidated_data is None:
+            self.data = False
+        self.data = bool(self.unvalidated_data)
 
 
 class SimpleStrField(Field):
@@ -149,29 +151,6 @@ class SimpleFloatField(Field):
             self.data = None
         else:
             self.data = float(self.unvalidated_data)
-
-
-class SimpleArrayField(Field):
-    template = 'str_field.jinja2'
-
-    def __init__(self, form, name, dtype, disabled=False, required=False, label='', doc='', default=None):
-        super(SimpleArrayField, self).__init__(form, name, disabled, required, label, doc, default)
-        self.dtype = dtype
-
-    def _from_post(self):
-        data = json.loads(self.unvalidated_data)
-        self.data = numpy.array(data, dtype=self.dtype).tolist()
-
-    @property
-    def value(self):
-        if self.data is None:
-            # todo: maybe we need to distinguish None from missing data
-            # this None means self.data is missing, either not set or unset cause of validation error
-            return self.unvalidated_data
-        try:
-            return json.dumps(self.data.tolist())
-        except (TypeError, ValueError):
-            return self.unvalidated_data
 
 
 class SimpleSelectField(Field):
@@ -220,8 +199,11 @@ class SimpleArrayField(Field):
         self.dtype = dtype
 
     def _from_post(self):
-        data = json.loads(self.unvalidated_data)
-        self.data = numpy.array(data, dtype=self.dtype).tolist()
+        if self.unvalidated_data is not None and isinstance(self.unvalidated_data, basestring):
+            data = json.loads(self.unvalidated_data)
+            self.data = numpy.array(data, dtype=self.dtype).tolist()
+        elif self.unvalidated_data is not None and isinstance(self.unvalidated_data, list):
+            self.data = self.unvalidated_data
 
     @property
     def value(self):

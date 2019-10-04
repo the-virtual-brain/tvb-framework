@@ -311,7 +311,6 @@ class H5File(object):
         self.close()
 
     def close(self):
-        self.written_by.store(self.__class__.__module__ + '.' + self.__class__.__name__)
         self.storage_manager.close_file()
 
     def store(self, datatype, scalars_only=False, store_references=True):
@@ -354,6 +353,7 @@ class H5File(object):
         # type: (GenericAttributes) -> None
         # write_metadata  creation time, serializer class name, etc
         self.create_date.store(date2string(datetime.now()))
+        self.written_by.store(self.__class__.__module__ + '.' + self.__class__.__name__)
 
         self.generic_attributes.fill_from(generic_attributes)
         self.invalid.store(self.generic_attributes.invalid)
@@ -399,6 +399,8 @@ class H5File(object):
         storage_manager = HDF5StorageManager(base_dir, fname)
         meta = storage_manager.get_metadata()
         h5file_class_fqn = meta.get('written_by')
+        if h5file_class_fqn is None:
+            return H5File(path)
         package, cls_name = h5file_class_fqn.rsplit('.', 1)
         module = importlib.import_module(package)
         cls = getattr(module, cls_name)
