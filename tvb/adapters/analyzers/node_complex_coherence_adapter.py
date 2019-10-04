@@ -35,7 +35,6 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Paula Sanz Leon <paula@tvb.invalid>
 
 """
-import os
 import uuid
 import numpy
 from tvb.analyzers.node_complex_coherence import NodeComplexCoherence
@@ -48,8 +47,7 @@ from tvb.core.entities.file.datatypes.spectral_h5 import ComplexCoherenceSpectru
 from tvb.core.entities.model.datatypes.spectral import ComplexCoherenceSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)
 
@@ -91,7 +89,6 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
     def get_output(self):
         return [ComplexCoherenceSpectrum]
 
-
     def get_required_memory_size(self, time_series):
         """
         Return the required memory to run this algorithm.
@@ -106,7 +103,6 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
                                                  self.algorithm.average_segments)
 
         return input_size + output_size
-
 
     def get_required_disk_size(self, time_series):
         """
@@ -141,17 +137,11 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
 
         :returns: the `ComplexCoherenceSpectrum` built with the given time-series
         """
-        complex_coherence_spectrum_index = ComplexCoherenceSpectrumIndex()
-
-
         # ------- Prepare a ComplexCoherenceSpectrum object for result -------##
-        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        time_series_h5_class = registry.get_h5file_for_index(type(time_series))
-        input_path = loader.path_for(time_series_h5_class, self.input_time_series_index.gid)
-        time_series_h5 = time_series_h5_class(path=input_path)
+        complex_coherence_spectrum_index = ComplexCoherenceSpectrumIndex()
+        time_series_h5 = h5.h5_file_for_index(time_series)
 
-        loader = DirLoader(self.storage_path)
-        dest_path = loader.path_for(ComplexCoherenceSpectrumH5, self.input_time_series_index.gid)
+        dest_path = h5.path_for(self.storage_path, ComplexCoherenceSpectrumH5, self.input_time_series_index.gid)
         spectra_h5 = ComplexCoherenceSpectrumH5(dest_path)
         spectra_h5.gid.store(uuid.UUID(complex_coherence_spectrum_index.gid))
         spectra_h5.source.store(time_series_h5.gid.load())
@@ -181,11 +171,11 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
         spectra_h5.close()
         time_series_h5.close()
 
-        complex_coherence_spectrum_index.source = self.input_time_series_index
+        complex_coherence_spectrum_index.source_gid = self.input_time_series_index.gid
         complex_coherence_spectrum_index.epoch_length = partial_result.epoch_length
         complex_coherence_spectrum_index.segment_length = partial_result.segment_length
         complex_coherence_spectrum_index.windowing_function = partial_result.windowing_function
         complex_coherence_spectrum_index.frequency_step = partial_result.freq_step
         complex_coherence_spectrum_index.max_frequency = partial_result.max_freq
 
-        return spectra_h5
+        return complex_coherence_spectrum_index

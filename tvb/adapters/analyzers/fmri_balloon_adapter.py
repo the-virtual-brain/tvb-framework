@@ -34,7 +34,7 @@ Adapter that uses the traits module to generate interfaces for BalloonModel Anal
 .. moduleauthor:: Paula Sanz Leon <Paula@tvb.invalid>
 
 """
-import os
+
 import uuid
 import numpy
 from tvb.analyzers.fmri_balloon import BalloonModel
@@ -46,8 +46,7 @@ from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesRegionH5
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesRegionIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
 from tvb.core.neotraits.db import prepare_array_shape_meta
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)
 
@@ -149,21 +148,14 @@ class BalloonModelAdapter(ABCAsynchronous):
         :returns: the simulated BOLD signal
         :rtype: `TimeSeries`
         """
-        dir_loader = DirLoader(
-            os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        ts_h5_class = registry.get_h5file_for_index(type(self.input_time_series_index))
-        input_path = dir_loader.path_for(ts_h5_class, self.input_time_series_index.gid)
-        input_time_series_h5 = ts_h5_class(input_path)
-
+        input_time_series_h5 = h5.h5_file_for_index(time_series)
         time_line = input_time_series_h5.read_time_page(0, self.input_shape[0])
 
         bold_signal_index = TimeSeriesRegionIndex()
-        dir_loader = DirLoader(self.storage_path)
-        bold_signal_h5_path = dir_loader.path_for(TimeSeriesRegionH5, bold_signal_index.gid)
+        bold_signal_h5_path = h5.path_for(self.storage_path, TimeSeriesRegionH5, bold_signal_index.gid)
         bold_signal_h5 = TimeSeriesRegionH5(bold_signal_h5_path)
         bold_signal_h5.gid.store(uuid.UUID(bold_signal_index.gid))
         self._fill_result_h5(bold_signal_h5, input_time_series_h5)
-        input_time_series_h5.close()
 
         ##---------- Iterate over slices and compose final result ------------##
 
@@ -183,6 +175,7 @@ class BalloonModelAdapter(ABCAsynchronous):
         bold_signal_shape = bold_signal_h5.data.shape
         bold_signal_h5.nr_dimensions.store(len(bold_signal_shape))
         bold_signal_h5.close()
+        input_time_series_h5.close()
 
         self._fill_result_index(bold_signal_index, bold_signal_shape)
         return bold_signal_index
@@ -194,9 +187,9 @@ class BalloonModelAdapter(ABCAsynchronous):
         result_index.data_length_3d, result_index.data_length_3d = \
             prepare_array_shape_meta(result_signal_shape)
 
-        result_index.connectivity_id = self.input_time_series_index.connectivity_id
-        result_index.region_mapping_id = self.input_time_series_index.region_mapping_id
-        result_index.region_mapping_volume_id = self.input_time_series_index.region_mapping_volume_id
+        result_index.connectivity_gid = self.input_time_series_index.connectivity_gid
+        result_index.region_mapping_gid = self.input_time_series_index.region_mapping_gid
+        result_index.region_mapping_volume_gid = self.input_time_series_index.region_mapping_volume_gid
 
         result_index.sample_period = self.input_time_series_index.sample_period
         result_index.sample_period_unit = self.input_time_series_index.sample_period_unit

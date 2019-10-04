@@ -35,7 +35,6 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
-import os
 import uuid
 import numpy
 from tvb.analyzers.node_coherence import NodeCoherence
@@ -48,8 +47,7 @@ from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)
 
@@ -93,7 +91,6 @@ class NodeCoherenceAdapter(ABCAsynchronous):
     def get_output(self):
         return [CoherenceSpectrum]
 
-
     def configure(self, time_series, nfft=None):
         """
         Store the input shape to be later used to estimate memory usage.
@@ -110,7 +107,6 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         if nfft is not None:
             self.algorithm.nfft = nfft
 
-
     def get_required_memory_size(self, time_series, nfft=None):
         """
         Return the required memory to run this algorithm.
@@ -123,7 +119,6 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         output_size = self.algorithm.result_size(used_shape)
         return input_size + output_size
 
-
     def get_required_disk_size(self, time_series, nfft=None):
         """
         Returns the required disk size to be able to run the adapter (in kB).
@@ -134,31 +129,25 @@ class NodeCoherenceAdapter(ABCAsynchronous):
                       self.input_shape[3])
         return self.array_size2kb(self.algorithm.result_size(used_shape))
 
-
     def launch(self, time_series, nfft=None):
         """ 
         Launch algorithm and build results. 
         """
-        ##--------- Prepare a CoherenceSpectrum object for result ------------##
+        # --------- Prepare a CoherenceSpectrum object for result ------------##
         coherence_spectrum_index = CoherenceSpectrumIndex()
+        time_series_h5 = h5.h5_file_for_index(time_series)
 
-        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        time_series_h5_class = registry.get_h5file_for_index(type(time_series))
-        input_path = loader.path_for(time_series_h5_class, self.input_time_series_index.gid)
-        time_series_h5 = time_series_h5_class(path=input_path)
-
-        loader = DirLoader(self.storage_path)
-        dest_path = loader.path_for(CoherenceSpectrumH5, coherence_spectrum_index.gid)
+        dest_path = h5.path_for(self.storage_path, CoherenceSpectrumH5, coherence_spectrum_index.gid)
         coherence_h5 = CoherenceSpectrumH5(dest_path)
         coherence_h5.gid.store(uuid.UUID(coherence_spectrum_index.gid))
         coherence_h5.source.store(time_series_h5.gid.load())
         coherence_h5.nfft.store(self.algorithm.nfft)
 
-        ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
+        # ------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         input_shape = time_series_h5.data.shape
         node_slice = [slice(input_shape[0]), None, slice(input_shape[2]), slice(input_shape[3])]
 
-        ##---------- Iterate over slices and compose final result ------------##
+        # ---------- Iterate over slices and compose final result ------------##
         small_ts = TimeSeries()
         small_ts.sample_rate = time_series_h5.sample_rate.load()
         partial_coh = None
@@ -173,7 +162,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         coherence_spectrum_index.ndim = len(coherence_h5.array_data.shape)
         time_series_h5.close()
 
-        coherence_spectrum_index.source = self.input_time_series_index
+        coherence_spectrum_index.source_gid = self.input_time_series_index.gid
         coherence_spectrum_index.nfft = partial_coh.nfft
         coherence_spectrum_index.frequencies = partial_coh.frequency
 

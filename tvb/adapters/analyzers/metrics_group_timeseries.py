@@ -46,13 +46,11 @@ from tvb.analyzers.metrics_base import BaseTimeseriesMetricAlgorithm
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.entities.file.datatypes.mapped_value_h5 import DatatypeMeasureH5
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neocom.api import TVBLoader
+from tvb.core.neocom import h5
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField, MultipleSelectField
-from tvb.datatypes.time_series import TimeSeries
 # Import metrics here, so that Traits will find them and return them as known subclasses
 import tvb.analyzers.metric_kuramoto_index
 import tvb.analyzers.metric_proxy_metastability
@@ -147,12 +145,7 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
             algorithms = ALGORITHMS.keys()
 
         LOG.debug("time_series shape is %s" % str(self.input_shape))
-
-        loader = TVBLoader()
-        h5_path = loader.path_for_stored_index(time_series)
-        dt_timeseries = TimeSeries()
-        with TimeSeriesH5(h5_path) as ts_h5:
-            ts_h5.load_into(dt_timeseries)
+        dt_timeseries = h5.load_from_index(time_series)
 
         metrics_results = {}
         for algorithm_name in algorithms:
@@ -180,10 +173,10 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
                 metrics_results[algorithm_name] = unstored_result
 
         result = DatatypeMeasureIndex()
-        result.source_id = time_series.id
+        result.source_gid = time_series.gid
         result.metrics = json.store(metrics_results)
 
-        result_path = loader.path_for(self.storage_path, DatatypeMeasureH5, result.gid)
+        result_path = h5.path_for(self.storage_path, DatatypeMeasureH5, result.gid)
         with DatatypeMeasureH5(result_path) as result_h5:
             result_h5.metrics.store(metrics_results)
             result_h5.analyzed_datatype.store(time_series)

@@ -36,7 +36,6 @@ Adapter that uses the traits module to generate interfaces for ICA Analyzer.
 """
 
 import uuid
-import os
 import numpy
 from tvb.analyzers.ica import FastICA
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
@@ -48,8 +47,7 @@ from tvb.core.entities.file.datatypes.mode_decompositions_h5 import IndependentC
 from tvb.core.entities.model.datatypes.mode_decompositions import IndependentComponentsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)
 
@@ -137,16 +135,11 @@ class ICAAdapter(ABCAsynchronous):
         """
         # --------- Prepare a IndependentComponents object for result ----------##
         ica_index = IndependentComponentsIndex()
-        ica_index.source = self.input_time_series_index
+        ica_index.source_gid = time_series.gid
 
-        loader = DirLoader(
-            os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        time_series_h5_class = registry.get_h5file_for_index(type(time_series))
-        input_path = loader.path_for(time_series_h5_class, self.input_time_series_index.gid)
-        time_series_h5 = time_series_h5_class(path=input_path)
+        time_series_h5 = h5.h5_file_for_index(time_series)
 
-        loader = DirLoader(os.path.join(self.storage_path))
-        result_path = loader.path_for(IndependentComponentsH5, ica_index.gid)
+        result_path = h5.path_for(self.storage_path, IndependentComponentsH5, ica_index.gid)
         ica_h5 = IndependentComponentsH5(path=result_path)
         ica_h5.gid.store(uuid.UUID(ica_index.gid))
         ica_h5.source.store(time_series_h5.gid.load())

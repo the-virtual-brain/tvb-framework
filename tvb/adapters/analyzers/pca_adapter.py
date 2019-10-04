@@ -35,7 +35,6 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
-import os
 import uuid
 import numpy
 from tvb.analyzers.pca import PCA
@@ -45,11 +44,10 @@ from tvb.datatypes.mode_decompositions import PrincipalComponents
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)
 
@@ -127,25 +125,22 @@ class PCAAdapter(ABCAsynchronous):
 
         :returns: the `PrincipalComponents` object built with the given timeseries as source
         """
-        ##--------- Prepare a PrincipalComponents object for result ----------##
+        # --------- Prepare a PrincipalComponents object for result ----------##
         principal_components_index = PrincipalComponentsIndex()
-        principal_components_index.source = self.input_time_series_index
+        principal_components_index.source_gid = time_series.gid
 
-        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        input_path = loader.path_for(TimeSeriesH5, self.input_time_series_index.gid)
-        time_series_h5 = TimeSeriesH5(input_path)
+        time_series_h5 = h5.h5_file_for_index(time_series)
 
-        loader = DirLoader(self.storage_path)
-        dest_path = loader.path_for(PrincipalComponentsH5, principal_components_index.gid)
+        dest_path = h5.path_for(self.storage_path, PrincipalComponentsH5, principal_components_index.gid)
         pca_h5 = PrincipalComponentsH5(path=dest_path)
         pca_h5.source.store(time_series_h5.gid.load())
         pca_h5.gid.store(uuid.UUID(principal_components_index.gid))
 
-        ##------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
+        # ------------- NOTE: Assumes 4D, Simulator timeSeries. --------------##
         input_shape = time_series_h5.data.shape
         node_slice = [slice(input_shape[0]), None, slice(input_shape[2]), slice(input_shape[3])]
 
-        ##---------- Iterate over slices and compose final result ------------##
+        # ---------- Iterate over slices and compose final result ------------##
         small_ts = TimeSeries()
         for var in range(input_shape[1]):
             node_slice[1] = slice(var, var + 1)

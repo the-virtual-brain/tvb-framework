@@ -35,7 +35,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from tvb.core.entities.model.model_operation import STATUS_FINISHED, Operation
-from tvb.core.entities.model.model_project import User
+from tvb.core.entities.model.model_project import User, Project
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.project_service import ProjectService
@@ -104,6 +104,10 @@ def userFactory():
         Create persisted User entity.
         :returns: User entity after persistence.
         """
+        existing_user = dao.get_user_by_name(username)
+        if existing_user is not None:
+            return existing_user
+
         user = User(username, password, mail, validated, role)
         return dao.store_entity(user)
 
@@ -117,6 +121,10 @@ def projectFactory():
         Create persisted Project entity, with no linked DataTypes.
         :returns: Project entity after persistence.
         """
+        project = dao.get_generic_entity(Project, name, "name")
+        if project:
+            return project[0]
+
         if users is None:
             users = []
         data = dict(name=name, description=description, users=users)

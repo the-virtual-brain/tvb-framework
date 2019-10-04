@@ -32,7 +32,7 @@ from tvb.analyzers.fft import FFT
 from tvb.datatypes.time_series import TimeSeries
 from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neocom.api import TVBLoader
+from tvb.core.neocom import h5
 from tvb.adapters.analyzers.fourier_adapter import FourierAdapter
 
 
@@ -49,6 +49,24 @@ def make_ts():
                        numpy.sin(2 * numpy.pi * time / 1000.0 * 300)
 
     return TimeSeries(time=time, data=data, sample_period=1.0 / 4000)
+
+
+def make_ts_from_op(session, operationFactory):
+    # make file stored and indexed time series
+    two_node_simple_sin_ts = make_ts()
+    op = operationFactory()
+
+    ts_db = TimeSeriesIndex()
+    ts_db.fk_from_operation = op.id
+    ts_db.fill_from_has_traits(two_node_simple_sin_ts)
+
+    ts_h5_path = h5.path_for_stored_index(ts_db)
+    with TimeSeriesH5(ts_h5_path) as f:
+        f.store(two_node_simple_sin_ts)
+
+    session.add(ts_db)
+    session.commit()
+    return ts_db
 
 
 def test_fourier_analyser():
@@ -69,19 +87,7 @@ def test_fourier_analyser():
 
 def test_fourier_adapter(tmpdir, session, operationFactory):
     # make file stored and indexed time series
-    two_node_simple_sin_ts = make_ts()
-    op = operationFactory()
-
-    ts_db = TimeSeriesIndex()
-    ts_db.fk_from_operation = op.id
-    ts_db.fill_from_has_traits(two_node_simple_sin_ts)
-
-    ts_h5_path = TVBLoader().path_for_stored_index(ts_db)
-    with TimeSeriesH5(ts_h5_path) as f:
-        f.store(two_node_simple_sin_ts)
-
-    session.add(ts_db)
-    session.commit()
+    ts_db = make_ts_from_op(session, operationFactory)
 
     # we have the required data to start the adapter
     # REVIEW THIS
@@ -103,6 +109,6 @@ def test_fourier_adapter(tmpdir, session, operationFactory):
     memq = adapter.get_required_memory_size(ts_db, segment_length=400)
     spectra_idx = adapter.launch(ts_db, segment_length=400)
 
-    assert spectra_idx.source_id == ts_db.id
+    assert spectra_idx.source_gid == ts_db.gid
     assert spectra_idx.gid is not None
     assert spectra_idx.segment_length == 1.0  # only 1 sec of signal

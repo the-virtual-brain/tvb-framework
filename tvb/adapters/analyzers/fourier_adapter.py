@@ -48,9 +48,8 @@ from tvb.datatypes.time_series import TimeSeries
 from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neocom.api import TVBLoader
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)
 
@@ -171,17 +170,14 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
 
         """
         fft_index = FourierSpectrumIndex()
-        fft_index.source_id = self.input_time_series_index.id
+        fft_index.source_gid = time_series.gid
 
         block_size = int(math.floor(self.input_shape[2] / self.memory_factor))
         blocks = int(math.ceil(self.input_shape[2] / block_size))
 
-        loader = TVBLoader()
-        ts_h5_path = loader.path_for_stored_index(self.input_time_series_index)
-        ts_h5_class = registry.get_h5file_for_index(type(self.input_time_series_index))
-        input_time_series_h5 = ts_h5_class(ts_h5_path)
+        input_time_series_h5 = h5.h5_file_for_index(self.input_time_series_index)
 
-        dest_path = loader.path_for(self.storage_path, FourierSpectrumH5, fft_index.gid)
+        dest_path = h5.path_for(self.storage_path, FourierSpectrumH5, fft_index.gid)
         spectra_file = FourierSpectrumH5(dest_path)
         spectra_file.gid.store(uuid.UUID(fft_index.gid))
         spectra_file.source.store(uuid.UUID(self.input_time_series_index.gid))
@@ -193,7 +189,7 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         small_ts = TimeSeries()
         small_ts.sample_period = input_time_series_h5.sample_period.load()
 
-        for block in xrange(blocks):
+        for block in range(blocks):
             node_slice[2] = slice(block * block_size, min([(block + 1) * block_size, self.input_shape[2]]), 1)
             small_ts.data = input_time_series_h5.read_data_slice(tuple(node_slice))
             self.algorithm.time_series = small_ts

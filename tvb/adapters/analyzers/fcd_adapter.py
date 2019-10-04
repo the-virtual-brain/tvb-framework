@@ -36,7 +36,6 @@ Adapter that uses the traits model to generate interfaces for FCD Analyzer.
 
 """
 
-import os
 import json
 import uuid
 import numpy as np
@@ -47,17 +46,19 @@ from sklearn.manifold import SpectralEmbedding
 from tvb.basic.logger.builder import get_logger
 from tvb.basic.neotraits.api import HasTraits, Attr, Float
 from tvb.basic.neotraits.info import narray_describe
-from tvb.core.entities.filters.chain import FilterChain
-from tvb.datatypes.time_series import TimeSeriesRegion
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.datatypes.fcd import Fcd
+from tvb.core.entities.file.datatypes.fcd_h5 import FcdH5
+from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.fcd import FcdIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
+from tvb.datatypes.fcd import Fcd
+from tvb.datatypes.graph import ConnectivityMeasure
+from tvb.datatypes.time_series import TimeSeriesRegion
 
 LOG = get_logger(__name__)
 
@@ -124,15 +125,17 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
 
         - Compute the the fcd of the timeseries; the fcd is calculated in the following way:
             the time series is divided in time window of fixed length and with an overlapping of fixed length.
-            The data-points within each window, centered at time ti, are used to calculate FC(ti) as Pearson correlation.
-            The ij element of the FCD matrix is calculated as the Pearson correlation between FC(ti) and FC(tj) -in a vector
+            The data-points within each window, centered at time ti, are used to calculate FC(ti) as Pearson correlation
+            The ij element of the FCD matrix is calculated as the Pearson correlation between FC(ti) and FC(tj)
+            -in a vector
         - Apply to the fcd the spectral embedding algorithm in order to calculate epochs of stability of the fcd
             (length of time during which FC matrix are high correlated).
 
         The algorithm can produce 2 kind of results:
 
         - case 1: the algorithm is able to identify the epochs of stability
-            -- fcs calculated over the epochs of stability (excluded the first one = artifact, due to initial conditions)
+            -- fcs calculated over the epochs of stability (excluded the first one = artifact,
+            due to initial conditions)
             -- 3 eigenvectors, associated to the 3 largest eigenvalues, of the fcs are extracted
         - case 2: the algorithm is not able to identify the epochs of stability
             -- fc over the all time series is calculated
@@ -192,22 +195,17 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
     def get_required_disk_size(self, **kwargs):
         return 0
 
-    def _get_h5_for_index(self, index):
-        h5_class = registry.get_h5file_for_index(type(index))
-        dir_loader = DirLoader(self.storage_path)
-        h5_path = dir_loader.path_for(h5_class, index.gid)
-
-        return h5_class, h5_path
-
-    def _populate_fcd_index(self, fcd_index, source_id, fcd_data, metadata):
-        fcd_index.source_id = source_id
+    @staticmethod
+    def _populate_fcd_index(fcd_index, source_gid, fcd_data, metadata):
+        fcd_index.source_gid = source_gid
         fcd_index.labels_ordering = json.dumps(Fcd.labels_ordering.default)
         fcd_index.ndim = fcd_data.ndim
         fcd_index.array_data_min = metadata.min
         fcd_index.array_data_max = metadata.max
         fcd_index.array_data_mean = metadata.mean
 
-    def _populate_fcd_h5(self, fcd_h5, fcd_data, gid, source_gid, sw, sp):
+    @staticmethod
+    def _populate_fcd_h5(fcd_h5, fcd_data, gid, source_gid, sw, sp):
         fcd_h5.array_data.store(fcd_data)
         fcd_h5.gid.store(uuid.UUID(gid))
         fcd_h5.source.store(uuid.UUID(source_gid))
@@ -226,12 +224,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
         :returns: the fcd index for the computed fcd matrix on the given time-series, with that sw and that sp
         :rtype: `FcdIndex`,`ConnectivityMeasureIndex`
         """
-        ts_h5_class = registry.get_h5file_for_index(type(self.input_time_series_index))
-        dir_loader = DirLoader(
-            os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        ts_h5_path = dir_loader.path_for(ts_h5_class, self.input_time_series_index.gid)
-
-        with ts_h5_class(ts_h5_path) as ts_h5:
+        with h5.h5_file_for_index(self.input_time_series_index) as ts_h5:
             [fcd, fcd_segmented, eigvect_dict, eigval_dict] = self._compute_fcd_matrix(ts_h5)
             connectivity_gid = ts_h5.connectivity.load()
 
@@ -239,41 +232,42 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
 
         # Create an index for the computed fcd.
         fcd_index = FcdIndex()
-        fcd_h5_class, fcd_h5_path = self._get_h5_for_index(fcd_index)
-        with fcd_h5_class(fcd_h5_path) as fcd_h5:
+        fcd_h5_path = h5.path_for(self.storage_path, FcdH5, fcd_index.gid)
+        with FcdH5(fcd_h5_path) as fcd_h5:
             fcd_array_metadata = self._populate_fcd_h5(fcd_h5, fcd, fcd_index.gid, time_series.gid, sw, sp)
-        self._populate_fcd_index(fcd_index, time_series.id, fcd, fcd_array_metadata)
+        self._populate_fcd_index(fcd_index, time_series.gid, fcd, fcd_array_metadata)
         result.append(fcd_index)
 
         if np.amax(fcd_segmented) == 1.1:
             result_fcd_segmented_index = FcdIndex()
-            result_fcd_segmented_h5_class, result_fcd_segmented_h5_path = self._get_h5_for_index(
-                result_fcd_segmented_index)
-            with result_fcd_segmented_h5_class(result_fcd_segmented_h5_path) as result_fcd_segmented_h5:
+            result_fcd_segmented_h5_path = h5.path_for(self.storage_path, FcdH5, result_fcd_segmented_index.gid)
+            with FcdH5(result_fcd_segmented_h5_path) as result_fcd_segmented_h5:
                 fcd_segmented_metadata = self._populate_fcd_h5(result_fcd_segmented_h5, fcd_segmented,
                                                                result_fcd_segmented_index.gid, time_series.gid, sw, sp)
             self._populate_fcd_index(result_fcd_segmented_index, time_series.id, fcd_segmented, fcd_segmented_metadata)
             result.append(result_fcd_segmented_index)
 
-        connectivity_entity = self.load_entity_by_gid(connectivity_gid.hex)
         for mode in eigvect_dict.keys():
             for var in eigvect_dict[mode].keys():
                 for ep in eigvect_dict[mode][var].keys():
                     for eig in range(3):
+                        cm_data = eigvect_dict[mode][var][ep][eig]
                         cm_index = ConnectivityMeasureIndex()
-                        result_eig_h5_class, result_eig_h5_path = self._get_h5_for_index(cm_index)
-                        with result_eig_h5_class(result_eig_h5_path) as cm_h5:
-                            cm_h5.connectivity.store(connectivity_gid)
-                            cm_data = eigvect_dict[mode][var][ep][eig]
-                            cm_h5.array_data.store(cm_data)
-                            cm_h5.title = "Epoch # %d, \n eigenvalue = %s,\n variable = %s,\n " \
-                                          "mode = %s." % (ep, eigval_dict[mode][var][ep][eig], var, mode)
-                            cm_array_metadata = cm_h5.array_data.get_cached_metadata()
-                        cm_index.type = type(cm_index).__name__
+                        cm_index.type = ConnectivityMeasure.__name__
+                        cm_index.connectivity_gid = connectivity_gid.hex
+                        cm_index.title = "Epoch # %d, \n eigenvalue = %s,\n variable = %s,\n " \
+                                         "mode = %s." % (ep, eigval_dict[mode][var][ep][eig], var, mode)
+
+                        storage_path = h5.path_for(self.storage_path, ConnectivityMeasureH5, cm_index.gid)
+                        with ConnectivityMeasureH5(storage_path) as f:
+                            f.array_data.store(cm_data)
+                            f.connectivity.store(connectivity_gid)
+                            f.title.store(cm_index.title)
+                            cm_array_metadata = f.array_data.get_cached_metadata()
+
                         cm_index.array_data_min = cm_array_metadata.min
                         cm_index.array_data_max = cm_array_metadata.max
                         cm_index.array_data_mean = cm_array_metadata.mean
-                        cm_index.connectivity_id = connectivity_entity.id
                         result.append(cm_index)
         return result
 
@@ -286,10 +280,10 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
 
         fcd = np.zeros(result_shape)
         fc_stream = {}  # dict where the fc calculated over the sliding window will be stored
-        for mode in xrange(result_shape[3]):
-            for var in xrange(result_shape[2]):
+        for mode in range(result_shape[3]):
+            for var in range(result_shape[2]):
                 start = -self.actual_sp  # in order to well initialize the first starting point of the FC stream
-                for nfcd in xrange(result_shape[0]):
+                for nfcd in range(result_shape[0]):
                     start += self.actual_sp
                     current_slice = tuple([slice(int(start), int(start + self.actual_sw) + 1), slice(var, var + 1),
                                            slice(input_shape[2]), slice(mode, mode + 1)])
@@ -298,7 +292,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
                     # the triangular part of the fc is organized as a vector, excluding the diagonal (always ones)
                     triangular = np.triu_indices(len(fc), 1)
                     fc_stream[nfcd] = fc[triangular]
-                for i in xrange(result_shape[0]):
+                for i in range(result_shape[0]):
                     j = i
                     while j < result_shape[0]:
                         fci = fc_stream[i]
@@ -315,10 +309,10 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
         eigvect_dict = {}  # holds eigenvectors of the fcs calculated over the epochs, key1=mode, key2=var, key3=numb ep
         eigval_dict = {}  # holds eigenvalues of the fcs calculated over the epochs, key1=mode, key2=var, key3=numb ep
         fcd_segmented = None
-        for mode in xrange(result_shape[3]):
+        for mode in range(result_shape[3]):
             eigvect_dict[mode] = {}
             eigval_dict[mode] = {}
-            for var in xrange(result_shape[2]):
+            for var in range(result_shape[2]):
                 eigvect_dict[mode][var] = {}
                 eigval_dict[mode][var] = {}
                 fcd_matrix = fcd[:, :, var, mode]
@@ -335,7 +329,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
                     fcd_segmented[xir > xir_cutoff, :, var, mode] = 1.1
                     fcd_segmented[:, xir > xir_cutoff, var, mode] = 1.1
 
-                for ep in xrange(1, epochs_extremes.shape[0]):
+                for ep in range(1, epochs_extremes.shape[0]):
                     eigvect_dict[mode][var][ep] = []
                     eigval_dict[mode][var][ep] = []
                     current_slice = tuple([slice(int(epochs_extremes[ep][0]), int(epochs_extremes[ep][1]) + 1),
@@ -347,7 +341,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
                     eigvect_matrix = np.real(eigvect_matrix)
                     eigval_matrix = eigval_matrix / np.sum(
                         np.abs(eigval_matrix))  # normalize eigenvalues to [0 and 1)
-                    for en in xrange(num_eig):
+                    for en in range(num_eig):
                         index = np.argmax(eigval_matrix)
                         eigvect_dict[mode][var][ep].append(abs(eigvect_matrix[:, index]))
                         eigval_dict[mode][var][ep].append(eigval_matrix[index])
@@ -368,7 +362,8 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
         result_size = np.sum(map(np.prod, self._result_shape(input_shape))) * 8.0  # Bytes
         return result_size
 
-    def _spectral_dbscan(self, fcd, n_dim=2, eps=0.3, min_samples=50):
+    @staticmethod
+    def _spectral_dbscan(fcd, n_dim=2, eps=0.3, min_samples=50):
         fcd = fcd - fcd.min()
         se = SpectralEmbedding(n_dim, affinity="precomputed")
         xi = se.fit_transform(fcd)
@@ -377,7 +372,8 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
         db = DBSCAN(eps=eps, min_samples=min_samples).fit(xi)
         return xi.T, db.labels_
 
-    def _compute_radii(self, xi, centered=False):
+    @staticmethod
+    def _compute_radii(xi, centered=False):
         if centered:
             xi = xi.copy() - xi.mean(axis=1).reshape((len(xi), 1))
         radii = np.sqrt(np.sum(xi ** 2, axis=0))
@@ -390,7 +386,8 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
         xir_cutoff = 0.5 * xir_sorted[-1]
         return xir, xir_cutoff
 
-    def _epochs_interval(self, xir, xir_cutoff, sp, sw):
+    @staticmethod
+    def _epochs_interval(xir, xir_cutoff, sp, sw):
         # Calculate the starting point and the ending point of each epoch of stability
         # sp=spanning, sw=sliding window
         epochs_dict = {}  # here the starting and the ending point will be stored
@@ -409,7 +406,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
         # T=0 indicates the FC calculate over the length of time that starts at (t=0) and that
         #     ends at (t=0)+sw (sw=length of the sliding window, sp=spanning between sliding windows)
         # T=1 indicates the FC calculate over the length of time that starts at (t=0)+sp and that ends at (t=0)+sp+sw
-        # T=2 indicates the FC calculate over the length of time that starts at (t=0)+2*sp and that ends at (t=0)+s*sp+sw
+        # T=2 indicates the FC calculate over the length of time that starts at (t=0)+2*sp and ends at (t=0)+s*sp+sw
         # Thus we can write:
         # [interval of T=0]=[t(0)] U [t(0)+sw]
         # [interval of T=1]=[t(0)+sp] U [t(0)+sp+sw]
@@ -421,7 +418,7 @@ class FunctionalConnectivityDynamicsAdapter(ABCAsynchronous):
         # t(0)+s*sp; t(0)+f*sp+sw
         # Thus (we save the BOLD time in the epochs_extremes matrix)
         epochs_extremes = np.zeros((len(epochs_dict), 2), dtype=float)
-        for ep in xrange(len(epochs_dict)):
+        for ep in range(len(epochs_dict)):
             epochs_extremes[ep, 0] = epochs_dict[ep][0] * sp
             epochs_extremes[ep, 1] = epochs_dict[ep][1] * sp + sw
         return epochs_extremes

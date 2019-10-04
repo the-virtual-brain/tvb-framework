@@ -35,7 +35,6 @@ Adapter that uses the traits module to generate interfaces for FFT Analyzer.
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 
 """
-import os
 import uuid
 import numpy
 from tvb.basic.neotraits.api import HasTraits, Attr
@@ -49,8 +48,7 @@ from tvb.core.entities.file.datatypes.graph_h5 import CovarianceH5
 from tvb.core.entities.model.datatypes.graph import CovarianceIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)
 
@@ -131,21 +129,15 @@ class NodeCovarianceAdapter(ABCAsynchronous):
 
         :returns: the `CovarianceIndex` built with the given time_series index as source
         """
-        ts_h5_class = registry.get_h5file_for_index(type(self.input_time_series_index))
-        dir_loader = DirLoader(
-            os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        ts_h5_path = dir_loader.path_for(ts_h5_class, self.input_time_series_index.gid)
-
         # Create an index for the computed covariance.
         covariance_index = CovarianceIndex()
-        dir_loader = DirLoader(self.storage_path)
-        covariance_h5_path = dir_loader.path_for(CovarianceH5, covariance_index.gid)
+        covariance_h5_path = h5.path_for(self.storage_path, CovarianceH5, covariance_index.gid)
         covariance_h5 = CovarianceH5(covariance_h5_path)
 
         # NOTE: Assumes 4D, Simulator timeSeries.
         node_slice = [slice(self.input_shape[0]), None, slice(self.input_shape[2]), None]
 
-        with ts_h5_class(ts_h5_path) as ts_h5:
+        with h5.h5_file_for_index(time_series) as ts_h5:
             for mode in range(self.input_shape[3]):
                 for var in range(self.input_shape[1]):
                     small_ts = TimeSeries()
@@ -156,7 +148,7 @@ class NodeCovarianceAdapter(ABCAsynchronous):
                     covariance_h5.write_data_slice(partial_cov.array_data)
             ts_array_metadata = covariance_h5.array_data.get_cached_metadata()
 
-        covariance_index.source_id = time_series.id
+        covariance_index.source_gid = time_series.gid
         covariance_index.type = type(covariance_index).__name__
         covariance_index.array_data_min = ts_array_metadata.min
         covariance_index.array_data_max = ts_array_metadata.max
@@ -167,7 +159,8 @@ class NodeCovarianceAdapter(ABCAsynchronous):
         covariance_h5.close()
         return covariance_index
 
-    def _compute_node_covariance(self, small_ts, input_ts_h5):
+    @staticmethod
+    def _compute_node_covariance(small_ts, input_ts_h5):
         """
         Compute the temporal covariance between nodes in a TimeSeries dataType.
         A nodes x nodes matrix is returned for each (state-variable, mode).
@@ -181,8 +174,8 @@ class NodeCovarianceAdapter(ABCAsynchronous):
         result = numpy.zeros(result_shape)
 
         # One inter-node temporal covariance matrix for each state-var & mode.
-        for mode in xrange(data_shape[3]):
-            for var in xrange(data_shape[1]):
+        for mode in range(data_shape[3]):
+            for var in range(data_shape[1]):
                 data = input_ts_h5.data[:, var, :, mode]
                 data = data - data.mean(axis=0)[numpy.newaxis, 0]
                 result[:, :, var, mode] = numpy.cov(data.T)
@@ -193,16 +186,10 @@ class NodeCovarianceAdapter(ABCAsynchronous):
         covariance = Covariance(source=small_ts, array_data=result)
         return covariance
 
-    def _result_shape(self, input_shape):
-        """
-        Returns the shape of the main result of the NodeCovariance analysis.
-        """
-        result_shape = (input_shape[2], input_shape[2], input_shape[1], input_shape[3])
-        return result_shape
-
-    def _result_size(self, input_shape):
+    @staticmethod
+    def _result_size(input_shape):
         """
         Returns the storage size in Bytes of the NodeCovariance result.
         """
-        result_size = numpy.prod(self._result_shape(input_shape)) * 8.0  # Bytes
+        result_size = numpy.prod(input_shape[2], input_shape[2], input_shape[1], input_shape[3]) * 8.0  # Bytes
         return result_size

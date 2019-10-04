@@ -37,28 +37,26 @@ Adapter that uses the traits module to generate interfaces for ... Analyzer.
 """
 
 import json
-import os
 import uuid
 import numpy
 from scipy.signal.signaltools import correlate
 from tvb.basic.neotraits.api import HasTraits, Attr, Float
 from tvb.basic.neotraits.info import narray_describe
+from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.basic.logger.builder import get_logger
-from tvb.core.entities.filters.chain import FilterChain
-from tvb.datatypes.time_series import TimeSeries
-from tvb.datatypes.temporal_correlations import CrossCorrelation
-from tvb.datatypes.graph import CorrelationCoefficients
 from tvb.core.entities.file.datatypes.graph_h5 import CorrelationCoefficientsH5
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.file.datatypes.temporal_correlations_h5 import CrossCorrelationH5
 from tvb.core.entities.model.datatypes.graph import CorrelationCoefficientsIndex
 from tvb.core.entities.model.datatypes.temporal_correlations import CrossCorrelationIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesEEGIndex, TimeSeriesMEGIndex, \
     TimeSeriesSEEGIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
+from tvb.datatypes.time_series import TimeSeries
+from tvb.datatypes.temporal_correlations import CrossCorrelation
+from tvb.datatypes.graph import CorrelationCoefficients
 
 LOG = get_logger(__name__)
 
@@ -151,22 +149,16 @@ class CrossCorrelateAdapter(ABCAsynchronous):
         :returns: the cross correlation index for the given time series
         :rtype: `CrossCorrelationIndex`
         """
-        ts_h5_class = registry.get_h5file_for_index(type(self.input_time_series_index))
-        dir_loader = DirLoader(
-            os.path.join(os.path.dirname(self.storage_path), str(self.input_time_series_index.fk_from_operation)))
-        ts_h5_path = dir_loader.path_for(ts_h5_class, self.input_time_series_index.gid)
-
-        ##--------- Prepare CrossCorrelationIndex and CrossCorrelationH5 objects for result ------------##
+        # --------- Prepare CrossCorrelationIndex and CrossCorrelationH5 objects for result ------------##
         cross_corr_index = CrossCorrelationIndex()
-        dir_loader = DirLoader(self.storage_path)
-        cross_corr_h5_path = dir_loader.path_for(CrossCorrelationH5, cross_corr_index.gid)
+        cross_corr_h5_path = h5.path_for(self.storage_path, CrossCorrelationH5, cross_corr_index.gid)
         cross_corr_h5 = CrossCorrelationH5(cross_corr_h5_path)
 
         node_slice = [slice(self.input_shape[0]), None, slice(self.input_shape[2]), slice(self.input_shape[3])]
-        ##---------- Iterate over slices and compose final result ------------##
+        # ---------- Iterate over slices and compose final result ------------##
         small_ts = TimeSeries()
 
-        with ts_h5_class(ts_h5_path) as ts_h5:
+        with h5.h5_file_for_index(self.input_time_series_index) as ts_h5:
             small_ts.sample_period = ts_h5.sample_period.load()
             partial_cross_corr = None
             labels_ordering = ts_h5.labels_ordering.load()
@@ -185,7 +177,7 @@ class CrossCorrelateAdapter(ABCAsynchronous):
         cross_corr_h5.source.store(uuid.UUID(self.input_time_series_index.gid))
         cross_corr_h5.gid.store(uuid.UUID(cross_corr_index.gid))
 
-        cross_corr_index.source_id = self.input_time_series_index.id
+        cross_corr_index.source_gid = self.input_time_series_index.gid
         cross_corr_index.labels_ordering = cross_corr_h5.labels_ordering.load()
         cross_corr_index.type = type(cross_corr_index).__name__
         cross_corr_index.array_data_min = ts_array_metadata.min
@@ -205,16 +197,16 @@ class CrossCorrelateAdapter(ABCAsynchronous):
 
         result = numpy.zeros(result_shape)
 
-        # TODO: For region level, 4s, 2000Hz, this takes ~3hours...(which makes node_coherence seem positively speedy...)
+        # TODO: For region level, 4s, 2000Hz, this takes ~3hours...(which makes node_coherence seem positively speedy
         # Probably best to add a keyword for offsets, so we just compute +- some "small" range...
         # One inter-node correlation, across offsets, for each state-var & mode.
-        for mode in xrange(result_shape[4]):
-            for var in xrange(result_shape[3]):
+        for mode in range(result_shape[4]):
+            for var in range(result_shape[3]):
                 data = input_ts_h5.data[:, var, :, mode]
                 data = data - data.mean(axis=0)[numpy.newaxis, :]
                 # TODO: Work out a way around the 4 level loop:
-                for n1 in xrange(result_shape[1]):
-                    for n2 in xrange(result_shape[2]):
+                for n1 in range(result_shape[1]):
+                    for n2 in range(result_shape[2]):
                         result[:, n1, n2, var, mode] = correlate(data[:, n1], data[:, n2], mode="same")
 
         LOG.debug("result")
@@ -227,7 +219,8 @@ class CrossCorrelateAdapter(ABCAsynchronous):
 
         return cross_corr
 
-    def _result_shape(self, input_shape):
+    @staticmethod
+    def _result_shape(input_shape):
         """Returns the shape of the main result of ...."""
         result_shape = (input_shape[0], input_shape[2], input_shape[2], input_shape[1], input_shape[3])
         return result_shape
@@ -351,10 +344,7 @@ class PearsonCorrelationCoefficientAdapter(ABCAsynchronous):
         :returns: the correlation coefficient for the given time series
         :rtype: `CorrelationCoefficients`
         """
-        ts_h5_class = registry.get_h5file_for_index(type(time_series))
-        dir_loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(time_series.fk_from_operation)))
-        ts_h5_path = dir_loader.path_for(ts_h5_class, time_series.gid)
-        with ts_h5_class(ts_h5_path) as ts_h5:
+        with h5.h5_file_for_index(time_series) as ts_h5:
             ts_labels_ordering = ts_h5.labels_ordering.load()
             result = self._compute_correlation_coefficients(ts_h5, t_start, t_end)
 
@@ -367,8 +357,7 @@ class PearsonCorrelationCoefficientAdapter(ABCAsynchronous):
             labels_ordering[1] = ts_labels_ordering[2]
 
         corr_coef_index = CorrelationCoefficientsIndex()
-        dir_loader = DirLoader(self.storage_path)
-        corr_coef_h5_path = dir_loader.path_for(CorrelationCoefficientsH5, corr_coef_index.gid)
+        corr_coef_h5_path = h5.path_for(self.storage_path, CorrelationCoefficientsH5, corr_coef_index.gid)
         with CorrelationCoefficientsH5(corr_coef_h5_path) as corr_coef_h5:
             corr_coef_h5.array_data.store(result)
             corr_coef_h5.source.store(uuid.UUID(time_series.gid))
@@ -376,7 +365,7 @@ class PearsonCorrelationCoefficientAdapter(ABCAsynchronous):
             corr_coef_h5.gid.store(uuid.UUID(corr_coef_index.gid))
             ts_array_metadata = corr_coef_h5.array_data.get_cached_metadata()
 
-        corr_coef_index.source_id = time_series.id
+        corr_coef_index.source_gid = time_series.gid
         corr_coef_index.type = type(corr_coef_index).__name__
         corr_coef_index.labels_ordering = json.dumps(labels_ordering)
         corr_coef_index.array_data_min = ts_array_metadata.min
@@ -410,8 +399,8 @@ class PearsonCorrelationCoefficientAdapter(ABCAsynchronous):
         t_hi = max(t_hi, input_shape[0])
 
         # One correlation coeff matrix, for each state-var & mode.
-        for mode in xrange(result_shape[3]):
-            for var in xrange(result_shape[2]):
+        for mode in range(result_shape[3]):
+            for var in range(result_shape[2]):
                 current_slice = tuple([slice(t_lo, t_hi + 1), slice(var, var + 1),
                                        slice(input_shape[2]), slice(mode, mode + 1)])
                 data = ts_h5.data[current_slice].squeeze()
@@ -422,7 +411,8 @@ class PearsonCorrelationCoefficientAdapter(ABCAsynchronous):
 
         return result
 
-    def _result_shape(self, input_shape):
+    @staticmethod
+    def _result_shape(input_shape):
         """Returns the shape of the main result of ...."""
         result_shape = (input_shape[2], input_shape[2], input_shape[1], input_shape[3])
         return result_shape
