@@ -105,6 +105,6 @@ class ConnectivityAnnotationsIndex(DataType):
 
     connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid), nullable=False)
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
-                                primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='delete')
+                                primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='none')
 
     annotations_length = Column(Integer)

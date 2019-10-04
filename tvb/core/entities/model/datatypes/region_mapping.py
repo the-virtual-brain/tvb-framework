@@ -46,12 +46,12 @@ class RegionMappingIndex(DataType):
 
     surface_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not RegionMapping.surface.required)
     surface = relationship(SurfaceIndex, foreign_keys=surface_gid, primaryjoin=SurfaceIndex.gid == surface_gid,
-                           cascade='delete')
+                           cascade='none')
 
     connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
                               nullable=not RegionMapping.connectivity.required)
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
-                                primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='delete')
+                                primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='none')
 
     def fill_from_has_traits(self, datatype):
         # type: (RegionMapping)  -> None
@@ -71,11 +71,11 @@ class RegionVolumeMappingIndex(DataTypeMatrix):
     connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
                               nullable=not RegionVolumeMapping.connectivity.required)
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
-                                primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='delete')
+                                primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='none')
 
     volume_gid = Column(Integer, ForeignKey(VolumeIndex.gid), nullable=not RegionVolumeMapping.volume.required)
     volume = relationship(VolumeIndex, foreign_keys=volume_gid, primaryjoin=VolumeIndex.gid == volume_gid,
-                          cascade='delete')
+                          cascade='none')
 
     def fill_from_has_traits(self, datatype):
         # type: (RegionVolumeMapping)  -> None
