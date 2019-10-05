@@ -34,8 +34,8 @@
 """
 
 import os
-import uuid
 import numpy
+from tvb.basic.exceptions import ValidationException
 from tvb.datatypes.region_mapping import RegionVolumeMapping
 from tvb.datatypes.structural import StructuralMRI
 from tvb.datatypes.time_series import TimeSeriesVolume
@@ -44,7 +44,6 @@ from tvb.adapters.uploaders.nifti.parser import NIFTIParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionVolumeMappingH5
 from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesVolumeH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
@@ -71,7 +70,7 @@ class NIFTIImporterForm(ABCUploaderForm):
                                          doc='Fill this for Region Mappings, when the indices in the NII do not match '
                                              'the Connectivity [0..N-1] indices')
         self.connectivity = DataTypeSelectField(ConnectivityIndex, self, name='connectivity', label='Connectivity',
-                                                doc='Optional Connectivity in case the NII file is a volume2regions mapping.')
+                                                doc='Optional Connectivity if the NII file is a volume2regions mapping')
 
 
 class NIFTIImporter(ABCUploader):
@@ -98,9 +97,9 @@ class NIFTIImporter(ABCUploader):
 
         return h5.store_complete(volume, self.storage_path), volume
 
-    def _create_mri(self, volume):
+    def _create_mri(self, volume, title):
         mri = StructuralMRI()
-        mri.title = "NIFTI Import - " + os.path.split(self.data_file)[1]
+        mri.title = title
         mri.dimensions_labels = ["X", "Y", "Z"]
         mri.weighting = "T1"
         mri.array_data = self.parser.parse()
@@ -108,10 +107,10 @@ class NIFTIImporter(ABCUploader):
 
         return h5.store_complete(mri, self.storage_path)
 
-    def _create_time_series(self, volume):
+    def _create_time_series(self, volume, title):
         # Now create TimeSeries and fill it with data from NIFTI image
         time_series = TimeSeriesVolume()
-        time_series.title = "NIFTI Import - " + os.path.split(self.data_file)[1]
+        time_series.title = title
         time_series.labels_ordering = ["Time", "X", "Y", "Z"]
         time_series.start_time = 0.0
         time_series.volume = volume
@@ -140,45 +139,79 @@ class NIFTIImporter(ABCUploader):
             data_shape)
         return ts_idx
 
-    def _create_region_map(self, volume, connectivity, apply_corrections, mappings_file):
-        region2volume_mapping = RegionVolumeMapping()
-        region2volume_mapping.title = "NIFTI Import - " + os.path.split(self.data_file)[1]
-        region2volume_mapping.dimensions_labels = ["X", "Y", "Z"]
-        region2volume_mapping.volume = volume
-        region2volume_mapping.connectivity = h5.load_from_index(connectivity)
+    def _create_region_map(self, volume, connectivity, apply_corrections, mappings_file, title):
 
         nifti_data = self.parser.parse()
+        nifti_data = self._apply_corrections_and_mapping(nifti_data, apply_corrections,
+                                                         mappings_file, connectivity.number_of_regions)
+        rvm = RegionVolumeMapping()
+        rvm.title = title
+        rvm.dimensions_labels = ["X", "Y", "Z"]
+        rvm.volume = volume
+        rvm.connectivity = h5.load_from_index(connectivity)
+        rvm.array_data = nifti_data
 
-        rm_h5_path = h5.path_for(self.storage_path, RegionVolumeMappingH5, region2volume_mapping.gid)
-        with RegionVolumeMappingH5(rm_h5_path) as rm_h5:
-            rm_h5.store(region2volume_mapping, scalars_only=True, store_references=True)
-            rm_h5.write_data_slice(nifti_data, apply_corrections, mappings_file, connectivity.number_of_regions)
-            region2volume_mapping.array_data = rm_h5.array_data.load()
+        return h5.store_complete(rvm, self.storage_path)
 
-        rm_idx = RegionVolumeMappingIndex()
-        rm_idx.fill_from_has_traits(region2volume_mapping)
-        return rm_idx
+    def _apply_corrections_and_mapping(self, data, apply_corrections, mappings_file, conn_nr_regions):
+
+        self.log.info("Writing RegionVolumeMapping with min=%d, mix=%d" % (data.min(), data.max()))
+
+        if mappings_file:
+            try:
+                mapping_data = numpy.loadtxt(mappings_file, dtype=numpy.str, usecols=(0, 2))
+                mapping_data = {int(row[0]): int(row[1]) for row in mapping_data}
+            except Exception:
+                raise ValidationException("Invalid Mapping File. Expected 3 columns (int, string, int)")
+
+            if len(data.shape) != 3:
+                raise ValidationException('Invalid RVM data. Expected 3D.')
+
+            not_matched = set()
+            for i in range(data.shape[0]):
+                for j in range(data.shape[1]):
+                    for k in range(data.shape[2]):
+                        val = data[i][j][k]
+                        if val not in mapping_data:
+                            not_matched.add(val)
+                        data[i][j][k] = mapping_data.get(val, -1)
+
+            self.log.info("Imported RM with values in interval [%d - %d]" % (data.min(), data.max()))
+            if not_matched:
+                self.log.warn("Not matched regions will be considered background: %s" % not_matched)
+                if not apply_corrections:
+                    raise ValidationException("Not matched regions were identified %s" % not_matched)
+
+        if apply_corrections:
+            data[data >= conn_nr_regions] = -1
+            data[data < -1] = -1
+            self.log.debug("After corrections: RegionVolumeMapping min=%d, mix=%d" % (data.min(), data.max()))
+
+        if data.min() < -1 or data.max() >= conn_nr_regions:
+            raise ValidationException("Invalid Mapping array: [%d ... %d]" % (data.min(), data.max()))
+
+        return data
 
     @transactional
     def launch(self, data_file, apply_corrections=False, mappings_file=None, connectivity=None):
         """
         Execute import operations:
         """
-        self.data_file = data_file
         try:
             self.parser = NIFTIParser(data_file)
             volume_idx, volume_ht = self._create_volume()
+            title = "NIFTI Import - " + os.path.split(data_file)[1]
 
             if connectivity:
-                rm = self._create_region_map(volume_ht, connectivity, apply_corrections, mappings_file)
+                rm = self._create_region_map(volume_ht, connectivity, apply_corrections, mappings_file, title)
                 return [volume_idx, rm]
 
             if self.parser.has_time_dimension:
-                time_series = self._create_time_series(volume_ht)
+                time_series = self._create_time_series(volume_ht, title)
                 return [volume_idx, time_series]
 
             # no connectivity and no time
-            mri = self._create_mri(volume_ht)
+            mri = self._create_mri(volume_ht, title)
             return [volume_idx, mri]
 
         except ParseException as excep:
