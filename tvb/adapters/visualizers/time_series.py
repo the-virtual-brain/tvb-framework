@@ -35,20 +35,19 @@ A Javascript displayer for time series, using SVG.
 
 """
 
-import os
 import json
 from abc import ABCMeta
 from six import add_metaclass
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesRegionH5, TimeSeriesSensorsH5
+from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesRegionH5, TimeSeriesSensorsH5, TimeSeriesH5
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer, URLGenerator
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
+from tvb.datatypes.connectivity import Connectivity
 
 
 class TimeSeriesForm(ABCAdapterForm):
@@ -77,6 +76,31 @@ class TimeSeriesForm(ABCAdapterForm):
 
 @add_metaclass(ABCMeta)
 class ABCSpaceDisplayer(ABCDisplayer):
+
+    def build_params_for_selectable_connectivity(self, connectivity):
+        # type: (Connectivity) -> dict
+        return {'measurePointsSelectionGID': connectivity.gid,
+                'initialSelection': connectivity.saved_selection or range(len(connectivity.region_labels)),
+                'groupedLabels': self.get_connectivity_grouped_space_labels(connectivity)}
+
+    @staticmethod
+    def get_connectivity_grouped_space_labels(connectivity):
+        """
+        :return: A list [('left', [lh_labels)], ('right': [rh_labels])]
+        """
+        hemispheres = connectivity.hemispheres
+        region_labels = connectivity.region_labels
+        if hemispheres is not None and hemispheres.size:
+            l, r = [], []
+
+            for i, (is_right, label) in enumerate(zip(hemispheres, region_labels)):
+                if is_right:
+                    r.append((i, label))
+                else:
+                    l.append((i, label))
+            return [('left', l), ('right', r)]
+        else:
+            return [('', list(enumerate(region_labels)))]
 
     def build_template_params_for_subselectable_datatype(self, sub_selectable):
         """
@@ -160,11 +184,8 @@ class TimeSeries(ABCSpaceDisplayer):
 
     def launch(self, time_series, preview=False, figsize=None):
         """Construct data for visualization and launch it."""
-        dir_loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(time_series.fk_from_operation)))
-        time_series_h5_class = registry.get_h5file_for_index(type(time_series))
-        time_series_path = dir_loader.path_for(time_series_h5_class, time_series.gid)
-
-        h5_file = time_series_h5_class(time_series_path)
+        h5_file = h5.h5_file_for_index(time_series)
+        assert isinstance(h5_file, TimeSeriesH5)
         shape = list(h5_file.read_data_shape())
         ts = h5_file.storage_manager.get_data('time')
         state_variables = h5_file.labels_dimensions.load().get(time_series.labels_ordering[1], [])

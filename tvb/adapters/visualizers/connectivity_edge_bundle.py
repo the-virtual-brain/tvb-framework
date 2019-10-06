@@ -39,7 +39,7 @@ import json
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
-from tvb.core.neocom.api import TVBLoader
+from tvb.core.neocom import h5
 from tvb.core.neotraits._forms import DataTypeSelectField
 
 
@@ -79,7 +79,7 @@ class ConnectivityEdgeBundle(ABCDisplayer):
     def launch(self, connectivity):
         """Construct data for visualization and launch it."""
 
-        connectivity_dt = TVBLoader().load_from_index(connectivity)
+        connectivity_dt = h5.load_from_index(connectivity)
 
         pars = {"labels": json.dumps(connectivity_dt.region_labels.tolist()),
                 "url_base": ABCDisplayer.paths2url(connectivity.gid, attribute_name="weights", flatten="True")
