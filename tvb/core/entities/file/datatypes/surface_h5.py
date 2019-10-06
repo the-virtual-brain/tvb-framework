@@ -85,6 +85,7 @@ class SurfaceH5(H5File):
 
         if self.storage_manager.is_valid_hdf5_file():
             self._split_slices = self.split_slices.load()
+            self._split_triangles = self.split_triangles.load()
             self._number_of_vertices = self.number_of_vertices.load()
             self._number_of_triangles = self.number_of_triangles.load()
             self._number_of_split_slices = self.number_of_split_slices.load()
@@ -106,6 +107,9 @@ class SurfaceH5(H5File):
         self.number_of_split_slices.store(self._number_of_split_slices)
         self.split_slices.store(self._split_slices)
         self.split_triangles.store(self._split_triangles)
+
+    def get_number_of_split_slices(self):
+        return self._number_of_split_slices
 
     def prepare_slices(self, datatype):
         """
@@ -218,7 +222,7 @@ class SurfaceH5(H5File):
         return None, triangle
 
 
-    def _get_slice_vertex_boundaries(self, slice_idx):
+    def get_slice_vertex_boundaries(self, slice_idx):
         if str(slice_idx) in self._split_slices:
             start_idx = max(0, self._split_slices[str(slice_idx)][KEY_VERTICES][KEY_START])
             end_idx = min(self._split_slices[str(slice_idx)][KEY_VERTICES][KEY_END], self._number_of_vertices)
@@ -241,7 +245,7 @@ class SurfaceH5(H5File):
         Read vertices slice, to be used by WebGL visualizer.
         """
         slice_number = int(slice_number)
-        start_idx, end_idx = self._get_slice_vertex_boundaries(slice_number)
+        start_idx, end_idx = self.get_slice_vertex_boundaries(slice_number)
         return self.vertices[start_idx: end_idx: 1]
 
     def get_vertex_normals_slice(self, slice_number=0):
@@ -249,7 +253,7 @@ class SurfaceH5(H5File):
         Read vertex-normal slice, to be used by WebGL visualizer.
         """
         slice_number = int(slice_number)
-        start_idx, end_idx = self._get_slice_vertex_boundaries(slice_number)
+        start_idx, end_idx = self.get_slice_vertex_boundaries(slice_number)
         return self.vertex_normals[start_idx: end_idx: 1]
 
     def get_triangles_slice(self, slice_number=0):

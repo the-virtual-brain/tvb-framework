@@ -93,6 +93,15 @@ class TimeSeriesIndex(DataType):
 
         return filters
 
+    def get_data_shape(self):
+        if self.data_ndim == 1:
+            return self.data_length_1d
+        if self.data_ndim == 2:
+            return self.data_length_1d, self.data_length_2d
+        if self.data_ndim == 3:
+            return self.data_length_1d, self.data_length_2d, self.data_length_3d
+        return self.data_length_1d, self.data_length_2d, self.data_length_3d, self.data_length_4d
+
 
 class TimeSeriesEEGIndex(TimeSeriesIndex):
     id = Column(Integer, ForeignKey(TimeSeriesIndex.id), primary_key=True)
