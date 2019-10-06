@@ -44,7 +44,7 @@ from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, SimpleSelectField, ScalarField, ArrayField, SimpleFloatField, \
     SimpleHiddenField
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 
 class SimulatorSurfaceFragment(ABCAdapterForm):
@@ -197,7 +197,7 @@ class SimulatorPSEParamRangeFragment(ABCAdapterForm):
                                                     label='pse_param1_step', default=pse_param1.range_definition.step)
 
         else:
-            self.pse_param1_dt = DataTypeSelectField(registry.get_index_for_datatype(pse_param1.type), self,
+            self.pse_param1_dt = DataTypeSelectField(h5.REGISTRY.get_index_for_datatype(pse_param1.type), self,
                                                      name='pse_param1', required=True, label='pse_param1',
                                                      dynamic_conditions=pse_param1.range_definition,
                                                      has_all_option=True)
@@ -213,7 +213,7 @@ class SimulatorPSEParamRangeFragment(ABCAdapterForm):
                                                         label='pse_param2_step',
                                                         default=pse_param2.range_definition.step)
             else:
-                self.pse_param2_dt = DataTypeSelectField(registry.get_index_for_datatype(pse_param2.type), self,
+                self.pse_param2_dt = DataTypeSelectField(h5.REGISTRY.get_index_for_datatype(pse_param2.type), self,
                                                          name='pse_param2', required=True, label='pse_param2',
                                                          dynamic_conditions=pse_param2.range_definition,
                                                          has_all_option=True)

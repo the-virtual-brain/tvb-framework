@@ -56,8 +56,7 @@ from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.neotraits._forms import DataTypeSelectField, SimpleSelectField, FloatField, jinja_env
 from tvb.core.services.simulator_service import SimulatorService
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 
 class SimulatorAdapterForm(ABCAdapterForm):
@@ -149,12 +148,7 @@ class SimulatorAdapter(ABCAsynchronous):
         #         pass
 
         connectivity_index = dao.get_datatype_by_gid(connectivity_gid.hex)
-        dir_loader = DirLoader(os.path.join(os.path.dirname(self.storage_path),
-                                            str(connectivity_index.fk_from_operation)))
-        connectivity_path = dir_loader.path_for(ConnectivityH5, connectivity_gid)
-        connectivity = Connectivity()
-        with ConnectivityH5(connectivity_path) as connectivity_h5:
-            connectivity_h5.load_into(connectivity)
+        connectivity = h5.load_from_index(connectivity_index)
 
         self.algorithm.connectivity = connectivity
         self.simulation_length = self.algorithm.simulation_length
@@ -242,9 +236,7 @@ class SimulatorAdapter(ABCAsynchronous):
         self.algorithm.configure(full_configure=False)
         if self.branch_simulation_state_gid is not None:
             simulation_state_index = dao.get_datatype_by_gid(self.branch_simulation_state_gid.hex)
-            dir_loader = DirLoader(os.path.join(os.path.dirname(self.storage_path),
-                                                str(simulation_state_index.fk_from_operation)))
-            self.branch_simulation_state_path = dir_loader.path_for(SimulationStateH5, self.branch_simulation_state_gid)
+            self.branch_simulation_state_path = h5.path_for_stored_index(simulation_state_index)
 
             with SimulationStateH5(self.branch_simulation_state_path) as branch_simulation_state_h5:
                 branch_simulation_state_h5.load_into(self.algorithm)
@@ -252,19 +244,15 @@ class SimulatorAdapter(ABCAsynchronous):
         # region_map = self._try_find_mapping(region_mapping.RegionMapping, connectivity.gid)
         # region_volume_map = self._try_find_mapping(region_mapping.RegionVolumeMapping, connectivity.gid)
 
-        dir_loader = DirLoader(self.storage_path)
-
         for monitor in self.algorithm.monitors:
             m_name = monitor.__class__.__name__
             ts = monitor.create_time_series(self.algorithm.connectivity)
             self.log.debug("Monitor created the TS")
             ts.start_time = start_time
 
-            ts_index = registry.get_index_for_datatype(type(ts))()
-            ts_index.time_series_type = type(ts).__name__
-            ts_index.sample_period_unit = ts.sample_period_unit
-            ts_index.sample_period = ts.sample_period
-            ts_index.labels_ordering = json.dumps(ts.labels_ordering)
+            ts_index_class = h5.REGISTRY.get_index_for_datatype(type(ts))
+            ts_index = ts_index_class()
+            ts_index.fill_from_has_traits(ts)
             ts_index.data_ndim = 4
             ts_index.connectivity_id = 1
             ts_index.state = 'INTERMEDIATE'
@@ -278,11 +266,10 @@ class SimulatorAdapter(ABCAsynchronous):
 
             result_indexes[m_name] = ts_index
 
-            ts_h5_class = registry.get_h5file_for_datatype(type(ts))
-            ts_h5_path = dir_loader.path_for(ts_h5_class, ts_index.gid)
+            ts_h5_class = h5.REGISTRY.get_h5file_for_datatype(type(ts))
+            ts_h5_path = h5.path_for(self.storage_path, ts_h5_class, ts.gid)
             ts_h5 = ts_h5_class(ts_h5_path)
             ts_h5.store(ts, scalars_only=True, store_references=False)
-            ts_h5.gid.store(uuid.UUID(ts_index.gid))
             result_h5[m_name] = ts_h5
 
         ### Run simulation
@@ -299,7 +286,7 @@ class SimulatorAdapter(ABCAsynchronous):
         ### Populate H5 file for simulator state. This step could also be done while running sim, in background.
         if not self._is_group_launch():
             simulation_state_index = SimulationStateIndex()
-            simulation_state_path = dir_loader.path_for(SimulationStateH5, uuid.UUID(simulation_state_index.gid))
+            simulation_state_path = h5.path_for(self.storage_path, SimulationStateH5, self.algorithm.gid)
             with SimulationStateH5(simulation_state_path) as simulation_state_h5:
                 simulation_state_h5.store(self.algorithm)
             self._capture_operation_results([simulation_state_index])

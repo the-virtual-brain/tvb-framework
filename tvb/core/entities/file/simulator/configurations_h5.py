@@ -3,7 +3,7 @@ import os
 import uuid
 from tvb.core.entities.file.simulator.h5_factory import config_h5_factory
 from tvb.core.neotraits.h5 import H5File
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 
 class SimulatorConfigurationH5(H5File):
@@ -14,8 +14,7 @@ class SimulatorConfigurationH5(H5File):
     def store_config_as_reference(self, config):
         gid = uuid.uuid4()
 
-        config_path = DirLoader(os.path.dirname(self.path)).path_for_has_traits(type(config), gid)
-
+        config_path = h5.path_for(os.path.dirname(self.path), type(config), gid)
         config_h5_class = config_h5_factory(type(config))
 
         with config_h5_class(config_path) as config_h5:
@@ -26,7 +25,7 @@ class SimulatorConfigurationH5(H5File):
         return gid
 
     def load_from_reference(self, gid):
-        dir_loader = DirLoader(os.path.dirname(self.path))
+        dir_loader = h5.DirLoader(os.path.dirname(self.path), h5.REGISTRY)
         config_filename = dir_loader.find_file_name(gid)
         config_path = os.path.join(dir_loader.base_dir, config_filename)
 

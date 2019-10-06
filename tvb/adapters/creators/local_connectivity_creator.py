@@ -38,6 +38,7 @@ from tvb.datatypes.equations import Equation
 from tvb.core.entities.model.datatypes.local_connectivity import LocalConnectivityIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
+from tvb.core.neocom import h5
 
 
 class LocalConnectivitySelectorForm(ABCAdapterForm):
@@ -102,26 +103,24 @@ class LocalConnectivityCreator(ABCAsynchronous):
         """
         return [LocalConnectivityIndex]
 
-
     def launch(self, **kwargs):
         """
         Used for creating a `LocalConnectivity`
         """
         local_connectivity = LocalConnectivity()
         local_connectivity.cutoff = float(kwargs['cutoff'])
-        local_connectivity.surface = kwargs['surface']
+        surface_ht = h5.load_from_index(kwargs['surface'])
+        local_connectivity.surface = surface_ht
         local_connectivity.equation = self.get_lconn_equation(kwargs)
         local_connectivity.compute_sparse_matrix()
 
-        return local_connectivity
-
+        return h5.store_complete(local_connectivity, self.storage_path)
 
     def get_lconn_equation(self, kwargs):
         """
         Get the equation for the local connectivity from a dictionary of arguments.
         """
         return Equation.build_equation_from_dict('equation', kwargs)
-
 
     def get_required_disk_size(self, **kwargs):
         """
@@ -133,7 +132,6 @@ class LocalConnectivityCreator(ABCAsynchronous):
             disk_size_b = surface_index.number_of_vertices * points_no * points_no * 8
             return self.array_size2kb(disk_size_b)
         return 0
-
 
     def get_required_memory_size(self, **kwargs):
         """

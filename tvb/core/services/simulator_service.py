@@ -1,11 +1,37 @@
+# -*- coding: utf-8 -*-
+#
+#
+# TheVirtualBrain-Framework Package. This package holds all Data Management, and
+# Web-UI helpful to run brain-simulations. To use it, you also need do download
+# TheVirtualBrain-Scientific Package (for simulators). See content of the
+# documentation-folder for more details. See also http://www.thevirtualbrain.org
+#
+# (c) 2012-2017, Baycrest Centre for Geriatric Care ("Baycrest") and others
+#
+# This program is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+# either version 3 of the License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with this
+# program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#   CITATION:
+# When using The Virtual Brain for scientific publications, please cite it as follows:
+#
+#   Paula Sanz Leon, Stuart A. Knock, M. Marmaduke Woodman, Lia Domide,
+#   Jochen Mersmann, Anthony R. McIntosh, Viktor Jirsa (2013)
+#       The Virtual Brain: a simulator of primate brain network dynamics.
+#   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
+#
+#
 import copy
 import json
 import uuid
-import os
 from tvb.basic.logger.builder import get_logger
-from tvb.datatypes.connectivity import Connectivity
 from tvb.simulator.simulator import Simulator
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.simulator.simulator_h5 import SimulatorH5
 from tvb.core.entities.model.model_datatype import DataTypeGroup
@@ -15,7 +41,7 @@ from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.burst_service2 import BurstService2
 from tvb.core.services.operation_service import OperationService
-from tvb.core.neocom.h5 import DirLoader
+from tvb.core.neocom import h5
 
 
 class SimulatorService(object):
@@ -28,10 +54,9 @@ class SimulatorService(object):
         self.operation_service = OperationService()
         self.files_helper = FilesHelper()
 
-    def serialize_simulator(self, simulator, simulator_gid, simulation_state_gid, storage_path):
-        dir_loader = DirLoader(storage_path)
-
-        simulator_path = dir_loader.path_for_has_traits(type(simulator), simulator_gid)
+    @staticmethod
+    def serialize_simulator(simulator, simulator_gid, simulation_state_gid, storage_path):
+        simulator_path = h5.path_for(storage_path, SimulatorH5, simulator_gid)
 
         with SimulatorH5(simulator_path) as simulator_h5:
             simulator_h5.gid.store(uuid.UUID(simulator_gid))
@@ -42,10 +67,9 @@ class SimulatorService(object):
 
         return simulator_gid
 
-    def deserialize_simulator(self, simulator_gid, storage_path):
-        dir_loader = DirLoader(storage_path)
-
-        simulator_in_path = dir_loader.path_for_has_traits(Simulator, simulator_gid)
+    @staticmethod
+    def deserialize_simulator(simulator_gid, storage_path):
+        simulator_in_path = h5.path_for(storage_path, SimulatorH5, simulator_gid)
         simulator_in = Simulator()
 
         with SimulatorH5(simulator_in_path) as simulator_in_h5:
@@ -54,13 +78,7 @@ class SimulatorService(object):
             simulation_state_gid = simulator_in_h5.simulation_state.load()
 
         conn_index = dao.get_datatype_by_gid(connectivity_gid.hex)
-        dir_loader = DirLoader(os.path.join(os.path.dirname(storage_path), str(conn_index.fk_from_operation)))
-
-        conn_path = dir_loader.path_for(ConnectivityH5, connectivity_gid)
-        conn = Connectivity()
-        with ConnectivityH5(conn_path) as conn_h5:
-            conn_h5.load_into(conn)
-            conn.gid = conn_h5.gid.load()
+        conn = h5.load_from_index(conn_index)
 
         simulator_in.connectivity = conn
         return simulator_in, connectivity_gid, simulation_state_gid
@@ -76,10 +94,12 @@ class SimulatorService(object):
         if op_group:
             op_group_id = op_group.id
 
-        operation = Operation(user_id, project_id, simulator_id, operation_parameters, op_group_id=op_group_id, meta=meta_str)
+        operation = Operation(user_id, project_id, simulator_id, operation_parameters, op_group_id=op_group_id,
+                              meta=meta_str)
 
         self.logger.debug("Saving Operation(userId=" + str(user_id) + ",projectId=" + str(project_id) + "," +
-                          str(metadata) + ",algorithmId=" + str(simulator_id) + ", ops_group= " + str(op_group_id) + ")")
+                          str(metadata) + ",algorithmId=" + str(simulator_id) + ", ops_group= " + str(
+            op_group_id) + ")")
 
         # visible_operation = visible and category.display is False
         operation = dao.store_entity(operation)
@@ -89,8 +109,8 @@ class SimulatorService(object):
 
         return operation
 
-
-    def _set_simulator_range_parameter(self, simulator, range_parameter_name, range_parameter_value):
+    @staticmethod
+    def _set_simulator_range_parameter(simulator, range_parameter_name, range_parameter_value):
         range_param_name_list = range_parameter_name.split('.')
         current_attr = simulator
         for param_name in range_param_name_list[:len(range_param_name_list) - 1]:
@@ -126,7 +146,6 @@ class SimulatorService(object):
         except Exception as excep:
             self.logger.error(excep)
             BurstService2().mark_burst_finished(burst_config, error_message=str(excep))
-
 
     def async_launch_and_prepare_pse(self, burst_config, user, project, simulator_algo, range_param1, range_param2,
                                      session_stored_simulator):
