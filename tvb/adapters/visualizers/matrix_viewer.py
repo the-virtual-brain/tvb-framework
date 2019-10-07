@@ -33,7 +33,6 @@
 
 """
 
-import os
 import json
 import numpy
 from six import add_metaclass
@@ -45,8 +44,7 @@ from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.model.datatypes.spectral import DataTypeMatrix
 from tvb.core.neotraits._forms import DataTypeSelectField, SimpleStrField
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 
 # TODO: rewrite, necessary to read whole matrix?
@@ -56,6 +54,7 @@ def compute_2d_view(matrix, slice_s):
     If the given slice is invalid or fails to produce a 2d array the default is used
     which selects the first 2 dimensions.
     If the matrix is complex the real part is shown
+    :param matrix: main input. It can have more then 2D
     :param slice_s: a string representation of a slice
     :return: (a 2d array,  the slice used to make it, is_default_returned)
     """
@@ -108,6 +107,8 @@ class MappedArraySVGVisualizerMixin(ABCSpaceDisplayer):
     def compute_params(self, matrix, viewer_title, given_slice=None, labels=None):
         """
         Prepare a 2d matrix to display
+        :param labels: optional labels for the matrix
+        :param viewer_title: title for the matrix display
         :param matrix: input matrix
         :param given_slice: a string representation of a slice. This slice should cut a 2d view from matrix
         If the matrix is not 2d and the slice will not make it 2d then a default slice is used
@@ -131,18 +132,11 @@ class MappedArraySVGVisualizerMixin(ABCSpaceDisplayer):
         then the labels of the associated connectivity are returned.
         Else None
         """
-        h5_class = registry.get_h5file_for_index(type(datatype_index))
-        dir_loader = DirLoader(os.path.join(os.path.dirname(self.storage_path),
-                                            str(datatype_index.fk_from_operation)))
-        h5_path = dir_loader.path_for(h5_class, datatype_index.gid)
-        with h5_class(h5_path) as datatype_h5:
-            source_gid = datatype_h5.source.load()
+        with h5.h5_file_for_index(datatype_index) as datatype_h5:
             matrix = datatype_h5.array_data[:]
 
-        source_h5_class, source_h5_path = self._load_h5_of_gid(source_gid.hex)
-        with source_h5_class(source_h5_path) as source_h5:
-            # todo should we use connectivity.ordered_labels?
-            # If so also permute the matrix to be consistent with the conn views
+        source_index = self.load_entity_by_gid(datatype_index.source_gid)
+        with h5.h5_file_for_index(source_index) as source_h5:
             labels = self.get_space_labels(source_h5)
 
         return [labels, labels], matrix
@@ -177,10 +171,7 @@ class MappedArrayVisualizer(MappedArraySVGVisualizerMixin):
         return MatrixVisualizerForm
 
     def launch(self, datatype, slice=''):
-        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(datatype.fk_from_operation)))
-        h5_class = registry.get_h5file_for_index(type(datatype))
-        h5_path = loader.path_for(h5_class, datatype.gid)
-        with h5_class(h5_path) as h5_file:
+        with h5.h5_file_for_index(datatype) as h5_file:
             matrix = h5_file.array_data.load()
 
         matrix2d, _, _ = compute_2d_view(matrix, slice)

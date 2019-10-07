@@ -31,7 +31,7 @@
 """
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-
+import numpy
 import json
 from tvb.basic.profile import TvbProfile
 from tvb.adapters.visualizers.surface_view import ABCSurfaceDisplayer
@@ -98,13 +98,14 @@ class ConnectivityAnnotationsView(ABCSurfaceDisplayer):
     def launch(self, annotations_index, region_mapping_index=None, **kwarg):
 
         if region_mapping_index is None:
-            region_map = dao.get_generic_entity(RegionMappingIndex, annotations_index.connectivity_id, '_connectivity')
+            region_map = dao.get_generic_entity(RegionMappingIndex, annotations_index.connectivity_gid,
+                                                'connectivity_gid')
             if len(region_map) < 1:
                 raise LaunchException(
                     "Can not launch this viewer unless we have at least a RegionMapping for the current Connectivity!")
-            region_map = region_map[0]
+            region_mapping_index = region_map[0]
 
-        boundary_url = region_map.surface.get_url_for_region_boundaries(region_map)
+        boundary_url = region_mapping_index.surface.get_url_for_region_boundaries(region_map)
         url_vertices_pick, url_normals_pick, url_triangles_pick = region_map.surface.get_urls_for_pick_rendering()
         url_vertices, url_normals, _, url_triangles, url_region_map = \
             region_map.surface.get_urls_for_rendering(True, region_map)
@@ -222,3 +223,13 @@ class ConnectivityAnnotationsView(ABCSurfaceDisplayer):
         root_root = dict(data=dict(title=self.display_name, icon=ICON_FOLDER),
                          state="open", children=[left_root, right_root])
         return root_root
+
+    def get_triangles_mapping(self):
+        """
+        :return Numpy array of length triangles and for each the region corresponding to one of its vertices.
+        """
+        triangles_no = self.surface.number_of_triangles
+        result = []
+        for i in range(triangles_no):
+            result.append(self.array_data[self.surface.triangles[i][0]])
+        return numpy.array(result)

@@ -256,7 +256,7 @@ class BrainViewer(ABCSurfaceDisplayer):
                            measurePointsLabels=time_series_h5.get_space_labels(),
                            measurePointsTitle=time_series.title))
 
-        params.update(self.build_template_params_for_subselectable_datatype(time_series_h5))
+        params.update(self.build_params_for_subselectable_ts(time_series_h5))
 
         time_series_h5.close()
         if self.surface_h5:

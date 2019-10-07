@@ -111,6 +111,7 @@ class GIFTITimeSeriesImporter(ABCUploader):
             ts_idx.sample_period = partial_time_series.sample_period
             ts_idx.sample_rate = partial_time_series.sample_rate
             ts_idx.labels_ordering = json.dumps(partial_time_series.labels_ordering)
+            ts_idx.labels_dimensions = json.dumps(partial_time_series.labels_dimensions)
             ts_idx.data_ndim = len(ts_data_shape)
             ts_idx.data_length_1d, ts_idx.data_length_2d, ts_idx.data_length_3d, ts_idx.data_length_4d = prepare_array_shape_meta(ts_data_shape)
 

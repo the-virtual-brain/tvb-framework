@@ -49,11 +49,13 @@ class TimeSeriesIndex(DataType):
     data_length_2d = Column(Integer)
     data_length_3d = Column(Integer)
     data_length_4d = Column(Integer)
+    start_time = Column(Float, default=0)
 
     sample_period_unit = Column(String, nullable=False)
     sample_period = Column(Float, nullable=False)
     sample_rate = Column(Float)
     labels_ordering = Column(String, nullable=False)
+    labels_dimensions = Column(String, nullable=False)
     has_volume_mapping = Column(Boolean, nullable=False, default=False)
     has_surface_mapping = Column(Boolean, nullable=False, default=False)
 
@@ -62,10 +64,12 @@ class TimeSeriesIndex(DataType):
         super(TimeSeriesIndex, self).fill_from_has_traits(datatype)
         self.title = datatype.title
         self.time_series_type = type(datatype).__name__
+        self.start_time = datatype.start_time
         self.sample_period_unit = datatype.sample_period_unit
         self.sample_period = datatype.sample_period
         self.sample_rate = datatype.sample_rate
         self.labels_ordering = json.dumps(datatype.labels_ordering)
+        self.labels_dimensions = json.dumps(datatype.labels_dimensions)
 
         # REVIEW THIS.
         # In general constructing graphs here is a bad ideea
@@ -101,6 +105,11 @@ class TimeSeriesIndex(DataType):
         if self.data_ndim == 3:
             return self.data_length_1d, self.data_length_2d, self.data_length_3d
         return self.data_length_1d, self.data_length_2d, self.data_length_3d, self.data_length_4d
+
+    def get_labels_for_dimension(self, idx):
+        label_dimensions = json.load(self.labels_dimensions)
+        labels_ordering = json.load(self.labels_ordering)
+        return label_dimensions.get(labels_ordering[idx], [])
 
 
 class TimeSeriesEEGIndex(TimeSeriesIndex):

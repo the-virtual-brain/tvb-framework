@@ -90,7 +90,7 @@ class TractViewer(ABCSpaceDisplayer):
                       urlTrackStarts=url_track_starts,
                       urlTrackVertices=url_track_vertices)
 
-        params.update(self.build_template_params_for_subselectable_datatype(connectivity))
+        params.update(self.build_params_for_selectable_connectivity(connectivity))
 
         return self.build_display_result("tract/tract_view", params,
                                          pages={"controlPage": "tract/tract_viewer_controls"})

@@ -40,8 +40,9 @@ import json
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.model.datatypes.spectral import WaveletCoefficientsIndex
+from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import DataTypeSelectField
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 
 class WaveletSpectrogramVisualizerForm(ABCAdapterForm):
@@ -89,35 +90,32 @@ class WaveletSpectrogramVisualizer(ABCDisplayer):
         return self.launch(input_data)
 
     def launch(self, input_data, **kwarg):
-        input_h5_class, input_h5_path = self._load_h5_of_gid(input_data.gid)
-        input_h5 = input_h5_class(input_h5_path)
-        shape = input_h5.array_data.shape
-        source_gid = input_h5.source.load().hex
-        input_sample_period = input_h5.sample_period.load()
 
-        source_h5_class, source_h5_path = self._load_h5_of_gid(source_gid)
-        with source_h5_class(source_h5_path) as source_h5:
-            start_time = source_h5.start_time.load()
-            source_sample_period = source_h5.sample_period.load()
-            source_sample_period_unit = source_h5.sample_period_unit.load()
+        with h5.h5_file_for_index(input_data) as input_h5:
+            shape = input_h5.array_data.shape
+            input_sample_period = input_h5.sample_period.load()
+            input_frequencies = input_h5.frequencies.load()
 
-        wavelet_sample_period = source_sample_period * max((1, int(input_sample_period / source_sample_period)))
-        end_time = start_time + (wavelet_sample_period * shape[1])
-        input_frequencies = input_h5.frequencies.load()
+            slices = (slice(shape[0]),
+                      slice(shape[1]),
+                      slice(0, 1, None),
+                      slice(0, shape[3], None),
+                      slice(0, 1, None))
+            data_matrix = input_h5.power[slices]
+            data_matrix = data_matrix.sum(axis=3)
+
+        ts_index = self.load_entity_by_gid(input_data.source_gid)
+        assert isinstance(ts_index, TimeSeriesIndex)
+
+        wavelet_sample_period = ts_index.sample_period * max((1, int(input_sample_period / ts_index.sample_period)))
+        end_time = ts_index.start_time + (wavelet_sample_period * shape[1])
+
         if len(input_frequencies):
             freq_lo = input_frequencies[0]
             freq_hi = input_frequencies[-1]
         else:
             freq_lo = 0
             freq_hi = 1
-        slices = (slice(shape[0]),
-                  slice(shape[1]),
-                  slice(0, 1, None),
-                  slice(0, shape[3], None),
-                  slice(0, 1, None))
-
-        data_matrix = input_h5.power[slices]
-        data_matrix = data_matrix.sum(axis=3)
 
         scale_range_start = max(1, int(0.25 * shape[1]))
         scale_range_end = max(1, int(0.75 * shape[1]))
@@ -125,20 +123,19 @@ class WaveletSpectrogramVisualizer(ABCDisplayer):
         scale_max = data_matrix[:, scale_range_start:scale_range_end, :].max()
         matrix_data = ABCDisplayer.dump_with_precision(data_matrix.flat)
         matrix_shape = json.dumps(data_matrix.squeeze().shape)
-        source_type = registry.get_datatype_for_h5file(source_h5_class)
-        params = dict(canvasName="Wavelet Spectrogram for: " + source_type.__name__,
-                      xAxisName="Time (%s)" % str(source_sample_period_unit),
+
+        params = dict(canvasName="Wavelet Spectrogram for: " + ts_index.title,
+                      xAxisName="Time (%s)" % str(ts_index.sample_period_unit),
                       yAxisName="Frequency (%s)" % str("kHz"),
                       title=self._ui_name,
                       matrix_data=matrix_data,
                       matrix_shape=matrix_shape,
-                      start_time=start_time,
+                      start_time=ts_index.start_time,
                       end_time=end_time,
                       freq_lo=freq_lo,
                       freq_hi=freq_hi,
                       vmin=scale_min,
                       vmax=scale_max)
 
-        input_h5.close()
         return self.build_display_result("wavelet/wavelet_view", params,
                                          pages={"controlPage": "wavelet/controls"})

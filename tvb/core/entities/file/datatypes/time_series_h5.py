@@ -34,6 +34,8 @@ from tvb.core.utils import prepare_time_slice
 from tvb.core.neotraits.h5 import H5File, Scalar, DataSet, Reference, Json
 from tvb.datatypes.time_series import *
 
+NO_OF_DEFAULT_SELECTED_CHANNELS = 20
+
 
 class TimeSeriesH5(H5File):
     def __init__(self, path):
@@ -218,7 +220,7 @@ class TimeSeriesH5(H5File):
         """
         :return: The measure point indices that have to be shown by default. By default show all.
         """
-        return range(len(self.get_space_labels()))
+        return range(min(NO_OF_DEFAULT_SELECTED_CHANNELS, self.data.shape[2]))
 
     def get_measure_points_selection_gid(self):
         """
@@ -246,7 +248,7 @@ class TimeSeriesRegionH5(TimeSeriesH5):
         """
         connectivity_gid = self.connectivity.load()
         if connectivity_gid is None:
-            return super(TimeSeriesRegionH5, self).get_measure_points_selection_gid()
+            return ''
         return connectivity_gid.hex
 
 
@@ -341,13 +343,6 @@ class TimeSeriesSensorsH5(TimeSeriesH5):
         if sensors_gid is not None:
             return sensors_gid
         return ''
-
-    def get_default_selection(self):
-        sensors_gid = self.sensors.load()
-        if sensors_gid is not None:
-            # select only the first 8 channels
-            return range(min(8, len(self.get_space_labels())))
-        return []
 
 
 class TimeSeriesEEGH5(TimeSeriesSensorsH5):

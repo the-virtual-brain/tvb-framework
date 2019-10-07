@@ -38,8 +38,7 @@ from abc import ABCMeta
 from six import add_metaclass
 from tvb.core.adapters.abcadapter import ABCSynchronous
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.core.neocom.h5 import DirLoader
-from tvb.core.neocom.config import registry
+from tvb.core.neocom import h5
 
 LOCK_CREATE_FIGURE = Lock()
 
@@ -228,10 +227,9 @@ class ABCDisplayer(ABCSynchronous):
         format_str = "%0." + str(precision) + "g"
         return "[" + ",".join(format_str % s for s in xs) + "]"
 
-
+    # TODO review usages
     def _load_h5_of_gid(self, entity_gid):
         entity_index = self.load_entity_by_gid(entity_gid)
-        loader = DirLoader(os.path.join(os.path.dirname(self.storage_path), str(entity_index.fk_from_operation)))
-        entity_h5_class = registry.get_h5file_for_index(type(entity_index))
-        entity_h5_path = loader.path_for(entity_h5_class, entity_gid)
+        entity_h5_class = h5.REGISTRY.get_h5file_for_index(type(entity_index))
+        entity_h5_path = h5.path_for_stored_index(entity_index)
         return entity_h5_class, entity_h5_path

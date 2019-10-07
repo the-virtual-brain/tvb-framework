@@ -38,8 +38,6 @@ A Javascript displayer for time series, using SVG.
 import json
 from abc import ABCMeta
 from six import add_metaclass
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
-from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
 from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesRegionH5, TimeSeriesSensorsH5, TimeSeriesH5
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.adapters.abcadapter import ABCAdapterForm
@@ -81,10 +79,10 @@ class ABCSpaceDisplayer(ABCDisplayer):
         # type: (Connectivity) -> dict
         return {'measurePointsSelectionGID': connectivity.gid,
                 'initialSelection': connectivity.saved_selection or range(len(connectivity.region_labels)),
-                'groupedLabels': self.get_connectivity_grouped_space_labels(connectivity)}
+                'groupedLabels': self._connectivity_grouped_space_labels(connectivity)}
 
     @staticmethod
-    def get_connectivity_grouped_space_labels(connectivity):
+    def _connectivity_grouped_space_labels(connectivity):
         """
         :return: A list [('left', [lh_labels)], ('right': [rh_labels])]
         """
@@ -102,71 +100,48 @@ class ABCSpaceDisplayer(ABCDisplayer):
         else:
             return [('', list(enumerate(region_labels)))]
 
-    def build_template_params_for_subselectable_datatype(self, sub_selectable):
+    def build_params_for_subselectable_ts(self, ts_h5):
         """
         creates a template dict with the initial selection to be
         displayed in a time series viewer
         """
-        return {'measurePointsSelectionGID': sub_selectable.gid.load().hex,
-                'initialSelection': self.get_default_selection(sub_selectable),
-                'groupedLabels': self.get_grouped_space_labels(sub_selectable)}
+        return {'measurePointsSelectionGID': ts_h5.get_measure_points_selection_gid(),
+                'initialSelection': ts_h5.get_default_selection(),
+                'groupedLabels': self._get_grouped_space_labels(ts_h5)}
+
+    def _get_grouped_space_labels(self, ts_h5):
+        """
+        :return: A structure of this form [('left', [(idx, lh_label)...]), ('right': [(idx, rh_label) ...])]
+        """
+        if isinstance(ts_h5, TimeSeriesRegionH5):
+            connectivity_gid = ts_h5.connectivity.load()
+            conn_idx = self.load_entity_by_gid(connectivity_gid.hex)
+            conn = h5.load_from_index(conn_idx)
+            return self._connectivity_grouped_space_labels(conn)
+
+        ts_h5.get_grouped_space_labels()
 
     def get_space_labels(self, ts_h5):
         """
         :return: An array of strings with the connectivity node labels.
         """
-
         if type(ts_h5) is TimeSeriesRegionH5:
             connectivity_gid = ts_h5.connectivity.load()
             if connectivity_gid is None:
                 return []
-
-            connectivity_h5_class, connectivity_h5_path = self._load_h5_of_gid(connectivity_gid.hex)
-            connectivity_h5 = connectivity_h5_class(connectivity_h5_path)
-            return list(connectivity_h5.region_labels.load())
+            conn_idx = self.load_entity_by_gid(connectivity_gid.hex)
+            with h5.h5_file_for_index(conn_idx) as conn_h5:
+                return list(conn_h5.region_labels.load())
 
         if type(ts_h5) is TimeSeriesSensorsH5:
             sensors_gid = ts_h5.sensors.load()
             if sensors_gid is None:
                 return []
+            sensors_idx = self.load_entity_by_gid(sensors_gid.hex)
+            with h5.h5_file_for_index(sensors_idx) as sensors_h5:
+                return list(sensors_h5.labels.load())
 
-            sensors_h5_class, sensors_h5_path = self._load_h5_of_gid(sensors_gid.hex)
-            sensors_h5 = sensors_h5_class(sensors_h5_path)
-            return list(sensors_h5.labels.load())
-
-        return ts_h5.get_space_labels
-
-    def get_grouped_space_labels(self, h5_file):
-        """
-        :return: A structure of this form [('left', [(idx, lh_label)...]), ('right': [(idx, rh_label) ...])]
-        """
-
-        if type(h5_file) is ConnectivityH5:
-            return h5_file.get_grouped_space_labels()
-
-        connectivity_gid = h5_file.connectivity.load()
-        if connectivity_gid is None:
-            return super(type(h5_file), h5_file).get_grouped_space_labels()
-
-        connectivity_h5_class, connectivity_h5_path = self._load_h5_of_gid(connectivity_gid.hex)
-        connectivity_h5 = connectivity_h5_class(connectivity_h5_path)
-        return connectivity_h5.get_grouped_space_labels()
-
-    def get_default_selection(self, h5_file):
-        """
-        :return: If the connectivity of this time series is edited from another
-                 return the nodes of the parent that are present in the connectivity.
-        """
-        if type(h5_file) in [ConnectivityH5, SensorsH5]:
-            return h5_file.get_default_selection()
-
-        connectivity_gid = h5_file.connectivity.load()
-        if connectivity_gid is None:
-            return super(type(h5_file), h5_file).get_default_selection()
-
-        connectivity_h5_class, connectivity_h5_path = self._load_h5_of_gid(connectivity_gid.hex)
-        connectivity_h5 = connectivity_h5_class(connectivity_h5_path)
-        return connectivity_h5.get_default_selection()
+        return ts_h5.get_space_labels()
 
 
 class TimeSeries(ABCSpaceDisplayer):
@@ -208,7 +183,7 @@ class TimeSeries(ABCSpaceDisplayer):
                 'dt': ts[1] - ts[0] if len(ts) > 1 else 1,
                 'labelsStateVar': state_variables, 'labelsModes': range(shape[3])
                 }
-        pars.update(self.build_template_params_for_subselectable_datatype(h5_file))
+        pars.update(self.build_params_for_subselectable_ts(h5_file))
         h5_file.close()
 
         return self.build_display_result("time_series/view", pars, pages=dict(controlPage="time_series/control"))
