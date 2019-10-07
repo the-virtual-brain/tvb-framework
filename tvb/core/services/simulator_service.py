@@ -120,9 +120,8 @@ class SimulatorService(object):
         return simulator_in, connectivity_gid, simulation_state_gid
 
     @transactional
-    def _prepare_operation(self, burst_id, project_id, user_id, simulator_id, simulator_index, algo_category, op_group):
+    def _prepare_operation(self, project_id, user_id, simulator_id, simulator_index, algo_category, op_group, metadata):
         operation_parameters = json.dumps({'simulator_gid': simulator_index.gid})
-        metadata = {DataTypeMetaData.KEY_BURST: burst_id}
         metadata, user_group = self.operation_service._prepare_metadata(metadata, algo_category, op_group, {})
         meta_str = json.dumps(metadata)
 
@@ -157,12 +156,15 @@ class SimulatorService(object):
                                             session_stored_simulator, simulation_state_gid):
         try:
             simulator_index = SimulatorIndex()
-            simulator_index.fk_parent_burst = burst_config.id
+            metadata = {}
+            if burst_config:
+                simulator_index.fk_parent_burst = burst_config.id
+                metadata.update({DataTypeMetaData.KEY_BURST: burst_config.id})
             dao.store_entity(simulator_index)
             simulator_id = simulator_algo.id
             algo_category = simulator_algo.algorithm_category
-            operation = self._prepare_operation(burst_config.id, project.id, user.id, simulator_id, simulator_index,
-                                                algo_category, None)
+            operation = self._prepare_operation(project.id, user.id, simulator_id, simulator_index, algo_category, None,
+                                                metadata)
 
             simulator_index.fk_from_operation = operation.id
             dao.store_entity(simulator_index)
@@ -173,17 +175,20 @@ class SimulatorService(object):
             wf_errs = 0
             try:
                 OperationService().launch_operation(operation.id, True)
+                return operation
             except Exception as excep:
                 self.logger.error(excep)
                 wf_errs += 1
-                BurstService2().mark_burst_finished(burst_config, error_message=str(excep))
+                if burst_config:
+                    BurstService2().mark_burst_finished(burst_config, error_message=str(excep))
 
             self.logger.debug("Finished launching workflow. The operation was launched successfully, " +
                               str(wf_errs) + " had error on pre-launch steps")
 
         except Exception as excep:
             self.logger.error(excep)
-            BurstService2().mark_burst_finished(burst_config, error_message=str(excep))
+            if burst_config:
+                BurstService2().mark_burst_finished(burst_config, error_message=str(excep))
 
     def async_launch_and_prepare_pse(self, burst_config, user, project, simulator_algo, range_param1, range_param2,
                                      session_stored_simulator):
@@ -206,8 +211,9 @@ class SimulatorService(object):
                     simulator_index.fk_parent_burst = burst_config.id
                     simulator_index = dao.store_entity(simulator_index)
 
-                    operation = self._prepare_operation(burst_config.id, project.id, user.id, simulator_id,
-                                                        simulator_index, algo_category, operation_group)
+                    operation = self._prepare_operation(project.id, user.id, simulator_id, simulator_index,
+                                                        algo_category, operation_group,
+                                                        {DataTypeMetaData.KEY_BURST: burst_config.id})
 
                     simulator_index.fk_from_operation = operation.id
                     dao.store_entity(simulator_index)
