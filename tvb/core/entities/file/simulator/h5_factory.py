@@ -1,3 +1,4 @@
+from tvb.datatypes.cortex import Cortex
 from tvb.datatypes.equations import Equation
 from tvb.simulator.coupling import Coupling
 from tvb.simulator.integrators import Integrator, HeunDeterministic, HeunStochastic, \
@@ -12,6 +13,8 @@ from tvb.core.services.exceptions import ServicesBaseException
 
 # TODO: rethink this solution
 def config_h5_factory(config_class):
+    from tvb.core.entities.file.simulator.cortex_h5 import CortexH5
+
     if issubclass(config_class, Equation):
         return equation_h5_factory(config_class)
     if issubclass(config_class, Noise):
@@ -24,6 +27,8 @@ def config_h5_factory(config_class):
         return model_h5_factory(config_class)
     if issubclass(config_class, Monitor):
         return monitor_h5_factory(config_class)
+    if config_class == Cortex:
+        return CortexH5
     return None
 
 

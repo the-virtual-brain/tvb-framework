@@ -31,8 +31,11 @@ import copy
 import json
 import uuid
 from tvb.basic.logger.builder import get_logger
+from tvb.datatypes.region_mapping import RegionMapping
 from tvb.simulator.simulator import Simulator
+from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.file.files_helper import FilesHelper
+from tvb.core.entities.file.simulator.cortex_h5 import CortexH5
 from tvb.core.entities.file.simulator.simulator_h5 import SimulatorH5
 from tvb.core.entities.model.model_datatype import DataTypeGroup
 from tvb.core.entities.model.model_operation import Operation
@@ -63,7 +66,7 @@ class SimulatorService(object):
             simulator_h5.store(simulator)
             simulator_h5.connectivity.store(simulator.connectivity.gid)
             if simulator.stimulus:
-                simulator_h5.stimulus.store(uuid.UUID(simulator_h5.stimulus.gid))
+                simulator_h5.stimulus.store(uuid.UUID(simulator.stimulus.gid))
             if simulation_state_gid:
                 simulator_h5.simulation_state.store(uuid.UUID(simulation_state_gid))
 
@@ -84,6 +87,30 @@ class SimulatorService(object):
         conn = h5.load_from_index(conn_index)
 
         simulator_in.connectivity = conn
+
+        if simulator_in.surface:
+            cortex_path = h5.path_for(storage_path, CortexH5, simulator_in.surface.gid)
+            with CortexH5(cortex_path) as cortex_h5:
+                local_conn_gid = cortex_h5.local_connectivity.load()
+                region_mapping_gid = cortex_h5.region_mapping_data.load()
+
+            region_mapping_index = dao.get_datatype_by_gid(region_mapping_gid.hex)
+            region_mapping_path = h5.path_for(storage_path, RegionMappingH5, region_mapping_index.gid)
+            region_mapping = RegionMapping()
+            with RegionMappingH5(region_mapping_path) as region_mapping_h5:
+                region_mapping_h5.load_into(region_mapping)
+                region_mapping.gid = region_mapping_h5.gid.load()
+                surf_gid = region_mapping_h5.surface.load()
+
+            surf_index = dao.get_datatype_by_gid(surf_gid.hex)
+            surf = h5.load_from_index(surf_index)
+            region_mapping.surface = surf
+            simulator_in.surface.region_mapping_data = region_mapping
+
+            if local_conn_gid:
+                local_conn_index = dao.get_datatype_by_gid(local_conn_gid.hex)
+                local_conn = h5.load_from_index(local_conn_index)
+                simulator_in.surface.local_connectivity = local_conn
 
         if stimulus_gid:
             stimulus_index = dao.get_datatype_by_gid(stimulus_gid.hex)

@@ -48,6 +48,7 @@ from tvb.simulator.simulator import Simulator
 from tvb.adapters.simulator.coupling_forms import get_ui_name_to_coupling_dict
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.simulation_state_h5 import SimulationStateH5
+from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex, RegionVolumeMappingIndex
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
@@ -150,6 +151,7 @@ class SimulatorAdapter(ABCAsynchronous):
         connectivity_index = dao.get_datatype_by_gid(connectivity_gid.hex)
         connectivity = h5.load_from_index(connectivity_index)
 
+        connectivity.gid = connectivity_gid
         self.algorithm.connectivity = connectivity
         self.simulation_length = self.algorithm.simulation_length
         print('Storage path is: %s' % self.storage_path)
@@ -200,7 +202,7 @@ class SimulatorAdapter(ABCAsynchronous):
 
         return max(int(estimation), 1)
 
-    def _try_find_mapping(self, mapping_class, connectivity_gid):
+    def _try_find_mapping(self, mapping_class, connectivity_id):
         """
         Try to find a DataType instance of class "mapping_class", linked to the given Connectivity.
         Entities in the current project will have priority.
@@ -210,7 +212,7 @@ class SimulatorAdapter(ABCAsynchronous):
         :return: None or instance of "mapping_class"
         """
 
-        dts_list = dao.get_generic_entity(mapping_class, connectivity_gid, '_connectivity')
+        dts_list = dao.get_generic_entity(mapping_class, connectivity_id, 'connectivity_id')
         if len(dts_list) < 1:
             return None
 
@@ -219,6 +221,22 @@ class SimulatorAdapter(ABCAsynchronous):
             if dt_operation.fk_launched_in == self.current_project_id:
                 return dt
         return dts_list[0]
+
+    def _try_load_region_mapping(self):
+        region_map = None
+        region_volume_map = None
+
+        connectivity_index = dao.get_datatype_by_gid(self.algorithm.connectivity.gid.hex)
+        region_map_index = self._try_find_mapping(RegionMappingIndex, connectivity_index.id)
+        region_volume_map_index = self._try_find_mapping(RegionVolumeMappingIndex, connectivity_index.id)
+
+        if region_map_index:
+            region_map = h5.load_from_index(region_map_index)
+
+        if region_volume_map_index:
+            region_volume_map = h5.load_from_index(region_volume_map_index)
+
+        return region_map, region_volume_map
 
     def launch(self, simulator_gid):
         """
@@ -241,12 +259,12 @@ class SimulatorAdapter(ABCAsynchronous):
             with SimulationStateH5(self.branch_simulation_state_path) as branch_simulation_state_h5:
                 branch_simulation_state_h5.load_into(self.algorithm)
 
-        # region_map = self._try_find_mapping(region_mapping.RegionMapping, connectivity.gid)
-        # region_volume_map = self._try_find_mapping(region_mapping.RegionVolumeMapping, connectivity.gid)
+        region_map, region_volume_map = self._try_load_region_mapping()
 
         for monitor in self.algorithm.monitors:
             m_name = monitor.__class__.__name__
-            ts = monitor.create_time_series(self.algorithm.connectivity)
+            ts = monitor.create_time_series(self.algorithm.connectivity, self.algorithm.surface, region_map,
+                                            region_volume_map)
             self.log.debug("Monitor created the TS")
             ts.start_time = start_time
 
@@ -254,8 +272,19 @@ class SimulatorAdapter(ABCAsynchronous):
             ts_index = ts_index_class()
             ts_index.fill_from_has_traits(ts)
             ts_index.data_ndim = 4
-            ts_index.connectivity_id = 1
             ts_index.state = 'INTERMEDIATE'
+            if self.algorithm.surface:
+                surface_index = dao.get_datatype_by_gid(self.algorithm.surface.region_mapping_data.surface.gid.hex)
+                ts_index.surface_id = surface_index.id
+            else:
+                connectivity_index = dao.get_datatype_by_gid(self.algorithm.connectivity.gid.hex)
+                ts_index.connectivity_id = connectivity_index.id
+                if region_map:
+                    region_map_index = dao.get_datatype_by_gid(region_map.gid.hex)
+                    ts_index.region_mapping_id = region_map_index.id
+                if region_volume_map:
+                    region_volume_map_index = dao.get_datatype_by_gid(region_volume_map.gid.hex)
+                    ts_index.region_mapping_volume_id = region_volume_map_index.id
 
             # state_variable_dimension_name = ts.labels_ordering[1]
             # if ts_index.user_tag_1:

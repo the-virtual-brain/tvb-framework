@@ -42,6 +42,10 @@ class SimulatorH5(SimulatorConfigurationH5):
         monitor_gid = self.store_config_as_reference(datatype.monitors[0])
         self.monitors.store([monitor_gid.hex])
 
+        if datatype.surface:
+            cortex_gid = self.store_config_as_reference(datatype.surface)
+            self.surface.store(cortex_gid)
+
         self.type.store(self.get_full_class_name(type(datatype)))
 
 
@@ -55,3 +59,5 @@ class SimulatorH5(SimulatorConfigurationH5):
         datatype.model = self.load_from_reference(self.model.load())
         # TODO: handle multiple monitors
         datatype.monitors = [self.load_from_reference(self.monitors.load()[0])]
+        if self.surface.load():
+            datatype.surface = self.load_from_reference(self.surface.load())

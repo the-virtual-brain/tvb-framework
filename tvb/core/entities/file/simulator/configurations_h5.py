@@ -18,8 +18,8 @@ class SimulatorConfigurationH5(H5File):
         config_h5_class = config_h5_factory(type(config))
 
         with config_h5_class(config_path) as config_h5:
-            config_h5.gid.store(gid)
             config_h5.store(config)
+            config_h5.gid.store(gid)
             config_h5.type.store(self.get_full_class_name(type(config)))
 
         return gid

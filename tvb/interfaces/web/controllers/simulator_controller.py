@@ -198,7 +198,7 @@ class SimulatorController(BurstBaseController):
             form.fill_trait(session_stored_simulator.coupling)
 
         surface_fragment = SimulatorSurfaceFragment('', common.get_current_project().id)
-        # TODO: fill surface gid
+        surface_fragment.fill_from_trait(session_stored_simulator)
 
         dict_to_render = copy.deepcopy(self.dict_to_render)
         dict_to_render[self.FORM_KEY] = surface_fragment
@@ -217,6 +217,7 @@ class SimulatorController(BurstBaseController):
         is_simulator_copy = common.get_from_session(common.KEY_IS_SIMULATOR_COPY)
         is_simulator_load = common.get_from_session(common.KEY_IS_SIMULATOR_LOAD)
         dict_to_render = copy.deepcopy(self.dict_to_render)
+        surface_index = None
 
         if cherrypy.request.method == 'POST':
             is_simulator_copy = False
@@ -229,10 +230,7 @@ class SimulatorController(BurstBaseController):
                 session_stored_simulator.surface = None
             else:
                 surface_index = ABCAdapter.load_entity_by_gid(surface_index_gid)
-                # TODO library: Correct Cortex usage in library
-                surface = Cortex()
-                session_stored_simulator.surface = surface
-                session_stored_simulator.is_surface_simulation = True
+                session_stored_simulator.surface = Cortex()
 
         if session_stored_simulator.surface is None:
             stimuli_fragment = SimulatorStimulusFragment('', common.get_current_project().id, False)
@@ -308,7 +306,7 @@ class SimulatorController(BurstBaseController):
                                                          session_stored_simulator.is_surface_simulation)
             stimuli_fragment.fill_from_post(data)
             stimulus_gid = stimuli_fragment.stimulus.value
-            if stimulus_gid == 'None':
+            if stimulus_gid != None:
                 stimulus_index = ABCAdapter.load_entity_by_gid(stimulus_gid)
                 stimulus = h5.load_from_index(stimulus_index)
                 session_stored_simulator.stimulus = stimulus
