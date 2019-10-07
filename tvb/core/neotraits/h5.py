@@ -1,9 +1,8 @@
-from ._h5core import H5File
-from ._h5core import DataSet, DataSetMetaData
-from ._h5core import Scalar, Reference, Accessor
-
+from ._h5accessors import DataSet, DataSetMetaData
+from ._h5accessors import Scalar, Reference, Accessor
 from ._h5accessors import SparseMatrix, SparseMatrixMetaData
-from ._h5accessors import Json
+from ._h5accessors import Json, JsonFinal
+from ._h5core import H5File
 
 import h5py
 STORE_STRING = h5py.string_dtype(encoding='utf-8')
