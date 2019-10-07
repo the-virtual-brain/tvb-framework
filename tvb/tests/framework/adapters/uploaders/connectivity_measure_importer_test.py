@@ -39,6 +39,7 @@ import tvb_data
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.adapters.uploaders.connectivity_measure_importer import ConnectivityMeasureImporterForm
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -57,8 +58,8 @@ class TestConnectivityMeasureImporter(TransactionalTestCase):
         zip_path = os.path.join(os.path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_66.zip')
         self.test_user = TestFactory.create_user('Test_User')
         self.test_project = TestFactory.create_project(self.test_user, "Test_Project")
-        TestFactory.import_zip_connectivity(self.test_user,self.test_project, "John", zip_path)
-        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityMeasureIndex())
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path, "John")
+        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex())
 
 
     def transactional_teardown_method(self):

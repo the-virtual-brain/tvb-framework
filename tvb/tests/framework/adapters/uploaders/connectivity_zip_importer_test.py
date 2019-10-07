@@ -34,13 +34,8 @@
 """
 from os import path
 import tvb_data
-from cherrypy._cpreqbody import Part
-from cherrypy.lib.httputil import HeaderMap
-from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporterForm
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.core.services.flow_service import FlowService
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.tests.framework.core.factory import TestFactory
 
 
@@ -56,35 +51,12 @@ class TestConnectivityZip(TransactionalTestCase):
         self.test_user = TestFactory.create_user('CFF_User')
         self.test_project = TestFactory.create_project(self.test_user, "CFF_Project")
 
-    @staticmethod
-    def import_test_connectivity96(test_user, test_project, subject=DataTypeMetaData.DEFAULT_SUBJECT):
-        """
-        Import a connectivity with 96 regions from tvb_data.
-        """
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.zip_connectivity_importer',
-                                              'ZIPConnectivityImporter')
-
-        data_dir = path.abspath(path.dirname(tvb_data.__file__))
-        zip_path = path.join(data_dir, 'connectivity', 'connectivity_96.zip')
-
-        form = ZIPConnectivityImporterForm()
-        form.fill_from_post({'_uploaded': Part(zip_path, HeaderMap({}), ''),
-                             '_project_id': {1},
-                             '_Data_Subject': subject
-                             })
-        form.uploaded.data = zip_path
-        importer.submit_form(form)
-
-        ### Launch Operation
-        FlowService().fire_operation(importer, test_user, test_project.id, **form.get_form_values())
-
     def test_happy_flow_import(self):
         """
         Test that importing a CFF generates at least one DataType in DB.
         """
+        zip_path = path.join(path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_96.zip')
         dt_count_before = TestFactory.get_entity_count(self.test_project, ConnectivityIndex())
-
-        TestConnectivityZip.import_test_connectivity96(self.test_user, self.test_project)
-
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path, "John")
         dt_count_after = TestFactory.get_entity_count(self.test_project, ConnectivityIndex())
         assert dt_count_before + 1 == dt_count_after
