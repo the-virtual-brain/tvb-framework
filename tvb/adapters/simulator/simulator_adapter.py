@@ -154,7 +154,6 @@ class SimulatorAdapter(ABCAsynchronous):
         connectivity.gid = connectivity_gid
         self.algorithm.connectivity = connectivity
         self.simulation_length = self.algorithm.simulation_length
-        print('Storage path is: %s' % self.storage_path)
         self.log.debug("%s: Initializing storage..." % str(self))
         try:
             self.algorithm.preconfigure()
@@ -299,6 +298,7 @@ class SimulatorAdapter(ABCAsynchronous):
             ts_h5_path = h5.path_for(self.storage_path, ts_h5_class, ts.gid)
             ts_h5 = ts_h5_class(ts_h5_path)
             ts_h5.store(ts, scalars_only=True, store_references=False)
+            ts_h5.nr_dimensions.store(ts_index.data_ndim)
             result_h5[m_name] = ts_h5
 
         ### Run simulation
