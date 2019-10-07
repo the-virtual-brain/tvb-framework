@@ -42,6 +42,11 @@ import os
 import random
 import tvb_data
 from hashlib import md5
+
+from cherrypy._cpreqbody import Part
+from cherrypy.lib.httputil import HeaderMap
+
+from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporterForm
 from tvb.core.entities.model.model_operation import *
 from tvb.core.entities.model.model_workflow import *
 from tvb.core.entities.storage import dao
@@ -227,7 +232,7 @@ class TestFactory(object):
         This method is used for importing a CFF data-set (load CFF_Importer, launch it).
         :param cff_path: absolute path where CFF file exists. When None, a default CFF will be used.
         :param test_user: optional persisted User instance, to use as Operation->launcher
-        :param test_project: optional persisted Project instance, to use for launching Operation in it. 
+        :param test_project: optional persisted Project instance, to use for launching Operation in it.
         """
         # TODO import multiple different connectivities some other way
         # Prepare Data
@@ -274,10 +279,21 @@ class TestFactory(object):
         FlowService().fire_operation(importer, user, project.id, **args)
 
     @staticmethod
-    def import_zip_connectivity(user, project, subject, zip_path):
+    def import_zip_connectivity(user, project, zip_path, subject=DataTypeMetaData.DEFAULT_SUBJECT):
+
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.zip_connectivity_importer',
                                               'ZIPConnectivityImporter')
-        FlowService().fire_operation(importer, user, project.id, uploaded=zip_path, Data_Subject=subject)
+
+        form = ZIPConnectivityImporterForm()
+        form.fill_from_post({'_uploaded': Part(zip_path, HeaderMap({}), ''),
+                             '_project_id': {1},
+                             '_Data_Subject': subject
+                             })
+        form.uploaded.data = zip_path
+        importer.submit_form(form)
+
+        ### Launch Operation
+        FlowService().fire_operation(importer, user, project.id, **form.get_form_values())
 
 
 class ExtremeTestFactory(object):
