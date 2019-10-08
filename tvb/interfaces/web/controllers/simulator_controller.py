@@ -29,12 +29,6 @@
 #
 import copy
 import threading
-import datetime
-from tvb.datatypes.cortex import Cortex
-from tvb.basic.profile import TvbProfile
-from tvb.datatypes.connectivity import Connectivity
-from tvb.datatypes.local_connectivity import LocalConnectivity
-from tvb.datatypes.region_mapping import RegionMapping
 from tvb.simulator.integrators import IntegratorStochastic
 from tvb.simulator.monitors import Bold
 from tvb.simulator.noise import Additive
@@ -48,10 +42,6 @@ from tvb.adapters.simulator.monitor_forms import get_form_for_monitor
 from tvb.adapters.simulator.integrator_forms import get_form_for_integrator
 from tvb.adapters.simulator.coupling_forms import get_form_for_coupling
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
-from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
-from tvb.core.entities.file.datatypes.patterns_h5 import StimuliRegionH5, StimuliSurfaceH5
-from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex
 from tvb.core.entities.model.model_operation import OperationGroup
@@ -269,16 +259,16 @@ class SimulatorController(BurstBaseController):
 
             session_stored_simulator.surface.coupling_strength = rm_fragment.coupling_strength.data
 
-        lc_gid = rm_fragment.lc.value
-        if lc_gid == 'None':
-            lc_index = ABCAdapter.load_entity_by_gid(lc_gid)
-            lc = h5.load_from_index(lc_index)
-            session_stored_simulator.surface.local_connectivity = lc
+            lc_gid = rm_fragment.lc.value
+            if lc_gid == 'None':
+                lc_index = ABCAdapter.load_entity_by_gid(lc_gid)
+                lc = h5.load_from_index(lc_index)
+                session_stored_simulator.surface.local_connectivity = lc
 
-        rm_gid = rm_fragment.rm.value
-        rm_index = ABCAdapter.load_entity_by_gid(rm_gid)
-        rm = h5.load_from_index(rm_index)
-        session_stored_simulator.surface.region_mapping_data = rm
+            rm_gid = rm_fragment.rm.value
+            rm_index = ABCAdapter.load_entity_by_gid(rm_gid)
+            rm = h5.load_from_index(rm_index)
+            session_stored_simulator.surface.region_mapping_data = rm
 
         stimuli_fragment = SimulatorStimulusFragment('', common.get_current_project().id, True)
         stimuli_fragment.fill_from_trait(session_stored_simulator)
@@ -707,7 +697,7 @@ class SimulatorController(BurstBaseController):
         user = common.get_logged_user()
 
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
-        burst_config.start_time = datetime.datetime.now()
+        burst_config.start_time = datetime.now()
         # if burst_name != 'none_undefined':
         #     burst_config.name = burst_name
 
@@ -784,7 +774,7 @@ class SimulatorController(BurstBaseController):
                 raise exc
             simulation_state_index_gid = simulation_state_index[0].gid
 
-        burst_config_to_store.start_time = datetime.datetime.now()
+        burst_config_to_store.start_time = datetime.now()
         dao.store_entity(burst_config_to_store)
 
         try:

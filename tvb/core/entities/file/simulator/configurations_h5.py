@@ -14,8 +14,8 @@ class SimulatorConfigurationH5(H5File):
     def store_config_as_reference(self, config):
         gid = uuid.uuid4()
 
-        config_path = h5.path_for(os.path.dirname(self.path), type(config), gid)
         config_h5_class = config_h5_factory(type(config))
+        config_path = h5.path_for(os.path.dirname(self.path), config_h5_class, gid)
 
         with config_h5_class(config_path) as config_h5:
             config_h5.store(config)

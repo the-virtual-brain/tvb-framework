@@ -75,14 +75,15 @@ class TimeSeriesIndex(DataType):
         # In general constructing graphs here is a bad ideea
         # But these NArrayIndex-es can be treated as part of this entity
         # never to be referenced by any other row or table.
-        self.data_ndim = datatype.data.ndim
-        self.data_length_1d = datatype.data.shape[0]
-        if self.data_ndim > 1:
-            self.data_length_2d = datatype.data.shape[1]
-            if self.data_ndim > 2:
-                self.data_length_3d = datatype.data.shape[2]
-                if self.data_ndim > 3:
-                    self.data_length_4d = datatype.data.shape[3]
+        if hasattr(datatype, 'data'):
+            self.data_ndim = datatype.data.ndim
+            self.data_length_1d = datatype.data.shape[0]
+            if self.data_ndim > 1:
+                self.data_length_2d = datatype.data.shape[1]
+                if self.data_ndim > 2:
+                    self.data_length_3d = datatype.data.shape[2]
+                    if self.data_ndim > 3:
+                        self.data_length_4d = datatype.data.shape[3]
 
     @staticmethod
     def accepted_filters():
@@ -153,15 +154,18 @@ class TimeSeriesRegionIndex(TimeSeriesIndex):
 
     connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
                               nullable=not TimeSeriesRegion.connectivity.required)
-    connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid)
+    connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
+                                primaryjoin=ConnectivityIndex.gid == connectivity_gid)
 
     region_mapping_volume_gid = Column(Integer, ForeignKey(RegionVolumeMappingIndex.gid),
                                        nullable=not TimeSeriesRegion.region_mapping_volume.required)
-    region_mapping_volume = relationship(RegionVolumeMappingIndex, foreign_keys=region_mapping_volume_gid)
+    region_mapping_volume = relationship(RegionVolumeMappingIndex, foreign_keys=region_mapping_volume_gid,
+                                         primaryjoin=RegionVolumeMappingIndex.gid==region_mapping_volume_gid)
 
     region_mapping_gid = Column(Integer, ForeignKey(RegionMappingIndex.gid),
                                 nullable=not TimeSeriesRegion.region_mapping.required)
-    region_mapping = relationship(RegionMappingIndex, foreign_keys=region_mapping_gid)
+    region_mapping = relationship(RegionMappingIndex, foreign_keys=region_mapping_gid,
+                                  primaryjoin=RegionMappingIndex.gid==region_mapping_gid)
 
     def fill_from_has_traits(self, datatype):
         # type: (TimeSeriesRegion)  -> None

@@ -201,7 +201,7 @@ class SimulatorAdapter(ABCAsynchronous):
 
         return max(int(estimation), 1)
 
-    def _try_find_mapping(self, mapping_class, connectivity_id):
+    def _try_find_mapping(self, mapping_class, connectivity_gid):
         """
         Try to find a DataType instance of class "mapping_class", linked to the given Connectivity.
         Entities in the current project will have priority.
@@ -211,7 +211,7 @@ class SimulatorAdapter(ABCAsynchronous):
         :return: None or instance of "mapping_class"
         """
 
-        dts_list = dao.get_generic_entity(mapping_class, connectivity_id, 'connectivity_id')
+        dts_list = dao.get_generic_entity(mapping_class, connectivity_gid, 'connectivity_gid')
         if len(dts_list) < 1:
             return None
 
@@ -225,9 +225,8 @@ class SimulatorAdapter(ABCAsynchronous):
         region_map = None
         region_volume_map = None
 
-        connectivity_index = dao.get_datatype_by_gid(self.algorithm.connectivity.gid.hex)
-        region_map_index = self._try_find_mapping(RegionMappingIndex, connectivity_index.id)
-        region_volume_map_index = self._try_find_mapping(RegionVolumeMappingIndex, connectivity_index.id)
+        region_map_index = self._try_find_mapping(RegionMappingIndex, self.algorithm.connectivity.gid.hex)
+        region_volume_map_index = self._try_find_mapping(RegionVolumeMappingIndex, self.algorithm.connectivity.gid.hex)
 
         if region_map_index:
             region_map = h5.load_from_index(region_map_index)
@@ -272,18 +271,6 @@ class SimulatorAdapter(ABCAsynchronous):
             ts_index.fill_from_has_traits(ts)
             ts_index.data_ndim = 4
             ts_index.state = 'INTERMEDIATE'
-            if self.algorithm.surface:
-                surface_index = dao.get_datatype_by_gid(self.algorithm.surface.region_mapping_data.surface.gid.hex)
-                ts_index.surface_id = surface_index.id
-            else:
-                connectivity_index = dao.get_datatype_by_gid(self.algorithm.connectivity.gid.hex)
-                ts_index.connectivity_id = connectivity_index.id
-                if region_map:
-                    region_map_index = dao.get_datatype_by_gid(region_map.gid.hex)
-                    ts_index.region_mapping_id = region_map_index.id
-                if region_volume_map:
-                    region_volume_map_index = dao.get_datatype_by_gid(region_volume_map.gid.hex)
-                    ts_index.region_mapping_volume_id = region_volume_map_index.id
 
             # state_variable_dimension_name = ts.labels_ordering[1]
             # if ts_index.user_tag_1:
@@ -292,13 +279,26 @@ class SimulatorAdapter(ABCAsynchronous):
             #     selected_vois = [self.algorithm.model.variables_of_interest[idx] for idx in monitor.voi]
             #     ts.labels_dimensions[state_variable_dimension_name] = selected_vois
 
-            result_indexes[m_name] = ts_index
-
             ts_h5_class = h5.REGISTRY.get_h5file_for_datatype(type(ts))
             ts_h5_path = h5.path_for(self.storage_path, ts_h5_class, ts.gid)
             ts_h5 = ts_h5_class(ts_h5_path)
             ts_h5.store(ts, scalars_only=True, store_references=False)
             ts_h5.nr_dimensions.store(ts_index.data_ndim)
+
+            if self.algorithm.surface:
+                ts_index.surface_gid = self.algorithm.surface.region_mapping_data.surface.gid.hex
+                ts_h5.surface.store(self.algorithm.surface.gid)
+            else:
+                ts_index.connectivity_gid = self.algorithm.connectivity.gid.hex
+                ts_h5.connectivity.store(self.algorithm.connectivity.gid)
+                if region_map:
+                    ts_index.region_mapping_gid = region_map.gid.hex
+                    ts_h5.region_mapping.store(region_map.gid)
+                if region_volume_map:
+                    ts_index.region_mapping_volume_gid = region_volume_map.gid.hex
+                    ts_h5.region_mapping_volume.store(region_volume_map.gid)
+
+            result_indexes[m_name] = ts_index
             result_h5[m_name] = ts_h5
 
         ### Run simulation

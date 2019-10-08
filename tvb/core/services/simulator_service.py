@@ -32,6 +32,7 @@ import json
 import uuid
 from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.region_mapping import RegionMapping
+from tvb.datatypes.surfaces import CorticalSurface
 from tvb.simulator.simulator import Simulator
 from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -95,7 +96,7 @@ class SimulatorService(object):
                 region_mapping_gid = cortex_h5.region_mapping_data.load()
 
             region_mapping_index = dao.get_datatype_by_gid(region_mapping_gid.hex)
-            region_mapping_path = h5.path_for(storage_path, RegionMappingH5, region_mapping_index.gid)
+            region_mapping_path = h5.path_for_stored_index(region_mapping_index)
             region_mapping = RegionMapping()
             with RegionMappingH5(region_mapping_path) as region_mapping_h5:
                 region_mapping_h5.load_into(region_mapping)
@@ -103,7 +104,10 @@ class SimulatorService(object):
                 surf_gid = region_mapping_h5.surface.load()
 
             surf_index = dao.get_datatype_by_gid(surf_gid.hex)
-            surf = h5.load_from_index(surf_index)
+            surf_h5 = h5.h5_file_for_index(surf_index)
+            surf = CorticalSurface()
+            surf_h5.load_into(surf)
+            surf_h5.close()
             region_mapping.surface = surf
             simulator_in.surface.region_mapping_data = region_mapping
 

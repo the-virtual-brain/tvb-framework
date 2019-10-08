@@ -70,8 +70,8 @@ class SimulatorRMFragment(ABCAdapterForm):
         super(SimulatorRMFragment, self).__init__(prefix, project_id)
         conditions = None
         if surface_index:
-            conditions = FilterChain(fields=[FilterChain.datatype + '.surface_id'], operations=["=="],
-                                     values=[surface_index.id])
+            conditions = FilterChain(fields=[FilterChain.datatype + '.surface_gid'], operations=["=="],
+                                     values=[str(surface_index.gid)])
         self.rm = DataTypeSelectField(RegionMappingIndex, self, name='region_mapping', required=True,
                                       label=Cortex.region_mapping_data.label,
                                       doc=Cortex.region_mapping_data.doc, conditions=conditions)
