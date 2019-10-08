@@ -41,39 +41,32 @@ if __name__ == "__main__":
 import numpy
 from time import sleep
 from tvb.simulator.coupling import Scaling
+from tvb.config.init.initializer import Introspector
 from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex
 from tvb.core.entities.model.model_operation import STATUS_FINISHED
+from tvb.core.neocom import h5
 from tvb.core.services.flow_service import FlowService
 from tvb.basic.logger.builder import get_logger
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
-from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.neocom._h5loader import DirLoader
 from tvb.core.services.simulator_service import SimulatorService
-from tvb.datatypes.connectivity import Connectivity
 from tvb.simulator.simulator import Simulator
 
 LOG = get_logger(__name__)
 
 ## Before starting this, we need to have TVB web interface launched at least once (to have a default project, user and connectivity)
 if __name__ == "__main__":
+    introspector = Introspector()
+    introspector.introspect()
+
     ## This ID of a project needs to exists in DB, and it can be taken from the WebInterface:
     project = dao.get_project_by_id(1)
 
     ## Find a structural Connectivity and load it in memory
     connectivity_index = dao.get_generic_entity(ConnectivityIndex, DataTypeMetaData.DEFAULT_SUBJECT, "subject")[0]
-
-    storage_path = FilesHelper().get_project_folder(project, str(connectivity_index.fk_from_operation))
-    dir_loader = DirLoader(storage_path)
-    connectivity_path = dir_loader.path_for(ConnectivityH5, connectivity_index.gid)
-
-    connectivity = Connectivity()
-    with ConnectivityH5(connectivity_path) as connectivity_h5:
-        connectivity_h5.load_into(connectivity)
-        connectivity.gid = connectivity_h5.gid.load()
+    connectivity = h5.load_from_index(connectivity_index)
 
     ## Prepare a Simulator instance with defaults and configure it to use the previously loaded Connectivity
     simulator = Simulator()
