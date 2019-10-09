@@ -149,7 +149,7 @@ class NodeCovarianceAdapter(ABCAsynchronous):
             ts_array_metadata = covariance_h5.array_data.get_cached_metadata()
 
         covariance_index.source_gid = time_series.gid
-        covariance_index.type = type(covariance_index).__name__
+        covariance_index.subtype = type(covariance_index).__name__
         covariance_index.array_data_min = ts_array_metadata.min
         covariance_index.array_data_max = ts_array_metadata.max
         covariance_index.array_data_mean = ts_array_metadata.mean

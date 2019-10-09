@@ -366,7 +366,7 @@ class PearsonCorrelationCoefficientAdapter(ABCAsynchronous):
             ts_array_metadata = corr_coef_h5.array_data.get_cached_metadata()
 
         corr_coef_index.source_gid = time_series.gid
-        corr_coef_index.type = type(corr_coef_index).__name__
+        corr_coef_index.subtype = type(corr_coef_index).__name__
         corr_coef_index.labels_ordering = json.dumps(labels_ordering)
         corr_coef_index.array_data_min = ts_array_metadata.min
         corr_coef_index.array_data_max = ts_array_metadata.max

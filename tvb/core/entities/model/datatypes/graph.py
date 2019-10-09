@@ -46,12 +46,12 @@ class CovarianceIndex(DataTypeMatrix):
     source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not Covariance.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
-    type = Column(String)
+    subtype = Column(String)
 
     def fill_from_has_traits(self, datatype):
         # type: (Covariance)  -> None
         super(CovarianceIndex, self).fill_from_has_traits(datatype)
-        self.type = datatype.__class__.__name__
+        self.subtype = datatype.__class__.__name__
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
         self.source_gid = datatype.source.gid.hex
 
@@ -66,14 +66,14 @@ class CorrelationCoefficientsIndex(DataTypeMatrix):
     source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not CorrelationCoefficients.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
-    type = Column(String)
+    subtype = Column(String)
 
     labels_ordering = Column(String)
 
     def fill_from_has_traits(self, datatype):
         # type: (CorrelationCoefficients)  -> None
         super(CorrelationCoefficientsIndex, self).fill_from_has_traits(datatype)
-        self.type = datatype.__class__.__name__
+        self.subtype = datatype.__class__.__name__
         self.labels_ordering = datatype.labels_ordering
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
         self.source_gid = datatype.source.gid.hex
@@ -82,7 +82,7 @@ class CorrelationCoefficientsIndex(DataTypeMatrix):
 class ConnectivityMeasureIndex(DataTypeMatrix):
     id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
-    type = Column(String)
+    subtype = Column(String)
 
     connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
                               nullable=ConnectivityMeasure.connectivity.required)
@@ -96,6 +96,6 @@ class ConnectivityMeasureIndex(DataTypeMatrix):
     def fill_from_has_traits(self, datatype):
         # type: (ConnectivityMeasure)  -> None
         super(ConnectivityMeasureIndex, self).fill_from_has_traits(datatype)
-        self.type = datatype.__class__.__name__
+        self.subtype = datatype.__class__.__name__
         self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
         self.connectivity_gid = datatype.connectivity.gid.hex

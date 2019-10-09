@@ -40,12 +40,12 @@ class PrincipalComponentsIndex(DataType):
     source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
-    type = Column(String)
+    subtype = Column(String)
 
     def fill_from_has_traits(self, datatype):
         # type: (PrincipalComponents)  -> None
         super(PrincipalComponentsIndex, self).fill_from_has_traits(datatype)
-        self.type = datatype.__class__.__name__
+        self.subtype = datatype.__class__.__name__
         self.source_gid = datatype.source.gid
 
 
@@ -55,10 +55,10 @@ class IndependentComponentsIndex(DataType):
     source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
-    type = Column(String)
+    subtype = Column(String)
 
     def fill_from_has_traits(self, datatype):
         # type: (IndependentComponents)  -> None
         super(IndependentComponentsIndex, self).fill_from_has_traits(datatype)
-        self.type = datatype.__class__.__name__
+        self.subtype = datatype.__class__.__name__
         self.source_gid = datatype.source.gid.hex

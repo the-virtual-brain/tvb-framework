@@ -42,7 +42,6 @@ from tvb.core.entities.model.model_datatype import DataType
 class TimeSeriesIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    title = Column(String)
     time_series_type = Column(String, nullable=False)
     data_ndim = Column(Integer, nullable=False)
     data_length_1d = Column(Integer)

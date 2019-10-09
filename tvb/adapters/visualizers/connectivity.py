@@ -157,7 +157,6 @@ class ConnectivityViewer(ABCSpaceDisplayer):
         else:
             rays_dt = None
 
-        connectivity.type = input_data.type
         global_params, global_pages = self._compute_connectivity_global_params(connectivity)
         if surface_data is not None:
             surface_h5 = h5.h5_file_for_index(surface_data)
