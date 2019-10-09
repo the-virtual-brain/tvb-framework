@@ -39,6 +39,8 @@ import sys
 from tvb.basic.config import stored
 from tvb.basic.config.settings import DBSettings
 from tvb.basic.config.profile_settings import BaseSettingsProfile
+from tvb.config.init.datatypes_registry import populate_datatypes_registry
+
 
 
 class WebSettingsProfile(BaseSettingsProfile):
@@ -55,6 +57,8 @@ class WebSettingsProfile(BaseSettingsProfile):
 
         if change_logger_in_dev and not self.env.is_distribution():
             self.LOGGER_CONFIG_FILE_NAME = "dev_logger_config.conf"
+
+        populate_datatypes_registry()
 
     def initialize_for_deployment(self):
         """

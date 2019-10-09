@@ -43,21 +43,19 @@ The results of the computation will be stored by the adapter itself.
 """
 
 import sys
+from tvb.adapters.simulator.simulator_adapter import SimulatorAdapter
 from tvb.basic.profile import TvbProfile
+from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.model.model_operation import has_finished
 from tvb.core.entities.model.simulator.burst_configuration import BurstConfiguration2
-
-if __name__ == '__main__':
-    TvbProfile.set_profile(sys.argv[2], True)
-
-from tvb.adapters.simulator.simulator_adapter import SimulatorAdapter
-from tvb.basic.logger.builder import get_logger
-from tvb.config.init.initializer import Introspector
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.storage import dao
 from tvb.core.utils import parse_json_parameters
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.burst_service2 import BurstService2
+
+if __name__ == '__main__':
+    TvbProfile.set_profile(sys.argv[2], True)
 
 
 def do_operation_launch(operation_id):
@@ -65,8 +63,6 @@ def do_operation_launch(operation_id):
     Event attached to the local queue for executing an operation, when we will have resources available.
     """
     log = get_logger('tvb.core.operation_async_launcher')
-    introspector = Introspector()
-    introspector.introspect()
     burst_service = BurstService2()
 
     try:
