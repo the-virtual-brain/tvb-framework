@@ -133,7 +133,7 @@ class TimeSeriesH5(H5File):
         """
         from_idx, to_idx = int(from_idx), int(to_idx)
 
-        if isinstance(specific_slices, basestring):
+        if isinstance(specific_slices, str):
             specific_slices = json.loads(specific_slices)
         if step is None:
             step = 1
@@ -220,7 +220,7 @@ class TimeSeriesH5(H5File):
         """
         :return: The measure point indices that have to be shown by default. By default show all.
         """
-        return range(min(NO_OF_DEFAULT_SELECTED_CHANNELS, self.data.shape[2]))
+        return list(range(min(NO_OF_DEFAULT_SELECTED_CHANNELS, self.data.shape[2])))
 
     def get_measure_points_selection_gid(self):
         """

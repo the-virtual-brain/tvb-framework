@@ -138,7 +138,7 @@ class _LeftFragmentAdapter(ABCAdapter):
             'options': []
         }
 
-        for clz_name, clz in self.available_models.iteritems():
+        for clz_name, clz in self.available_models.items():
             models_sub_tree['options'].append({
                 'name': clz._ui_name, # ui-name instaead
                 'value': clz_name,
@@ -321,7 +321,7 @@ class DynamicModelController(BurstBaseController):
             params = json.loads(params)
             dynamic = self.get_cached_dynamic(dynamic_gid)
             model = dynamic.model
-            for name, value in params.iteritems():
+            for name, value in params.items():
                 setattr(model, name, numpy.array([float(value)]))
             model.configure()
             return dynamic.phase_plane.compute_phase_plane()
@@ -396,7 +396,7 @@ class DynamicModelController(BurstBaseController):
 
 
         ret = {
-            'modes': range(model.number_of_modes),
+            'modes': list(range(model.number_of_modes)),
             'state_variables': sv_model,
             'default_mode' : dynamic.phase_plane.mode
         }

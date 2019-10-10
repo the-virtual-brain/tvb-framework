@@ -874,7 +874,7 @@ class ProjectController(BaseController):
                 group = self.project_service.get_operation_group_by_id(operation.fk_operation_group)
                 groups[group.id] = group.gid
         nodes = []
-        for _, group in groups.iteritems():
+        for _, group in groups.items():
             node = graph_structures.NodeStructure.build_structure_for_operation_group(group)
             if group == selected_item_gid:
                 node.selected = True

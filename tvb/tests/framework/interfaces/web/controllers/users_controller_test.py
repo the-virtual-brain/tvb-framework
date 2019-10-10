@@ -100,7 +100,7 @@ class TestUsersController(BaseTransactionalControllerTest):
         """
         Simulate a edit of the email and check that data is actually changed.
         """
-        edited_data = {'email': u'jira1.tvb@gmail.com'}
+        edited_data = {'email': 'jira1.tvb@gmail.com'}
         cherrypy.request.method = "POST"
         self.user_c.profile(save=True, **edited_data)
         user = dao.get_user_by_id(self.test_user.id)

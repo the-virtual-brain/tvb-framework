@@ -63,11 +63,10 @@ class ABCUploaderForm(ABCAdapterForm):
         return None
 
 
-class ABCUploader(ABCSynchronous):
+class ABCUploader(ABCSynchronous, metaclass=ABCMeta):
     """
     Base class of the uploaders
     """
-    __metaclass__ = ABCMeta
     LOGGER = get_logger(__name__)
 
     def _prelaunch(self, operation, uid=None, available_disk_space=0, **kwargs):

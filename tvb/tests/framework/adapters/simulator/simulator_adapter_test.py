@@ -194,14 +194,14 @@ class TestSimulatorAdapter(TransactionalTestCase):
         Test a simulation with noise. Pass a wrong shape and expect exception to be raised.
         """
         params = copy(SIMULATOR_PARAMETERS)
-        params['integrator'] = u'HeunStochastic'
+        params['integrator'] = 'HeunStochastic'
         noise_4d_config = [[1 for _ in range(self.CONNECTIVITY_NODES)] for _ in range(4)]
-        params['integrator_parameters_option_HeunStochastic_dt'] = u'0.01220703125'
-        params['integrator_parameters_option_HeunStochastic_noise'] = u'Additive'
+        params['integrator_parameters_option_HeunStochastic_dt'] = '0.01220703125'
+        params['integrator_parameters_option_HeunStochastic_noise'] = 'Additive'
         params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_nsig'] = str(noise_4d_config)
-        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_ntau'] = u'0.0'
-        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_random_stream'] = u'RandomStream'
-        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_random_stream_parameters_option_RandomStream_init_seed'] = u'42'
+        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_ntau'] = '0.0'
+        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_random_stream'] = 'RandomStream'
+        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_random_stream_parameters_option_RandomStream_init_seed'] = '42'
         filtered_params = self.simulator_adapter.prepare_ui_inputs(params)
         self.simulator_adapter.configure(**filtered_params)
         if hasattr(self.simulator_adapter, 'algorithm'):
@@ -217,14 +217,14 @@ class TestSimulatorAdapter(TransactionalTestCase):
         Test a simulation with noise.
         """
         params = copy(SIMULATOR_PARAMETERS)
-        params['integrator'] = u'HeunStochastic'
+        params['integrator'] = 'HeunStochastic'
         noise_2d_config = [[1 for _ in range(self.CONNECTIVITY_NODES)] for _ in range(2)]
-        params['integrator_parameters_option_HeunStochastic_dt'] = u'0.01220703125'
-        params['integrator_parameters_option_HeunStochastic_noise'] = u'Additive'
+        params['integrator_parameters_option_HeunStochastic_dt'] = '0.01220703125'
+        params['integrator_parameters_option_HeunStochastic_noise'] = 'Additive'
         params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_nsig'] = str(noise_2d_config)
-        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_ntau'] = u'0.0'
-        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_random_stream'] = u'RandomStream'
-        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_random_stream_parameters_option_RandomStream_init_seed'] = u'42'
+        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_ntau'] = '0.0'
+        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_random_stream'] = 'RandomStream'
+        params['integrator_parameters_option_HeunStochastic_noise_parameters_option_Additive_random_stream_parameters_option_RandomStream_init_seed'] = '42'
 
         self._launch_and_check_noise(params, (2, 74))
 

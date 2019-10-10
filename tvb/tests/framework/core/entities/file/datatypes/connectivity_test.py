@@ -31,8 +31,8 @@ def test_store_partial_connectivity(tmph5factory):
         weights=numpy.zeros((2, 2)),
         tract_lengths=numpy.zeros((2, 2)),
         centres=numpy.zeros((2, 2)),
-        number_of_regions=long(2),
-        number_of_connections=long(4),
+        number_of_regions=int(2),
+        number_of_connections=int(4),
     )
     conn_h5 = ConnectivityH5(tmph5factory())
     conn_h5.store(partial_conn)

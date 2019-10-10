@@ -50,7 +50,7 @@ class ZIPSurfaceImporterForm(ABCUploaderForm):
         super(ZIPSurfaceImporterForm, self).__init__(prefix, project_id)
         self.uploaded = UploadField('application/zip', self, name='uploaded', required=True, label='Surface file (zip)')
         self.surface_type = SimpleSelectField(ALL_SURFACES_SELECTION, self, name='surface_type', required=True,
-                                              label='Surface type', default=ALL_SURFACES_SELECTION.keys()[0])
+                                              label='Surface type', default=list(ALL_SURFACES_SELECTION)[0])
         self.zero_based_triangles = SimpleBoolField(self, name='zero_based_triangles', default=True,
                                                     label='Zero based triangles')
         self.should_center = SimpleBoolField(self, name='should_center',

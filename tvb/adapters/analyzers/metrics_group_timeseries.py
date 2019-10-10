@@ -71,7 +71,7 @@ class TimeseriesMetricsAdapterForm(ABCAdapterForm):
         self.start_point = ScalarField(BaseTimeseriesMetricAlgorithm.start_point, self)
         self.segment = ScalarField(BaseTimeseriesMetricAlgorithm.segment, self)
 
-        algo_names = ALGORITHMS.keys()
+        algo_names = list(ALGORITHMS)
         algo_names.sort()
         choices = OrderedDict()
         for name in algo_names:
@@ -142,7 +142,7 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
         :rtype: `DatatypeMeasureIndex`
         """
         if algorithms is None:
-            algorithms = ALGORITHMS.keys()
+            algorithms = list(ALGORITHMS)
 
         LOG.debug("time_series shape is %s" % str(self.input_shape))
         dt_timeseries = h5.load_from_index(time_series)

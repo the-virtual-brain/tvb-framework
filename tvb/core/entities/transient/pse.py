@@ -140,7 +140,7 @@ class ContextDiscretePSE(EnhancedDictionary):
         dt_info = {}
         if measures is not None and len(measures) > 0:
             measure = measures[0]
-            self.available_metrics = measure.metrics.keys()
+            self.available_metrics = list(measure.metrics)
 
             # As default we have the first two metrics available is no metrics are passed from the UI
             if self.color_metric is None and self.size_metric is None:
@@ -171,11 +171,11 @@ class ContextDiscretePSE(EnhancedDictionary):
         """ Populate current entity with attributes required for visualizer"""
         all_series = []
         if self.only_numbers:
-            self.values_x = final_dict.keys()
+            self.values_x = list(final_dict)
 
             y_values_set = set()
             for dict_ in final_dict.values():
-                y_values_set = y_values_set.union(dict_.keys())
+                y_values_set = y_values_set.union(list(dict_))
             self.values_y = [a for a in y_values_set]
 
             self.values_x.sort()

@@ -431,10 +431,10 @@ class OperationService:
         """
         self.logger.exception(message)
         if operation is not None:
-            BurstService2().persist_operation_state(operation, STATUS_ERROR, unicode(exception))
+            BurstService2().persist_operation_state(operation, STATUS_ERROR, str(exception))
         self._remove_files(temp_files)
         exception.message = message
-        raise exception, None, sys.exc_info()[2]  # when rethrowing in python this is required to preserve the stack trace
+        raise exception.with_traceback(sys.exc_info()[2])  # when rethrowing in python this is required to preserve the stack trace
 
 
     def _remove_files(self, file_list):

@@ -48,7 +48,7 @@ class ObjSurfaceImporterForm(ABCUploaderForm):
         super(ObjSurfaceImporterForm, self).__init__(prefix, project_id)
 
         self.surface_type = SimpleSelectField(ALL_SURFACES_SELECTION, self, name='surface_type', required=True,
-                                              label='Specify file type :', default=ALL_SURFACES_SELECTION.keys()[0])
+                                              label='Specify file type :', default=list(ALL_SURFACES_SELECTION)[0])
         self.data_file = UploadField('.obj', self, name='data_file', required=True,
                                      label='Please select file to import')
         self.should_center = SimpleBoolField(self, name='should_center', default=False,

@@ -92,11 +92,10 @@ class URLGenerator(object):
 
 
 @add_metaclass(ABCMeta)
-class ABCDisplayer(ABCSynchronous):
+class ABCDisplayer(ABCSynchronous, metaclass=ABCMeta):
     """
     Abstract class, for marking Adapters used for UI display only.
     """
-    __metaclass__ = ABCMeta
     KEY_CONTENT_MODULE = "keyContentModule"
     KEY_CONTENT = "mainContent"
     KEY_IS_ADAPTER = "isAdapter"

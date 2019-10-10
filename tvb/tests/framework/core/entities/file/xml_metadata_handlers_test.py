@@ -67,7 +67,7 @@ class TestMetaDataReadXML():
         """
         meta_data = self.meta_reader.read_metadata()
         assert isinstance(meta_data, GenericMetaData)
-        for key, value in self.EXPECTED_DICTIONARY.iteritems():
+        for key, value in self.EXPECTED_DICTIONARY.items():
             found_value = meta_data[key]
             assert value == found_value
         
@@ -109,6 +109,6 @@ class TestMetaDataWriteXML():
         assert os.path.exists(self.result_path)
         reader = XMLReader(self.result_path)
         meta_data = reader.read_metadata()
-        for key, value in TestMetaDataReadXML.EXPECTED_DICTIONARY.iteritems():
+        for key, value in TestMetaDataReadXML.EXPECTED_DICTIONARY.items():
             found_value = meta_data[key]
             assert value == found_value

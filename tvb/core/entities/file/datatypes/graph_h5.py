@@ -66,7 +66,7 @@ class ConnectivityMeasureH5(DataTypeMatrixH5):
         super(ConnectivityMeasureH5, self).__init__(path)
         self.array_data = DataSet(ConnectivityMeasure.array_data, self)
         self.connectivity = Reference(ConnectivityMeasure.connectivity, self)
-        self.title = Scalar(Attr(basestring), self, name='title')
+        self.title = Scalar(Attr(str), self, name='title')
 
     def get_array_data(self):
         return self.array_data[:]

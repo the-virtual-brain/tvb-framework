@@ -279,7 +279,7 @@ class SurfaceH5(H5File):
         if not self._bi_hemispheric or self._split_slices is None:
             return None
         result = [1] * self._number_of_split_slices
-        for key, value in self._split_slices.iteritems():
+        for key, value in self._split_slices.items():
             if value[KEY_HEMISPHERE] == HEMISPHERE_LEFT:
                 result[int(key)] = 0
         return result

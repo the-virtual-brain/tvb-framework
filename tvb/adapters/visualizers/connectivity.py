@@ -340,7 +340,7 @@ class Connectivity2DViewer(object):
         if input_data.number_of_regions <= 3:
             raise LaunchException('The connectivity matrix you selected has fewer nodes than acceptable for display!')
 
-        half = input_data.number_of_regions / 2
+        half = input_data.number_of_regions // 2
         normalized_weights = self._normalize_weights(input_data.ordered_weights)
         weights = Connectivity2DViewer._get_weights(normalized_weights)
 
@@ -416,7 +416,7 @@ class Connectivity2DViewer(object):
         left hemispheres. Those matrixes are obtained from
         a weights matrix which contains data related to both hemispheres.
         """
-        half = len(weights) / 2
+        half = len(weights) // 2
         l_aux, r_aux = weights[:half], weights[half:]
         r_weights = []
         l_weights = []

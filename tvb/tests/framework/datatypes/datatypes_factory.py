@@ -235,7 +235,7 @@ class DatatypesFactory(object):
         """
         operation, _, storage_path = self.__create_operation()
         partial_corr = CrossCorrelation(array_data=numpy.random.random((10, 10, 10, 10, 10)), use_storage=False)
-        crossc = CrossCorrelation(source=time_series, storage_path=storage_path, time=range(10))
+        crossc = CrossCorrelation(source=time_series, storage_path=storage_path, time=list(range(10)))
         crossc.write_data_slice(partial_corr)
         crossc.close_file()
         adapter_instance = StoreAdapter([crossc])

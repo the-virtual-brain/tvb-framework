@@ -37,9 +37,7 @@ import typing
 from tvb.basic.neotraits.api import HasTraits, Attr, NArray
 
 
-class Accessor(object):
-    __metaclass__ = abc.ABCMeta
-
+class Accessor(object, metaclass=abc.ABCMeta):
     def __init__(self, trait_attribute, h5file, name=None):
         # type: (Attr, H5File, str) -> None
         """
@@ -266,7 +264,7 @@ class SparseMatrixMetaData(DataSetMetaData):
         if not shapestr or shapestr[0] != '(' or shapestr[-1] != ')':
             raise ValueError('can not parse shape "{}"'.format(shapestr))
         frags = shapestr[1:-1].split(',')
-        return tuple(long(e) for e in frags)
+        return tuple(int(e) for e in frags)
 
     @classmethod
     def from_array(cls, mtx):

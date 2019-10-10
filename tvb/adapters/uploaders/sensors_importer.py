@@ -54,7 +54,7 @@ class SensorsImporterForm(ABCUploaderForm):
                                         label='Please upload sensors file (txt or bz2 format)',
                                         doc='Expected a text/bz2 file containing sensor measurements.')
         self.sensors_type = SimpleSelectField(self.options, self, name='sensors_type', required=True,
-                                              label='Sensors type: ', default=self.options.keys()[0])
+                                              label='Sensors type: ', default=list(self.options)[0])
 
 
 class SensorsImporter(ABCUploader):

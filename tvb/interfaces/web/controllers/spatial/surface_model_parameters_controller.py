@@ -231,7 +231,7 @@ class SurfaceModelParametersController(SpatioTemporalController):
         """
         context_model_parameters = common.get_from_session(KEY_CONTEXT_MPS)
         if default_selected_model_param is None:
-            default_selected_model_param = context_model_parameters.prepared_model_parameter_names.values()[0]
+            default_selected_model_param = list(context_model_parameters.prepared_model_parameter_names.values())[0]
 
         equation_displayer = EquationDisplayer()
         equation_displayer.trait.bound = interface.INTERFACE_ATTRIBUTES_ONLY

@@ -217,7 +217,7 @@ class BaseTestCase(object):
         Compare two dictionaries, especially as keys.
         When in expected_dictionary the value is not None, validate also to be found in found_dict.
         """
-        for key, value in expected.iteritems():
+        for key, value in expected.items():
             assert key in found_dict, "%s not found in result" % key
             if value is not None:
                 assert value == found_dict[key]
@@ -285,7 +285,7 @@ class TransactionalTestMeta(type):
         return type.__new__(mcs, classname, bases, new_class_dict)
 
 
-class TransactionalTestCase(BaseTestCase):
+class TransactionalTestCase(BaseTestCase, metaclass=TransactionalTestMeta):
     """
     This class makes sure that any test case it contains is ran in a transactional
     environment and a rollback is issued at the end of that transaction. This should
@@ -300,4 +300,3 @@ class TransactionalTestCase(BaseTestCase):
     WARNING! Do not use this is any test class that has uses multiple threads to do
     dao related operations since that might cause errors/leave some dangling sessions.
     """
-    __metaclass__ = TransactionalTestMeta

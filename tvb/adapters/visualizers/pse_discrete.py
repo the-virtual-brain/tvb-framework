@@ -164,8 +164,8 @@ class DiscretePSEAdapter(ABCDisplayer):
         final_dict = {}
         operations = dao.get_operations_in_group(operation_group.id)
 
-        fake_numbers1 = dict(zip(values1, range(len(list(values1)))))
-        fake_numbers2 = dict(zip(values2, range(len(list(values2)))))
+        fake_numbers1 = dict(list(zip(values1, list(range(len(list(values1)))))))
+        fake_numbers2 = dict(list(zip(values2, list(range(len(list(values2)))))))
 
         for operation_ in operations:
             if not operation_.has_finished:
@@ -196,7 +196,7 @@ class DiscretePSEAdapter(ABCDisplayer):
         # causes problems in case of NaN values, so just remove it before creating the json
         pse_context.datatypes_dict = {}
         if not only_numbers1:
-            pse_context.values_x = range(len(list(values1)))
+            pse_context.values_x = list(range(len(list(values1))))
         if not only_numbers2:
-            pse_context.values_y = range(len(list(values2)))
+            pse_context.values_y = list(range(len(list(values2))))
         return pse_context

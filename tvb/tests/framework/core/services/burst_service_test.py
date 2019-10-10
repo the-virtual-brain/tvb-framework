@@ -124,12 +124,12 @@ class TestBurstService(BaseTestCase):
         assert len(
             analyzers) == 1, "Portlet configuration not build properly. " \
                              "Portlet's analyzers list has unexpected number of elements."
-        assert analyzers[0].dynamic_param == {u'test_dt_input': {wf_cfg.DATATYPE_INDEX_KEY: 0,
+        assert analyzers[0].dynamic_param == {'test_dt_input': {wf_cfg.DATATYPE_INDEX_KEY: 0,
                                                                  wf_cfg.STEP_INDEX_KEY: 0}}, \
             "Dynamic parameters not loaded properly"
         visualizer = portlet_configuration.visualizer
         assert visualizer.dynamic_param == {}, "Dynamic parameters not loaded properly"
-        assert visualizer.static_param == {u'test2': u'0'}, 'Static parameters not loaded properly'
+        assert visualizer.static_param == {'test2': '0'}, 'Static parameters not loaded properly'
 
 
     def test_build_portlet_interface(self):
@@ -805,7 +805,7 @@ class TestBurstService(BaseTestCase):
         launch_params = self.local_simulation_params
         launch_params['connectivity'] = connectivity.gid
         if is_range:
-            launch_params['simulation_length'] = str(range(length, length + no_ops))
+            launch_params['simulation_length'] = str(list(range(length, length + no_ops)))
             launch_params[RANGE_PARAMETER_1] = 'simulation_length'
         else:
             launch_params['simulation_length'] = str(length)

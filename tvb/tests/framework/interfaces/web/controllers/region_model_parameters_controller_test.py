@@ -62,7 +62,7 @@ class TestRegionsModelParametersController(BaseTransactionalControllerTest):
         stored_burst = cherrypy.session[common.KEY_BURST_CONFIG]
         _, self.connectivity = DatatypesFactory().create_connectivity()
         new_params = {}
-        for key, val in SIMULATOR_PARAMETERS.iteritems():
+        for key, val in SIMULATOR_PARAMETERS.items():
             new_params[key] = {'value': val}
         new_params['connectivity'] = {'value': self.connectivity.gid}
         stored_burst.simulator_configuration = new_params

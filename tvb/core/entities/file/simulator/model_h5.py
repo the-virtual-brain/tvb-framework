@@ -20,7 +20,7 @@ class StateVariablesDecoder(json.JSONDecoder):
 
     def dict_array(self, dictionary):
         dict_array = {}
-        for k, v in dictionary.iteritems():
+        for k, v in dictionary.items():
             dict_array.update({k: numpy.array(v)})
         return dict_array
 

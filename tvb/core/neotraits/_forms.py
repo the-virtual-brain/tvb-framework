@@ -199,7 +199,7 @@ class SimpleArrayField(Field):
         self.dtype = dtype
 
     def _from_post(self):
-        if self.unvalidated_data is not None and isinstance(self.unvalidated_data, basestring):
+        if self.unvalidated_data is not None and isinstance(self.unvalidated_data, str):
             data = json.loads(self.unvalidated_data)
             self.data = numpy.array(data, dtype=self.dtype).tolist()
         elif self.unvalidated_data is not None and isinstance(self.unvalidated_data, list):
@@ -548,8 +548,8 @@ class MultiSelectField(TraitField):
 def ScalarField(trait_attribute, form, name=None, disabled=False):
     # as this makes introspective decisions it has to be moved at a different level
     field_type_for_trait_type = {
-        str: BytesField,
-        unicode: StrField,
+        # str: BytesField,
+        str: StrField,
         int: IntField,
         float: FloatField,
         bool: BoolField,
@@ -602,13 +602,13 @@ class Form(object):
 
     @property
     def fields(self):
-        for field in self.__dict__.itervalues():
+        for field in self.__dict__.values():
             if isinstance(field, Field):
                 yield field
 
     @property
     def trait_fields(self):
-        for field in self.__dict__.itervalues():
+        for field in self.__dict__.values():
             if isinstance(field, TraitField):
                 yield field
 

@@ -58,7 +58,7 @@ class BurstService2(object):
         :param message: message in case of error
         :return: operation instance changed
         """
-        operation.mark_complete(operation_status, unicode(message))
+        operation.mark_complete(operation_status, message)
         dao.store_entity(operation)
         operation = dao.get_operation_by_id(operation.id)
         self.file_helper.write_operation_metadata(operation)

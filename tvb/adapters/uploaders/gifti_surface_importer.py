@@ -50,7 +50,7 @@ class GIFTISurfaceImporterForm(ABCUploaderForm):
         surface_types['Specified in the file metadata'] = OPTION_READ_METADATA
 
         self.file_type = SimpleSelectField(surface_types, self, name='file_type', required=True,
-                                           label='Specify file type : ', default=surface_types.keys()[0])
+                                           label='Specify file type : ', default=list(surface_types)[0])
         self.data_file = UploadField('.gii', self, name='data_file', required=True,
                                      label='Please select a .gii (LH if cortex)')
         self.data_file_part2 = UploadField('.gii', self, name='data_file_part2',

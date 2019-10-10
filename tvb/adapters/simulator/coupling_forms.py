@@ -21,7 +21,7 @@ def get_coupling_to_form_dict():
 
 def get_ui_name_to_coupling_dict():
     ui_name_to_coupling = {}
-    for coupling_class in get_coupling_to_form_dict().keys():
+    for coupling_class in get_coupling_to_form_dict():
         ui_name_to_coupling.update({coupling_class.__name__: coupling_class})
 
     return ui_name_to_coupling

@@ -331,7 +331,7 @@ class BaseController(object):
         if overlay_indexes is not None:
             template_dictionary[common.KEY_OVERLAY_INDEXES] = overlay_indexes
         else:
-            template_dictionary[common.KEY_OVERLAY_INDEXES] = range(len(tabs_horizontal)) \
+            template_dictionary[common.KEY_OVERLAY_INDEXES] = list(range(len(tabs_horizontal))) \
                 if tabs_horizontal is not None else []
         template_dictionary[common.KEY_OVERLAY_PAGINATION] = False
 

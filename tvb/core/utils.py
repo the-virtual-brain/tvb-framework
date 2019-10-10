@@ -38,7 +38,7 @@ import sys
 import json
 import datetime
 import uuid
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import numpy
 import six
 from tvb.basic.profile import TvbProfile
@@ -68,7 +68,7 @@ def path2url_part(file_path):
     if not os.path.isabs(file_path):
         file_path = os.path.join(TvbProfile.current.TVB_STORAGE, file_path)
     result = file_path.replace(os.sep, CHAR_SEPARATOR).replace(" ", CHAR_SPACE).replace(DRIVE_SEP, CHAR_DRIVE)
-    return urllib.quote(result)
+    return urllib.parse.quote(result)
 
 
 def url2path(encoded_path):
@@ -283,7 +283,7 @@ def _custom_string2array(input_data_str, split_char, dtype=None):
     if len(data_stack) == 0:
         return None
 
-    if type(data_stack[0].data) in (str, unicode):
+    if type(data_stack[0].data) is str:
         if dtype is not None:
             if data_stack[-1].data == 'None':
                 return None
@@ -422,7 +422,7 @@ def extract_matlab_doc_string(file_n):
             else:
                 if doc_started_flag:
                     break
-    return unicode(result, errors="ignore")
+    return str(result, errors="ignore")
 
 
 ################## MATLAB methods end here     ##############

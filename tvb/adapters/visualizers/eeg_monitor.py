@@ -246,7 +246,7 @@ class EegMonitor(ABCDisplayer):
             if multiple_inputs:
                 # for multiple inputs the default selections might be too big: select the first few
                 # warn: assumes that the selection values are a range
-                initial_selections.append(range(4))
+                initial_selections.append(list(range(4)))
             else:
                 initial_selections.append(timeseries.get_default_selection())
 
@@ -254,7 +254,7 @@ class EegMonitor(ABCDisplayer):
             grouped_labels.append(timeseries.get_grouped_space_labels())
 
             state_vars[ts_name] = timeseries.labels_dimensions.load().get(timeseries.labels_ordering.load()[1], [])
-            modes[ts_name] = range(shape[3])
+            modes[ts_name] = list(range(shape[3]))
 
         return (no_of_lines, ts_names, grouped_labels, max_length, graph_labels,
                 initial_selections, measures_sel_gids, modes, state_vars)
@@ -346,7 +346,7 @@ class EegMonitor(ABCDisplayer):
             page_size = self.page_size
             for timeseries in list_of_timeseries:
                 overall_shape = timeseries.read_data_shape()
-                total_pages = overall_shape[0] / self.page_size
+                total_pages = overall_shape[0] // self.page_size
                 if overall_shape[0] % self.page_size > 0:
                     total_pages += 1
                 timeline_urls = []

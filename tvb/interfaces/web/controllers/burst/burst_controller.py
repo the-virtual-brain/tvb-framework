@@ -138,7 +138,7 @@ class BurstController(BurstBaseController):
         adapter_instance = ABCAdapter.build_adapter(algorithm)
         if adapter_instance is not None and hasattr(adapter_instance, 'available_algorithms'):
             template_specification['available_metrics'] = [metric_name for metric_name
-                                                           in adapter_instance.available_algorithms.keys()]
+                                                           in adapter_instance.available_algorithms]
         else:
             template_specification['available_metrics'] = []
 
@@ -341,9 +341,9 @@ class BurstController(BurstBaseController):
         simulation_length = data['simulation_length']
         try:
             simulation_length = total_ms(simulation_length)
-        except ValueError, e:
+        except ValueError as e:
             return {'error': e.message}
-        data['simulation_length']=unicode(simulation_length)
+        data['simulation_length']=str(simulation_length)
         burst_config = common.get_from_session(common.KEY_BURST_CONFIG)
 
         ## Validate new burst-name

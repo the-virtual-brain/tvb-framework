@@ -109,7 +109,7 @@ class TestTimeSeriesMetricsAdapter(TransactionalTestCase):
         ts_metric_adapter = TimeseriesMetricsAdapter()
         resulted_metric = ts_metric_adapter.launch(dummy_time_series)
         assert isinstance(resulted_metric, DatatypeMeasure), "Result should be a datatype measure."
-        assert len(resulted_metric.metrics) >= len(ts_metric_adapter.available_algorithms.keys()),\
+        assert len(resulted_metric.metrics) >= len(list(ts_metric_adapter.available_algorithms)),\
                         "At least a result should have been generated for every metric."
         for metric_value in resulted_metric.metrics.values():
             assert isinstance(metric_value, (float, int))

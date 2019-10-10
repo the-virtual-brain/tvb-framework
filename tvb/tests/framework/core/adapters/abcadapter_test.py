@@ -144,7 +144,7 @@ class TestAdapterABC(TransactionalTestCase):
         """
         kwargs = self.test_adapter.prepare_ui_inputs(self.SUBMIT_DATASET_1)
 
-        for expected_name, expected_type in self.EXPECTED_FILTERED_SET1.iteritems():
+        for expected_name, expected_type in self.EXPECTED_FILTERED_SET1.items():
             assert expected_name in kwargs
             assert isinstance(kwargs[expected_name], expected_type)
         assert len(self.EXPECTED_FILTERED_SET1) == len(kwargs)
@@ -167,12 +167,12 @@ class TestAdapterABC(TransactionalTestCase):
         parent_op = TestFactory.create_operation()
         test_entity = dao.store_entity(DataType(operation_id=parent_op.id))
         dataset_3 = {}
-        for key, value in self.SUBMIT_DATASET_3.iteritems():
+        for key, value in self.SUBMIT_DATASET_3.items():
             dataset_3[key.replace("$GID$", test_entity.gid)] = value.replace("$GID$", test_entity.gid)
 
         kwargs = self.test_adapter.prepare_ui_inputs(dataset_3)
 
-        for expected_name, expected_type in self.EXPECTED_FILTERED_SET3.iteritems():
+        for expected_name, expected_type in self.EXPECTED_FILTERED_SET3.items():
             assert expected_name in kwargs
             assert isinstance(kwargs[expected_name], expected_type)
         assert len(self.EXPECTED_FILTERED_SET3) == len(kwargs)
@@ -187,7 +187,7 @@ class TestAdapterABC(TransactionalTestCase):
         """
         kwargs = self.test_adapter.prepare_ui_inputs(self.SUBMIT_DATASET_4)
 
-        for expected_name, expected_type in self.EXPECTED_FILTERED_SET4.iteritems():
+        for expected_name, expected_type in self.EXPECTED_FILTERED_SET4.items():
             assert expected_name in kwargs
             assert isinstance(kwargs[expected_name], expected_type)
         assert len(self.EXPECTED_FILTERED_SET4) == len(kwargs)

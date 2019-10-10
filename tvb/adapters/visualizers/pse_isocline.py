@@ -205,7 +205,7 @@ class IsoclinePSEAdapter(ABCDisplayer):
     def get_metric_matrix(self, datatype_group, selected_metric=None):
         self.model = PseIsoModel.from_db(datatype_group.fk_operation_group)
         if selected_metric is None:
-            selected_metric = self.model.metrics.keys()[0]
+            selected_metric = list(self.model.metrics.keys())[0]
 
         data_matrix = self.model.apriori_data[selected_metric]
         data_matrix = numpy.rot90(data_matrix)
@@ -259,6 +259,6 @@ class IsoclinePSEAdapter(ABCDisplayer):
         params["yAxisName"] = self.model.range2_name
         params["url_base"] = "/burst/explore/get_metric_matrix/" + datatype_group.gid
         params["node_info_url"] = "/burst/explore/get_node_matrix/" + datatype_group.gid
-        params["available_metrics"] = self.model.metrics.keys()
+        params["available_metrics"] = list(self.model.metrics)
         return self.build_display_result('pse_isocline/view', params,
                                          pages=dict(controlPage="pse_isocline/controls"))

@@ -111,7 +111,7 @@ class TimeSeriesVolumeVisualiser(_MappedArrayVolumeBase):
         params = dict(title="Volumetric Time Series",
                       ts_title=ts_h5.title.load(),
                       labelsStateVar=ts_h5.labels_dimensions.load().get(ts_h5.labels_ordering.load()[1], []),
-                      labelsModes=range(ts_h5.data.shape[3]),
+                      labelsModes=list(range(ts_h5.data.shape[3])),
                       minValue=min_value, maxValue=max_value,
                       urlVolumeData=url_volume_data,
                       urlTimeSeriesData=url_timeseries_data,

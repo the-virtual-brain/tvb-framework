@@ -89,7 +89,7 @@ class DirLoader(object):
 
     def find_file_name(self, gid):
         # type: (typing.Union[uuid.UUID, str]) -> str
-        if isinstance(gid, basestring):
+        if isinstance(gid, str):
             gid = uuid.UUID(gid)
 
         fname = self._locate(gid)
@@ -141,7 +141,7 @@ class DirLoader(object):
 
     def path_for_has_traits(self, has_traits_class, gid):
 
-        if isinstance(gid, basestring):
+        if isinstance(gid, str):
             gid = uuid.UUID(gid)
         fname = '{}_{}.h5'.format(has_traits_class.__name__, gid.hex)
         return os.path.join(self.base_dir, fname)
@@ -166,7 +166,7 @@ class TVBLoader(object):
         return os.path.join(operation_folder, fname)
 
     def path_for(self, operation_dir, h5_file_class, gid):
-        if isinstance(gid, basestring):
+        if isinstance(gid, str):
             gid = uuid.UUID(gid)
         fname = '{}_{}.h5'.format(h5_file_class.file_name_base(), gid.hex)
         return os.path.join(operation_dir, fname)

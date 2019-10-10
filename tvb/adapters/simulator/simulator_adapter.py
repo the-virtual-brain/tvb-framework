@@ -323,7 +323,7 @@ class SimulatorAdapter(ABCAsynchronous):
             result_indexes[m_name].fill_shape(ts_shape)
             result_h5[m_name].close()
         # self.log.info("%s: Adapter simulation finished!!" % str(self))
-        return result_indexes.values()
+        return list(result_indexes.values())
 
     def _validate_model_parameters(self, model_instance, connectivity, surface):
         """

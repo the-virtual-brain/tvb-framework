@@ -831,7 +831,7 @@ class FlowController(BaseController):
     @expose_fragment('visualizers/commons/channel_selector_opts')
     def get_available_selections(self, **data):
         sel_names, sel_values = self._get_available_selections(data['datatype_gid'])
-        return dict(namedSelections=zip(sel_names, sel_values))
+        return dict(namedSelections=list(zip(sel_names, sel_values)))
 
 
     @expose_json

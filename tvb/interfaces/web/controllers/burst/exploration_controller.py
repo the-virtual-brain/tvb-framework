@@ -33,7 +33,7 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import cherrypy
 from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.entities.storage import dao
@@ -119,11 +119,11 @@ class ParameterExplorationController(BaseController):
                 pse_context.prepare_individual_jsons()
                 return pse_context
             except LaunchException as ex:
-                error_msg = urllib.quote(ex.message)
+                error_msg = urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote("Discrete PSE is incompatible (most probably due to result size being too large).")
+            error_msg = urllib.parse.quote("Discrete PSE is incompatible (most probably due to result size being too large).")
 
-        name = urllib.quote(adapter._ui_name)
+        name = urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
     @expose_json
@@ -145,12 +145,12 @@ class ParameterExplorationController(BaseController):
                 return dict(series_array=pse_context.series_array,
                             has_started_ops=pse_context.has_started_ops)
             except LaunchException as ex:
-                error_msg = urllib.quote(ex.message)
+                error_msg = urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote(
+            error_msg = urllib.parse.quote(
                 "Discrete PSE is incompatible (most probably due to result size being too large).")
 
-        name = urllib.quote(adapter._ui_name)
+        name = urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
     @cherrypy.expose
@@ -167,11 +167,11 @@ class ParameterExplorationController(BaseController):
                 return adapter.burst_preview(datatype_group_gid)
             except LaunchException as ex:
                 self.logger.error(ex.message)
-                error_msg = urllib.quote(ex.message)
+                error_msg = urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote("Isocline PSE requires a 2D range of floating point values.")
+            error_msg = urllib.parse.quote("Isocline PSE requires a 2D range of floating point values.")
 
-        name = urllib.quote(adapter._ui_name)
+        name = urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
     @expose_json
@@ -186,11 +186,11 @@ class ParameterExplorationController(BaseController):
                 return adapter.get_metric_matrix(datatype_group, metric_name)
             except LaunchException as ex:
                 self.logger.error(ex.message)
-                error_msg = urllib.quote(ex.message)
+                error_msg = urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote("Isocline PSE requires a 2D range of floating point values.")
+            error_msg = urllib.parse.quote("Isocline PSE requires a 2D range of floating point values.")
 
-        name = urllib.quote(adapter._ui_name)
+        name = urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))
 
     @expose_json
@@ -205,9 +205,9 @@ class ParameterExplorationController(BaseController):
                 return adapter.prepare_node_data(datatype_group)
             except LaunchException as ex:
                 self.logger.error(ex.message)
-                error_msg = urllib.quote(ex.message)
+                error_msg = urllib.parse.quote(ex.message)
         else:
-            error_msg = urllib.quote("Isocline PSE requires a 2D range of floating point values.")
+            error_msg = urllib.parse.quote("Isocline PSE requires a 2D range of floating point values.")
 
-        name = urllib.quote(adapter._ui_name)
+        name = urllib.parse.quote(adapter._ui_name)
         raise cherrypy.HTTPRedirect(REDIRECT_MSG % (name, error_msg))

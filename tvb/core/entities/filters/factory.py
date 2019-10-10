@@ -63,7 +63,7 @@ class StaticFiltersFactory(object):
             else:
                 # We have some custom filter to build
                 return StaticFiltersFactory._build_custom_filter(single_filter)
-        return filters.values()
+        return list(filters.values())
 
     @staticmethod
     def _build_custom_filter(filter_data):

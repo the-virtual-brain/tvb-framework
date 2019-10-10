@@ -64,14 +64,14 @@ class H5File(object):
         self.generic_attributes = GenericAttributes()
         self.invalid = Scalar(Attr(bool), self, name='invalid')
         self.is_nan = Scalar(Attr(bool), self, name='is_nan')
-        self.subject = Scalar(Attr(basestring), self, name='subject')
-        self.state = Scalar(Attr(basestring), self, name='state')
-        self.type = Scalar(Attr(basestring), self, name='type')
-        self.user_tag_1 = Scalar(Attr(basestring), self, name='user_tag_1')
-        self.user_tag_2 = Scalar(Attr(basestring), self, name='user_tag_2')
-        self.user_tag_3 = Scalar(Attr(basestring), self, name='user_tag_3')
-        self.user_tag_4 = Scalar(Attr(basestring), self, name='user_tag_4')
-        self.user_tag_5 = Scalar(Attr(basestring), self, name='user_tag_5')
+        self.subject = Scalar(Attr(str), self, name='subject')
+        self.state = Scalar(Attr(str), self, name='state')
+        self.type = Scalar(Attr(str), self, name='type')
+        self.user_tag_1 = Scalar(Attr(str), self, name='user_tag_1')
+        self.user_tag_2 = Scalar(Attr(str), self, name='user_tag_2')
+        self.user_tag_3 = Scalar(Attr(str), self, name='user_tag_3')
+        self.user_tag_4 = Scalar(Attr(str), self, name='user_tag_4')
+        self.user_tag_5 = Scalar(Attr(str), self, name='user_tag_5')
         self.visible = Scalar(Attr(bool), self, name='visible')
 
         if not self.storage_manager.is_valid_hdf5_file():
@@ -84,12 +84,12 @@ class H5File(object):
 
     def iter_accessors(self):
         # type: () -> typing.Generator[Accessor]
-        for accessor in self.__dict__.itervalues():
+        for accessor in self.__dict__.values():
             if isinstance(accessor, Accessor):
                 yield accessor
 
     def iter_datasets(self):
-        for dataset in self.__dict__.itervalues():
+        for dataset in self.__dict__.values():
             if isinstance(dataset, DataSet):
                 yield dataset
 

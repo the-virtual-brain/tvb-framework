@@ -37,7 +37,7 @@
 import os
 import sys
 import signal
-import Queue as queue
+import queue as queue
 import threading
 from subprocess import Popen, PIPE
 from tvb.basic.profile import TvbProfile
@@ -66,7 +66,7 @@ class OperationExecutor(threading.Thread):
     def __init__(self, op_id):
         threading.Thread.__init__(self)
         self.operation_id = op_id
-        self._stop = threading.Event()
+        self._stop_ev = threading.Event()
 
 
     def run(self):
@@ -125,14 +125,14 @@ class OperationExecutor(threading.Thread):
         LOCKS_QUEUE.put(1)
 
 
-    def stop(self):
+    def _stop(self):
         """ Mark current thread for stop"""
-        self._stop.set()
+        self._stop_ev.set()
 
 
     def stopped(self):
         """Check if current thread was marked for stop."""
-        return self._stop.isSet()
+        return self._stop_ev.isSet()
 
 
     @staticmethod
@@ -189,7 +189,7 @@ class StandAloneClient(object):
         # Set the thread stop flag to true
         for thread in CURRENT_ACTIVE_THREADS:
             if int(thread.operation_id) == operation_id:
-                thread.stop()
+                thread._stop()
                 LOGGER.debug("Found running thread for operation: %d" % operation_id)
 
         # Kill Thread

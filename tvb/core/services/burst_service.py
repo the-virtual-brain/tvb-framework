@@ -36,7 +36,6 @@
 import json
 import threading
 from datetime import datetime
-from types import IntType
 from tvb.config import DEFAULT_PORTLETS
 # from tvb.datatypes.simulation_state import SimulationState
 from tvb.basic.logger.builder import get_logger
@@ -465,7 +464,7 @@ class BurstService(object):
             referred_operation_id = referred_workflow_step.fk_operation
             referred_operation = dao.get_operation_by_id(referred_operation_id)
             current_project_id = referred_operation.fk_launched_in
-            if type(datatype_index) is IntType:
+            if type(datatype_index) is int:
                 # Entry is the output of a previous step ##
                 datatypes = dao.get_results_for_operation(referred_operation_id)
                 parameters_dict[param] = datatypes[datatype_index].gid
@@ -597,7 +596,7 @@ class BurstService(object):
             visualizer = portlet_cfg.visualizer
             wait_on_outputs = False
             for entry in visualizer.dynamic_param:
-                if type(visualizer.dynamic_param[entry][WorkflowStepConfiguration.DATATYPE_INDEX_KEY]) == IntType:
+                if type(visualizer.dynamic_param[entry][WorkflowStepConfiguration.DATATYPE_INDEX_KEY]) == int:
                     wait_on_outputs = True
                     break
             if wait_on_outputs:

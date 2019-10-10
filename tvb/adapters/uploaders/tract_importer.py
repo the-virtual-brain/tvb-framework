@@ -78,8 +78,7 @@ class TrackZipImporterForm(TrackImporterForm):
                                      label='Please select file to import')
 
 
-class _TrackImporterBase(ABCUploader):
-    __metaclass__ = ABCMeta
+class _TrackImporterBase(ABCUploader, metaclass=ABCMeta):
     _ui_name = "Tracts TRK"
     _ui_subsection = "tracts_importer"
     _ui_description = "Import tracts"

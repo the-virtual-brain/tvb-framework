@@ -62,7 +62,7 @@ class TestNoiseConfigurationController(BaseTransactionalControllerTest):
         stored_burst = cherrypy.session[common.KEY_BURST_CONFIG]
 
         new_params = {}
-        for key, val in SIMULATOR_PARAMETERS.iteritems():
+        for key, val in SIMULATOR_PARAMETERS.items():
             new_params[key] = {'value': val}
         new_params['connectivity'] = {'value': self.connectivity.gid}
 
@@ -84,7 +84,7 @@ class TestNoiseConfigurationController(BaseTransactionalControllerTest):
         Submit noise configuration writes the noise array on the required key in the burst configuration
         """
         # a noise configuration in the format expected by submit. Assumes Generic2dOscillator model.
-        nodes_range = range(self.connectivity.number_of_regions)
+        nodes_range = list(range(self.connectivity.number_of_regions))
         noise_in = [{'V': 1.0, 'W': 2.0} for _ in nodes_range]
         noise_in = json.dumps(noise_in)
 

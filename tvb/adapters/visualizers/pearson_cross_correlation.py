@@ -95,7 +95,7 @@ class PearsonCorrelationCoefficientVisualizer(MappedArrayVisualizer):
         with ts_h5_class(ts_h5_path) as ts_h5:
             labels = ts_h5.get_space_labels()
         state_list = ts_h5.labels_dimensions.load().get(ts_h5.labels_ordering.load()[1], [])
-        mode_list = range(ts_index.data_length_4d)
+        mode_list = list(range(ts_index.data_length_4d))
         if not labels:
             labels = None
         pars = dict(matrix_labels=json.dumps([labels, labels]),

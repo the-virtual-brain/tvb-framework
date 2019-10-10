@@ -102,10 +102,10 @@ class FourierSpectrumDisplay(ABCDisplayer):
         ts_index = self.load_entity_by_gid(input_data.source_gid)
         state_list = ts_index.get_labels_for_dimension(1)
         if len(state_list) == 0:
-            state_list = range(shape[1])
+            state_list = list(range(shape[1]))
         fourier_spectrum.source = TimeSeries(sample_period=ts_index.sample_period)
 
-        mode_list = range(shape[3])
+        mode_list = list(range(shape[3]))
         available_scales = ["Linear", "Logarithmic"]
 
         params = dict(matrix_shape=json.dumps([shape[0], shape[2]]),

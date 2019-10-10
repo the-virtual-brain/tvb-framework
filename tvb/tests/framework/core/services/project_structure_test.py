@@ -239,7 +239,7 @@ class TestProjectStructure(TransactionalTestCase):
         expected_dict = {first_dt.id: first_dt, second_dt.id: second_dt}
         actual_dict = {datatypes[0].id: datatypes[0], datatypes[1].id: datatypes[1]}
 
-        for key in expected_dict.keys():
+        for key in expected_dict:
             expected = expected_dict[key]
             actual = actual_dict[key]
             assert expected.id == actual.id, "Not the same id."

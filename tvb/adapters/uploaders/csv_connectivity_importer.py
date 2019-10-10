@@ -58,7 +58,7 @@ class CSVConnectivityParser(object):
         self.rows = list(csv.reader(csv_file, delimiter=str(delimiter)))
         self.connectivity_size = len(self.rows[0])
         self.line = 0
-        self.permutation = range(self.connectivity_size)
+        self.permutation = list(range(self.connectivity_size))
         """ A permutation represented as a list index -> new_index. Defaults to the identity permutation"""
         self.result_conn = [[] for _ in range(self.connectivity_size)]
 
@@ -84,7 +84,7 @@ class CSVConnectivityParser(object):
             raise LaunchException("Invalid ordinal in header %s" % self.rows[0])
 
         header_i = list(enumerate(ordinals))
-        header_i.sort(key=lambda (i_, ordinal): ordinal)  # sort by the column ordinal
+        header_i.sort(key=lambda i__ordinal: i__ordinal[1])  # sort by the column ordinal
         inverse_permutation = [i for i, ordinal_ in header_i]
 
         for i in range(len(self.permutation)):
@@ -119,10 +119,10 @@ class CSVConnectivityImporterForm(ABCUploaderForm):
 
         self.weights = UploadField('.csv', self, name='weights', label='Weights file (csv)', required=True)
         self.weights_delimiter = SimpleSelectField(DELIMITER_OPTIONS, self, name='weights_delimiter', required=True,
-                                                   label='Field delimiter : ', default=DELIMITER_OPTIONS.keys()[0])
+                                                   label='Field delimiter : ', default=list(DELIMITER_OPTIONS)[0])
         self.tracts = UploadField('.csv', self, name='tracts', label='Tracts file (csv)', required=True)
         self.tracts_delimiter = SimpleSelectField(DELIMITER_OPTIONS, self, name='tracts_delimiter', required=True,
-                                                  label='Field delimiter : ', default=DELIMITER_OPTIONS.keys()[0])
+                                                  label='Field delimiter : ', default=list(DELIMITER_OPTIONS)[0])
         self.input_data = DataTypeSelectField(ConnectivityIndex, self, name='input_data', required=True,
                                               label='Reference Connectivity Matrix (for node labels, 3d positions etc.)')
 

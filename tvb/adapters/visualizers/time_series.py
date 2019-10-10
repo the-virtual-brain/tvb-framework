@@ -78,7 +78,7 @@ class ABCSpaceDisplayer(ABCDisplayer):
     def build_params_for_selectable_connectivity(self, connectivity):
         # type: (Connectivity) -> dict
         return {'measurePointsSelectionGID': connectivity.gid,
-                'initialSelection': connectivity.saved_selection or range(len(connectivity.region_labels)),
+                'initialSelection': connectivity.saved_selection or list(range(len(connectivity.region_labels))),
                 'groupedLabels': self._connectivity_grouped_space_labels(connectivity)}
 
     @staticmethod
@@ -181,7 +181,7 @@ class TimeSeries(ABCSpaceDisplayer):
                 'ts_title': time_series.title, 'preview': preview, 'figsize': figsize,
                 'shape': repr(shape), 't0': ts[0],
                 'dt': ts[1] - ts[0] if len(ts) > 1 else 1,
-                'labelsStateVar': state_variables, 'labelsModes': range(shape[3])
+                'labelsStateVar': state_variables, 'labelsModes': list(range(shape[3]))
                 }
         pars.update(self.build_params_for_subselectable_ts(h5_file))
         h5_file.close()
