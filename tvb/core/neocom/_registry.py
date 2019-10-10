@@ -53,7 +53,7 @@ class Registry(object):
         # type: (typing.Type[HasTraits]) -> typing.Type[H5File]
         if datatype_class in self._h5file_for_datatype:
             return self._h5file_for_datatype[datatype_class]
-        for base in datatype_class.__bases__:
+        for base in datatype_class.__mro__:
             if base in self._h5file_for_datatype:
                 return self._h5file_for_datatype[base]
         return H5File
@@ -66,7 +66,8 @@ class Registry(object):
         # type: (typing.Type[HasTraits]) -> typing.Type[DataType]
         if datatype_class in self._index_for_datatype:
             return self._index_for_datatype[datatype_class]
-        for base in datatype_class.__bases__:
+
+        for base in datatype_class.__mro__:
             if base in self._index_for_datatype:
                 return self._index_for_datatype[base]
         return DataType
