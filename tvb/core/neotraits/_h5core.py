@@ -40,15 +40,13 @@ from tvb.core.neotraits._h5accessors import Uuid, Scalar, Accessor, DataSet, Ref
 from tvb.core.utils import date2string
 
 
-
-
-
 class H5File(object):
     """
     A H5 based file format.
     This class implements reading and writing to a *specific* h5 based file format.
     A subclass of this defines a new file format.
     """
+    is_new_file = False
 
     def __init__(self, path):
         # type: (str) -> None
@@ -75,6 +73,10 @@ class H5File(object):
         self.user_tag_4 = Scalar(Attr(basestring), self, name='user_tag_4')
         self.user_tag_5 = Scalar(Attr(basestring), self, name='user_tag_5')
         self.visible = Scalar(Attr(bool), self, name='visible')
+
+        if not self.storage_manager.is_valid_hdf5_file():
+            self.written_by.store(self.__class__.__module__ + '.' + self.__class__.__name__)
+            self.is_new_file = True
 
     @classmethod
     def file_name_base(cls):
@@ -145,7 +147,6 @@ class H5File(object):
         # type: (GenericAttributes) -> None
         # write_metadata  creation time, serializer class name, etc
         self.create_date.store(date2string(datetime.now()))
-        self.written_by.store(self.__class__.__module__ + '.' + self.__class__.__name__)
 
         self.generic_attributes.fill_from(generic_attributes)
         self.invalid.store(self.generic_attributes.invalid)
@@ -201,4 +202,3 @@ class H5File(object):
 
     def __repr__(self):
         return '<{}("{}")>'.format(type(self).__name__, self.path)
-

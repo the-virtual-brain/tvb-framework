@@ -83,7 +83,7 @@ class SurfaceH5(H5File):
         # Load the data that is required in order to interpret the file format
         # number_of_vertices and split_slices are needed for the get_vertices_slice read call
 
-        if self.storage_manager.is_valid_hdf5_file():
+        if not self.is_new_file:
             self._split_slices = self.split_slices.load()
             self._split_triangles = self.split_triangles.load()
             self._number_of_vertices = self.number_of_vertices.load()

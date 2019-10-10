@@ -60,7 +60,7 @@ class TimeSeriesH5(H5File):
         # as we do not explicitly make a difference between opening for read or write
         # the file might not yet exist, so loading headers makes no sense
 
-        if self.storage_manager.is_valid_hdf5_file():
+        if not self.is_new_file:
             self._sample_period = self.sample_period.load()
             self._start_time = self.start_time.load()
 
