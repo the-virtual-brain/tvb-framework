@@ -39,6 +39,8 @@ import sys
 from tvb.basic.config import stored
 from tvb.basic.config.settings import DBSettings
 from tvb.basic.config.profile_settings import BaseSettingsProfile
+from tvb.basic.logger import builder
+from tvb.basic.logger.builder import LoggerBuilder
 from tvb.config.init.datatypes_registry import populate_datatypes_registry
 
 
@@ -59,6 +61,7 @@ class WebSettingsProfile(BaseSettingsProfile):
             self.LOGGER_CONFIG_FILE_NAME = "dev_logger_config.conf"
 
         populate_datatypes_registry()
+        builder.GLOBAL_LOGGER_BUILDER = LoggerBuilder('tvb.config.logger')
 
     def initialize_for_deployment(self):
         """

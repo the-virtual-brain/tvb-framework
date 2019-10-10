@@ -42,8 +42,6 @@ import math
 import tvb.analyzers.fft as fft
 import tvb.core.adapters.abcadapter as abcadapter
 from tvb.core.entities.filters.chain import FilterChain
-import tvb.datatypes.spectral as spectral
-from tvb.basic.logger.builder import get_logger
 from tvb.datatypes.time_series import TimeSeries
 from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex
@@ -51,7 +49,6 @@ from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
 from tvb.core.neocom import h5
 
-LOG = get_logger(__name__)
 
 
 class FFTAdapterForm(abcadapter.ABCAdapterForm):
@@ -97,7 +94,7 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         return FFTAdapterForm
 
     def get_output(self):
-        return [spectral.FourierSpectrum]
+        return [FourierSpectrumIndex]
 
     def configure(self, time_series, segment_length=None, window_function=None, detrend=None):
         """
@@ -111,15 +108,13 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         :param detrend: None; specify if detrend is performed on the time series
         """
         self.input_time_series_index = time_series
-        self.input_shape = (self.input_time_series_index.data_length_1d,
-                            self.input_time_series_index.data_length_2d,
-                            self.input_time_series_index.data_length_3d,
-                            self.input_time_series_index.data_length_4d)
+        self.input_shape = (time_series.data_length_1d, time_series.data_length_2d,
+                            time_series.data_length_3d, time_series.data_length_4d)
 
-        LOG.debug("time_series shape is %s" % str(self.input_shape))
-        LOG.debug("Provided segment_length is %s" % segment_length)
-        LOG.debug("Provided window_function is %s" % window_function)
-        LOG.debug("Detrend is %s" % detrend)
+        self.log.debug("time_series shape is %s" % str(self.input_shape))
+        self.log.debug("Provided segment_length is %s" % segment_length)
+        self.log.debug("Provided window_function is %s" % window_function)
+        self.log.debug("Detrend is %s" % detrend)
         # -------------------- Fill Algorithm for Analysis -------------------
         # The enumerate set function isn't working well. A get around strategy is to create a new algorithm
         if segment_length is not None:
@@ -128,9 +123,9 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         self.algorithm.window_function = window_function
         self.algorithm.detrend = detrend
 
-        LOG.debug("Using segment_length is %s" % self.algorithm.segment_length)
-        LOG.debug("Using window_function  is %s" % self.algorithm.window_function)
-        LOG.debug("Using detrend  is %s" % self.algorithm.detrend)
+        self.log.debug("Using segment_length is %s" % self.algorithm.segment_length)
+        self.log.debug("Using window_function  is %s" % self.algorithm.window_function)
+        self.log.debug("Using detrend  is %s" % self.algorithm.detrend)
 
 
     def get_required_memory_size(self, time_series, segment_length=None, window_function=None, detrend=None):
@@ -213,6 +208,5 @@ class FourierAdapter(abcadapter.ABCAsynchronous):
         spectra_file.windowing_function.store(str(self.algorithm.window_function))
         spectra_file.close()
 
-        LOG.debug("partial segment_length is %s" % (str(partial_result.segment_length)))
-
+        self.log.debug("partial segment_length is %s" % (str(partial_result.segment_length)))
         return fft_index

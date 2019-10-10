@@ -50,12 +50,11 @@ from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.simulator_service import SimulatorService
 from tvb.simulator.simulator import Simulator
 
-LOG = get_logger(__name__)
-
 # Before starting this, we need to have TVB web interface launched at least once
 # (to have a default project, user and connectivity)
 if __name__ == "__main__":
     TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
+    log = get_logger(__name__)
 
     # This ID of a project needs to exists in DB, and it can be taken from the WebInterface:
     project = dao.get_project_by_id(1)
@@ -91,7 +90,7 @@ if __name__ == "__main__":
 
     if launched_operation.status == STATUS_FINISHED:
         ts = dao.get_generic_entity(TimeSeriesRegionIndex, launched_operation.id, "fk_from_operation")[0]
-        LOG.info("TimeSeries result is: %s " % ts)
+        log.info("TimeSeries result is: %s " % ts)
     else:
-        LOG.warning("Operation ended with problems [%s]: [%s]" % (launched_operation.status,
+        log.warning("Operation ended with problems [%s]: [%s]" % (launched_operation.status,
                                                                   launched_operation.additional_info))
