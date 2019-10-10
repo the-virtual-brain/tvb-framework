@@ -84,6 +84,16 @@ class TimeSeriesIndex(DataType):
                     if self.data_ndim > 3:
                         self.data_length_4d = datatype.data.shape[3]
 
+    def fill_shape(self, final_shape):
+        self.data_ndim = len(final_shape)
+        self.data_length_1d = final_shape[0]
+        if self.data_ndim > 1:
+            self.data_length_2d = final_shape[1]
+            if self.data_ndim > 2:
+                self.data_length_3d = final_shape[2]
+                if self.data_ndim > 3:
+                    self.data_length_4d = final_shape[3]
+
     @staticmethod
     def accepted_filters():
         filters = DataType.accepted_filters()

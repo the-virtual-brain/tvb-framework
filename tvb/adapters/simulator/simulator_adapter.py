@@ -39,14 +39,9 @@ Few supplementary steps are done here:
 .. moduleauthor:: Stuart A. Knock <Stuart@tvb.invalid>
 
 """
-import json
-import os
-import uuid
 import numpy
-from tvb.datatypes.connectivity import Connectivity
 from tvb.simulator.simulator import Simulator
 from tvb.adapters.simulator.coupling_forms import get_ui_name_to_coupling_dict
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.simulation_state_h5 import SimulationStateH5
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex, RegionVolumeMappingIndex
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
@@ -100,7 +95,7 @@ class SimulatorAdapterForm(ABCAdapterForm):
         return Simulator()
 
     def __str__(self):
-        #TODO: get rid of this
+        # TODO: get rid of this
         return jinja_env.get_template('wizzard_form.jinja2').render(form=self, action="/burst/set_connectivity",
                                                                     is_first_fragment=True, is_last_fragment=False,
                                                                     is_copy=self.is_copy, is_load=False)
@@ -140,7 +135,8 @@ class SimulatorAdapter(ABCAsynchronous):
         self.log.debug("%s: Instantiating requested simulator..." % str(self))
 
         simulator_service = SimulatorService()
-        self.algorithm, connectivity_gid, simulation_state_gid = simulator_service.deserialize_simulator(simulator_gid, self.storage_path)
+        self.algorithm, connectivity_gid, simulation_state_gid = simulator_service.deserialize_simulator(simulator_gid,
+                                                                                                         self.storage_path)
         self.branch_simulation_state_gid = simulation_state_gid
 
         # for monitor in self.algorithm.monitors:
@@ -301,7 +297,7 @@ class SimulatorAdapter(ABCAsynchronous):
             result_indexes[m_name] = ts_index
             result_h5[m_name] = ts_h5
 
-        ### Run simulation
+        # Run simulation
         self.log.debug("Starting simulation...")
         for result in self.algorithm(simulation_length=self.simulation_length):
             for j, monitor in enumerate(self.algorithm.monitors):
@@ -312,7 +308,7 @@ class SimulatorAdapter(ABCAsynchronous):
                     ts_h5.write_data_slice([result[j][1]])
 
         self.log.debug("Completed simulation, starting to store simulation state ")
-        ### Populate H5 file for simulator state. This step could also be done while running sim, in background.
+        # Populate H5 file for simulator state. This step could also be done while running sim, in background.
         if not self._is_group_launch():
             simulation_state_index = SimulationStateIndex()
             simulation_state_path = h5.path_for(self.storage_path, SimulationStateH5, self.algorithm.gid)
@@ -321,8 +317,11 @@ class SimulatorAdapter(ABCAsynchronous):
             self._capture_operation_results([simulation_state_index])
 
         self.log.debug("Simulation state persisted, returning results ")
-        for result in result_h5.values():
-            result.close()
+        for monitor in self.algorithm.monitors:
+            m_name = monitor.__class__.__name__
+            ts_shape = result_h5[m_name].read_data_shape()
+            result_indexes[m_name].fill_shape(ts_shape)
+            result_h5[m_name].close()
         # self.log.info("%s: Adapter simulation finished!!" % str(self))
         return result_indexes.values()
 
@@ -365,4 +364,3 @@ class SimulatorAdapter(ABCAsynchronous):
         Is this a surface simulation?
         """
         return surface is not None and surface_parameters is not None
-
