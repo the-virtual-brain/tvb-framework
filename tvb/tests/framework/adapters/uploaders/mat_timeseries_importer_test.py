@@ -80,7 +80,7 @@ class TestMatTimeSeriesImporter(TransactionalTestCase):
         FlowService().fire_operation(importer, self.test_user, self.test_project.id,
                                      **form.get_form_values())
 
-        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex())
+        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex)
 
     def test_import_bold(self):
         ### Retrieve Adapter instance
@@ -102,7 +102,7 @@ class TestMatTimeSeriesImporter(TransactionalTestCase):
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_dict())
 
-        tsr = TestFactory.get_entity(self.test_project, TimeSeriesRegionIndex())
+        tsr = TestFactory.get_entity(self.test_project, TimeSeriesRegionIndex)
 
         assert (661, 1, 68, 1) == (tsr.data_length_1d, tsr.data_length_2d, tsr.data_length_3d, tsr.data_length_4d)
 

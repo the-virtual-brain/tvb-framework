@@ -59,7 +59,7 @@ class TestConnectivityMeasureImporter(TransactionalTestCase):
         self.test_user = TestFactory.create_user('Test_User')
         self.test_project = TestFactory.create_project(self.test_user, "Test_Project")
         TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path, "John")
-        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex())
+        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex)
 
 
     def transactional_teardown_method(self):

@@ -123,7 +123,7 @@ class TestCSVConnectivityImporter(TransactionalTestCase):
 
         field = FilterChain.datatype + '.subject'
         filters = FilterChain('', [field], [TEST_SUBJECT_A], ['=='])
-        reference_connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex(), filters)
+        reference_connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex, filters)
 
         dt_count_before = TestFactory.get_entity_count(self.test_project, ConnectivityIndex())
 
@@ -133,7 +133,7 @@ class TestCSVConnectivityImporter(TransactionalTestCase):
         assert dt_count_before + 1 == dt_count_after
 
         filters = FilterChain('', [field], [TEST_SUBJECT_B], ['like'])
-        imported_connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex(), filters)
+        imported_connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex, filters)
 
         # check relationship between the imported connectivity and the reference
         assert (reference_connectivity.centres == imported_connectivity.centres).all()
@@ -149,7 +149,7 @@ class TestCSVConnectivityImporter(TransactionalTestCase):
         TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
         field = FilterChain.datatype + '.subject'
         filters = FilterChain('', [field], [TEST_SUBJECT_A], ['!='])
-        bad_reference_connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex(), filters)
+        bad_reference_connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex, filters)
 
         with pytest.raises(OperationException):
             self._import_csv_test_connectivity(bad_reference_connectivity.gid, TEST_SUBJECT_A)
