@@ -40,7 +40,6 @@ import numpy
 from tvb.analyzers.pca import PCA
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
-from tvb.datatypes.mode_decompositions import PrincipalComponents
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5
@@ -87,7 +86,7 @@ class PCAAdapter(ABCAsynchronous):
         return PCAAdapterForm
 
     def get_output(self):
-        return [PrincipalComponents]
+        return [PrincipalComponentsIndex]
 
     def configure(self, time_series):
         """

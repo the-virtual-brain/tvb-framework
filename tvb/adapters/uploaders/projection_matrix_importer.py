@@ -37,6 +37,7 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.filters.chain import FilterChain
+from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.neotraits._forms import UploadField, SimpleStrField, DataTypeSelectField
@@ -93,7 +94,7 @@ class ProjectionMatrixSurfaceEEGImporter(ABCUploader):
         return ProjectionMatrixImporterForm
 
     def get_output(self):
-        return [ProjectionSurfaceEEG, ProjectionSurfaceMEG, ProjectionSurfaceSEEG]
+        return [ProjectionMatrixIndex]
 
     def launch(self, projection_file, surface, sensors, dataset_name=DEFAULT_DATASET_NAME):
         """

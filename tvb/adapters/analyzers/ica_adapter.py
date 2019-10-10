@@ -40,7 +40,6 @@ import numpy
 from tvb.analyzers.ica import FastICA
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
-from tvb.datatypes.mode_decompositions import IndependentComponents
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import IndependentComponentsH5
@@ -89,7 +88,7 @@ class ICAAdapter(ABCAsynchronous):
         return ICAAdapterForm
 
     def get_output(self):
-        return [IndependentComponents]
+        return [IndependentComponentsIndex]
 
     def configure(self, time_series, n_components=None):
         """

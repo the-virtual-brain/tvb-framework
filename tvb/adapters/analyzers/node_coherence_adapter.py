@@ -40,7 +40,6 @@ import numpy
 from tvb.analyzers.node_coherence import NodeCoherence
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.datatypes.time_series import TimeSeries
-from tvb.datatypes.spectral import CoherenceSpectrum
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5
@@ -89,7 +88,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         return NodeCoherenceForm
 
     def get_output(self):
-        return [CoherenceSpectrum]
+        return [CoherenceSpectrumIndex]
 
     def configure(self, time_series, nfft=None):
         """
