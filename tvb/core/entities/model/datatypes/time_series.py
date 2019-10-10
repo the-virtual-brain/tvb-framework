@@ -117,8 +117,8 @@ class TimeSeriesIndex(DataType):
         return self.data_length_1d, self.data_length_2d, self.data_length_3d, self.data_length_4d
 
     def get_labels_for_dimension(self, idx):
-        label_dimensions = json.load(self.labels_dimensions)
-        labels_ordering = json.load(self.labels_ordering)
+        label_dimensions = json.loads(self.labels_dimensions)
+        labels_ordering = json.loads(self.labels_ordering)
         return label_dimensions.get(labels_ordering[idx], [])
 
 
