@@ -50,8 +50,7 @@ class EpileptorH5(SimulatorConfigurationH5):
         self.modification = DataSet(Epileptor.modification, self)
         self.state_variable_range = JsonFinal(Epileptor.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                               json_decoder=StateVariablesDecoder)
-        # TODO: error regarding unicode at load time, should be fixed by py3
-        # self.variables_of_interest = Json(Epileptor.variables_of_interest, self)
+        self.variables_of_interest = Json(Epileptor.variables_of_interest, self)
 
 
 class Epileptor2DH5(SimulatorConfigurationH5):
@@ -73,7 +72,7 @@ class Epileptor2DH5(SimulatorConfigurationH5):
         self.modification = DataSet(Epileptor2D.modification, self)
         self.state_variable_range = JsonFinal(Epileptor2D.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(Epileptor2D.variables_of_interest, self)
+        self.variables_of_interest = Json(Epileptor2D.variables_of_interest, self)
 
 
 class EpileptorCodim3H5(SimulatorConfigurationH5):
@@ -95,7 +94,7 @@ class EpileptorCodim3H5(SimulatorConfigurationH5):
         self.modification = DataSet(EpileptorCodim3.modification, self)
         self.state_variable_range = JsonFinal(EpileptorCodim3.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(EpileptorCodim3.variables_of_interest, self)
+        self.variables_of_interest = Json(EpileptorCodim3.variables_of_interest, self)
 
 
 class EpileptorCodim3SlowModH5(SimulatorConfigurationH5):
@@ -125,7 +124,7 @@ class EpileptorCodim3SlowModH5(SimulatorConfigurationH5):
         self.modification = DataSet(EpileptorCodim3SlowMod.modification, self)
         self.state_variable_range = JsonFinal(EpileptorCodim3SlowMod.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(EpileptorCodim3SlowMod.variables_of_interest, self)
+        self.variables_of_interest = Json(EpileptorCodim3SlowMod.variables_of_interest, self)
 
 
 class HopfieldH5(SimulatorConfigurationH5):
@@ -137,7 +136,7 @@ class HopfieldH5(SimulatorConfigurationH5):
         self.dynamic = DataSet(Hopfield.dynamic, self)
         self.state_variable_range = JsonFinal(Hopfield.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                               json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(Hopfield.variables_of_interest, self)
+        self.variables_of_interest = Json(Hopfield.variables_of_interest, self)
 
 
 class JansenRitH5(SimulatorConfigurationH5):
@@ -161,7 +160,7 @@ class JansenRitH5(SimulatorConfigurationH5):
         self.mu = DataSet(JansenRit.mu, self)
         self.state_variable_range = JsonFinal(JansenRit.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                               json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(JansenRit.variables_of_interest, self)
+        self.variables_of_interest = Json(JansenRit.variables_of_interest, self)
 
 
 class ZetterbergJansenH5(SimulatorConfigurationH5):
@@ -188,7 +187,7 @@ class ZetterbergJansenH5(SimulatorConfigurationH5):
         self.Q = DataSet(ZetterbergJansen.Q, self)
         self.state_variable_range = JsonFinal(ZetterbergJansen.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(ZetterbergJansen.variables_of_interest, self)
+        self.variables_of_interest = Json(ZetterbergJansen.variables_of_interest, self)
 
 
 class EpileptorRestingStateH5(SimulatorConfigurationH5):
@@ -226,7 +225,7 @@ class EpileptorRestingStateH5(SimulatorConfigurationH5):
         self.p = DataSet(EpileptorRestingState.p, self)
         self.state_variable_range = JsonFinal(EpileptorRestingState.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(EpileptorRestingState.variables_of_interest, self)
+        self.variables_of_interest = Json(EpileptorRestingState.variables_of_interest, self)
 
 
 class LarterBreakspearH5(SimulatorConfigurationH5):
@@ -265,7 +264,7 @@ class LarterBreakspearH5(SimulatorConfigurationH5):
         self.QV_max = DataSet(LarterBreakspear.QV_max, self)
         self.QZ_max = DataSet(LarterBreakspear.QZ_max, self)
         self.t_scale = DataSet(LarterBreakspear.t_scale, self)
-        # self.variables_of_interest = Json(LarterBreakspear.variables_of_interest, self)
+        self.variables_of_interest = Json(LarterBreakspear.variables_of_interest, self)
         self.state_variable_range = JsonFinal(LarterBreakspear.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
 
@@ -277,7 +276,7 @@ class LinearH5(SimulatorConfigurationH5):
         self.gamma = DataSet(Linear.gamma, self)
         self.state_variable_range = JsonFinal(Linear.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                               json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(Linear.variables_of_interest, self)
+        self.variables_of_interest = Json(Linear.variables_of_interest, self)
 
 
 class Generic2dOscillatorH5(SimulatorConfigurationH5):
@@ -298,7 +297,7 @@ class Generic2dOscillatorH5(SimulatorConfigurationH5):
         self.gamma = DataSet(Generic2dOscillator.gamma, self)
         self.state_variable_range = JsonFinal(Generic2dOscillator.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(Generic2dOscillator.variables_of_interest, self)
+        self.variables_of_interest = Json(Generic2dOscillator.variables_of_interest, self)
 
 
 class KuramotoH5(SimulatorConfigurationH5):
@@ -308,7 +307,7 @@ class KuramotoH5(SimulatorConfigurationH5):
         self.omega = DataSet(Kuramoto.omega, self)
         self.state_variable_range = JsonFinal(Kuramoto.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                               json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(Kuramoto.variables_of_interest, self)
+        self.variables_of_interest = Json(Kuramoto.variables_of_interest, self)
 
 
 class SupHopfH5(SimulatorConfigurationH5):
@@ -319,7 +318,7 @@ class SupHopfH5(SimulatorConfigurationH5):
         self.omega = DataSet(SupHopf.omega, self)
         self.state_variable_range = JsonFinal(SupHopf.state_variable_range, self, json_encoder=StateVariablesEncoder,
                                               json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(SupHopf.variables_of_interest, self)
+        self.variables_of_interest = Json(SupHopf.variables_of_interest, self)
 
 
 class ReducedSetFitzHughNagumoH5(SimulatorConfigurationH5):
@@ -336,7 +335,7 @@ class ReducedSetFitzHughNagumoH5(SimulatorConfigurationH5):
         self.mu = DataSet(ReducedSetFitzHughNagumo.mu, self)
         self.state_variable_range = JsonFinal(ReducedSetFitzHughNagumo.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(ReducedSetFitzHughNagumo.variables_of_interest, self)
+        self.variables_of_interest = Json(ReducedSetFitzHughNagumo.variables_of_interest, self)
 
 
 class ReducedSetHindmarshRoseH5(SimulatorConfigurationH5):
@@ -357,7 +356,7 @@ class ReducedSetHindmarshRoseH5(SimulatorConfigurationH5):
         self.mu = DataSet(ReducedSetHindmarshRose.mu, self)
         self.state_variable_range = JsonFinal(ReducedSetHindmarshRose.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(ReducedSetHindmarshRose.variables_of_interest, self)
+        self.variables_of_interest = Json(ReducedSetHindmarshRose.variables_of_interest, self)
 
 
 class WilsonCowanH5(SimulatorConfigurationH5):
@@ -388,7 +387,7 @@ class WilsonCowanH5(SimulatorConfigurationH5):
         self.alpha_i = DataSet(WilsonCowan.alpha_i, self)
         self.state_variable_range = JsonFinal(WilsonCowan.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(WilsonCowan.variables_of_interest, self)
+        self.variables_of_interest = Json(WilsonCowan.variables_of_interest, self)
 
 
 class ReducedWongWangH5(SimulatorConfigurationH5):
@@ -406,7 +405,7 @@ class ReducedWongWangH5(SimulatorConfigurationH5):
         self.sigma_noise = DataSet(ReducedWongWang.sigma_noise, self)
         self.state_variable_range = JsonFinal(ReducedWongWang.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(ReducedWongWang.variables_of_interest, self)
+        self.variables_of_interest = Json(ReducedWongWang.variables_of_interest, self)
 
 
 class ReducedWongWangExcInhH5(SimulatorConfigurationH5):
@@ -433,7 +432,7 @@ class ReducedWongWangExcInhH5(SimulatorConfigurationH5):
         self.lamda = DataSet(ReducedWongWangExcInh.lamda, self)
         self.state_variable_range = JsonFinal(ReducedWongWangExcInh.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(ReducedWongWangExcInh.variables_of_interest, self)
+        self.variables_of_interest = Json(ReducedWongWangExcInh.variables_of_interest, self)
 
 
 class ZerlautFirstOrderH5(SimulatorConfigurationH5):
@@ -461,7 +460,7 @@ class ZerlautFirstOrderH5(SimulatorConfigurationH5):
         self.external_input = DataSet(ZerlautFirstOrder.external_input, self)
         self.state_variable_range = JsonFinal(ZerlautFirstOrder.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(ZerlautFirstOrder.variables_of_interest, self)
+        self.variables_of_interest = Json(ZerlautFirstOrder.variables_of_interest, self)
 
 
 class ZerlautSecondOrderH5(ZerlautFirstOrderH5):
@@ -470,4 +469,4 @@ class ZerlautSecondOrderH5(ZerlautFirstOrderH5):
         super(ZerlautSecondOrderH5, self).__init__(path)
         self.state_variable_range = JsonFinal(ZerlautSecondOrder.state_variable_range, self,
                                               json_encoder=StateVariablesEncoder, json_decoder=StateVariablesDecoder)
-        # self.variables_of_interest = Json(ZerlautSecondOrder.variables_of_interest, self)
+        self.variables_of_interest = Json(ZerlautSecondOrder.variables_of_interest, self)
