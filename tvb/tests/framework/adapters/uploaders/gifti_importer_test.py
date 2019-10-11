@@ -92,9 +92,9 @@ class TestGIFTISurfaceImporter(TransactionalTestCase):
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
 
-        surface = CorticalSurface()
+        surface = CorticalSurface
         data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           surface.module + "." + surface.type)[0]
+                                                           surface.__module__ + "." + surface.__name__)[0]
         assert 1, len(data_types) == "Project should contain only one data type."
 
         surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
@@ -102,14 +102,14 @@ class TestGIFTISurfaceImporter(TransactionalTestCase):
 
         return surface
 
-    def test_import_surface_gifti_data(self, datatype_factory):
+    def test_import_surface_gifti_data(self, operation_factory):
         """
             This method tests import of a surface from GIFTI file.
             !!! Important: We changed this test to execute only GIFTI parse
                 because storing surface it takes too long (~ 9min) since
                 normals needs to be calculated.
         """
-        operation_id = datatype_factory['operation'].id
+        operation_id = operation_factory().id
         storage_path = FilesHelper().get_operation_folder(self.test_project.name, operation_id)
 
         parser = GIFTIParser(storage_path, operation_id)
@@ -118,14 +118,14 @@ class TestGIFTISurfaceImporter(TransactionalTestCase):
         assert 131342 == len(surface.vertices)
         assert 262680 == len(surface.triangles)
 
-    def test_import_timeseries_gifti_data(self, datatype_factory):
+    def test_import_timeseries_gifti_data(self, operation_factory):
         """
         This method tests import of a time series from GIFTI file.
         !!! Important: We changed this test to execute only GIFTI parse
             because storing surface it takes too long (~ 9min) since
             normals needs to be calculated.
         """
-        operation_id = datatype_factory['operation'].id
+        operation_id = operation_factory().id
         storage_path = FilesHelper().get_operation_folder(self.test_project.name, operation_id)
 
         parser = GIFTIParser(storage_path, operation_id)
