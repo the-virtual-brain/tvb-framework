@@ -135,7 +135,7 @@ class ProjectionMatrixSurfaceEEGImporter(ABCUploader):
         projection_matrix_type = determine_projection_type(sensors)
         surface_ht = h5.load_from_index(surface)
         sensors_ht = h5.load_from_index(sensors)
-        projection_matrix = ProjectionMatrix(surface=surface_ht, sensors=sensors_ht,
+        projection_matrix = ProjectionMatrix(sources=surface_ht, sensors=sensors_ht,
                                              projection_type=projection_matrix_type,
-                                             eeg_projection_data=eeg_projection_data)
+                                             projection_data=eeg_projection_data)
         return h5.store_complete(projection_matrix, self.storage_path)

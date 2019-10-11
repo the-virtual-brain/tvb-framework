@@ -107,7 +107,7 @@ class TestRegionMappingImporter(TransactionalTestCase):
         # Retrieve Adapter instance
         test_subject = "test"
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.region_mapping_importer',
-                                              'RegionMapping_Importer')
+                                              'RegionMappingImporter')
         form = RegionMappingImporterForm()
         form.fill_from_post({'_mapping_file': Part(import_file_path, HeaderMap({}), ''),
                              '_surface': surface_gid,
@@ -118,7 +118,7 @@ class TestRegionMappingImporter(TransactionalTestCase):
         importer.submit_form(form)
 
         # Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
+        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_dict())
 
         # During setup we import a CFF which creates an additional RegionMapping
         # So, here we have to find our mapping (just imported)

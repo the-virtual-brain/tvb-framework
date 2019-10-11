@@ -37,18 +37,20 @@ import os
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.adapters.uploaders.projection_matrix_importer import ProjectionMatrixImporterForm
+from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
+from tvb.core.entities.model.datatypes.sensors import SensorsIndex
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 import tvb_data.sensors
 import tvb_data.surfaceData
 import tvb_data.projectionMatrix as dataset
-from tvb.adapters.uploaders.sensors_importer import SensorsImporter
+from tvb.adapters.uploaders.sensors_importer import SensorsImporterForm
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.exceptions import OperationException
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.datatypes.projections import ProjectionSurfaceEEG
-from tvb.datatypes.sensors import SensorsEEG
-from tvb.datatypes.surfaces import CorticalSurface, CORTICAL
+from tvb.datatypes.surfaces import CORTICAL
 
 
 class TestProjectionMatrix(TransactionalTestCase):
@@ -64,14 +66,14 @@ class TestProjectionMatrix(TransactionalTestCase):
         self.test_project = TestFactory.create_project(self.test_user)
 
         zip_path = os.path.join(os.path.dirname(tvb_data.sensors.__file__), 'eeg_brainstorm_65.txt')
-        TestFactory.import_sensors(self.test_user, self.test_project, zip_path, SensorsImporter.EEG_SENSORS)
+        TestFactory.import_sensors(self.test_user, self.test_project, zip_path, SensorsImporterForm.options['EEG Sensors'])
 
         zip_path = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'cortex_16384.zip')
         TestFactory.import_surface_zip(self.test_user, self.test_project, zip_path, CORTICAL, True)
 
-        self.surface = TestFactory.get_entity(self.test_project, CorticalSurface())
+        self.surface = TestFactory.get_entity(self.test_project, SurfaceIndex)
         assert self.surface is not None
-        self.sensors = TestFactory.get_entity(self.test_project, SensorsEEG())
+        self.sensors = TestFactory.get_entity(self.test_project, SensorsIndex)
         assert self.sensors is not None
 
         self.importer = TestFactory.create_adapter('tvb.adapters.uploaders.projection_matrix_importer',
@@ -110,9 +112,10 @@ class TestProjectionMatrix(TransactionalTestCase):
         """
         Verifies the happy flow for importing a surface.
         """
-        dt_count_before = TestFactory.get_entity_count(self.test_project, ProjectionSurfaceEEG())
+        dt_count_before = TestFactory.get_entity_count(self.test_project, ProjectionMatrixIndex())
         file_path = os.path.join(os.path.abspath(os.path.dirname(dataset.__file__)),
                                  'projection_eeg_65_surface_16k.npy')
+
         form = ProjectionMatrixImporterForm()
         form.fill_from_post({'_projection_file': Part(file_path, HeaderMap({}), ''),
                              '_dataset_name': 'ProjectionMatrix',
@@ -123,8 +126,8 @@ class TestProjectionMatrix(TransactionalTestCase):
         form.projection_file.data = file_path
         self.importer.submit_form(form)
 
-        FlowService().fire_operation(self.importer, self.test_user, self.test_project.id, **form.get_form_values())
-        dt_count_after = TestFactory.get_entity_count(self.test_project, ProjectionSurfaceEEG())
+        FlowService().fire_operation(self.importer, self.test_user, self.test_project.id, **form.get_dict())
+        dt_count_after = TestFactory.get_entity_count(self.test_project, ProjectionMatrixIndex())
 
         assert dt_count_before + 1 == dt_count_after
 
