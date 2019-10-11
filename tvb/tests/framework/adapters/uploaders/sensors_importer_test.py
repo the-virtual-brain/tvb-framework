@@ -69,40 +69,11 @@ class TestSensorsImporter(TransactionalTestCase):
         """
         FilesHelper().remove_project_structure(self.test_project.name)
 
-    def _import(self, import_file_path, sensors_type, expected_data):
-        """
-        This method is used for importing sensors
-        :param import_file_path: absolute path of the file to be imported
-        """
-
-        ### Retrieve Adapter instance
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.sensors_importer', 'SensorsImporter')
-
-        form = SensorsImporterForm()
-        form.fill_from_post({'_sensors_file': Part(import_file_path, HeaderMap({}), ''),
-                             '_sensors_type': sensors_type,
-                             '_Data_Subject': 'John Doe'
-                            })
-        form.sensors_file.data = import_file_path
-        importer.submit_form(form)
-
-        ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
-
-        data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           expected_data.module + "." + expected_data.type)[0]
-        assert 1 == len(data_types), "Project should contain only one data type = Sensors."
-
-        time_series = ABCAdapter.load_entity_by_gid(data_types[0][2])
-        assert time_series is not None, "Sensors instance should not be none"
-
-        return time_series
-
     def test_import_eeg_sensors(self):
         """
         This method tests import of a file containing EEG sensors.
         """
-        eeg_sensors = self._import(self.EEG_FILE, "EEG Sensors", SensorsIndex())
+        eeg_sensors = TestFactory.import_sensors(self.test_user, self.test_project, self.EEG_FILE, SensorsImporterForm.options['EEG Sensors'])
 
         expected_size = 62
         assert eeg_sensors.labels is not None
@@ -115,7 +86,7 @@ class TestSensorsImporter(TransactionalTestCase):
         """
         This method tests import of a file containing MEG sensors.
         """
-        meg_sensors = self._import(self.MEG_FILE, "MEG Sensors", SensorsIndex())
+        meg_sensors = TestFactory.import_sensors(self.test_user, self.test_project, self.MEG_FILE, SensorsImporterForm.options['MEG Sensors'])
 
         expected_size = 151
         #assert meg_sensors.labels is not None
@@ -132,7 +103,7 @@ class TestSensorsImporter(TransactionalTestCase):
         This method tests import of a file without orientation.
         """
         try:
-            self._import(self.EEG_FILE, SensorsMEG.sensors_type.default, SensorsIndex())
+            TestFactory.import_sensors(self.test_user, self.test_project, self.EEG_FILE, SensorsImporterForm.options['MEG Sensors'])
             raise AssertionError("Import should fail in case of a MEG import without orientation.")
         except OperationException:
             # Expected exception
@@ -142,7 +113,7 @@ class TestSensorsImporter(TransactionalTestCase):
         """
         This method tests import of a file containing internal sensors.
         """
-        internal_sensors = self._import(self.EEG_FILE, "Internal Sensors", SensorsIndex())
+        internal_sensors = TestFactory.import_sensors(self.test_user, self.test_project, self.EEG_FILE, SensorsImporterForm.options['Internal Sensors'])
 
         expected_size = 62
         #assert internal_sensors.labels is not None
