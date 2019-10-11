@@ -8,53 +8,21 @@ pipeline {
     }
 
     stages {
-        stage ('Run tests in Python 2') {
-            agent {
-                docker {
-                    image '${FULL_DOCKER_IMAGE_NAME}:${PY2_TAG}'
-                    alwaysPull true
-                }
-            }
-            steps {
-                sh '''#!/bin/bash
-                    source activate tvb-run
-                    pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
-                '''
-                junit 'TEST_OUTPUT/TEST-RESULTS.xml'
-            }
-        }
-
         stage ('Build Pypi packages for Python 2') {
-            agent {
-                docker {
-                    image '${FULL_DOCKER_IMAGE_NAME}:${PY2_TAG}'
+                agent {
+                    docker {
+                        image '${FULL_DOCKER_IMAGE_NAME}:${PY2_TAG}'
+                    }
                 }
-            }
-            steps {
-                sh '''#!/bin/bash
-                      rm -Rf dist
-                      source activate tvb-run
-                      python setup.py sdist
-                      python setup.py bdist_wheel
-                '''
-                archiveArtifacts artifacts: 'dist/tvb*.tar.gz, dist/tvb*.whl'
-            }
-        }
-
-        stage ('Run tests in Python 3') {
-            agent {
-                docker {
-                    image '${FULL_DOCKER_IMAGE_NAME}:${PY3_TAG}'
-                    alwaysPull true
+                steps {
+                    sh '''#!/bin/bash
+                          rm -Rf dist
+                          source activate tvb-run
+                          python setup.py sdist
+                          python setup.py bdist_wheel
+                    '''
+                    archiveArtifacts artifacts: 'dist/tvb*.tar.gz, dist/tvb*.whl'
                 }
-            }
-            steps {
-                sh '''#!/bin/bash
-                    source activate tvb-run
-                    pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
-                '''
-                junit 'TEST_OUTPUT/TEST-RESULTS.xml'
-            }
         }
 
         stage ('Build Pypi packages for Python 3') {
@@ -78,11 +46,43 @@ pipeline {
             }
         }
 
+        stage ('Run tests in Python 3') {
+            agent {
+                docker {
+                    image '${FULL_DOCKER_IMAGE_NAME}:${PY3_TAG}'
+                    alwaysPull true
+                }
+            }
+            steps {
+                sh '''#!/bin/bash
+                    source activate tvb-run
+                    pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
+                '''
+                junit 'TEST_OUTPUT/TEST-RESULTS.xml'
+            }
+        }
+
+        stage ('Run tests in Python 2') {
+            agent {
+                docker {
+                    image '${FULL_DOCKER_IMAGE_NAME}:${PY2_TAG}'
+                    alwaysPull true
+                }
+            }
+            steps {
+                sh '''#!/bin/bash
+                    source activate tvb-run
+                    pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
+                '''
+                junit 'TEST_OUTPUT/TEST-RESULTS.xml'
+            }
+        }
+
     }
 
     post {
         changed {
-            mail to: 'lia.domide@codemart.ro',
+            mail to: 'lia.domide@codemart.ro, paula.popa@codemart.ro',
             subject: "Jenkins Pipeline ${currentBuild.fullDisplayName} changed status",
             body: """
                 Result: ${currentBuild.result}
