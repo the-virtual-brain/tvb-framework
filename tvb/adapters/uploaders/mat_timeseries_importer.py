@@ -161,6 +161,7 @@ class MatTimeSeriesImporter(ABCUploader):
             ts_idx.sample_period_unit = ts.sample_period_unit
             ts_idx.sample_period = ts.sample_period
             ts_idx.sample_rate = ts.sample_rate
+            ts_idx.labels_dimensions = json.dumps(ts.labels_dimensions)
             ts_idx.labels_ordering = json.dumps(ts.labels_ordering)
             ts_idx.data_ndim = len(data_shape)
             ts_idx.data_length_1d, ts_idx.data_length_2d, ts_idx.data_length_3d, ts_idx.data_length_4d = prepare_array_shape_meta(
