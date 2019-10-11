@@ -34,6 +34,7 @@
 """
 
 import os
+import nibabel
 import numpy as np
 from nibabel.gifti import giftiio
 from nibabel.nifti1 import intent_codes, data_type_codes
@@ -177,12 +178,12 @@ class GIFTIParser(object):
             raise ParseException("Provided file part %s does not exists" % data_file_part2)
 
         try:
-            gifti_image = giftiio.read(data_file)
+            gifti_image = nibabel.load(data_file)
             data_arrays = gifti_image.darrays
 
             self.logger.debug("File parsed successfully")
             if data_file_part2 is not None:
-                data_arrays_part2 = giftiio.read(data_file_part2).darrays
+                data_arrays_part2 = nibabel.load(data_file_part2).darrays
             else:
                 data_arrays_part2 = None
         except Exception as excep:
