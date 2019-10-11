@@ -35,7 +35,10 @@
 import os
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
+from tvb.interfaces.neocom.config import Surface
+
 from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporterForm
+from tvb.core.neocom.h5 import h5_file_for_index
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -61,42 +64,32 @@ class TestObjSurfaceImporter(TransactionalTestCase):
     def transactional_teardown_method(self):
         FilesHelper().remove_project_structure(self.test_project.name)
 
-    def _import_surface(self, import_file_path=None):
-        ### Retrieve Adapter instance
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.obj_importer', 'ObjSurfaceImporter')
-
-        form = ObjSurfaceImporterForm()
-        form.fill_from_post({'_data_file': Part(import_file_path, HeaderMap({}), ''),
-                             '_surface_type': "Face Surface",
-                             '_Data_Subject': 'John Doe'
-                            })
-        form.data_file.data = import_file_path
-        importer.submit_form(form)
-
-        ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
-
-        data_types = FlowService().get_available_datatypes(self.test_project.id, FaceSurface)[0]
-        assert 1, len(data_types) == "Project should contain only one data type."
-
-        surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
-        assert surface is not None, "Surface should not be None"
-        return surface
-
     def test_import_quads_no_normals(self):
         """
         Test that import works with a file which contains quads and no normals
         """
-        surface = self._import_surface(self.face)
-        assert 8614 == len(surface.vertices)
+        surface_index = TestFactory.import_surface_obj(self.test_user, self.test_project, self.face, FaceSurface)
+
+        surface_h5_file = h5_file_for_index(surface_index)
+        surface = Surface()
+        surface_h5_file.load_into(surface)
+        surface_h5_file.close()
+
         assert 8614 == len(surface.vertex_normals)
+        assert 8614 == len(surface.vertices)
         assert 17224 == len(surface.triangles)
 
     def test_import_simple_with_normals(self):
         """
-        Test that import works with an OBJ file which included normals
+        Test that import works with an OBJ file which includes normals
         """
-        surface = self._import_surface(self.torus)
-        assert 441 == surface.number_of_vertices
+        surface_index = TestFactory.import_surface_obj(self.test_user, self.test_project, self.torus, FaceSurface)
+        assert 441 == surface_index.number_of_vertices
+        assert 800 == surface_index.number_of_triangles
+
+        surface_h5_file = h5_file_for_index(surface_index)
+        surface = Surface()
+        surface_h5_file.load_into(surface)
+        surface_h5_file.close()
+
         assert 441 == len(surface.vertex_normals)
-        assert 800 == surface.number_of_triangles

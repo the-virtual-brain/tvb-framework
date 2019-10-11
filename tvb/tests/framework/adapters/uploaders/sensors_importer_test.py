@@ -36,6 +36,7 @@ import os
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
+from tvb.core.neocom.h5 import h5_file_for_index
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.exceptions import OperationException
@@ -73,27 +74,38 @@ class TestSensorsImporter(TransactionalTestCase):
         """
         This method tests import of a file containing EEG sensors.
         """
-        eeg_sensors = TestFactory.import_sensors(self.test_user, self.test_project, self.EEG_FILE, SensorsImporterForm.options['EEG Sensors'])
+        eeg_sensors_index = TestFactory.import_sensors(self.test_user, self.test_project, self.EEG_FILE, SensorsImporterForm.options['EEG Sensors'])
 
         expected_size = 62
-        assert eeg_sensors.labels is not None
+        assert expected_size == eeg_sensors_index.number_of_sensors
+
+        sensors_h5_file = h5_file_for_index(eeg_sensors_index)
+        eeg_sensors = SensorsInternal()
+        sensors_h5_file.load_into(eeg_sensors)
+        sensors_h5_file.close()
+
         assert expected_size == len(eeg_sensors.labels)
         assert expected_size == len(eeg_sensors.locations)
         assert (expected_size, 3) == eeg_sensors.locations.shape
-        assert expected_size == eeg_sensors.number_of_sensors
+
 
     def test_import_meg_sensors(self):
         """
         This method tests import of a file containing MEG sensors.
         """
-        meg_sensors = TestFactory.import_sensors(self.test_user, self.test_project, self.MEG_FILE, SensorsImporterForm.options['MEG Sensors'])
+        meg_sensors_index = TestFactory.import_sensors(self.test_user, self.test_project, self.MEG_FILE, SensorsImporterForm.options['MEG Sensors'])
 
         expected_size = 151
-        #assert meg_sensors.labels is not None
+        assert expected_size == meg_sensors_index.number_of_sensors
+
+        sensors_h5_file = h5_file_for_index(meg_sensors_index)
+        meg_sensors = SensorsInternal()
+        sensors_h5_file.load_into(meg_sensors)
+        sensors_h5_file.close()
+
         assert expected_size == len(meg_sensors.labels)
         assert expected_size == len(meg_sensors.locations)
         assert (expected_size, 3) == meg_sensors.locations.shape
-        assert expected_size == meg_sensors.number_of_sensors
         assert meg_sensors.has_orientation
         assert expected_size == len(meg_sensors.orientations)
         assert (expected_size, 3) == meg_sensors.orientations.shape
@@ -113,11 +125,18 @@ class TestSensorsImporter(TransactionalTestCase):
         """
         This method tests import of a file containing internal sensors.
         """
-        internal_sensors = TestFactory.import_sensors(self.test_user, self.test_project, self.EEG_FILE, SensorsImporterForm.options['Internal Sensors'])
+        internal_sensors_index = TestFactory.import_sensors(self.test_user, self.test_project, self.EEG_FILE, SensorsImporterForm.options['Internal Sensors'])
 
         expected_size = 62
-        #assert internal_sensors.labels is not None
+        assert expected_size == internal_sensors_index.number_of_sensors
+
+        sensors_h5_file = h5_file_for_index(internal_sensors_index)
+        internal_sensors = SensorsInternal()
+        sensors_h5_file.load_into(internal_sensors)
+        sensors_h5_file.close()
+
         assert expected_size == len(internal_sensors.labels)
         assert expected_size == len(internal_sensors.locations)
         assert (expected_size, 3) == internal_sensors.locations.shape
-        assert expected_size == internal_sensors.number_of_sensors
+
+
