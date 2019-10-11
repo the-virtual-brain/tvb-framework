@@ -35,10 +35,8 @@
 import pytest
 import tvb_data
 from os import path
-
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
-
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase, BaseTestCase
@@ -46,7 +44,6 @@ from tvb.adapters.uploaders.csv_connectivity_importer import CSVConnectivityPars
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.exceptions import OperationException
 from tvb.core.services.flow_service import FlowService
-from tvb.tests.framework.adapters.uploaders.connectivity_zip_importer_test import TestConnectivityZip
 from tvb.tests.framework.core.factory import TestFactory
 
 TEST_SUBJECT_A = "TEST_SUBJECT_A"
@@ -111,15 +108,15 @@ class TestCSVConnectivityImporter(TransactionalTestCase):
         form.tracts.data = tracts_tmp
         importer.submit_form(form)
 
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
+        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_dict())
 
     def test_happy_flow_import(self):
         """
         Test that importing a CFF generates at least one DataType in DB.
         """
-        TestConnectivityZip.import_test_connectivity96(self.test_user,
-                                                       self.test_project,
-                                                       subject=TEST_SUBJECT_A)
+
+        zip_path = path.join(path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_96.zip')
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path, subject=TEST_SUBJECT_A)
 
         field = FilterChain.datatype + '.subject'
         filters = FilterChain('', [field], [TEST_SUBJECT_A], ['=='])
@@ -146,7 +143,8 @@ class TestCSVConnectivityImporter(TransactionalTestCase):
         assert not (reference_connectivity.tract_lengths == imported_connectivity.tract_lengths).all()
 
     def test_bad_reference(self):
-        TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
+        zip_path = path.join(path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_66.zip')
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path);
         field = FilterChain.datatype + '.subject'
         filters = FilterChain('', [field], [TEST_SUBJECT_A], ['!='])
         bad_reference_connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex, filters)
