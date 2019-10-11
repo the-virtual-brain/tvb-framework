@@ -42,7 +42,7 @@ from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.flow_service import FlowService
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.datatypes.surfaces import SkullSkin, OUTER_SKULL
+from tvb.datatypes.surfaces import SkullSkin, OUTER_SKULL, CORTICAL
 import tvb_data.surfaceData
 
 
@@ -91,7 +91,7 @@ class TestZIPSurfaceImporter(TransactionalTestCase):
 
 
     def test_import_surf_zip(self):
-        surface = self._importSurface(self.surf_skull)
+        surface = TestFactory.import_surface_zip(self.test_user, self.test_project, self.surf_skull, CORTICAL)
         assert 4096 == surface.number_of_vertices
         assert 8188 == surface.number_of_triangles
         assert '' == surface.user_tag_3

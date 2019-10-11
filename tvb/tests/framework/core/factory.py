@@ -44,9 +44,12 @@ import tvb_data
 from hashlib import md5
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
+from tvb.datatypes.surfaces import OUTER_SKULL
+
 from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporterForm
 from tvb.adapters.uploaders.sensors_importer import SensorsImporterForm
 from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporterForm
+from tvb.adapters.uploaders.zip_surface_importer import ZIPSurfaceImporterForm
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.model_operation import *
@@ -230,14 +233,30 @@ class TestFactory(object):
         return import_service.created_projects[0]
 
     @staticmethod
-    def import_surface_zip(user, project, zip_path, surface_type, zero_based):
-        # Retrieve Adapter instance 
+    def import_surface_zip(user, project, zip_path, surface_type, zero_based='True'):
+        ### Retrieve Adapter instance
         importer = TestFactory.create_adapter('tvb.adapters.uploaders.zip_surface_importer', 'ZIPSurfaceImporter')
-        args = {'uploaded': zip_path, 'surface_type': surface_type,
-                'zero_based_triangles': zero_based}
 
-        # Launch Operation
-        FlowService().fire_operation(importer, user, project.id, **args)
+        form = ZIPSurfaceImporterForm()
+        form.fill_from_post({'_uploaded': Part(zip_path, HeaderMap({}), ''),
+                             '_zero_based_triangles': zero_based,
+                             '_should_center': 'True',
+                             '_surface_type': surface_type,
+                             '_Data_Subject': 'John Doe'
+                             })
+        form.uploaded.data = zip_path
+        importer.submit_form(form)
+
+        ### Launch import Operation
+        FlowService().fire_operation(importer, user, project.id, **form.get_form_values())
+
+        data_types = FlowService().get_available_datatypes(project.id, SurfaceIndex)[0]
+        assert 1, len(data_types) == "Project should contain only one data type."
+
+        surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
+        surface.user_tag_3 = ''
+        assert surface is not None, "Surface should not be None"
+        return surface
 
     @staticmethod
     def import_surface_obj(user, project, obj_path, surface_type):
