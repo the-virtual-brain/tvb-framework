@@ -17,16 +17,12 @@ pipeline {
             }
             steps {
                 sh '''#!/bin/bash
-                      mv dist dist-py2
+                      rm -Rf dist
                       source activate tvb-run
                       python setup.py sdist
                       python setup.py bdist_wheel
-                      mv dist dist-py3
-                      mv dist-py2 dist
-                      cp dist-py3/* dist/
-                      rm -Rf dist-py2 dist-py3
                 '''
-                archiveArtifacts artifacts: 'dist/tvb*.tar.gz, dist/tvb*.whl'
+                archiveArtifacts artifacts: 'dist/*'
             }
         }
 
