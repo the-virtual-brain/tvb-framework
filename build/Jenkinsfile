@@ -1,14 +1,11 @@
 pipeline {
     agent any
-
     environment {
         FULL_DOCKER_IMAGE_NAME = 'thevirtualbrain/tvb-run'
-        PY2_TAG = 'tvb-framework-py2'
         PY3_TAG = 'tvb-framework-py3'
     }
 
     stages {
-
         stage ('Build Pypi packages for Python 3') {
             agent {
                 docker {
@@ -22,10 +19,8 @@ pipeline {
                       python setup.py sdist
                       python setup.py bdist_wheel
                 '''
-                archiveArtifacts artifacts: 'dist/*'
             }
         }
-
         stage ('Run tests in Python 3') {
             agent {
                 docker {
@@ -38,12 +33,15 @@ pipeline {
                     source activate tvb-run
                     pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
                 '''
-                junit 'TEST_OUTPUT/TEST-RESULTS.xml'
             }
         }
     }
 
     post {
+        always {
+            archiveArtifacts artifacts: 'dist/*'
+            junit 'TEST_OUTPUT/TEST-RESULTS.xml'
+        }
         changed {
             mail to: 'lia.domide@codemart.ro, paula.popa@codemart.ro',
             subject: "Jenkins Pipeline ${currentBuild.fullDisplayName} changed status",
@@ -51,10 +49,6 @@ pipeline {
                 Result: ${currentBuild.result}
                 Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'
                 Check console output at ${env.BUILD_URL}"""
-        }
-
-        success {
-            echo 'Build finished successfully'
         }
     }
 }
