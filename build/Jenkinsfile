@@ -6,10 +6,11 @@ pipeline {
     }
 
     stages {
-        stage ('Build Pypi packages for Python 3') {
+        stage ('Build for Pypi') {
             agent {
                 docker {
                     image '${FULL_DOCKER_IMAGE_NAME}:${PY3_TAG}'
+                    alwaysPull true
                 }
             }
             steps {
@@ -21,17 +22,17 @@ pipeline {
                 '''
             }
         }
-        stage ('Run tests in Python 3') {
+        stage ('Run unit-tests') {
             agent {
                 docker {
                     image '${FULL_DOCKER_IMAGE_NAME}:${PY3_TAG}'
-                    alwaysPull true
                 }
             }
             steps {
                 sh '''#!/bin/bash
                     source activate tvb-run
                     pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
+                    exit 0
                 '''
             }
         }
