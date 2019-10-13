@@ -376,11 +376,6 @@ class ImportService(object):
             datatype_allready_in_tvb = dao.get_datatype_by_gid(datatype.gid)
 
             if not datatype_allready_in_tvb:
-                # Compute disk size. Similar to ABCAdapter._capture_operation_results.
-                # No need to close the h5 as we have not written to it.
-                associated_file = os.path.join(datatype.storage_path, datatype.get_storage_file_name())
-                datatype.disk_size = FilesHelper.compute_size_on_disk(associated_file)
-
                 self.store_datatype(datatype)
             else:
                 FlowService.create_link([datatype_allready_in_tvb.id], project.id)
@@ -405,7 +400,6 @@ class ImportService(object):
         operations = self._load_operations_from_paths(project, op_paths)
 
         imported_operations = []
-        datatypes = []
 
         # Here we process each operation found
         for operation in operations:
@@ -422,10 +416,9 @@ class ImportService(object):
 
             operation_datatypes = self._load_datatypes_from_operation_folder(new_operation_path, operation_entity,
                                                                              datatype_group)
+            self._store_imported_datatypes_in_db(project, operation_datatypes, dt_burst_mappings, burst_ids_mapping)
             imported_operations.append(operation_entity)
-            datatypes.extend(operation_datatypes)
 
-        self._store_imported_datatypes_in_db(project, datatypes, dt_burst_mappings, burst_ids_mapping)
         return imported_operations
 
 
@@ -469,6 +462,10 @@ class ImportService(object):
         if datatype_group is not None:
             datatype_index.fk_datatype_group = datatype_group.id
         datatype_index.fk_from_operation = op_id
+
+        associated_file = h5.path_for_stored_index(datatype_index)
+        if os.path.exists(associated_file):
+            datatype_index.disk_size = FilesHelper.compute_size_on_disk(associated_file)
 
         # Now move storage file into correct folder if necessary
         if move and final_storage is not None:
