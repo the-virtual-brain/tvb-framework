@@ -27,7 +27,7 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-from sqlalchemy import Column, Integer, ForeignKey, Float
+from sqlalchemy import Column, Integer, ForeignKey, Float, String
 from sqlalchemy.orm import relationship
 from tvb.core.entities.model.model_datatype import DataType, DataTypeMatrix
 from tvb.datatypes.region_mapping import RegionMapping, RegionVolumeMapping
@@ -44,11 +44,11 @@ class RegionMappingIndex(DataType):
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
-    surface_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not RegionMapping.surface.required)
+    surface_gid = Column(String(32), ForeignKey(SurfaceIndex.gid), nullable=not RegionMapping.surface.required)
     surface = relationship(SurfaceIndex, foreign_keys=surface_gid, primaryjoin=SurfaceIndex.gid == surface_gid,
                            cascade='none')
 
-    connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
+    connectivity_gid = Column(String(32), ForeignKey(ConnectivityIndex.gid),
                               nullable=not RegionMapping.connectivity.required)
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
                                 primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='none')
@@ -68,12 +68,12 @@ class RegionVolumeMappingIndex(DataTypeMatrix):
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
-    connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
+    connectivity_gid = Column(String(32), ForeignKey(ConnectivityIndex.gid),
                               nullable=not RegionVolumeMapping.connectivity.required)
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
                                 primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='none')
 
-    volume_gid = Column(Integer, ForeignKey(VolumeIndex.gid), nullable=not RegionVolumeMapping.volume.required)
+    volume_gid = Column(String(32), ForeignKey(VolumeIndex.gid), nullable=not RegionVolumeMapping.volume.required)
     volume = relationship(VolumeIndex, foreign_keys=volume_gid, primaryjoin=VolumeIndex.gid == volume_gid,
                           cascade='none')
 

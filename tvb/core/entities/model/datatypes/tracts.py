@@ -27,7 +27,7 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlalchemy.orm import relationship
 from tvb.datatypes.tracts import Tracts
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
@@ -37,7 +37,7 @@ from tvb.core.entities.model.model_datatype import DataType
 class TractsIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    region_volume_map_gid = Column(Integer, ForeignKey(RegionVolumeMappingIndex.gid),
+    region_volume_map_gid = Column(String(32), ForeignKey(RegionVolumeMappingIndex.gid),
                                    nullable=not Tracts.region_volume_map.required)
     region_volume_map = relationship(RegionVolumeMappingIndex, foreign_keys=region_volume_map_gid,
                                      primaryjoin=RegionVolumeMappingIndex.gid == region_volume_map_gid)

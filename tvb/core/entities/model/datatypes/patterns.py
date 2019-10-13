@@ -43,7 +43,7 @@ class StimuliRegionIndex(DataType):
     temporal_equation = Column(String, nullable=False)
     temporal_parameters = Column(String)
 
-    connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
+    connectivity_gid = Column(String(32), ForeignKey(ConnectivityIndex.gid),
                               nullable=not StimuliRegion.connectivity.required)
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
                                 primaryjoin=ConnectivityIndex.gid == connectivity_gid)
@@ -66,7 +66,7 @@ class StimuliSurfaceIndex(DataType):
     temporal_equation = Column(String, nullable=False)
     temporal_parameters = Column(String)
 
-    surface_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not StimuliSurface.surface.required)
+    surface_gid = Column(String(32), ForeignKey(SurfaceIndex.gid), nullable=not StimuliSurface.surface.required)
     surface = relationship(SurfaceIndex, foreign_keys=surface_gid, primaryjoin=SurfaceIndex.gid == surface_gid)
 
     def fill_from_has_traits(self, datatype):

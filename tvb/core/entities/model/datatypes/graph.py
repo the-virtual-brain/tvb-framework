@@ -43,7 +43,7 @@ class CovarianceIndex(DataTypeMatrix):
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.id), nullable=not Covariance.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not Covariance.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     subtype = Column(String)
@@ -63,7 +63,8 @@ class CorrelationCoefficientsIndex(DataTypeMatrix):
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not CorrelationCoefficients.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid),
+                        nullable=not CorrelationCoefficients.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     subtype = Column(String)
@@ -84,7 +85,7 @@ class ConnectivityMeasureIndex(DataTypeMatrix):
 
     subtype = Column(String)
 
-    connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid),
+    connectivity_gid = Column(String(32), ForeignKey(ConnectivityIndex.gid),
                               nullable=ConnectivityMeasure.connectivity.required)
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
                                 primaryjoin=ConnectivityIndex.gid == connectivity_gid)

@@ -37,7 +37,7 @@ from tvb.core.entities.model.model_datatype import DataType
 class PrincipalComponentsIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     subtype = Column(String)
@@ -52,7 +52,7 @@ class PrincipalComponentsIndex(DataType):
 class IndependentComponentsIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     subtype = Column(String)

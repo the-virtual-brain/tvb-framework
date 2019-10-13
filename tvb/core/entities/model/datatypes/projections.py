@@ -40,24 +40,24 @@ class ProjectionMatrixIndex(DataType):
 
     projection_type = Column(String, nullable=False)
 
-    brain_skull_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not ProjectionMatrix.brain_skull.required)
+    brain_skull_gid = Column(String(32), ForeignKey(SurfaceIndex.gid),
+                             nullable=not ProjectionMatrix.brain_skull.required)
     brain_skull = relationship(SurfaceIndex, foreign_keys=brain_skull_gid,
-                               primaryjoin=SurfaceIndex.gid == brain_skull_gid,
-                               cascade='none')
+                               primaryjoin=SurfaceIndex.gid == brain_skull_gid, cascade='none')
 
-    skull_skin_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not ProjectionMatrix.skull_skin.required)
+    skull_skin_gid = Column(String(32), ForeignKey(SurfaceIndex.gid), nullable=not ProjectionMatrix.skull_skin.required)
     skull_skin = relationship(SurfaceIndex, foreign_keys=skull_skin_gid, primaryjoin=SurfaceIndex.gid == skull_skin_gid,
                               cascade='none')
 
-    skin_air_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not ProjectionMatrix.skin_air.required)
+    skin_air_gid = Column(String(32), ForeignKey(SurfaceIndex.gid), nullable=not ProjectionMatrix.skin_air.required)
     skin_air = relationship(SurfaceIndex, foreign_keys=skin_air_gid, primaryjoin=SurfaceIndex.gid == skin_air_gid,
                             cascade='none')
 
-    source_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not ProjectionMatrix.sources.required)
+    source_gid = Column(String(32), ForeignKey(SurfaceIndex.gid), nullable=not ProjectionMatrix.sources.required)
     source = relationship(SurfaceIndex, foreign_keys=source_gid, primaryjoin=SurfaceIndex.gid == source_gid,
                           cascade='none')
 
-    sensors_gid = Column(Integer, ForeignKey(SensorsIndex.gid), nullable=not ProjectionMatrix.sensors.required)
+    sensors_gid = Column(String(32), ForeignKey(SensorsIndex.gid), nullable=not ProjectionMatrix.sensors.required)
     sensors = relationship(SensorsIndex, foreign_keys=sensors_gid, primaryjoin=SensorsIndex.gid == sensors_gid,
                            cascade='none')
 

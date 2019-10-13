@@ -28,7 +28,7 @@
 #
 #
 import scipy.sparse
-from sqlalchemy import Column, Integer, ForeignKey, Float
+from sqlalchemy import Column, Integer, ForeignKey, Float, String
 from sqlalchemy.orm import relationship
 from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
@@ -39,7 +39,7 @@ from tvb.core.neotraits.db import from_ndarray
 class LocalConnectivityIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    surface_gid = Column(Integer, ForeignKey(SurfaceIndex.gid), nullable=not LocalConnectivity.surface.required)
+    surface_gid = Column(String(32), ForeignKey(SurfaceIndex.gid), nullable=not LocalConnectivity.surface.required)
     surface = relationship(SurfaceIndex, foreign_keys=surface_gid, primaryjoin=SurfaceIndex.gid == surface_gid)
 
     matrix_non_zero_min = Column(Float)

@@ -275,7 +275,7 @@ class MeasurePointsSelection(Base):
     # JSON with node indices in current selection (0-based):
     selected_nodes = Column(String)
     # A Connectivity of Sensor GID, Referring to the entity that this selection was produced for:
-    fk_datatype_gid = Column(String, ForeignKey('HasTraitsIndex.gid', ondelete="CASCADE"))
+    fk_datatype_gid = Column(String(32), ForeignKey('HasTraitsIndex.gid', ondelete="CASCADE"))
     # Current Project the selection was defined in:
     fk_in_project = Column(Integer, ForeignKey('PROJECTS.id', ondelete="CASCADE"))
 
@@ -302,7 +302,7 @@ class StoredPSEFilter(Base):
     # Unique name /DataType, to be displayed in selector UI:
     ui_name = Column(String)
     # A DataType Group GID, Referring to the Group that this filter was stored for:
-    fk_datatype_gid = Column(String, ForeignKey('HasTraitsIndex.gid', ondelete="CASCADE"))
+    fk_datatype_gid = Column(String(32), ForeignKey('HasTraitsIndex.gid', ondelete="CASCADE"))
 
     threshold_value = Column(Float)
 

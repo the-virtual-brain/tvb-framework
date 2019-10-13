@@ -44,7 +44,7 @@ class StructuralMRIIndex(DataTypeMatrix):
 
     weighting = Column(String, nullable=False)
 
-    volume_gid = Column(Integer, ForeignKey(VolumeIndex.gid), nullable=not StructuralMRI.volume.required)
+    volume_gid = Column(String(32), ForeignKey(VolumeIndex.gid), nullable=not StructuralMRI.volume.required)
     volume = relationship(VolumeIndex, foreign_keys=volume_gid, primaryjoin=VolumeIndex.gid == volume_gid)
 
     def fill_from_has_traits(self, datatype):

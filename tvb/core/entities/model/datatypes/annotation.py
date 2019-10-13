@@ -33,7 +33,7 @@
 """
 
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, String
 from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotations
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.model_datatype import DataType
@@ -104,7 +104,7 @@ class ConnectivityAnnotationsIndex(DataType):
     """
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    connectivity_gid = Column(Integer, ForeignKey(ConnectivityIndex.gid), nullable=False)
+    connectivity_gid = Column(String(32), ForeignKey(ConnectivityIndex.gid), nullable=False)
     connectivity = relationship(ConnectivityIndex, foreign_keys=connectivity_gid,
                                 primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='none')
 

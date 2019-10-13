@@ -43,7 +43,7 @@ class FourierSpectrumIndex(DataTypeMatrix):
     frequency_step = Column(Float, nullable=False)
     max_frequency = Column(Float, nullable=False)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not FourierSpectrum.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not FourierSpectrum.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     def fill_from_has_traits(self, datatype):
@@ -59,7 +59,7 @@ class FourierSpectrumIndex(DataTypeMatrix):
 class WaveletCoefficientsIndex(DataTypeMatrix):
     id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not WaveletCoefficients.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not WaveletCoefficients.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     mother = Column(String, nullable=False)
@@ -86,7 +86,7 @@ class WaveletCoefficientsIndex(DataTypeMatrix):
 class CoherenceSpectrumIndex(DataTypeMatrix):
     id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not CoherenceSpectrum.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not CoherenceSpectrum.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     nfft = Column(Integer, nullable=False)
@@ -104,7 +104,8 @@ class CoherenceSpectrumIndex(DataTypeMatrix):
 class ComplexCoherenceSpectrumIndex(DataTypeMatrix):
     id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not ComplexCoherenceSpectrum.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid),
+                        nullable=not ComplexCoherenceSpectrum.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     epoch_length = Column(Float, nullable=False)

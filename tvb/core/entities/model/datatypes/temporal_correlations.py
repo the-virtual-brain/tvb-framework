@@ -43,7 +43,7 @@ class CrossCorrelationIndex(DataType):
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
 
-    source_gid = Column(Integer, ForeignKey(TimeSeriesIndex.gid), nullable=not CrossCorrelation.source.required)
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not CrossCorrelation.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
     labels_ordering = Column(String, nullable=False)
