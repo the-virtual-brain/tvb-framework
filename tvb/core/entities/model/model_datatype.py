@@ -40,6 +40,7 @@ from copy import copy
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, Integer, String, Float, Column, ForeignKey
 from tvb.basic.neotraits.api import HasTraits
+from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.entities.model.simulator.burst_configuration import BurstConfiguration2
 from tvb.core.neotraits.db import HasTraitsIndex, Base
 from tvb.core.entities.model.model_project import Project
@@ -156,7 +157,7 @@ class DataType(HasTraitsIndex):
         display_name = self.display_type
         for tag in [self.user_tag_1, self.user_tag_2, self.user_tag_3, self.user_tag_4, self.user_tag_5]:
             if tag is not None and len(tag) > 0:
-                display_name += " - " + tag
+                display_name += " - " + str(tag)
         return display_name
 
 
@@ -185,6 +186,18 @@ class DataType(HasTraitsIndex):
     def fill_from_has_traits(self, has_traits):
         # type: (HasTraits) -> None
         self.gid = has_traits.gid.hex
+
+    def fill_from_generic_attributes(self, attrs):
+        # type: (GenericAttributes) -> None
+        self.subject = attrs.subject
+        self.state = attrs.state
+        self.user_tag_1 = attrs.user_tag_1
+        self.user_tag_2 = attrs.user_tag_2
+        self.user_tag_3 = attrs.user_tag_3
+        self.user_tag_4 = attrs.user_tag_4
+        self.user_tag_5 = attrs.user_tag_5
+        self.is_nan = attrs.is_nan
+        self.visible = attrs.visible
 
 
 class DataTypeMatrix(DataType):

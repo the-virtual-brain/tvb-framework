@@ -48,6 +48,7 @@ class StimuliRegionH5(H5File):
         self.temporal.store(datatype.temporal.to_json(datatype.temporal))
 
     def load_into(self, datatype):
+        datatype.gid = self.gid.load()
         datatype.connectivity = self.connectivity.load()
         datatype.weight = self.weight.load()
         spatial_eq = self.spatial.load()
@@ -76,6 +77,7 @@ class StimuliSurfaceH5(H5File):
         self.temporal.store(datatype.temporal.to_json(datatype.temporal))
 
     def load_into(self, datatype):
+        datatype.gid = self.gid.load()
         datatype.surface = self.surface.load()
         datatype.focal_points_triangles = self.focal_points_triangles.load()
         datatype.focal_points_surface = self.focal_points_surface.load()

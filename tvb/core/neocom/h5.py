@@ -30,6 +30,7 @@
 import uuid
 import typing
 from tvb.basic.neotraits.api import HasTraits
+from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.entities.model.model_datatype import DataType
 from tvb.core.neocom._h5loader import Loader, DirLoader, TVBLoader
 from tvb.core.neocom._registry import Registry
@@ -70,6 +71,15 @@ def load(source_path):
     """
     loader = Loader(REGISTRY)
     return loader.load(source_path)
+
+
+def load_with_references(source_path):
+    # type: (str) -> (HasTraits, GenericAttributes)
+    """
+    Load a datatype stored in the tvb h5 file found at the given path, but also load linked entities through GID
+    """
+    loader = TVBLoader(REGISTRY)
+    return loader.load_with_references(source_path)
 
 
 def store_complete(datatype, base_dir):

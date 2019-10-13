@@ -33,40 +33,35 @@ Demo script on how to load a TVB DataType by Id and modify metadata
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
+import os
+from uuid import UUID
+from tvb.basic.profile import TvbProfile
+from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
 
-if __name__ == "__main__":
-    from tvb.basic.profile import TvbProfile
-
-    TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
-
-import datetime
-from tvb.core.entities.storage import dao
-from tvb.datatypes.local_connectivity import LocalConnectivity
+TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
 
 
-def update_localconnectivity_metadata(dt_id):
-    dt = dao.get_generic_entity(LocalConnectivity, dt_id)[0]
-
-    info_dict = {"dtype": dt.matrix.dtype.str,
-                 "format": dt.matrix.format,
-                 "Shape": str(dt.matrix.shape),
-                 "Maximum": dt.matrix.data.max(),
-                 "Minimum": dt.matrix.data.min(),
-                 "Mean": dt.matrix.mean()}
-    data_group_path = '/matrix'
-    dt.set_metadata(info_dict, '', True, data_group_path)
-
-
-def update_dt(dt_id, new_create_date):
-    dt = dao.get_datatype_by_id(dt_id)
-    dt.create_date = new_create_date
-    dao.store_entity(dt)
-    # Update MetaData in H5 as well.
-    dt = dao.get_datatype_by_gid(dt.gid)
-    dt.persist_full_metadata()
+def update_local_connectivity_metadata(file_path):
+    with LocalConnectivityH5(file_path) as f:
+        f.storage_manager.set_metadata({'Shape': "(16384, 16384)",
+                                        'format': "csc",
+                                        "dtype": "<f8"},
+                                       "/matrix")
+        f.storage_manager.set_metadata({'cutoff': 40.0,
+                                        'state': "RAW_DATA",
+                                        'subject': "John Doe",
+                                        'user_tag_1': "srf_16k",
+                                        'user_tag_2': "",
+                                        'user_tag_3': "",
+                                        'user_tag_4': "",
+                                        'user_tag_5': "",
+                                        'type': "",
+                                        'visible': True,
+                                        'is_nan': False,
+                                        'gid': UUID('3e551cbd-47ca-11e4-9f21-3c075431bf56').urn,
+                                        'surface': UUID('10467c4f-d487-4186-afa6-d9b1fd8383d8').urn}, )
 
 
 if __name__ == "__main__":
-    update_localconnectivity_metadata(7)
-    update_dt(35, datetime.datetime(2014, 9, 29, 14, 17, 50))
-    update_dt(36, datetime.datetime(2014, 9, 29, 14, 17, 52))
+    update_local_connectivity_metadata(
+        os.path.expanduser('~/Downloads/LocalConnectivity_3e551cbd-47ca-11e4-9f21-3c075431bf56.h5'))

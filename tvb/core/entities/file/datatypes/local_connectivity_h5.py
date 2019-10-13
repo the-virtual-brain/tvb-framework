@@ -60,6 +60,7 @@ class LocalConnectivityH5(H5File):
         self.equation.store(datatype.equation.to_json(datatype.equation))
 
     def load_into(self, datatype):
+        datatype.gid = self.gid.load()
         datatype.matrix = self.matrix.load()
         datatype.cutoff = self.cutoff.load()
         eq = self.equation.load()

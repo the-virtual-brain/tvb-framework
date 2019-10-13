@@ -113,7 +113,8 @@ class TVBImporter(ABCUploader):
                     datatype = None
                     try:
                         service = ImportService()
-                        datatype = service.load_datatype_from_file(folder, h5file, self.operation_id)
+                        datatype = service.load_datatype_from_file(folder, h5file, self.operation_id,
+                                                                   final_storage=self.storage_path)
                         service.store_datatype(datatype)
                         self.nr_of_datatypes += 1
                     except Exception as excep:

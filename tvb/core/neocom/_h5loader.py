@@ -33,6 +33,7 @@ import uuid
 import typing
 from tvb.basic.neotraits.api import HasTraits
 from tvb.core.neotraits.h5 import H5File
+from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.entities.model.model_datatype import DataType
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -180,3 +181,19 @@ class TVBLoader(object):
             result_dt = traits_class()
             f.load_into(result_dt)
         return result_dt
+
+    def load_with_references(self, file_path):
+        # type: (str) -> (HasTraits, GenericAttributes)
+        with H5File.from_file(file_path) as f:
+            datatype_cls = self.registry.get_datatype_for_h5file(type(f))
+            datatype = datatype_cls()
+            f.load_into(datatype)
+            ga = f.load_generic_attributes()
+            sub_dt_refs = f.gather_references()
+
+        for fname, sub_gid in sub_dt_refs:
+            ref_idx = dao.get_datatype_by_gid(sub_gid.hex, load_lazy=False)
+            ref_ht = self.load_from_index(ref_idx)
+            setattr(datatype, fname, ref_ht)
+
+        return datatype, ga

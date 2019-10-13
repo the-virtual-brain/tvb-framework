@@ -14,6 +14,7 @@ class EquationH5(H5File):
 
     def load_into(self, datatype):
         # type: (Equation) -> None
+        datatype.gid = self.gid.load()
         datatype.parameters = self.parameters.load()
 
 
