@@ -33,9 +33,9 @@
 """
 
 import numpy
-from tvb.datatypes.connectivity import Connectivity
+from tvb.basic.neotraits.api import NArray, Attr, HasTraits
 from tvb.core.neotraits.h5 import H5File, DataSet, Reference, STORE_STRING
-from tvb.basic.neotraits.api import NArray, Attr
+from tvb.datatypes.connectivity import Connectivity
 
 ANNOTATION_DTYPE = numpy.dtype([('id', 'i'),
                                 ('parent_id', 'i'),
@@ -51,6 +51,29 @@ ANNOTATION_DTYPE = numpy.dtype([('id', 'i'),
                                 ])
 
 
+class ConnectivityAnnotations(HasTraits):
+    """
+    Ontology annotations for a Connectivity.
+    """
+
+    connectivity = Attr(field_type=Connectivity)
+
+    """
+    Holds a flatten form for the annotations for a full connectivity.
+    Each region in the connectivity can have None, or a tree of AnnotationTerms
+    To be stored in a compound DS in H5.
+    """
+    region_annotations = NArray(
+        default=numpy.array([], dtype=ANNOTATION_DTYPE), dtype=ANNOTATION_DTYPE,
+        label="Region Annotations",
+        doc="""Flat tree of annotations for every connectivity region.""")
+
+    def set_annotations(self, annotation_terms):
+        annotations = [ann.to_tuple() for ann in annotation_terms]
+        annotations = numpy.array(annotations, dtype=ANNOTATION_DTYPE)
+        self.region_annotations = annotations
+
+
 class ConnectivityAnnotationsH5(H5File):
     """
     Ontology annotations for a Connectivity.
@@ -58,10 +81,9 @@ class ConnectivityAnnotationsH5(H5File):
 
     def __init__(self, path):
         super(ConnectivityAnnotationsH5, self).__init__(path)
-        self.region_annotations = DataSet(NArray(dtype=ANNOTATION_DTYPE), self, name='region_annotations')
-        self.connectivity = Reference(Attr(field_type=Connectivity), self, name="connectivity")
+        self.region_annotations = DataSet(ConnectivityAnnotations.region_annotations, self)
+        self.connectivity = Reference(ConnectivityAnnotations.connectivity, self)
 
-    def store_annotations(self, annotation_terms):
-        annotations = [ann.to_tuple() for ann in annotation_terms]
-        annotations = numpy.array(annotations, dtype=ANNOTATION_DTYPE)
-        self.region_annotations.store(annotations)
+    def store(self, datatype, scalars_only=False, store_references=True):
+        # type: (ConnectivityAnnotations, bool, bool) -> None
+        super(ConnectivityAnnotationsH5, self).store(datatype, scalars_only, store_references)

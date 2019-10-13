@@ -34,6 +34,7 @@
 
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, ForeignKey
+from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotations
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.model_datatype import DataType
 
@@ -108,3 +109,9 @@ class ConnectivityAnnotationsIndex(DataType):
                                 primaryjoin=ConnectivityIndex.gid == connectivity_gid, cascade='none')
 
     annotations_length = Column(Integer)
+
+    def fill_from_has_traits(self, datatype):
+        # type: (ConnectivityAnnotations)  -> None
+        super(ConnectivityAnnotationsIndex, self).fill_from_has_traits(datatype)
+        self.annotations_length = datatype.region_annotations.shape[0]
+        self.connectivity_gid = datatype.connectivity.gid.hex

@@ -48,7 +48,7 @@ from tvb.datatypes.tracts import Tracts
 from tvb.datatypes.volumes import Volume
 from tvb.datatypes.cortex import Cortex
 from tvb.core.entities.file.simulator.cortex_h5 import CortexH5
-from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotationsH5
+from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotationsH5, ConnectivityAnnotations
 from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
 from tvb.core.entities.file.datatypes.fcd_h5 import FcdH5
 from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5, CorrelationCoefficientsH5, CovarianceH5
@@ -132,6 +132,6 @@ def populate_datatypes_registry():
     REGISTRY.register_datatype(StimuliRegion, StimuliRegionH5, StimuliRegionIndex)
     REGISTRY.register_datatype(StimuliSurface, StimuliSurfaceH5, StimuliSurfaceIndex)
     REGISTRY.register_datatype(None, DatatypeMeasureH5, DatatypeMeasureIndex)
-    REGISTRY.register_datatype(None, ConnectivityAnnotationsH5, ConnectivityAnnotationsIndex)
+    REGISTRY.register_datatype(ConnectivityAnnotations, ConnectivityAnnotationsH5, ConnectivityAnnotationsIndex)
     REGISTRY.register_datatype(None, ValueWrapperH5, ValueWrapperIndex)
     REGISTRY.register_datatype(Cortex, CortexH5, None)

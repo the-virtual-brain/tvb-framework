@@ -35,7 +35,7 @@ import uuid
 from tvb.adapters.uploaders.brco.parser import XMLParser
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotationsH5
+from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotations
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
@@ -71,22 +71,16 @@ class BRCOImporter(ABCUploader):
     @transactional
     def launch(self, data_file, connectivity):
         try:
-            with h5.h5_file_for_index(connectivity) as original_conn_h5:
-                region_labels = original_conn_h5.region_labels.load()
+            conn = h5.load_from_index(connectivity)
 
-            parser = XMLParser(data_file, region_labels)
+            parser = XMLParser(data_file, conn.region_labels)
             annotations = parser.read_annotation_terms()
 
-            result = ConnectivityAnnotationsIndex()
-            result.connectivity_gid = connectivity.gid
-            result.annotations_length = len(annotations)
+            result_ht = ConnectivityAnnotations()
+            result_ht.set_annotations(annotations)
+            result_ht.connectivity = conn
 
-            result_path = h5.path_for(self.storage_path, ConnectivityAnnotationsH5, result.gid)
-            with ConnectivityAnnotationsH5(result_path) as result_h5:
-                result_h5.connectivity.store(uuid.UUID(connectivity.gid))
-                result_h5.gid.store(uuid.UUID(result.gid))
-                result_h5.store_annotations(annotations)
-
+            result = h5.store_complete(result_ht, self.storage_path)
             return result
         except Exception as excep:
             self.log.exception("Could not process Connectivity Annotations")
