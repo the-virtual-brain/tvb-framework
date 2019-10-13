@@ -20,6 +20,7 @@ pipeline {
                       python setup.py sdist
                       python setup.py bdist_wheel
                 '''
+                archiveArtifacts artifacts: 'dist/*'
             }
         }
         stage ('Run unit-tests') {
@@ -34,15 +35,12 @@ pipeline {
                     pytest tvb/tests --junitxml=TEST_OUTPUT/TEST-RESULTS.xml
                     exit 0
                 '''
+                junit 'TEST_OUTPUT/TEST-RESULTS.xml'
             }
         }
     }
 
     post {
-        always {
-            archiveArtifacts artifacts: 'dist/*'
-            junit 'TEST_OUTPUT/TEST-RESULTS.xml'
-        }
         changed {
             mail to: 'lia.domide@codemart.ro, paula.popa@codemart.ro',
             subject: "Jenkins Pipeline ${currentBuild.fullDisplayName} changed status",
