@@ -171,11 +171,11 @@ class TVBLoader(object):
         fname = '{}_{}.h5'.format(h5_file_class.file_name_base(), gid.hex)
         return os.path.join(operation_dir, fname)
 
-    def load_from_index(self, dt_index):
-        # type: (DataType) -> HasTraits
+    def load_from_index(self, dt_index, dt_class=None):
+        # type: (DataType, typing.Type[HasTraits]) -> HasTraits
         h5_path = self.path_for_stored_index(dt_index)
         h5_file_class = self.registry.get_h5file_for_index(dt_index.__class__)
-        traits_class = self.registry.get_datatype_for_index(dt_index.__class__)
+        traits_class = dt_class or self.registry.get_datatype_for_index(dt_index.__class__)
         with h5_file_class(h5_path) as f:
             result_dt = traits_class()
             f.load_into(result_dt)

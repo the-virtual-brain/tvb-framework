@@ -44,6 +44,7 @@ from tvb.core.neotraits._forms import UploadField, SimpleStrField, DataTypeSelec
 from tvb.core.neocom import h5
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG
 from tvb.datatypes.projections import *
+from tvb.datatypes.surfaces import CorticalSurface
 
 DEFAULT_DATASET_NAME = "ProjectionMatrix"
 
@@ -118,25 +119,25 @@ class ProjectionMatrixSurfaceEEGImporter(ABCUploader):
 
         self.logger.debug("Reading projection matrix from uploaded file...")
         if projection_file.endswith(".mat"):
-            eeg_projection_data = self.read_matlab_data(projection_file, dataset_name)
+            projection_data = self.read_matlab_data(projection_file, dataset_name)
         else:
-            eeg_projection_data = self.read_list_data(projection_file)
+            projection_data = self.read_list_data(projection_file)
 
-        if eeg_projection_data is None or len(eeg_projection_data) == 0:
+        if projection_data is None or len(projection_data) == 0:
             raise LaunchException("Invalid (empty) dataset...")
 
-        if eeg_projection_data.shape[0] != sensors.number_of_sensors:
-            raise LaunchException("Invalid Projection Matrix shape[0]: %d Expected: %d" % (eeg_projection_data.shape[0],
+        if projection_data.shape[0] != sensors.number_of_sensors:
+            raise LaunchException("Invalid Projection Matrix shape[0]: %d Expected: %d" % (projection_data.shape[0],
                                                                                            sensors.number_of_sensors))
 
-        if eeg_projection_data.shape[1] != expected_shape:
-            raise LaunchException("Invalid Projection Matrix shape[1]: %d Expected: %d" % (eeg_projection_data.shape[1],
+        if projection_data.shape[1] != expected_shape:
+            raise LaunchException("Invalid Projection Matrix shape[1]: %d Expected: %d" % (projection_data.shape[1],
                                                                                            expected_shape))
 
         projection_matrix_type = determine_projection_type(sensors)
-        surface_ht = h5.load_from_index(surface)
+        surface_ht = h5.load_from_index(surface, CorticalSurface)
         sensors_ht = h5.load_from_index(sensors)
-        projection_matrix = ProjectionMatrix(surface=surface_ht, sensors=sensors_ht,
+        projection_matrix = ProjectionMatrix(sources=surface_ht, sensors=sensors_ht,
                                              projection_type=projection_matrix_type,
-                                             eeg_projection_data=eeg_projection_data)
+                                             projection_data=projection_data)
         return h5.store_complete(projection_matrix, self.storage_path)

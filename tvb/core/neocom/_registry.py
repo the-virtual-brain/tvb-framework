@@ -29,12 +29,10 @@
 #
 
 import typing
-
-if typing.TYPE_CHECKING:
-    from tvb.basic.neotraits.api import HasTraits
-    from tvb.core.entities.model.model_datatype import DataType
-    from tvb.core.neotraits.h5 import H5File
-    from tvb.core.neotraits.db import HasTraitsIndex
+from tvb.basic.neotraits.api import HasTraits
+from tvb.core.entities.model.model_datatype import DataType
+from tvb.core.neotraits.h5 import H5File
+from tvb.core.neotraits.db import HasTraitsIndex
 
 
 class Registry(object):
