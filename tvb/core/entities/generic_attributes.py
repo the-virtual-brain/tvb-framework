@@ -45,6 +45,7 @@ class GenericAttributes(object):
     user_tag_4 = ''
     user_tag_5 = ''
     visible = True
+    create_date = None
 
     def fill_from(self, extra_attributes):
         # type: (GenericAttributes) -> None

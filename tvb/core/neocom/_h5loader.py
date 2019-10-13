@@ -110,9 +110,9 @@ class DirLoader(object):
             if self.recursive:
                 sub_dt_refs = f.gather_references()
 
-        for fname, sub_gid in sub_dt_refs:
+        for traited_attr, sub_gid in sub_dt_refs:
             subdt = self.load(sub_gid)
-            setattr(datatype, fname, subdt)
+            setattr(datatype, traited_attr.field_name, subdt)
 
         return datatype
 
@@ -129,8 +129,8 @@ class DirLoader(object):
             if self.recursive:
                 sub_dt_refs = f.gather_references()
 
-        for fname, sub_gid in sub_dt_refs:
-            subdt = getattr(datatype, fname)
+        for traited_attr, sub_gid in sub_dt_refs:
+            subdt = getattr(datatype, traited_attr.field_name)
             self.store(subdt)
 
     def path_for(self, h5_file_class, gid):
@@ -191,9 +191,11 @@ class TVBLoader(object):
             ga = f.load_generic_attributes()
             sub_dt_refs = f.gather_references()
 
-        for fname, sub_gid in sub_dt_refs:
+        for traited_attr, sub_gid in sub_dt_refs:
+            if sub_gid is None:
+                continue
             ref_idx = dao.get_datatype_by_gid(sub_gid.hex, load_lazy=False)
-            ref_ht = self.load_from_index(ref_idx)
-            setattr(datatype, fname, ref_ht)
+            ref_ht = self.load_from_index(ref_idx, traited_attr.field_type)
+            setattr(datatype, traited_attr.field_name, ref_ht)
 
         return datatype, ga

@@ -35,7 +35,7 @@ Entities for Generic DataTypes, Links and Groups of DataTypes are defined here.
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 .. moduleauthor:: Yann Gordon <yann@tvb.invalid>
 """
-
+from datetime import datetime
 from copy import copy
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, Integer, String, Float, Column, ForeignKey
@@ -198,6 +198,7 @@ class DataType(HasTraitsIndex):
         self.user_tag_5 = attrs.user_tag_5
         self.is_nan = attrs.is_nan
         self.visible = attrs.visible
+        self.create_date = attrs.create_date or datetime.now()
 
 
 class DataTypeMatrix(DataType):

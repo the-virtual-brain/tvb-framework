@@ -212,15 +212,15 @@ class ImportService(object):
             # Keep a list with all burst that were imported since we will want to also add the workflow
             # steps after we are finished with importing the operations and datatypes. We need to first
             # stored bursts since we need to know which new id's they have for operations parent_burst.
-            bursts_dict, dt_mappings_dict = self._load_burst_info_from_json(new_project_path)
-            burst_ids_mapping = self._import_bursts(project_entity, bursts_dict)
+            # bursts_dict, dt_mappings_dict = self._load_burst_info_from_json(new_project_path)
+            # burst_ids_mapping = self._import_bursts(project_entity, bursts_dict)
 
             # Now import project operations
-            self.import_project_operations(project_entity, new_project_path, dt_mappings_dict, burst_ids_mapping)
+            self.import_project_operations(project_entity, new_project_path)
             # Import images
             self._store_imported_images(project_entity)
             # Now we can finally import workflow related entities
-            self.import_workflows(project_entity, bursts_dict, burst_ids_mapping)
+            # self.import_workflows(project_entity, bursts_dict, burst_ids_mapping)
 
 
     def import_workflows(self, project, bursts_dict, burst_ids_mapping):

@@ -33,10 +33,13 @@ Demo script on how to load a TVB DataType by Id and modify metadata
 
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
+
 import os
 from uuid import UUID
+from datetime import datetime
 from tvb.basic.profile import TvbProfile
 from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
+from tvb.core.utils import date2string
 
 TvbProfile.set_profile(TvbProfile.COMMAND_PROFILE)
 
@@ -56,6 +59,7 @@ def update_local_connectivity_metadata(file_path):
                                         'user_tag_4': "",
                                         'user_tag_5': "",
                                         'type': "",
+                                        'create_date': date2string(datetime.now()),
                                         'visible': True,
                                         'is_nan': False,
                                         'gid': UUID('3e551cbd-47ca-11e4-9f21-3c075431bf56').urn,

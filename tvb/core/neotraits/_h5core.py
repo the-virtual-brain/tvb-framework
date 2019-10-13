@@ -37,7 +37,7 @@ from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
 from tvb.basic.neotraits.api import HasTraits, Attr
 from tvb.core.entities.generic_attributes import GenericAttributes
 from tvb.core.neotraits._h5accessors import Uuid, Scalar, Accessor, DataSet, Reference, JsonFinal
-from tvb.core.utils import date2string
+from tvb.core.utils import date2string, string2date
 
 
 class H5File(object):
@@ -174,6 +174,7 @@ class H5File(object):
         self.generic_attributes.user_tag_4 = self.user_tag_4.load()
         self.generic_attributes.user_tag_5 = self.user_tag_5.load()
         self.generic_attributes.visible = self.visible.load()
+        self.generic_attributes.create_date = string2date(str(self.create_date.load())) or None
         return self.generic_attributes
 
 
@@ -181,7 +182,7 @@ class H5File(object):
         ret = []
         for accessor in self.iter_accessors():
             if isinstance(accessor, Reference):
-                ret.append((accessor.trait_attribute.field_name, accessor.load()))
+                ret.append((accessor.trait_attribute, accessor.load()))
         return ret
 
 
