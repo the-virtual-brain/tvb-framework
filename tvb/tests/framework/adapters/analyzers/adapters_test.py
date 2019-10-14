@@ -30,8 +30,10 @@
 
 import os
 from tvb.adapters.analyzers.ica_adapter import ICAAdapter
+from tvb.adapters.analyzers.metrics_group_timeseries import TimeseriesMetricsAdapter
 from tvb.adapters.analyzers.pca_adapter import PCAAdapter
 from tvb.adapters.analyzers.wavelet_adapter import ContinuousWaveletTransformAdapter
+from tvb.core.entities.file.datatypes.mapped_value_h5 import DatatypeMeasureH5
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5, IndependentComponentsH5
 from tvb.core.entities.file.datatypes.spectral_h5 import WaveletCoefficientsH5
 from tvb.core.neocom import h5
@@ -87,3 +89,20 @@ def test_ica_adapter(tmpdir, session, operationFactory):
 
     result_h5 = h5.path_for(storage_folder, IndependentComponentsH5, ica_idx.gid)
     assert os.path.exists(result_h5)
+
+
+def test_metrics_adapter_launch(tmpdir, session, operationFactory):
+    storage_folder = str(tmpdir)
+    ts_index = make_ts_from_op(session, operationFactory)
+
+    metrics_adapter = TimeseriesMetricsAdapter()
+    metrics_adapter.storage_path = storage_folder
+    metrics_adapter.configure(ts_index)
+
+    disk = metrics_adapter.get_required_disk_size()
+    mem = metrics_adapter.get_required_memory_size()
+
+    datatype_measure_index = metrics_adapter.launch(ts_index)
+
+    result_h5 = h5.path_for(storage_folder, DatatypeMeasureH5, datatype_measure_index.gid)
+    assert  os.path.exists(result_h5)

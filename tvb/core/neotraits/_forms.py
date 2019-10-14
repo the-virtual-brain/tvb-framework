@@ -190,6 +190,16 @@ class SimpleSelectField(Field):
 class MultipleSelectField(SimpleSelectField):
     template = 'checkbox_field.jinja2'
 
+    def fill_from_post(self, post_data):
+        super(SimpleSelectField, self).fill_from_post(post_data)
+        if self.data is not None:
+            if not isinstance(self.data, list):
+                self.data = [self.data]
+            data = list()
+            for choice in self.data:
+                data.append(self.choices.get(choice))
+            self.data = data
+
 
 class SimpleArrayField(Field):
     template = 'str_field.jinja2'

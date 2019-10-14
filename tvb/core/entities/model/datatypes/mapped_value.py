@@ -75,8 +75,8 @@ class DatatypeMeasureIndex(DataType):
         name = "-"
         if self.metrics is not None:
             value = "\n"
-            metrics = json.load(self.metrics)
-            for entry in self.metrics:
-                value = value + entry + ' : ' + str(metrics[entry]) + '\n'
+            metrics = json.loads(self.metrics)
+            for entry, metric_value in metrics.items():
+                value = value + entry + ' : ' + str(metric_value) + '\n'
             name = value
         return name

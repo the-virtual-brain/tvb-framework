@@ -43,12 +43,13 @@ import zipfile
 import sys
 from copy import copy
 from cgi import FieldStorage
+from tvb.analyzers.metrics_base import BaseTimeseriesMetricAlgorithm
 from tvb.basic.exceptions import TVBException
 from tvb.basic.neotraits._attr import Range
 #from tvb.basic.neotraits.map_as_json import MapAsJson
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
-from tvb.adapters.analyzers.metrics_group_timeseries import TimeseriesMetricsAdapter
+from tvb.adapters.analyzers.metrics_group_timeseries import TimeseriesMetricsAdapter, TimeseriesMetricsAdapterForm
 from tvb.core import utils
 from tvb.core.adapters import constants
 from tvb.core.adapters.abcadapter import ABCAdapter, ABCSynchronous
@@ -185,7 +186,10 @@ class OperationService:
                                                   TimeseriesMetricsAdapter.__name__)
 
         time_series_index = dao.get_generic_entity(TimeSeriesIndex, sim_operation.id, 'fk_from_operation')[0]
-        op_params = json.dumps({'timeseries: ': time_series_index.gid})
+        ts_metrics_adapter_form = TimeseriesMetricsAdapterForm()
+        ts_metrics_adapter_form.fill_from_trait(BaseTimeseriesMetricAlgorithm())
+        ts_metrics_adapter_form.time_series.data = time_series_index.gid
+        op_params = json.dumps(ts_metrics_adapter_form.get_dict())
         range_values = sim_operation.range_values
         metadata = {DataTypeMetaData.KEY_BURST: time_series_index.fk_parent_burst}
         metadata, user_group = self._prepare_metadata(metadata, metric_algo.algorithm_category, None, op_params)

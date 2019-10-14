@@ -63,6 +63,11 @@ ALGORITHMS = BaseTimeseriesMetricAlgorithm.get_known_subclasses(include_itself=F
 
 class TimeseriesMetricsAdapterForm(ABCAdapterForm):
 
+    @staticmethod
+    def get_extra_algorithm_filters():
+        return {"KuramotoIndex": FilterChain(fields=[FilterChain.datatype + '.data_length_2d'], operations=[">="],
+                                             values=[2])}
+
     def __init__(self, prefix='', project_id=None):
         super(TimeseriesMetricsAdapterForm, self).__init__(prefix, project_id)
         self.time_series = DataTypeSelectField(self.get_required_datatype(), self, name="time_series",
@@ -157,8 +162,8 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
                 algorithm.start_point = start_point
 
             # Validate that current algorithm's filter is valid.
-            if (algorithm.accept_filter is not None and
-                    not algorithm.accept_filter.get_python_filter_equivalent(time_series)):
+            algorithm_filter = TimeseriesMetricsAdapterForm.get_extra_algorithm_filters().get(algorithm_name)
+            if algorithm_filter is not None and not algorithm_filter.get_python_filter_equivalent(time_series):
                 LOG.warning('Measure algorithm will not be computed because of incompatibility on input. '
                             'Filters failed on algo: ' + str(algorithm_name))
                 continue
@@ -174,12 +179,12 @@ class TimeseriesMetricsAdapter(ABCAsynchronous):
 
         result = DatatypeMeasureIndex()
         result.source_gid = time_series.gid
-        result.metrics = json.store(metrics_results)
+        result.metrics = json.dumps(metrics_results)
 
         result_path = h5.path_for(self.storage_path, DatatypeMeasureH5, result.gid)
         with DatatypeMeasureH5(result_path) as result_h5:
             result_h5.metrics.store(metrics_results)
-            result_h5.analyzed_datatype.store(time_series)
-            result_h5.gid.store(uuid.UUID(result_h5.gid))
+            result_h5.analyzed_datatype.store(dt_timeseries)
+            result_h5.gid.store(uuid.UUID(result.gid))
 
         return result
