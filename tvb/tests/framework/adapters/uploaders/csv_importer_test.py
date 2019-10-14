@@ -38,7 +38,6 @@ from os import path
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.datatypes.connectivity import Connectivity
-
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.neocom.h5 import h5_file_for_index
@@ -155,7 +154,6 @@ class TestCSVConnectivityImporter(TransactionalTestCase):
         assert (reference_connectivity.centres == imported_connectivity.centres).all()
         assert (reference_connectivity.orientations == imported_connectivity.orientations).all()
         assert (reference_connectivity.region_labels == imported_connectivity.region_labels).all()
-
 
     def test_bad_reference(self):
         zip_path = path.join(path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_66.zip')

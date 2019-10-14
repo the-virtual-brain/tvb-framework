@@ -33,19 +33,12 @@
 """
 
 import os
-from cherrypy._cpreqbody import Part
-from cherrypy.lib.httputil import HeaderMap
 from tvb.interfaces.neocom.config import Surface
-
-from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporterForm
 from tvb.core.neocom.h5 import h5_file_for_index
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.core.services.flow_service import FlowService
-from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.datatypes.surfaces import FaceSurface, FACE
-
+from tvb.datatypes.surfaces import FaceSurface
 import tvb_data.obj
 
 

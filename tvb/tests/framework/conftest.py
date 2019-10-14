@@ -47,7 +47,6 @@ from tvb.datatypes.surfaces import Surface, CorticalSurface
 from tvb.simulator.simulator import Simulator
 from tvb.tests.framework.core.base_testcase import TvbProfile
 
-
 def pytest_addoption(parser):
     parser.addoption("--profile", action="store", default="TEST_SQLITE_PROFILE",
                      help="my option: TEST_POSTGRES_PROFILE or TEST_SQLITE_PROFILE")
@@ -174,7 +173,7 @@ def connectivity_factory():
             areas=numpy.zeros((nr_regions * nr_regions,)),
             number_of_regions=nr_regions,
             number_of_connections=nr_regions * nr_regions,
-            saved_selection=["a", "b", "C"]
+            saved_selection=[1, 2, 3]
         )
 
     return build
@@ -257,10 +256,10 @@ def sensors_factory():
 
 
 @pytest.fixture()
-def regionSimulationFactory(connectivity_factory):
+def region_simulation_factory(connectivity_factory):
     def build(connectivity=None, simulation_length=100):
         if not connectivity:
-            connectivity = connectivityFactory(2)
+            connectivity = connectivity_factory(2)
         return Simulator(connectivity=connectivity,
                          surface=None,
                          simulation_length=simulation_length)

@@ -52,15 +52,12 @@ class TestNetworkxImporter(TransactionalTestCase):
 
     upload_file = os.path.join(os.path.dirname(__file__), "test_data", 'connectome_83.gpickle')
 
-
     def transactional_setup_method(self):
         self.test_user = TestFactory.create_user('Networkx_User')
         self.test_project = TestFactory.create_project(self.test_user, "Networkx_Project")
 
-
     def transactional_teardown_method(self):
         FilesHelper().remove_project_structure(self.test_project.name)
-
 
     def test_import(self):
 

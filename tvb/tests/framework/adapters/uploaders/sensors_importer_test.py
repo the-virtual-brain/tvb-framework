@@ -88,7 +88,6 @@ class TestSensorsImporter(TransactionalTestCase):
         assert expected_size == len(eeg_sensors.locations)
         assert (expected_size, 3) == eeg_sensors.locations.shape
 
-
     def test_import_meg_sensors(self):
         """
         This method tests import of a file containing MEG sensors.

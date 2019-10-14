@@ -35,12 +35,18 @@ import json
 import os
 import numpy
 import tvb_data.nifti as demo_data
+import tvb_data
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
+from tvb.datatypes.region_mapping import RegionVolumeMapping
+from tvb.datatypes.structural import StructuralMRI
+from tvb.datatypes.time_series import TimeSeriesVolume
 from tvb.adapters.uploaders.nifti_importer import NIFTIImporterForm
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesVolumeIndex
+from tvb.core.neocom.h5 import h5_file_for_index
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -48,6 +54,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.exceptions import OperationException
 from tvb.core.adapters.abcadapter import ABCAdapter
+
 
 class TestNIFTIImporter(TransactionalTestCase):
     """
@@ -58,23 +65,20 @@ class TestNIFTIImporter(TransactionalTestCase):
     GZ_NII_FILE = os.path.join(os.path.dirname(demo_data.__file__), 'minimal.nii.gz')
     TIMESERIES_NII_FILE = os.path.join(os.path.dirname(demo_data.__file__), 'time_series_152.nii.gz')
     WRONG_NII_FILE = os.path.abspath(__file__)
-    TXT_FILE = os.path.join(os.path.dirname(demo_data.__file__), 'text_file.txt')
+    TXT_FILE = os.path.join(os.path.dirname(demo_data.__file__), 'volume_mapping/mapping_FS_76.txt')
 
     DEFAULT_ORIGIN = [[0.0, 0.0, 0.0]]
     UNKNOWN_STR = "unknown"
 
-
     def transactional_setup_method(self):
         self.test_user = TestFactory.create_user('Nifti_Importer_User')
         self.test_project = TestFactory.create_project(self.test_user, "Nifti_Importer_Project")
-
 
     def transactional_teardown_method(self):
         """
         Clean-up tests data
         """
         FilesHelper().remove_project_structure(self.test_project.name)
-
 
     def _import(self, import_file_path=None, expected_result_class=StructuralMRIIndex, connectivity=None):
         """
@@ -96,8 +100,9 @@ class TestNIFTIImporter(TransactionalTestCase):
         form.mappings_file.data = self.TXT_FILE
         importer.submit_form(form)
 
+
         ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
+        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_dict())
 
         dts, count = dao.get_values_of_datatype(self.test_project.id, expected_result_class, None)
         assert 1, count == "Project should contain only one data type."
@@ -106,47 +111,62 @@ class TestNIFTIImporter(TransactionalTestCase):
         assert result is not None, "Result should not be none"
         return result
 
-
     def test_import_demo_ts(self):
         """
         This method tests import of a NIFTI file.
         """
-        time_series = self._import(self.TIMESERIES_NII_FILE, TimeSeriesVolumeIndex)
+        time_series_index = self._import(self.TIMESERIES_NII_FILE, TimeSeriesVolumeIndex)
 
         # Since self.assertAlmostEquals is not available on all machine
         # We compare floats as following
-        assert abs(1.0 - time_series.sample_period) <= 0.001
-        assert "sec" == str(time_series.sample_period_unit)
-        assert time_series.title.startswith("NIFTI")
+        assert abs(1.0 - time_series_index.sample_period) <= 0.001
+        assert "sec" == str(time_series_index.sample_period_unit)
+        assert time_series_index.title.startswith("NIFTI")
 
-        dimension_labels = time_series.labels_ordering
+        dimension_labels = time_series_index.labels_ordering
         assert dimension_labels is not None
         assert 4 == len(json.loads(dimension_labels))
-        volume = time_series.volume
-        assert volume is not None
+
+        volume_index = ABCAdapter.load_entity_by_gid(time_series_index.volume_gid)
+        assert volume_index is not None
+
+        volume_h5_file = h5_file_for_index(volume_index)
+        volume = TimeSeriesVolume()
+        volume_h5_file.load_into(volume)
+        volume_h5_file.close()
+
         assert numpy.equal(self.DEFAULT_ORIGIN, volume.origin).all()
         assert "mm" == volume.voxel_unit
-
 
     def test_import_nii_without_time_dimension(self):
         """
         This method tests import of a NIFTI file.
         """
-        structure = self._import(self.NII_FILE)
-        assert "T1" == structure.weighting
+        structural_mri_index = self._import(self.NII_FILE)
+        assert "T1" == structural_mri_index.weighting
 
-        data_shape = structure.array_data.shape
+        structural_mri_h5_file = h5_file_for_index(structural_mri_index)
+        structural_mri = StructuralMRI()
+        structural_mri_h5_file.load_into(structural_mri)
+        structural_mri_h5_file.close()
+
+        data_shape = structural_mri.array_data.shape
         assert 3 == len(data_shape)
         assert 64 == data_shape[0]
         assert 64 == data_shape[1]
         assert 10 == data_shape[2]
 
-        volume = structure.volume
-        assert volume is not None
+        volume_index = ABCAdapter.load_entity_by_gid(structural_mri_index.volume_gid)
+        assert volume_index is not None
+
+        volume_h5_file = h5_file_for_index(volume_index)
+        volume = TimeSeriesVolume()
+        volume_h5_file.load_into(volume)
+        volume_h5_file.close()
+
         assert numpy.equal(self.DEFAULT_ORIGIN, volume.origin).all()
         assert numpy.equal([3.0, 3.0, 3.0], volume.voxel_size).all()
         assert self.UNKNOWN_STR == volume.voxel_unit
-
 
     def test_import_nifti_compressed(self):
         """
@@ -155,27 +175,39 @@ class TestNIFTIImporter(TransactionalTestCase):
         structure = self._import(self.GZ_NII_FILE)
         assert "T1" == structure.weighting
 
-
-    def test_import_region_mapping(self, connectivity_factory):
+    def test_import_region_mapping(self):
         """
         This method tests import of a NIFTI file compressed in GZ format.
         """
-        to_link_conn = connectivity_factory[1]
-        mapping = self._import(self.GZ_NII_FILE, RegionVolumeMappingIndex, to_link_conn.gid)
+        zip_path = os.path.join(os.path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_76.zip')
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path, "John")
+        to_link_conn = TestFactory.get_entity(self.test_project, ConnectivityIndex)
+        mapping_index = self._import(self.GZ_NII_FILE, RegionVolumeMappingIndex, to_link_conn.gid)
+
+        mapping_h5_file = h5_file_for_index(mapping_index)
+        mapping = RegionVolumeMapping()
+        mapping_h5_file.load_into(mapping)
+        mapping_h5_file.close()
 
         assert -1 <= mapping.array_data.min()
         assert mapping.array_data.max() < to_link_conn.number_of_regions
 
-        conn = mapping.connectivity
-        assert conn is not None
-        assert to_link_conn.number_of_regions == conn.number_of_regions
+        connectivity_index = ABCAdapter.load_entity_by_gid(mapping_index.connectivity_gid)
+        assert connectivity_index is not None
 
-        volume = mapping.volume
-        assert volume is not None
+        assert to_link_conn.number_of_regions == connectivity_index.number_of_regions
+
+        volume_index = ABCAdapter.load_entity_by_gid(mapping_index.volume_gid)
+        assert volume_index is not None
+
+        volume_h5_file = h5_file_for_index(volume_index)
+        volume = TimeSeriesVolume()
+        volume_h5_file.load_into(volume)
+        volume_h5_file.close()
+
         assert numpy.equal(self.DEFAULT_ORIGIN, volume.origin).all()
         assert numpy.equal([3.0, 3.0, 3.0], volume.voxel_size).all()
         assert self.UNKNOWN_STR == volume.voxel_unit
-
 
     def test_import_wrong_nii_file(self):
         """

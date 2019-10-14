@@ -34,11 +34,14 @@
 """
 
 from tvb.basic.logger.builder import get_logger
+from tvb.datatypes.surfaces import CorticalSurface
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.filters.chain import FilterChain
+from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
+from tvb.core.neocom.h5 import h5_file_for_index
 from tvb.core.neotraits._forms import UploadField, SimpleStrField, DataTypeSelectField
 from tvb.core.neocom import h5
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG
@@ -93,7 +96,7 @@ class ProjectionMatrixSurfaceEEGImporter(ABCUploader):
         return ProjectionMatrixImporterForm
 
     def get_output(self):
-        return [ProjectionSurfaceEEG, ProjectionSurfaceMEG, ProjectionSurfaceSEEG]
+        return [ProjectionMatrixIndex]
 
     def launch(self, projection_file, surface, sensors, dataset_name=DEFAULT_DATASET_NAME):
         """
@@ -133,9 +136,18 @@ class ProjectionMatrixSurfaceEEGImporter(ABCUploader):
                                                                                            expected_shape))
 
         projection_matrix_type = determine_projection_type(sensors)
-        surface_ht = h5.load_from_index(surface)
-        sensors_ht = h5.load_from_index(sensors)
-        projection_matrix = ProjectionMatrix(sources=surface_ht, sensors=sensors_ht,
+
+        surface_h5_file = h5_file_for_index(surface)
+        surface_ht = CorticalSurface()
+        surface_h5_file.load_into(surface_ht)
+        surface_h5_file.close()
+
+        sensors_h5_file = h5_file_for_index(sensors)
+        sensors_ht = SensorsEEG()
+        sensors_h5_file.load_into(sensors_ht)
+        sensors_h5_file.close()
+
+        projection_matrix = ProjectionSurfaceEEG(sources=surface_ht, sensors=sensors_ht,
                                              projection_type=projection_matrix_type,
                                              projection_data=eeg_projection_data)
         return h5.store_complete(projection_matrix, self.storage_path)

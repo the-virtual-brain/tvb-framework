@@ -33,7 +33,6 @@
 """
 
 import os
-
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.adapters.uploaders.gifti_surface_importer import GIFTISurfaceImporterForm
@@ -47,6 +46,7 @@ from tvb.datatypes.surfaces import CorticalSurface
 from tvb.core.services.exceptions import OperationException
 from tvb.adapters.uploaders.gifti.parser import GIFTIParser, OPTION_READ_METADATA
 import tvb_data.gifti as demo_data
+
 
 class TestGIFTISurfaceImporter(TransactionalTestCase):
     """
@@ -66,7 +66,6 @@ class TestGIFTISurfaceImporter(TransactionalTestCase):
         Clean-up tests data
         """
         FilesHelper().remove_project_structure(self.test_project.name)
-
 
     def _importSurface(self, import_file_path=None):
         """

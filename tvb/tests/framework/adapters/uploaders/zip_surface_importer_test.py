@@ -33,18 +33,11 @@
 """
 
 import os
-from cherrypy._cpreqbody import Part
-from cherrypy.lib.httputil import HeaderMap
-from tvb.adapters.uploaders.zip_surface_importer import ZIPSurfaceImporterForm
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.core.services.flow_service import FlowService
-from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.datatypes.surfaces import SkullSkin, OUTER_SKULL, CORTICAL
+from tvb.datatypes.surfaces import CORTICAL
 import tvb_data.surfaceData
-
 
 
 class TestZIPSurfaceImporter(TransactionalTestCase):
@@ -54,41 +47,12 @@ class TestZIPSurfaceImporter(TransactionalTestCase):
 
     surf_skull = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'outer_skull_4096.zip')
 
-
     def transactional_setup_method(self):
         self.test_user = TestFactory.create_user('Zip_Surface_User')
         self.test_project = TestFactory.create_project(self.test_user, 'Zip_Surface_Project')
 
-
     def transactional_teardown_method(self):
         FilesHelper().remove_project_structure(self.test_project.name)
-
-
-    def _importSurface(self, import_file_path=None):
-        ### Retrieve Adapter instance
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.zip_surface_importer', 'ZIPSurfaceImporter')
-
-        form = ZIPSurfaceImporterForm()
-        form.fill_from_post({'_uploaded': Part(import_file_path, HeaderMap({}), ''),
-                             '_zero_based_triangles': 'True',
-                             '_should_center': 'True',
-                             '_surface_type': OUTER_SKULL,
-                             '_Data_Subject': 'John Doe'
-                            })
-        form.uploaded.data=import_file_path
-        importer.submit_form(form)
-
-        ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
-
-        data_types = FlowService().get_available_datatypes(self.test_project.id, SurfaceIndex)[0]
-        assert 1, len(data_types) == "Project should contain only one data type."
-
-        surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
-        surface.user_tag_3 = ''
-        assert surface is not None, "Surface should not be None"
-        return surface
-
 
     def test_import_surf_zip(self):
         surface = TestFactory.import_surface_zip(self.test_user, self.test_project, self.surf_skull, CORTICAL)

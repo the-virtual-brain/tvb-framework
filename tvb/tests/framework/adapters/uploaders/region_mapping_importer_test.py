@@ -32,14 +32,18 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
+import tvb_data.surfaceData
 import os
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
+from tvb.datatypes.region_mapping import RegionMapping
+from tvb.datatypes.surfaces import CORTICAL
 from tvb.adapters.uploaders.region_mapping_importer import RegionMappingImporterForm
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
+from tvb.core.neocom.h5 import h5_file_for_index
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 import tvb_data.regionMapping as demo_data
 import tvb.tests.framework.adapters.uploaders.test_data as test_data
@@ -71,32 +75,23 @@ class TestRegionMappingImporter(TransactionalTestCase):
         imports a CFF data-set
         """
         self.test_user = TestFactory.create_user("UserRM")
-        self.test_project = TestFactory.import_default_project(self.test_user)
-        self.connectivity = self._get_entity(ConnectivityIndex)
-        # TODO: filter by CorticalSurface
-        self.surface = self._get_entity(SurfaceIndex)
+        self.test_project = TestFactory.create_project(self.test_user)
+
+        zip_path = os.path.join(os.path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_76.zip')
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path, "John")
+        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex)
+
+        field = FilterChain.datatype + '.surface_type'
+        filters = FilterChain('', [field], [CORTICAL], ['=='])
+        cortex = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'cortex_16384.zip')
+        TestFactory.import_surface_zip(self.test_user, self.test_project, cortex, CORTICAL)
+        self.surface = TestFactory.get_entity(self.test_project, SurfaceIndex, filters)
 
     def transactional_teardown_method(self):
         """
         Clean-up tests data
         """
         FilesHelper().remove_project_structure(self.test_project.name)
-
-    def _get_entity(self, expected_data, filters=None):
-        """
-        Checks there is exactly one datatype with required specifications and returns it
-
-        :param expected_data: a class whose entity is to be returned
-        :param filters: optional, the returned entity will also have the required filters
-        :return: an object of class `expected_data`
-        """
-        dt_full_name = expected_data.__module__ + "." + expected_data.__name__
-        data_types = FlowService().get_available_datatypes(self.test_project.id, dt_full_name, filters)[0]
-        assert 1, len(data_types) == "Project should contain only one data type:" + str(expected_data.type)
-
-        entity = ABCAdapter.load_entity_by_gid(data_types[0][2])
-        assert entity is not None, "Instance should not be none"
-        return entity
 
     def _import(self, import_file_path, surface_gid, connectivity_gid):
         """
@@ -123,7 +118,7 @@ class TestRegionMappingImporter(TransactionalTestCase):
         # During setup we import a CFF which creates an additional RegionMapping
         # So, here we have to find our mapping (just imported)
         data_filter = FilterChain(fields=[FilterChain.datatype + ".subject"], operations=["=="], values=[test_subject])
-        region_mapping = self._get_entity(RegionMappingIndex, data_filter)
+        region_mapping = TestFactory.get_entity(self.test_project, RegionMappingIndex)
 
         return region_mapping
 
@@ -167,10 +162,18 @@ class TestRegionMappingImporter(TransactionalTestCase):
         """
         This method tests import of region mapping from TXT file
         """
-        region_mapping = self._import(import_file, self.surface.gid, self.connectivity.gid)
+        region_mapping_index = self._import(import_file, self.surface.gid, self.connectivity.gid)
 
-        assert region_mapping.surface is not None
-        assert region_mapping.connectivity is not None
+        surface_index = ABCAdapter.load_entity_by_gid(region_mapping_index.surface_gid)
+        assert surface_index is not None
+
+        connectivity_index = ABCAdapter.load_entity_by_gid(region_mapping_index.connectivity_gid)
+        assert connectivity_index is not None
+
+        region_mapping_h5_file = h5_file_for_index(region_mapping_index)
+        region_mapping = RegionMapping()
+        region_mapping_h5_file.load_into(region_mapping)
+        region_mapping_h5_file.close()
 
         array_data = region_mapping.array_data
         assert array_data is not None

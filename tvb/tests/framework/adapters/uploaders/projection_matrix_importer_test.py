@@ -37,6 +37,7 @@ import os
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.adapters.uploaders.projection_matrix_importer import ProjectionMatrixImporterForm
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
@@ -49,7 +50,6 @@ from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.services.flow_service import FlowService
 from tvb.core.services.exceptions import OperationException
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.datatypes.projections import ProjectionSurfaceEEG
 from tvb.datatypes.surfaces import CORTICAL
 
 
@@ -71,7 +71,9 @@ class TestProjectionMatrix(TransactionalTestCase):
         zip_path = os.path.join(os.path.dirname(tvb_data.surfaceData.__file__), 'cortex_16384.zip')
         TestFactory.import_surface_zip(self.test_user, self.test_project, zip_path, CORTICAL, True)
 
-        self.surface = TestFactory.get_entity(self.test_project, SurfaceIndex)
+        field = FilterChain.datatype + '.surface_type'
+        filters = FilterChain('', [field], [CORTICAL], ['=='])
+        self.surface = TestFactory.get_entity(self.test_project, SurfaceIndex, filters)
         assert self.surface is not None
         self.sensors = TestFactory.get_entity(self.test_project, SensorsIndex)
         assert self.sensors is not None
@@ -103,7 +105,7 @@ class TestProjectionMatrix(TransactionalTestCase):
         self.importer.submit_form(form)
 
         try:
-            FlowService().fire_operation(self.importer, self.test_user, self.test_project.id, **form.get_form_values())
+            FlowService().fire_operation(self.importer, self.test_user, self.test_project.id, **form.get_dict())
             raise AssertionError("This was expected not to run! 62 rows in proj matrix, but 65 sensors")
         except OperationException:
             pass

@@ -61,10 +61,8 @@ class TestConnectivityMeasureImporter(TransactionalTestCase):
         TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path, "John")
         self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex)
 
-
     def transactional_teardown_method(self):
         FilesHelper().remove_project_structure(self.test_project.name)
-
 
     def _import(self, import_file_name):
         ### Retrieve Adapter instance
@@ -83,7 +81,6 @@ class TestConnectivityMeasureImporter(TransactionalTestCase):
 
         ### Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_dict())
-
 
     def test_happy_flow(self):
         assert 0 == TestFactory.get_entity_count(self.test_project, ConnectivityMeasureIndex())
