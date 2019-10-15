@@ -124,7 +124,8 @@ class SimulatorService(object):
         return simulator_in, connectivity_gid, simulation_state_gid
 
     @transactional
-    def _prepare_operation(self, project_id, user_id, simulator_id, simulator_index, algo_category, op_group, metadata):
+    def _prepare_operation(self, project_id, user_id, simulator_id, simulator_index, algo_category, op_group, metadata,
+                           ranges=None):
         operation_parameters = json.dumps({'simulator_gid': simulator_index.gid})
         metadata, user_group = self.operation_service._prepare_metadata(metadata, algo_category, op_group, {})
         meta_str = json.dumps(metadata)
@@ -134,7 +135,7 @@ class SimulatorService(object):
             op_group_id = op_group.id
 
         operation = Operation(user_id, project_id, simulator_id, operation_parameters, op_group_id=op_group_id,
-                              meta=meta_str)
+                              meta=meta_str, range_values=ranges)
 
         self.logger.debug("Saving Operation(userId=" + str(user_id) + ",projectId=" + str(project_id) + "," +
                           str(metadata) + ",algorithmId=" + str(simulator_id) + ", ops_group= " + str(
@@ -214,10 +215,11 @@ class SimulatorService(object):
                     simulator_index = SimulatorIndex()
                     simulator_index.fk_parent_burst = burst_config.id
                     simulator_index = dao.store_entity(simulator_index)
+                    ranges = json.dumps({range_param1.name: param1_value[0], range_param2.name: param2_value[0]})
 
                     operation = self._prepare_operation(project.id, user.id, simulator_id, simulator_index,
                                                         algo_category, operation_group,
-                                                        {DataTypeMetaData.KEY_BURST: burst_config.id})
+                                                        {DataTypeMetaData.KEY_BURST: burst_config.id}, ranges)
 
                     simulator_index.fk_from_operation = operation.id
                     dao.store_entity(simulator_index)

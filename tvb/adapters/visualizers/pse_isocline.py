@@ -61,6 +61,10 @@ class PseIsoModel(object):
         self.datatypes_gids = datatype_gids
         self.metrics = metrics
 
+    @staticmethod
+    def pse_filter():
+        return FilterChain(fields=[FilterChain.datatype + '.type'], operations=['!='], values=['SimulatorIndex'])
+
     @classmethod
     def from_db(cls, operation_group_id):
         """
@@ -85,20 +89,20 @@ class PseIsoModel(object):
             if not operation.has_finished:
                 raise LaunchException("Can not display until all operations from this range are finished!")
 
-            op_results = dao.get_results_for_operation(operation.id)
+            op_results = dao.get_results_for_operation(operation.id, PseIsoModel.pse_filter())
             if len(op_results):
                 datatype = op_results[0]
                 if datatype.type == "DatatypeMeasureIndex":
                     # Load proper entity class from DB.
                     dt_measure = dao.get_generic_entity(DatatypeMeasureIndex, datatype.id)[0]
                 else:
-                    dt_measure = dao.get_generic_entity(DatatypeMeasureIndex, datatype.gid, '_analyzed_datatype')
+                    dt_measure = dao.get_generic_entity(DatatypeMeasureIndex, datatype.gid, 'source_gid')
                     if dt_measure:
                         dt_measure = dt_measure[0]
                 break
 
         if dt_measure:
-            return dt_measure.metrics
+            return json.loads(dt_measure.metrics)
         else:
             raise LaunchException("No datatypes were generated due to simulation errors. Nothing to display.")
 
@@ -120,7 +124,7 @@ class PseIsoModel(object):
             if operation.status == STATUS_STARTED:
                 raise LaunchException("Not all operations from this range are complete. Cannot view until then.")
 
-            operation_results = dao.get_results_for_operation(operation.id)
+            operation_results = dao.get_results_for_operation(operation.id, PseIsoModel.pse_filter())
             if operation_results:
                 datatype = operation_results[0]
                 self.datatypes_gids[index_x][index_y] = str(datatype.gid)
@@ -128,14 +132,14 @@ class PseIsoModel(object):
                 if datatype.type == "DatatypeMeasureIndex":
                     measures = dao.get_generic_entity(DatatypeMeasureIndex, datatype.id)
                 else:
-                    measures = dao.get_generic_entity(DatatypeMeasureIndex, datatype.id, 'source_id')
+                    measures = dao.get_generic_entity(DatatypeMeasureIndex, datatype.gid, 'source_gid')
             else:
                 self.datatypes_gids[index_x][index_y] = None
                 measures = None
 
             for metric in self.metrics:
                 if measures:
-                    self.apriori_data[metric][index_x][index_y] = measures[0].metrics[metric]
+                    self.apriori_data[metric][index_x][index_y] = json.loads(measures[0].metrics)[metric]
                 else:
                     self.apriori_data[metric][index_x][index_y] = numpy.NaN
 
@@ -205,7 +209,7 @@ class IsoclinePSEAdapter(ABCDisplayer):
     def get_metric_matrix(self, datatype_group, selected_metric=None):
         self.model = PseIsoModel.from_db(datatype_group.fk_operation_group)
         if selected_metric is None:
-            selected_metric = list(self.model.metrics.keys())[0]
+            selected_metric = list(self.model.metrics)[0]
 
         data_matrix = self.model.apriori_data[selected_metric]
         data_matrix = numpy.rot90(data_matrix)
