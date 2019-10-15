@@ -1,9 +1,7 @@
 import json
 import numpy
 from collections import OrderedDict
-
-from tvb.basic.neotraits._core import HasTraits
-from tvb.basic.neotraits.api import NArray, Range
+from tvb.basic.neotraits.api import HasTraits, NArray, Range
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.surfaces import Surface
 from tvb.simulator.integrators import IntegratorStochastic

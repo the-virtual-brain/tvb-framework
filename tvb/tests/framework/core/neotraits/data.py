@@ -28,8 +28,7 @@
 #
 #
 
-from tvb.basic.neotraits._attr import Dim
-from tvb.basic.neotraits.api import HasTraits, Attr, NArray, Int, trait_property, cached_trait_property
+from tvb.basic.neotraits.api import HasTraits, Attr, NArray, Int, trait_property, cached_trait_property, Dim
 from tvb.basic.neotraits.ex import TraitValueError
 
 

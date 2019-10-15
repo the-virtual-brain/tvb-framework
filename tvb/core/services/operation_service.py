@@ -45,7 +45,7 @@ from copy import copy
 from cgi import FieldStorage
 from tvb.analyzers.metrics_base import BaseTimeseriesMetricAlgorithm
 from tvb.basic.exceptions import TVBException
-from tvb.basic.neotraits._attr import Range
+from tvb.basic.neotraits.api import Range
 #from tvb.basic.neotraits.map_as_json import MapAsJson
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
