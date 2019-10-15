@@ -40,7 +40,7 @@ import cherrypy
 #Message, Current Project and User values are stored in session, because they
 # need to be translated between multiple pages.
 #The rest of the values are stored in the template dictionary.
-from tvb.basic.traits.exceptions import TVBException
+from tvb.basic.exceptions import TVBException
 
 TYPE_ERROR = "ERROR"
 TYPE_WARNING = "WARNING"
@@ -79,6 +79,9 @@ KEY_WRAP_CONTENT_IN_MAIN_DIV = "wrapContentInMainDiv"
 KEY_CURRENT_TAB = "currentTab"
 
 KEY_BURST_CONFIG = 'burst_configuration'
+KEY_SIMULATOR_CONFIG = 'simulator_configuration'
+KEY_IS_SIMULATOR_COPY = 'is_simulator_copy'
+KEY_IS_SIMULATOR_LOAD = 'is_simulator_load'
 KEY_CACHED_SIMULATOR_TREE = 'simulator_input_tree'
 KEY_BACK_PAGE = "back_page_link"
 KEY_SECTION_TITLES = "section_titles"

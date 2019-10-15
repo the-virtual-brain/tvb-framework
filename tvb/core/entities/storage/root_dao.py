@@ -38,18 +38,16 @@ Base DAO behavior.
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from tvb.basic.logger.builder import get_logger
-from tvb.core.entities import model
+from tvb.core.entities.model.model_datatype import DataType
 from tvb.core.entities.storage.session_maker import SESSION_META_CLASS
 from tvb.config import SIMULATION_DATATYPE_CLASS
 
 
 
-class RootDAO(object):
+class RootDAO(object, metaclass=SESSION_META_CLASS):
     """
     GLOBAL METHODS
     """
-
-    __metaclass__ = SESSION_META_CLASS
     session = None
     logger = get_logger(__name__)
 
@@ -92,7 +90,7 @@ class RootDAO(object):
         """
         Retrieve an entity of entity_type, filtered by select_field = filter_value.
         """
-        if isinstance(entity_type, (str, unicode)):
+        if isinstance(entity_type, str):
             classname = entity_type[entity_type.rfind(".") + 1:]
             entity_class = __import__(entity_type[0: entity_type.rfind(".")], globals(), locals(), classname)
             entity_class = eval("entity_class." + classname)
@@ -133,7 +131,7 @@ class RootDAO(object):
         """
         When removing dataType, load fully so that sql-alchemy removes from all tables referenced.
         """
-        data = self.session.query(model.DataType).filter(model.DataType.gid == gid).all()
+        data = self.session.query(DataType).filter(DataType.gid == gid).all()
         for entity in data:
             extended_ent = self.get_generic_entity(entity.module + "." + entity.type, entity.id)
             self.session.delete(extended_ent[0])
@@ -144,6 +142,11 @@ class RootDAO(object):
         """
         Retrieve DataType entity by ID.
         """
-        result = self.session.query(model.DataType).filter_by(id=data_id).one()
+        result = self.session.query(DataType).filter_by(id=data_id).one()
         result.parent_operation.project
+        return result
+
+    def get_time_series_by_gid(self, data_gid):
+        result = self.session.query(DataType).filter_by(gid=data_gid).one()
+        result.data
         return result

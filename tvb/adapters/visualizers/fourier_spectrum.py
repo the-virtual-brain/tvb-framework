@@ -36,8 +36,37 @@
 """
 import json
 import numpy
+from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
+from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex
+from tvb.core.neotraits.forms import DataTypeSelectField
+from tvb.core.neocom import h5
 from tvb.datatypes.spectral import FourierSpectrum
+from tvb.datatypes.time_series import TimeSeries
+
+
+class FourierSpectrumForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(FourierSpectrumForm, self).__init__(prefix, project_id)
+        self.input_data = DataTypeSelectField(self.get_required_datatype(), self, name='input_data', required=True,
+                                              label='Fourier Result', doc='Fourier Analysis to display',
+                                              conditions=self.get_filters())
+
+    @staticmethod
+    def get_input_name():
+        return "_input_data"
+
+    @staticmethod
+    def get_required_datatype():
+        return FourierSpectrumIndex
+
+    @staticmethod
+    def get_filters():
+        return None
+
+    def get_traited_datatype(self):
+        return None
 
 
 class FourierSpectrumDisplay(ABCDisplayer):
@@ -49,13 +78,8 @@ class FourierSpectrumDisplay(ABCDisplayer):
     _ui_name = "Fourier Visualizer"
     _ui_subsection = "fourier"
 
-    def get_input_tree(self):
-        """ 
-        Accept as input result from FFT Analysis.
-        """
-        return [{'name': 'input_data', 'label': 'Fourier Result',
-                 'type': FourierSpectrum, 'required': True,
-                 'description': 'Fourier Analysis to display'}]
+    def get_form_class(self):
+        return FourierSpectrumForm
 
     def get_required_memory_size(self, **kwargs):
         """
@@ -66,17 +90,27 @@ class FourierSpectrumDisplay(ABCDisplayer):
     def generate_preview(self, **kwargs):
         return self.launch(**kwargs)
 
-    def launch(self, **kwargs):
+    def launch(self, input_data, **kwargs):
         self.log.debug("Plot started...")
-        input_data = kwargs['input_data']
-        shape = list(input_data.read_data_shape())
-        state_list = input_data.source.labels_dimensions.get(input_data.source.labels_ordering[1], [])
-        mode_list = range(shape[3])
+        # these partial loads are dangerous for TS and FS instances, but efficient
+        fourier_spectrum = FourierSpectrum()
+        with h5.h5_file_for_index(input_data) as input_h5:
+            shape = list(input_h5.array_data.shape)
+            fourier_spectrum.segment_length = input_h5.segment_length.load()
+            fourier_spectrum.windowing_function = input_h5.windowing_function.load()
+
+        ts_index = self.load_entity_by_gid(input_data.source_gid)
+        state_list = ts_index.get_labels_for_dimension(1)
+        if len(state_list) == 0:
+            state_list = list(range(shape[1]))
+        fourier_spectrum.source = TimeSeries(sample_period=ts_index.sample_period)
+
+        mode_list = list(range(shape[3]))
         available_scales = ["Linear", "Logarithmic"]
 
         params = dict(matrix_shape=json.dumps([shape[0], shape[2]]),
-                      plotName=input_data.source.type,
-                      url_base=ABCDisplayer.paths2url(input_data, "get_fourier_data", parameter=""),
+                      plotName=ts_index.title,
+                      url_base=self.build_h5_url(input_data.gid, "get_fourier_data", parameter=""),
                       xAxisName="Frequency [kHz]",
                       yAxisName="Power",
                       available_scales=available_scales,
@@ -88,7 +122,7 @@ class FourierSpectrumDisplay(ABCDisplayer):
                       mode=mode_list[0],
                       xscale=available_scales[0],
                       yscale=available_scales[0],
-                      x_values=json.dumps(input_data.frequency[slice(shape[0])].tolist()),
-                      xmin=input_data.freq_step,
-                      xmax=input_data.max_freq)
+                      x_values=json.dumps(fourier_spectrum.frequency[slice(shape[0])].tolist()),
+                      xmin=fourier_spectrum.freq_step,
+                      xmax=fourier_spectrum.max_freq)
         return self.build_display_result("fourier_spectrum/view", params)

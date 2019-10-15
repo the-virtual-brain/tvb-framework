@@ -34,16 +34,14 @@
 import json
 import numpy
 import threading
+from tvb.basic.neotraits.api import HasTraits, Attr
 from tvb.adapters.visualizers.phase_plane_interactive import phase_space_d3
-from tvb.basic.traits import core, types_basic, traited_interface
-from tvb.basic.traits.parameters_factory import get_traited_subclasses
-from tvb.basic.traits.util import multiline_math_directives_to_matjax
 from tvb.core import utils
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.adapters.input_tree import InputTreeManager
 from tvb.core.entities.storage import dao
-import tvb.core.entities.model
-from tvb.datatypes import noise_framework
+import tvb.core.entities.model.model_burst as model_burst
+#from tvb.datatypes import noise_framework
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.burst.base_controller import BurstBaseController
 from tvb.interfaces.web.controllers.decorators import expose_page, expose_json, expose_fragment, using_template
@@ -94,23 +92,19 @@ class SessionCache(object):
         self._cache[key] = value
 
 
-class _InputTreeFragment(core.Type):
-    dynamic_name = types_basic.String(
+class _InputTreeFragment(HasTraits):
+    dynamic_name = Attr(field_type=str,
         label = "Parameter configuration name",
-        required = True,
-        order=1,
         doc = """The name of this parameter configuration""")
 
 
-class _IntegratorTreeFragment(core.Type):
+class _IntegratorTreeFragment(HasTraits):
     """
     This trait-ed class is used to build the input tree for the integrator.
     """
-    integrator = integrators.Integrator(
+    integrator = Attr(field_type=integrators.Integrator,
         label = "integrator",
-        required = True,
-        order=2,
-        default = integrators.HeunDeterministic,
+        default = integrators.HeunDeterministic(),
         doc = """The integrator"""
         )
 
@@ -136,13 +130,15 @@ class _LeftFragmentAdapter(ABCAdapter):
         return 0
 
     def get_input_tree(self):
+        from tvb.basic.traits import traited_interface
+
         models_sub_tree = {
             'name': 'model_type', 'type': 'select', 'required': True, 'label': 'model',
             'default' : 'Generic2dOscillator',
             'options': []
         }
 
-        for clz_name, clz in self.available_models.iteritems():
+        for clz_name, clz in self.available_models.items():
             models_sub_tree['options'].append({
                 'name': clz._ui_name, # ui-name instaead
                 'value': clz_name,
@@ -166,7 +162,7 @@ class _LeftFragmentAdapter(ABCAdapter):
         It converts them in html text that will be interpreted by mathjax
         The parsing is simplistic, not a full rst parser.
         """
-
+        from tvb.basic.traits.util import multiline_math_directives_to_matjax
         def format_doc(doc):
             return multiline_math_directives_to_matjax(doc).replace('&', '&amp;').replace('.. math::','')
 
@@ -214,8 +210,8 @@ class DynamicModelController(BurstBaseController):
 
     def __init__(self):
         BurstBaseController.__init__(self)
-        self.available_models = get_traited_subclasses(models.Model)
-        self.available_integrators = get_traited_subclasses(integrators.Integrator)
+        self.available_models = models.Model.get_known_subclasses()
+        self.available_integrators = integrators.Integrator.get_known_subclasses()
         self.cache = SessionCache()
         # Work around a numexpr thread safety issue. See TVB-1639.
         self.traj_lock = threading.Lock()
@@ -325,7 +321,7 @@ class DynamicModelController(BurstBaseController):
             params = json.loads(params)
             dynamic = self.get_cached_dynamic(dynamic_gid)
             model = dynamic.model
-            for name, value in params.iteritems():
+            for name, value in params.items():
                 setattr(model, name, numpy.array([float(value)]))
             model.configure()
             return dynamic.phase_plane.compute_phase_plane()
@@ -400,7 +396,7 @@ class DynamicModelController(BurstBaseController):
 
 
         ret = {
-            'modes': range(model.number_of_modes),
+            'modes': list(range(model.number_of_modes)),
             'state_variables': sv_model,
             'default_mode' : dynamic.phase_plane.mode
         }
@@ -448,7 +444,7 @@ class DynamicModelController(BurstBaseController):
             value = getattr(model, name)[0]
             model_parameters.append((name, value))
 
-        entity = tvb.core.entities.model.Dynamic(
+        entity = model_burst.Dynamic(
             dynamic_name,
             common.get_logged_user().id,
             model.__class__.__name__,

@@ -40,12 +40,11 @@ import datetime
 from sqlalchemy import Integer, String, Column, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declared_attr
-from tvb.core.entities.model.model_base import Base
 from tvb.core.entities.model.model_project import Project
 from tvb.core.entities.model.model_burst import BurstConfiguration
 from tvb.core.entities.model.model_operation import Algorithm
 from tvb.core.entities.exportable import Exportable
-
+from tvb.core.neotraits.db import Base
 
 
 class Portlet(Base):
@@ -198,7 +197,7 @@ class _BaseWorkflowStep(Exportable):
     @property
     def dynamic_workflow_param_names(self):
         """Return list with strings, representing flatten names of the input dynamic parameters"""
-        return self.dynamic_param.keys()
+        return list(self.dynamic_param)
 
 
     def _set_static_parameters(self, static_params):

@@ -32,12 +32,26 @@
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
 
-from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.brco.parser import XMLParser
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
+from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotations
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
-from tvb.datatypes.connectivity import Connectivity
-from tvb.datatypes.annotations import ConnectivityAnnotations
+from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
+from tvb.core.neocom import h5
+from tvb.core.neotraits.forms import UploadField, DataTypeSelectField
+
+
+class BRCOImporterForm(ABCUploaderForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(BRCOImporterForm, self).__init__(prefix, project_id)
+
+        self.data_file = UploadField('.xml', self, name='data_file', required=True, label='Connectivity Annotations')
+        self.connectivity = DataTypeSelectField(ConnectivityIndex, self, name='connectivity', required=True,
+                                                label='Target Large Scale Connectivity',
+                                                doc='The Connectivity for which these annotations were made')
 
 
 class BRCOImporter(ABCUploader):
@@ -48,31 +62,25 @@ class BRCOImporter(ABCUploader):
     _ui_subsection = "brco_importer"
     _ui_description = "Import connectivity annotations from BRCO Ontology"
 
-
-    def get_upload_input_tree(self):
-        """
-        Take as input a mat file
-        """
-        return [{'name': 'data_file', 'type': 'upload', 'required_type': '.xml',
-                 'label': 'Connectivity Annotations', 'required': True},
-
-                {'name': 'connectivity', 'label': 'Target Large Scale Connectivity',
-                 'type': Connectivity, 'required': True, 'datatype': True,
-                 'description': 'The Connectivity for which these annotations were made'},
-                ]
-
+    def get_form_class(self):
+        return BRCOImporterForm
 
     def get_output(self):
-        return [ConnectivityAnnotations]
-
+        return [ConnectivityAnnotationsIndex]
 
     @transactional
     def launch(self, data_file, connectivity):
         try:
-            result = ConnectivityAnnotations(connectivity=connectivity, storage_path=self.storage_path)
-            parser = XMLParser(data_file, connectivity)
+            conn = h5.load_from_index(connectivity)
+
+            parser = XMLParser(data_file, conn.region_labels)
             annotations = parser.read_annotation_terms()
-            result.set_annotations(annotations)
+
+            result_ht = ConnectivityAnnotations()
+            result_ht.set_annotations(annotations)
+            result_ht.connectivity = conn
+
+            result = h5.store_complete(result_ht, self.storage_path)
             return result
         except Exception as excep:
             self.log.exception("Could not process Connectivity Annotations")

@@ -51,7 +51,7 @@ if __name__ == '__main__':
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.decorators import user_environment_execution
-from tvb.core.services.initializer import initialize, reset
+from tvb.config.init.initializer import initialize, reset
 from tvb.core.services.exceptions import InvalidSettingsException
 from tvb.interfaces.web.request_handler import RequestHandler
 from tvb.interfaces.web.controllers.base_controller import BaseController
@@ -61,7 +61,6 @@ from tvb.interfaces.web.controllers.project.project_controller import ProjectCon
 from tvb.interfaces.web.controllers.project.figure_controller import FigureController
 from tvb.interfaces.web.controllers.flow_controller import FlowController
 from tvb.interfaces.web.controllers.settings_controller import SettingsController
-from tvb.interfaces.web.controllers.burst.burst_controller import BurstController
 from tvb.interfaces.web.controllers.burst.region_model_parameters_controller import RegionsModelParametersController
 from tvb.interfaces.web.controllers.burst.exploration_controller import ParameterExplorationController
 from tvb.interfaces.web.controllers.burst.dynamic_model_controller import DynamicModelController
@@ -71,6 +70,7 @@ from tvb.interfaces.web.controllers.spatial.region_stimulus_controller import Re
 from tvb.interfaces.web.controllers.spatial.surface_stimulus_controller import SurfaceStimulusController
 from tvb.interfaces.web.controllers.spatial.local_connectivity_controller import LocalConnectivityController
 from tvb.interfaces.web.controllers.burst.noise_configuration_controller import NoiseConfigurationController
+from tvb.interfaces.web.controllers.simulator_controller import SimulatorController
 
 
 LOGGER = get_logger('tvb.interfaces.web.run')
@@ -98,7 +98,8 @@ def init_cherrypy(arguments=None):
     cherrypy.tree.mount(FlowController(), "/flow/", config=CONFIGUER)
     cherrypy.tree.mount(SettingsController(), "/settings/", config=CONFIGUER)
     cherrypy.tree.mount(HelpController(), "/help/", config=CONFIGUER)
-    cherrypy.tree.mount(BurstController(), "/burst/", config=CONFIGUER)
+    # cherrypy.tree.mount(BurstController(), "/burst/", config=CONFIGUER)
+    cherrypy.tree.mount(SimulatorController(), "/burst/", config=CONFIGUER)
     cherrypy.tree.mount(ParameterExplorationController(), "/burst/explore/", config=CONFIGUER)
     cherrypy.tree.mount(DynamicModelController(), "/burst/dynamic/", config=CONFIGUER)
     cherrypy.tree.mount(SpatioTemporalController(), "/spatial/", config=CONFIGUER)

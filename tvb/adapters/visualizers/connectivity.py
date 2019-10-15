@@ -37,19 +37,77 @@ import json
 import math
 import numpy
 from copy import copy
-from tvb.basic.traits.core import KWARG_FILTERS_UI
-from tvb.basic.filters.chain import FilterChain, UIFilter
+from tvb.adapters.visualizers.time_series import ABCSpaceDisplayer
+from tvb.adapters.visualizers.surface_view import SurfaceURLGenerator
 from tvb.config import CONNECTIVITY_CREATOR_MODULE, CONNECTIVITY_CREATOR_CLASS
+from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.entities.filters.chain import FilterChain
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
+from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex
+from tvb.core.neotraits.forms import DataTypeSelectField, SimpleFloatField
+from tvb.core.neocom import h5
 from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity
-from tvb.datatypes.graph import ConnectivityMeasure
-from tvb.datatypes.surfaces import CorticalSurface
 
 
+class ConnectivityViewerForm(ABCAdapterForm):
 
-class ConnectivityViewer(ABCDisplayer):
+    def __init__(self, prefix='', project_id=None):
+        super(ConnectivityViewerForm, self).__init__(prefix, project_id)
+
+        # filters_ui = [UIFilter(linked_elem_name="colors",
+        #                        linked_elem_field=FilterChain.datatype + "._connectivity"),
+        #               UIFilter(linked_elem_name="rays",
+        #                        linked_elem_field=FilterChain.datatype + "._connectivity")]
+        # json_ui_filter = json.dumps([ui_filter.to_dict() for ui_filter in filters_ui])
+        # KWARG_FILTERS_UI: json_ui_filter
+
+        self.connectivity = DataTypeSelectField(self.get_required_datatype(), self, name='input_data', required=True,
+                                                label='Connectivity Matrix', conditions=self.get_filters())
+        surface_conditions = FilterChain(fields=[FilterChain.datatype + '.surface_type'], operations=["=="],
+                                         values=['Cortical Surface'])
+        self.surface_data = DataTypeSelectField(SurfaceIndex, self, name='surface_data', label='Brain Surface',
+                                                doc='The Brain Surface is used to give you an idea of the connectivity '
+                                                    'position relative to the full brain cortical surface. This surface'
+                                                    ' will be displayed as a shadow (only used in 3D Edges tab).',
+                                                conditions=surface_conditions)
+
+        self.step = SimpleFloatField(self, name='step', label='Color Threshold',
+                                     doc='All nodes with a value greater or equal (>=) than this threshold will be '
+                                         'displayed as red discs, otherwise (<) they will be yellow. (This applies to '
+                                         '2D Connectivity tabs and the threshold will depend on the metric used to set '
+                                         'the Node Color)')
+
+        colors_conditions = FilterChain(fields=[FilterChain.datatype + '.ndim'], operations=["=="], values=[1])
+        self.colors = DataTypeSelectField(ConnectivityMeasureIndex, self, name='colors', conditions=colors_conditions,
+                                          label='Node Colors', doc='A ConnectivityMeasure DataType that establishes a '
+                                                                   'colormap for the nodes displayed in the 2D '
+                                                                   'Connectivity tabs.')
+
+        rays_conditions = FilterChain(fields=[FilterChain.datatype + '.ndim'], operations=["=="], values=[1])
+        self.rays = DataTypeSelectField(ConnectivityMeasureIndex, self, name='rays', conditions=rays_conditions,
+                                        label='Shapes Dimensions',
+                                        doc='A ConnectivityMeasure datatype used to establish '
+                                            'the size of the spheres representing each node. '
+                                            '(It only applies to 3D Nodes tab).')
+
+    @staticmethod
+    def get_required_datatype():
+        return ConnectivityIndex
+
+    @staticmethod
+    def get_filters():
+        return None
+
+    @staticmethod
+    def get_input_name():
+        return "_input_data"
+
+
+class ConnectivityViewer(ABCSpaceDisplayer):
     """ 
     Given a Connectivity Matrix and a Surface data the viewer will display the matrix 'inside' the surface data. 
     The surface is only displayed as a shadow.
@@ -57,41 +115,8 @@ class ConnectivityViewer(ABCDisplayer):
 
     _ui_name = "Connectivity Visualizer"
 
-
-    def get_input_tree(self):
-        """
-        Take as Input a Connectivity Object.
-        """
-
-        filters_ui = [UIFilter(linked_elem_name="colors",
-                               linked_elem_field=FilterChain.datatype + "._connectivity"),
-                      UIFilter(linked_elem_name="rays",
-                               linked_elem_field=FilterChain.datatype + "._connectivity")]
-
-        json_ui_filter = json.dumps([ui_filter.to_dict() for ui_filter in filters_ui])
-
-
-        return [{'name': 'input_data', 'label': 'Connectivity Matrix', 'type': Connectivity,
-                 'required': True, KWARG_FILTERS_UI: json_ui_filter},
-                {'name': 'surface_data', 'label': 'Brain Surface', 'type': CorticalSurface,
-                 'description': 'The Brain Surface is used to give you an idea of the connectivity position relative '
-                                'to the full brain cortical surface.  This surface will be displayed as a shadow '
-                                '(only used in 3D Edges tab).'},
-                {'name': 'colors', 'label': 'Node Colors', 'type': ConnectivityMeasure,
-                 'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                           operations=["=="], values=[1]),
-                 'description': 'A ConnectivityMeasure DataType that establishes a colormap for the nodes '
-                                'displayed in the 2D Connectivity tabs.'},
-                {'name': 'step', 'label': 'Color Threshold', 'type': 'float',
-                 'description': 'All nodes with a value greater or equal (>=) than this threshold will be displayed '
-                                'as red discs, otherwise (<) they will be yellow. (This applies to 2D Connectivity  '
-                                'tabs and the threshold will depend on the metric used to set the Node Color)'},
-                {'name': 'rays', 'label': 'Shapes Dimensions', 'type': ConnectivityMeasure,
-                 'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                           operations=["=="], values=[1]),
-                 'description': 'A ConnectivityMeasure datatype used to establish the size of the spheres representing '
-                                'each node. (It only applies to 3D Nodes tab).'}]
-
+    def get_form_class(self):
+        return ConnectivityViewerForm
 
     def get_required_memory_size(self, input_data, surface_data, **kwargs):
         """
@@ -103,31 +128,51 @@ class ConnectivityViewer(ABCDisplayer):
             # If no surface pass, assume enough memory should be available.
         return -1
 
-
     def launch(self, input_data, surface_data=None, colors=None, rays=None, step=None):
         """
         Given the input connectivity data and the surface data, 
         build the HTML response to be displayed.
 
-        :param input_data: the `Connectivity` object which will be displayed
+        :param input_data: index towards the `Connectivity` object which will be displayed
+        :type input_data: `ConnectivityIndex`
         :param surface_data: if provided, it is displayed as a shadow to give an idea of the connectivity \
                              position relative to the full brain cortical surface
-        :type surface_data: `CorticalSurface`
+        :type surface_data: `SurfaceIndex`
         :param colors: used to establish a colormap for the nodes displayed in 2D Connectivity viewers
-        :type colors:  `ConnectivityMeasure`
+        :type colors:  `ConnectivityMeasureIndex`
         :param rays: used to establish the size of the spheres representing each node in 3D Nodes viewer
-        :type rays:  `ConnectivityMeasure`
+        :type rays:  `ConnectivityMeasureIndex`
         :param step: a threshold applied to the 2D Connectivity Viewers to differentiate 2 types of nodes \
                      the ones with a value greater that this will be displayed as red discs, instead of yellow
         :type step:  float
         """
-        global_params, global_pages = self.compute_connectivity_global_params(input_data, surface_data)
+        connectivity = h5.load_from_index(input_data)
+        assert isinstance(connectivity, Connectivity)
+        if colors:
+            colors_dt = h5.load_from_index(colors)
+        else:
+            colors_dt = None
+        if rays:
+            rays_dt = h5.load_from_index(rays)
+        else:
+            rays_dt = None
+
+        global_params, global_pages = self._compute_connectivity_global_params(connectivity)
+        if surface_data is not None:
+            surface_h5 = h5.h5_file_for_index(surface_data)
+            url_vertices, url_normals, _, url_triangles, _ = SurfaceURLGenerator.get_urls_for_rendering(surface_h5)
+        else:
+            url_vertices, url_normals, url_triangles = [], [], []
+
+        global_params["urlVertices"] = json.dumps(url_vertices)
+        global_params["urlTriangles"] = json.dumps(url_triangles)
+        global_params["urlNormals"] = json.dumps(url_normals)
         global_params['isSingleMode'] = False
 
-        result_params, result_pages = Connectivity2DViewer().compute_parameters(input_data, colors, rays, step)
+        result_params, result_pages = Connectivity2DViewer().compute_parameters(connectivity, colors_dt, rays_dt, step)
         result_params.update(global_params)
         result_pages.update(global_pages)
-        _params, _pages = Connectivity3DViewer().compute_parameters(input_data, colors, rays)
+        _params, _pages = Connectivity3DViewer().compute_parameters(connectivity, colors_dt, rays_dt)
         result_params.update(_params)
         result_pages.update(_pages)
 
@@ -141,8 +186,19 @@ class ConnectivityViewer(ABCDisplayer):
 
         see `launch_`
         """
-        parameters, _ = Connectivity2DViewer().compute_preview_parameters(input_data, figure_size[0], figure_size[1],
-                                                                          colors, rays, step)
+        connectivity = h5.load_from_index(input_data)
+        assert isinstance(connectivity, Connectivity)
+        if colors:
+            colors_dt = h5.load_from_index(colors)
+        else:
+            colors_dt = None
+        if rays:
+            rays_dt = h5.load_from_index(rays)
+        else:
+            rays_dt = None
+
+        parameters, _ = Connectivity2DViewer().compute_preview_parameters(connectivity, figure_size[0],
+                                                                          figure_size[1], colors_dt, rays_dt, step)
         return self.build_display_result("connectivity/portlet_preview", parameters)
 
 
@@ -162,62 +218,56 @@ class ConnectivityViewer(ABCDisplayer):
 
         return minv, maxv, min_nonzero
 
-
-    def compute_connectivity_global_params(self, input_data, surface_data=None):
+    def _compute_connectivity_global_params(self, connectivity):
         """
         Returns a dictionary which contains the data needed for drawing a connectivity.
 
-        :param input_data: the `Connectivity` object
-        :param surface_data: if provided, it is displayed as a shadow to give an idea of the connectivity \
-                             position relative to the full brain cortical surface
-        :type surface_data: `CorticalSurface`
+        :param connectivity: the `Connectivity(HasTraits)` object
         """
-        path_weights = self.paths2url(input_data, 'ordered_weights')
-        path_pos = self.paths2url(input_data, 'ordered_centres')
-        path_tracts = self.paths2url(input_data, 'ordered_tracts')
-        path_labels = self.paths2url(input_data, 'ordered_labels')
-        path_hemisphere_order_indices = self.paths2url(input_data, 'hemisphere_order_indices')
-
-        if surface_data:
-            url_vertices, url_normals, _, url_triangles = surface_data.get_urls_for_rendering()
-        else:
-            url_vertices, url_normals, url_triangles = [], [], []
+        conn_gid = connectivity.gid.hex
+        path_weights = SurfaceURLGenerator.paths2url(conn_gid, 'ordered_weights')
+        path_pos = SurfaceURLGenerator.paths2url(conn_gid, 'ordered_centres')
+        path_tracts = SurfaceURLGenerator.paths2url(conn_gid, 'ordered_tracts')
+        path_labels = SurfaceURLGenerator.paths2url(conn_gid, 'ordered_labels')
+        path_hemisphere_order_indices = SurfaceURLGenerator.paths2url(conn_gid, 'hemisphere_order_indices')
 
         algo = FlowService().get_algorithm_by_module_and_class(CONNECTIVITY_CREATOR_MODULE, CONNECTIVITY_CREATOR_CLASS)
-        submit_url = '/flow/%d/%d' % (algo.fk_category, algo.id)
+        submit_url = '/{}/{}/{}'.format(SurfaceURLGenerator.FLOW, algo.fk_category, algo.id)
         global_pages = dict(controlPage="connectivity/top_right_controls")
 
-        minimum, maximum, minimum_non_zero = self._compute_matrix_extrema(input_data.ordered_weights)
-        minimum_t, maximum_t, minimum_non_zero_t = self._compute_matrix_extrema(input_data.ordered_tracts)
+        minimum, maximum, minimum_non_zero = self._compute_matrix_extrema(connectivity.ordered_weights)
+        minimum_t, maximum_t, minimum_non_zero_t = self._compute_matrix_extrema(connectivity.ordered_tracts)
 
         global_params = dict(urlWeights=path_weights, urlPositions=path_pos,
                              urlTracts=path_tracts, urlLabels=path_labels,
-                             originalConnectivity=input_data.gid, title="Connectivity Control",
+                             originalConnectivity=conn_gid, title="Connectivity Control",
                              submitURL=submit_url,
-                             positions=input_data.ordered_centres,
+                             positions=connectivity.ordered_centres,
                              tractsMin=minimum_t, tractsMax=maximum_t,
                              weightsMin=minimum, weightsMax=maximum,
                              tractsNonZeroMin=minimum_non_zero_t, weightsNonZeroMin=minimum_non_zero,
-                             pointsLabels=input_data.ordered_labels, conductionSpeed=input_data.speed or 1,
-                             urlVertices=json.dumps(url_vertices), urlTriangles=json.dumps(url_triangles),
-                             urlNormals=json.dumps(url_normals),
-                             connectivity_entity=input_data, surface_entity=surface_data,
-                             base_selection=input_data.saved_selection_labels,
+                             pointsLabels=connectivity.ordered_labels, conductionSpeed=connectivity.speed or 1,
+                             connectivity_entity=connectivity,
+                             base_selection=connectivity.saved_selection_labels,
                              hemisphereOrderUrl=path_hemisphere_order_indices)
-        global_params.update(self.build_template_params_for_subselectable_datatype(input_data))
+        global_params.update(self.build_params_for_selectable_connectivity(connectivity))
         return global_params, global_pages
 
 
     @staticmethod
-    def get_connectivity_parameters(input_connectivity, surface_data=None):
+    def get_connectivity_parameters(input_connectivity, conn_path):
         """
         Returns a dictionary which contains all the needed data for drawing a connectivity.
         """
         viewer = ConnectivityViewer()
-        global_params, global_pages = viewer.compute_connectivity_global_params(input_connectivity, surface_data)
+        viewer.storage_path = conn_path
+        conn_dt = h5.load_from_index(input_connectivity)
+        assert isinstance(conn_dt, Connectivity)
+        global_params, global_pages = viewer._compute_connectivity_global_params(conn_dt)
         global_params.update(global_pages)
         global_params['selectedConnectivityGid'] = input_connectivity.gid
         return global_params
+
 
 #
 # -------------------- Connectivity 3D code starting -------------------
@@ -290,11 +340,11 @@ class Connectivity2DViewer(object):
         if input_data.number_of_regions <= 3:
             raise LaunchException('The connectivity matrix you selected has fewer nodes than acceptable for display!')
 
-        half = input_data.number_of_regions / 2
+        half = input_data.number_of_regions // 2
         normalized_weights = self._normalize_weights(input_data.ordered_weights)
         weights = Connectivity2DViewer._get_weights(normalized_weights)
 
-        ## Compute shapes and colors ad adjacent data
+        # Compute shapes and colors ad adjacent data
         norm_rays, min_ray, max_ray = self._normalize_rays(rays, input_data.number_of_regions)
         colors, step = self._prepare_colors(colors, input_data.number_of_regions, step)
 
@@ -366,7 +416,7 @@ class Connectivity2DViewer(object):
         left hemispheres. Those matrixes are obtained from
         a weights matrix which contains data related to both hemispheres.
         """
-        half = len(weights) / 2
+        half = len(weights) // 2
         l_aux, r_aux = weights[:half], weights[half:]
         r_weights = []
         l_weights = []

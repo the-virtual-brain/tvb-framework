@@ -32,17 +32,26 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 .. moduleauthor:: Lia Domide <lia.domide@codemart.ro>
 """
-
 import numpy
-from tvb.adapters.uploaders.abcuploader import ABCUploader
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.datatypes.connectivity import Connectivity
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
+from tvb.core.neotraits.forms import UploadField, SimpleSelectField
+from tvb.core.neocom import h5
 
-NORMALIZATION_OPTIONS = [
-    {'name': 'None', 'value': 'none'},
-    {'name': 'Region (node)', 'value': 'region'},
-    {'name': 'Absolute (max weight)', 'value': 'tract'}]
+NORMALIZATION_OPTIONS = {'Region (node)': 'region', 'Absolute (max weight)': 'tract'}
+
+
+class ZIPConnectivityImporterForm(ABCUploaderForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(ZIPConnectivityImporterForm, self).__init__(prefix, project_id)
+
+        self.uploaded = UploadField("application/zip", self, name='uploaded', label='Connectivity file (zip)')
+        self.normalization = SimpleSelectField(NORMALIZATION_OPTIONS, self, name='normalization',
+                                               label='Weights Normalization', doc='Normalization mode for weights')
 
 
 class ZIPConnectivityImporter(ABCUploader):
@@ -63,21 +72,11 @@ class ZIPConnectivityImporter(ABCUploader):
     CORTICAL_INFO = "cortical"
     HEMISPHERE_INFO = "hemisphere"
 
-
-    def get_upload_input_tree(self):
-        """
-        Take as input a ZIP archive.
-        """
-        return [{'name': 'uploaded', 'type': 'upload', 'required_type': 'application/zip',
-                 'label': 'Connectivity file (zip)', 'required': True},
-
-                {'name': 'normalization', 'label': 'Weights Normalization', 'type': 'select', 'default': 'none',
-                 'options': NORMALIZATION_OPTIONS, 'description': 'Normalization mode for weights'}]
-
+    def get_form_class(self):
+        return ZIPConnectivityImporterForm
 
     def get_output(self):
-        return [Connectivity]
-
+        return [ConnectivityIndex]
 
     def launch(self, uploaded, normalization=None):
         """
@@ -125,13 +124,12 @@ class ZIPConnectivityImporter(ABCUploader):
             elif self.HEMISPHERE_INFO in file_name_low:
                 hemisphere_vector = self.read_list_data(file_name, dtype=numpy.bool)
 
-        ### Clean remaining text-files.
+        # Clean remaining text-files.
         FilesHelper.remove_files(files, True)
 
         result = Connectivity()
-        result.storage_path = self.storage_path
 
-        ### Fill positions
+        # Fill positions
         if centres is None:
             raise Exception("Region centres are required for Connectivity Regions! "
                             "We expect a file that contains *centres* inside the uploaded ZIP.")
@@ -142,7 +140,7 @@ class ZIPConnectivityImporter(ABCUploader):
         if labels_vector is not None:
             result.region_labels = labels_vector
 
-        ### Fill and check weights
+        # Fill and check weights
         if weights_matrix is not None:
             if weights_matrix.shape != (expected_number_of_nodes, expected_number_of_nodes):
                 raise Exception("Unexpected shape for weights matrix! "
@@ -151,7 +149,7 @@ class ZIPConnectivityImporter(ABCUploader):
             if normalization:
                 result.weights = result.scaled_weights(normalization)
 
-        ### Fill and check tracts    
+        # Fill and check tracts
         if tract_matrix is not None:
             if numpy.any([x < 0 for x in tract_matrix.flatten()]):
                 raise Exception("Negative values are not accepted in tracts matrix! "
@@ -184,4 +182,6 @@ class ZIPConnectivityImporter(ABCUploader):
                 raise Exception("Invalid size for vector hemispheres. "
                                 "Expected the same as region-centers number %d" % expected_number_of_nodes)
             result.hemispheres = hemisphere_vector
-        return result
+
+        result.configure()
+        return h5.store_complete(result, self.storage_path)

@@ -31,7 +31,8 @@
 
 import json
 import numpy
-from tvb.core.adapters.abcdisplayer import ABCDisplayer
+from tvb.adapters.visualizers.pearson_cross_correlation import PearsonCorrelationCoefficientVisualizerForm
+from tvb.core.adapters.abcdisplayer import ABCDisplayer, URLGenerator
 from tvb.datatypes.graph import CorrelationCoefficients
 
 
@@ -43,38 +44,37 @@ class PearsonEdgeBundle(ABCDisplayer):
     _ui_name = "Pearson Edge Bundle"
     _ui_subsection = "correlation_pearson_edge"
 
-
-    def get_input_tree(self):
-        """ Inform caller of the data we need as input """
-
-        return [{"name": "datatype",
-                 "type": CorrelationCoefficients,
-                 "label": "Pearson Correlation to be displayed in a hierarchical edge bundle",
-                 "required": True}]
-
+    def get_form_class(self):
+        return PearsonCorrelationCoefficientVisualizerForm
 
     def get_required_memory_size(self, datatype):
         """Return required memory."""
 
-        input_size = datatype.read_data_shape()
+        input_size = (datatype.data_length_1d, datatype.data_length_2d,
+                      datatype.data_length_3d, datatype.data_length_4d)
         return numpy.prod(input_size) * 8.0
-
 
     def launch(self, datatype):
         """Construct data for visualization and launch it."""
 
-        matrix_shape = datatype.array_data.shape[0:2]
-        parent_ts = datatype.source
-        parent_ts = self.load_entity_by_gid(parent_ts.gid)
-        labels = parent_ts.get_space_labels()
-        state_list = parent_ts.labels_dimensions.get(parent_ts.labels_ordering[1], [])
-        mode_list = range(parent_ts._length_4d)
+        datatype_h5_class, datatype_h5_path = self._load_h5_of_gid(datatype.gid)
+        with datatype_h5_class(datatype_h5_path) as datatype_h5:
+            matrix_shape = datatype_h5.array_data.shape[0:2]
+            ts_gid = datatype_h5.source.load()
+        ts_index = self.load_entity_by_gid(ts_gid.hex)
+
+        ts_h5_class, ts_h5_path = self._load_h5_of_gid(ts_index.gid)
+        with ts_h5_class(ts_h5_path) as ts_h5:
+            labels = ts_h5.get_space_labels()
+        state_list = ts_h5.labels_dimensions.load().get(ts_h5.labels_ordering.load()[1], [])
+        mode_list = list(range(ts_index.data_length_4d))
         if not labels:
             labels = None
         pars = dict(matrix_labels=json.dumps(labels),
                     matrix_shape=json.dumps(matrix_shape),
                     viewer_title='Pearson Edge Bundle',
-                    url_base=ABCDisplayer.paths2url(datatype, "get_correlation_data", flatten="True", parameter=""),
+                    url_base=URLGenerator.build_h5_url(datatype.gid, 'get_correlation_data', flatten="True",
+                                                       parameter=''),
                     state_variable=0,
                     mode=mode_list[0],
                     state_list=state_list,

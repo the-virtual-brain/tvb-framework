@@ -36,10 +36,32 @@
 
 import json
 import numpy
+from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
-from tvb.basic.filters.chain import FilterChain
-from tvb.datatypes.graph import ConnectivityMeasure
+from tvb.core.entities.filters.chain import FilterChain
+from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
+from tvb.core.neotraits.forms import DataTypeSelectField
 
+
+class HistogramViewerForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(HistogramViewerForm, self).__init__(prefix, project_id)
+        self.input_data = DataTypeSelectField(self.get_required_datatype(), self, name='input_data', required=True,
+                                              label='Connectivity Measure', conditions=self.get_filters(),
+                                              doc='A BCT computed measure for a Connectivity')
+
+    @staticmethod
+    def get_required_datatype():
+        return ConnectivityMeasureIndex
+
+    @staticmethod
+    def get_input_name():
+        return '_input_data'
+
+    @staticmethod
+    def get_filters():
+        return FilterChain(fields=[FilterChain.datatype + '.ndim'], operations=["=="], values=[1])
 
 
 class HistogramViewer(ABCDisplayer):
@@ -48,21 +70,16 @@ class HistogramViewer(ABCDisplayer):
     """
     _ui_name = "Connectivity Measure Visualizer"
 
+    def get_form_class(self):
+        return HistogramViewerForm
 
-    def get_input_tree(self):
-        return [{'name': 'input_data', 'type': ConnectivityMeasure,
-                 'label': 'Connectivity Measure', 'required': True,
-                 'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                           operations=["=="], values=[1]),
-                 'description': 'A BCT computed measure for a Connectivity'}]
-
-
+    # TODO: migrate to neotraits
     def launch(self, input_data):
         """
         Prepare input data for display.
 
         :param input_data: A BCT computed measure for a Connectivity
-        :type input_data: `ConnectivityMeasure`
+        :type input_data: `ConnectivityMeasureIndex`
         """
         params = self.prepare_parameters(input_data)
         return self.build_display_result("histogram/view", params, pages=dict(controlPage="histogram/controls"))
@@ -97,5 +114,3 @@ class HistogramViewer(ABCDisplayer):
                       xposition='center' if min(values_list) < 0 else 'bottom',
                       minColor=min(colors_list), maxColor=max(colors_list))
         return params
-    
-    

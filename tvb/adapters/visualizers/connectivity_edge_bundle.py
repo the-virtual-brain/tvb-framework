@@ -36,23 +36,41 @@ A Javascript displayer for connectivity, using hierarchical edge bundle diagrams
 """
 
 import json
-from tvb.datatypes.connectivity import Connectivity
+from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
+from tvb.core.neocom import h5
+from tvb.core.neotraits.forms import DataTypeSelectField
+
+
+class ConnectivityEdgeBundleForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(ConnectivityEdgeBundleForm, self).__init__(prefix)
+        self.connectivity = DataTypeSelectField(self.get_required_datatype(), self, name="connectivity",
+                                                required=True, conditions=self.get_filters(), has_all_option=False,
+                                                label="Connectivity to be displayed in a hierarchical edge bundle")
+        self.project_id = project_id
+
+    @staticmethod
+    def get_required_datatype():
+        return ConnectivityIndex
+
+    @staticmethod
+    def get_input_name():
+        return '_connectivity'
+
+    @staticmethod
+    def get_filters():
+        return None
 
 
 class ConnectivityEdgeBundle(ABCDisplayer):
     _ui_name = "Connectivity Edge Bundle View"
     _ui_subsection = "connectivity_edge"
 
-    def get_input_tree(self):
-        """
-        Inform caller of the data we need as input.
-        """
-        return [{"name": "connectivity",
-                 "type": Connectivity,
-                 "label": "Connectivity to be displayed in a hierarchical edge bundle",
-                 "required": True
-                 }]
+    def get_form_class(self):
+        return ConnectivityEdgeBundleForm
 
     def get_required_memory_size(self, **kwargs):
         """Return required memory."""
@@ -61,8 +79,10 @@ class ConnectivityEdgeBundle(ABCDisplayer):
     def launch(self, connectivity):
         """Construct data for visualization and launch it."""
 
-        pars = {"labels": json.dumps(connectivity.region_labels.tolist()),
-                "url_base": ABCDisplayer.paths2url(connectivity, attribute_name="weights", flatten="True")
+        connectivity_dt = h5.load_from_index(connectivity)
+
+        pars = {"labels": json.dumps(connectivity_dt.region_labels.tolist()),
+                "url_base": ABCDisplayer.paths2url(connectivity.gid, attribute_name="weights", flatten="True")
                 }
 
         return self.build_display_result("connectivity_edge_bundle/view", pars)

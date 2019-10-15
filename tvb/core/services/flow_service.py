@@ -37,14 +37,14 @@ Code related to launching/duplicating operations is placed here.
 """
 
 from inspect import getmro
-from tvb.basic.filters.chain import FilterChain
-from tvb.basic.traits.exceptions import TVBException
+from tvb.core.entities.filters.chain import FilterChain
+from tvb.basic.exceptions import TVBException
 from tvb.basic.logger.builder import get_logger
-from tvb.basic.traits.types_mapped import MappedType
 from tvb.core.adapters.input_tree import InputTreeManager
-from tvb.core.entities import model
 from tvb.core.entities.load import get_filtered_datatypes
-from tvb.core.entities.model import AlgorithmTransientGroup
+from tvb.core.entities.model.model_datatype import DataTypeGroup, Links, StoredPSEFilter, MeasurePointsSelection, \
+    DataType
+from tvb.core.entities.model.model_operation import AlgorithmTransientGroup
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.adapters.abcadapter import ABCAdapter
@@ -101,26 +101,42 @@ class FlowService:
     def get_operation_numbers(proj_id):
         """ Count total number of operations started for current project. """
         return dao.get_operation_numbers(proj_id)
-              
 
-    def prepare_adapter(self, project_id, stored_adapter):
+
+    def prepare_adapter_form(self, adapter_instance, project_id):
+        form = adapter_instance.get_form()(project_id=project_id)
+        try:
+            dt = form.get_traited_datatype()
+            if dt is not None:
+                form.fill_from_trait(dt)
+        except NotImplementedError:
+            self.logger.info('This form does not take defaults from a HasTraits entity')
+
+        return form
+
+    def prepare_adapter_tree_interface(self, adapter_instance, project_id, fk_category):
         """
         Having a  StoredAdapter, return the Tree Adapter Interface object, populated with datatypes from 'project_id'.
         """
+        interface = adapter_instance.get_input_tree()
+        interface = self.input_tree_manager.fill_input_tree_with_options(interface, project_id, fk_category)
+        interface = self.input_tree_manager.prepare_param_names(interface)
+        return interface
+
+    def prepare_adapter(self, stored_adapter):
+
         adapter_module = stored_adapter.module
         adapter_name = stored_adapter.classname
         try:
             # Prepare Adapter Interface, by populating with existent data,
             # in case of a parameter of type DataType.
             adapter_instance = ABCAdapter.build_adapter(stored_adapter)
-            interface = adapter_instance.get_input_tree()
-            interface = self.input_tree_manager.fill_input_tree_with_options(interface, project_id, stored_adapter.fk_category)
-            interface = self.input_tree_manager.prepare_param_names(interface)
-            return interface
+            return adapter_instance
         except Exception:
             self.logger.exception('Not found:' + adapter_name + ' in:' + adapter_module)
             raise OperationException("Could not prepare " + adapter_name)
-    
+
+
     
     @staticmethod
     def get_algorithm_by_module_and_class(module, classname):
@@ -146,7 +162,7 @@ class FlowService:
         For a list of dataType IDs and a project id create all the required links.
         """
         for data in data_ids:
-            link = model.Links(data, project_id)
+            link = Links(data, project_id)
             dao.store_entity(link)
 
 
@@ -157,9 +173,9 @@ class FlowService:
         """
         link = dao.get_link(dt_id, project_id)
         if link is not None:
-            dao.remove_entity(model.Links, link.id)
+            dao.remove_entity(Links, link.id)
     
-        
+
     def fire_operation(self, adapter_instance, current_user, project_id, visible=True, **data):
         """
         Launch an operation, specified by AdapterInstance, for CurrentUser, 
@@ -169,10 +185,8 @@ class FlowService:
         try:
             self.logger.info("Starting operation " + operation_name)
             project = dao.get_project_by_id(project_id)
-            tmp_folder = self.file_helper.get_project_folder(project, self.file_helper.TEMP_FOLDER)
-            
-            result = OperationService().initiate_operation(current_user, project.id, adapter_instance, 
-                                                           tmp_folder, visible, **data)
+
+            result = OperationService().initiate_operation(current_user, project.id, adapter_instance, visible, **data)
             self.logger.info("Finished operation launch:" + operation_name)
             return result
 
@@ -238,7 +252,7 @@ class FlowService:
         categories = dao.get_launchable_categories()
         datatype_instance, filtered_adapters = self._get_launchable_algorithms(datatype_gid, categories)
 
-        if isinstance(datatype_instance, model.DataTypeGroup):
+        if isinstance(datatype_instance, DataTypeGroup):
             # If part of a group, update also with specific analyzers of the child datatype
             dt_group = dao.get_datatype_group_by_gid(datatype_gid)
             datatypes = dao.get_datatypes_from_datatype_group(dt_group.id)
@@ -261,7 +275,9 @@ class FlowService:
         data_class = datatype_instance.__class__
         all_compatible_classes = [data_class.__name__]
         for one_class in getmro(data_class):
-            if issubclass(one_class, MappedType) and one_class.__name__ not in all_compatible_classes:
+            # from tvb.basic.traits.types_mapped import MappedType
+
+            if issubclass(one_class, DataType) and one_class.__name__ not in all_compatible_classes:
                 all_compatible_classes.append(one_class.__name__)
 
         self.logger.debug("Searching in categories: " + str(categories) + " for classes " + str(all_compatible_classes))
@@ -328,7 +344,7 @@ class FlowService:
             select_entity = select_entities[0]
             select_entity.selected_nodes = selected_nodes
         else:
-            select_entity = model.MeasurePointsSelection(ui_name, selected_nodes, datatype_gid, project_id)
+            select_entity = MeasurePointsSelection(ui_name, selected_nodes, datatype_gid, project_id)
 
         dao.store_entity(select_entity)
 
@@ -356,6 +372,6 @@ class FlowService:
             select_entity.threshold_value = threshold_value
             select_entity.applied_on = applied_on  # this is the type, as in applied on size or color
         else:
-            select_entity = model.StoredPSEFilter(ui_name, datatype_group_gid, threshold_value, applied_on)
+            select_entity = StoredPSEFilter(ui_name, datatype_group_gid, threshold_value, applied_on)
 
         dao.store_entity(select_entity)

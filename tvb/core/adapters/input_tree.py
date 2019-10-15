@@ -36,15 +36,14 @@ Preparation validation and manipulation of adapter input trees
 from copy import copy
 import json
 import numpy
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
-from tvb.basic.traits.exceptions import TVBException
-from tvb.basic.traits.parameters_factory import collapse_params
-from tvb.basic.traits.types_mapped import MappedType
+from tvb.basic.exceptions import TVBException
 from tvb.core import utils
 from tvb.core.adapters.exceptions import InvalidParameterException
-from tvb.core.entities import model
+from tvb.core.entities.model.model_burst import KEY_PARAMETER_CHECKED, KEY_SAVED_VALUE
 from tvb.core.entities.load import get_class_by_name, load_entity_by_gid, get_filtered_datatypes
+from tvb.core.entities.model.model_datatype import DataType
 from tvb.core.entities.storage import dao
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.portlets.xml_reader import KEY_DYNAMIC
@@ -88,7 +87,7 @@ KEYWORD_PARAMS = "_parameters_"
 KEYWORD_SEPARATOR = "_"
 KEYWORD_OPTION = "option_"
 
-KEY_PARAMETER_CHECKED = model.KEY_PARAMETER_CHECKED
+KEY_PARAMETER_CHECKED = KEY_PARAMETER_CHECKED
 
 MAXIMUM_DATA_TYPES_DISPLAYED = 50
 KEY_WARNING = "warning"
@@ -184,7 +183,7 @@ class InputTreeManager(object):
         :returns: key from 'submited_kwargs' which corresponds to 'flat_name'
         """
         if KEYWORD_PARAMS not in flat_name:
-            if flat_name in submited_kwargs.keys():
+            if flat_name in list(submited_kwargs):
                 return flat_name
             else:
                 return None
@@ -242,7 +241,7 @@ class InputTreeManager(object):
     @staticmethod
     def _compute_submit_option_select(submitted_option):
         """ """
-        if isinstance(submitted_option, basestring):
+        if isinstance(submitted_option, str):
             submitted_option = submitted_option.replace('[', '').replace(']', '').split(',')
         return submitted_option
 
@@ -380,9 +379,11 @@ class InputTreeManager(object):
                     if eq_datatype is not None:
                         inputs_datatypes.append(eq_datatype)
                         is_datatype = True
-                elif isinstance(field_dict[KEY_TYPE], basestring):
+                elif isinstance(field_dict[KEY_TYPE], str):
                     try:
                         class_entity = get_class_by_name(field_dict[KEY_TYPE])
+                        from tvb.basic.traits.types_mapped import MappedType
+
                         if issubclass(class_entity, MappedType):
                             data_gid = parameters.get(str(field_dict[KEY_NAME]))
                             data_type = load_entity_by_gid(data_gid)
@@ -452,7 +453,7 @@ class InputTreeManager(object):
             return None
 
         expected_dt_class = row[KEY_TYPE]
-        if isinstance(expected_dt_class, basestring):
+        if isinstance(expected_dt_class, str):
             expected_dt_class = get_class_by_name(expected_dt_class)
         if not isinstance(entity, expected_dt_class):
             raise InvalidParameterException("Expected param %s [%s] of type %s but got type %s." % (
@@ -509,6 +510,8 @@ class InputTreeManager(object):
         """
         Convert HTTP POST parameters into Python parameters.
         """
+        from tvb.basic.traits.parameters_factory import collapse_params
+
         kwa = {}
         simple_select_list, to_skip_dict_subargs = [], []
         for row in flat_input_interface:
@@ -612,7 +615,7 @@ class InputTreeManager(object):
             entity_gid = value[2]
             actual_entity = dao.get_generic_entity(type_, entity_gid, "gid")
             display_name = ''
-            if actual_entity is not None and len(actual_entity) > 0 and isinstance(actual_entity[0], model.DataType):
+            if actual_entity is not None and len(actual_entity) > 0 and isinstance(actual_entity[0], DataType):
                 display_name = actual_entity[0].display_name
             display_name += ' - ' + (value[3] or "None ")
             if value[5]:
@@ -638,7 +641,7 @@ class InputTreeManager(object):
         to a {name: , value:} dict used to populate options in the input tree ui
         """
         # todo: normalize all itree[KEY_TYPE] to be a python type, not a str, not a None etc
-        if isinstance(type_name, basestring):
+        if isinstance(type_name, str):
             data_type_cls = get_class_by_name(type_name)
         else:
             data_type_cls = type_name
@@ -735,7 +738,7 @@ class InputTreeManager(object):
                 param[KEY_LABEL] = prefix + '_' + param[KEY_LABEL]
 
             if param_name in selection_dictionary:
-                selection_val = selection_dictionary[param_name][model.KEY_SAVED_VALUE]
+                selection_val = selection_dictionary[param_name][KEY_SAVED_VALUE]
                 is_checked = selection_dictionary[param_name][KEY_PARAMETER_CHECKED]
             else:
                 selection_val = None

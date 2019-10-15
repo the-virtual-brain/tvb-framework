@@ -41,9 +41,9 @@ from tvb.core import utils
 from tvb.interfaces.web.controllers import common
 from tvb.interfaces.web.controllers.users_controller import UserController
 from tvb.basic.profile import TvbProfile
-from tvb.core.entities import model
+from tvb.core.entities.model.model_project import User, ROLE_ADMINISTRATOR
 from tvb.core.entities.storage import dao
-from tvb.core.entities.model import UserPreferences
+from tvb.core.entities.model.model_project import UserPreferences
 
 
 class TestUsersController(BaseTransactionalControllerTest):
@@ -54,7 +54,7 @@ class TestUsersController(BaseTransactionalControllerTest):
         Sets up the testing environment;
         creates a `UserController`
         """
-        self.init(user_role=model.ROLE_ADMINISTRATOR)
+        self.init(user_role=ROLE_ADMINISTRATOR)
         self.user_c = UserController()
 
     def transactional_teardown_method(self):
@@ -65,7 +65,7 @@ class TestUsersController(BaseTransactionalControllerTest):
         """
         Tests for a valid redirect on user login
         """
-        user = model.User('valid_user', md5('valid_pass').hexdigest(), 'mail@mail.com', True, 'CLINICIAN')
+        user = User('valid_user', md5('valid_pass').hexdigest(), 'mail@mail.com', True, 'CLINICIAN')
         dao.store_entity(user)
         login_data = {'username': 'valid_user', 'password': 'valid_pass'}
         cherrypy.request.method = "POST"
@@ -100,7 +100,7 @@ class TestUsersController(BaseTransactionalControllerTest):
         """
         Simulate a edit of the email and check that data is actually changed.
         """
-        edited_data = {'email': u'jira1.tvb@gmail.com'}
+        edited_data = {'email': 'jira1.tvb@gmail.com'}
         cherrypy.request.method = "POST"
         self.user_c.profile(save=True, **edited_data)
         user = dao.get_user_by_id(self.test_user.id)

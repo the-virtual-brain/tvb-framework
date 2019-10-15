@@ -34,17 +34,16 @@
 """
 
 import os
-import nibabel as nib
+import numpy
+import nibabel
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException
 
 
-
-class NIFTIParser():
+class NIFTIParser(object):
     """
     This class reads content of a NIFTI file and writes a 4D array [time, x, y, z].
     """
-
 
     def __init__(self, data_file):
 
@@ -57,8 +56,8 @@ class NIFTIParser():
             raise ParseException("Provided file %s does not exists" % data_file)
 
         try:
-            self.nifti_image = nib.load(data_file)
-        except nib.spatialimages.ImageFileError as e:
+            self.nifti_image = nibabel.load(data_file)
+        except nibabel.spatialimages.ImageFileError as e:
             self.logger.exception(e)
             msg = "File: %s does not have a valid NIFTI-1 format." % data_file
             raise ParseException(msg)
@@ -67,7 +66,8 @@ class NIFTIParser():
 
         # Check if there is a time dimensions (4th dimension).
         nifti_data_shape = nifti_image_hdr.get_data_shape()
-        self.has_time_dimension = len(nifti_data_shape) > 3
+        self.nr_dims = len(nifti_data_shape)
+        self.has_time_dimension = self.nr_dims > 3
         self.time_dim_size = nifti_data_shape[3] if self.has_time_dimension else 1
 
         # Extract sample unit measure
@@ -76,9 +76,7 @@ class NIFTIParser():
         # Usually zooms defines values for x, y, z, time and other dimensions
         self.zooms = nifti_image_hdr.get_zooms()
 
-
-
-    def parse(self, result_dt, keep_result_4d=True):
+    def parse(self):
         """
         Parse NIFTI file and write in result_dt a 4D or 3D array [time*, x, y, z].
         """
@@ -88,15 +86,4 @@ class NIFTIParser():
         # it as first dimension, so we have to adapt imported data
 
         nifti_data = self.nifti_image.get_data()
-
-        if self.has_time_dimension:
-            for i in range(self.time_dim_size):
-                result_dt.write_data_slice([nifti_data[:, :, :, i, ...]])
-        else:
-            if keep_result_4d:
-                result_dt.write_data_slice([nifti_data])
-            else:
-                result_dt.write_data_slice(nifti_data)
-
-        result_dt.close_file()  # Force closing HDF5 file
-
+        return numpy.array(nifti_data, dtype=numpy.int32)

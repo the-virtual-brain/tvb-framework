@@ -34,7 +34,7 @@
 
 import numpy
 from copy import deepcopy
-from tvb.basic.traits.core import Type
+from tvb.basic.neotraits.api import HasTraits, Attr
 from tvb.core.adapters.abcadapter import KEY_EQUATION, KEY_FOCAL_POINTS, KEY_SURFACE_GID, ABCAdapter
 from tvb.datatypes.equations import SpatialApplicableEquation, Gaussian
 from tvb.basic.logger.builder import get_logger
@@ -187,7 +187,7 @@ class SurfaceContextModelParameters(object):
         result = {}
         for param in self.applied_equations:
             equation = self.applied_equations[param][KEY_EQUATION]
-            keys = sorted(equation.parameters.keys(), key=lambda x: len(x))
+            keys = sorted(list(equation.parameters), key=lambda x: len(x))
             keys.reverse()
             base_equation = equation.trait['equation'].interface['description']
             for eq_param in keys:
@@ -209,10 +209,10 @@ class SurfaceContextModelParameters(object):
 
 
 
-class EquationDisplayer(Type):
+class EquationDisplayer(HasTraits):
     """
     Class used for generating the UI related to equations.
     """
-    model_param_equation = SpatialApplicableEquation(label='Equation', default=Gaussian)
+    model_param_equation = Attr(field_type=SpatialApplicableEquation, label='Equation', default=Gaussian())
     
     

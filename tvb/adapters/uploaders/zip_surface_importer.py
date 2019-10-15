@@ -34,12 +34,27 @@
 """
 
 import numpy
-from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.zip_surface.parser import ZipSurfaceParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.core.entities.storage import dao
-from tvb.datatypes.surfaces import ALL_SURFACES_SELECTION, Surface, make_surface, center_vertices
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
+from tvb.core.neocom import h5
+from tvb.core.neotraits.forms import UploadField, SimpleSelectField, SimpleBoolField
+from tvb.datatypes.surfaces import make_surface, center_vertices
+
+
+class ZIPSurfaceImporterForm(ABCUploaderForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(ZIPSurfaceImporterForm, self).__init__(prefix, project_id)
+        self.uploaded = UploadField('application/zip', self, name='uploaded', required=True, label='Surface file (zip)')
+        self.surface_type = SimpleSelectField(ALL_SURFACES_SELECTION, self, name='surface_type', required=True,
+                                              label='Surface type', default=list(ALL_SURFACES_SELECTION)[0])
+        self.zero_based_triangles = SimpleBoolField(self, name='zero_based_triangles', default=True,
+                                                    label='Zero based triangles')
+        self.should_center = SimpleBoolField(self, name='should_center',
+                                             label='Center surface using vertex means along axes')
 
 
 class ZIPSurfaceImporter(ABCUploader):
@@ -53,20 +68,11 @@ class ZIPSurfaceImporter(ABCUploader):
     _ui_description = "Import a Surface from ZIP"
     logger = get_logger(__name__)
 
-    def get_upload_input_tree(self):
-        """ Take as input a ZIP archive. """
-        return [{'name': 'uploaded', 'type': 'upload', 'required_type': 'application/zip',
-                 'label': 'Surface file (zip)', 'required': True},
-                {'name': 'surface_type', 'type': 'select', 'label': 'Surface type', 'required': True,
-                 'options': ALL_SURFACES_SELECTION},
-                {'name': 'zero_based_triangles', 'label': 'Zero based triangles', 'type': 'bool', 'default': True},
-                {'name': 'should_center', 'type': 'bool', 'default': False,
-                 'label': 'Center surface using vertex means along axes'}]
-
+    def get_form_class(self):
+        return ZIPSurfaceImporterForm
 
     def get_output(self):
-        return [Surface]
-
+        return [SurfaceIndex]
 
     @staticmethod
     def _make_surface(surface_type):
@@ -79,14 +85,13 @@ class ZIPSurfaceImporter(ABCUploader):
         exception_str = "Could not determine surface type (selected option %s)" % surface_type
         raise LaunchException(exception_str)
 
-
     def launch(self, uploaded, surface_type, zero_based_triangles=False, should_center=False):
         """
         Execute import operations: unpack ZIP and build Surface object as result.
 
         :param uploaded: an archive containing the Surface data to be imported
-        :param surface_type: a string from the following\: \
-                            "Skin Air", "Skull Skin", "Brain Skull", "Cortical Surface", "EEG Cap", "Face"
+        :param surface_type: a string from the following:
+        "Skin Air", "Skull Skin", "Brain Skull", "Cortical Surface", "EEG Cap", "Face"
 
         :returns: a subclass of `Surface` DataType
         :raises LaunchException: when
@@ -107,7 +112,6 @@ class ZIPSurfaceImporter(ABCUploader):
         # Detect and instantiate correct surface type
         self.logger.debug("Create surface instance")
         surface = self._make_surface(surface_type)
-        surface.storage_path = self.storage_path
         surface.zero_based_triangles = zero_based_triangles
         if should_center:
             vertices = center_vertices(zip_surface.vertices)
@@ -125,7 +129,7 @@ class ZIPSurfaceImporter(ABCUploader):
             self.logger.info("Hemispheres detected")
 
         surface.hemisphere_mask = zip_surface.hemisphere_mask
-        surface.triangle_normals = None
+        surface.compute_triangle_normals()
 
         # Now check if the triangles of the surface are valid
         triangles_min_vertex = numpy.amin(surface.triangles)
@@ -149,5 +153,9 @@ class ZIPSurfaceImporter(ABCUploader):
         if validation_result.warnings:
             self.add_operation_additional_info(validation_result.summary())
 
+        surface.configure()
         self.logger.debug("Surface ready to be stored")
-        return surface
+
+        surf_idx = h5.store_complete(surface, self.storage_path)
+        self.generic_attributes.user_tag_1 = surface.surface_type
+        return surf_idx

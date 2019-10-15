@@ -35,13 +35,13 @@
 import numpy
 import json
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
-from tvb.config import SIMULATOR_MODULE, SIMULATOR_CLASS
+from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.entities import model
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.analyzers.metrics_group_timeseries import TimeseriesMetricsAdapter
 from tvb.datatypes.time_series import TimeSeriesRegion
-from tvb.datatypes.mapped_values import DatatypeMeasure
+#from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.flow_service import FlowService
@@ -78,7 +78,8 @@ class TestTimeSeriesMetricsAdapter(TransactionalTestCase):
         Test that the adapters launches and successfully generates a datatype measure entry.
         """
         meta = {DataTypeMetaData.KEY_SUBJECT: "John Doe", DataTypeMetaData.KEY_STATE: "RAW_DATA"}
-        algo = FlowService().get_algorithm_by_module_and_class(SIMULATOR_MODULE, SIMULATOR_CLASS)
+        algo = FlowService().get_algorithm_by_module_and_class(IntrospectionRegistry.SIMULATOR_MODULE,
+                                                               IntrospectionRegistry.SIMULATOR_CLASS)
         self.operation = model.Operation(self.test_user.id, self.test_project.id, algo.id, json.dumps(''),
                                          meta=json.dumps(meta), status=model.STATUS_STARTED)
         self.operation = dao.store_entity(self.operation)
@@ -108,7 +109,7 @@ class TestTimeSeriesMetricsAdapter(TransactionalTestCase):
         ts_metric_adapter = TimeseriesMetricsAdapter()
         resulted_metric = ts_metric_adapter.launch(dummy_time_series)
         assert isinstance(resulted_metric, DatatypeMeasure), "Result should be a datatype measure."
-        assert len(resulted_metric.metrics) >= len(ts_metric_adapter.available_algorithms.keys()),\
+        assert len(resulted_metric.metrics) >= len(list(ts_metric_adapter.available_algorithms)),\
                         "At least a result should have been generated for every metric."
         for metric_value in resulted_metric.metrics.values():
             assert isinstance(metric_value, (float, int))

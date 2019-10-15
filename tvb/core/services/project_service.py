@@ -40,16 +40,17 @@ import six
 import json
 import formencode
 from tvb.core import utils
-from tvb.basic.traits.types_mapped import MappedType
 from tvb.basic.logger.builder import get_logger
-from tvb.core.entities.model import DataTypeGroup
+from tvb.core.entities.model.model_datatype import Links, DataType, DataTypeGroup
+from tvb.core.entities.model.model_operation import Operation, OperationGroup
+from tvb.core.entities.model.model_project import Project
+from tvb.core.neocom import h5
 from tvb.core.services.flow_service import FlowService
 from tvb.core.utils import string2date, date2string, format_timedelta, format_bytes_human
 from tvb.core.removers_factory import get_remover
-from tvb.core.entities import model
 from tvb.core.entities.storage import dao, transactional
 from tvb.core.entities.transient.context_overlay import CommonDetails, DataTypeOverlayDetails, OperationOverlayDetails
-from tvb.core.entities.transient.filtering import StaticFiltersFactory
+from tvb.core.entities.filters.factory import StaticFiltersFactory
 from tvb.core.entities.transient.structure_entities import StructureNode, DataTypeMetaData
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.exceptions import FileStructureException
@@ -57,7 +58,6 @@ from tvb.core.services.exceptions import StructureException, ProjectServiceExcep
 from tvb.core.services.exceptions import RemoveDataTypeException
 from tvb.core.services.user_service import UserService
 from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.core.adapters.exceptions import IntrospectionException
 
 
 def initialize_storage():
@@ -73,7 +73,7 @@ def initialize_storage():
         logger.exception("Could not make sure the root folder exists!")
 
 
-## TODO move this page sizes into User-Settings once we have a UI table to set it.
+# TODO move this page sizes into User-Settings once we have a UI table to set it.
 OPERATIONS_PAGE_SIZE = 20
 PROJECTS_PAGE_SIZE = 20
 KEY_VALUE = "value"
@@ -109,7 +109,7 @@ class ProjectService:
         if started_operations > 0:
             raise ProjectServiceException("A project can not be renamed while operations are still running!")
         if is_create:
-            current_proj = model.Project(new_name, current_user.id, data["description"])
+            current_proj = Project(new_name, current_user.id, data["description"])
             self.structure_helper.get_project_folder(current_proj)
         else:
             try:
@@ -193,7 +193,7 @@ class ProjectService:
                 result["gid"] = one_op[13]
                 if one_op[3] is not None and one_op[3]:
                     try:
-                        operation_group = dao.get_generic_entity(model.OperationGroup, one_op[3])[0]
+                        operation_group = dao.get_generic_entity(OperationGroup, one_op[3])[0]
                         result["group"] = operation_group.name
                         result["group"] = result["group"].replace("_", " ")
                         result["operation_group_id"] = operation_group.id
@@ -210,15 +210,15 @@ class ProjectService:
                     result['datatype_group_gid'] = None
                 result["algorithm"] = dao.get_algorithm_by_id(one_op[4])
                 result["user"] = dao.get_user_by_id(one_op[5])
-                if type(one_op[6]) in (str, unicode):
+                if type(one_op[6]) is str:
                     result["create"] = string2date(str(one_op[6]))
                 else:
                     result["create"] = one_op[6]
-                if type(one_op[7]) in (str, unicode):
+                if type(one_op[7]) is str:
                     result["start"] = string2date(str(one_op[7]))
                 else:
                     result["start"] = one_op[7]
-                if type(one_op[8]) in (str, unicode):
+                if type(one_op[8]) is str:
                     result["complete"] = string2date(str(one_op[8]))
                 else:
                     result["complete"] = one_op[8]
@@ -307,7 +307,7 @@ class ProjectService:
 
             links = dao.get_links_for_project(project_id)
             for one_link in links:
-                dao.remove_entity(model.Links, one_link.id)
+                dao.remove_entity(Links, one_link.id)
 
             self.structure_helper.remove_project_structure(project2delete.name)
             dao.delete_project(project_id)
@@ -421,7 +421,7 @@ class ProjectService:
         if is_group:
             operation_group = self.get_operation_group_by_gid(operation_gid)
             operation = dao.get_operations_in_group(operation_group.id, False, True)
-            ## Reload, to make sure all attributes lazy are populated as well.
+            # Reload, to make sure all attributes lazy are populated as well.
             operation = dao.get_operation_by_gid(operation.gid)
             no_of_op_in_group = dao.get_operations_in_group(operation_group.id, is_count=True)
             datatype_group = self.get_datatypegroup_by_op_group_id(operation_group.id)
@@ -442,7 +442,7 @@ class ProjectService:
         op_details = OperationOverlayDetails(operation, username, len(datatypes_param),
                                              count_result, burst, no_of_op_in_group, op_pid)
 
-        ## Add all parameter which are set differently by the user on this Operation.
+        # Add all parameter which are set differently by the user on this Operation.
         if all_special_params is not None:
             op_details.add_scientific_fields(all_special_params)
         return op_details
@@ -474,7 +474,7 @@ class ProjectService:
             if dt_entity is None:
                 self.logger.warning("Ignored entity (possibly removed DT class)" + str(dt))
                 continue
-            ## Filter by dt.type, otherwise Links to individual DT inside a group will be mistaken
+            #  Filter by dt.type, otherwise Links to individual DT inside a group will be mistaken
             if dt.type == "DataTypeGroup" and dt.parent_operation.operation_group is not None:
                 is_group = True
                 group_op = dt.parent_operation.operation_group
@@ -482,7 +482,7 @@ class ProjectService:
             # All these fields are necessary here for dynamic Tree levels.
             data[DataTypeMetaData.KEY_DATATYPE_ID] = dt.id
             data[DataTypeMetaData.KEY_GID] = dt.gid
-            data[DataTypeMetaData.KEY_NODE_TYPE] = dt.type
+            data[DataTypeMetaData.KEY_NODE_TYPE] = dt.display_type
             data[DataTypeMetaData.KEY_STATE] = dt.state
             data[DataTypeMetaData.KEY_SUBJECT] = str(dt.subject)
             data[DataTypeMetaData.KEY_TITLE] = dt_entity.display_name
@@ -551,11 +551,11 @@ class ProjectService:
                 for link in links:
                     # This means it's only a link and we need to remove it
                     if link.fk_from_datatype == datatype.id and link.fk_to_project == project.id:
-                        dao.remove_entity(model.Links, link.id)
+                        dao.remove_entity(Links, link.id)
                         was_link = True
                 if not was_link:
                     # Create a clone of the operation
-                    new_op = model.Operation(dao.get_system_user().id,
+                    new_op = Operation(dao.get_system_user().id,
                                              links[0].fk_to_project,
                                              datatype.parent_operation.fk_from_algo,
                                              datatype.parent_operation.parameters,
@@ -575,11 +575,12 @@ class ProjectService:
                     datatype.set_operation_id(new_op.id)
                     datatype.parent_operation = new_op
                     dao.store_entity(datatype)
-                    dao.remove_entity(model.Links, links[0].id)
+                    dao.remove_entity(Links, links[0].id)
             else:
                 specific_remover = get_remover(datatype.type)(datatype)
                 specific_remover.remove_datatype(skip_validation)
-                self.structure_helper.remove_datatype(datatype)
+                h5_path = h5.path_for_stored_index(datatype)
+                self.structure_helper.remove_datatype_file(h5_path)
 
         except RemoveDataTypeException:
             self.logger.exception("Could not execute operation Node Remove!")
@@ -599,7 +600,8 @@ class ProjectService:
             datatypes_for_op = dao.get_results_for_operation(operation_id)
             for dt in reversed(datatypes_for_op):
                 self.remove_datatype(operation.project.id, dt.gid, False)
-            dao.remove_entity(model.Operation, operation.id)
+            dao.remove_entity(Operation, operation.id)
+            self.structure_helper.remove_operation_data(operation.project.name, operation_id)
             self.logger.debug("Finished deleting operation %s " % operation)
         else:
             self.logger.warning("Attempt to delete operation with id=%s which no longer exists." % operation_id)
@@ -637,7 +639,7 @@ class ProjectService:
 
             datatype_group = dao.get_datatype_group_by_gid(datatype.gid)
             dao.remove_datatype(datatype_gid)
-            correct = correct and dao.remove_entity(model.OperationGroup, datatype_group.fk_operation_group)
+            correct = correct and dao.remove_entity(OperationGroup, datatype_group.fk_operation_group)
         else:
             self.logger.debug("Removing datatype %s" % datatype)
             self._remove_project_node_files(project_id, datatype.gid, skip_validation)
@@ -645,11 +647,11 @@ class ProjectService:
         ## Remove Operation entity in case no other DataType needs them.
         project = dao.get_project_by_id(project_id)
         for operation_id in operations_set:
-            dependent_dt = dao.get_generic_entity(model.DataType, operation_id, "fk_from_operation")
+            dependent_dt = dao.get_generic_entity(DataType, operation_id, "fk_from_operation")
             if len(dependent_dt) > 0:
                 ### Do not remove Operation in case DataType still exist referring it.
                 continue
-            correct = correct and dao.remove_entity(model.Operation, operation_id)
+            correct = correct and dao.remove_entity(Operation, operation_id)
             ## Make sure Operation folder is removed
             self.structure_helper.remove_operation_data(project.name, datatype.fk_from_operation)
 
@@ -678,7 +680,7 @@ class ProjectService:
                                                               new_data[CommonDetails.CODE_OPERATION_GROUP_ID])
                 if len(all_data_in_group) < 1:
                     raise StructureException("Inconsistent group, can not be updated!")
-                datatype_group = dao.get_generic_entity(model.DataTypeGroup, all_data_in_group[0].fk_datatype_group)[0]
+                datatype_group = dao.get_generic_entity(DataTypeGroup, all_data_in_group[0].fk_datatype_group)[0]
                 all_data_in_group.append(datatype_group)
                 for datatype in all_data_in_group:
                     new_data[CommonDetails.CODE_GID] = datatype.gid
@@ -698,6 +700,8 @@ class ProjectService:
         Private method, used for editing a meta-data XML file and a DataType row
         for a given custom DataType entity with new dictionary of data from UI.
         """
+        from tvb.basic.traits.types_mapped import MappedType
+
         if isinstance(datatype, MappedType) and not os.path.exists(datatype.get_storage_file_path()):
             if not datatype.invalid:
                 datatype.invalid = True
@@ -711,10 +715,10 @@ class ProjectService:
             if empty_group_value:
                 raise StructureException("Empty group is not allowed!")
 
-            group = dao.get_generic_entity(model.OperationGroup, new_data[CommonDetails.CODE_OPERATION_GROUP_ID])
+            group = dao.get_generic_entity(OperationGroup, new_data[CommonDetails.CODE_OPERATION_GROUP_ID])
             if group and len(group) > 0 and new_group_name != group[0].name:
                 group = group[0]
-                exists_group = dao.get_generic_entity(model.OperationGroup, new_group_name, 'name')
+                exists_group = dao.get_generic_entity(OperationGroup, new_group_name, 'name')
                 if exists_group:
                     raise StructureException("Group '" + new_group_name + "' already exists.")
                 group.name = new_group_name
@@ -787,10 +791,10 @@ class ProjectService:
             adapter = ABCAdapter.build_adapter(operation.algorithm)
             return adapter.review_operation_inputs(parameters)
 
-        except IntrospectionException:
-            self.logger.warning("Could not find adapter class for operation %s" % operation_gid)
+        except Exception:
+            self.logger.exception("Could not load details for operation %s" % operation_gid)
             inputs_datatypes = []
-            changed_parameters = dict(Warning="Algorithm was Removed. We can not offer more details")
+            changed_parameters = dict(Warning="Algorithm changed dramatically. We can not offer more details")
             for submit_param in parameters.values():
                 self.logger.debug("Searching DT by GID %s" % submit_param)
                 datatype = ABCAdapter.load_entity_by_gid(str(submit_param))
@@ -811,7 +815,7 @@ class ProjectService:
             op_inputs = self.get_datatype_and_datatypegroup_inputs_for_operation(gid[0], selected_filter)
             for datatype in op_inputs:
                 op_group_inputs[datatype.id] = datatype
-        return op_group_inputs.values()
+        return list(op_group_inputs.values())
 
 
     @staticmethod

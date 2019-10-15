@@ -42,7 +42,7 @@ from hashlib import md5
 from tvb.basic.profile import TvbProfile
 from tvb.basic.logger.builder import get_logger
 from tvb.config import DEFAULT_PROJECT_GID
-from tvb.core.entities import model
+from tvb.core.entities.model.model_project import User, ROLE_ADMINISTRATOR, USER_ROLES
 from tvb.core.entities.storage import dao
 from tvb.core.services import email_sender
 from tvb.core.services.exceptions import UsernameException
@@ -78,7 +78,7 @@ class UserService:
     """
     CRUD methods for USER entities are here.
     """
-    USER_ROLES = model.USER_ROLES
+    USER_ROLES = USER_ROLES
 
 
     def __init__(self):
@@ -100,15 +100,15 @@ class UserService:
             raise UsernameException("Passwords do not match!")
 
         try:
-            user_validated = (role == 'ADMINISTRATOR') or validated
-            user = model.User(username, password, email, user_validated, role)
+            user_validated = (role == ROLE_ADMINISTRATOR) or validated
+            user = User(username, password, email, user_validated, role)
             if email_msg is None:
                 email_msg = 'Hello ' + username + TEXT_CREATE
             admin_msg = (TEXT_CREATE_TO_ADMIN + username + ' :\n ' + TvbProfile.current.web.BASE_URL +
                          'user/validate/' + username + '\n\n"' + str(comment) + '"')
             self.logger.info("Registering user " + username + " !")
 
-            if role != 'ADMINISTRATOR' and email is not None:
+            if role != ROLE_ADMINISTRATOR and email is not None:
                 admins = UserService.get_administrators()
                 admin = admins[randint(0, len(admins) - 1)]
                 if admin.email is not None and (admin.email != TvbProfile.current.web.admin.DEFAULT_ADMIN_EMAIL):
@@ -120,7 +120,7 @@ class UserService:
 
             user = dao.store_entity(user)
 
-            if role == model.ROLE_ADMINISTRATOR and not skip_import:
+            if role == ROLE_ADMINISTRATOR:
                 to_upload = os.path.join(os.path.dirname(tvb_data.__file__), "Default_Project.zip")
                 if not os.path.exists(to_upload):
                     self.logger.warning("Could not find DEFAULT PROJECT at path %s. You might want to import it "
@@ -213,7 +213,7 @@ class UserService:
         Service layer to check if given UserName and Password are according to DB.
         """
         user = dao.get_user_by_name(username)
-        if user is not None and user.password == md5(password).hexdigest() and user.validated:
+        if user is not None and user.password == md5(password.encode('utf-8')).hexdigest() and user.validated:
             return user
         else:
             return None
@@ -280,7 +280,7 @@ class UserService:
         Delete a user with a given ID.
         Return True when successfully, or False."""
         try:
-            dao.remove_entity(model.User, user_id)
+            dao.remove_entity(User, user_id)
             return True
         except Exception as excep:
             self.logger.exception(excep)

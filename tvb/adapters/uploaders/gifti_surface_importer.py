@@ -33,13 +33,30 @@
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
 
-from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.gifti.parser import GIFTIParser, OPTION_READ_METADATA
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import LaunchException, ParseException
-from tvb.core.entities.storage import dao
-from tvb.datatypes.surfaces import Surface, ALL_SURFACES_SELECTION
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
+from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
+from tvb.core.neotraits.forms import UploadField, SimpleBoolField, SimpleSelectField
+from tvb.core.neocom import h5
 
+
+class GIFTISurfaceImporterForm(ABCUploaderForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(GIFTISurfaceImporterForm, self).__init__(prefix, project_id)
+        surface_types = ALL_SURFACES_SELECTION.copy()
+        surface_types['Specified in the file metadata'] = OPTION_READ_METADATA
+
+        self.file_type = SimpleSelectField(surface_types, self, name='file_type', required=True,
+                                           label='Specify file type : ', default=list(surface_types)[0])
+        self.data_file = UploadField('.gii', self, name='data_file', required=True,
+                                     label='Please select a .gii (LH if cortex)')
+        self.data_file_part2 = UploadField('.gii', self, name='data_file_part2',
+                                           label="Optionally select 2'nd .gii (RH if cortex)")
+        self.should_center = SimpleBoolField(self, name='should_center', default=False,
+                                             label='Center surface using vertex means along axes')
 
 
 class GIFTISurfaceImporter(ABCUploader):
@@ -50,33 +67,12 @@ class GIFTISurfaceImporter(ABCUploader):
     _ui_name = "Surface GIFTI"
     _ui_subsection = "gifti_surface_importer"
     _ui_description = "Import a surface from GIFTI"
-    
-    def get_upload_input_tree(self):
-        """
-        Take as input a .GII file.
-        """
-        surface_options = [{'name': 'Specified in the file metadata', 'value': OPTION_READ_METADATA}]
-        surface_options.extend(ALL_SURFACES_SELECTION)
 
-        return [{'name': 'file_type', 'type': 'select',
-                 'label': 'Specify file type : ', 'required': True,
-                 'options': surface_options,
-                 'default': OPTION_READ_METADATA},
-
-                {'name': 'data_file', 'type': 'upload', 'required_type': '.gii', 'required': True,
-                 'label': 'Please select a .gii (LH if cortex)'},
-
-                {'name': 'data_file_part2', 'type': 'upload', 'required_type': '.gii', 'required': False,
-                 'label': "Optionally select 2'nd .gii (RH if cortex)"},
-
-                {'name': 'should_center', 'type': 'bool', 'default': False,
-                 'label': 'Center surface using vertex means along axes'}
-                ]
-
+    def get_form_class(self):
+        return GIFTISurfaceImporterForm
 
     def get_output(self):
-        return [Surface]
-
+        return [SurfaceIndex]
 
     def launch(self, file_type, data_file, data_file_part2, should_center=False):
         """
@@ -85,12 +81,15 @@ class GIFTISurfaceImporter(ABCUploader):
         parser = GIFTIParser(self.storage_path, self.operation_id)
         try:
             surface = parser.parse(data_file, data_file_part2, file_type, should_center=should_center)
+            surface.compute_triangle_normals()
+            surface.compute_vertex_normals()
             validation_result = surface.validate()
 
             if validation_result.warnings:
                 self.add_operation_additional_info(validation_result.summary())
-
-            return [surface]             
+            self.generic_attributes.user_tag_1 = surface.surface_type
+            surface_idx = h5.store_complete(surface, self.storage_path)
+            return [surface_idx]
         except ParseException as excep:
             logger = get_logger(__name__)
             logger.exception(excep)

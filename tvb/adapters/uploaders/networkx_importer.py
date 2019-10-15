@@ -33,11 +33,41 @@
 """
 
 import networkx
-from tvb.adapters.uploaders.abcuploader import ABCUploader
 from tvb.adapters.uploaders.networkx_connectivity.parser import NetworkxParser
 from tvb.core.adapters.exceptions import ParseException, LaunchException
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
-from tvb.datatypes.connectivity import Connectivity
+from tvb.core.neotraits.forms import UploadField, SimpleStrField
+from tvb.core.neocom import h5
+
+
+class NetworkxCFFCommonImporterForm(ABCUploaderForm):
+
+    def __init__(self, prefix='', project_id=None, label_prefix=''):
+        super(NetworkxCFFCommonImporterForm, self).__init__(prefix, project_id)
+        self.key_edge_weight = SimpleStrField(self, name='key_edge_weight', default=NetworkxParser.KEY_EDGE_WEIGHT[0],
+                                              label=label_prefix + 'Key Edge Weight')
+        self.key_edge_tract = SimpleStrField(self, name='key_edge_tract', default=NetworkxParser.KEY_EDGE_TRACT[0],
+                                             label=label_prefix + 'Key Edge Tract')
+        self.key_node_coordinates = SimpleStrField(self, name='key_node_coordinates',
+                                                   default=NetworkxParser.KEY_NODE_COORDINATES[0],
+                                                   label=label_prefix + 'Key Node Coordinates')
+        self.key_node_label = SimpleStrField(self, name='key_node_label', default=NetworkxParser.KEY_NODE_LABEL[0],
+                                             label=label_prefix + 'Key Node Label')
+        self.key_node_region = SimpleStrField(self, name='key_node_region', default=NetworkxParser.KEY_NODE_REGION[0],
+                                              label=label_prefix + 'Key Node Region')
+        self.key_node_hemisphere = SimpleStrField(self, name='key_node_hemisphere',
+                                                  default=NetworkxParser.KEY_NODE_HEMISPHERE[0],
+                                                  label=label_prefix + 'Key Node Hemisphere')
+
+
+class NetworkxConnectivityImporterForm(NetworkxCFFCommonImporterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(NetworkxConnectivityImporterForm, self).__init__(prefix, project_id)
+        self.data_file = UploadField('.gpickle', self, name='data_file', required=True,
+                                     label='Please select file to import')
 
 
 class NetworkxConnectivityImporter(ABCUploader):
@@ -48,28 +78,19 @@ class NetworkxConnectivityImporter(ABCUploader):
     _ui_subsection = "networkx_importer"
     _ui_description = "Import connectivity data stored in the networkx gpickle format"
 
+    def get_form_class(self):
+        return NetworkxConnectivityImporterForm
 
-    def get_upload_input_tree(self):
-
-        tree = [{'name': 'data_file', 'type': 'upload', 'required_type': '.gpickle',
-                 'label': 'Please select file to import', 'required': True}]
-
-        tree.extend(NetworkxParser.prepare_input_params_tree())
-        return tree
-        
-        
     def get_output(self):
-        return [Connectivity]
-
+        return [ConnectivityIndex]
 
     @transactional
     def launch(self, data_file, **kwargs):
         try:
-            parser = NetworkxParser(self.storage_path, **kwargs)
+            parser = NetworkxParser(**kwargs)
             net = networkx.read_gpickle(data_file)
             connectivity = parser.parse(net)
-            return [connectivity]
+            return h5.store_complete(connectivity, self.storage_path)
         except ParseException as excep:
             self.log.exception("Could not process Connectivity")
             raise LaunchException(excep)
-

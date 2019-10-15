@@ -174,7 +174,7 @@ class DiskSpaceValidator(formencode.FancyValidator):
         :param value is user-specified value, in MB
         """
         try:
-            value = long(value)
+            value = int(value)
             return value
         except ValueError:
             raise formencode.Invalid('Invalid disk space %s. Should be number' % value, value, None)
@@ -286,7 +286,7 @@ class SettingsForm(formencode.Schema):
     DEPLOY_CLUSTER = validators.Bool()
     CLUSTER_SCHEDULER = validators.UnicodeString(not_empty=True)
 
-    TVB_STORAGE = AsciiValidator(not_empty=True)
+    TVB_STORAGE = validators.UnicodeString(not_empty=True)
     USR_DISK_SPACE = DiskSpaceValidator(not_empty=True)
     MATLAB_EXECUTABLE = MatlabValidator()
     MAXIMUM_NR_OF_THREADS = ThreadNrValidator()

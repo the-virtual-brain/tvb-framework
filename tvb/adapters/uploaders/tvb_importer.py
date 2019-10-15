@@ -35,13 +35,23 @@
 import os
 import shutil
 import zipfile
-from tvb.adapters.uploaders.abcuploader import ABCUploader
+from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.adapters.exceptions import LaunchException
+from tvb.core.neotraits.forms import UploadField
 from tvb.core.services.import_service import ImportService
 from tvb.core.entities.storage import dao
 from tvb.core.entities.file.hdf5_storage_manager import HDF5StorageManager
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.file.files_update_manager import FilesUpdateManager
+
+
+class TVBImporterForm(ABCUploaderForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(TVBImporterForm, self).__init__(prefix, project_id)
+
+        self.data_file = UploadField('.zip, .h5', self, name='data_file', required=True,
+                                     label='Please select file to import (h5 or zip)')
 
 
 class TVBImporter(ABCUploader):
@@ -53,14 +63,8 @@ class TVBImporter(ABCUploader):
     _ui_subsection = "tvb_datatype_importer"
     _ui_description = "Upload H5 file with TVB generic entity"
 
-
-    def get_upload_input_tree(self):
-        """
-            Take as input a ZIP archive or H5 file.
-        """
-        return [{'name': 'data_file', 'type': 'upload', 'required_type': '.zip, .h5',
-                 'label': 'Please select file to import (h5 or zip)', 'required': True}]
-
+    def get_form_class(self):
+        return TVBImporterForm
 
     def get_output(self):
         return []
@@ -109,7 +113,8 @@ class TVBImporter(ABCUploader):
                     datatype = None
                     try:
                         service = ImportService()
-                        datatype = service.load_datatype_from_file(folder, h5file, self.operation_id)
+                        datatype = service.load_datatype_from_file(folder, h5file, self.operation_id,
+                                                                   final_storage=self.storage_path)
                         service.store_datatype(datatype)
                         self.nr_of_datatypes += 1
                     except Exception as excep:

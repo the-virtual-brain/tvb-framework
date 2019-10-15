@@ -38,10 +38,13 @@ import numpy
 import json
 from scipy.optimize import leastsq
 from scipy.interpolate import griddata
+from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.datatypes.graph import ConnectivityMeasure
-from tvb.basic.filters.chain import FilterChain
+from tvb.core.entities.filters.chain import FilterChain
+from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
+from tvb.core.neotraits.forms import DataTypeSelectField
+from tvb.core.neocom import h5
 
 
 class TopographyCalculations(object):
@@ -162,6 +165,36 @@ class TopographyCalculations(object):
         return points_positions - step
 
 
+class TopographicViewerForm(ABCAdapterForm):
+
+    def __init__(self, prefix='', project_id=None):
+        super(TopographicViewerForm, self).__init__(prefix, project_id)
+        self.data_0 = DataTypeSelectField(self.get_required_datatype(), self, name='data_0', required=True,
+                                          label='Connectivity Measures 1', conditions=self.get_filters(),
+                                          doc='Punctual values for each node in the connectivity matrix. This will '
+                                              'give the colors of the resulting topographic image.')
+        self.data_1 = DataTypeSelectField(self.get_required_datatype(), self, name='data_1',
+                                          label='Connectivity Measures 2', doc='Comparative values',
+                                          conditions=FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                                                 operations=["=="], values=[1]))
+        self.data_2 = DataTypeSelectField(self.get_required_datatype(), self, name='data_2',
+                                          label='Connectivity Measures 3', doc='Comparative values',
+                                          conditions=FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
+                                                                 operations=["=="], values=[1]))
+
+    @staticmethod
+    def get_required_datatype():
+        return ConnectivityMeasureIndex
+
+    @staticmethod
+    def get_input_name():
+        return '_data_0'
+
+    @staticmethod
+    def get_filters():
+        return None  # FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'], operations=["=="], values=[1])
+
+
 class TopographicViewer(ABCDisplayer):
     """
     Interface between TVB Framework and web display of a topography viewer.
@@ -170,22 +203,8 @@ class TopographicViewer(ABCDisplayer):
     _ui_name = "Topographic Visualizer"
     _ui_subsection = "topography"
 
-    def get_input_tree(self):
-        return [{'name': 'data_0', 'label': 'Connectivity Measures 1',
-                 'type': ConnectivityMeasure, 'required': True,
-                 'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                           operations=["=="], values=[1]),
-                 'description': 'Punctual values for each node in the connectivity matrix. '
-                                'This will give the colors of the resulting topographic image.'},
-                {'name': 'data_1', 'label': 'Connectivity Measures 2', 'type': ConnectivityMeasure,
-                 'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                           operations=["=="], values=[1]),
-                 'description': 'Comparative values'},
-                {'name': 'data_2', 'label': 'Connectivity Measures 3', 'type': ConnectivityMeasure,
-                 'conditions': FilterChain(fields=[FilterChain.datatype + '._nr_dimensions'],
-                                           operations=["=="], values=[1]),
-                 'description': 'Comparative values'}]
-
+    def get_form_class(self):
+        return TopographicViewerForm
 
     def get_required_memory_size(self, **kwargs):
         """
@@ -193,15 +212,22 @@ class TopographicViewer(ABCDisplayer):
         """
         return -1
 
-
     def generate_preview(self, data_0, data_1=None, data_2=None, figure_size=None):
         return self.launch(data_0, data_1, data_2)
 
-
     def launch(self, data_0, data_1=None, data_2=None):
 
-        connectivity = data_0.connectivity
-        sensor_locations = TopographyCalculations.normalize_sensors(connectivity.centres)
+        connectivities_idx = []
+        measures_ht = []
+        for measure in [data_0, data_1, data_2]:
+            if measure is not None:
+                measures_ht.append(h5.load_from_index(measure))
+                conn_index = self.load_entity_by_gid(measure.connectivity_gid)
+                connectivities_idx.append(conn_index)
+
+        with h5.h5_file_for_index(connectivities_idx[0]) as conn_h5:
+            centres = conn_h5.centres.load()
+        sensor_locations = TopographyCalculations.normalize_sensors(centres)
         sensor_number = len(sensor_locations)
 
         arrays = []
@@ -210,14 +236,13 @@ class TopographicViewer(ABCDisplayer):
         max_vals = []
         data_array = []
         data_arrays = []
-        for measure in [data_0, data_1, data_2]:
-            if measure is not None:
-                if len(measure.connectivity.centres) != sensor_number:
-                    raise Exception("Use the same connectivity!!!")
-                arrays.append(measure.array_data.tolist())
-                titles.append(measure.title)
-                min_vals.append(measure.array_data.min())
-                max_vals.append(measure.array_data.max())
+        for i, measure in enumerate(measures_ht):
+            if connectivities_idx[i].number_of_regions != sensor_number:
+                raise Exception("Use the same connectivity!!!")
+            arrays.append(measure.array_data.tolist())
+            titles.append(measure.title)
+            min_vals.append(measure.array_data.min())
+            max_vals.append(measure.array_data.max())
 
         color_bar_min = min(min_vals)
         color_bar_max = max(max_vals)
