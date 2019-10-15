@@ -53,8 +53,6 @@ class ZIPConnectivityImporterForm(ABCUploaderForm):
         self.normalization = SimpleSelectField(NORMALIZATION_OPTIONS, self, name='normalization',
                                                label='Weights Normalization', doc='Normalization mode for weights')
 
-        self.project_id = project_id
-
 
 class ZIPConnectivityImporter(ABCUploader):
     """
