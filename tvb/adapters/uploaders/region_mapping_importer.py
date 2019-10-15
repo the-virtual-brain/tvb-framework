@@ -46,7 +46,7 @@ from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
+from tvb.core.neotraits.forms import UploadField, DataTypeSelectField
 from tvb.core.neocom import h5
 from tvb.datatypes.region_mapping import RegionMapping
 from tvb.datatypes.surfaces import CORTICAL

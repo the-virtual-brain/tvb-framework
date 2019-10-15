@@ -47,7 +47,7 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.graph_h5 import CovarianceH5
 from tvb.core.entities.model.datatypes.graph import CovarianceIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)

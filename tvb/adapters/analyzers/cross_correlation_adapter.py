@@ -52,7 +52,7 @@ from tvb.core.entities.model.datatypes.graph import CorrelationCoefficientsIndex
 from tvb.core.entities.model.datatypes.temporal_correlations import CrossCorrelationIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesEEGIndex, TimeSeriesMEGIndex, \
     TimeSeriesSEEGIndex
-from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
+from tvb.core.neotraits.forms import DataTypeSelectField, ScalarField
 from tvb.core.neocom import h5
 from tvb.datatypes.time_series import TimeSeries
 from tvb.datatypes.temporal_correlations import CrossCorrelation

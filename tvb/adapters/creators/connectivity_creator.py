@@ -38,7 +38,7 @@ from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.storage import dao
-from tvb.core.neotraits._forms import DataTypeSelectField, SimpleBoolField, SimpleArrayField
+from tvb.core.neotraits.forms import DataTypeSelectField, SimpleBoolField, SimpleArrayField
 from tvb.core.neocom import h5
 from tvb.datatypes.connectivity import Connectivity
 from tvb.datatypes.region_mapping import RegionMapping

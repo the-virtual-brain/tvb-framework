@@ -38,7 +38,7 @@ import json
 from tvb.adapters.visualizers.time_series import ABCSpaceDisplayer
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 
 
 class PCAForm(ABCAdapterForm):

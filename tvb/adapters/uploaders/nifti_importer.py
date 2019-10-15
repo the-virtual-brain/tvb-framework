@@ -51,7 +51,7 @@ from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesVolumeIndex
 from tvb.core.entities.model.datatypes.volume import VolumeIndex
 from tvb.core.entities.storage import transactional
-from tvb.core.neotraits._forms import UploadField, SimpleBoolField, DataTypeSelectField
+from tvb.core.neotraits.forms import UploadField, SimpleBoolField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
 from tvb.core.neocom import h5
 

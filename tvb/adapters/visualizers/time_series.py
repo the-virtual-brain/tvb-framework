@@ -43,7 +43,7 @@ from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer, URLGenerator
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.core.neocom import h5
 from tvb.datatypes.connectivity import Connectivity
 

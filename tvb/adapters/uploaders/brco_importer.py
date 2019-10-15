@@ -40,7 +40,7 @@ from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
 from tvb.core.neocom import h5
-from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
+from tvb.core.neotraits.forms import UploadField, DataTypeSelectField
 
 
 class BRCOImporterForm(ABCUploaderForm):

@@ -46,7 +46,7 @@ from tvb.datatypes.time_series import TimeSeries
 from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
+from tvb.core.neotraits.forms import ScalarField, DataTypeSelectField
 from tvb.core.neocom import h5
 
 

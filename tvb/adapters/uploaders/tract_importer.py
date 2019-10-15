@@ -41,7 +41,7 @@ from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMapping
 from tvb.core.entities.model.datatypes.tracts import TractsIndex
 from tvb.core.entities.storage import transactional
 from tvb.datatypes.tracts import Tracts
-from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
+from tvb.core.neotraits.forms import UploadField, DataTypeSelectField
 
 
 def chunk_iter(iterable, n):

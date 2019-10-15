@@ -47,7 +47,7 @@ from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.core.neotraits._forms import DataTypeSelectField, SimpleFloatField
+from tvb.core.neotraits.forms import DataTypeSelectField, SimpleFloatField
 from tvb.core.neocom import h5
 from tvb.core.services.flow_service import FlowService
 from tvb.datatypes.connectivity import Connectivity

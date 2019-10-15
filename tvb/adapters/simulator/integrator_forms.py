@@ -3,7 +3,7 @@ from tvb.simulator.integrators import Integrator, HeunDeterministic, HeunStochas
     RungeKutta4thOrderDeterministic
 
 from tvb.adapters.simulator.noise_forms import get_ui_name_to_noise_dict
-from tvb.core.neotraits._forms import Form, ScalarField, ArrayField, SimpleSelectField
+from tvb.core.neotraits.forms import Form, ScalarField, ArrayField, SimpleSelectField
 
 
 def get_integrator_to_form_dict():

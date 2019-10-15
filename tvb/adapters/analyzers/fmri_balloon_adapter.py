@@ -44,7 +44,7 @@ from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesRegionH5
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesRegionIndex
-from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
+from tvb.core.neotraits.forms import DataTypeSelectField, ScalarField
 from tvb.core.neotraits.db import prepare_array_shape_meta
 from tvb.core.neocom import h5
 

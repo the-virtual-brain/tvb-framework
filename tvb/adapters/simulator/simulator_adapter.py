@@ -50,7 +50,7 @@ from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.entities.storage import dao
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.core.neotraits._forms import DataTypeSelectField, SimpleSelectField, FloatField, jinja_env
+from tvb.core.neotraits.forms import DataTypeSelectField, SimpleSelectField, FloatField, jinja_env
 from tvb.core.services.simulator_service import SimulatorService
 from tvb.core.neocom import h5
 

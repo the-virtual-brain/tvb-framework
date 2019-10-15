@@ -39,7 +39,7 @@ from scipy import io as scipy_io
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcadapter import ABCSynchronous, ABCAdapterForm
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.neotraits._forms import SimpleStrField
+from tvb.core.neotraits.forms import SimpleStrField
 
 
 class ABCUploaderForm(ABCAdapterForm):

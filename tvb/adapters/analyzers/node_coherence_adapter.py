@@ -45,7 +45,7 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neotraits._forms import ScalarField, DataTypeSelectField
+from tvb.core.neotraits.forms import ScalarField, DataTypeSelectField
 from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)

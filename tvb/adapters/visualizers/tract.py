@@ -36,7 +36,7 @@ from tvb.adapters.visualizers.time_series import ABCSpaceDisplayer
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.datatypes.tracts import TractsIndex
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.datatypes.surfaces import CorticalSurface
 
 

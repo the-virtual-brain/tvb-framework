@@ -45,7 +45,7 @@ from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.entities.model.datatypes.time_series import *
 from tvb.core.entities.storage import dao
 from tvb.datatypes.surfaces import CORTICAL, EEG_CAP
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.core.neocom import h5
 
 MAX_MEASURE_POINTS_LENGTH = 600

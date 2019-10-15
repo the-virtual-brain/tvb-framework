@@ -44,7 +44,7 @@ from tvb.core.entities.storage import dao
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 
 
 class PseIsoModel(object):

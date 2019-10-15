@@ -3,7 +3,7 @@ from tvb.simulator.noise import Noise, Additive, Multiplicative
 from tvb.adapters.simulator.equation_forms import get_ui_name_to_equation_dict
 from tvb.adapters.simulator.form_with_ranges import FormWithRanges
 from tvb.adapters.simulator.range_parameter import RangeParameter
-from tvb.core.neotraits._forms import ScalarField, ArrayField, SimpleSelectField
+from tvb.core.neotraits.forms import ScalarField, ArrayField, SimpleSelectField
 
 
 def get_form_for_noise(noise_class):

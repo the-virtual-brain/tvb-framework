@@ -47,7 +47,7 @@ from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesVolumeH5, 
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.entities.storage import dao
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.core.utils import prepare_time_slice
 
 

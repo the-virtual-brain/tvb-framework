@@ -40,7 +40,7 @@ from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 
 
 class HistogramViewerForm(ABCAdapterForm):

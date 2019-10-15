@@ -44,7 +44,7 @@ from tvb.core.entities.model.datatypes.local_connectivity import LocalConnectivi
 from tvb.core.entities.model.datatypes.patterns import StimuliSurfaceIndex, StimuliRegionIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.core.neotraits._forms import DataTypeSelectField, SimpleSelectField, ScalarField, ArrayField, SimpleFloatField, \
+from tvb.core.neotraits.forms import DataTypeSelectField, SimpleSelectField, ScalarField, ArrayField, SimpleFloatField, \
     SimpleHiddenField
 from tvb.core.neocom import h5
 

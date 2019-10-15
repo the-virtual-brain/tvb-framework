@@ -41,7 +41,7 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesSurfaceH5
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesSurfaceIndex
-from tvb.core.neotraits._forms import UploadField, DataTypeSelectField
+from tvb.core.neotraits.forms import UploadField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
 from tvb.core.neocom import h5
 

@@ -2,7 +2,7 @@ from tvb.simulator.coupling import Linear, Scaling, HyperbolicTangent, Sigmoidal
     Difference, Kuramoto
 
 from tvb.adapters.simulator.form_with_ranges import FormWithRanges
-from tvb.core.neotraits._forms import ArrayField, ScalarField
+from tvb.core.neotraits.forms import ArrayField, ScalarField
 
 
 def get_coupling_to_form_dict():

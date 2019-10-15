@@ -41,7 +41,7 @@ from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.storage import dao
 from tvb.core.entities.model.datatypes.annotation import *
 from tvb.datatypes.region_mapping import RegionMapping
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 
 
 class ConnectivityAnnotationsViewForm(ABCAdapterForm):

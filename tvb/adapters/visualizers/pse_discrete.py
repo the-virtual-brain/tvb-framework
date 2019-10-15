@@ -41,7 +41,7 @@ from tvb.core.entities.transient.pse import ContextDiscretePSE
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 
 MAX_NUMBER_OF_POINT_TO_SUPPORT = 512
 

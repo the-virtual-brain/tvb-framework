@@ -43,7 +43,7 @@ from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex, TimeSeriesEEGIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.adapters.arguments_serialisation import parse_slice
-from tvb.core.neotraits._forms import UploadField, SimpleStrField, SimpleBoolField, SimpleIntField, DataTypeSelectField
+from tvb.core.neotraits.forms import UploadField, SimpleStrField, SimpleBoolField, SimpleIntField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
 from tvb.core.neocom import h5
 

@@ -40,7 +40,7 @@ from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
 from tvb.core.neocom import h5
-from tvb.core.neotraits._forms import UploadField, SimpleSelectField, SimpleBoolField
+from tvb.core.neotraits.forms import UploadField, SimpleSelectField, SimpleBoolField
 from tvb.datatypes.surfaces import make_surface, center_vertices
 
 

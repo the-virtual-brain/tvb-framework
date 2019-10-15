@@ -1,7 +1,7 @@
 from tvb.basic.neotraits.api import NArray
 
 from tvb.adapters.simulator.range_parameter import RangeParameter
-from tvb.core.neotraits._forms import Form
+from tvb.core.neotraits.forms import Form
 
 
 class FormWithRanges(Form):

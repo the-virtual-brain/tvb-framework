@@ -45,7 +45,7 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5
 from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.core.neocom import h5
 
 LOG = get_logger(__name__)

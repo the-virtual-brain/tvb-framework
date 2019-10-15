@@ -38,7 +38,7 @@ A displayer for covariance.
 from tvb.adapters.visualizers.matrix_viewer import MappedArrayVisualizer
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.entities.model.datatypes.graph import CovarianceIndex
-from tvb.core.neotraits._forms import DataTypeSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField
 
 
 class CovarianceVisualizerForm(ABCAdapterForm):

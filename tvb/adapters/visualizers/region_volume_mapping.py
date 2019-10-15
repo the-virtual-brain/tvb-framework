@@ -48,7 +48,7 @@ from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMapping
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.model_datatype import DataTypeMatrix
 from tvb.core.entities.storage import dao
-from tvb.core.neotraits._forms import DataTypeSelectField, SimpleStrField
+from tvb.core.neotraits.forms import DataTypeSelectField, SimpleStrField
 
 
 @add_metaclass(ABCMeta)

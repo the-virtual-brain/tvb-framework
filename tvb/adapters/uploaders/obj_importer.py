@@ -38,7 +38,7 @@ from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex, ALL_SURFACES_SELECTION
 from tvb.core.entities.storage import transactional
 from tvb.datatypes.surfaces import make_surface, center_vertices
-from tvb.core.neotraits._forms import SimpleSelectField, UploadField, SimpleBoolField
+from tvb.core.neotraits.forms import SimpleSelectField, UploadField, SimpleBoolField
 from tvb.core.neocom import h5
 
 

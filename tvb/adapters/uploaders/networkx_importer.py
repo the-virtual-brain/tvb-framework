@@ -38,7 +38,7 @@ from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
-from tvb.core.neotraits._forms import UploadField, SimpleStrField
+from tvb.core.neotraits.forms import UploadField, SimpleStrField
 from tvb.core.neocom import h5
 
 

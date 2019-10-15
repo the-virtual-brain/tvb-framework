@@ -58,7 +58,7 @@ from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.adapters.exceptions import IntrospectionException, LaunchException, InvalidParameterException
 from tvb.core.adapters.exceptions import NoMemoryAvailableException
-from tvb.core.neotraits._forms import Form, DataTypeSelectField
+from tvb.core.neotraits.forms import Form, DataTypeSelectField
 from tvb.tests.framework.interfaces.neoforms_test import jinja_env
 
 ATT_METHOD = "python_method"

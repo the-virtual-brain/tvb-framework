@@ -50,7 +50,7 @@ from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neocom import h5
-from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField, MultipleSelectField
+from tvb.core.neotraits.forms import DataTypeSelectField, ScalarField, MultipleSelectField
 # Import metrics here, so that Traits will find them and return them as known subclasses
 import tvb.analyzers.metric_kuramoto_index
 import tvb.analyzers.metric_proxy_metastability

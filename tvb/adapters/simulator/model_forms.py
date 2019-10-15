@@ -30,7 +30,7 @@
 
 from tvb.simulator.models import *
 from tvb.adapters.simulator.form_with_ranges import FormWithRanges
-from tvb.core.neotraits._forms import Form, ArrayField, MultiSelectField
+from tvb.core.neotraits.forms import Form, ArrayField, MultiSelectField
 
 
 def get_model_to_form_dict():

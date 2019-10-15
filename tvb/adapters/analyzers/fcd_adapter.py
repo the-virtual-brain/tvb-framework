@@ -54,7 +54,7 @@ from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.fcd import FcdIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex
-from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
+from tvb.core.neotraits.forms import DataTypeSelectField, ScalarField
 from tvb.core.neocom import h5
 from tvb.datatypes.fcd import Fcd
 from tvb.datatypes.graph import ConnectivityMeasure

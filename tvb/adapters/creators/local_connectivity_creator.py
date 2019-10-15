@@ -37,7 +37,7 @@ from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.datatypes.equations import Equation
 from tvb.core.entities.model.datatypes.local_connectivity import LocalConnectivityIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.core.neotraits._forms import DataTypeSelectField, ScalarField
+from tvb.core.neotraits.forms import DataTypeSelectField, ScalarField
 from tvb.core.neocom import h5
 
 

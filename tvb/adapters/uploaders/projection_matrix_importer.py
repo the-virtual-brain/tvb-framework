@@ -40,7 +40,7 @@ from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
 from tvb.core.entities.model.datatypes.sensors import SensorsIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.core.neotraits._forms import UploadField, SimpleStrField, DataTypeSelectField
+from tvb.core.neotraits.forms import UploadField, SimpleStrField, DataTypeSelectField
 from tvb.core.neocom import h5
 from tvb.datatypes.sensors import SensorsEEG, SensorsMEG
 from tvb.datatypes.projections import *
