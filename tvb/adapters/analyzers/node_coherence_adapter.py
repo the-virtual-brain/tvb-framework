@@ -106,7 +106,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         if nfft is not None:
             self.algorithm.nfft = nfft
 
-    def get_required_memory_size(self, time_series, nfft=None):
+    def get_required_memory_size(self, **kwargs):
         """
         Return the required memory to run this algorithm.
         """
@@ -118,7 +118,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
         output_size = self.algorithm.result_size(used_shape)
         return input_size + output_size
 
-    def get_required_disk_size(self, time_series, nfft=None):
+    def get_required_disk_size(self, **kwargs):
         """
         Returns the required disk size to be able to run the adapter (in kB).
         """
@@ -148,7 +148,7 @@ class NodeCoherenceAdapter(ABCAsynchronous):
 
         # ---------- Iterate over slices and compose final result ------------##
         small_ts = TimeSeries()
-        small_ts.sample_rate = time_series_h5.sample_rate.load()
+        small_ts.sample_period = time_series_h5.sample_period.load()
         partial_coh = None
         for var in range(input_shape[1]):
             node_slice[1] = slice(var, var + 1)

@@ -195,7 +195,9 @@ class BalloonModelAdapter(ABCAsynchronous):
         result_index.sample_period_unit = self.input_time_series_index.sample_period_unit
         result_index.sample_rate = self.input_time_series_index.sample_rate
         result_index.labels_ordering = self.input_time_series_index.labels_ordering
+        result_index.labels_dimensions = self.input_time_series_index.labels_dimensions
         result_index.has_volume_mapping = self.input_time_series_index.has_volume_mapping
+        result_index.title = self.input_time_series_index.title
 
     def _fill_result_h5(self, result_h5, input_h5):
         result_h5.sample_period.store(self.input_time_series_index.sample_period)
@@ -207,3 +209,4 @@ class BalloonModelAdapter(ABCAsynchronous):
         result_h5.connectivity.store(input_h5.connectivity.load())
         result_h5.region_mapping_volume.store(input_h5.region_mapping_volume.load())
         result_h5.region_mapping.store(input_h5.region_mapping.load())
+        result_h5.title.store(input_h5.title.load())

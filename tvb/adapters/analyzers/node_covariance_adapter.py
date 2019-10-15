@@ -191,5 +191,5 @@ class NodeCovarianceAdapter(ABCAsynchronous):
         """
         Returns the storage size in Bytes of the NodeCovariance result.
         """
-        result_size = numpy.prod(input_shape[2], input_shape[2], input_shape[1], input_shape[3]) * 8.0  # Bytes
+        result_size = numpy.prod([input_shape[2], input_shape[2], input_shape[1], input_shape[3]]) * 8.0  # Bytes
         return result_size

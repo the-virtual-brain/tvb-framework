@@ -279,6 +279,7 @@ class SimulatorAdapter(ABCAsynchronous):
             ts_h5_path = h5.path_for(self.storage_path, ts_h5_class, ts.gid)
             ts_h5 = ts_h5_class(ts_h5_path)
             ts_h5.store(ts, scalars_only=True, store_references=False)
+            ts_h5.sample_rate.store(ts.sample_rate)
             ts_h5.nr_dimensions.store(ts_index.data_ndim)
 
             if self.algorithm.surface:

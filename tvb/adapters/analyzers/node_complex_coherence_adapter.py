@@ -88,7 +88,7 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
     def get_output(self):
         return [ComplexCoherenceSpectrumIndex]
 
-    def get_required_memory_size(self, time_series):
+    def get_required_memory_size(self, **kwargs):
         """
         Return the required memory to run this algorithm.
         """
@@ -103,7 +103,7 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
 
         return input_size + output_size
 
-    def get_required_disk_size(self, time_series):
+    def get_required_disk_size(self, **kwargs):
         """
         Returns the required disk size to be able to run the adapter (in kB).
         """
@@ -140,7 +140,7 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
         complex_coherence_spectrum_index = ComplexCoherenceSpectrumIndex()
         time_series_h5 = h5.h5_file_for_index(time_series)
 
-        dest_path = h5.path_for(self.storage_path, ComplexCoherenceSpectrumH5, self.input_time_series_index.gid)
+        dest_path = h5.path_for(self.storage_path, ComplexCoherenceSpectrumH5, complex_coherence_spectrum_index.gid)
         spectra_h5 = ComplexCoherenceSpectrumH5(dest_path)
         spectra_h5.gid.store(uuid.UUID(complex_coherence_spectrum_index.gid))
         spectra_h5.source.store(time_series_h5.gid.load())
@@ -151,7 +151,7 @@ class NodeComplexCoherenceAdapter(ABCAsynchronous):
 
         # ---------- Iterate over slices and compose final result ------------##
         small_ts = TimeSeries()
-        small_ts.sample_rate = time_series_h5.sample_rate.load()
+        small_ts.sample_period = time_series_h5.sample_period.load()
         small_ts.data = time_series_h5.read_data_slice(tuple(node_slice))
         self.algorithm.time_series = small_ts
 

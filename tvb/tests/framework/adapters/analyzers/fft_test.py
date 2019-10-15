@@ -63,6 +63,7 @@ def make_ts_from_op(session, operationFactory):
     ts_h5_path = h5.path_for_stored_index(ts_db)
     with TimeSeriesH5(ts_h5_path) as f:
         f.store(two_node_simple_sin_ts)
+        f.sample_rate.store(two_node_simple_sin_ts.sample_rate)
 
     session.add(ts_db)
     session.commit()
