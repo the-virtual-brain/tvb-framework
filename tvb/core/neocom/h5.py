@@ -95,6 +95,8 @@ def store_complete(datatype, base_dir):
     storage_path = path_for(base_dir, h5_class, datatype.gid)
     with h5_class(storage_path) as f:
         f.store(datatype)
+        # Store empty Generic Attributes, in case the file is saved no through ABCAdapter it can still be used
+        f.store_generic_attributes(GenericAttributes())
 
     return index_inst
 
