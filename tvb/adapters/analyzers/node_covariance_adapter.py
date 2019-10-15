@@ -153,6 +153,7 @@ class NodeCovarianceAdapter(ABCAsynchronous):
         covariance_index.array_data_min = ts_array_metadata.min
         covariance_index.array_data_max = ts_array_metadata.max
         covariance_index.array_data_mean = ts_array_metadata.mean
+        covariance_index.ndim = len(covariance_h5.array_data.shape)
 
         covariance_h5.gid.store(uuid.UUID(covariance_index.gid))
         covariance_h5.source.store(uuid.UUID(time_series.gid))
