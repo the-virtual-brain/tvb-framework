@@ -32,6 +32,8 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 
+import os
+import tvb_data
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.visualizers.cross_correlation import CrossCorrelationVisualizer
@@ -55,7 +57,8 @@ class TestCrossCorrelationViewer(TransactionalTestCase):
         self.test_project = self.datatypeFactory.get_project()
         self.test_user = self.datatypeFactory.get_user()
 
-        TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
+        zip_path = os.path.join(os.path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_66.zip')
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path);
         self.connectivity = TestFactory.get_entity(self.test_project, Connectivity())
         assert self.connectivity is not None
 

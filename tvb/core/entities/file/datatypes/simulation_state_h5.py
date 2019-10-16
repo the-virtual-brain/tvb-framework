@@ -54,19 +54,13 @@ class SimulationStateH5(H5File):
 
     def store(self, simulator, scalars_only=False):
         # type: (Simulator, bool) -> None
-        self.history.store(simulator.history.buffer.copy())
+        self.history.store(simulator.history.copy())
         self.current_step.store(simulator.current_step)
         self.current_state.store(simulator.current_state)
 
         for i, monitor in enumerate(simulator.monitors):
             field_name = "monitor_stock_" + str(i + 1)
-
             getattr(self, field_name).store(monitor._stock)
-
-            # if hasattr(monitor, "_ui_name"):
-            #     self.set_metadata({'monitor_name': monitor._ui_name}, field_name)
-            # else:
-            #     self.set_metadata({'monitor_name': monitor.__class__.__name__}, field_name)
 
         if isinstance(simulator.integrator, IntegratorStochastic):
             rng_state = simulator.integrator.noise.random_stream.get_state()

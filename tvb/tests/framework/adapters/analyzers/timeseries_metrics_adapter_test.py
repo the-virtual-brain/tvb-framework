@@ -32,8 +32,11 @@
 .. moduleauthor:: bogdan.neacsa <bogdan.neacsa@codemart.ro>
 """
 
+import os
+import tvb_data
 import numpy
 import json
+from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.entities import model
@@ -41,7 +44,6 @@ from tvb.core.entities.storage import dao
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.analyzers.metrics_group_timeseries import TimeseriesMetricsAdapter
 from tvb.datatypes.time_series import TimeSeriesRegion
-#from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.core.entities.transient.structure_entities import DataTypeMetaData
 from tvb.core.services.operation_service import OperationService
 from tvb.core.services.flow_service import FlowService
@@ -49,12 +51,10 @@ from tvb.tests.framework.core.factory import TestFactory
 from tvb.tests.framework.adapters.storeadapter import StoreAdapter
 
 
-
 class TestTimeSeriesMetricsAdapter(TransactionalTestCase):
     """
     Test the timeseries metric adapter.
     """
-
 
     def transactional_setup_method(self):
         """
@@ -63,8 +63,8 @@ class TestTimeSeriesMetricsAdapter(TransactionalTestCase):
         """
         self.test_user = TestFactory.create_user()
         self.test_project = TestFactory.create_project(self.test_user)
-        TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
-
+        zip_path = os.path.join(os.path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_66.zip')
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path);
 
     def transactional_teardown_method(self):
         """

@@ -124,7 +124,7 @@ class NIFTIImporter(ABCUploader):
         if self.parser.units is not None and len(self.parser.units) > 1:
             time_series.sample_period_unit = self.parser.units[1]
 
-        ts_h5_path = self.loader.path_for(self.storage_path, TimeSeriesVolumeH5, time_series.gid)
+        ts_h5_path = h5.path_for(self.storage_path, TimeSeriesVolumeH5, time_series.gid)
         nifti_data = self.parser.parse()
         with TimeSeriesVolumeH5(ts_h5_path) as ts_h5:
             ts_h5.store(time_series, scalars_only=True, store_references=True)
