@@ -27,17 +27,29 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-from tvb.datatypes.fcd import Fcd
-from tvb.core.entities.file.datatypes.spectral_h5 import DataTypeMatrixH5
-from tvb.core.neotraits.h5 import DataSet, Reference, Scalar, Json
+from sqlalchemy import Column, Integer, ForeignKey, String, Float
+from sqlalchemy.orm import relationship
+from tvb.datatypes.structural import StructuralMRI
+from tvb.adapters.datatypes.db.volume import VolumeIndex
+from tvb.core.entities.model.model_datatype import DataTypeMatrix
+from tvb.core.neotraits.db import from_ndarray
 
 
-class FcdH5(DataTypeMatrixH5):
+class StructuralMRIIndex(DataTypeMatrix):
+    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
 
-    def __init__(self, path):
-        super(FcdH5, self).__init__(path)
-        self.array_data = DataSet(Fcd.array_data, self)
-        self.source = Reference(Fcd.source, self)
-        self.sw = Scalar(Fcd.sw, self)
-        self.sp = Scalar(Fcd.sp, self)
-        self.labels_ordering = Json(Fcd.labels_ordering, self)
+    array_data_min = Column(Float)
+    array_data_max = Column(Float)
+    array_data_mean = Column(Float)
+
+    weighting = Column(String, nullable=False)
+
+    volume_gid = Column(String(32), ForeignKey(VolumeIndex.gid), nullable=not StructuralMRI.volume.required)
+    volume = relationship(VolumeIndex, foreign_keys=volume_gid, primaryjoin=VolumeIndex.gid == volume_gid)
+
+    def fill_from_has_traits(self, datatype):
+        # type: (StructuralMRI)  -> None
+        super(StructuralMRIIndex, self).fill_from_has_traits(datatype)
+        self.weighting = datatype.weighting
+        self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.array_data)
+        self.volume_gid = datatype.volume.gid.hex

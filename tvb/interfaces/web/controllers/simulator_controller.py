@@ -43,7 +43,7 @@ from tvb.adapters.simulator.integrator_forms import get_form_for_integrator
 from tvb.adapters.simulator.coupling_forms import get_form_for_coupling
 from tvb.core.adapters.abcadapter import ABCAdapter
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex
+from tvb.adapters.datatypes.db.simulation_state import SimulationStateIndex
 from tvb.core.entities.model.model_operation import OperationGroup
 from tvb.core.entities.model.simulator.burst_configuration import BurstConfiguration2
 from tvb.core.entities.model.simulator.simulator import SimulatorIndex

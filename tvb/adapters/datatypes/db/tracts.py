@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #
 #
-# TheVirtualBrain-Framework Package. This package holds all Data Management, and
-# Web-UI helpful to run brain-simulations. To use it, you also need do download
-# TheVirtualBrain-Scientific Package (for simulators). See content of the
+#  TheVirtualBrain-Scientific Package. This package holds all simulators, and
+# analysers necessary to run brain-simulations. You can use it stand alone or
+# in conjunction with TheVirtualBrain-Framework Package. See content of the
 # documentation-folder for more details. See also http://www.thevirtualbrain.org
 #
 # (c) 2012-2017, Baycrest Centre for Geriatric Care ("Baycrest") and others
@@ -27,28 +27,22 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-import scipy.sparse
-from sqlalchemy import Column, Integer, ForeignKey, Float, String
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlalchemy.orm import relationship
-from tvb.datatypes.local_connectivity import LocalConnectivity
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
+from tvb.datatypes.tracts import Tracts
+from tvb.adapters.datatypes.db.region_mapping import RegionVolumeMappingIndex
 from tvb.core.entities.model.model_datatype import DataType
-from tvb.core.neotraits.db import from_ndarray
 
 
-class LocalConnectivityIndex(DataType):
+class TractsIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    surface_gid = Column(String(32), ForeignKey(SurfaceIndex.gid), nullable=not LocalConnectivity.surface.required)
-    surface = relationship(SurfaceIndex, foreign_keys=surface_gid, primaryjoin=SurfaceIndex.gid == surface_gid)
-
-    matrix_non_zero_min = Column(Float)
-    matrix_non_zero_max = Column(Float)
-    matrix_non_zero_mean = Column(Float)
+    region_volume_map_gid = Column(String(32), ForeignKey(RegionVolumeMappingIndex.gid),
+                                   nullable=not Tracts.region_volume_map.required)
+    region_volume_map = relationship(RegionVolumeMappingIndex, foreign_keys=region_volume_map_gid,
+                                     primaryjoin=RegionVolumeMappingIndex.gid == region_volume_map_gid)
 
     def fill_from_has_traits(self, datatype):
-        # type: (LocalConnectivity)  -> None
-        super(LocalConnectivityIndex, self).fill_from_has_traits(datatype)
-        I, J, V = scipy.sparse.find(datatype.matrix)
-        self.matrix_non_zero_min, self.matrix_non_zero_max, self.matrix_non_zero_mean = from_ndarray(V)
-        self.surface_gid = datatype.surface.gid.hex
+        # type: (Tracts)  -> None
+        super(TractsIndex, self).fill_from_has_traits(datatype)
+        self.region_volume_map_gid = datatype.region_volume_map.gid.hex

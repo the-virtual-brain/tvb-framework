@@ -27,38 +27,28 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-from sqlalchemy import Column, Integer, ForeignKey, String
+import scipy.sparse
+from sqlalchemy import Column, Integer, ForeignKey, Float, String
 from sqlalchemy.orm import relationship
-from tvb.datatypes.mode_decompositions import PrincipalComponents, IndependentComponents
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.datatypes.local_connectivity import LocalConnectivity
+from tvb.adapters.datatypes.db.surface import SurfaceIndex
 from tvb.core.entities.model.model_datatype import DataType
+from tvb.core.neotraits.db import from_ndarray
 
 
-class PrincipalComponentsIndex(DataType):
+class LocalConnectivityIndex(DataType):
     id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
-    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
+    surface_gid = Column(String(32), ForeignKey(SurfaceIndex.gid), nullable=not LocalConnectivity.surface.required)
+    surface = relationship(SurfaceIndex, foreign_keys=surface_gid, primaryjoin=SurfaceIndex.gid == surface_gid)
 
-    subtype = Column(String)
-
-    def fill_from_has_traits(self, datatype):
-        # type: (PrincipalComponents)  -> None
-        super(PrincipalComponentsIndex, self).fill_from_has_traits(datatype)
-        self.subtype = datatype.__class__.__name__
-        self.source_gid = datatype.source.gid
-
-
-class IndependentComponentsIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
-
-    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not PrincipalComponents.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
-
-    subtype = Column(String)
+    matrix_non_zero_min = Column(Float)
+    matrix_non_zero_max = Column(Float)
+    matrix_non_zero_mean = Column(Float)
 
     def fill_from_has_traits(self, datatype):
-        # type: (IndependentComponents)  -> None
-        super(IndependentComponentsIndex, self).fill_from_has_traits(datatype)
-        self.subtype = datatype.__class__.__name__
-        self.source_gid = datatype.source.gid.hex
+        # type: (LocalConnectivity)  -> None
+        super(LocalConnectivityIndex, self).fill_from_has_traits(datatype)
+        I, J, V = scipy.sparse.find(datatype.matrix)
+        self.matrix_non_zero_min, self.matrix_non_zero_max, self.matrix_non_zero_mean = from_ndarray(V)
+        self.surface_gid = datatype.surface.gid.hex

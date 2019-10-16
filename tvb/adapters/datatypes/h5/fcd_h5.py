@@ -27,32 +27,17 @@
 #   Frontiers in Neuroinformatics (7:10. doi: 10.3389/fninf.2013.00010)
 #
 #
-import json
-from sqlalchemy import Column, Integer, ForeignKey, String, Float
-from sqlalchemy.orm import relationship
-from tvb.datatypes.temporal_correlations import CrossCorrelation
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.entities.model.model_datatype import DataType
-from tvb.core.neotraits.db import from_ndarray
+from tvb.datatypes.fcd import Fcd
+from tvb.adapters.datatypes.h5.spectral_h5 import DataTypeMatrixH5
+from tvb.core.neotraits.h5 import DataSet, Reference, Scalar, Json
 
 
-class CrossCorrelationIndex(DataType):
-    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
+class FcdH5(DataTypeMatrixH5):
 
-    array_data_min = Column(Float)
-    array_data_max = Column(Float)
-    array_data_mean = Column(Float)
-
-    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not CrossCorrelation.source.required)
-    source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
-
-    labels_ordering = Column(String, nullable=False)
-    subtype = Column(String)
-
-    def fill_from_has_traits(self, datatype):
-        # type: (CrossCorrelation)  -> None
-        super(CrossCorrelationIndex, self).fill_from_has_traits(datatype)
-        self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
-        self.labels_ordering = json.dumps(datatype.labels_ordering)
-        self.subtype = datatype.__class__.__name__
-        self.source_gid = datatype.source.gid.hex
+    def __init__(self, path):
+        super(FcdH5, self).__init__(path)
+        self.array_data = DataSet(Fcd.array_data, self)
+        self.source = Reference(Fcd.source, self)
+        self.sw = Scalar(Fcd.sw, self)
+        self.sp = Scalar(Fcd.sp, self)
+        self.labels_ordering = Json(Fcd.labels_ordering, self)

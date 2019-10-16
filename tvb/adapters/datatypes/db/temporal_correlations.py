@@ -30,26 +30,29 @@
 import json
 from sqlalchemy import Column, Integer, ForeignKey, String, Float
 from sqlalchemy.orm import relationship
-from tvb.datatypes.fcd import Fcd
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
-from tvb.core.entities.model.model_datatype import DataTypeMatrix
+from tvb.datatypes.temporal_correlations import CrossCorrelation
+from tvb.adapters.datatypes.db.time_series import TimeSeriesIndex
+from tvb.core.entities.model.model_datatype import DataType
 from tvb.core.neotraits.db import from_ndarray
 
 
-class FcdIndex(DataTypeMatrix):
-    id = Column(Integer, ForeignKey(DataTypeMatrix.id), primary_key=True)
+class CrossCorrelationIndex(DataType):
+    id = Column(Integer, ForeignKey(DataType.id), primary_key=True)
 
     array_data_min = Column(Float)
     array_data_max = Column(Float)
     array_data_mean = Column(Float)
-    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not Fcd.source.required)
+
+    source_gid = Column(String(32), ForeignKey(TimeSeriesIndex.gid), nullable=not CrossCorrelation.source.required)
     source = relationship(TimeSeriesIndex, foreign_keys=source_gid, primaryjoin=TimeSeriesIndex.gid == source_gid)
 
-    labels_ordering = Column(String)
+    labels_ordering = Column(String, nullable=False)
+    subtype = Column(String)
 
     def fill_from_has_traits(self, datatype):
-        # type: (Fcd)  -> None
-        super(FcdIndex, self).fill_from_has_traits(datatype)
-        self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.array_data)
+        # type: (CrossCorrelation)  -> None
+        super(CrossCorrelationIndex, self).fill_from_has_traits(datatype)
+        self.array_data_min, self.array_data_max, self.array_data_mean = from_ndarray(datatype.data_array)
         self.labels_ordering = json.dumps(datatype.labels_ordering)
+        self.subtype = datatype.__class__.__name__
         self.source_gid = datatype.source.gid.hex
