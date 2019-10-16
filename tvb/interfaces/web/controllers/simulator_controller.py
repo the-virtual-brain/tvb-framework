@@ -739,7 +739,7 @@ class SimulatorController(BurstBaseController):
             current_form.fill_from_post(data)
         except Exception as exc:
             self.logger.exception(exc)
-            return {'error': exc.message}
+            return {'error': str(exc)}
 
         burst_name = current_form.simulation_name.value
         session_stored_simulator = common.get_from_session(common.KEY_SIMULATOR_CONFIG)
