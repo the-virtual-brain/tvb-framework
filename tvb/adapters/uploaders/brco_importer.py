@@ -35,7 +35,7 @@
 from tvb.adapters.uploaders.brco.parser import XMLParser
 from tvb.core.adapters.exceptions import LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotations
+from tvb.adapters.datatypes.h5.annotation_h5 import ConnectivityAnnotations
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex

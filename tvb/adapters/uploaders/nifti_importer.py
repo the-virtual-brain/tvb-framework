@@ -44,7 +44,7 @@ from tvb.adapters.uploaders.nifti.parser import NIFTIParser
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesVolumeH5
+from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesVolumeH5
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex

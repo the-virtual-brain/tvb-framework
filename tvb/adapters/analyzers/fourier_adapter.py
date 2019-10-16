@@ -43,7 +43,7 @@ import tvb.analyzers.fft as fft
 import tvb.core.adapters.abcadapter as abcadapter
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.datatypes.time_series import TimeSeries
-from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5
+from tvb.adapters.datatypes.h5.spectral_h5 import FourierSpectrumH5
 from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.neotraits.forms import ScalarField, DataTypeSelectField

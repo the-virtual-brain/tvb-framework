@@ -28,7 +28,7 @@
 #
 #
 from tvb.datatypes.fcd import Fcd
-from tvb.core.entities.file.datatypes.spectral_h5 import DataTypeMatrixH5
+from tvb.adapters.datatypes.h5.spectral_h5 import DataTypeMatrixH5
 from tvb.core.neotraits.h5 import DataSet, Reference, Scalar, Json
 
 

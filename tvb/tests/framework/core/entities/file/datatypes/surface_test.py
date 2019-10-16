@@ -1,6 +1,6 @@
 import numpy
 import pytest
-from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
+from tvb.adapters.datatypes.h5.surface_h5 import SurfaceH5
 from tvb.datatypes.surfaces import Surface
 
 

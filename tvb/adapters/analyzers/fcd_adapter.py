@@ -48,8 +48,8 @@ from tvb.basic.neotraits.api import HasTraits, Attr, Float
 from tvb.basic.neotraits.info import narray_describe
 from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.core.entities.file.datatypes.fcd_h5 import FcdH5
-from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5
+from tvb.adapters.datatypes.h5.fcd_h5 import FcdH5
+from tvb.adapters.datatypes.h5.graph_h5 import ConnectivityMeasureH5
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.fcd import FcdIndex
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex

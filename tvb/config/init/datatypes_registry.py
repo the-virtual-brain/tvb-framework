@@ -48,28 +48,28 @@ from tvb.datatypes.tracts import Tracts
 from tvb.datatypes.volumes import Volume
 from tvb.datatypes.cortex import Cortex
 from tvb.core.entities.file.simulator.cortex_h5 import CortexH5
-from tvb.core.entities.file.datatypes.annotation_h5 import ConnectivityAnnotationsH5, ConnectivityAnnotations
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
-from tvb.core.entities.file.datatypes.fcd_h5 import FcdH5
-from tvb.core.entities.file.datatypes.graph_h5 import ConnectivityMeasureH5, CorrelationCoefficientsH5, CovarianceH5
-from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
-from tvb.core.entities.file.datatypes.mapped_value_h5 import DatatypeMeasureH5, ValueWrapperH5
-from tvb.core.entities.file.datatypes.mode_decompositions_h5 import PrincipalComponentsH5, IndependentComponentsH5
-from tvb.core.entities.file.datatypes.patterns_h5 import StimuliRegionH5, StimuliSurfaceH5
-from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
-from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5, RegionVolumeMappingH5
-from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
-from tvb.core.entities.file.datatypes.simulation_state_h5 import SimulationStateH5
-from tvb.core.entities.file.datatypes.spectral_h5 import CoherenceSpectrumH5, ComplexCoherenceSpectrumH5
-from tvb.core.entities.file.datatypes.spectral_h5 import FourierSpectrumH5, WaveletCoefficientsH5
-from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
-from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
-from tvb.core.entities.file.datatypes.temporal_correlations_h5 import CrossCorrelationH5
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesVolumeH5, TimeSeriesEEGH5, TimeSeriesMEGH5
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesSEEGH5
-from tvb.core.entities.file.datatypes.tracts_h5 import TractsH5
-from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5
+from tvb.adapters.datatypes.h5.annotation_h5 import ConnectivityAnnotationsH5, ConnectivityAnnotations
+from tvb.adapters.datatypes.h5.connectivity_h5 import ConnectivityH5
+from tvb.adapters.datatypes.h5.fcd_h5 import FcdH5
+from tvb.adapters.datatypes.h5.graph_h5 import ConnectivityMeasureH5, CorrelationCoefficientsH5, CovarianceH5
+from tvb.adapters.datatypes.h5.local_connectivity_h5 import LocalConnectivityH5
+from tvb.adapters.datatypes.h5.mapped_value_h5 import DatatypeMeasureH5, ValueWrapperH5
+from tvb.adapters.datatypes.h5.mode_decompositions_h5 import PrincipalComponentsH5, IndependentComponentsH5
+from tvb.adapters.datatypes.h5.patterns_h5 import StimuliRegionH5, StimuliSurfaceH5
+from tvb.adapters.datatypes.h5.projections_h5 import ProjectionMatrixH5
+from tvb.adapters.datatypes.h5.region_mapping_h5 import RegionMappingH5, RegionVolumeMappingH5
+from tvb.adapters.datatypes.h5.sensors_h5 import SensorsH5
+from tvb.adapters.datatypes.h5.simulation_state_h5 import SimulationStateH5
+from tvb.adapters.datatypes.h5.spectral_h5 import CoherenceSpectrumH5, ComplexCoherenceSpectrumH5
+from tvb.adapters.datatypes.h5.spectral_h5 import FourierSpectrumH5, WaveletCoefficientsH5
+from tvb.adapters.datatypes.h5.structural_h5 import StructuralMRIH5
+from tvb.adapters.datatypes.h5.surface_h5 import SurfaceH5
+from tvb.adapters.datatypes.h5.temporal_correlations_h5 import CrossCorrelationH5
+from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesH5, TimeSeriesRegionH5, TimeSeriesSurfaceH5
+from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesVolumeH5, TimeSeriesEEGH5, TimeSeriesMEGH5
+from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesSEEGH5
+from tvb.adapters.datatypes.h5.tracts_h5 import TractsH5
+from tvb.adapters.datatypes.h5.volumes_h5 import VolumeH5
 from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.fcd import FcdIndex

@@ -41,7 +41,7 @@ from tvb.core.adapters.arguments_serialisation import *
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import ABCDisplayer
 from tvb.core.adapters.exceptions import LaunchException
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesRegionH5
+from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesRegionH5
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex

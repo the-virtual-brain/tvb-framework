@@ -54,7 +54,7 @@ class SimulationStateH5(H5File):
 
     def store(self, simulator, scalars_only=False):
         # type: (Simulator, bool) -> None
-        self.history.store(simulator.history.copy())
+        self.history.store(simulator.history.buffer.copy())
         self.current_step.store(simulator.current_step)
         self.current_state.store(simulator.current_state)
 

@@ -37,7 +37,7 @@ from sqlalchemy.orm import sessionmaker
 from tvb.datatypes.graph import Covariance
 from tvb.datatypes.time_series import TimeSeries
 
-from tvb.core.entities.file.datatypes.time_series_h5 import TimeSeriesH5
+from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesH5
 from tvb.core.entities.model.datatypes.graph import CovarianceIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 from tvb.core.entities.model.model_operation import STATUS_FINISHED, Operation

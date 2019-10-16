@@ -42,7 +42,7 @@ Few supplementary steps are done here:
 import numpy
 from tvb.simulator.simulator import Simulator
 from tvb.adapters.simulator.coupling_forms import get_ui_name_to_coupling_dict
-from tvb.core.entities.file.datatypes.simulation_state_h5 import SimulationStateH5
+from tvb.adapters.datatypes.h5.simulation_state_h5 import SimulationStateH5
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex, RegionVolumeMappingIndex
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex

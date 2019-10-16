@@ -33,15 +33,15 @@ import scipy
 import tvb
 from tvb.adapters.datatypes.simulation_state import SimulationState
 from tvb.basic.neotraits.ex import TraitAttributeError
-from tvb.core.entities.file.datatypes.local_connectivity_h5 import LocalConnectivityH5
-from tvb.core.entities.file.datatypes.projections_h5 import ProjectionMatrixH5
-from tvb.core.entities.file.datatypes.simulation_state_h5 import SimulationStateH5
-from tvb.core.entities.file.datatypes.structural_h5 import StructuralMRIH5
-from tvb.core.entities.file.datatypes.volumes_h5 import VolumeH5
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
-from tvb.core.entities.file.datatypes.region_mapping_h5 import RegionMappingH5
-from tvb.core.entities.file.datatypes.sensors_h5 import SensorsH5
-from tvb.core.entities.file.datatypes.surface_h5 import SurfaceH5
+from tvb.adapters.datatypes.h5.local_connectivity_h5 import LocalConnectivityH5
+from tvb.adapters.datatypes.h5.projections_h5 import ProjectionMatrixH5
+from tvb.adapters.datatypes.h5.simulation_state_h5 import SimulationStateH5
+from tvb.adapters.datatypes.h5.structural_h5 import StructuralMRIH5
+from tvb.adapters.datatypes.h5.volumes_h5 import VolumeH5
+from tvb.adapters.datatypes.h5.connectivity_h5 import ConnectivityH5
+from tvb.adapters.datatypes.h5.region_mapping_h5 import RegionMappingH5
+from tvb.adapters.datatypes.h5.sensors_h5 import SensorsH5
+from tvb.adapters.datatypes.h5.surface_h5 import SurfaceH5
 from tvb.datatypes.local_connectivity import LocalConnectivity
 from tvb.datatypes.projections import ProjectionMatrix
 from tvb.datatypes.connectivity import Connectivity

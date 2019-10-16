@@ -1,7 +1,7 @@
 import numpy
 import pytest
 from tvb.basic.neotraits.ex import TraitAttributeError
-from tvb.core.entities.file.datatypes.connectivity_h5 import ConnectivityH5
+from tvb.adapters.datatypes.h5.connectivity_h5 import ConnectivityH5
 from tvb.datatypes.connectivity import Connectivity
 
 
