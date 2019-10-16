@@ -325,7 +325,11 @@ class OperationService:
                 unique_id = kwargs[self.ATT_UID]
             #TODO: this currently keeps both ways to display forms
             if not 'SimulatorAdapter' in adapter_instance.__class__.__name__:
-                filtered_kwargs = adapter_instance.get_form().get_form_values()
+                if adapter_instance.get_input_tree() is None:
+                    filtered_kwargs = adapter_instance.get_form().get_form_values()
+                else:
+                    filtered_kwargs = adapter_instance.prepare_ui_inputs(kwargs)
+
                 params = dict()
                 for k, value_ in filtered_kwargs.items():
                     params[str(k)] = value_

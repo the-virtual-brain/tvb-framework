@@ -92,41 +92,6 @@ class TestTVBImporter(TransactionalTestCase):
         self.test_user = TestFactory.create_user()
         self.test_project = TestFactory.create_project(self.test_user)
 
-    # def transactional_setup_method(self):
-    #     """
-    #     Sets up the environment for running the tests;
-    #     creates a test user, a test project, a datatype and a datatype_group;
-    #     """
-    #     export_manager = ExportManager()
-    #
-    #     self.test_user = TestFactory.create_user()
-    #     self.test_project = TestFactory.create_project(self.test_user)
-    #
-    #     # Generate simple data type and export it to H5 file
-    #     self.datatype = self.datatypeFactory.create_datatype_with_storage()
-    #     _, exported_h5_file, _ = export_manager.export_data(self.datatype, self.TVB_EXPORTER, self.test_project)
-    #     # Copy H5 file to another location since the original one / exported
-    #     # will be deleted with the project
-    #     _, h5_file_name = os.path.split(exported_h5_file)
-    #     shutil.copy(exported_h5_file, TvbProfile.current.TVB_TEMP_FOLDER)
-    #     self.h5_file_path = os.path.join(TvbProfile.current.TVB_TEMP_FOLDER, h5_file_name)
-    #
-    #     assert os.path.exists(self.h5_file_path), "Simple data type was not exported correct"
-    #
-    #     # Generate data type group and export it to ZIP file
-    #     self.datatype_group = self.datatypeFactory.create_datatype_group()
-    #     _, self.zip_file_path, _ = export_manager.export_data(self.datatype_group, self.TVB_EXPORTER, self.test_project)
-    #     assert os.path.exists(self.zip_file_path), "Data type group was not exported correct"
-    #
-    #     FilesHelper().remove_project_structure(self.test_project.name)
-    #     self.clean_database(delete_folders=False)
-    #
-    #     # Recreate project, but a clean one where to import data
-    #
-    #     self.test_user = TestFactory.create_user()
-    #     self.test_project = TestFactory.create_project(self.test_user)
-
-
     def _import(self, import_file_path=None):
         """
         This method is used for importing data in TVB format

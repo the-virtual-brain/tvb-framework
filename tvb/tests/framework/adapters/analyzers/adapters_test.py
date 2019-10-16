@@ -29,6 +29,7 @@
 #
 
 import os
+from tvb.adapters.analyzers import node_covariance_adapter
 from tvb.adapters.analyzers.cross_correlation_adapter import CrossCorrelateAdapter, PearsonCorrelationCoefficientAdapter
 from tvb.adapters.analyzers.fcd_adapter import FunctionalConnectivityDynamicsAdapter
 from tvb.adapters.analyzers.fmri_balloon_adapter import BalloonModelAdapter
@@ -59,6 +60,9 @@ def test_wavelet_adapter(tmpdir, session, operationFactory):
     wavelet_adapter.storage_path = storage_folder
     wavelet_adapter.configure(ts_index)
 
+    disk = node_covariance_adapter.get_required_disk_size()
+    mem = node_covariance_adapter.get_required_memory_size()
+
     wavelet_idx = wavelet_adapter.launch(ts_index)
 
     result_h5 = h5.path_for(storage_folder, WaveletCoefficientsH5, wavelet_idx.gid)
@@ -73,8 +77,8 @@ def test_pca_adapter(tmpdir, session, operationFactory):
     pca_adapter.storage_path = storage_folder
     pca_adapter.configure(ts_index)
 
-    #disk = pca_adapter.get_required_disk_size()
-    #mem = pca_adapter.get_required_memory_size()
+    disk = pca_adapter.get_required_disk_size()
+    mem = pca_adapter.get_required_memory_size()
 
     pca_idx = pca_adapter.launch(ts_index)
 
@@ -90,8 +94,8 @@ def test_ica_adapter(tmpdir, session, operationFactory):
     ica_adapter.storage_path = storage_folder
     ica_adapter.configure(ts_index)
 
-    #disk = ica_adapter.get_required_disk_size()
-    #mem = ica_adapter.get_required_memory_size()
+    disk = ica_adapter.get_required_disk_size()
+    mem = ica_adapter.get_required_memory_size()
 
     ica_idx = ica_adapter.launch(ts_index)
 

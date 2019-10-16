@@ -38,14 +38,13 @@ import os
 import tvb_data
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
-from tvb.adapters.uploaders.mat_timeseries_importer import MatTimeSeriesImporterForm, RegionMatTimeSeriesImporterForm
+from tvb.adapters.uploaders.mat_timeseries_importer import RegionMatTimeSeriesImporterForm
+from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.flow_service import FlowService
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex
-from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporterForm
 
 
 class TestMatTimeSeriesImporter(TransactionalTestCase):
@@ -57,30 +56,11 @@ class TestMatTimeSeriesImporter(TransactionalTestCase):
     def transactional_setup_method(self):
         self.test_user = TestFactory.create_user('Mat_Timeseries_User')
         self.test_project = TestFactory.create_project(self.test_user, "Mat_Timeseries_Project")
-        self._import_connectivity()
+        TestFactory.import_zip_connectivity(self.test_user, self.test_project, self.connectivity_path, 'John Doe')
+        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex)
 
     def transactional_teardown_method(self):
         FilesHelper().remove_project_structure(self.test_project.name)
-
-    def _import_connectivity(self):
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.zip_connectivity_importer',
-                                              'ZIPConnectivityImporter')
-
-        form = ZIPConnectivityImporterForm()
-
-        form.fill_from_post({'_uploaded': Part(self.connectivity_path, HeaderMap({}), ''),
-                             '_normalization': 'region',
-                             '_project_id': '1',
-                             '_Data_Subject': 'John Doe'
-                             })
-        form.uploaded.data = self.connectivity_path
-        importer.submit_form(form)
-
-        ### Launch Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id,
-                                     **form.get_form_values())
-
-        self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex)
 
     def test_import_bold(self):
         ### Retrieve Adapter instance

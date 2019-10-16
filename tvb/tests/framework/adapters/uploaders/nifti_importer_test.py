@@ -38,15 +38,12 @@ import tvb_data.nifti as demo_data
 import tvb_data
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
-from tvb.datatypes.region_mapping import RegionVolumeMapping
-from tvb.datatypes.structural import StructuralMRI
-from tvb.datatypes.time_series import TimeSeriesVolume
 from tvb.adapters.uploaders.nifti_importer import NIFTIImporterForm
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
 from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesVolumeIndex
-from tvb.core.neocom.h5 import h5_file_for_index
+from tvb.core.neocom import h5
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -130,10 +127,7 @@ class TestNIFTIImporter(TransactionalTestCase):
         volume_index = ABCAdapter.load_entity_by_gid(time_series_index.volume_gid)
         assert volume_index is not None
 
-        volume_h5_file = h5_file_for_index(volume_index)
-        volume = TimeSeriesVolume()
-        volume_h5_file.load_into(volume)
-        volume_h5_file.close()
+        volume = h5.load_from_index(volume_index)
 
         assert numpy.equal(self.DEFAULT_ORIGIN, volume.origin).all()
         assert "mm" == volume.voxel_unit
@@ -145,10 +139,7 @@ class TestNIFTIImporter(TransactionalTestCase):
         structural_mri_index = self._import(self.NII_FILE)
         assert "T1" == structural_mri_index.weighting
 
-        structural_mri_h5_file = h5_file_for_index(structural_mri_index)
-        structural_mri = StructuralMRI()
-        structural_mri_h5_file.load_into(structural_mri)
-        structural_mri_h5_file.close()
+        structural_mri = h5.load_from_index(structural_mri_index)
 
         data_shape = structural_mri.array_data.shape
         assert 3 == len(data_shape)
@@ -159,10 +150,7 @@ class TestNIFTIImporter(TransactionalTestCase):
         volume_index = ABCAdapter.load_entity_by_gid(structural_mri_index.volume_gid)
         assert volume_index is not None
 
-        volume_h5_file = h5_file_for_index(volume_index)
-        volume = TimeSeriesVolume()
-        volume_h5_file.load_into(volume)
-        volume_h5_file.close()
+        volume = h5.load_from_index(volume_index)
 
         assert numpy.equal(self.DEFAULT_ORIGIN, volume.origin).all()
         assert numpy.equal([3.0, 3.0, 3.0], volume.voxel_size).all()
@@ -184,10 +172,7 @@ class TestNIFTIImporter(TransactionalTestCase):
         to_link_conn = TestFactory.get_entity(self.test_project, ConnectivityIndex)
         mapping_index = self._import(self.GZ_NII_FILE, RegionVolumeMappingIndex, to_link_conn.gid)
 
-        mapping_h5_file = h5_file_for_index(mapping_index)
-        mapping = RegionVolumeMapping()
-        mapping_h5_file.load_into(mapping)
-        mapping_h5_file.close()
+        mapping = h5.load_from_index(mapping_index)
 
         assert -1 <= mapping.array_data.min()
         assert mapping.array_data.max() < to_link_conn.number_of_regions
@@ -200,10 +185,7 @@ class TestNIFTIImporter(TransactionalTestCase):
         volume_index = ABCAdapter.load_entity_by_gid(mapping_index.volume_gid)
         assert volume_index is not None
 
-        volume_h5_file = h5_file_for_index(volume_index)
-        volume = TimeSeriesVolume()
-        volume_h5_file.load_into(volume)
-        volume_h5_file.close()
+        volume = h5.load_from_index(volume_index)
 
         assert numpy.equal(self.DEFAULT_ORIGIN, volume.origin).all()
         assert numpy.equal([3.0, 3.0, 3.0], volume.voxel_size).all()

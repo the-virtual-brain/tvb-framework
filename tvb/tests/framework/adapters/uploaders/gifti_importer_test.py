@@ -33,18 +33,11 @@
 """
 
 import os
-from cherrypy._cpreqbody import Part
-from cherrypy.lib.httputil import HeaderMap
-from tvb.adapters.uploaders.gifti_surface_importer import GIFTISurfaceImporterForm
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.core.entities.transient.structure_entities import DataTypeMetaData
-from tvb.core.services.flow_service import FlowService
-from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.datatypes.surfaces import CorticalSurface
 from tvb.core.services.exceptions import OperationException
-from tvb.adapters.uploaders.gifti.parser import GIFTIParser, OPTION_READ_METADATA
+from tvb.adapters.uploaders.gifti.parser import GIFTIParser
 import tvb_data.gifti as demo_data
 
 
@@ -66,40 +59,6 @@ class TestGIFTISurfaceImporter(TransactionalTestCase):
         Clean-up tests data
         """
         FilesHelper().remove_project_structure(self.test_project.name)
-
-    def _importSurface(self, import_file_path=None):
-        """
-        This method is used for importing data in GIFIT format
-        :param import_file_path: absolute path of the file to be imported
-        """
-
-        ### Retrieve Adapter instance
-        importer = TestFactory.create_adapter('tvb.adapters.uploaders.gifti_surface_importer', 'GIFTISurfaceImporter')
-
-        args = {'data_file': import_file_path, DataTypeMetaData.KEY_SUBJECT: ""}
-
-        form = GIFTISurfaceImporterForm()
-        form.fill_from_post({'_file_type': OPTION_READ_METADATA,
-                             '_data_file': Part(import_file_path, HeaderMap({}), ''),
-                             '_data_file_part2': Part('', HeaderMap({}), ''),
-                             '_should_center': 'False',
-                             '_Data_Subject': 'John Doe',
-                            })
-        form.data_file.data = import_file_path
-        importer.submit_form(form)
-
-        ### Launch import Operation
-        FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_form_values())
-
-        surface = CorticalSurface
-        data_types = FlowService().get_available_datatypes(self.test_project.id,
-                                                           surface.__module__ + "." + surface.__name__)[0]
-        assert 1, len(data_types) == "Project should contain only one data type."
-
-        surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
-        assert surface is not None == "TimeSeries should not be none"
-
-        return surface
 
     def test_import_surface_gifti_data(self, operation_factory):
         """
@@ -140,7 +99,7 @@ class TestGIFTISurfaceImporter(TransactionalTestCase):
         This method tests import of a file in a wrong format
         """
         try:
-            self._importSurface(self.WRONG_GII_FILE)
+            TestFactory.import_surface_gifti(self.test_user, self.test_project, self.WRONG_GII_FILE)
             raise AssertionError("Import should fail in case of a wrong GIFTI format.")
         except OperationException:
             # Expected exception

@@ -51,8 +51,6 @@ from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesVolumeIndex
 from tvb.core.entities.model.datatypes.volume import VolumeIndex
 from tvb.core.entities.storage import transactional
-from tvb.core.neocom._h5loader import TVBLoader
-from tvb.core.neocom.h5 import REGISTRY
 from tvb.core.neotraits.forms import UploadField, SimpleBoolField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta
 from tvb.core.neocom import h5
@@ -126,10 +124,8 @@ class NIFTIImporter(ABCUploader):
         if self.parser.units is not None and len(self.parser.units) > 1:
             time_series.sample_period_unit = self.parser.units[1]
 
-        loader = TVBLoader(REGISTRY)
-        ts_h5_path = loader.path_for(self.storage_path, TimeSeriesVolumeH5, time_series.gid)
+        ts_h5_path = h5.path_for(self.storage_path, TimeSeriesVolumeH5, time_series.gid)
         nifti_data = self.parser.parse()
-        time_series.data = nifti_data
         with TimeSeriesVolumeH5(ts_h5_path) as ts_h5:
             ts_h5.store(time_series, scalars_only=True, store_references=True)
             for i in range(self.parser.time_dim_size):

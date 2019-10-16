@@ -33,16 +33,10 @@
 """
 
 import os
-from cherrypy._cpreqbody import Part
-from cherrypy.lib.httputil import HeaderMap
-from tvb.core.entities.model.datatypes.sensors import SensorsIndex
-from tvb.core.neocom.h5 import h5_file_for_index
+from tvb.core.neocom import h5
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.exceptions import OperationException
-from tvb.core.services.flow_service import FlowService
-from tvb.core.adapters.abcadapter import ABCAdapter
-from tvb.datatypes.sensors import SensorsEEG, SensorsMEG, SensorsInternal
 from tvb.adapters.uploaders.sensors_importer import SensorsImporter, SensorsImporterForm
 from tvb.tests.framework.core.factory import TestFactory
 import tvb_data.sensors as demo_data
@@ -79,10 +73,7 @@ class TestSensorsImporter(TransactionalTestCase):
         expected_size = 62
         assert expected_size == eeg_sensors_index.number_of_sensors
 
-        sensors_h5_file = h5_file_for_index(eeg_sensors_index)
-        eeg_sensors = SensorsInternal()
-        sensors_h5_file.load_into(eeg_sensors)
-        sensors_h5_file.close()
+        eeg_sensors = h5.load_from_index(eeg_sensors_index)
 
         assert expected_size == len(eeg_sensors.labels)
         assert expected_size == len(eeg_sensors.locations)
@@ -97,10 +88,7 @@ class TestSensorsImporter(TransactionalTestCase):
         expected_size = 151
         assert expected_size == meg_sensors_index.number_of_sensors
 
-        sensors_h5_file = h5_file_for_index(meg_sensors_index)
-        meg_sensors = SensorsInternal()
-        sensors_h5_file.load_into(meg_sensors)
-        sensors_h5_file.close()
+        meg_sensors = h5.load_from_index(meg_sensors_index)
 
         assert expected_size == len(meg_sensors.labels)
         assert expected_size == len(meg_sensors.locations)
@@ -129,10 +117,7 @@ class TestSensorsImporter(TransactionalTestCase):
         expected_size = 62
         assert expected_size == internal_sensors_index.number_of_sensors
 
-        sensors_h5_file = h5_file_for_index(internal_sensors_index)
-        internal_sensors = SensorsInternal()
-        sensors_h5_file.load_into(internal_sensors)
-        sensors_h5_file.close()
+        internal_sensors = h5.load_from_index(internal_sensors_index)
 
         assert expected_size == len(internal_sensors.labels)
         assert expected_size == len(internal_sensors.locations)

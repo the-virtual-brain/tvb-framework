@@ -31,19 +31,19 @@
 """
 .. moduleauthor:: Calin Pavel <calin.pavel@codemart.ro>
 """
-
+import pytest
 import tvb_data.surfaceData
 import os
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
-from tvb.datatypes.region_mapping import RegionMapping
+from tvb.basic.exceptions import TVBException
 from tvb.datatypes.surfaces import CORTICAL
 from tvb.adapters.uploaders.region_mapping_importer import RegionMappingImporterForm
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
 from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.core.neocom.h5 import h5_file_for_index
+from tvb.core.neocom import h5
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 import tvb_data.regionMapping as demo_data
 import tvb.tests.framework.adapters.uploaders.test_data as test_data
@@ -115,9 +115,6 @@ class TestRegionMappingImporter(TransactionalTestCase):
         # Launch import Operation
         FlowService().fire_operation(importer, self.test_user, self.test_project.id, **form.get_dict())
 
-        # During setup we import a CFF which creates an additional RegionMapping
-        # So, here we have to find our mapping (just imported)
-        data_filter = FilterChain(fields=[FilterChain.datatype + ".subject"], operations=["=="], values=[test_subject])
         region_mapping = TestFactory.get_entity(self.test_project, RegionMappingIndex)
 
         return region_mapping
@@ -170,10 +167,7 @@ class TestRegionMappingImporter(TransactionalTestCase):
         connectivity_index = ABCAdapter.load_entity_by_gid(region_mapping_index.connectivity_gid)
         assert connectivity_index is not None
 
-        region_mapping_h5_file = h5_file_for_index(region_mapping_index)
-        region_mapping = RegionMapping()
-        region_mapping_h5_file.load_into(region_mapping)
-        region_mapping_h5_file.close()
+        region_mapping = h5.load_from_index(region_mapping_index)
 
         array_data = region_mapping.array_data
         assert array_data is not None

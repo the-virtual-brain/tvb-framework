@@ -44,8 +44,10 @@ import tvb_data
 from hashlib import md5
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
-from tvb.datatypes.surfaces import OUTER_SKULL
+from tvb.datatypes.surfaces import CorticalSurface
 
+from tvb.adapters.uploaders.gifti.parser import OPTION_READ_METADATA
+from tvb.adapters.uploaders.gifti_surface_importer import GIFTISurfaceImporterForm
 from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporterForm
 from tvb.adapters.uploaders.sensors_importer import SensorsImporterForm
 from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporterForm
@@ -231,6 +233,39 @@ class TestFactory(object):
         import_service = ImportService()
         import_service.import_project_structure(project_path, admin_user.id)
         return import_service.created_projects[0]
+
+    @staticmethod
+    def import_surface_gifti(user, project, path):
+        """
+        This method is used for importing data in GIFIT format
+        :param import_file_path: absolute path of the file to be imported
+        """
+
+        ### Retrieve Adapter instance
+        importer = TestFactory.create_adapter('tvb.adapters.uploaders.gifti_surface_importer', 'GIFTISurfaceImporter')
+
+        form = GIFTISurfaceImporterForm()
+        form.fill_from_post({'_file_type': OPTION_READ_METADATA,
+                             '_data_file': Part(path, HeaderMap({}), ''),
+                             '_data_file_part2': Part('', HeaderMap({}), ''),
+                             '_should_center': 'False',
+                             '_Data_Subject': 'John Doe',
+                            })
+        form.data_file.data = path
+        importer.submit_form(form)
+
+        ### Launch import Operation
+        FlowService().fire_operation(importer, user, project.id, **form.get_form_values())
+
+        surface = CorticalSurface
+        data_types = FlowService().get_available_datatypes(project.id,
+                                                           surface.__module__ + "." + surface.__name__)[0]
+        assert 1, len(data_types) == "Project should contain only one data type."
+
+        surface = ABCAdapter.load_entity_by_gid(data_types[0][2])
+        assert surface is not None == "TimeSeries should not be none"
+
+        return surface
 
     @staticmethod
     def import_surface_zip(user, project, zip_path, surface_type, zero_based='True'):

@@ -68,6 +68,12 @@ class StoreAdapter(ABCAdapter):
         """
         return 0
 
+    def get_input_tree(self):
+        """
+        Describes inputs and outputs of the launch method.
+        """
+        return None
+
     def get_output(self):
         """
         Describes the outputs of the launch method.

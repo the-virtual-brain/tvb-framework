@@ -35,8 +35,7 @@
 
 import os
 import nibabel
-import numpy as np
-from nibabel.gifti import giftiio
+import numpy
 from nibabel.nifti1 import intent_codes, data_type_codes
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException
@@ -125,8 +124,8 @@ class GIFTIParser(object):
         if data_arrays_part2 is not None:
             # offset the indices
             offset = len(vertices)
-            vertices = np.vstack([vertices, data_arrays_part2[0].data])
-            triangles = np.vstack([triangles, offset + data_arrays_part2[1].data])
+            vertices = numpy.vstack([vertices, data_arrays_part2[0].data])
+            triangles = numpy.vstack([triangles, offset + data_arrays_part2[1].data])
 
         if should_center:
             vertices = center_vertices(vertices)
@@ -134,7 +133,7 @@ class GIFTIParser(object):
         # set hemisphere mask if cortex
         if isinstance(surface, CorticalSurface):
             # if there was a 2nd file then len(vertices) != vertices_in_lh
-            surface.hemisphere_mask = np.zeros(len(vertices), dtype=np.bool)
+            surface.hemisphere_mask = numpy.zeros(len(vertices), dtype=numpy.bool)
             surface.hemisphere_mask[vertices_in_lh:] = 1
 
         surface.vertices = vertices

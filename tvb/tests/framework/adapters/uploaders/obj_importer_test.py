@@ -33,11 +33,11 @@
 """
 
 import os
-from tvb.core.neocom.h5 import h5_file_for_index
+from tvb.core.neocom import h5
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory
 from tvb.core.entities.file.files_helper import FilesHelper
-from tvb.datatypes.surfaces import FaceSurface, Surface
+from tvb.datatypes.surfaces import FaceSurface
 import tvb_data.obj
 
 
@@ -46,7 +46,7 @@ class TestObjSurfaceImporter(TransactionalTestCase):
     Unit-tests for Obj Surface importer.
     """
 
-    torus = os.path.join(os.path.dirname(tvb_data.__file__), 'test_torus.obj')
+    torus = os.path.join(os.path.dirname(tvb_data.obj.__file__), 'test_torus.obj')
     face = os.path.join(os.path.dirname(tvb_data.obj.__file__), 'face_surface.obj')
 
     def transactional_setup_method(self):
@@ -62,10 +62,7 @@ class TestObjSurfaceImporter(TransactionalTestCase):
         """
         surface_index = TestFactory.import_surface_obj(self.test_user, self.test_project, self.face, FaceSurface)
 
-        surface_h5_file = h5_file_for_index(surface_index)
-        surface = Surface()
-        surface_h5_file.load_into(surface)
-        surface_h5_file.close()
+        surface = h5.load_from_index(surface_index)
 
         assert 8614 == len(surface.vertex_normals)
         assert 8614 == len(surface.vertices)
@@ -79,9 +76,6 @@ class TestObjSurfaceImporter(TransactionalTestCase):
         assert 441 == surface_index.number_of_vertices
         assert 800 == surface_index.number_of_triangles
 
-        surface_h5_file = h5_file_for_index(surface_index)
-        surface = Surface()
-        surface_h5_file.load_into(surface)
-        surface_h5_file.close()
+        surface = h5.load_from_index(surface_index)
 
         assert 441 == len(surface.vertex_normals)

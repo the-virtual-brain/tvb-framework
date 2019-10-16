@@ -155,8 +155,8 @@ class ImportExportProjectWithLinksTest(_BaseLinksTest):
         2 links from src to dest project
         Import/export services
         """
-        # self.clean_database(delete_folders=True)
-        # self._initialize_two_projects()
+        self.clean_database(delete_folders=True)
+        self._initialize_two_projects()
 
         dest_id = self.dest_project.id
         self.flow_service.create_link([self.red_datatype.id], dest_id)

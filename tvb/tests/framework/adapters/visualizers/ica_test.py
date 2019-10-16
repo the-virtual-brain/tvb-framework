@@ -32,13 +32,14 @@
 .. moduleauthor:: Bogdan Neacsa <bogdan.neacsa@codemart.ro>
 """
 import pytest
-
+import os
+import tvb_data
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.visualizers.ica import ICA
-from tvb.datatypes.connectivity import Connectivity
 from tvb.tests.framework.core.factory import TestFactory
+
 
 class TestICA(TransactionalTestCase):
     """
@@ -57,7 +58,8 @@ class TestICA(TransactionalTestCase):
             self.test_project = datatype_factory['project']
             self.test_user = datatype_factory['user']
 
-            TestFactory.import_cff(test_user=self.test_user, test_project=self.test_project)
+            zip_path = os.path.join(os.path.dirname(tvb_data.__file__), 'connectivity', 'connectivity_66.zip')
+            TestFactory.import_zip_connectivity(self.test_user, self.test_project, zip_path);
             self.connectivity = TestFactory.get_entity(self.test_project, ConnectivityIndex())
             assert self.connectivity is not None
 

@@ -37,10 +37,9 @@ import tvb_data
 from os import path
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
-from tvb.datatypes.connectivity import Connectivity
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
-from tvb.core.neocom.h5 import h5_file_for_index
+from tvb.core.neocom import h5
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase, BaseTestCase
 from tvb.adapters.uploaders.csv_connectivity_importer import CSVConnectivityParser, CSVConnectivityImporterForm
 from tvb.core.entities.file.files_helper import FilesHelper
@@ -138,15 +137,8 @@ class TestCSVConnectivityImporter(TransactionalTestCase):
         assert reference_connectivity_index.number_of_regions == imported_connectivity_index.number_of_regions
         assert not reference_connectivity_index.number_of_connections == imported_connectivity_index.number_of_connections
 
-        connectivity_h5_reference_file = h5_file_for_index(reference_connectivity_index)
-        reference_connectivity = Connectivity()
-        connectivity_h5_reference_file.load_into(reference_connectivity)
-        connectivity_h5_reference_file.close()
-
-        connectivity_h5_imported_file = h5_file_for_index(imported_connectivity_index)
-        imported_connectivity = Connectivity()
-        connectivity_h5_imported_file.load_into(imported_connectivity)
-        connectivity_h5_imported_file.close()
+        reference_connectivity = h5.load_from_index(reference_connectivity_index)
+        imported_connectivity = h5.load_from_index(imported_connectivity_index)
 
         assert not (reference_connectivity.weights == imported_connectivity.weights).all()
         assert not (reference_connectivity.tract_lengths == imported_connectivity.tract_lengths).all()
