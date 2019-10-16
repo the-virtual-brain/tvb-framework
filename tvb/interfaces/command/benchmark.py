@@ -134,8 +134,8 @@ class Bench(object):
                     for dt in self.int_dts:
                         for conduction in self.conductions:
                             timestr = str(self.running_times[i])[2:-5]
-                            print(self.FS % (model_kw['model'], length, conn.number_of_regions,
-                                             conduction, dt, timestr))
+                            print(self.FS % (model_kw['model'].__class__.__name__, length,
+                                             conn.number_of_regions, conduction, dt, timestr))
                             print(self.LINE)
                             i += 1
 
