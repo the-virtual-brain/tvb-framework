@@ -36,7 +36,6 @@ import os
 import tvb_data
 import numpy
 import json
-from tvb.datatypes.mapped_values import DatatypeMeasure
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.config.init.introspector_registry import IntrospectionRegistry
 from tvb.core.entities import model

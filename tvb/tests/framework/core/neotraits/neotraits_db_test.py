@@ -39,30 +39,30 @@ from tvb.core.entities.model.datatypes.surface import SurfaceIndex
 from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
 
 
-def test_store_load_region_mapping(session, connectivityFactory, surfaceFactory, regionMappingFactory, sensorsFactory):
-    connectivity = connectivityFactory(2)
+def test_store_load_region_mapping(session, connectivity_factory, surface_factory, region_mapping_factory, sensors_factory):
+    connectivity = connectivity_factory(2)
     conn_idx = ConnectivityIndex()
     conn_idx.fill_from_has_traits(connectivity)
     session.add(conn_idx)
 
-    surface = surfaceFactory(5)
+    surface = surface_factory(5)
     surf_idx = SurfaceIndex()
     surf_idx.fill_from_has_traits(surface)
     session.add(surf_idx)
 
-    region_mapping = regionMappingFactory(surface, connectivity)
+    region_mapping = region_mapping_factory(surface, connectivity)
     rm_idx = RegionMappingIndex()
     rm_idx.fill_from_has_traits(region_mapping)
     rm_idx.connectivity = conn_idx
     rm_idx.surface = surf_idx
     session.add(rm_idx)
 
-    sensors = sensorsFactory("SEEG", 3)
+    sensors = sensors_factory("SEEG", 3)
     sensors_seeg_idx = SensorsIndex()
     sensors_seeg_idx.fill_from_has_traits(sensors)
     session.add(sensors_seeg_idx)
 
-    sensors_eeg = sensorsFactory("EEG", 3)
+    sensors_eeg = sensors_factory("EEG", 3)
     sensors_eeg_idx = SensorsIndex()
     sensors_eeg_idx.fill_from_has_traits(sensors_eeg)
     session.add(sensors_eeg_idx)

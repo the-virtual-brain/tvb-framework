@@ -39,7 +39,6 @@ from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.adapters.visualizers.cross_correlation import CrossCorrelationVisualizer
 from tvb.datatypes.connectivity import Connectivity
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.tests.framework.datatypes.datatypes_factory import DatatypesFactory
 
 
 class TestCrossCorrelationViewer(TransactionalTestCase):
