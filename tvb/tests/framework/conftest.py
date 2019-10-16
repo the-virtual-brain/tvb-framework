@@ -38,8 +38,8 @@ from tvb.datatypes.graph import Covariance
 from tvb.datatypes.time_series import TimeSeries
 
 from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesH5
-from tvb.core.entities.model.datatypes.graph import CovarianceIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.adapters.datatypes.db.graph import CovarianceIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesIndex
 from tvb.core.entities.model.model_operation import STATUS_FINISHED, Operation
 from tvb.core.entities.model.model_project import User, Project
 from tvb.core.entities.storage import dao

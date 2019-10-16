@@ -45,8 +45,8 @@ from tvb.datatypes.graph import Covariance
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.adapters.datatypes.h5.graph_h5 import CovarianceH5
-from tvb.core.entities.model.datatypes.graph import CovarianceIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.adapters.datatypes.db.graph import CovarianceIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesIndex
 from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.core.neocom import h5
 

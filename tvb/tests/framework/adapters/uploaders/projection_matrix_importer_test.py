@@ -38,9 +38,9 @@ from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.adapters.uploaders.projection_matrix_importer import ProjectionMatrixImporterForm
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
-from tvb.core.entities.model.datatypes.sensors import SensorsIndex
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
+from tvb.adapters.datatypes.db.projections import ProjectionMatrixIndex
+from tvb.adapters.datatypes.db.sensors import SensorsIndex
+from tvb.adapters.datatypes.db.surface import SurfaceIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 import tvb_data.sensors
 import tvb_data.surfaceData

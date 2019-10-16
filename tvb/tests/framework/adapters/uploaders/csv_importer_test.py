@@ -38,7 +38,7 @@ from os import path
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
+from tvb.adapters.datatypes.db.connectivity import ConnectivityIndex
 from tvb.core.neocom import h5
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase, BaseTestCase
 from tvb.adapters.uploaders.csv_connectivity_importer import CSVConnectivityParser, CSVConnectivityImporterForm

@@ -39,10 +39,10 @@ import tvb_data
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.adapters.uploaders.nifti_importer import NIFTIImporterForm
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
-from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
-from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesVolumeIndex
+from tvb.adapters.datatypes.db.connectivity import ConnectivityIndex
+from tvb.adapters.datatypes.db.region_mapping import RegionVolumeMappingIndex
+from tvb.adapters.datatypes.db.structural import StructuralMRIIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesVolumeIndex
 from tvb.core.neocom import h5
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.tests.framework.core.factory import TestFactory

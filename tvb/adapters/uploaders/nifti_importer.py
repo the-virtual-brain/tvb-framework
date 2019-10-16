@@ -45,11 +45,11 @@ from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesVolumeH5
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
-from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex
-from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesVolumeIndex
-from tvb.core.entities.model.datatypes.volume import VolumeIndex
+from tvb.adapters.datatypes.db.connectivity import ConnectivityIndex
+from tvb.adapters.datatypes.db.region_mapping import RegionVolumeMappingIndex
+from tvb.adapters.datatypes.db.structural import StructuralMRIIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesVolumeIndex
+from tvb.adapters.datatypes.db.volume import VolumeIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.neotraits.forms import UploadField, SimpleBoolField, DataTypeSelectField
 from tvb.core.neotraits.db import prepare_array_shape_meta

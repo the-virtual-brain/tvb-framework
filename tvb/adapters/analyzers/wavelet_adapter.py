@@ -46,8 +46,8 @@ from tvb.core.adapters.abcadapter import ABCAsynchronous, ABCAdapterForm
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.adapters.datatypes.h5.spectral_h5 import WaveletCoefficientsH5
-from tvb.core.entities.model.datatypes.spectral import WaveletCoefficientsIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.adapters.datatypes.db.spectral import WaveletCoefficientsIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesIndex
 from tvb.core.neotraits.forms import DataTypeSelectField, ScalarField, FormField, Form, SimpleFloatField
 from tvb.core.neotraits.db import from_ndarray
 from tvb.core.neocom import h5

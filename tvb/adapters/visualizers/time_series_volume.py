@@ -44,8 +44,8 @@ from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.arguments_serialisation import preprocess_space_parameters, postprocess_voxel_ts
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesVolumeH5, TimeSeriesRegionH5
-from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.adapters.datatypes.db.structural import StructuralMRIIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesIndex
 from tvb.core.entities.storage import dao
 from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.core.utils import prepare_time_slice

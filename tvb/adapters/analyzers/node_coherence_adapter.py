@@ -43,8 +43,8 @@ from tvb.datatypes.time_series import TimeSeries
 from tvb.core.entities.filters.chain import FilterChain
 from tvb.basic.logger.builder import get_logger
 from tvb.adapters.datatypes.h5.spectral_h5 import CoherenceSpectrumH5
-from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.adapters.datatypes.db.spectral import CoherenceSpectrumIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesIndex
 from tvb.core.neotraits.forms import ScalarField, DataTypeSelectField
 from tvb.core.neocom import h5
 

@@ -37,8 +37,8 @@ from tvb.core.adapters.abcuploader import ABCUploader, ABCUploaderForm
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.exceptions import ParseException, LaunchException
 from tvb.adapters.datatypes.h5.graph_h5 import ConnectivityMeasureH5
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
-from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
+from tvb.adapters.datatypes.db.connectivity import ConnectivityIndex
+from tvb.adapters.datatypes.db.graph import ConnectivityMeasureIndex
 from tvb.core.entities.storage import transactional
 from tvb.core.neotraits.forms import UploadField, SimpleStrField, DataTypeSelectField
 from tvb.core.neotraits.db import from_ndarray

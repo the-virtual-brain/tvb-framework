@@ -40,7 +40,7 @@ from os import path
 from tvb.simulator.coupling import HyperbolicTangent
 from tvb.simulator.integrators import HeunDeterministic
 from tvb.simulator.models import *
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
+from tvb.adapters.datatypes.db.connectivity import ConnectivityIndex
 from tvb.core.entities.model.model_operation import STATUS_FINISHED
 from tvb.core.entities.storage import dao
 from tvb.core.neocom import h5

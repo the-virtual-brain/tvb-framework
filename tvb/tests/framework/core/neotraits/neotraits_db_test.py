@@ -31,12 +31,12 @@
 import numpy
 from tvb.datatypes.fcd import Fcd
 from tvb.datatypes.time_series import TimeSeries
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
-from tvb.core.entities.model.datatypes.fcd import FcdIndex
-from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
-from tvb.core.entities.model.datatypes.sensors import SensorsIndex
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex
+from tvb.adapters.datatypes.db.connectivity import ConnectivityIndex
+from tvb.adapters.datatypes.db.fcd import FcdIndex
+from tvb.adapters.datatypes.db.region_mapping import RegionMappingIndex
+from tvb.adapters.datatypes.db.sensors import SensorsIndex
+from tvb.adapters.datatypes.db.surface import SurfaceIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesIndex
 
 
 def test_store_load_region_mapping(session, connectivity_factory, surface_factory, region_mapping_factory, sensors_factory):

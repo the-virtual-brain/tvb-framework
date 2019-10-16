@@ -39,12 +39,12 @@ import tvb_data
 from cherrypy._cpreqbody import Part
 from cherrypy.lib.httputil import HeaderMap
 from tvb.adapters.uploaders.mat_timeseries_importer import RegionMatTimeSeriesImporterForm
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
+from tvb.adapters.datatypes.db.connectivity import ConnectivityIndex
 from tvb.tests.framework.core.base_testcase import TransactionalTestCase
 from tvb.core.entities.file.files_helper import FilesHelper
 from tvb.core.services.flow_service import FlowService
 from tvb.tests.framework.core.factory import TestFactory
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesRegionIndex
 
 
 class TestMatTimeSeriesImporter(TransactionalTestCase):

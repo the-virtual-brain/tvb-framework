@@ -51,9 +51,9 @@ from tvb.core.adapters.exceptions import LaunchException
 from tvb.adapters.datatypes.h5.fcd_h5 import FcdH5
 from tvb.adapters.datatypes.h5.graph_h5 import ConnectivityMeasureH5
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.core.entities.model.datatypes.fcd import FcdIndex
-from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesRegionIndex
+from tvb.adapters.datatypes.db.fcd import FcdIndex
+from tvb.adapters.datatypes.db.graph import ConnectivityMeasureIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesRegionIndex
 from tvb.core.neotraits.forms import DataTypeSelectField, ScalarField
 from tvb.core.neocom import h5
 from tvb.datatypes.fcd import Fcd

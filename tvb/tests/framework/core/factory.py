@@ -52,8 +52,8 @@ from tvb.adapters.uploaders.obj_importer import ObjSurfaceImporterForm
 from tvb.adapters.uploaders.sensors_importer import SensorsImporterForm
 from tvb.adapters.uploaders.zip_connectivity_importer import ZIPConnectivityImporterForm
 from tvb.adapters.uploaders.zip_surface_importer import ZIPSurfaceImporterForm
-from tvb.core.entities.model.datatypes.sensors import SensorsIndex
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
+from tvb.adapters.datatypes.db.sensors import SensorsIndex
+from tvb.adapters.datatypes.db.surface import SurfaceIndex
 from tvb.core.entities.model.model_operation import *
 from tvb.core.entities.model.model_workflow import *
 from tvb.core.entities.storage import dao

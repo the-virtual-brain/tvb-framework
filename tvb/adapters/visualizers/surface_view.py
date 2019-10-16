@@ -40,9 +40,9 @@ from tvb.adapters.visualizers.time_series import ABCSpaceDisplayer
 from tvb.basic.logger.builder import get_logger
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.core.adapters.abcdisplayer import URLGenerator
-from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex
-from tvb.core.entities.model.datatypes.region_mapping import RegionMappingIndex
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
+from tvb.adapters.datatypes.db.graph import ConnectivityMeasureIndex
+from tvb.adapters.datatypes.db.region_mapping import RegionMappingIndex
+from tvb.adapters.datatypes.db.surface import SurfaceIndex
 from tvb.core.entities.storage import dao
 from tvb.core.neotraits.forms import DataTypeSelectField
 from tvb.adapters.datatypes.h5.surface_h5 import SPLIT_PICK_MAX_TRIANGLE, KEY_VERTICES, KEY_START, SurfaceH5

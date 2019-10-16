@@ -70,29 +70,29 @@ from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesVolumeH5, TimeSer
 from tvb.adapters.datatypes.h5.time_series_h5 import TimeSeriesSEEGH5
 from tvb.adapters.datatypes.h5.tracts_h5 import TractsH5
 from tvb.adapters.datatypes.h5.volumes_h5 import VolumeH5
-from tvb.core.entities.model.datatypes.annotation import ConnectivityAnnotationsIndex
-from tvb.core.entities.model.datatypes.connectivity import ConnectivityIndex
-from tvb.core.entities.model.datatypes.fcd import FcdIndex
-from tvb.core.entities.model.datatypes.graph import ConnectivityMeasureIndex, CorrelationCoefficientsIndex
-from tvb.core.entities.model.datatypes.graph import CovarianceIndex
-from tvb.core.entities.model.datatypes.local_connectivity import LocalConnectivityIndex
-from tvb.core.entities.model.datatypes.mapped_value import DatatypeMeasureIndex, ValueWrapperIndex
-from tvb.core.entities.model.datatypes.mode_decompositions import PrincipalComponentsIndex, IndependentComponentsIndex
-from tvb.core.entities.model.datatypes.patterns import StimuliRegionIndex, StimuliSurfaceIndex
-from tvb.core.entities.model.datatypes.projections import ProjectionMatrixIndex
-from tvb.core.entities.model.datatypes.region_mapping import RegionVolumeMappingIndex, RegionMappingIndex
-from tvb.core.entities.model.datatypes.sensors import SensorsIndex
-from tvb.core.entities.model.datatypes.simulation_state import SimulationStateIndex
-from tvb.core.entities.model.datatypes.spectral import CoherenceSpectrumIndex, ComplexCoherenceSpectrumIndex
-from tvb.core.entities.model.datatypes.spectral import FourierSpectrumIndex, WaveletCoefficientsIndex
-from tvb.core.entities.model.datatypes.structural import StructuralMRIIndex
-from tvb.core.entities.model.datatypes.surface import SurfaceIndex
-from tvb.core.entities.model.datatypes.temporal_correlations import CrossCorrelationIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesIndex, TimeSeriesRegionIndex, TimeSeriesSurfaceIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesVolumeIndex, TimeSeriesEEGIndex, TimeSeriesMEGIndex
-from tvb.core.entities.model.datatypes.time_series import TimeSeriesSEEGIndex
-from tvb.core.entities.model.datatypes.tracts import TractsIndex
-from tvb.core.entities.model.datatypes.volume import VolumeIndex
+from tvb.adapters.datatypes.db.annotation import ConnectivityAnnotationsIndex
+from tvb.adapters.datatypes.db.connectivity import ConnectivityIndex
+from tvb.adapters.datatypes.db.fcd import FcdIndex
+from tvb.adapters.datatypes.db.graph import ConnectivityMeasureIndex, CorrelationCoefficientsIndex
+from tvb.adapters.datatypes.db.graph import CovarianceIndex
+from tvb.adapters.datatypes.db.local_connectivity import LocalConnectivityIndex
+from tvb.adapters.datatypes.db.mapped_value import DatatypeMeasureIndex, ValueWrapperIndex
+from tvb.adapters.datatypes.db.mode_decompositions import PrincipalComponentsIndex, IndependentComponentsIndex
+from tvb.adapters.datatypes.db.patterns import StimuliRegionIndex, StimuliSurfaceIndex
+from tvb.adapters.datatypes.db.projections import ProjectionMatrixIndex
+from tvb.adapters.datatypes.db.region_mapping import RegionVolumeMappingIndex, RegionMappingIndex
+from tvb.adapters.datatypes.db.sensors import SensorsIndex
+from tvb.adapters.datatypes.db.simulation_state import SimulationStateIndex
+from tvb.adapters.datatypes.db.spectral import CoherenceSpectrumIndex, ComplexCoherenceSpectrumIndex
+from tvb.adapters.datatypes.db.spectral import FourierSpectrumIndex, WaveletCoefficientsIndex
+from tvb.adapters.datatypes.db.structural import StructuralMRIIndex
+from tvb.adapters.datatypes.db.surface import SurfaceIndex
+from tvb.adapters.datatypes.db.temporal_correlations import CrossCorrelationIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesIndex, TimeSeriesRegionIndex, TimeSeriesSurfaceIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesVolumeIndex, TimeSeriesEEGIndex, TimeSeriesMEGIndex
+from tvb.adapters.datatypes.db.time_series import TimeSeriesSEEGIndex
+from tvb.adapters.datatypes.db.tracts import TractsIndex
+from tvb.adapters.datatypes.db.volume import VolumeIndex
 
 from tvb.core.neocom.h5 import REGISTRY
 
