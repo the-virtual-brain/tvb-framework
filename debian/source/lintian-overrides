@@ -1,0 +1,9 @@
+tvb-framework source: debian-watch-does-not-check-gpg-signature
+
+# Source is present in there places
+tvb-framework source: source-is-missing
+
+# This is not a minified JS file and might contain long lines
+tvb-framework source: insane-line-length-in-source-file
+tvb-framework source: source-contains-prebuilt-javascript-object
+tvb-framework source: embedded-javascript-library

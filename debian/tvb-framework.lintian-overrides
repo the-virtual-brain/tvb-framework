@@ -1,0 +1,8 @@
+# Is Ok for the duplicate fonts
+tvb-framework: duplicate-font-file
+tvb-framework: embedded-javascript-library
+tvb-framework: executable-not-elf-or-script
+tvb-framework: privacy-breach-generic
+tvb-framework: image-file-in-usr-lib
+tvb-framework: no-upstream-changelog
+tvb-framework: dependency-on-python-version-marked-for-end-of-life
